@@ -30,6 +30,7 @@ public partial class frmPOSHeldOrders : Form
     /// محاكاة حالة السلة الحالية في شاشة POS — عند الربط الحقيقي تُقرأ من frmPOS.
     /// true = السلة تحتوي أصنافاً (يظهر تحذير قبل استبدالها بالفاتورة المعلقة).
     /// </summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool CartHasItems { get; set; } = true;
 
     public frmPOSHeldOrders(IServiceProvider serviceProvider)
