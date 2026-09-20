@@ -435,7 +435,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             dgvLines.GridColor = Color.FromArgb(222, 226, 230);
             dgvLines.MultiSelect = false;
             dgvLines.RightToLeft = RightToLeft.Yes;
-            dgvLines.RightToLeftHeaders = true;
             dgvLines.RowHeadersVisible = false;
             dgvLines.RowTemplate.Height = 34;
             dgvLines.ScrollBars = ScrollBars.Both;

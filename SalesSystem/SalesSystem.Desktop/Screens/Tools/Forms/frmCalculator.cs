@@ -155,13 +155,10 @@ public partial class frmCalculator : Form
             case Keys.NumPad9: DigitPress("9"); e.Handled = true; e.SuppressKeyPress = true; break;
             case Keys.OemPeriod:
             case Keys.Decimal: Dot_Click(null, EventArgs.Empty); e.Handled = true; e.SuppressKeyPress = true; break;
-            case Keys.OemPlus:
             case Keys.Add: OperatorPress("+"); e.Handled = true; e.SuppressKeyPress = true; break;
             case Keys.OemMinus:
             case Keys.Subtract: OperatorPress("−"); e.Handled = true; e.SuppressKeyPress = true; break;
-            case Keys.OemMultiply:
             case Keys.Multiply: OperatorPress("×"); e.Handled = true; e.SuppressKeyPress = true; break;
-            case Keys.OemDivide:
             case Keys.Divide: OperatorPress("÷"); e.Handled = true; e.SuppressKeyPress = true; break;
             case Keys.Enter: Equals_Click(null, EventArgs.Empty); e.Handled = true; e.SuppressKeyPress = true; break;
             case Keys.Back: Backspace_Click(null, EventArgs.Empty); e.Handled = true; e.SuppressKeyPress = true; break;
