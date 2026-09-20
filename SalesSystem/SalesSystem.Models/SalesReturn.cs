@@ -1,0 +1,207 @@
+﻿using SalesSystem.Common;
+using SalesSystem.Common.Enums;
+using SalesSystem.Common.Exceptions;
+
+namespace SalesSystem.Models;
+
+/// <summary>
+/// A single line in a sales return — links back to the original invoice line.
+/// Schema 6.4: SalesReturnLines. Columns: SalesReturnId FK, SalesInvoiceLineId FK (NOT null),
+/// Quantity decimal(18,3), Amount decimal(18,2), CostInBaseCurrency decimal(18,2) NULL.
+/// </summary>
+public class SalesReturnLine : Entity
+{
+    public int SalesReturnId { get; private set; }
+    public int SalesInvoiceLineId { get; private set; }
+    public decimal Quantity { get; private set; }
+    public decimal Amount { get; private set; }
+    public decimal? CostInBaseCurrency { get; private set; }
+
+    // Navigation properties
+    public virtual SalesReturn? SalesReturn { get; private set; }
+    public virtual SalesInvoiceLine? SalesInvoiceLine { get; private set; }
+
+    private SalesReturnLine() { } // EF Core
+
+    public static SalesReturnLine Create(int salesInvoiceLineId, decimal quantity, decimal amount, decimal? costInBaseCurrency = null)
+    {
+        if (salesInvoiceLineId <= 0)
+            throw new DomainException("رقم بند الفاتورة الأصلي مطلوب.");
+        if (quantity <= 0)
+            throw new DomainException("الكمية يجب أن تكون أكبر من الصفر.");
+        if (amount < 0)
+            throw new DomainException("المبلغ لا يمكن أن يكون سالباً.");
+
+        return new SalesReturnLine
+        {
+            SalesInvoiceLineId = salesInvoiceLineId,
+            Quantity = quantity,
+            Amount = amount,
+            CostInBaseCurrency = costInBaseCurrency
+        };
+    }
+}
+
+/// <summary>
+/// Represents a sales return (return of goods from a customer).
+/// Schema 6.3: SalesReturns. Status: Draft=1, Posted=2, Cancelled=3.
+/// </summary>
+public class SalesReturn : DocumentEntity
+{
+    public int ReturnNo { get; private set; }
+    public DateTime ReturnDate { get; private set; }
+    public int SalesInvoiceId { get; private set; }
+    public int CustomerId { get; private set; }
+    public short WarehouseId { get; private set; }
+    public decimal TotalAmount { get; private set; }
+    public decimal ReturnedDiscountAmount { get; private set; }
+    public decimal ReturnedTaxAmount { get; private set; }
+    public decimal ReturnedChargeAmount { get; private set; }
+    public decimal RefundAmount { get; private set; }
+    /// <summary>
+    /// القيمة المكافئة بالعملة الأساسية (TotalAmount × ExchangeRate)
+    /// </summary>
+    public decimal? BaseNetTotal { get; private set; }
+    public short? TaxId { get; private set; }
+    public string? ReturnReason { get; private set; }
+    public string? Notes { get; private set; }
+    public InvoiceStatus Status { get; private set; }
+
+    /// <summary>
+    /// Branch identifier for multi-branch support (smallint FK).
+    /// </summary>
+    public short BranchId { get; private set; }
+
+    // Navigation properties
+    public virtual SalesInvoice? SalesInvoice { get; private set; }
+    public virtual Customer? Customer { get; private set; }
+    public virtual Warehouse? Warehouse { get; private set; }
+    /// <summary>
+    /// Navigation property to the Branch this return belongs to.
+    /// </summary>
+    public virtual Branch? Branch { get; private set; }
+    private readonly List<SalesReturnLine> _lines = new();
+    public IReadOnlyCollection<SalesReturnLine> Lines => _lines.AsReadOnly();
+
+    private SalesReturn() { } // EF Core
+
+    public static SalesReturn Create(
+        short branchId,
+        int returnNo,
+        int salesInvoiceId,
+        int customerId,
+        short warehouseId,
+        DateTime? returnDate = null,
+        string? notes = null,
+        string? returnReason = null,
+        decimal? baseNetTotal = null,
+        int? createdByUserId = null)
+    {
+        if (branchId <= 0)
+            throw new DomainException("الفرع مطلوب.");
+        if (returnNo <= 0)
+            throw new DomainException("رقم الإرجاع مطلوب.");
+        if (salesInvoiceId <= 0)
+            throw new DomainException("فاتورة المبيعات الأصلية مطلوبة.");
+        if (customerId <= 0)
+            throw new DomainException("العميل مطلوب.");
+        if (warehouseId <= 0)
+            throw new DomainException("المستودع مطلوب.");
+
+        var sr = new SalesReturn
+        {
+            BranchId = branchId,
+            ReturnNo = returnNo,
+            SalesInvoiceId = salesInvoiceId,
+            CustomerId = customerId,
+            WarehouseId = warehouseId,
+            ReturnDate = returnDate ?? DateTime.UtcNow,
+            ReturnReason = returnReason?.Trim(),
+            Notes = notes,
+            BaseNetTotal = baseNetTotal,
+            Status = InvoiceStatus.Draft
+        };
+        sr.SetCreatedBy(createdByUserId);
+        return sr;
+    }
+
+    public void AddLine(SalesReturnLine line)
+    {
+        if (line == null)
+            throw new DomainException("صنف الإرجاع مطلوب.");
+        if (Status != InvoiceStatus.Draft)
+            throw new DomainException("لا يمكن إضافة أصناف لمرتجع غير مسودة.");
+        _lines.Add(line);
+        RecalculateTotals();
+        UpdateTimestamp();
+    }
+
+    public void RecalculateTotals()
+    {
+        TotalAmount = _lines.Sum(l => l.Amount);
+    }
+
+    /// <summary>
+    /// Sets proportional amounts for discount, tax, and charges based on the original invoice.
+    /// Called by the service layer BEFORE Post() — the service computes the ratio
+    /// from the original invoice's SubTotal, DiscountAmount, TaxAmount, OtherCharges.
+    /// </summary>
+    public void SetProportionalAmounts(decimal discountPortion, decimal taxPortion, decimal chargesPortion, short? taxId)
+    {
+        ReturnedDiscountAmount = discountPortion;
+        ReturnedTaxAmount = taxPortion;
+        ReturnedChargeAmount = chargesPortion;
+        TaxId = taxId;
+    }
+
+    /// <summary>
+    /// Sets the refund amount (total to return to the customer).
+    /// </summary>
+    public void SetRefundAmount(decimal amount)
+    {
+        if (amount < 0)
+            throw new DomainException("مبلغ الاسترداد لا يمكن أن يكون سالباً.");
+        RefundAmount = amount;
+        UpdateTimestamp();
+    }
+
+    /// <summary>
+    /// Sets the return reason.
+    /// </summary>
+    public void SetReturnReason(string? reason)
+    {
+        ReturnReason = reason?.Trim();
+        UpdateTimestamp();
+    }
+
+    /// <summary>
+    /// Sets the base-currency equivalent of TotalAmount (TotalAmount × ExchangeRate).
+    /// </summary>
+    public void SetBaseNetTotal(decimal baseNetTotal)
+    {
+        if (baseNetTotal < 0)
+            throw new DomainException("القيمة بالعملة الأساسية لا يمكن أن تكون سالبة.");
+        BaseNetTotal = baseNetTotal;
+        UpdateTimestamp();
+    }
+
+    public void Post()
+    {
+        if (Status != InvoiceStatus.Draft)
+            throw new DomainException("فقط مرتجعات المبيعات المسودة يمكن ترحيلها.");
+        if (!_lines.Any())
+            throw new DomainException("لا يمكن ترحيل مرتجع بدون أصناف.");
+        PostedAt = DateTime.UtcNow;
+        Status = InvoiceStatus.Posted;
+        UpdateTimestamp();
+    }
+
+    public void Cancel()
+    {
+        if (Status == InvoiceStatus.Cancelled)
+            throw new DomainException("مرتجع المبيعات ملغي بالفعل.");
+        CancelledAt = DateTime.UtcNow;
+        Status = InvoiceStatus.Cancelled;
+        UpdateTimestamp();
+    }
+}

@@ -1,0 +1,219 @@
+﻿namespace SalesSystem.Desktop.Screens.Units.Forms
+{
+    partial class frmListUnits
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        protected override void Dispose(bool disposing)
+        {
+            components?.Dispose();base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+            lblMode = new Label();
+            dgvUnits = new DataGridView();
+            btnAdd = new Button();
+            btnEdit = new Button();
+            btnDelete = new Button();
+            btnClose = new Button();
+            lblRecordsCount = new Label();
+            label1 = new Label();
+            label2 = new Label();
+            cbFilterBy = new ComboBox();
+            txtFilterValue = new TextBox();
+            ((System.ComponentModel.ISupportInitialize)dgvUnits).BeginInit();
+            SuspendLayout();
+
+            // lblMode
+            lblMode.Anchor = AnchorStyles.Top;
+            lblMode.AutoSize = true;
+            lblMode.BackColor = Color.WhiteSmoke;
+            lblMode.FlatStyle = FlatStyle.Flat;
+            lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
+            lblMode.ForeColor = Color.Firebrick;
+            lblMode.Location = new Point(667, 20);
+            lblMode.Name = "lblMode";
+            lblMode.Size = new Size(186, 39);
+            lblMode.TabIndex = 30;
+            lblMode.Text = "إدارة الوحدات";
+
+            // dgvUnits
+            dgvUnits.AllowUserToAddRows = false;
+            dgvUnits.AllowUserToDeleteRows = false;
+            dgvUnits.AllowUserToOrderColumns = true;
+            dgvUnits.BackgroundColor = SystemColors.Window;
+            dgvUnits.BorderStyle = BorderStyle.Fixed3D;
+            dgvUnits.ColumnHeadersHeight = 50;
+            dgvUnits.Location = new Point(12, 160);
+            dgvUnits.MultiSelect = false;
+            dgvUnits.Name = "dgvUnits";
+            dgvUnits.ReadOnly = true;
+            dgvUnits.RowHeadersWidth = 62;
+            dgvUnits.RowTemplate.Height = 28;
+            dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvUnits.Size = new Size(1540, 540);
+            dgvUnits.TabIndex = 34;
+            dgvUnits.TabStop = false;
+            dgvUnits.DoubleClick += dgvUnits_DoubleClick;
+
+            // btnAdd
+            btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAdd.BackColor = Color.White;
+            btnAdd.FlatAppearance.BorderColor = Color.Black;
+            btnAdd.FlatAppearance.BorderSize = 2;
+            btnAdd.FlatStyle = FlatStyle.Popup;
+            btnAdd.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnAdd.Location = new Point(1470, 60);
+            btnAdd.Name = "btnAdd";
+            btnAdd.Size = new Size(75, 75);
+            btnAdd.TabIndex = 5;
+            btnAdd.Text = "+ جديد";
+            btnAdd.UseVisualStyleBackColor = true;
+            btnAdd.Click += btnAdd_Click;
+
+            // btnEdit
+            btnEdit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnEdit.BackColor = Color.White;
+            btnEdit.FlatAppearance.BorderColor = Color.Black;
+            btnEdit.FlatAppearance.BorderSize = 2;
+            btnEdit.FlatStyle = FlatStyle.Popup;
+            btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnEdit.Location = new Point(1380, 60);
+            btnEdit.Name = "btnEdit";
+            btnEdit.Size = new Size(75, 75);
+            btnEdit.TabIndex = 7;
+            btnEdit.Text = "تعديل";
+            btnEdit.UseVisualStyleBackColor = true;
+            btnEdit.Click += btnEdit_Click;
+
+            // btnDelete
+            btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnDelete.BackColor = Color.White;
+            btnDelete.FlatAppearance.BorderColor = Color.Black;
+            btnDelete.FlatAppearance.BorderSize = 2;
+            btnDelete.FlatStyle = FlatStyle.Popup;
+            btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnDelete.ForeColor = Color.Red;
+            btnDelete.Location = new Point(1290, 60);
+            btnDelete.Name = "btnDelete";
+            btnDelete.Size = new Size(75, 75);
+            btnDelete.TabIndex = 8;
+            btnDelete.Text = "حذف";
+            btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += btnDelete_Click;
+
+            // btnClose
+            btnClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnClose.BackColor = Color.White;
+            btnClose.DialogResult = DialogResult.Cancel;
+            btnClose.FlatStyle = FlatStyle.Popup;
+            btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnClose.Location = new Point(12, 710);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(181, 61);
+            btnClose.TabIndex = 0;
+            btnClose.Text = "إغلاق";
+            btnClose.UseVisualStyleBackColor = false;
+            btnClose.Click += btnClose_Click;
+
+            // lblRecordsCount
+            lblRecordsCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            lblRecordsCount.AutoSize = true;
+            lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblRecordsCount.Location = new Point(1380, 720);
+            lblRecordsCount.Name = "lblRecordsCount";
+            lblRecordsCount.Size = new Size(72, 24);
+            lblRecordsCount.TabIndex = 4;
+            lblRecordsCount.Text = "[????]";
+
+            // label1
+            label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            label1.Location = new Point(1220, 720);
+            label1.Name = "label1";
+            label1.Size = new Size(140, 24);
+            label1.TabIndex = 3;
+            label1.Text = "عدد الوحدات:";
+
+            // label2
+            label2.AutoSize = true;
+            label2.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            label2.Location = new Point(21, 115);
+            label2.Name = "label2";
+            label2.Size = new Size(130, 24);
+            label2.TabIndex = 5;
+            label2.Text = "البحث عن طريق:";
+
+            // cbFilterBy
+            cbFilterBy.BackColor = SystemColors.Control;
+            cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbFilterBy.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            cbFilterBy.FormattingEnabled = true;
+            cbFilterBy.Items.AddRange(new object[] { "لا شيئ", "الاسم", "الرمز" });
+            cbFilterBy.Location = new Point(200, 111);
+            cbFilterBy.Name = "cbFilterBy";
+            cbFilterBy.Size = new Size(260, 32);
+            cbFilterBy.TabIndex = 1;
+            cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+
+            // txtFilterValue
+            txtFilterValue.Font = new Font("Tahoma", 10F);
+            txtFilterValue.Location = new Point(470, 111);
+            txtFilterValue.Name = "txtFilterValue";
+            txtFilterValue.Size = new Size(500, 32);
+            txtFilterValue.TabIndex = 2;
+            txtFilterValue.Visible = false;
+            txtFilterValue.TextChanged += txtFilterValue_TextChanged;
+            txtFilterValue.KeyPress += txtFilterValue_KeyPress;
+
+            // frmListUnits
+            AcceptButton = btnAdd;
+            AutoScaleMode = AutoScaleMode.None;
+            BackColor = Color.WhiteSmoke;
+            CancelButton = btnClose;
+            ClientSize = new Size(1564, 783);
+            Controls.Add(lblMode);
+            Controls.Add(dgvUnits);
+            Controls.Add(label2);
+            Controls.Add(cbFilterBy);
+            Controls.Add(txtFilterValue);
+            Controls.Add(label1);
+            Controls.Add(lblRecordsCount);
+            Controls.Add(btnAdd);
+            Controls.Add(btnEdit);
+            Controls.Add(btnDelete);
+            Controls.Add(btnClose);
+            Font = new Font("Tahoma", 12F);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            Name = "frmListUnits";
+            RightToLeft = RightToLeft.Yes;
+            RightToLeftLayout = true;
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "إدارة الوحدات";
+            Load += frmListUnits_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvUnits).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Label lblMode;
+        private System.Windows.Forms.DataGridView dgvUnits;
+        private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Label lblRecordsCount;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cbFilterBy;
+        private System.Windows.Forms.TextBox txtFilterValue;
+    }
+}

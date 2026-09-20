@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../SalesManagement.Busniess/SalesManagement.Busniess.csproj" />
+  <Project Path="../SalesManagement.DataAccess/SalesManagement.DataAccess.csproj" />
+  <Project Path="../SalesSystem.Desktop/SalesSystem.Desktop.csproj" />
+  <Project Path="SalesManagement.csproj" />
+</Solution>

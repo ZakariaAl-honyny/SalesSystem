@@ -1,0 +1,222 @@
+﻿using Microsoft.Extensions.Logging;
+using SalesSystem.Business.Interfaces;
+using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.DTO.Common;
+using SalesSystem.DTO.Requests;
+using SalesSystem.Models;
+using SalesSystem.Common.Exceptions;
+using SalesSystem.DTO.Responses;
+using SalesSystem.Common.Enums;
+
+namespace SalesSystem.Business.Services;
+
+public class ProductUnitService : IProductUnitService
+{
+    private readonly IUnitOfWork _uow;
+    private readonly ILogger<ProductUnitService> _logger;
+
+    public ProductUnitService(IUnitOfWork uow, ILogger<ProductUnitService> logger)
+    {
+        _uow = uow;
+        _logger = logger;
+    }
+
+    public async Task<Result<List<ProductUnitDto>>> GetByProductIdAsync(int productId, CancellationToken ct)
+    {
+        try
+        {
+            var units = await _uow.ProductUnits.ToListAsync(
+                u => u.ProductId == productId,
+                q => q.OrderBy(u => u.IsBaseUnit ? 0 : 1),
+                ct,
+                includePaths: new[] { "Unit" });
+
+            var dtos = units.Select(MapToDto).ToList();
+            return Result<List<ProductUnitDto>>.Success(dtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load units for product {ProductId}", productId);
+            return Result<List<ProductUnitDto>>.Failure("حدث خطأ أثناء تحميل وحدات المنتج.");
+        }
+    }
+
+    public async Task<Result<ProductUnitDto>> AddUnitAsync(int productId, AddProductUnitRequest req, CancellationToken ct)
+    {
+        try
+        {
+            var product = await _uow.Products.FirstOrDefaultAsync(
+                p => p.Id == productId, ct, "Units");
+            if (product == null)
+                return Result<ProductUnitDto>.Failure("المنتج غير موجود", ErrorCodes.NotFound);
+
+            // Phase 28: Prices managed via ProductPrices entity (not on ProductUnit).
+            // Barcodes managed via Product.Barcode column (single source of truth).
+            var unit = req.IsBaseUnit
+                ? ProductUnit.CreateBaseUnit(productId, (short)req.UnitId)
+                : ProductUnit.CreateDerivedUnit(productId, (short)req.UnitId, req.Factor);
+
+            product.AddUnit(unit);
+            await _uow.ProductUnits.AddAsync(unit, ct);
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Unit (UnitId={UnitId}) added to product {ProductId}", req.UnitId, productId);
+
+            // Reload with Unit navigation for DTO mapping
+            var savedUnit = await _uow.ProductUnits.FirstOrDefaultAsync(
+                u => u.Id == unit.Id, ct, "Unit");
+
+            return Result<ProductUnitDto>.Success(MapToDto(savedUnit ?? unit));
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain rule violation while adding unit to product {ProductId}", productId);
+            return Result<ProductUnitDto>.Failure(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid argument while adding unit to product {ProductId}", productId);
+            return Result<ProductUnitDto>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while adding unit to product {ProductId}", productId);
+            return Result<ProductUnitDto>.Failure("حدث خطأ غير متوقع أثناء إضافة الوحدة.");
+        }
+    }
+
+    public async Task<Result<ProductUnitDto>> UpdateUnitAsync(int productId, int unitId, UpdateProductUnitRequest req, CancellationToken ct)
+    {
+        try
+        {
+            var unit = await _uow.ProductUnits.FirstOrDefaultAsync(
+                u => u.Id == unitId && u.ProductId == productId, ct, "Unit");
+            if (unit == null)
+                return Result<ProductUnitDto>.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
+
+            unit.ChangeUnit((short)req.UnitId);
+
+            await _uow.ProductUnits.UpdateAsync(unit, ct);
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Unit {UnitId} updated for product {ProductId} -> UnitId={NewUnitId}", unitId, productId, req.UnitId);
+
+            return Result<ProductUnitDto>.Success(MapToDto(unit));
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain rule violation while updating unit {UnitId}", unitId);
+            return Result<ProductUnitDto>.Failure(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid argument while updating unit {UnitId}", unitId);
+            return Result<ProductUnitDto>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while updating unit {UnitId}", unitId);
+            return Result<ProductUnitDto>.Failure("حدث خطأ غير متوقع أثناء تحديث الوحدة.");
+        }
+    }
+
+    public async Task<Result> DeleteUnitAsync(int productId, int unitId, DeleteStrategy strategy, CancellationToken ct)
+    {
+        if (strategy == DeleteStrategy.Cancel)
+            return Result.Success();
+
+        try
+        {
+            var product = await _uow.Products.FirstOrDefaultAsync(
+                p => p.Id == productId, ct, "Units");
+            if (product == null)
+                return Result.Failure("المنتج غير موجود", ErrorCodes.NotFound);
+
+            var unit = product.Units.FirstOrDefault(u => u.Id == unitId);
+            if (unit == null)
+                return Result.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
+
+            if (product.Units.Count <= 1)
+                return Result.Failure("يجب أن يكون للمنتج وحدة قياس واحدة على الأقل");
+
+            var hasSales = await _uow.SalesInvoiceLines.AnyAsync(i => i.ProductId == productId, ct);
+            if (hasSales)
+                return Result.Failure("لا يمكن حذف الوحدة لأن المنتج مرتبط بعمليات بيع");
+
+            var hasPurchases = await _uow.PurchaseInvoiceLines.AnyAsync(i => i.ProductId == productId, ct);
+            if (hasPurchases)
+                return Result.Failure("لا يمكن حذف الوحدة لأن المنتج مرتبط بعمليات شراء");
+
+            product.RemoveUnit(unit);
+            await _uow.ProductUnits.HardDeleteAsync(unitId, ct);
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Unit {UnitId} deleted from product {ProductId} (strategy: {Strategy})", unitId, productId, strategy);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain rule violation while deleting unit {UnitId}", unitId);
+            return Result.Failure(ex.Message);
+        }
+        catch (Exception ex) when (ex.GetType().Name.Contains("DbUpdate") || ex.GetType().Name.Contains("Sql"))
+        {
+            _logger.LogError(ex, "Failed to permanently delete unit {UnitId} due to database constraint", unitId);
+            return Result.Failure("لا يمكن حذف الوحدة نهائياً. قد تكون مرتبطة ببيانات أخرى في النظام.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while deleting unit {UnitId}", unitId);
+            return Result.Failure("حدث خطأ غير متوقع أثناء حذف الوحدة.");
+        }
+    }
+
+    public async Task<Result<BarcodeResolutionDto>> ResolveBarcodeAsync(string barcode, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(barcode))
+            return Result<BarcodeResolutionDto>.Failure("الباركود مطلوب");
+
+        // Look up by Product.Barcode (primary barcode on the product entity)
+        var product = await _uow.Products.FirstOrDefaultAsync(
+            p => p.Barcode != null && p.Barcode == barcode.Trim(), ct);
+
+        if (product == null)
+        {
+            _logger.LogWarning("Barcode not found: {Barcode}", barcode);
+            return Result<BarcodeResolutionDto>.Failure("الباركود غير موجود", ErrorCodes.NotFound);
+        }
+
+        // Get the base unit for this product
+        var baseUnit = await _uow.ProductUnits.FirstOrDefaultAsync(
+            pu => pu.ProductId == product.Id && pu.IsBaseUnit, ct);
+
+        if (baseUnit == null)
+        {
+            _logger.LogError("Product {ProductId} ({ProductName}) has no base unit configured", product.Id, product.Name);
+            return Result<BarcodeResolutionDto>.Failure("المنتج لا يحتوي على وحدة أساسية");
+        }
+
+        _logger.LogInformation("Barcode resolved: {Barcode} → {ProductName} (ID: {ProductId}, UnitId: {UnitId})",
+            barcode, product.Name, product.Id, baseUnit.Id);
+
+        return Result<BarcodeResolutionDto>.Success(new BarcodeResolutionDto(
+            ProductId: product.Id,
+            ProductName: product.Name,
+            ProductUnitId: baseUnit.Id,
+            UnitId: baseUnit.UnitId,
+            UnitName: baseUnit.Unit?.Name ?? "",
+            ConversionFactor: baseUnit.Factor,
+            Barcode: product.Barcode));
+    }
+
+    private static ProductUnitDto MapToDto(ProductUnit unit)
+    {
+        return new ProductUnitDto(
+            unit.Id,
+            unit.ProductId,
+            unit.UnitId,
+            unit.Unit?.Name ?? "",
+            unit.Factor,
+            unit.IsBaseUnit);
+    }
+}

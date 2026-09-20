@@ -1,0 +1,223 @@
+import React from 'react';
+import { ArrowLeftRight, Calendar, Info, X, AlertCircle, ShieldCheck, ArrowUpRight, ArrowDownLeft, DollarSign } from 'lucide-react';
+import { AccountNode } from '@/types/pos';
+import { tafqeet } from '@/lib/tafqeet';
+
+interface CashVoucherTransferModalProps {
+  showTransferModal: boolean;
+  setShowTransferModal: (v: boolean) => void;
+  handleTreasuryTransfer: (e: React.FormEvent) => void;
+  transferFromCode: string;
+  setTransferFromCode: (v: string) => void;
+  transferToCode: string;
+  setTransferToCode: (v: string) => void;
+  transferAmount: string;
+  setTransferAmount: (v: string) => void;
+  transferDate: string;
+  setTransferDate: (v: string) => void;
+  transferReference: string;
+  setTransferReference: (v: string) => void;
+  transferNote: string;
+  setTransferNote: (v: string) => void;
+  transferError: string | null;
+  treasuryAndBankAccounts: AccountNode[];
+  currency: string;
+}
+
+export const CashVoucherTransferModal: React.FC<CashVoucherTransferModalProps> = ({
+  showTransferModal, setShowTransferModal, handleTreasuryTransfer, transferFromCode, setTransferFromCode,
+  transferToCode, setTransferToCode, transferAmount, setTransferAmount, transferDate, setTransferDate,
+  transferReference, setTransferReference, transferNote, setTransferNote, transferError, treasuryAndBankAccounts, currency
+}) => {
+  if (!showTransferModal) return null;
+  return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 backdrop-blur-xs">
+          <div className="bg-white rounded-lg shadow-2xl border border-slate-400 w-full max-w-xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Title */}
+            <div className="p-3 bg-sky-800 text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <ArrowLeftRight className="w-4 h-4 text-sky-300" />
+                <span>تحويل وتغذية سيولة بين الصناديق والبنوك (Treasury Transfer)</span>
+              </div>
+              <button
+                onClick={() => setShowTransferModal(false)}
+                className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleTreasuryTransfer} className="p-4 space-y-3.5 text-xs">
+              {transferError && (
+                <div className="p-2.5 bg-rose-50 border border-rose-300 text-rose-800 rounded font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{transferError}</span>
+                </div>
+              )}
+
+              <div className="bg-sky-50 border border-sky-200 p-2.5 rounded text-[11px] text-sky-900 leading-relaxed flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-sky-700 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold">ضابط الرقابة المحاسبية: </span>
+                  هذه الشاشة مخصصة حصراً لنقل وتغذية السيولة بين حسابات الصناديق النقدية (111) والحسابات البنكية والمحافظ (112). يتم إنشاء قيد محاسبي مزدوج ومتزن تلقائياً.
+                </div>
+              </div>
+
+              {/* Date & Reference */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    تاريخ التحويل: <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5" />
+                    <input
+                      type="date"
+                      value={transferDate}
+                      onChange={(e) => setTransferDate(e.target.value)}
+                      required
+                      className="w-full pl-2 pr-8 py-1.5 bg-slate-50 border border-slate-300 rounded font-mono text-xs focus:bg-white focus:outline-none focus:border-sky-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    رقم المرجع / إشعار التحويل:
+                  </label>
+                  <input
+                    type="text"
+                    value={transferReference}
+                    onChange={(e) => setTransferReference(e.target.value)}
+                    placeholder="رقم إشعار الإيداع أو الشيك..."
+                    className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded text-xs focus:bg-white focus:outline-none focus:border-sky-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* From & To Treasury Accounts */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded border border-slate-200">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
+                      <ArrowUpRight className="w-3.5 h-3.5 text-rose-600" />
+                      <span>من حساب (المحول منه - دائن):</span>
+                    </label>
+                    <span className="text-[9px] text-rose-700 font-bold bg-rose-50 px-1 rounded border border-rose-200">
+                      خروج سيولة
+                    </span>
+                  </div>
+                  <select
+                    value={transferFromCode}
+                    onChange={(e) => setTransferFromCode(e.target.value)}
+                    required
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs font-semibold focus:outline-none focus:border-sky-500"
+                  >
+                    {treasuryAndBankAccounts.map((acc) => (
+                      <option key={`from-${acc.code}`} value={acc.code}>
+                        {acc.code} - {acc.name} ({acc.code.startsWith('111') ? 'صندوق' : 'بنك'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
+                      <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>إلى حساب (المستلم - مدين):</span>
+                    </label>
+                    <span className="text-[9px] text-emerald-700 font-bold bg-emerald-50 px-1 rounded border border-emerald-200">
+                      دخول سيولة
+                    </span>
+                  </div>
+                  <select
+                    value={transferToCode}
+                    onChange={(e) => setTransferToCode(e.target.value)}
+                    required
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs font-semibold focus:outline-none focus:border-sky-500"
+                  >
+                    {treasuryAndBankAccounts.map((acc) => (
+                      <option key={`to-${acc.code}`} value={acc.code}>
+                        {acc.code} - {acc.name} ({acc.code.startsWith('111') ? 'صندوق' : 'بنك'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  المبلغ المحول ({currency}): <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <DollarSign className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5" />
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={transferAmount}
+                    onChange={(e) => setTransferAmount(e.target.value)}
+                    placeholder="0.00"
+                    required
+                    className="w-full pl-2 pr-8 py-1.5 bg-slate-50 border border-slate-300 rounded font-mono font-bold text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+                {parseFloat(transferAmount) > 0 && (
+                  <div className="text-[10px] text-sky-800 font-semibold mt-1 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                    فقط: {tafqeet(parseFloat(transferAmount), currency)}
+                  </div>
+                )}
+              </div>
+
+              {/* Note / Description */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  بيان التحويل / الشرح:
+                </label>
+                <input
+                  type="text"
+                  value={transferNote}
+                  onChange={(e) => setTransferNote(e.target.value)}
+                  placeholder="سبب التحويل، اسم المودع، رقم الفرع..."
+                  className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded text-xs focus:bg-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+
+              {/* Visual Accounting Preview */}
+              <div className="bg-slate-100 p-2.5 rounded border border-slate-300 font-mono text-[11px] space-y-1">
+                <div className="font-sans font-bold text-slate-700 text-[10px] mb-1">معاينة القيد المحاسبي المتولد:</div>
+                <div className="flex justify-between text-emerald-800">
+                  <span>من حـ/ {treasuryAndBankAccounts.find(a => a.code === transferToCode)?.name || transferToCode} (مدين)</span>
+                  <span>{parseFloat(transferAmount || '0').toLocaleString()} {currency}</span>
+                </div>
+                <div className="flex justify-between text-rose-800">
+                  <span>إلى حـ/ {treasuryAndBankAccounts.find(a => a.code === transferFromCode)?.name || transferFromCode} (دائن)</span>
+                  <span>{parseFloat(transferAmount || '0').toLocaleString()} {currency}</span>
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowTransferModal(false)}
+                  className="px-3 py-1.5 border border-slate-300 rounded text-slate-700 hover:bg-slate-100 font-bold cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-sky-700 hover:bg-sky-800 text-white rounded font-bold cursor-pointer flex items-center gap-1 shadow-xs"
+                >
+                  <ArrowLeftRight className="w-3.5 h-3.5" />
+                  <span>تأكيد وترحيل التحويل</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+};

@@ -1,0 +1,116 @@
+{printStocktake && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white text-slate-900 rounded-lg shadow-2xl max-w-4xl w-full p-6 my-8 print:m-0 print:p-0">
+            {/* Header */}
+            <div className="border-b-2 border-slate-900 pb-3 mb-4 flex justify-between items-start text-right">
+              <div>
+                <h1 className="text-lg font-black text-slate-900">
+                  الجمهورية اليمنية - نظام الإدارة والتجارة المتكامل (ERP)
+                </h1>
+                <h2 className="text-sm font-bold text-slate-700">
+                  محضر الجرد المخزني الفعلي ومطابقة الأرصدة
+                </h2>
+                <div className="text-xs text-slate-600 mt-1 font-semibold">
+                  المستودع: <span className="font-bold text-slate-900">{printStocktake.warehouseName}</span> | التاريخ: {printStocktake.date} {printStocktake.time || ''}
+                </div>
+              </div>
+              <div className="text-left font-mono">
+                <div className="text-sm font-black text-slate-900">رقم المحضر: {printStocktake.sessionNo}</div>
+                <div className="text-xs text-slate-600">الحالة: {printStocktake.status === 'ADJUSTED' ? 'معتمد ومرحل' : 'قيد الجرد'}</div>
+              </div>
+            </div>
+
+            {/* Committee members */}
+            <div className="bg-slate-100 p-2.5 rounded border border-slate-300 text-xs mb-4 flex flex-wrap justify-between">
+              <span><strong>لجنة الجرد:</strong> {printStocktake.committeeMembers.join(' - ')}</span>
+              <span><strong>البيان:</strong> {printStocktake.notes}</span>
+            </div>
+
+            {/* Audit Table */}
+            <table className="w-full text-right text-xs border-collapse border border-slate-400 mb-4">
+              <thead className="bg-slate-200">
+                <tr>
+                  <th className="border border-slate-400 p-1.5 text-center">#</th>
+                  <th className="border border-slate-400 p-1.5">كود الصنف</th>
+                  <th className="border border-slate-400 p-1.5">اسم الصنف</th>
+                  <th className="border border-slate-400 p-1.5 text-center">الوحدة</th>
+                  <th className="border border-slate-400 p-1.5 text-center">سعر التكلفة</th>
+                  <th className="border border-slate-400 p-1.5 text-center">الرصيد الدفتري</th>
+                  <th className="border border-slate-400 p-1.5 text-center">الرصيد الفعلي</th>
+                  <th className="border border-slate-400 p-1.5 text-center">فرق الكمية</th>
+                  <th className="border border-slate-400 p-1.5 text-center">قيمة الفرق ({currency})</th>
+                </tr>
+              </thead>
+              <tbody>
+                {printStocktake.items.map((it, idx) => (
+                  <tr key={it.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                    <td className="border border-slate-400 p-1.5 text-center font-mono">{idx + 1}</td>
+                    <td className="border border-slate-400 p-1.5 font-mono font-bold">{it.productCode}</td>
+                    <td className="border border-slate-400 p-1.5 font-bold">{it.productName}</td>
+                    <td className="border border-slate-400 p-1.5 text-center">{it.unit}</td>
+                    <td className="border border-slate-400 p-1.5 text-center font-mono">{it.unitCost.toLocaleString()}</td>
+                    <td className="border border-slate-400 p-1.5 text-center font-mono">{it.bookStock}</td>
+                    <td className="border border-slate-400 p-1.5 text-center font-mono font-bold">{it.physicalStock}</td>
+                    <td className="border border-slate-400 p-1.5 text-center font-mono font-bold">
+                      {it.differenceQty > 0 ? `+${it.differenceQty}` : it.differenceQty}
+                    </td>
+                    <td className="border border-slate-400 p-1.5 text-center font-mono font-bold">
+                      {it.differenceCost > 0 ? `+${it.differenceCost.toLocaleString()}` : it.differenceCost.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Totals Box */}
+            <div className="bg-slate-100 p-3 rounded border border-slate-400 text-xs flex justify-between font-bold mb-6">
+              <span>إجمالي الكميات الدفترية: {printStocktake.totalBookQty}</span>
+              <span>إجمالي الكميات الفعلية: {printStocktake.totalPhysicalQty}</span>
+              <span className="text-emerald-700">قيمة الفائض: +{printStocktake.totalSurplusValue.toLocaleString()} {currency}</span>
+              <span className="text-rose-700">قيمة العجز: -{printStocktake.totalDeficitValue.toLocaleString()} {currency}</span>
+              <span>صافي الفرق: {printStocktake.netDifferenceValue.toLocaleString()} {currency}</span>
+            </div>
+
+            {/* Signatures */}
+            <div className="grid grid-cols-4 gap-4 text-center text-xs pt-4 border-t border-slate-400">
+              <div>
+                <p className="font-bold">رئيس لجنة الجرد</p>
+                <div className="h-12 border-b border-dashed border-slate-400"></div>
+                <p className="mt-1 font-mono text-[11px]">{printStocktake.committeeMembers[0] || '...'}</p>
+              </div>
+              <div>
+                <p className="font-bold">أمين المستودع</p>
+                <div className="h-12 border-b border-dashed border-slate-400"></div>
+                <p className="mt-1 font-mono text-[11px]">{printStocktake.committeeMembers[2] || '...'}</p>
+              </div>
+              <div>
+                <p className="font-bold">المراجع المالي</p>
+                <div className="h-12 border-b border-dashed border-slate-400"></div>
+                <p className="mt-1 font-mono text-[11px]">{printStocktake.committeeMembers[1] || '...'}</p>
+              </div>
+              <div>
+                <p className="font-bold">المدير المالي والاعتماد</p>
+                <div className="h-12 border-b border-dashed border-slate-400"></div>
+                <p className="mt-1 font-mono text-[11px]">أ. هشام القدسي</p>
+              </div>
+            </div>
+
+            {/* Print Controls */}
+            <div className="mt-6 flex justify-end gap-2 print:hidden">
+              <button
+                onClick={() => setPrintStocktake(null)}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-1.5 rounded text-xs font-bold cursor-pointer"
+              >
+                إغلاق
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="bg-emerald-700 hover:bg-emerald-600 text-white px-5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow"
+              >
+                <Printer className="w-4 h-4" />
+                <span>طباعة المحضر الآن</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}

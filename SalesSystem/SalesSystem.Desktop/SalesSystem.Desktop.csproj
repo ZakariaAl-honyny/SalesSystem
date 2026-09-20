@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Orphaned legacy form (references APIs that do not exist in this solution) -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\SalesSystem.DataAccess\SalesSystem.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.7" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Screens\Accounting\Controls\" />
+    <Folder Include="Screens\Banks\Controls\" />
+    <Folder Include="Screens\CashBoxes\Controls\" />
+    <Folder Include="Screens\Categories\NewFolder\" />
+    <Folder Include="Screens\CustomerReceipts\Controls\" />
+    <Folder Include="Screens\Customers\Controls\" />
+    <Folder Include="Screens\Dashboard\Controls\" />
+    <Folder Include="Screens\Expenses\Controls\" />
+    <Folder Include="Screens\Inventory\Controls\" />
+    <Folder Include="Screens\Payments\NewFolder\" />
+    <Folder Include="Screens\PaymentVouchers\Controls\" />
+    <Folder Include="Screens\Products\NewFolder\" />
+    <Folder Include="Screens\Purchases\Controls\" />
+    <Folder Include="Screens\Reports\Controls\" />
+    <Folder Include="Screens\Returns\NewFolder\" />
+    <Folder Include="Screens\Roles\Controls\" />
+    <Folder Include="Screens\Sales\Controls\" />
+    <Folder Include="Screens\Settings\Controls\" />
+    <Folder Include="Screens\StockTransfers\NewFolder\" />
+    <Folder Include="Screens\Suppliers\NewFolder\" />
+    <Folder Include="Screens\Taxes\Controls\" />
+    <Folder Include="Screens\Units\NewFolder\" />
+    <Folder Include="Screens\Users\Controls\" />
+    <Folder Include="Screens\Warehouses\NewFolder\" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

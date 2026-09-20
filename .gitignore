@@ -1,0 +1,92 @@
+## [Visual Studio]
+## .gitignore for Sales Management System (.NET 10)
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.vstoken
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Packages
+*.nuget.props
+*.nuget.targets
+packages/
+
+# Environment
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Security: Sensitive config files
+# ============================================
+appsettings.Production.json
+*.bak
+*.pfx
+*.p12
+
+# ============================================
+# Security: Data Protection Keys
+# ============================================
+DataProtection-Keys/
+
+# ============================================
+# Build / Publish output
+# ============================================
+publish/
+[Pp]ublish/
+
+# ============================================
+# Logs
+# ============================================
+logs/
+**/logs/
+*.log
+
+# ============================================
+# Temp / Build artifacts
+# ============================================
+*wpftmp*
+build_temp/
+fix_encoding.cs
+fix_encoding.js
+FixEncoding/
+SalesSystem/FixEncoding/
+
+# ============================================
+# Misc analysis folders
+# ============================================
+all new Anylysis/
+docs/all new Anylysis/
+
+# Analysis / prototype folder (renamed)
+docs/all new Anylysis for update system features/
+node_modules/
+

@@ -1,0 +1,176 @@
+import React from 'react';
+import { Printer, Calendar, ShieldAlert, CheckCircle2, Wallet, X } from 'lucide-react';
+import { CashVoucher } from '@/types/pos';
+import { tafqeet } from '@/lib/tafqeet';
+
+interface CashVoucherPrintModalProps {
+  printingVoucher: CashVoucher | null;
+  setPrintingVoucher: (v: CashVoucher | null) => void;
+  currency: string;
+}
+
+export const CashVoucherPrintModal: React.FC<CashVoucherPrintModalProps> = ({
+  printingVoucher, setPrintingVoucher, currency
+}) => {
+  if (!printingVoucher) return null;
+  return (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 backdrop-blur-xs">
+          <div className="bg-white rounded-lg shadow-2xl border border-slate-400 w-full max-w-2xl overflow-hidden flex flex-col max-h-[95vh]">
+            {/* Top Bar with Print Controls */}
+            <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0 text-slate-800 shadow-2xs">
+              <div className="flex items-center gap-2.5 text-xs font-bold text-slate-900">
+                <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shadow-xs">
+                  <Printer className="w-4 h-4 text-sky-700" />
+                </div>
+                <span>معاينة وطباعة السند المالي الرسمي</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>طباعة الآن (Print)</span>
+                </button>
+                <button
+                  onClick={() => setPrintingVoucher(null)}
+                  className="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded-lg cursor-pointer transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Paper Canvas (A5 / Thermal layout) */}
+            <div className="p-6 overflow-y-auto flex-1 bg-white text-slate-900 font-sans border m-3 rounded-lg border-slate-300 shadow-inner">
+              {/* Header */}
+              <div className="border-b-2 border-slate-800 pb-3 mb-4 flex items-center justify-between">
+                <div>
+                  <h1 className="text-base font-black text-slate-900">مؤسسة البركة للتجارة والتوزيع</h1>
+                  <p className="text-[11px] text-slate-600">الجمهورية اليمنية - صنعاء - شارع حدة</p>
+                  <p className="text-[10px] text-slate-500 font-mono">سجل تجاري: 2024/99182 - الرقم الضريبي: 7001928</p>
+                </div>
+
+                <div className="text-center">
+                  <div
+                    className={`border-2 px-4 py-1 rounded font-black text-sm ${
+                      printingVoucher.type === 'RECEIPT'
+                        ? 'border-emerald-700 text-emerald-800 bg-emerald-50'
+                        : 'border-rose-700 text-rose-800 bg-rose-50'
+                    }`}
+                  >
+                    {printingVoucher.type === 'RECEIPT' ? 'سند قبض نقد / شيك' : 'سند صرف نقد / شيك'}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-600 mt-1">
+                    {printingVoucher.type === 'RECEIPT' ? 'RECEIPT VOUCHER' : 'PAYMENT VOUCHER'}
+                  </div>
+                </div>
+
+                <div className="text-left font-mono text-xs">
+                  <div>
+                    <span className="text-slate-500">رقم السند: </span>
+                    <b className="text-slate-900">{printingVoucher.voucherNo}</b>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">التاريخ: </span>
+                    <b>{printingVoucher.date}</b>
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    رقم القيد: {printingVoucher.journalEntryId || 'JV-AUTO'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Grid */}
+              <div className="space-y-3 text-xs leading-relaxed">
+                <div className="flex items-center justify-between bg-slate-100 p-2.5 rounded border border-slate-200">
+                  <span className="font-bold text-slate-700">المبلغ بالأرقام:</span>
+                  <div className="font-mono-numbers text-base font-black text-slate-950 bg-white px-3 py-1 rounded border border-slate-300">
+                    {printingVoucher.amount.toLocaleString()} {currency}
+                  </div>
+                </div>
+
+                <div className="border border-slate-200 p-3 rounded space-y-2">
+                  <div className="flex items-start">
+                    <span className="w-28 shrink-0 font-bold text-slate-700">
+                      {printingVoucher.type === 'RECEIPT' ? 'استلمنا من الأخ / السادة:' : 'اصرفوا للأخ / السادة:'}
+                    </span>
+                    <span className="font-bold text-slate-900 underline decoration-slate-400 decoration-dotted underline-offset-4 flex-1">
+                      {printingVoucher.partyName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start">
+                    <span className="w-28 shrink-0 font-bold text-slate-700">مبلغ وقدره بالحروف:</span>
+                    <span className="font-semibold text-slate-900 bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200 flex-1">
+                      {tafqeet(printingVoucher.amount, currency)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-start">
+                    <span className="w-28 shrink-0 font-bold text-slate-700">طريقة السداد:</span>
+                    <span className="font-semibold text-slate-800 flex-1">
+                      {printingVoucher.paymentMethod === 'CASH' ? 'نقداً من الصندوق' : 'تحويل بنكي / شيك مسحوب على بنك'}
+                      {' - '}
+                      <span className="text-slate-600">({printingVoucher.cashAccountName})</span>
+                    </span>
+                  </div>
+
+                  {printingVoucher.reference && (
+                    <div className="flex items-start">
+                      <span className="w-28 shrink-0 font-bold text-slate-700">رقم الشيك / المرجع:</span>
+                      <span className="font-mono text-slate-800 flex-1">{printingVoucher.reference}</span>
+                    </div>
+                  )}
+
+                  {printingVoucher.costCenterName && (
+                    <div className="flex items-start">
+                      <span className="w-28 shrink-0 font-bold text-slate-700">مركز التكلفة المحمل:</span>
+                      <span className="text-indigo-800 font-semibold flex-1">{printingVoucher.costCenterName}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-start">
+                    <span className="w-28 shrink-0 font-bold text-slate-700">وذلك عن (البيان):</span>
+                    <span className="text-slate-900 flex-1">{printingVoucher.description || 'سداد حساب'}</span>
+                  </div>
+                </div>
+
+                {/* Signatures Strip */}
+                <div className="grid grid-cols-4 gap-2 pt-8 pb-2 text-center text-[11px] border-t border-slate-300 mt-6">
+                  <div>
+                    <div className="font-bold text-slate-700">المستلم</div>
+                    <div className="h-10 border-b border-dashed border-slate-400 mt-2"></div>
+                    <div className="text-[10px] text-slate-400 mt-1">التوقيع والختم</div>
+                  </div>
+
+                  <div>
+                    <div className="font-bold text-slate-700">أمين الصندوق</div>
+                    <div className="h-10 border-b border-dashed border-slate-400 mt-2"></div>
+                    <div className="text-[10px] text-slate-400 mt-1">الاعتماد</div>
+                  </div>
+
+                  <div>
+                    <div className="font-bold text-slate-700">المحاسب المسؤول</div>
+                    <div className="h-10 border-b border-dashed border-slate-400 mt-2"></div>
+                    <div className="text-[10px] text-slate-400 mt-1">مراجعة وتدقيق</div>
+                  </div>
+
+                  <div>
+                    <div className="font-bold text-slate-700">المدير المالي</div>
+                    <div className="h-10 border-b border-dashed border-slate-400 mt-2"></div>
+                    <div className="text-[10px] text-slate-400 mt-1">المصادقة</div>
+                  </div>
+                </div>
+
+                <div className="text-[9px] text-center text-slate-400 pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span>تم الإصدار بواسطة: {printingVoucher.createdBy}</span>
+                  <span>تاريخ الطباعة: {new Date().toLocaleString('ar-YE')}</span>
+                  <span>نظام إدارة الحسابات ونقاط البيع المتكامل</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+};

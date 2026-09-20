@@ -1,0 +1,138 @@
+{showNewWarehouseModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 backdrop-blur-xs">
+          <div className="bg-white rounded-lg shadow-2xl border border-slate-400 w-full max-w-lg overflow-hidden flex flex-col">
+            <div className="bg-[#143254] text-white p-3 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <WarehouseIcon className="w-4 h-4 text-emerald-400" />
+                <span>{editingWarehouse ? 'تعديل بطاقة المستودع' : 'إضافة بطاقة مستودع جديد'}</span>
+              </div>
+              <button
+                onClick={() => setShowNewWarehouseModal(false)}
+                className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">كود المستودع:</label>
+                  <input
+                    type="text"
+                    value={whCode}
+                    onChange={(e) => setWhCode(e.target.value)}
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-sky-500 font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">حساب الأستاذ المخزني:</label>
+                  <input
+                    type="text"
+                    value={whAccountCode}
+                    onChange={(e) => setWhAccountCode(e.target.value)}
+                    placeholder="1141"
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">اسم المستودع الرسمي:</label>
+                <input
+                  type="text"
+                  value={whName}
+                  onChange={(e) => setWhName(e.target.value)}
+                  placeholder="مثال: مستودع فرع تعز المركزي"
+                  className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs focus:outline-none focus:border-sky-500 font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">الفرع التابع له:</label>
+                  <input
+                    type="text"
+                    value={whBranchName}
+                    onChange={(e) => setWhBranchName(e.target.value)}
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">أمين المستودع المسؤول:</label>
+                  <input
+                    type="text"
+                    value={whManager}
+                    onChange={(e) => setWhManager(e.target.value)}
+                    placeholder="اسم الموظف المسؤول..."
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">رقم الهاتف والتواصل:</label>
+                  <input
+                    type="text"
+                    value={whPhone}
+                    onChange={(e) => setWhPhone(e.target.value)}
+                    placeholder="777..."
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs focus:outline-none focus:border-sky-500 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">الموقع الجغرافي:</label>
+                  <input
+                    type="text"
+                    value={whLocation}
+                    onChange={(e) => setWhLocation(e.target.value)}
+                    placeholder="المدينة - الشارع..."
+                    className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">ملاحظات المستودع:</label>
+                <textarea
+                  rows={2}
+                  value={whNotes}
+                  onChange={(e) => setWhNotes(e.target.value)}
+                  className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs focus:outline-none focus:border-sky-500"
+                />
+              </div>
+
+              <label className="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={whIsDefault}
+                  onChange={(e) => setWhIsDefault(e.target.checked)}
+                  className="rounded text-sky-600"
+                />
+                <span>تعيين كمستودع رئيسي افتراضي للشركة</span>
+              </label>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowNewWarehouseModal(false)}
+                  className="px-3.5 py-1.5 border border-slate-300 rounded text-slate-700 hover:bg-slate-100 font-bold cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveWarehouse}
+                  className="px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded font-bold shadow-xs transition cursor-pointer"
+                >
+                  حفظ بطاقة المستودع
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}

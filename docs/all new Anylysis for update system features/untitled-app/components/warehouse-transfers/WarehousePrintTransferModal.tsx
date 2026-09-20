@@ -1,0 +1,197 @@
+import React from 'react';
+import { Printer, Calendar, ArrowRightLeft, FileText, CheckCircle2, ShieldAlert, X } from 'lucide-react';
+
+interface WarehousePrintTransferModalProps {
+  showPrintModal: boolean;
+  setShowPrintModal: (v: boolean) => void;
+  selectedTransferForPrint: any;
+  getWarehouseName: (id: string) => string;
+  currency: string;
+}
+
+export const WarehousePrintTransferModal: React.FC<WarehousePrintTransferModalProps> = ({
+  showPrintModal, setShowPrintModal, selectedTransferForPrint, getWarehouseName, currency
+}) => {
+  if (!showPrintModal || !selectedTransferForPrint) return null;
+  return (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-3 backdrop-blur-xs">
+          <div className="bg-white rounded-lg shadow-2xl border border-slate-400 w-full max-w-3xl overflow-hidden flex flex-col max-h-[95vh]">
+            <div className="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between shrink-0 text-slate-800 shadow-2xs">
+              <div className="flex items-center gap-2.5 font-bold text-sm text-slate-900">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-xs">
+                  <Printer className="w-4 h-4 text-emerald-700" />
+                </div>
+                <span>معاينة وطباعة إذن تحويل وصرف مخزني: <span className="font-mono text-sky-700">{selectedTransferForPrint.transferNo}</span></span>
+              </div>
+              <button
+                onClick={() => setShowPrintModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded-lg cursor-pointer transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Printable Document Sheet (A4 formatted) */}
+            <div className="p-6 bg-white overflow-y-auto flex-1 text-slate-900 font-sans space-y-4 print:p-0">
+              {/* Document Header */}
+              <div className="border-b-2 border-slate-800 pb-3 flex items-start justify-between">
+                <div>
+                  <div className="text-base font-black text-slate-900">مؤسسة الحلول المتقدمة للتجارة والتوكيلات</div>
+                  <div className="text-xs text-slate-600">نظام إدارة المستودعات والتحويلات المركزية (WMS Enterprise)</div>
+                  <div className="text-xs text-slate-500 font-mono mt-0.5">الرقم الضريبي: 300192847500003</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="border-2 border-slate-800 px-4 py-1 rounded bg-slate-50 font-black text-sm">
+                    إذن تحويل ومناقلة بضاعة
+                  </div>
+                  <div className="text-xs font-mono font-bold mt-1 text-sky-900">
+                    {selectedTransferForPrint.transferNo}
+                  </div>
+                </div>
+
+                <div className="text-left font-mono text-xs text-slate-600 space-y-0.5">
+                  <div>التاريخ: {selectedTransferForPrint.date}</div>
+                  <div>المرجع: {selectedTransferForPrint.reference || '-'}</div>
+                  <div>الحالة: {selectedTransferForPrint.status}</div>
+                </div>
+              </div>
+
+              {/* Warehouse Routes Info */}
+              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded border border-slate-300 text-xs">
+                <div>
+                  <div className="text-[10px] text-slate-500 font-bold">مستودع المصدر (المُسلِّم):</div>
+                  <div className="font-bold text-slate-900 text-sm mt-0.5">
+                    {selectedTransferForPrint.fromWarehouseName}
+                  </div>
+                  <div className="text-slate-600 text-[11px] mt-0.5">
+                    أمين المستودع: عمار محمد الشرجبي
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] text-slate-500 font-bold">مستودع الوجهة (المُستلِم):</div>
+                  <div className="font-bold text-slate-900 text-sm mt-0.5">
+                    {selectedTransferForPrint.toWarehouseName}
+                  </div>
+                  <div className="text-slate-600 text-[11px] mt-0.5">
+                    السائق / الناقل: {selectedTransferForPrint.driverName || 'نقل داخلي'} (لوحة:{' '}
+                    {selectedTransferForPrint.vehiclePlate || 'مباشر'})
+                  </div>
+                </div>
+              </div>
+
+              {/* Items Table */}
+              <div>
+                <table className="w-full text-right text-xs border-collapse border border-slate-300">
+                  <thead className="bg-slate-200 text-slate-800 font-bold">
+                    <tr>
+                      <th className="p-2 border border-slate-300 w-10 text-center">#</th>
+                      <th className="p-2 border border-slate-300 w-24">كود الصنف</th>
+                      <th className="p-2 border border-slate-300">بيان الصنف والمواصفات</th>
+                      <th className="p-2 border border-slate-300 w-20 text-center">الوحدة</th>
+                      <th className="p-2 border border-slate-300 w-20 text-center">الكمية</th>
+                      <th className="p-2 border border-slate-300 w-28 text-left">سعر التكلفة</th>
+                      <th className="p-2 border border-slate-300 w-32 text-left">الإجمالي ({currency})</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 font-mono">
+                    {selectedTransferForPrint.items.map((it: any, idx: number) => (
+                      <tr key={it.id} className="hover:bg-slate-50">
+                        <td className="p-2 border border-slate-300 text-center text-slate-500">{idx + 1}</td>
+                        <td className="p-2 border border-slate-300 font-bold text-slate-800">{it.productCode}</td>
+                        <td className="p-2 border border-slate-300 font-sans font-bold text-slate-900">
+                          {it.productName}
+                          {it.batchNo && (
+                            <span className="text-[10px] text-slate-500 font-mono block">
+                              تشغيلة: {it.batchNo} | انتهاء: {it.expiryDate || '-'}
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-2 border border-slate-300 font-sans text-center">{it.unit}</td>
+                        <td className="p-2 border border-slate-300 text-center font-bold text-indigo-900 text-sm">
+                          {it.quantity}
+                        </td>
+                        <td className="p-2 border border-slate-300 text-left">{it.unitCost.toLocaleString()}</td>
+                        <td className="p-2 border border-slate-300 text-left font-bold">
+                          {it.totalCost.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-800">
+                    <tr>
+                      <td colSpan={4} className="p-2 border border-slate-300 text-slate-900 font-sans">
+                        مجموع الشحنة الكلي:
+                      </td>
+                      <td className="p-2 border border-slate-300 text-center font-mono text-sm text-indigo-900">
+                        {selectedTransferForPrint.totalQuantity}
+                      </td>
+                      <td className="p-2 border border-slate-300"></td>
+                      <td className="p-2 border border-slate-300 text-left font-mono-numbers text-sm text-slate-900">
+                        {selectedTransferForPrint.totalCost.toLocaleString()} {currency}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {selectedTransferForPrint.notes && (
+                <div className="text-xs text-slate-700 bg-slate-50 p-2 rounded border border-slate-200">
+                  <strong>ملاحظات:</strong> {selectedTransferForPrint.notes}
+                </div>
+              )}
+
+              {/* Quad Signatures Box (التواقيع الأربعة الرسمية) */}
+              <div className="grid grid-cols-4 gap-2 pt-6 border-t border-slate-300 text-center text-xs">
+                <div>
+                  <div className="font-bold text-slate-800">أمين مستودع المصدر</div>
+                  <div className="text-[10px] text-slate-500">(المُسلِّم)</div>
+                  <div className="mt-8 border-t border-slate-400 pt-1 text-[11px]">التوقيع: ...................</div>
+                </div>
+
+                <div>
+                  <div className="font-bold text-slate-800">سائق وسيلة النقل</div>
+                  <div className="text-[10px] text-slate-500">(الناقل)</div>
+                  <div className="mt-8 border-t border-slate-400 pt-1 text-[11px]">التوقيع: ...................</div>
+                </div>
+
+                <div>
+                  <div className="font-bold text-slate-800">أمين مستودع الوجهة</div>
+                  <div className="text-[10px] text-slate-500">(المُستلِم)</div>
+                  <div className="mt-8 border-t border-slate-400 pt-1 text-[11px]">التوقيع: ...................</div>
+                </div>
+
+                <div>
+                  <div className="font-bold text-slate-800">مدير إدارة المخازن</div>
+                  <div className="text-[10px] text-slate-500">(الاعتماد)</div>
+                  <div className="mt-8 border-t border-slate-400 pt-1 text-[11px]">التوقيع: ...................</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Print action footer */}
+            <div className="p-3 bg-slate-100 border-t border-slate-300 flex items-center justify-between shrink-0">
+              <span className="text-xs text-slate-500">
+                وثيقة تحويل رسمية - تخضع لإشراف ومطابقة الرقابة المخزنية والمحاسبية
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowPrintModal(false)}
+                  className="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-bold cursor-pointer"
+                >
+                  إغلاق
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="px-5 py-1.5 bg-sky-700 hover:bg-sky-800 text-white rounded text-xs font-bold shadow flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>طباعة المستند فوراً [Ctrl+P]</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+};

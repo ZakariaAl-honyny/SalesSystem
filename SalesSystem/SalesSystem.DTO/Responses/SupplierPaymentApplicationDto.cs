@@ -1,0 +1,10 @@
+﻿namespace SalesSystem.DTO.Responses;
+
+public record SupplierPaymentApplicationDto(
+    int Id,
+    int SupplierPaymentId,
+    int PurchaseInvoiceId,
+    int? InvoiceNo,
+    decimal AppliedAmount,
+    bool IsActive
+);

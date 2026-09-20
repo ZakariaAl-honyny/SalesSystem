@@ -1,0 +1,6 @@
+{
+  "name": "اليمن للمحاسبة ونقاط البيع",
+  "description": "نظام ERP متكامل لإدارة المبيعات والمستودعات المتعددة ونقاط البيع والمحاسبة المالية بنمط C# N-Layer Architecture للسوق اليمني (ريال يمني YER)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

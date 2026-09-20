@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="SalesSystem.Desktop/SalesSystem.Desktop.csproj" />
+  <Project Path="SalesSystem.Business/SalesSystem.Business.csproj" />
+  <Project Path="SalesSystem.Common/SalesSystem.Common.csproj" />
+  <Project Path="SalesSystem.DataAccess/SalesSystem.DataAccess.csproj" />
+  <Project Path="SalesSystem.DTO/SalesSystem.DTO.csproj" />
+  <Project Path="SalesSystem.Models/SalesSystem.Models.csproj" />
+  <Project Path="SalesSystem.Tests/SalesSystem.Tests.csproj" />
+</Solution>
