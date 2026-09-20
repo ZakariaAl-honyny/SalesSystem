@@ -174,7 +174,7 @@ public partial class frmInventoryBarcode : Form
         int right = width - 36;
 
         int seed = _selectedProduct.Barcode.Aggregate(0, (acc, ch) => acc * 31 + ch);
-        using var rng = new Random(seed);
+        var rng = new Random(seed);
 
         int x = left;
         while (x < right - 2)
