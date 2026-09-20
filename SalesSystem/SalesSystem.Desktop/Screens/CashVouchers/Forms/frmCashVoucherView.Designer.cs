@@ -148,7 +148,6 @@ partial class frmCashVoucherView
         pnlDetails.Location = new Point(20, 118);
         pnlDetails.Name = "pnlDetails";
         pnlDetails.RightToLeft = RightToLeft.Yes;
-        pnlDetails.RightToLeftLayout = true;
         pnlDetails.Size = new Size(480, 240);
         pnlDetails.TabIndex = 6;
         // 
