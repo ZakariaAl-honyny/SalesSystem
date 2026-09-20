@@ -111,7 +111,7 @@ partial class frmPurchaseItemInfo
         // 
         // lblProductName
         // 
-        lblProductName.ColumnSpan = 3;
+        tblInfo.SetColumnSpan(lblProductName, 3);
         lblProductName.Dock = DockStyle.Fill;
         lblProductName.Font = new Font("Tahoma", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblProductName.ForeColor = Color.Navy;

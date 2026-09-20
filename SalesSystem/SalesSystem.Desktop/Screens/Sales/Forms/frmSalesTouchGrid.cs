@@ -248,9 +248,9 @@ public partial class frmSalesTouchGrid : Form
         return card;
     }
 
-    private static void WireCardClick(Control c, MockProduct p)
+    private void WireCardClick(Control c, MockProduct p)
     {
-        c.Click += (s, e) => AddToCart(p);
+        c.Click += (s, e) => this.AddToCart(p);
         c.Cursor = Cursors.Hand;
     }
 
