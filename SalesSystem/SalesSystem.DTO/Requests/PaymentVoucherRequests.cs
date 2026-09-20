@@ -1,0 +1,21 @@
+﻿namespace SalesSystem.DTO.Requests;
+
+/// <summary>
+/// Request to create a payment voucher (سند صرف).
+/// </summary>
+public record CreatePaymentVoucherRequest(
+    DateTime VoucherDate,
+    int CashBoxId,
+    int AccountId,
+    decimal TotalAmount,
+    string? Notes = null,
+    short? BranchId = null
+);
+
+/// <summary>
+/// Request to update a payment voucher.
+/// </summary>
+public record UpdatePaymentVoucherRequest(
+    DateTime? VoucherDate = null,
+    string? Notes = null
+);

@@ -1,0 +1,11 @@
+﻿namespace SalesSystem.DTO.Responses;
+
+public record BarcodeResolutionDto(
+    int ProductId,
+    string ProductName,
+    int ProductUnitId,
+    int UnitId,
+    string? UnitName,
+    decimal ConversionFactor,
+    string? Barcode = null
+);

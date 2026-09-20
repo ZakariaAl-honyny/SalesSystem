@@ -1,0 +1,30 @@
+﻿using SalesSystem.DTO.Common;
+using SalesSystem.DTO;
+using SalesSystem.DTO.Requests;
+
+namespace SalesSystem.Business.Interfaces.Services;
+
+public interface IPurchaseService
+{
+    Task<Result<PurchaseInvoiceDto>> CreateAsync(CreatePurchaseInvoiceRequest request, int userId, CancellationToken ct);
+    Task<Result<PurchaseInvoiceDto>> CreateAndPostAsync(CreatePurchaseInvoiceRequest request, int userId, CancellationToken ct);
+    Task<Result<PurchaseInvoiceDto>> PostAsync(int id, int userId, CancellationToken ct);
+    Task<Result<PurchaseInvoiceDto>> CancelAsync(int id, int userId, CancellationToken ct);
+    Task<Result<PurchaseInvoiceDto>> GetByIdAsync(int id, CancellationToken ct);
+    Task<Result<PurchaseInvoiceDto>> UpdateAsync(int id, UpdatePurchaseInvoiceRequest request, int userId, CancellationToken ct);
+    Task<Result<PagedResult<PurchaseInvoiceDto>>> GetAllAsync(
+        int? supplierId, 
+        int? status, 
+        string? search = null, 
+        DateTime? from = null, 
+        DateTime? to = null, 
+        int page = 1, 
+        int pageSize = 10, 
+        bool includeInactive = false, 
+        CancellationToken ct = default);
+
+    /// <summary>
+    /// Updates the attachment path for a purchase invoice.
+    /// </summary>
+    Task<Result<PurchaseInvoiceDto>> SetAttachmentAsync(int id, string filePath, CancellationToken ct);
+}

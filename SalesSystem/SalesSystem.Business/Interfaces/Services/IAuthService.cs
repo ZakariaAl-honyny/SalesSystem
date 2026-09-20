@@ -1,0 +1,29 @@
+﻿using SalesSystem.DTO.Common;
+using SalesSystem.DTO;
+using SalesSystem.DTO.Requests;
+using SalesSystem.DTO.Responses;
+
+namespace SalesSystem.Business.Interfaces.Services;
+
+/// <summary>
+/// Service interface for authentication operations.
+/// </summary>
+public interface IAuthService
+{
+    /// <summary>
+    /// Authenticates a user and returns a JWT token.
+    /// </summary>
+    /// <param name="request">The login request details.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result containing the login response with user info and token.</returns>
+    Task<Result<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Changes the password for an authenticated user (requires current password).
+    /// </summary>
+    /// <param name="request">The change password request with current, new, and confirm passwords.</param>
+    /// <param name="userId">The authenticated user's ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A result indicating success or failure.</returns>
+    Task<Result> ChangePasswordAsync(ChangePasswordRequest request, int userId, CancellationToken ct = default);
+}

@@ -1,0 +1,20 @@
+﻿namespace SalesSystem.DTO.Responses;
+
+/// <summary>
+/// DTO for a receipt voucher (سند قبض).
+/// </summary>
+public record ReceiptVoucherDto(
+    int Id,
+    int VoucherNo,
+    DateTime VoucherDate,
+    int CashBoxId,
+    string? CashBoxName,
+    int AccountId,
+    string? AccountName,
+    decimal TotalAmount,
+    string? Notes,
+    byte Status,
+    DateTime CreatedAt,
+    DateTime? PostedAt,
+    DateTime? CancelledAt
+);

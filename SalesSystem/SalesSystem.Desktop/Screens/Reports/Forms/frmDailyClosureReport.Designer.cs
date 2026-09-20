@@ -1,0 +1,191 @@
+﻿namespace SalesSystem.Desktop.Screens.Reports.Forms;
+
+partial class frmDailyClosureReport
+{
+    private System.ComponentModel.IContainer components = null;
+
+    protected override void Dispose(bool disposing)
+    {
+        components?.Dispose();
+        base.Dispose(disposing);
+    }
+
+    #region Windows Form Designer generated code
+
+    private void InitializeComponent()
+    {
+        lblMode = new Label();
+        dgvReport = new DataGridView();
+        btnRefresh = new Button();
+        btnExport = new Button();
+        btnClose = new Button();
+        label1 = new Label();
+        lblRecordsCount = new Label();
+        loadingPanel = new Panel();
+        ((System.ComponentModel.ISupportInitialize)dgvReport).BeginInit();
+        loadingPanel.SuspendLayout();
+        SuspendLayout();
+        // 
+        // lblMode
+        // 
+        lblMode.BackColor = Color.WhiteSmoke;
+        lblMode.Dock = DockStyle.Top;
+        lblMode.FlatStyle = FlatStyle.Flat;
+        lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblMode.ForeColor = Color.Firebrick;
+        lblMode.Location = new Point(0, 0);
+        lblMode.Margin = new Padding(4);
+        lblMode.Name = "lblMode";
+        lblMode.Size = new Size(1200, 39);
+        lblMode.TabIndex = 30;
+        lblMode.Text = "ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظٹظˆظ…ظٹ ظ„ظ„طµظ†ط¯ظˆظ‚";
+        lblMode.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // dgvReport
+        // 
+        dgvReport.AllowUserToAddRows = false;
+        dgvReport.AllowUserToDeleteRows = false;
+        dgvReport.AllowUserToOrderColumns = true;
+        dgvReport.BackgroundColor = SystemColors.Window;
+        dgvReport.BorderStyle = BorderStyle.Fixed3D;
+        dgvReport.ColumnHeadersHeight = 50;
+        dgvReport.Location = new Point(11, 100);
+        dgvReport.Margin = new Padding(0, 4, 0, 4);
+        dgvReport.Name = "dgvReport";
+        dgvReport.ReadOnly = true;
+        dgvReport.RowHeadersWidth = 62;
+        dgvReport.RowTemplate.Height = 28;
+        dgvReport.Size = new Size(1178, 508);
+        dgvReport.TabIndex = 34;
+        dgvReport.TabStop = false;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnRefresh.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        btnRefresh.BackColor = Color.White;
+        btnRefresh.FlatAppearance.BorderColor = Color.Black;
+        btnRefresh.FlatAppearance.BorderSize = 2;
+        btnRefresh.FlatStyle = FlatStyle.Popup;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnRefresh.Location = new Point(1018, 48);
+        btnRefresh.Margin = new Padding(4);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(173, 40);
+        btnRefresh.TabIndex = 5;
+        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.UseVisualStyleBackColor = true;
+        btnRefresh.Click += btnRefresh_Click;
+        // 
+        // btnExport
+        // 
+        btnExport.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnExport.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        btnExport.BackColor = Color.White;
+        btnExport.FlatAppearance.BorderColor = Color.Black;
+        btnExport.FlatAppearance.BorderSize = 2;
+        btnExport.FlatStyle = FlatStyle.Popup;
+        btnExport.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnExport.ForeColor = Color.FromArgb(46, 125, 50);
+        btnExport.Location = new Point(190, 48);
+        btnExport.Margin = new Padding(4);
+        btnExport.Name = "btnExport";
+        btnExport.Size = new Size(173, 40);
+        btnExport.TabIndex = 6;
+        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.UseVisualStyleBackColor = true;
+        btnExport.Click += btnExport_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+        btnClose.BackColor = Color.White;
+        btnClose.DialogResult = DialogResult.Cancel;
+        btnClose.FlatStyle = FlatStyle.Popup;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnClose.ImageAlign = ContentAlignment.MiddleRight;
+        btnClose.Location = new Point(1019, 616);
+        btnClose.Margin = new Padding(4);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(170, 47);
+        btnClose.TabIndex = 0;
+        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
+        // 
+        // label1
+        // 
+        label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        label1.AutoSize = true;
+        label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label1.Location = new Point(108, 616);
+        label1.Margin = new Padding(4);
+        label1.Name = "label1";
+        label1.Size = new Size(145, 24);
+        label1.TabIndex = 3;
+        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        // 
+        // lblRecordsCount
+        // 
+        lblRecordsCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        lblRecordsCount.AutoSize = true;
+        lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblRecordsCount.Location = new Point(63, 616);
+        lblRecordsCount.Margin = new Padding(4);
+        lblRecordsCount.Name = "lblRecordsCount";
+        lblRecordsCount.Size = new Size(23, 24);
+        lblRecordsCount.TabIndex = 4;
+        lblRecordsCount.Text = "0";
+        // 
+        // loadingPanel
+        // 
+        loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
+        loadingPanel.Controls.Add(lblRecordsCount);
+        loadingPanel.Controls.Add(btnExport);
+        loadingPanel.Controls.Add(label1);
+        loadingPanel.Controls.Add(btnClose);
+        loadingPanel.Dock = DockStyle.Fill;
+        loadingPanel.Location = new Point(0, 0);
+        loadingPanel.Name = "loadingPanel";
+        loadingPanel.Size = new Size(1200, 680);
+        loadingPanel.TabIndex = 35;
+        loadingPanel.Visible = false;
+        // 
+        // frmDailyClosureReport
+        // 
+        AcceptButton = btnClose;
+        AutoScaleMode = AutoScaleMode.None;
+        BackColor = Color.WhiteSmoke;
+        CancelButton = btnClose;
+        ClientSize = new Size(1200, 680);
+        Controls.Add(btnRefresh);
+        Controls.Add(dgvReport);
+        Controls.Add(lblMode);
+        Controls.Add(loadingPanel);
+        Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        MaximizeBox = false;
+        Name = "frmDailyClosureReport";
+        RightToLeft = RightToLeft.Yes;
+        RightToLeftLayout = true;
+        StartPosition = FormStartPosition.CenterScreen;
+        Text = "ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظٹظˆظ…ظٹ ظ„ظ„طµظ†ط¯ظˆظ‚";
+        Load += frmDailyClosureReport_Load;
+        ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
+        loadingPanel.ResumeLayout(false);
+        loadingPanel.PerformLayout();
+        ResumeLayout(false);
+    }
+
+    #endregion
+
+    private System.Windows.Forms.Label lblMode;
+    private System.Windows.Forms.DataGridView dgvReport;
+    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.Button btnExport;
+    private System.Windows.Forms.Button btnClose;
+    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.Label lblRecordsCount;
+    private System.Windows.Forms.Panel loadingPanel;
+}
+
