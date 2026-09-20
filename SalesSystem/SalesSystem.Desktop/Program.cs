@@ -34,6 +34,7 @@ using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
 using SalesSystem.Desktop.Screens.CashBoxes.Forms;
+using SalesSystem.Desktop.Screens.CashVouchers.Forms;
 using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Banks.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
@@ -401,6 +402,13 @@ static class Program
                     services.AddTransient<frmDiscountExpenses>();
                     services.AddTransient<frmCurrencySelection>();
                     services.AddTransient<frmCustomerPicker>();
+
+                    // Newly-built module hub screens (wired into frmMain MenuStrip)
+                    services.AddTransient<frmCashVouchers>();
+                    services.AddTransient<frmPurchases>();
+                    services.AddTransient<frmInventory>();
+                    services.AddTransient<frmAccounting>();
+                    services.AddTransient<frmReportsDashboard>();
                 })
                 .Build();
 

@@ -108,6 +108,12 @@
             msbtnCurrencySelection = new ToolStripMenuItem();
             // ── الموظفون (جديد) ────────────────────────────────────────────────────────────────────
             msbtnEmployees = new ToolStripMenuItem();
+            // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
+            msbtnCashVouchers = new ToolStripMenuItem();
+            msbtnPurchases = new ToolStripMenuItem();
+            msbtnInventory = new ToolStripMenuItem();
+            msbtnAccounting = new ToolStripMenuItem();
+            msbtnReportsDashboard = new ToolStripMenuItem();
 
             errorProvider1 = new ErrorProvider(components);
             msMainMenu.SuspendLayout();
@@ -246,12 +252,21 @@
             // msStore
             // 
             msStore.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnInventory,
+                new ToolStripSeparator(),
                 msbtnManageWarehouses, msbtnStockTransfer, msbtnInventoryMovement,
                 msbtnInventoryAdjustments, msbtnInventoryCounts
             });
             msStore.Name = "msStore";
             msStore.Size = new Size(95, 33);
             msStore.Text = "المخزون";
+            // 
+            // msbtnInventory
+            // 
+            msbtnInventory.Name = "msbtnInventory";
+            msbtnInventory.Size = new Size(300, 38);
+            msbtnInventory.Text = "إدارة المخزون";
+            msbtnInventory.Click += msbtnInventory_Click;
             // 
             // msbtnManageWarehouses
             // 
@@ -291,6 +306,8 @@
             // msBuy
             // 
             msBuy.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnPurchases,
+                new ToolStripSeparator(),
                 msbtnPurchaseInvoice, msbtnPurchaseReturn, msbtnManagePurchases,
                 new ToolStripSeparator(),
                 msbtnManageSuppliers, msbtnAddSupplier,
@@ -300,6 +317,13 @@
             msBuy.Name = "msBuy";
             msBuy.Size = new Size(115, 33);
             msBuy.Text = "المشتريات";
+            // 
+            // msbtnPurchases
+            // 
+            msbtnPurchases.Name = "msbtnPurchases";
+            msbtnPurchases.Size = new Size(300, 38);
+            msbtnPurchases.Text = "إدارة المشتريات";
+            msbtnPurchases.Click += msbtnPurchases_Click;
             // 
             // msbtnManagePurchases
             // 
@@ -398,11 +422,20 @@
             // msRevenue
             // 
             msRevenue.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnCashVouchers,
+                new ToolStripSeparator(),
                 msbtnCashBoxes, msbtnBanks, msbtnExpenses
             });
             msRevenue.Name = "msRevenue";
             msRevenue.Size = new Size(95, 33);
             msRevenue.Text = "الخزينة";
+            // 
+            // msbtnCashVouchers
+            // 
+            msbtnCashVouchers.Name = "msbtnCashVouchers";
+            msbtnCashVouchers.Size = new Size(300, 38);
+            msbtnCashVouchers.Text = "سندات القبض والصرف";
+            msbtnCashVouchers.Click += msbtnCashVouchers_Click;
             // 
             // msbtnManagePayments
             // 
@@ -456,12 +489,21 @@
             // msAccounting
             // 
             msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnAccounting,
+                new ToolStripSeparator(),
                 msbtnChartOfAccounts, msbtnJournalEntries, msbtnAccountCategories,
                 msbtnSystemAccountMappings, msbtnReceiptVouchers
             });
             msAccounting.Name = "msAccounting";
             msAccounting.Size = new Size(104, 33);
             msAccounting.Text = "حسابات";
+            // 
+            // msbtnAccounting
+            // 
+            msbtnAccounting.Name = "msbtnAccounting";
+            msbtnAccounting.Size = new Size(300, 38);
+            msbtnAccounting.Text = "الحسابات";
+            msbtnAccounting.Click += msbtnAccounting_Click;
             // 
             // msbtnChartOfAccounts
             // 
@@ -574,11 +616,20 @@
             // msReport
             // 
             msReport.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnReportsDashboard,
+                new ToolStripSeparator(),
                 msbtnReports
             });
             msReport.Name = "msReport";
             msReport.Size = new Size(79, 33);
             msReport.Text = "تقارير";
+            // 
+            // msbtnReportsDashboard
+            // 
+            msbtnReportsDashboard.Name = "msbtnReportsDashboard";
+            msbtnReportsDashboard.Size = new Size(300, 38);
+            msbtnReportsDashboard.Text = "لوحة التقارير";
+            msbtnReportsDashboard.Click += msbtnReportsDashboard_Click;
             // 
             // msbtnReports
             // 
@@ -744,6 +795,11 @@
         private ToolStripMenuItem msbtnTaxes;
         private ToolStripMenuItem msReport;
         private ToolStripMenuItem msbtnReports;
+        private ToolStripMenuItem msbtnReportsDashboard;
+        private ToolStripMenuItem msbtnCashVouchers;
+        private ToolStripMenuItem msbtnPurchases;
+        private ToolStripMenuItem msbtnInventory;
+        private ToolStripMenuItem msbtnAccounting;
         private ToolStripMenuItem msSettings;
         private ToolStripMenuItem msbtnSettings;
         private ToolStripMenuItem msbtnCompanySettings;

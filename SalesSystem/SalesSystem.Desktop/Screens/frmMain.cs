@@ -24,6 +24,7 @@ using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
 using SalesSystem.Desktop.Screens.CashBoxes.Forms;
+using SalesSystem.Desktop.Screens.CashVouchers.Forms;
 using SalesSystem.Desktop.Screens.Banks.Forms;
 using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -116,11 +117,13 @@ public partial class frmMain : Form
             msbtnManageWarehouses.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
             msbtnStockTransfer.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.TransferStock);
             msbtnInventoryMovement.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
+            msbtnInventory.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
             msbtnInventoryAdjustments.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.AdjustStock);
             msbtnInventoryCounts.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.CountStock);
 
             // المشتريات (مرتبط بالمخزون)
             msbtnManagePurchases.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
+            msbtnPurchases.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
             msbtnPurchaseInvoice.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.CreateProducts);
             msbtnPurchaseReturn.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.AdjustStock);
             msbtnSupplierPayments.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
@@ -131,17 +134,20 @@ public partial class frmMain : Form
 
             // المحاسبة (AccountingPermissions)
             msbtnChartOfAccounts.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewAccounts);
+            msbtnAccounting.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewAccounts);
             msbtnJournalEntries.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewJournalEntries);
             msbtnAccountCategories.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ManageAccounts);
             msbtnSystemAccountMappings.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ManageAccounts);
             msbtnReceiptVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReceiptVouchers);
             msbtnPaymentVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewPaymentVouchers);
             msbtnCashBoxes.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
+            msbtnCashVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
             msbtnBanks.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
             msbtnExpenses.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewExpenses);
 
             // التقارير
             msbtnReports.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReports);
+            msbtnReportsDashboard.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReports);
         }
         catch (Exception ex)
         {
@@ -207,6 +213,9 @@ public partial class frmMain : Form
     private void msbtnInventoryCounts_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryCounts>());
 
+    private void msbtnInventory_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventory>());
+
     // ── المشتريات (Purchases) ────────────────────────────────────────────────
 
     private void msbtnManagePurchases_Click(object sender, EventArgs e)
@@ -217,6 +226,9 @@ public partial class frmMain : Form
 
     private void msbtnPurchaseReturn_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchaseReturn>());
+
+    private void msbtnPurchases_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchases>());
 
     // ── المبيعات (Sales) ─────────────────────────────────────────────────────
 
@@ -269,6 +281,9 @@ public partial class frmMain : Form
     private void msbtnSupplierPayments_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListSupplierPayments>());
 
+    private void msbtnCashVouchers_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashVouchers>());
+
     // ── حسابات (Accounting) ─────────────────────────────────────────────────
 
     private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
@@ -285,6 +300,9 @@ public partial class frmMain : Form
 
     private void msbtnReceiptVouchers_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListReceiptVouchers>());
+
+    private void msbtnAccounting_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccounting>());
 
     // ── بيانات (Data / Users) ────────────────────────────────────────────────
 
@@ -325,6 +343,9 @@ public partial class frmMain : Form
 
     private void msbtnReports_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReports>());
+
+    private void msbtnReportsDashboard_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReportsDashboard>());
 
     // ── الإعدادات (Settings) ──────────────────────────────────────────────────
 
