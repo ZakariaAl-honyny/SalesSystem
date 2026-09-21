@@ -12,502 +12,824 @@ namespace SalesSystem.Desktop.Screens.POS.Forms
 
         private void InitializeComponent()
         {
-            this.pnlTop = new System.Windows.Forms.Panel();
-            this.flpTop = new System.Windows.Forms.FlowLayoutPanel();
-            this.flpBarcode = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblBarcode = new System.Windows.Forms.Label();
-            this.txtBarcode = new System.Windows.Forms.TextBox();
-            this.btnPending = new System.Windows.Forms.Button();
-            this.flpCurrency = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblCurrency = new System.Windows.Forms.Label();
-            this.cmbCurrency = new System.Windows.Forms.ComboBox();
-            this.flpCustomer = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblCustomer = new System.Windows.Forms.Label();
-            this.cmbCustomer = new System.Windows.Forms.ComboBox();
-            this.lblBalanceBadge = new System.Windows.Forms.Label();
-            this.dgvCart = new System.Windows.Forms.DataGridView();
-            this.pnlCheckout = new System.Windows.Forms.Panel();
-            this.flpCheckout = new System.Windows.Forms.FlowLayoutPanel();
-            this.pnlPayment = new System.Windows.Forms.Panel();
-            this.flpPay = new System.Windows.Forms.FlowLayoutPanel();
-            this.flpPayMethod = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblPayMethod = new System.Windows.Forms.Label();
-            this.cmbPayMethod = new System.Windows.Forms.ComboBox();
-            this.flpPaidCash = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblPaidCash = new System.Windows.Forms.Label();
-            this.txtPaidCash = new System.Windows.Forms.TextBox();
-            this.flpPaidBank = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblPaidBank = new System.Windows.Forms.Label();
-            this.txtPaidBank = new System.Windows.Forms.TextBox();
-            this.flpPaidWallet = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblPaidWallet = new System.Windows.Forms.Label();
-            this.txtPaidWallet = new System.Windows.Forms.TextBox();
-            this.flpDiscount = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblDiscount = new System.Windows.Forms.Label();
-            this.numDiscount = new System.Windows.Forms.NumericUpDown();
-            this.flpTax = new System.Windows.Forms.FlowLayoutPanel();
-            this.lblTax = new System.Windows.Forms.Label();
-            this.numTax = new System.Windows.Forms.NumericUpDown();
-            this.pnlTotals = new System.Windows.Forms.Panel();
-            this.tblTotals = new System.Windows.Forms.TableLayoutPanel();
-            this.lblSubTotal = new System.Windows.Forms.Label();
-            this.lblSubTotalVal = new System.Windows.Forms.Label();
-            this.lblDiscountTotal = new System.Windows.Forms.Label();
-            this.lblDiscountTotalVal = new System.Windows.Forms.Label();
-            this.lblNetTotal = new System.Windows.Forms.Label();
-            this.lblNetTotalVal = new System.Windows.Forms.Label();
-            this.lblPaidTotal = new System.Windows.Forms.Label();
-            this.lblPaidTotalVal = new System.Windows.Forms.Label();
-            this.lblRemaining = new System.Windows.Forms.Label();
-            this.lblRemainingVal = new System.Windows.Forms.Label();
-            this.lblDueToStore = new System.Windows.Forms.Label();
-            this.lblDueToStoreVal = new System.Windows.Forms.Label();
-            this.btnSave = new System.Windows.Forms.Button();
-
-            this.pnlTop.SuspendLayout();
-            this.flpTop.SuspendLayout();
-            this.flpBarcode.SuspendLayout();
-            this.flpCurrency.SuspendLayout();
-            this.flpCustomer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCart)).BeginInit();
-            this.pnlCheckout.SuspendLayout();
-            this.flpCheckout.SuspendLayout();
-            this.pnlPayment.SuspendLayout();
-            this.flpPay.SuspendLayout();
-            this.flpPayMethod.SuspendLayout();
-            this.flpPaidCash.SuspendLayout();
-            this.flpPaidBank.SuspendLayout();
-            this.flpPaidWallet.SuspendLayout();
-            this.flpDiscount.SuspendLayout();
-            this.flpTax.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numDiscount)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numTax)).BeginInit();
-            this.pnlTotals.SuspendLayout();
-            this.tblTotals.SuspendLayout();
-            this.SuspendLayout();
-
-            // ---------- pnlTop (الشريط العلوي) ----------
-            this.pnlTop.Controls.Add(this.flpTop);
-            this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlTop.Height = 64;
-            this.pnlTop.Padding = new System.Windows.Forms.Padding(10, 8, 10, 8);
-            this.pnlTop.BackColor = System.Drawing.Color.White;
-            this.pnlTop.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+            pnlTop = new Panel();
+            flpTop = new FlowLayoutPanel();
+            flpBarcode = new FlowLayoutPanel();
+            lblBarcode = new Label();
+            txtBarcode = new TextBox();
+            btnPending = new Button();
+            flpCurrency = new FlowLayoutPanel();
+            lblCurrency = new Label();
+            cmbCurrency = new ComboBox();
+            flpCustomer = new FlowLayoutPanel();
+            lblCustomer = new Label();
+            cmbCustomer = new ComboBox();
+            lblBalanceBadge = new Label();
+            dgvCart = new DataGridView();
+            pnlCheckout = new Panel();
+            flpCheckout = new FlowLayoutPanel();
+            pnlPayment = new Panel();
+            flpPay = new FlowLayoutPanel();
+            flpPayMethod = new FlowLayoutPanel();
+            lblPayMethod = new Label();
+            cmbPayMethod = new ComboBox();
+            flpPaidCash = new FlowLayoutPanel();
+            lblPaidCash = new Label();
+            txtPaidCash = new TextBox();
+            flpPaidBank = new FlowLayoutPanel();
+            lblPaidBank = new Label();
+            txtPaidBank = new TextBox();
+            flpPaidWallet = new FlowLayoutPanel();
+            lblPaidWallet = new Label();
+            txtPaidWallet = new TextBox();
+            flpDiscount = new FlowLayoutPanel();
+            lblDiscount = new Label();
+            numDiscount = new NumericUpDown();
+            flpTax = new FlowLayoutPanel();
+            lblTax = new Label();
+            numTax = new NumericUpDown();
+            pnlTotals = new Panel();
+            tblTotals = new TableLayoutPanel();
+            lblSubTotal = new Label();
+            lblSubTotalVal = new Label();
+            lblDiscountTotal = new Label();
+            lblDiscountTotalVal = new Label();
+            lblNetTotal = new Label();
+            lblNetTotalVal = new Label();
+            lblPaidTotal = new Label();
+            lblPaidTotalVal = new Label();
+            lblRemaining = new Label();
+            lblRemainingVal = new Label();
+            lblDueToStore = new Label();
+            lblDueToStoreVal = new Label();
+            btnSave = new Button();
+            dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn4 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn5 = new DataGridViewTextBoxColumn();
+            dataGridViewTextBoxColumn6 = new DataGridViewTextBoxColumn();
+            pnlTop.SuspendLayout();
+            flpTop.SuspendLayout();
+            flpBarcode.SuspendLayout();
+            flpCurrency.SuspendLayout();
+            flpCustomer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCart).BeginInit();
+            pnlCheckout.SuspendLayout();
+            flpCheckout.SuspendLayout();
+            pnlPayment.SuspendLayout();
+            flpPay.SuspendLayout();
+            flpPayMethod.SuspendLayout();
+            flpPaidCash.SuspendLayout();
+            flpPaidBank.SuspendLayout();
+            flpPaidWallet.SuspendLayout();
+            flpDiscount.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numDiscount).BeginInit();
+            flpTax.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numTax).BeginInit();
+            pnlTotals.SuspendLayout();
+            tblTotals.SuspendLayout();
+            SuspendLayout();
+            // 
+            // pnlTop
+            // 
+            pnlTop.BackColor = Color.White;
+            pnlTop.BorderStyle = BorderStyle.FixedSingle;
+            pnlTop.Controls.Add(flpTop);
+            pnlTop.Dock = DockStyle.Top;
+            pnlTop.Location = new Point(0, 0);
+            pnlTop.Name = "pnlTop";
+            pnlTop.Padding = new Padding(10, 8, 10, 8);
+            pnlTop.Size = new Size(1200, 64);
+            pnlTop.TabIndex = 2;
+            // 
             // flpTop
-            this.flpTop.Controls.Add(this.flpBarcode);
-            this.flpTop.Controls.Add(this.btnPending);
-            this.flpTop.Controls.Add(this.flpCurrency);
-            this.flpTop.Controls.Add(this.flpCustomer);
-            this.flpTop.Controls.Add(this.lblBalanceBadge);
-            this.flpTop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpTop.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpTop.WrapContents = true;
-
-            // flpBarcode (باركود + حقل الإدخال)
-            this.flpBarcode.Controls.Add(this.lblBarcode);
-            this.flpBarcode.Controls.Add(this.txtBarcode);
-            this.flpBarcode.AutoSize = true;
-            this.flpBarcode.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpBarcode.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpBarcode.WrapContents = false;
-            this.flpBarcode.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
-
-            this.lblBarcode.Text = "باركود [F2]:";
-            this.lblBarcode.AutoSize = true;
-            this.lblBarcode.Margin = new System.Windows.Forms.Padding(0, 8, 5, 0);
-            this.lblBarcode.Font = new System.Drawing.Font("Tahoma", 12F);
-
-            this.txtBarcode.Width = 200;
-            this.txtBarcode.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.txtBarcode.PlaceholderText = "امسح الباركود ثم اضغط Enter";
-            this.txtBarcode.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBarcode_KeyDown);
-
+            // 
+            flpTop.Controls.Add(flpBarcode);
+            flpTop.Controls.Add(btnPending);
+            flpTop.Controls.Add(flpCurrency);
+            flpTop.Controls.Add(flpCustomer);
+            flpTop.Controls.Add(lblBalanceBadge);
+            flpTop.Dock = DockStyle.Fill;
+            flpTop.FlowDirection = FlowDirection.RightToLeft;
+            flpTop.Location = new Point(10, 8);
+            flpTop.Name = "flpTop";
+            flpTop.Size = new Size(1178, 46);
+            flpTop.TabIndex = 0;
+            // 
+            // flpBarcode
+            // 
+            flpBarcode.AutoSize = true;
+            flpBarcode.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpBarcode.Controls.Add(lblBarcode);
+            flpBarcode.Controls.Add(txtBarcode);
+            flpBarcode.FlowDirection = FlowDirection.RightToLeft;
+            flpBarcode.Location = new Point(8, 0);
+            flpBarcode.Margin = new Padding(8, 0, 8, 0);
+            flpBarcode.Name = "flpBarcode";
+            flpBarcode.Size = new Size(341, 42);
+            flpBarcode.TabIndex = 0;
+            flpBarcode.WrapContents = false;
+            // 
+            // lblBarcode
+            // 
+            lblBarcode.AutoSize = true;
+            lblBarcode.Font = new Font("Tahoma", 12F);
+            lblBarcode.Location = new Point(5, 8);
+            lblBarcode.Margin = new Padding(0, 8, 5, 0);
+            lblBarcode.Name = "lblBarcode";
+            lblBarcode.Size = new Size(130, 29);
+            lblBarcode.TabIndex = 0;
+            lblBarcode.Text = "باركود [F2]:";
+            // 
+            // txtBarcode
+            // 
+            txtBarcode.Font = new Font("Tahoma", 12F);
+            txtBarcode.Location = new Point(138, 3);
+            txtBarcode.Name = "txtBarcode";
+            txtBarcode.PlaceholderText = "امسح الباركود ثم اضغط Enter";
+            txtBarcode.Size = new Size(200, 36);
+            txtBarcode.TabIndex = 1;
+            txtBarcode.KeyDown += txtBarcode_KeyDown;
+            // 
             // btnPending
-            this.btnPending.Text = "فواتير معلقة [F4]";
-            this.btnPending.Width = 150;
-            this.btnPending.Height = 30;
-            this.btnPending.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
-            this.btnPending.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPending.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(222, 226, 230);
-            this.btnPending.FlatAppearance.BorderSize = 1;
-            this.btnPending.BackColor = System.Drawing.Color.White;
-            this.btnPending.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
-            this.btnPending.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
-            this.btnPending.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPending.Click += new System.EventHandler(this.btnPending_Click);
-
-            // flpCurrency (العملة)
-            this.flpCurrency.Controls.Add(this.lblCurrency);
-            this.flpCurrency.Controls.Add(this.cmbCurrency);
-            this.flpCurrency.AutoSize = true;
-            this.flpCurrency.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpCurrency.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpCurrency.WrapContents = false;
-            this.flpCurrency.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
-
-            this.lblCurrency.Text = "العملة:";
-            this.lblCurrency.AutoSize = true;
-            this.lblCurrency.Margin = new System.Windows.Forms.Padding(0, 8, 5, 0);
-            this.lblCurrency.Font = new System.Drawing.Font("Tahoma", 12F);
-
-            this.cmbCurrency.Width = 110;
-            this.cmbCurrency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbCurrency.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.cmbCurrency.Items.AddRange(new object[] { "ريال يمني", "دولار أمريكي", "ريال سعودي" });
-
-            // flpCustomer (العميل)
-            this.flpCustomer.Controls.Add(this.lblCustomer);
-            this.flpCustomer.Controls.Add(this.cmbCustomer);
-            this.flpCustomer.AutoSize = true;
-            this.flpCustomer.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpCustomer.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpCustomer.WrapContents = false;
-            this.flpCustomer.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
-
-            this.lblCustomer.Text = "العميل:";
-            this.lblCustomer.AutoSize = true;
-            this.lblCustomer.Margin = new System.Windows.Forms.Padding(0, 8, 5, 0);
-            this.lblCustomer.Font = new System.Drawing.Font("Tahoma", 12F);
-
-            this.cmbCustomer.Width = 200;
-            this.cmbCustomer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbCustomer.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.cmbCustomer.SelectedIndexChanged += new System.EventHandler(this.cmbCustomer_SelectedIndexChanged);
-
-            // lblBalanceBadge (شارة الرصيد)
-            this.lblBalanceBadge.Text = "حساب خالص";
-            this.lblBalanceBadge.Width = 150;
-            this.lblBalanceBadge.Height = 32;
-            this.lblBalanceBadge.Margin = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.lblBalanceBadge.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblBalanceBadge.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
-            this.lblBalanceBadge.ForeColor = System.Drawing.Color.White;
-            this.lblBalanceBadge.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
-            this.lblBalanceBadge.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-
-            // ---------- dgvCart (شبكة السلة) ----------
-            this.dgvCart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvCart.BackgroundColor = System.Drawing.Color.White;
-            this.dgvCart.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvCart.AllowUserToAddRows = false;
-            this.dgvCart.AllowUserToDeleteRows = false;
-            this.dgvCart.ReadOnly = true;
-            this.dgvCart.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCart.MultiSelect = false;
-            this.dgvCart.RowHeadersVisible = false;
-            this.dgvCart.AutoGenerateColumns = false;
-            this.dgvCart.RowTemplate.Height = 34;
-            this.dgvCart.EnableHeadersVisualStyles = false;
-            this.dgvCart.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
-            this.dgvCart.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
-            this.dgvCart.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.dgvCart.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(242, 242, 242);
-            this.dgvCart.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ColNo", HeaderText = "#", DataPropertyName = "LineNo", Width = 50 });
-            this.dgvCart.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ColName", HeaderText = "اسم الصنف", DataPropertyName = "ProductName", Width = 340 });
-            this.dgvCart.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ColUnit", HeaderText = "الوحدة", DataPropertyName = "UnitName", Width = 100 });
-            this.dgvCart.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ColQty", HeaderText = "الكمية", DataPropertyName = "Quantity", Width = 110, DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { Format = "N3", Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight } });
-            this.dgvCart.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ColPrice", HeaderText = "السعر", DataPropertyName = "UnitPrice", Width = 130, DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { Format = "N2", Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight } });
-            this.dgvCart.Columns.Add(new System.Windows.Forms.DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 150, DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { Format = "N2", Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight, ForeColor = System.Drawing.Color.FromArgb(13, 110, 253), Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold) } });
-
-            // ---------- pnlCheckout (لوحة الدفع والإجماليات) ----------
-            this.pnlCheckout.Controls.Add(this.flpCheckout);
-            this.pnlCheckout.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCheckout.Height = 250;
-            this.pnlCheckout.Padding = new System.Windows.Forms.Padding(10, 8, 10, 10);
-            this.pnlCheckout.BackColor = System.Drawing.Color.White;
-            this.pnlCheckout.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-
+            // 
+            btnPending.BackColor = Color.White;
+            btnPending.Cursor = Cursors.Hand;
+            btnPending.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnPending.FlatStyle = FlatStyle.Flat;
+            btnPending.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+            btnPending.ForeColor = Color.FromArgb(33, 37, 41);
+            btnPending.Location = new Point(367, 0);
+            btnPending.Margin = new Padding(10, 0, 10, 0);
+            btnPending.Name = "btnPending";
+            btnPending.Size = new Size(150, 39);
+            btnPending.TabIndex = 1;
+            btnPending.Text = "فواتير معلقة [F4]";
+            btnPending.UseVisualStyleBackColor = false;
+            btnPending.Click += btnPending_Click;
+            // 
+            // flpCurrency
+            // 
+            flpCurrency.AutoSize = true;
+            flpCurrency.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpCurrency.Controls.Add(lblCurrency);
+            flpCurrency.Controls.Add(cmbCurrency);
+            flpCurrency.FlowDirection = FlowDirection.RightToLeft;
+            flpCurrency.Location = new Point(535, 0);
+            flpCurrency.Margin = new Padding(8, 0, 8, 0);
+            flpCurrency.Name = "flpCurrency";
+            flpCurrency.Size = new Size(204, 39);
+            flpCurrency.TabIndex = 2;
+            flpCurrency.WrapContents = false;
+            // 
+            // lblCurrency
+            // 
+            lblCurrency.AutoSize = true;
+            lblCurrency.Font = new Font("Tahoma", 12F);
+            lblCurrency.Location = new Point(5, 8);
+            lblCurrency.Margin = new Padding(0, 8, 5, 0);
+            lblCurrency.Name = "lblCurrency";
+            lblCurrency.Size = new Size(83, 29);
+            lblCurrency.TabIndex = 0;
+            lblCurrency.Text = "العملة:";
+            // 
+            // cmbCurrency
+            // 
+            cmbCurrency.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCurrency.Font = new Font("Tahoma", 11F);
+            cmbCurrency.Items.AddRange(new object[] { "ريال يمني", "دولار أمريكي", "ريال سعودي" });
+            cmbCurrency.Location = new Point(91, 3);
+            cmbCurrency.Name = "cmbCurrency";
+            cmbCurrency.Size = new Size(110, 35);
+            cmbCurrency.TabIndex = 1;
+            // 
+            // flpCustomer
+            // 
+            flpCustomer.AutoSize = true;
+            flpCustomer.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpCustomer.Controls.Add(lblCustomer);
+            flpCustomer.Controls.Add(cmbCustomer);
+            flpCustomer.FlowDirection = FlowDirection.RightToLeft;
+            flpCustomer.Location = new Point(755, 0);
+            flpCustomer.Margin = new Padding(8, 0, 8, 0);
+            flpCustomer.Name = "flpCustomer";
+            flpCustomer.Size = new Size(297, 39);
+            flpCustomer.TabIndex = 3;
+            flpCustomer.WrapContents = false;
+            // 
+            // lblCustomer
+            // 
+            lblCustomer.AutoSize = true;
+            lblCustomer.Font = new Font("Tahoma", 12F);
+            lblCustomer.Location = new Point(5, 8);
+            lblCustomer.Margin = new Padding(0, 8, 5, 0);
+            lblCustomer.Name = "lblCustomer";
+            lblCustomer.Size = new Size(86, 29);
+            lblCustomer.TabIndex = 0;
+            lblCustomer.Text = "العميل:";
+            // 
+            // cmbCustomer
+            // 
+            cmbCustomer.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCustomer.Font = new Font("Tahoma", 11F);
+            cmbCustomer.Location = new Point(94, 3);
+            cmbCustomer.Name = "cmbCustomer";
+            cmbCustomer.Size = new Size(200, 35);
+            cmbCustomer.TabIndex = 1;
+            cmbCustomer.SelectedIndexChanged += cmbCustomer_SelectedIndexChanged;
+            // 
+            // lblBalanceBadge
+            // 
+            lblBalanceBadge.BackColor = Color.FromArgb(108, 117, 125);
+            lblBalanceBadge.BorderStyle = BorderStyle.FixedSingle;
+            lblBalanceBadge.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+            lblBalanceBadge.ForeColor = Color.White;
+            lblBalanceBadge.Location = new Point(0, 42);
+            lblBalanceBadge.Margin = new Padding(10, 0, 0, 0);
+            lblBalanceBadge.Name = "lblBalanceBadge";
+            lblBalanceBadge.Size = new Size(150, 32);
+            lblBalanceBadge.TabIndex = 4;
+            lblBalanceBadge.Text = "حساب خالص";
+            lblBalanceBadge.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // dgvCart
+            // 
+            dgvCart.AllowUserToAddRows = false;
+            dgvCart.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle4.BackColor = Color.FromArgb(242, 242, 242);
+            dgvCart.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+            dgvCart.BackgroundColor = Color.White;
+            dgvCart.BorderStyle = BorderStyle.None;
+            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = Color.FromArgb(248, 249, 250);
+            dataGridViewCellStyle5.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+            dataGridViewCellStyle5.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
+            dgvCart.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            dgvCart.ColumnHeadersHeight = 34;
+            dgvCart.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3, dataGridViewTextBoxColumn4, dataGridViewTextBoxColumn5, dataGridViewTextBoxColumn6 });
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = SystemColors.Window;
+            dataGridViewCellStyle6.Font = new Font("Tahoma", 12F);
+            dataGridViewCellStyle6.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+            dgvCart.DefaultCellStyle = dataGridViewCellStyle6;
+            dgvCart.Dock = DockStyle.Fill;
+            dgvCart.EnableHeadersVisualStyles = false;
+            dgvCart.Location = new Point(0, 64);
+            dgvCart.MultiSelect = false;
+            dgvCart.Name = "dgvCart";
+            dgvCart.ReadOnly = true;
+            dgvCart.RowHeadersVisible = false;
+            dgvCart.RowHeadersWidth = 62;
+            dgvCart.RowTemplate.Height = 34;
+            dgvCart.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvCart.Size = new Size(1200, 506);
+            dgvCart.TabIndex = 0;
+            // 
+            // pnlCheckout
+            // 
+            pnlCheckout.BackColor = Color.White;
+            pnlCheckout.BorderStyle = BorderStyle.FixedSingle;
+            pnlCheckout.Controls.Add(flpCheckout);
+            pnlCheckout.Dock = DockStyle.Bottom;
+            pnlCheckout.Location = new Point(0, 570);
+            pnlCheckout.Name = "pnlCheckout";
+            pnlCheckout.Padding = new Padding(10, 8, 10, 10);
+            pnlCheckout.Size = new Size(1200, 250);
+            pnlCheckout.TabIndex = 1;
+            // 
             // flpCheckout
-            this.flpCheckout.Controls.Add(this.pnlPayment);
-            this.flpCheckout.Controls.Add(this.pnlTotals);
-            this.flpCheckout.Controls.Add(this.btnSave);
-            this.flpCheckout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpCheckout.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpCheckout.WrapContents = false;
-
-            // ---------- pnlPayment (طريقة الدفع + الدفع المجزأ + الخصم/الضريبة) ----------
-            this.pnlPayment.Width = 470;
-            this.pnlPayment.Height = 215;
-            this.pnlPayment.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.pnlPayment.Controls.Add(this.flpPay);
-
-            this.flpPay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpPay.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpPay.WrapContents = true;
-
+            // 
+            flpCheckout.Controls.Add(pnlPayment);
+            flpCheckout.Controls.Add(pnlTotals);
+            flpCheckout.Controls.Add(btnSave);
+            flpCheckout.Dock = DockStyle.Fill;
+            flpCheckout.FlowDirection = FlowDirection.RightToLeft;
+            flpCheckout.Location = new Point(10, 8);
+            flpCheckout.Name = "flpCheckout";
+            flpCheckout.Size = new Size(1178, 230);
+            flpCheckout.TabIndex = 0;
+            flpCheckout.WrapContents = false;
+            // 
+            // pnlPayment
+            // 
+            pnlPayment.Controls.Add(flpPay);
+            pnlPayment.Location = new Point(5, 0);
+            pnlPayment.Margin = new Padding(5, 0, 5, 0);
+            pnlPayment.Name = "pnlPayment";
+            pnlPayment.Size = new Size(470, 215);
+            pnlPayment.TabIndex = 0;
+            // 
+            // flpPay
+            // 
+            flpPay.Controls.Add(flpPayMethod);
+            flpPay.Controls.Add(flpPaidCash);
+            flpPay.Controls.Add(flpPaidBank);
+            flpPay.Controls.Add(flpPaidWallet);
+            flpPay.Controls.Add(flpDiscount);
+            flpPay.Controls.Add(flpTax);
+            flpPay.Dock = DockStyle.Fill;
+            flpPay.FlowDirection = FlowDirection.RightToLeft;
+            flpPay.Location = new Point(0, 0);
+            flpPay.Name = "flpPay";
+            flpPay.Size = new Size(470, 215);
+            flpPay.TabIndex = 0;
+            // 
             // flpPayMethod
-            this.flpPayMethod.Controls.Add(this.lblPayMethod);
-            this.flpPayMethod.Controls.Add(this.cmbPayMethod);
-            this.flpPayMethod.AutoSize = true;
-            this.flpPayMethod.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpPayMethod.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpPayMethod.WrapContents = false;
-            this.flpPayMethod.Margin = new System.Windows.Forms.Padding(0, 4, 8, 0);
-            this.flpPay.Controls.Add(this.flpPayMethod);
-
-            this.lblPayMethod.Text = "طريقة الدفع:";
-            this.lblPayMethod.AutoSize = true;
-            this.lblPayMethod.Margin = new System.Windows.Forms.Padding(0, 6, 5, 0);
-            this.lblPayMethod.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.cmbPayMethod.Width = 160;
-            this.cmbPayMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbPayMethod.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.cmbPayMethod.Items.AddRange(new object[] { "نقدي", "كريمي", "شبكة / بطاقة", "آجل", "محفظة جيب", "دفع مجزأ" });
-
+            // 
+            flpPayMethod.AutoSize = true;
+            flpPayMethod.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpPayMethod.Controls.Add(lblPayMethod);
+            flpPayMethod.Controls.Add(cmbPayMethod);
+            flpPayMethod.FlowDirection = FlowDirection.RightToLeft;
+            flpPayMethod.Location = new Point(8, 4);
+            flpPayMethod.Margin = new Padding(0, 4, 8, 0);
+            flpPayMethod.Name = "flpPayMethod";
+            flpPayMethod.Size = new Size(297, 39);
+            flpPayMethod.TabIndex = 0;
+            flpPayMethod.WrapContents = false;
+            // 
+            // lblPayMethod
+            // 
+            lblPayMethod.AutoSize = true;
+            lblPayMethod.Font = new Font("Tahoma", 11F);
+            lblPayMethod.Location = new Point(5, 6);
+            lblPayMethod.Margin = new Padding(0, 6, 5, 0);
+            lblPayMethod.Name = "lblPayMethod";
+            lblPayMethod.Size = new Size(126, 27);
+            lblPayMethod.TabIndex = 0;
+            lblPayMethod.Text = "طريقة الدفع:";
+            // 
+            // cmbPayMethod
+            // 
+            cmbPayMethod.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbPayMethod.Font = new Font("Tahoma", 11F);
+            cmbPayMethod.Items.AddRange(new object[] { "نقدي", "كريمي", "شبكة / بطاقة", "آجل", "محفظة جيب", "دفع مجزأ" });
+            cmbPayMethod.Location = new Point(134, 3);
+            cmbPayMethod.Name = "cmbPayMethod";
+            cmbPayMethod.Size = new Size(160, 35);
+            cmbPayMethod.TabIndex = 1;
+            // 
             // flpPaidCash
-            this.flpPaidCash.Controls.Add(this.lblPaidCash);
-            this.flpPaidCash.Controls.Add(this.txtPaidCash);
-            this.flpPaidCash.AutoSize = true;
-            this.flpPaidCash.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpPaidCash.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpPaidCash.WrapContents = false;
-            this.flpPaidCash.Margin = new System.Windows.Forms.Padding(0, 4, 8, 0);
-            this.flpPay.Controls.Add(this.flpPaidCash);
-
-            this.lblPaidCash.Text = "المدفوع نقد:";
-            this.lblPaidCash.AutoSize = true;
-            this.lblPaidCash.Margin = new System.Windows.Forms.Padding(0, 6, 5, 0);
-            this.lblPaidCash.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.txtPaidCash.Width = 95;
-            this.txtPaidCash.Text = "0";
-            this.txtPaidCash.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.txtPaidCash.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.txtPaidCash.TextChanged += new System.EventHandler(this.MoneyField_TextChanged);
-
+            // 
+            flpPaidCash.AutoSize = true;
+            flpPaidCash.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpPaidCash.Controls.Add(lblPaidCash);
+            flpPaidCash.Controls.Add(txtPaidCash);
+            flpPaidCash.FlowDirection = FlowDirection.RightToLeft;
+            flpPaidCash.Location = new Point(8, 47);
+            flpPaidCash.Margin = new Padding(0, 4, 8, 0);
+            flpPaidCash.Name = "flpPaidCash";
+            flpPaidCash.Size = new Size(230, 40);
+            flpPaidCash.TabIndex = 1;
+            flpPaidCash.WrapContents = false;
+            // 
+            // lblPaidCash
+            // 
+            lblPaidCash.AutoSize = true;
+            lblPaidCash.Font = new Font("Tahoma", 11F);
+            lblPaidCash.Location = new Point(5, 6);
+            lblPaidCash.Margin = new Padding(0, 6, 5, 0);
+            lblPaidCash.Name = "lblPaidCash";
+            lblPaidCash.Size = new Size(124, 27);
+            lblPaidCash.TabIndex = 0;
+            lblPaidCash.Text = "المدفوع نقد:";
+            // 
+            // txtPaidCash
+            // 
+            txtPaidCash.Font = new Font("Tahoma", 11F);
+            txtPaidCash.Location = new Point(132, 3);
+            txtPaidCash.Name = "txtPaidCash";
+            txtPaidCash.Size = new Size(95, 34);
+            txtPaidCash.TabIndex = 1;
+            txtPaidCash.Text = "0";
+            txtPaidCash.TextAlign = HorizontalAlignment.Right;
+            txtPaidCash.TextChanged += MoneyField_TextChanged;
+            // 
             // flpPaidBank
-            this.flpPaidBank.Controls.Add(this.lblPaidBank);
-            this.flpPaidBank.Controls.Add(this.txtPaidBank);
-            this.flpPaidBank.AutoSize = true;
-            this.flpPaidBank.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpPaidBank.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpPaidBank.WrapContents = false;
-            this.flpPaidBank.Margin = new System.Windows.Forms.Padding(0, 4, 8, 0);
-            this.flpPay.Controls.Add(this.flpPaidBank);
-
-            this.lblPaidBank.Text = "المدفوع بنك:";
-            this.lblPaidBank.AutoSize = true;
-            this.lblPaidBank.Margin = new System.Windows.Forms.Padding(0, 6, 5, 0);
-            this.lblPaidBank.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.txtPaidBank.Width = 95;
-            this.txtPaidBank.Text = "0";
-            this.txtPaidBank.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.txtPaidBank.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.txtPaidBank.TextChanged += new System.EventHandler(this.MoneyField_TextChanged);
-
+            // 
+            flpPaidBank.AutoSize = true;
+            flpPaidBank.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpPaidBank.Controls.Add(lblPaidBank);
+            flpPaidBank.Controls.Add(txtPaidBank);
+            flpPaidBank.FlowDirection = FlowDirection.RightToLeft;
+            flpPaidBank.Location = new Point(8, 91);
+            flpPaidBank.Margin = new Padding(0, 4, 8, 0);
+            flpPaidBank.Name = "flpPaidBank";
+            flpPaidBank.Size = new Size(233, 40);
+            flpPaidBank.TabIndex = 2;
+            flpPaidBank.WrapContents = false;
+            // 
+            // lblPaidBank
+            // 
+            lblPaidBank.AutoSize = true;
+            lblPaidBank.Font = new Font("Tahoma", 11F);
+            lblPaidBank.Location = new Point(5, 6);
+            lblPaidBank.Margin = new Padding(0, 6, 5, 0);
+            lblPaidBank.Name = "lblPaidBank";
+            lblPaidBank.Size = new Size(127, 27);
+            lblPaidBank.TabIndex = 0;
+            lblPaidBank.Text = "المدفوع بنك:";
+            // 
+            // txtPaidBank
+            // 
+            txtPaidBank.Font = new Font("Tahoma", 11F);
+            txtPaidBank.Location = new Point(135, 3);
+            txtPaidBank.Name = "txtPaidBank";
+            txtPaidBank.Size = new Size(95, 34);
+            txtPaidBank.TabIndex = 1;
+            txtPaidBank.Text = "0";
+            txtPaidBank.TextAlign = HorizontalAlignment.Right;
+            txtPaidBank.TextChanged += MoneyField_TextChanged;
+            // 
             // flpPaidWallet
-            this.flpPaidWallet.Controls.Add(this.lblPaidWallet);
-            this.flpPaidWallet.Controls.Add(this.txtPaidWallet);
-            this.flpPaidWallet.AutoSize = true;
-            this.flpPaidWallet.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpPaidWallet.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpPaidWallet.WrapContents = false;
-            this.flpPaidWallet.Margin = new System.Windows.Forms.Padding(0, 4, 8, 0);
-            this.flpPay.Controls.Add(this.flpPaidWallet);
-
-            this.lblPaidWallet.Text = "المدفوع محفظة:";
-            this.lblPaidWallet.AutoSize = true;
-            this.lblPaidWallet.Margin = new System.Windows.Forms.Padding(0, 6, 5, 0);
-            this.lblPaidWallet.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.txtPaidWallet.Width = 95;
-            this.txtPaidWallet.Text = "0";
-            this.txtPaidWallet.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.txtPaidWallet.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.txtPaidWallet.TextChanged += new System.EventHandler(this.MoneyField_TextChanged);
-
+            // 
+            flpPaidWallet.AutoSize = true;
+            flpPaidWallet.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpPaidWallet.Controls.Add(lblPaidWallet);
+            flpPaidWallet.Controls.Add(txtPaidWallet);
+            flpPaidWallet.FlowDirection = FlowDirection.RightToLeft;
+            flpPaidWallet.Location = new Point(8, 135);
+            flpPaidWallet.Margin = new Padding(0, 4, 8, 0);
+            flpPaidWallet.Name = "flpPaidWallet";
+            flpPaidWallet.Size = new Size(266, 40);
+            flpPaidWallet.TabIndex = 3;
+            flpPaidWallet.WrapContents = false;
+            // 
+            // lblPaidWallet
+            // 
+            lblPaidWallet.AutoSize = true;
+            lblPaidWallet.Font = new Font("Tahoma", 11F);
+            lblPaidWallet.Location = new Point(5, 6);
+            lblPaidWallet.Margin = new Padding(0, 6, 5, 0);
+            lblPaidWallet.Name = "lblPaidWallet";
+            lblPaidWallet.Size = new Size(160, 27);
+            lblPaidWallet.TabIndex = 0;
+            lblPaidWallet.Text = "المدفوع محفظة:";
+            // 
+            // txtPaidWallet
+            // 
+            txtPaidWallet.Font = new Font("Tahoma", 11F);
+            txtPaidWallet.Location = new Point(168, 3);
+            txtPaidWallet.Name = "txtPaidWallet";
+            txtPaidWallet.Size = new Size(95, 34);
+            txtPaidWallet.TabIndex = 1;
+            txtPaidWallet.Text = "0";
+            txtPaidWallet.TextAlign = HorizontalAlignment.Right;
+            txtPaidWallet.TextChanged += MoneyField_TextChanged;
+            // 
             // flpDiscount
-            this.flpDiscount.Controls.Add(this.lblDiscount);
-            this.flpDiscount.Controls.Add(this.numDiscount);
-            this.flpDiscount.AutoSize = true;
-            this.flpDiscount.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpDiscount.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpDiscount.WrapContents = false;
-            this.flpDiscount.Margin = new System.Windows.Forms.Padding(0, 4, 8, 0);
-            this.flpPay.Controls.Add(this.flpDiscount);
-
-            this.lblDiscount.Text = "خصم:";
-            this.lblDiscount.AutoSize = true;
-            this.lblDiscount.Margin = new System.Windows.Forms.Padding(0, 6, 5, 0);
-            this.lblDiscount.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.numDiscount.Width = 95;
-            this.numDiscount.DecimalPlaces = 2;
-            this.numDiscount.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
-            this.numDiscount.Value = new decimal(new int[] { 0, 0, 0, 0 });
-            this.numDiscount.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.numDiscount.ValueChanged += new System.EventHandler(this.MoneyField_TextChanged);
-
+            // 
+            flpDiscount.AutoSize = true;
+            flpDiscount.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpDiscount.Controls.Add(lblDiscount);
+            flpDiscount.Controls.Add(numDiscount);
+            flpDiscount.FlowDirection = FlowDirection.RightToLeft;
+            flpDiscount.Location = new Point(282, 135);
+            flpDiscount.Margin = new Padding(0, 4, 8, 0);
+            flpDiscount.Name = "flpDiscount";
+            flpDiscount.Size = new Size(173, 40);
+            flpDiscount.TabIndex = 4;
+            flpDiscount.WrapContents = false;
+            // 
+            // lblDiscount
+            // 
+            lblDiscount.AutoSize = true;
+            lblDiscount.Font = new Font("Tahoma", 11F);
+            lblDiscount.Location = new Point(5, 6);
+            lblDiscount.Margin = new Padding(0, 6, 5, 0);
+            lblDiscount.Name = "lblDiscount";
+            lblDiscount.Size = new Size(67, 27);
+            lblDiscount.TabIndex = 0;
+            lblDiscount.Text = "خصم:";
+            // 
+            // numDiscount
+            // 
+            numDiscount.DecimalPlaces = 2;
+            numDiscount.Font = new Font("Tahoma", 11F);
+            numDiscount.Location = new Point(75, 3);
+            numDiscount.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numDiscount.Name = "numDiscount";
+            numDiscount.Size = new Size(95, 34);
+            numDiscount.TabIndex = 1;
+            numDiscount.ValueChanged += MoneyField_TextChanged;
+            // 
             // flpTax
-            this.flpTax.Controls.Add(this.lblTax);
-            this.flpTax.Controls.Add(this.numTax);
-            this.flpTax.AutoSize = true;
-            this.flpTax.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpTax.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flpTax.WrapContents = false;
-            this.flpTax.Margin = new System.Windows.Forms.Padding(0, 4, 8, 0);
-            this.flpPay.Controls.Add(this.flpTax);
-
-            this.lblTax.Text = "ضريبة %:";
-            this.lblTax.AutoSize = true;
-            this.lblTax.Margin = new System.Windows.Forms.Padding(0, 6, 5, 0);
-            this.lblTax.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.numTax.Width = 75;
-            this.numTax.DecimalPlaces = 2;
-            this.numTax.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
-            this.numTax.Value = new decimal(new int[] { 5, 0, 0, 0 });
-            this.numTax.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.numTax.ValueChanged += new System.EventHandler(this.MoneyField_TextChanged);
-
-            // ---------- pnlTotals (الإجماليات) ----------
-            this.pnlTotals.Width = 460;
-            this.pnlTotals.Height = 215;
-            this.pnlTotals.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
-            this.pnlTotals.Controls.Add(this.tblTotals);
-
+            // 
+            flpTax.AutoSize = true;
+            flpTax.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpTax.Controls.Add(lblTax);
+            flpTax.Controls.Add(numTax);
+            flpTax.FlowDirection = FlowDirection.RightToLeft;
+            flpTax.Location = new Point(8, 179);
+            flpTax.Margin = new Padding(0, 4, 8, 0);
+            flpTax.Name = "flpTax";
+            flpTax.Size = new Size(187, 40);
+            flpTax.TabIndex = 5;
+            flpTax.WrapContents = false;
+            // 
+            // lblTax
+            // 
+            lblTax.AutoSize = true;
+            lblTax.Font = new Font("Tahoma", 11F);
+            lblTax.Location = new Point(5, 6);
+            lblTax.Margin = new Padding(0, 6, 5, 0);
+            lblTax.Name = "lblTax";
+            lblTax.Size = new Size(101, 27);
+            lblTax.TabIndex = 0;
+            lblTax.Text = "ضريبة %:";
+            // 
+            // numTax
+            // 
+            numTax.DecimalPlaces = 2;
+            numTax.Font = new Font("Tahoma", 11F);
+            numTax.Location = new Point(109, 3);
+            numTax.Name = "numTax";
+            numTax.Size = new Size(75, 34);
+            numTax.TabIndex = 1;
+            numTax.Value = new decimal(new int[] { 5, 0, 0, 0 });
+            numTax.ValueChanged += MoneyField_TextChanged;
+            // 
+            // pnlTotals
+            // 
+            pnlTotals.Controls.Add(tblTotals);
+            pnlTotals.Location = new Point(485, 0);
+            pnlTotals.Margin = new Padding(5, 0, 5, 0);
+            pnlTotals.Name = "pnlTotals";
+            pnlTotals.Size = new Size(460, 215);
+            pnlTotals.TabIndex = 1;
+            // 
             // tblTotals
-            this.tblTotals.ColumnCount = 2;
-            this.tblTotals.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tblTotals.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblTotals.RowCount = 6;
-            this.tblTotals.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblTotals.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblTotals.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblTotals.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblTotals.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblTotals.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tblTotals.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblTotals.Padding = new System.Windows.Forms.Padding(10, 5, 10, 5);
-            this.tblTotals.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.tblTotals.Controls.Add(this.lblSubTotal, 0, 0);
-            this.tblTotals.Controls.Add(this.lblSubTotalVal, 1, 0);
-            this.tblTotals.Controls.Add(this.lblDiscountTotal, 0, 1);
-            this.tblTotals.Controls.Add(this.lblDiscountTotalVal, 1, 1);
-            this.tblTotals.Controls.Add(this.lblNetTotal, 0, 2);
-            this.tblTotals.Controls.Add(this.lblNetTotalVal, 1, 2);
-            this.tblTotals.Controls.Add(this.lblPaidTotal, 0, 3);
-            this.tblTotals.Controls.Add(this.lblPaidTotalVal, 1, 3);
-            this.tblTotals.Controls.Add(this.lblRemaining, 0, 4);
-            this.tblTotals.Controls.Add(this.lblRemainingVal, 1, 4);
-            this.tblTotals.Controls.Add(this.lblDueToStore, 0, 5);
-            this.tblTotals.Controls.Add(this.lblDueToStoreVal, 1, 5);
-
-            this.lblSubTotal.Text = "المجموع الفرعي:";
-            this.lblSubTotal.AutoSize = true;
-            this.lblSubTotal.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblSubTotalVal.Text = "0.00";
-            this.lblSubTotalVal.AutoSize = true;
-            this.lblSubTotalVal.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblDiscountTotal.Text = "إجمالي الخصم:";
-            this.lblDiscountTotal.AutoSize = true;
-            this.lblDiscountTotal.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblDiscountTotalVal.Text = "0.00";
-            this.lblDiscountTotalVal.AutoSize = true;
-            this.lblDiscountTotalVal.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblNetTotal.Text = "الصافي النهائي:";
-            this.lblNetTotal.AutoSize = true;
-            this.lblNetTotal.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-
-            this.lblNetTotalVal.Text = "0.00";
-            this.lblNetTotalVal.AutoSize = true;
-            this.lblNetTotalVal.Font = new System.Drawing.Font("Tahoma", 13F, System.Drawing.FontStyle.Bold);
-            this.lblNetTotalVal.ForeColor = System.Drawing.Color.FromArgb(13, 110, 253);
-
-            this.lblPaidTotal.Text = "المبلغ المدفوع:";
-            this.lblPaidTotal.AutoSize = true;
-            this.lblPaidTotal.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblPaidTotalVal.Text = "0.00";
-            this.lblPaidTotalVal.AutoSize = true;
-            this.lblPaidTotalVal.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblRemaining.Text = "الباقي:";
-            this.lblRemaining.AutoSize = true;
-            this.lblRemaining.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-
-            this.lblRemainingVal.Text = "0.00";
-            this.lblRemainingVal.AutoSize = true;
-            this.lblRemainingVal.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-
-            this.lblDueToStore.Text = "المستحق للمحل:";
-            this.lblDueToStore.AutoSize = true;
-            this.lblDueToStore.Font = new System.Drawing.Font("Tahoma", 11F);
-
-            this.lblDueToStoreVal.Text = "0.00";
-            this.lblDueToStoreVal.AutoSize = true;
-            this.lblDueToStoreVal.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.lblDueToStoreVal.ForeColor = System.Drawing.Color.FromArgb(25, 135, 84);
-
-            // ---------- btnSave (زر الحفظ والاعتماد) ----------
-            this.btnSave.Text = "حفظ واعتماد";
-            this.btnSave.Width = 200;
-            this.btnSave.Height = 120;
-            this.btnSave.Margin = new System.Windows.Forms.Padding(5, 45, 5, 5);
-            this.btnSave.BackColor = System.Drawing.Color.FromArgb(25, 135, 84);
-            this.btnSave.ForeColor = System.Drawing.Color.White;
-            this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSave.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSave.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-
-            // ---------- Form ----------
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(1200, 820);
-            this.Controls.Add(this.dgvCart);
-            this.Controls.Add(this.pnlCheckout);
-            this.Controls.Add(this.pnlTop);
-            this.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.KeyPreview = true;
-            this.MinimumSize = new System.Drawing.Size(1000, 700);
-            this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.RightToLeftLayout = true;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "نقطة البيع (POS) — نموذج تجريبي";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmPOS_KeyDown);
-
-            this.pnlTop.ResumeLayout(false);
-            this.flpTop.ResumeLayout(false);
-            this.flpTop.PerformLayout();
-            this.flpBarcode.ResumeLayout(false);
-            this.flpBarcode.PerformLayout();
-            this.flpCurrency.ResumeLayout(false);
-            this.flpCurrency.PerformLayout();
-            this.flpCustomer.ResumeLayout(false);
-            this.flpCustomer.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCart)).EndInit();
-            this.pnlCheckout.ResumeLayout(false);
-            this.flpCheckout.ResumeLayout(false);
-            this.flpCheckout.PerformLayout();
-            this.pnlPayment.ResumeLayout(false);
-            this.flpPay.ResumeLayout(false);
-            this.flpPay.PerformLayout();
-            this.flpPayMethod.ResumeLayout(false);
-            this.flpPayMethod.PerformLayout();
-            this.flpPaidCash.ResumeLayout(false);
-            this.flpPaidCash.PerformLayout();
-            this.flpPaidBank.ResumeLayout(false);
-            this.flpPaidBank.PerformLayout();
-            this.flpPaidWallet.ResumeLayout(false);
-            this.flpPaidWallet.PerformLayout();
-            this.flpDiscount.ResumeLayout(false);
-            this.flpDiscount.PerformLayout();
-            this.flpTax.ResumeLayout(false);
-            this.flpTax.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numDiscount)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numTax)).EndInit();
-            this.pnlTotals.ResumeLayout(false);
-            this.tblTotals.ResumeLayout(false);
-            this.tblTotals.PerformLayout();
-            this.ResumeLayout(false);
+            // 
+            tblTotals.ColumnCount = 2;
+            tblTotals.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
+            tblTotals.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tblTotals.Controls.Add(lblSubTotal, 0, 0);
+            tblTotals.Controls.Add(lblSubTotalVal, 1, 0);
+            tblTotals.Controls.Add(lblDiscountTotal, 0, 1);
+            tblTotals.Controls.Add(lblDiscountTotalVal, 1, 1);
+            tblTotals.Controls.Add(lblNetTotal, 0, 2);
+            tblTotals.Controls.Add(lblNetTotalVal, 1, 2);
+            tblTotals.Controls.Add(lblPaidTotal, 0, 3);
+            tblTotals.Controls.Add(lblPaidTotalVal, 1, 3);
+            tblTotals.Controls.Add(lblRemaining, 0, 4);
+            tblTotals.Controls.Add(lblRemainingVal, 1, 4);
+            tblTotals.Controls.Add(lblDueToStore, 0, 5);
+            tblTotals.Controls.Add(lblDueToStoreVal, 1, 5);
+            tblTotals.Dock = DockStyle.Fill;
+            tblTotals.Location = new Point(0, 0);
+            tblTotals.Name = "tblTotals";
+            tblTotals.Padding = new Padding(10, 5, 10, 5);
+            tblTotals.RightToLeft = RightToLeft.Yes;
+            tblTotals.RowCount = 6;
+            tblTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tblTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tblTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tblTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tblTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tblTotals.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tblTotals.Size = new Size(460, 215);
+            tblTotals.TabIndex = 0;
+            // 
+            // lblSubTotal
+            // 
+            lblSubTotal.AutoSize = true;
+            lblSubTotal.Font = new Font("Tahoma", 11F);
+            lblSubTotal.Location = new Point(360, 5);
+            lblSubTotal.Name = "lblSubTotal";
+            lblSubTotal.Size = new Size(87, 30);
+            lblSubTotal.TabIndex = 0;
+            lblSubTotal.Text = "المجموع الفرعي:";
+            // 
+            // lblSubTotalVal
+            // 
+            lblSubTotalVal.AutoSize = true;
+            lblSubTotalVal.Font = new Font("Tahoma", 11F);
+            lblSubTotalVal.Location = new Point(242, 5);
+            lblSubTotalVal.Name = "lblSubTotalVal";
+            lblSubTotalVal.Size = new Size(55, 27);
+            lblSubTotalVal.TabIndex = 1;
+            lblSubTotalVal.Text = "0.00";
+            // 
+            // lblDiscountTotal
+            // 
+            lblDiscountTotal.AutoSize = true;
+            lblDiscountTotal.Font = new Font("Tahoma", 11F);
+            lblDiscountTotal.Location = new Point(367, 35);
+            lblDiscountTotal.Name = "lblDiscountTotal";
+            lblDiscountTotal.Size = new Size(80, 30);
+            lblDiscountTotal.TabIndex = 2;
+            lblDiscountTotal.Text = "إجمالي الخصم:";
+            // 
+            // lblDiscountTotalVal
+            // 
+            lblDiscountTotalVal.AutoSize = true;
+            lblDiscountTotalVal.Font = new Font("Tahoma", 11F);
+            lblDiscountTotalVal.Location = new Point(242, 35);
+            lblDiscountTotalVal.Name = "lblDiscountTotalVal";
+            lblDiscountTotalVal.Size = new Size(55, 27);
+            lblDiscountTotalVal.TabIndex = 3;
+            lblDiscountTotalVal.Text = "0.00";
+            // 
+            // lblNetTotal
+            // 
+            lblNetTotal.AutoSize = true;
+            lblNetTotal.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblNetTotal.Location = new Point(344, 65);
+            lblNetTotal.Name = "lblNetTotal";
+            lblNetTotal.Size = new Size(103, 30);
+            lblNetTotal.TabIndex = 4;
+            lblNetTotal.Text = "الصافي النهائي:";
+            // 
+            // lblNetTotalVal
+            // 
+            lblNetTotalVal.AutoSize = true;
+            lblNetTotalVal.Font = new Font("Tahoma", 13F, FontStyle.Bold);
+            lblNetTotalVal.ForeColor = Color.FromArgb(13, 110, 253);
+            lblNetTotalVal.Location = new Point(224, 65);
+            lblNetTotalVal.Name = "lblNetTotalVal";
+            lblNetTotalVal.Size = new Size(73, 30);
+            lblNetTotalVal.TabIndex = 5;
+            lblNetTotalVal.Text = "0.00";
+            // 
+            // lblPaidTotal
+            // 
+            lblPaidTotal.AutoSize = true;
+            lblPaidTotal.Font = new Font("Tahoma", 11F);
+            lblPaidTotal.Location = new Point(359, 95);
+            lblPaidTotal.Name = "lblPaidTotal";
+            lblPaidTotal.Size = new Size(88, 30);
+            lblPaidTotal.TabIndex = 6;
+            lblPaidTotal.Text = "المبلغ المدفوع:";
+            // 
+            // lblPaidTotalVal
+            // 
+            lblPaidTotalVal.AutoSize = true;
+            lblPaidTotalVal.Font = new Font("Tahoma", 11F);
+            lblPaidTotalVal.Location = new Point(242, 95);
+            lblPaidTotalVal.Name = "lblPaidTotalVal";
+            lblPaidTotalVal.Size = new Size(55, 27);
+            lblPaidTotalVal.TabIndex = 7;
+            lblPaidTotalVal.Text = "0.00";
+            // 
+            // lblRemaining
+            // 
+            lblRemaining.AutoSize = true;
+            lblRemaining.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblRemaining.Location = new Point(353, 125);
+            lblRemaining.Name = "lblRemaining";
+            lblRemaining.Size = new Size(94, 29);
+            lblRemaining.TabIndex = 8;
+            lblRemaining.Text = "الباقي:";
+            // 
+            // lblRemainingVal
+            // 
+            lblRemainingVal.AutoSize = true;
+            lblRemainingVal.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblRemainingVal.Location = new Point(231, 125);
+            lblRemainingVal.Name = "lblRemainingVal";
+            lblRemainingVal.Size = new Size(66, 29);
+            lblRemainingVal.TabIndex = 9;
+            lblRemainingVal.Text = "0.00";
+            // 
+            // lblDueToStore
+            // 
+            lblDueToStore.AutoSize = true;
+            lblDueToStore.Font = new Font("Tahoma", 11F);
+            lblDueToStore.Location = new Point(345, 155);
+            lblDueToStore.Name = "lblDueToStore";
+            lblDueToStore.Size = new Size(102, 54);
+            lblDueToStore.TabIndex = 10;
+            lblDueToStore.Text = "المستحق للمحل:";
+            // 
+            // lblDueToStoreVal
+            // 
+            lblDueToStoreVal.AutoSize = true;
+            lblDueToStoreVal.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblDueToStoreVal.ForeColor = Color.FromArgb(25, 135, 84);
+            lblDueToStoreVal.Location = new Point(231, 155);
+            lblDueToStoreVal.Name = "lblDueToStoreVal";
+            lblDueToStoreVal.Size = new Size(66, 29);
+            lblDueToStoreVal.TabIndex = 11;
+            lblDueToStoreVal.Text = "0.00";
+            // 
+            // btnSave
+            // 
+            btnSave.BackColor = Color.FromArgb(25, 135, 84);
+            btnSave.Cursor = Cursors.Hand;
+            btnSave.FlatStyle = FlatStyle.Flat;
+            btnSave.Font = new Font("Tahoma", 16F, FontStyle.Bold);
+            btnSave.ForeColor = Color.White;
+            btnSave.Location = new Point(955, 45);
+            btnSave.Margin = new Padding(5, 45, 5, 5);
+            btnSave.Name = "btnSave";
+            btnSave.Size = new Size(200, 120);
+            btnSave.TabIndex = 2;
+            btnSave.Text = "حفظ واعتماد";
+            btnSave.UseVisualStyleBackColor = false;
+            btnSave.Click += btnSave_Click;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            dataGridViewTextBoxColumn1.MinimumWidth = 8;
+            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            dataGridViewTextBoxColumn1.ReadOnly = true;
+            dataGridViewTextBoxColumn1.Width = 150;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            dataGridViewTextBoxColumn2.MinimumWidth = 8;
+            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            dataGridViewTextBoxColumn2.ReadOnly = true;
+            dataGridViewTextBoxColumn2.Width = 150;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            dataGridViewTextBoxColumn3.MinimumWidth = 8;
+            dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            dataGridViewTextBoxColumn3.ReadOnly = true;
+            dataGridViewTextBoxColumn3.Width = 150;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            dataGridViewTextBoxColumn4.MinimumWidth = 8;
+            dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            dataGridViewTextBoxColumn4.ReadOnly = true;
+            dataGridViewTextBoxColumn4.Width = 150;
+            // 
+            // dataGridViewTextBoxColumn5
+            // 
+            dataGridViewTextBoxColumn5.MinimumWidth = 8;
+            dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            dataGridViewTextBoxColumn5.ReadOnly = true;
+            dataGridViewTextBoxColumn5.Width = 150;
+            // 
+            // dataGridViewTextBoxColumn6
+            // 
+            dataGridViewTextBoxColumn6.MinimumWidth = 8;
+            dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            dataGridViewTextBoxColumn6.ReadOnly = true;
+            dataGridViewTextBoxColumn6.Width = 150;
+            // 
+            // frmPOS
+            // 
+            AutoScaleMode = AutoScaleMode.None;
+            BackColor = Color.WhiteSmoke;
+            ClientSize = new Size(1200, 820);
+            Controls.Add(dgvCart);
+            Controls.Add(pnlCheckout);
+            Controls.Add(pnlTop);
+            Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            KeyPreview = true;
+            MinimumSize = new Size(1000, 700);
+            Name = "frmPOS";
+            RightToLeft = RightToLeft.Yes;
+            RightToLeftLayout = true;
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "نقطة البيع (POS) — نموذج تجريبي";
+            KeyDown += frmPOS_KeyDown;
+            pnlTop.ResumeLayout(false);
+            flpTop.ResumeLayout(false);
+            flpTop.PerformLayout();
+            flpBarcode.ResumeLayout(false);
+            flpBarcode.PerformLayout();
+            flpCurrency.ResumeLayout(false);
+            flpCurrency.PerformLayout();
+            flpCustomer.ResumeLayout(false);
+            flpCustomer.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCart).EndInit();
+            pnlCheckout.ResumeLayout(false);
+            flpCheckout.ResumeLayout(false);
+            pnlPayment.ResumeLayout(false);
+            flpPay.ResumeLayout(false);
+            flpPay.PerformLayout();
+            flpPayMethod.ResumeLayout(false);
+            flpPayMethod.PerformLayout();
+            flpPaidCash.ResumeLayout(false);
+            flpPaidCash.PerformLayout();
+            flpPaidBank.ResumeLayout(false);
+            flpPaidBank.PerformLayout();
+            flpPaidWallet.ResumeLayout(false);
+            flpPaidWallet.PerformLayout();
+            flpDiscount.ResumeLayout(false);
+            flpDiscount.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numDiscount).EndInit();
+            flpTax.ResumeLayout(false);
+            flpTax.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numTax).EndInit();
+            pnlTotals.ResumeLayout(false);
+            tblTotals.ResumeLayout(false);
+            tblTotals.PerformLayout();
+            ResumeLayout(false);
         }
 
         private System.Windows.Forms.Panel pnlTop, pnlCheckout, pnlPayment, pnlTotals;
@@ -519,5 +841,11 @@ namespace SalesSystem.Desktop.Screens.POS.Forms
         private System.Windows.Forms.NumericUpDown numDiscount, numTax;
         private System.Windows.Forms.DataGridView dgvCart;
         private System.Windows.Forms.TableLayoutPanel tblTotals;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
+        private DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
     }
 }

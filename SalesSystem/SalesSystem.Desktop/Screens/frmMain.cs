@@ -101,6 +101,16 @@ public partial class frmMain : Form
             msbtnCustomerPicker.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
             msbtnDiscountExpenses.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ManageDiscounts);
             msbtnCurrencySelection.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesProfitBreakdown.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnPOSHeldOrders.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesImportConvert.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnReceiptPrint.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesSmartF3Lookup.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesInputStrategies.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesContinuousScanner.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesTouchGrid.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesRapidBar.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnSalesInlineGrid.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
 
             // العملاء (مرتبط بالمبيعات)
             msbtnManageCustomers.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ViewInvoices);
@@ -257,6 +267,35 @@ public partial class frmMain : Form
 
     private void msbtnCurrencySelection_Click(object sender, EventArgs e)
         => _serviceProvider.GetRequiredService<frmCurrencySelection>().ShowDialog(this);
+
+    // ── المبيعات — أدوات الفاتورة الإضافية (جديد) ───────────────────────
+
+    private void msbtnSalesProfitBreakdown_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesProfitBreakdown>().ShowDialog(this);
+
+    private void msbtnPOSHeldOrders_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmPOSHeldOrders>().ShowDialog(this);
+
+    private void msbtnSalesImportConvert_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesImportConvert>().ShowDialog(this);
+
+    private void msbtnReceiptPrint_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmReceiptPrint>().ShowDialog(this);
+
+    private void msbtnSalesSmartF3Lookup_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesSmartF3Lookup>().ShowDialog(this);
+
+    private void msbtnSalesContinuousScanner_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesContinuousScanner>().ShowDialog(this);
+
+    private void msbtnSalesTouchGrid_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesTouchGrid>().ShowDialog(this);
+
+    private void msbtnSalesRapidBar_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesRapidBar>().ShowDialog(this);
+
+    private void msbtnSalesInlineGrid_Click(object sender, EventArgs e)
+        => _serviceProvider.GetRequiredService<frmSalesInlineGrid>().ShowDialog(this);
 
     // ── الخزينة (Treasury) ───────────────────────────────────────────────────
 

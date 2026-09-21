@@ -403,6 +403,18 @@ static class Program
                     services.AddTransient<frmCurrencySelection>();
                     services.AddTransient<frmCustomerPicker>();
 
+                    // المبيعات — أدوات الفاتورة الإضافية (جديد)
+                    services.AddTransient<frmSalesProfitBreakdown>();
+                    services.AddTransient<frmPOSHeldOrders>();
+                    services.AddTransient<frmSalesImportConvert>();
+                    services.AddTransient<frmReceiptPrint>();
+                    services.AddTransient<frmSalesSmartF3Lookup>();
+                    // استراتيجيات الإدخال
+                    services.AddTransient<frmSalesContinuousScanner>();
+                    services.AddTransient<frmSalesTouchGrid>();
+                    services.AddTransient<frmSalesRapidBar>();
+                    services.AddTransient<frmSalesInlineGrid>();
+
                     // Newly-built module hub screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmCashVouchers>();
                     services.AddTransient<frmPurchases>();

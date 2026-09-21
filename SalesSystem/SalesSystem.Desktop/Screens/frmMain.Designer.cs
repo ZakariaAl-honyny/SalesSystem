@@ -106,6 +106,17 @@
             msbtnCustomerPicker = new ToolStripMenuItem();
             msbtnDiscountExpenses = new ToolStripMenuItem();
             msbtnCurrencySelection = new ToolStripMenuItem();
+            // ── المبيعات — أدوات الفاتورة الإضافية (جديد) ────────────────────────────────────────
+            msbtnSalesProfitBreakdown = new ToolStripMenuItem();
+            msbtnPOSHeldOrders = new ToolStripMenuItem();
+            msbtnSalesImportConvert = new ToolStripMenuItem();
+            msbtnReceiptPrint = new ToolStripMenuItem();
+            msbtnSalesSmartF3Lookup = new ToolStripMenuItem();
+            msbtnSalesInputStrategies = new ToolStripMenuItem();
+            msbtnSalesContinuousScanner = new ToolStripMenuItem();
+            msbtnSalesTouchGrid = new ToolStripMenuItem();
+            msbtnSalesRapidBar = new ToolStripMenuItem();
+            msbtnSalesInlineGrid = new ToolStripMenuItem();
             // ── الموظفون (جديد) ────────────────────────────────────────────────────────────────────
             msbtnEmployees = new ToolStripMenuItem();
             // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
@@ -355,6 +366,9 @@
                 new ToolStripSeparator(),
                 msbtnProductSelection, msbtnCustomerPicker, msbtnDiscountExpenses, msbtnCurrencySelection,
                 new ToolStripSeparator(),
+                msbtnSalesProfitBreakdown, msbtnPOSHeldOrders, msbtnSalesImportConvert,
+                msbtnReceiptPrint, msbtnSalesSmartF3Lookup, msbtnSalesInputStrategies,
+                new ToolStripSeparator(),
                 msbtnManageCustomers, msbtnAddCustomer,
                 new ToolStripSeparator(),
                 msbtnCustomerReceipts, msbtnManagePayments
@@ -418,6 +432,81 @@
             msbtnCurrencySelection.Size = new Size(300, 38);
             msbtnCurrencySelection.Text = "العملة";
             msbtnCurrencySelection.Click += msbtnCurrencySelection_Click;
+            // 
+            // msbtnSalesProfitBreakdown
+            // 
+            msbtnSalesProfitBreakdown.Name = "msbtnSalesProfitBreakdown";
+            msbtnSalesProfitBreakdown.Size = new Size(300, 38);
+            msbtnSalesProfitBreakdown.Text = "توزيع الأرباح";
+            msbtnSalesProfitBreakdown.Click += msbtnSalesProfitBreakdown_Click;
+            // 
+            // msbtnPOSHeldOrders
+            // 
+            msbtnPOSHeldOrders.Name = "msbtnPOSHeldOrders";
+            msbtnPOSHeldOrders.Size = new Size(300, 38);
+            msbtnPOSHeldOrders.Text = "الفواتير المعلقة [F4]";
+            msbtnPOSHeldOrders.Click += msbtnPOSHeldOrders_Click;
+            // 
+            // msbtnSalesImportConvert
+            // 
+            msbtnSalesImportConvert.Name = "msbtnSalesImportConvert";
+            msbtnSalesImportConvert.Size = new Size(300, 38);
+            msbtnSalesImportConvert.Text = "تحويل عرض سعر / تكرار فاتورة";
+            msbtnSalesImportConvert.Click += msbtnSalesImportConvert_Click;
+            // 
+            // msbtnReceiptPrint
+            // 
+            msbtnReceiptPrint.Name = "msbtnReceiptPrint";
+            msbtnReceiptPrint.Size = new Size(300, 38);
+            msbtnReceiptPrint.Text = "طباعة وصل مبيعات";
+            msbtnReceiptPrint.Click += msbtnReceiptPrint_Click;
+            // 
+            // msbtnSalesSmartF3Lookup
+            // 
+            msbtnSalesSmartF3Lookup.Name = "msbtnSalesSmartF3Lookup";
+            msbtnSalesSmartF3Lookup.Size = new Size(300, 38);
+            msbtnSalesSmartF3Lookup.Text = "البحث الذكي عن منتج";
+            msbtnSalesSmartF3Lookup.Click += msbtnSalesSmartF3Lookup_Click;
+            // 
+            // msbtnSalesInputStrategies
+            // 
+            msbtnSalesInputStrategies.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnSalesContinuousScanner,
+                msbtnSalesTouchGrid,
+                msbtnSalesRapidBar,
+                msbtnSalesInlineGrid
+            });
+            msbtnSalesInputStrategies.Name = "msbtnSalesInputStrategies";
+            msbtnSalesInputStrategies.Size = new Size(300, 38);
+            msbtnSalesInputStrategies.Text = "استراتيجيات الإدخال";
+            // 
+            // msbtnSalesContinuousScanner
+            // 
+            msbtnSalesContinuousScanner.Name = "msbtnSalesContinuousScanner";
+            msbtnSalesContinuousScanner.Size = new Size(300, 38);
+            msbtnSalesContinuousScanner.Text = "المسح المتواصل";
+            msbtnSalesContinuousScanner.Click += msbtnSalesContinuousScanner_Click;
+            // 
+            // msbtnSalesTouchGrid
+            // 
+            msbtnSalesTouchGrid.Name = "msbtnSalesTouchGrid";
+            msbtnSalesTouchGrid.Size = new Size(300, 38);
+            msbtnSalesTouchGrid.Text = "شبكة اللمس";
+            msbtnSalesTouchGrid.Click += msbtnSalesTouchGrid_Click;
+            // 
+            // msbtnSalesRapidBar
+            // 
+            msbtnSalesRapidBar.Name = "msbtnSalesRapidBar";
+            msbtnSalesRapidBar.Size = new Size(300, 38);
+            msbtnSalesRapidBar.Text = "شريط الإدخال السريع";
+            msbtnSalesRapidBar.Click += msbtnSalesRapidBar_Click;
+            // 
+            // msbtnSalesInlineGrid
+            // 
+            msbtnSalesInlineGrid.Name = "msbtnSalesInlineGrid";
+            msbtnSalesInlineGrid.Size = new Size(300, 38);
+            msbtnSalesInlineGrid.Text = "التعديل الداخلي";
+            msbtnSalesInlineGrid.Click += msbtnSalesInlineGrid_Click;
             // 
             // msRevenue
             // 
@@ -743,6 +832,16 @@
         private ToolStripMenuItem msbtnCustomerPicker;
         private ToolStripMenuItem msbtnDiscountExpenses;
         private ToolStripMenuItem msbtnCurrencySelection;
+        private ToolStripMenuItem msbtnSalesProfitBreakdown;
+        private ToolStripMenuItem msbtnPOSHeldOrders;
+        private ToolStripMenuItem msbtnSalesImportConvert;
+        private ToolStripMenuItem msbtnReceiptPrint;
+        private ToolStripMenuItem msbtnSalesSmartF3Lookup;
+        private ToolStripMenuItem msbtnSalesInputStrategies;
+        private ToolStripMenuItem msbtnSalesContinuousScanner;
+        private ToolStripMenuItem msbtnSalesTouchGrid;
+        private ToolStripMenuItem msbtnSalesRapidBar;
+        private ToolStripMenuItem msbtnSalesInlineGrid;
         private ToolStripMenuItem msbtnEmployees;
         private ToolStripMenuItem msBasis;
         private ToolStripMenuItem msbtnManageProducts;

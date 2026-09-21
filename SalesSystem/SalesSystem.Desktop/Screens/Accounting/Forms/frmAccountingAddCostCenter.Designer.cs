@@ -42,7 +42,7 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(0, 0);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(500, 48);
+            lblTitle.Size = new Size(648, 48);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "إضافة مركز تكلفة";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
@@ -59,100 +59,13 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             grpDetails.Controls.Add(txtCostCenterName);
             grpDetails.Controls.Add(lblNameLabel);
             grpDetails.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            grpDetails.Location = new Point(12, 60);
+            grpDetails.Location = new Point(13, 51);
             grpDetails.Name = "grpDetails";
             grpDetails.RightToLeft = RightToLeft.Yes;
-            grpDetails.Size = new Size(476, 300);
+            grpDetails.Size = new Size(623, 300);
             grpDetails.TabIndex = 1;
             grpDetails.TabStop = false;
             grpDetails.Text = "بيانات مركز التكلفة";
-            // 
-            // lblNameLabel
-            // 
-            lblNameLabel.AutoSize = true;
-            lblNameLabel.Font = new Font("Tahoma", 10F);
-            lblNameLabel.Location = new Point(380, 30);
-            lblNameLabel.Name = "lblNameLabel";
-            lblNameLabel.Size = new Size(178, 21);
-            lblNameLabel.TabIndex = 0;
-            lblNameLabel.Text = "اسم مركز التكلفة (مطلوب):";
-            // 
-            // txtCostCenterName
-            // 
-            txtCostCenterName.Font = new Font("Tahoma", 10F);
-            txtCostCenterName.Location = new Point(12, 28);
-            txtCostCenterName.Name = "txtCostCenterName";
-            txtCostCenterName.RightToLeft = RightToLeft.Yes;
-            txtCostCenterName.Size = new Size(356, 28);
-            txtCostCenterName.TabIndex = 1;
-            // 
-            // lblCodeLabel
-            // 
-            lblCodeLabel.AutoSize = true;
-            lblCodeLabel.Font = new Font("Tahoma", 10F);
-            lblCodeLabel.Location = new Point(380, 74);
-            lblCodeLabel.Name = "lblCodeLabel";
-            lblCodeLabel.Size = new Size(55, 21);
-            lblCodeLabel.TabIndex = 2;
-            lblCodeLabel.Text = "الكود:";
-            // 
-            // txtCode
-            // 
-            txtCode.BackColor = Color.Gainsboro;
-            txtCode.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            txtCode.ForeColor = Color.Firebrick;
-            txtCode.Location = new Point(12, 72);
-            txtCode.Name = "txtCode";
-            txtCode.ReadOnly = true;
-            txtCode.RightToLeft = RightToLeft.Yes;
-            txtCode.Size = new Size(356, 28);
-            txtCode.TabIndex = 3;
-            txtCode.TabStop = false;
-            txtCode.Text = "CC-05";
-            // 
-            // lblBudgetLabel
-            // 
-            lblBudgetLabel.AutoSize = true;
-            lblBudgetLabel.Font = new Font("Tahoma", 10F);
-            lblBudgetLabel.Location = new Point(380, 118);
-            lblBudgetLabel.Name = "lblBudgetLabel";
-            lblBudgetLabel.Size = new Size(72, 21);
-            lblBudgetLabel.TabIndex = 4;
-            lblBudgetLabel.Text = "الموازنة:";
-            // 
-            // nudBudget
-            // 
-            nudBudget.DecimalPlaces = 2;
-            nudBudget.Font = new Font("Tahoma", 10F);
-            nudBudget.Location = new Point(12, 116);
-            nudBudget.Maximum = new decimal(new int[] { 999999999, 0, 0, 0 });
-            nudBudget.Name = "nudBudget";
-            nudBudget.RightToLeft = RightToLeft.Yes;
-            nudBudget.Size = new Size(356, 28);
-            nudBudget.TabIndex = 5;
-            nudBudget.TextAlign = HorizontalAlignment.Right;
-            nudBudget.ThousandsSeparator = true;
-            // 
-            // lblManagerLabel
-            // 
-            lblManagerLabel.AutoSize = true;
-            lblManagerLabel.Font = new Font("Tahoma", 10F);
-            lblManagerLabel.Location = new Point(380, 162);
-            lblManagerLabel.Name = "lblManagerLabel";
-            lblManagerLabel.Size = new Size(70, 21);
-            lblManagerLabel.TabIndex = 6;
-            lblManagerLabel.Text = "المسؤول:";
-            // 
-            // cmbManager
-            // 
-            cmbManager.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbManager.Font = new Font("Tahoma", 10F);
-            cmbManager.FormattingEnabled = true;
-            cmbManager.Location = new Point(12, 160);
-            cmbManager.Name = "cmbManager";
-            cmbManager.RightToLeft = RightToLeft.Yes;
-            cmbManager.Size = new Size(356, 28);
-            cmbManager.TabIndex = 7;
             // 
             // chkIsActive
             // 
@@ -163,10 +76,97 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             chkIsActive.Location = new Point(12, 204);
             chkIsActive.Name = "chkIsActive";
             chkIsActive.RightToLeft = RightToLeft.Yes;
-            chkIsActive.Size = new Size(64, 25);
+            chkIsActive.Size = new Size(77, 28);
             chkIsActive.TabIndex = 8;
             chkIsActive.Text = "نشط";
             chkIsActive.UseVisualStyleBackColor = true;
+            // 
+            // cmbManager
+            // 
+            cmbManager.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbManager.Font = new Font("Tahoma", 10F);
+            cmbManager.FormattingEnabled = true;
+            cmbManager.Location = new Point(12, 160);
+            cmbManager.Name = "cmbManager";
+            cmbManager.RightToLeft = RightToLeft.Yes;
+            cmbManager.Size = new Size(356, 32);
+            cmbManager.TabIndex = 7;
+            // 
+            // lblManagerLabel
+            // 
+            lblManagerLabel.AutoSize = true;
+            lblManagerLabel.Font = new Font("Tahoma", 10F);
+            lblManagerLabel.Location = new Point(380, 162);
+            lblManagerLabel.Name = "lblManagerLabel";
+            lblManagerLabel.Size = new Size(91, 24);
+            lblManagerLabel.TabIndex = 6;
+            lblManagerLabel.Text = "المسؤول:";
+            // 
+            // nudBudget
+            // 
+            nudBudget.DecimalPlaces = 2;
+            nudBudget.Font = new Font("Tahoma", 10F);
+            nudBudget.Location = new Point(12, 116);
+            nudBudget.Maximum = new decimal(new int[] { 999999999, 0, 0, 0 });
+            nudBudget.Name = "nudBudget";
+            nudBudget.RightToLeft = RightToLeft.Yes;
+            nudBudget.Size = new Size(356, 32);
+            nudBudget.TabIndex = 5;
+            nudBudget.TextAlign = HorizontalAlignment.Right;
+            nudBudget.ThousandsSeparator = true;
+            // 
+            // lblBudgetLabel
+            // 
+            lblBudgetLabel.AutoSize = true;
+            lblBudgetLabel.Font = new Font("Tahoma", 10F);
+            lblBudgetLabel.Location = new Point(380, 118);
+            lblBudgetLabel.Name = "lblBudgetLabel";
+            lblBudgetLabel.Size = new Size(78, 24);
+            lblBudgetLabel.TabIndex = 4;
+            lblBudgetLabel.Text = "الموازنة:";
+            // 
+            // txtCode
+            // 
+            txtCode.BackColor = Color.Gainsboro;
+            txtCode.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            txtCode.ForeColor = Color.Firebrick;
+            txtCode.Location = new Point(12, 72);
+            txtCode.Name = "txtCode";
+            txtCode.ReadOnly = true;
+            txtCode.RightToLeft = RightToLeft.Yes;
+            txtCode.Size = new Size(356, 32);
+            txtCode.TabIndex = 3;
+            txtCode.TabStop = false;
+            txtCode.Text = "CC-05";
+            // 
+            // lblCodeLabel
+            // 
+            lblCodeLabel.AutoSize = true;
+            lblCodeLabel.Font = new Font("Tahoma", 10F);
+            lblCodeLabel.Location = new Point(380, 74);
+            lblCodeLabel.Name = "lblCodeLabel";
+            lblCodeLabel.Size = new Size(57, 24);
+            lblCodeLabel.TabIndex = 2;
+            lblCodeLabel.Text = "الكود:";
+            // 
+            // txtCostCenterName
+            // 
+            txtCostCenterName.Font = new Font("Tahoma", 10F);
+            txtCostCenterName.Location = new Point(12, 28);
+            txtCostCenterName.Name = "txtCostCenterName";
+            txtCostCenterName.RightToLeft = RightToLeft.Yes;
+            txtCostCenterName.Size = new Size(356, 32);
+            txtCostCenterName.TabIndex = 1;
+            // 
+            // lblNameLabel
+            // 
+            lblNameLabel.AutoSize = true;
+            lblNameLabel.Font = new Font("Tahoma", 10F);
+            lblNameLabel.Location = new Point(380, 30);
+            lblNameLabel.Name = "lblNameLabel";
+            lblNameLabel.Size = new Size(239, 24);
+            lblNameLabel.TabIndex = 0;
+            lblNameLabel.Text = "اسم مركز التكلفة (مطلوب):";
             // 
             // btnSave
             // 
@@ -197,16 +197,16 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             // errorProvider
             // 
             errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider.ContainerControl = this;
             errorProvider.RightToLeft = true;
             // 
             // frmAccountingAddCostCenter
             // 
             AcceptButton = btnSave;
-            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.WhiteSmoke;
             CancelButton = btnCancel;
-            ClientSize = new Size(500, 460);
+            ClientSize = new Size(648, 517);
             Controls.Add(btnCancel);
             Controls.Add(btnSave);
             Controls.Add(grpDetails);
@@ -226,7 +226,6 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             ((System.ComponentModel.ISupportInitialize)nudBudget).EndInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion

@@ -17,11 +17,11 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             components = new System.ComponentModel.Container();
             lblTitle = new Label();
             grpTemplates = new GroupBox();
-            rbCashbox = new RadioButton();
-            rbBank = new RadioButton();
-            rbWallet = new RadioButton();
-            rbCustomer = new RadioButton();
             rbSupplier = new RadioButton();
+            rbCustomer = new RadioButton();
+            rbWallet = new RadioButton();
+            rbBank = new RadioButton();
+            rbCashbox = new RadioButton();
             grpTemplateInfo = new GroupBox();
             lblReason = new Label();
             lblCodeValue = new Label();
@@ -48,7 +48,7 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(0, 0);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(560, 48);
+            lblTitle.Size = new Size(696, 48);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "إنشاء حساب ذكي";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
@@ -69,43 +69,17 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             grpTemplates.TabStop = false;
             grpTemplates.Text = "اختر القالب:";
             // 
-            // rbCashbox
+            // rbSupplier
             // 
-            rbCashbox.AutoSize = true;
-            rbCashbox.Checked = true;
-            rbCashbox.Font = new Font("Tahoma", 10F);
-            rbCashbox.Location = new Point(24, 32);
-            rbCashbox.Name = "rbCashbox";
-            rbCashbox.RightToLeft = RightToLeft.Yes;
-            rbCashbox.Size = new Size(98, 25);
-            rbCashbox.TabIndex = 0;
-            rbCashbox.TabStop = true;
-            rbCashbox.Text = "صندوق";
-            rbCashbox.UseVisualStyleBackColor = true;
-            // 
-            // rbBank
-            // 
-            rbBank.AutoSize = true;
-            rbBank.Font = new Font("Tahoma", 10F);
-            rbBank.Location = new Point(208, 32);
-            rbBank.Name = "rbBank";
-            rbBank.RightToLeft = RightToLeft.Yes;
-            rbBank.Size = new Size(82, 25);
-            rbBank.TabIndex = 1;
-            rbBank.Text = "بنك";
-            rbBank.UseVisualStyleBackColor = true;
-            // 
-            // rbWallet
-            // 
-            rbWallet.AutoSize = true;
-            rbWallet.Font = new Font("Tahoma", 10F);
-            rbWallet.Location = new Point(392, 32);
-            rbWallet.Name = "rbWallet";
-            rbWallet.RightToLeft = RightToLeft.Yes;
-            rbWallet.Size = new Size(106, 25);
-            rbWallet.TabIndex = 2;
-            rbWallet.Text = "محفظة";
-            rbWallet.UseVisualStyleBackColor = true;
+            rbSupplier.AutoSize = true;
+            rbSupplier.Font = new Font("Tahoma", 10F);
+            rbSupplier.Location = new Point(208, 76);
+            rbSupplier.Name = "rbSupplier";
+            rbSupplier.RightToLeft = RightToLeft.Yes;
+            rbSupplier.Size = new Size(70, 28);
+            rbSupplier.TabIndex = 4;
+            rbSupplier.Text = "مورد";
+            rbSupplier.UseVisualStyleBackColor = true;
             // 
             // rbCustomer
             // 
@@ -114,22 +88,48 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             rbCustomer.Location = new Point(24, 76);
             rbCustomer.Name = "rbCustomer";
             rbCustomer.RightToLeft = RightToLeft.Yes;
-            rbCustomer.Size = new Size(96, 25);
+            rbCustomer.Size = new Size(80, 28);
             rbCustomer.TabIndex = 3;
             rbCustomer.Text = "عميل";
             rbCustomer.UseVisualStyleBackColor = true;
             // 
-            // rbSupplier
+            // rbWallet
             // 
-            rbSupplier.AutoSize = true;
-            rbSupplier.Font = new Font("Tahoma", 10F);
-            rbSupplier.Location = new Point(208, 76);
-            rbSupplier.Name = "rbSupplier";
-            rbSupplier.RightToLeft = RightToLeft.Yes;
-            rbSupplier.Size = new Size(102, 25);
-            rbSupplier.TabIndex = 4;
-            rbSupplier.Text = "مورد";
-            rbSupplier.UseVisualStyleBackColor = true;
+            rbWallet.AutoSize = true;
+            rbWallet.Font = new Font("Tahoma", 10F);
+            rbWallet.Location = new Point(392, 32);
+            rbWallet.Name = "rbWallet";
+            rbWallet.RightToLeft = RightToLeft.Yes;
+            rbWallet.Size = new Size(94, 28);
+            rbWallet.TabIndex = 2;
+            rbWallet.Text = "محفظة";
+            rbWallet.UseVisualStyleBackColor = true;
+            // 
+            // rbBank
+            // 
+            rbBank.AutoSize = true;
+            rbBank.Font = new Font("Tahoma", 10F);
+            rbBank.Location = new Point(208, 32);
+            rbBank.Name = "rbBank";
+            rbBank.RightToLeft = RightToLeft.Yes;
+            rbBank.Size = new Size(64, 28);
+            rbBank.TabIndex = 1;
+            rbBank.Text = "بنك";
+            rbBank.UseVisualStyleBackColor = true;
+            // 
+            // rbCashbox
+            // 
+            rbCashbox.AutoSize = true;
+            rbCashbox.Checked = true;
+            rbCashbox.Font = new Font("Tahoma", 10F);
+            rbCashbox.Location = new Point(24, 32);
+            rbCashbox.Name = "rbCashbox";
+            rbCashbox.RightToLeft = RightToLeft.Yes;
+            rbCashbox.Size = new Size(93, 28);
+            rbCashbox.TabIndex = 0;
+            rbCashbox.TabStop = true;
+            rbCashbox.Text = "صندوق";
+            rbCashbox.UseVisualStyleBackColor = true;
             // 
             // grpTemplateInfo
             // 
@@ -149,69 +149,6 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             grpTemplateInfo.TabStop = false;
             grpTemplateInfo.Text = "معلومات القالب (قراءة فقط)";
             // 
-            // lblNatureLabel
-            // 
-            lblNatureLabel.AutoSize = true;
-            lblNatureLabel.Font = new Font("Tahoma", 10F);
-            lblNatureLabel.Location = new Point(442, 30);
-            lblNatureLabel.Name = "lblNatureLabel";
-            lblNatureLabel.Size = new Size(80, 21);
-            lblNatureLabel.TabIndex = 0;
-            lblNatureLabel.Text = "طبيعة الحساب:";
-            // 
-            // lblNatureValue
-            // 
-            lblNatureValue.AutoSize = true;
-            lblNatureValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblNatureValue.ForeColor = Color.FromArgb(64, 64, 64);
-            lblNatureValue.Location = new Point(334, 30);
-            lblNatureValue.Name = "lblNatureValue";
-            lblNatureValue.Size = new Size(37, 21);
-            lblNatureValue.TabIndex = 1;
-            lblNatureValue.Text = "أصل";
-            // 
-            // lblParentLabel
-            // 
-            lblParentLabel.AutoSize = true;
-            lblParentLabel.Font = new Font("Tahoma", 10F);
-            lblParentLabel.Location = new Point(442, 60);
-            lblParentLabel.Name = "lblParentLabel";
-            lblParentLabel.Size = new Size(80, 21);
-            lblParentLabel.TabIndex = 2;
-            lblParentLabel.Text = "الحساب الأب:";
-            // 
-            // lblParentValue
-            // 
-            lblParentValue.AutoSize = true;
-            lblParentValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblParentValue.ForeColor = Color.FromArgb(64, 64, 64);
-            lblParentValue.Location = new Point(190, 60);
-            lblParentValue.Name = "lblParentValue";
-            lblParentValue.Size = new Size(198, 21);
-            lblParentValue.TabIndex = 3;
-            lblParentValue.Text = "1101 — النقد وما في حكمه";
-            // 
-            // lblCodeLabel
-            // 
-            lblCodeLabel.AutoSize = true;
-            lblCodeLabel.Font = new Font("Tahoma", 10F);
-            lblCodeLabel.Location = new Point(442, 90);
-            lblCodeLabel.Name = "lblCodeLabel";
-            lblCodeLabel.Size = new Size(80, 21);
-            lblCodeLabel.TabIndex = 4;
-            lblCodeLabel.Text = "الكود المقترح:";
-            // 
-            // lblCodeValue
-            // 
-            lblCodeValue.AutoSize = true;
-            lblCodeValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblCodeValue.ForeColor = Color.Firebrick;
-            lblCodeValue.Location = new Point(334, 90);
-            lblCodeValue.Name = "lblCodeValue";
-            lblCodeValue.Size = new Size(69, 21);
-            lblCodeValue.TabIndex = 5;
-            lblCodeValue.Text = "1101-05";
-            // 
             // lblReason
             // 
             lblReason.Font = new Font("Tahoma", 9.5F);
@@ -223,13 +160,76 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             lblReason.TabIndex = 6;
             lblReason.Text = "الشرح: الصندوق: أصل يُستخدم لتتبع النقد المتوفر";
             // 
+            // lblCodeValue
+            // 
+            lblCodeValue.AutoSize = true;
+            lblCodeValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblCodeValue.ForeColor = Color.Firebrick;
+            lblCodeValue.Location = new Point(334, 90);
+            lblCodeValue.Name = "lblCodeValue";
+            lblCodeValue.Size = new Size(97, 24);
+            lblCodeValue.TabIndex = 5;
+            lblCodeValue.Text = "1101-05";
+            // 
+            // lblCodeLabel
+            // 
+            lblCodeLabel.AutoSize = true;
+            lblCodeLabel.Font = new Font("Tahoma", 10F);
+            lblCodeLabel.Location = new Point(442, 90);
+            lblCodeLabel.Name = "lblCodeLabel";
+            lblCodeLabel.Size = new Size(123, 24);
+            lblCodeLabel.TabIndex = 4;
+            lblCodeLabel.Text = "الكود المقترح:";
+            // 
+            // lblParentValue
+            // 
+            lblParentValue.AutoSize = true;
+            lblParentValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblParentValue.ForeColor = Color.FromArgb(64, 64, 64);
+            lblParentValue.Location = new Point(190, 60);
+            lblParentValue.Name = "lblParentValue";
+            lblParentValue.Size = new Size(271, 24);
+            lblParentValue.TabIndex = 3;
+            lblParentValue.Text = "1101 — النقد وما في حكمه";
+            // 
+            // lblParentLabel
+            // 
+            lblParentLabel.AutoSize = true;
+            lblParentLabel.Font = new Font("Tahoma", 10F);
+            lblParentLabel.Location = new Point(442, 60);
+            lblParentLabel.Name = "lblParentLabel";
+            lblParentLabel.Size = new Size(124, 24);
+            lblParentLabel.TabIndex = 2;
+            lblParentLabel.Text = "الحساب الأب:";
+            // 
+            // lblNatureValue
+            // 
+            lblNatureValue.AutoSize = true;
+            lblNatureValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblNatureValue.ForeColor = Color.FromArgb(64, 64, 64);
+            lblNatureValue.Location = new Point(334, 30);
+            lblNatureValue.Name = "lblNatureValue";
+            lblNatureValue.Size = new Size(51, 24);
+            lblNatureValue.TabIndex = 1;
+            lblNatureValue.Text = "أصل";
+            // 
+            // lblNatureLabel
+            // 
+            lblNatureLabel.AutoSize = true;
+            lblNatureLabel.Font = new Font("Tahoma", 10F);
+            lblNatureLabel.Location = new Point(442, 30);
+            lblNatureLabel.Name = "lblNatureLabel";
+            lblNatureLabel.Size = new Size(139, 24);
+            lblNatureLabel.TabIndex = 0;
+            lblNatureLabel.Text = "طبيعة الحساب:";
+            // 
             // lblNameLabel
             // 
             lblNameLabel.AutoSize = true;
             lblNameLabel.Font = new Font("Tahoma", 10F);
             lblNameLabel.Location = new Point(484, 370);
             lblNameLabel.Name = "lblNameLabel";
-            lblNameLabel.Size = new Size(64, 21);
+            lblNameLabel.Size = new Size(130, 24);
             lblNameLabel.TabIndex = 3;
             lblNameLabel.Text = "اسم الحساب:";
             // 
@@ -239,7 +239,7 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             txtName.Location = new Point(12, 400);
             txtName.Name = "txtName";
             txtName.RightToLeft = RightToLeft.Yes;
-            txtName.Size = new Size(536, 28);
+            txtName.Size = new Size(536, 32);
             txtName.TabIndex = 4;
             // 
             // btnCreate
@@ -271,14 +271,16 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             // errorProvider
             // 
             errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider.ContainerControl = this;
             errorProvider.RightToLeft = true;
             // 
             // frmSmartAccountCreation
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AcceptButton = btnCreate;
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.WhiteSmoke;
-            ClientSize = new Size(560, 600);
+            CancelButton = btnCancel;
+            ClientSize = new Size(696, 595);
             Controls.Add(btnCancel);
             Controls.Add(btnCreate);
             Controls.Add(txtName);
@@ -286,8 +288,6 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms
             Controls.Add(grpTemplateInfo);
             Controls.Add(grpTemplates);
             Controls.Add(lblTitle);
-            AcceptButton = btnCreate;
-            CancelButton = btnCancel;
             Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
