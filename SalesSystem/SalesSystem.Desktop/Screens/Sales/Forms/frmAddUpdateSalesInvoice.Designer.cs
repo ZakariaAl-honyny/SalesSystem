@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Sales.Forms
+namespace SalesSystem.Desktop.Screens.Sales.Forms
 {
     partial class frmAddUpdateSalesInvoice
     {
@@ -198,10 +198,10 @@
             lblLineTotal.BorderStyle = BorderStyle.FixedSingle;
             lblLineTotal.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblLineTotal.ForeColor = Color.FromArgb(25, 135, 84);
-            lblLineTotal.Location = new Point(440, 31);
+            lblLineTotal.Location = new Point(280, 31);
             lblLineTotal.Name = "lblLineTotal";
             lblLineTotal.Size = new Size(142, 34);
-            lblLineTotal.TabIndex = 12;
+            lblLineTotal.TabIndex = 13;
             lblLineTotal.Text = "0.00";
             lblLineTotal.TextAlign = ContentAlignment.MiddleCenter;
             tooltip.SetToolTip(lblLineTotal, "إجمالي سعر هذا الصنف");
@@ -215,10 +215,10 @@
             btnAddLine.ForeColor = Color.White;
             btnAddLine.Location = new Point(136, 31);
             btnAddLine.Name = "btnAddLine";
-            btnAddLine.Size = new Size(111, 35);
-            btnAddLine.TabIndex = 13;
+            btnAddLine.Size = new Size(120, 35);
+            btnAddLine.TabIndex = 14;
             btnAddLine.Text = "➕ إضافة";
-            tooltip.SetToolTip(btnAddLine, "إضافة هذا الصنف إلى قائمة الفاتورة");
+            tooltip.SetToolTip(btnAddLine, "إضافة هذا الصنف إلى قائمة الفاتورة (Enter)");
             btnAddLine.UseVisualStyleBackColor = false;
             btnAddLine.Click += btnAddLine_Click;
             // 
@@ -500,14 +500,15 @@
             lblStatus.Text = "جديد";
             lblStatus.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // cmbDiscountType
+            // cmbDiscountType — HIDDEN: V1 uses amount-only discount
             // 
             cmbDiscountType.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbDiscountType.Items.AddRange(new object[] { "مبلغ ثابت", "نسبة مئوية" });
+            cmbDiscountType.Items.AddRange(new object[] { "مبلغ ثابت" });
             cmbDiscountType.Location = new Point(1127, 37);
             cmbDiscountType.Name = "cmbDiscountType";
             cmbDiscountType.Size = new Size(138, 32);
             cmbDiscountType.TabIndex = 14;
+            cmbDiscountType.Visible = false; // Amount-only — no percentage in V1
             // 
             // lblExpensesLabel
             // 
@@ -558,12 +559,14 @@
             pnlEntry.Controls.Add(lblUnitLabel);
             pnlEntry.Controls.Add(lblQtyLabel);
             pnlEntry.Controls.Add(lblPriceLabel);
+            pnlEntry.Controls.Add(lblDiscountLabel);
             pnlEntry.Controls.Add(lblTotalHeaderLabel);
             pnlEntry.Controls.Add(txtBarcode);
             pnlEntry.Controls.Add(lblProductName);
             pnlEntry.Controls.Add(cmbUnit);
             pnlEntry.Controls.Add(txtQuantity);
             pnlEntry.Controls.Add(txtUnitPrice);
+            pnlEntry.Controls.Add(txtLineDiscount);
             pnlEntry.Controls.Add(lblLineTotal);
             pnlEntry.Controls.Add(btnAddLine);
             pnlEntry.Controls.Add(btnCancelLine);
@@ -633,15 +636,40 @@
             lblPriceLabel.Text = "السعر";
             lblPriceLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // lblDiscountLabel
+            // 
+            lblDiscountLabel = new Label();
+            lblDiscountLabel.AutoSize = true;
+            lblDiscountLabel.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblDiscountLabel.ForeColor = Color.FromArgb(108, 117, 125);
+            lblDiscountLabel.Location = new Point(478, 6);
+            lblDiscountLabel.Name = "lblDiscountLabel";
+            lblDiscountLabel.Size = new Size(75, 22);
+            lblDiscountLabel.TabIndex = 5;
+            lblDiscountLabel.Text = "الخصم";
+            lblDiscountLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // txtLineDiscount
+            // 
+            txtLineDiscount = new TextBox();
+            txtLineDiscount.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            txtLineDiscount.Location = new Point(440, 31);
+            txtLineDiscount.Name = "txtLineDiscount";
+            txtLineDiscount.Size = new Size(112, 34);
+            txtLineDiscount.TabIndex = 12;
+            txtLineDiscount.Text = "0";
+            txtLineDiscount.TextAlign = HorizontalAlignment.Center;
+            tooltip.SetToolTip(txtLineDiscount, "الخصم المسموح به للصنف (مبلغ ثابت)");
+            // 
             // lblTotalHeaderLabel
             // 
             lblTotalHeaderLabel.AutoSize = true;
             lblTotalHeaderLabel.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalHeaderLabel.ForeColor = Color.FromArgb(108, 117, 125);
-            lblTotalHeaderLabel.Location = new Point(470, 6);
+            lblTotalHeaderLabel.Location = new Point(310, 6);
             lblTotalHeaderLabel.Name = "lblTotalHeaderLabel";
             lblTotalHeaderLabel.Size = new Size(87, 22);
-            lblTotalHeaderLabel.TabIndex = 5;
+            lblTotalHeaderLabel.TabIndex = 6;
             lblTotalHeaderLabel.Text = "الإجمالي";
             lblTotalHeaderLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -1113,12 +1141,14 @@
         private System.Windows.Forms.Label lblUnitLabel;
         private System.Windows.Forms.Label lblQtyLabel;
         private System.Windows.Forms.Label lblPriceLabel;
+        private System.Windows.Forms.Label lblDiscountLabel;
         private System.Windows.Forms.Label lblTotalHeaderLabel;
         private System.Windows.Forms.TextBox txtBarcode;
         private System.Windows.Forms.Label lblProductName;
         private System.Windows.Forms.ComboBox cmbUnit;
         private System.Windows.Forms.TextBox txtQuantity;
         private System.Windows.Forms.TextBox txtUnitPrice;
+        private System.Windows.Forms.TextBox txtLineDiscount;
         private System.Windows.Forms.Label lblLineTotal;
         private System.Windows.Forms.Button btnAddLine;
         private System.Windows.Forms.Button btnCancelLine;

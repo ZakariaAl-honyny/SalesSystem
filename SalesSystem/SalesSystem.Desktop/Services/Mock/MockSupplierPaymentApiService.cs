@@ -1,0 +1,107 @@
+using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.DTO;
+using SalesSystem.DTO.Common;
+using SalesSystem.DTO.Requests;
+
+namespace SalesSystem.Desktop.Services.Mock;
+
+/// <summary>
+/// محاكاة خدمة سندات صرف الموردين — تعيد بيانات من MockSupplierPaymentsData.
+/// </summary>
+public class MockSupplierPaymentApiService : ISupplierPaymentApiService
+{
+    public Task<Result<IReadOnlyList<SupplierPaymentDto>>> GetAllAsync(int? supplierId = null, DateTime? from = null, DateTime? to = null, CancellationToken ct = default)
+    {
+        IEnumerable<SupplierPaymentDto> query = MockSupplierPaymentsData.Payments;
+
+        if (supplierId.HasValue)
+            query = query.Where(p => p.SupplierId == supplierId.Value);
+
+        if (from.HasValue)
+            query = query.Where(p => p.PaymentDate >= DateOnly.FromDateTime(from.Value));
+
+        if (to.HasValue)
+            query = query.Where(p => p.PaymentDate <= DateOnly.FromDateTime(to.Value));
+
+        return Task.FromResult(Result<IReadOnlyList<SupplierPaymentDto>>.Success(query.ToList().AsReadOnly()));
+    }
+
+    public Task<Result<SupplierPaymentDto>> GetByIdAsync(int id, CancellationToken ct = default)
+    {
+        var payment = MockSupplierPaymentsData.Payments.FirstOrDefault(p => p.Id == id);
+        return payment is null
+            ? Task.FromResult(Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود"))
+            : Task.FromResult(Result<SupplierPaymentDto>.Success(payment));
+    }
+
+    public Task<Result<SupplierPaymentDto>> CreateAsync(CreateSupplierPaymentRequest r, CancellationToken ct = default)
+    {
+        var nextId = MockSupplierPaymentsData.Payments.Count > 0
+            ? MockSupplierPaymentsData.Payments.Max(p => p.Id) + 1 : 1;
+        var nextNo = MockSupplierPaymentsData.Payments.Count > 0
+            ? MockSupplierPaymentsData.Payments.Max(p => int.Parse(p.PaymentNo)) + 1 : 2001;
+
+        // Resolve supplier name from mock data
+        var supplier = MockSuppliersData.Suppliers.FirstOrDefault(s => s.Id == r.SupplierId);
+        var supplierName = supplier?.Name ?? "غير معروف";
+
+        // Resolve cashbox name from mock data
+        var cashBox = r.CashBoxId.HasValue
+            ? MockData.CashBoxes.FirstOrDefault(c => c.Id == r.CashBoxId.Value)
+            : null;
+
+        var payment = new SupplierPaymentDto(
+            Id: nextId,
+            PaymentNo: nextNo.ToString(),
+            SupplierId: r.SupplierId,
+            SupplierName: supplierName,
+            Amount: r.Amount,
+            PaymentMethod: (byte)r.PaymentMethod,
+            PaymentDate: r.PaymentDate.HasValue
+                ? DateOnly.FromDateTime(r.PaymentDate.Value)
+                : DateOnly.FromDateTime(DateTime.UtcNow),
+            PurchaseInvoiceId: r.PurchaseInvoiceId,
+            Notes: r.Notes,
+            BranchId: r.BranchId ?? 1,
+            CashBoxId: r.CashBoxId,
+            CashBoxName: cashBox?.Name,
+            Status: 1, // مسودة
+            Currency: "YER",
+            CreatedAt: DateTime.UtcNow,
+            PostedAt: null,
+            CancelledAt: null);
+
+        MockSupplierPaymentsData.Payments.Add(payment);
+        return Task.FromResult(Result<SupplierPaymentDto>.Success(payment));
+    }
+
+    public Task<Result<SupplierPaymentDto>> PostAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockSupplierPaymentsData.Payments.FirstOrDefault(p => p.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود"));
+
+        if (existing.Status != 1)
+            return Task.FromResult(Result<SupplierPaymentDto>.Failure("لا يمكن ترحيل السند إلا في حالة المسودة"));
+
+        var posted = existing with { Status = 2, PostedAt = DateTime.UtcNow };
+        var index = MockSupplierPaymentsData.Payments.IndexOf(existing);
+        MockSupplierPaymentsData.Payments[index] = posted;
+        return Task.FromResult(Result<SupplierPaymentDto>.Success(posted));
+    }
+
+    public Task<Result<SupplierPaymentDto>> CancelAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockSupplierPaymentsData.Payments.FirstOrDefault(p => p.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود"));
+
+        if (existing.Status == 3)
+            return Task.FromResult(Result<SupplierPaymentDto>.Failure("السند ملغي بالفعل"));
+
+        var cancelled = existing with { Status = 3, CancelledAt = DateTime.UtcNow };
+        var index = MockSupplierPaymentsData.Payments.IndexOf(existing);
+        MockSupplierPaymentsData.Payments[index] = cancelled;
+        return Task.FromResult(Result<SupplierPaymentDto>.Success(cancelled));
+    }
+}

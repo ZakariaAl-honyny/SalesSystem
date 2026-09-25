@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using SalesSystem.Common;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
@@ -84,15 +84,21 @@ public partial class frmAddUpdateSalesInvoice : Form
         cmbUnit.KeyDown += cmbUnit_KeyDown;
         txtQuantity.KeyDown += txtQuantity_KeyDown;
         txtUnitPrice.KeyDown += txtUnitPrice_KeyDown;
+        txtLineDiscount.KeyDown += txtLineDiscount_KeyDown;
 
         // Live recalc
         txtQuantity.TextChanged += RecalculateLineTotal;
         txtUnitPrice.TextChanged += RecalculateLineTotal;
+        txtLineDiscount.TextChanged += RecalculateLineTotal;
+
+        // Numeric validation for discount
+        txtLineDiscount.KeyPress += NumericTextBox_KeyPress;
 
         // Select-all on Enter
         txtBarcode.Enter += NumericTextBox_Enter;
         txtQuantity.Enter += NumericTextBox_Enter;
         txtUnitPrice.Enter += NumericTextBox_Enter;
+        txtLineDiscount.Enter += NumericTextBox_Enter;
         txtPaid.Enter += NumericTextBox_Enter;
         txtBankAmount.Enter += NumericTextBox_Enter;
         txtExpenses.Enter += NumericTextBox_Enter;
@@ -146,11 +152,11 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         // Unified focus indicator for all input controls
         ThemeHelper.WireFocusIndicator(
-            txtBarcode, cmbUnit, txtQuantity, txtUnitPrice,          // Entry panel
-            txtPaid, txtBankAmount, txtExpenses, txtNotes,           // Payment / notes
-            cmbCustomer, cmbWarehouse, cmbPaymentType,               // Header combos
-            cmbBank, cmbTax, cmbAccount, cmbDiscountType,            // Footer combos
-            numInvoiceDiscount, dtpDate                               // Numeric / date
+            txtBarcode, cmbUnit, txtQuantity, txtUnitPrice, txtLineDiscount,  // Entry panel
+            txtPaid, txtBankAmount, txtExpenses, txtNotes,                     // Payment / notes
+            cmbCustomer, cmbWarehouse, cmbPaymentType,                         // Header combos
+            cmbBank, cmbTax, cmbAccount, cmbDiscountType,                      // Footer combos
+            numInvoiceDiscount, dtpDate                                        // Numeric / date
         );
     }
 
@@ -777,6 +783,22 @@ public partial class frmAddUpdateSalesInvoice : Form
                 txtUnitPrice.SelectAll();
                 return;
             }
+            // Move to discount field
+            txtLineDiscount.Focus();
+            BeginInvoke(() => txtLineDiscount.SelectAll());
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            e.SuppressKeyPress = true;
+            CancelEdit();
+        }
+    }
+
+    private async void txtLineDiscount_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            e.SuppressKeyPress = true;
             await AddOrUpdateRowAsync();
         }
         else if (e.KeyCode == Keys.Escape)
@@ -810,7 +832,9 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         decimal qty = decimal.TryParse(txtQuantity.Text, out decimal q) ? q : 0m;
         decimal price = decimal.TryParse(txtUnitPrice.Text, out decimal p) ? p : 0m;
-        decimal total = qty * price;
+        decimal discount = decimal.TryParse(txtLineDiscount.Text, out decimal d) ? d : 0m;
+        decimal total = (qty * price) - discount;
+        if (total < 0m) total = 0m;
         lblLineTotal.Text = total.ToString("N2");
     }
 
@@ -832,13 +856,38 @@ public partial class frmAddUpdateSalesInvoice : Form
         int productUnitId = Convert.ToInt32(cmbUnit.SelectedValue!);
         decimal quantity = decimal.Parse(txtQuantity.Text);
         decimal unitPrice = decimal.TryParse(txtUnitPrice.Text, out decimal up) ? up : 0m;
+        decimal lineDiscount = decimal.TryParse(txtLineDiscount.Text, out decimal ld) ? ld : 0m;
         string barcode = txtBarcode.Text.Trim();
         string productName = lblProductName.Text;
         string unitName = cmbUnit.Text;
 
-        // ── Early stock validation (from the start, not only at posting) ──
-        decimal totalRequested = GetExistingQtyForProduct(productId) + quantity;
-        if (!await IsStockSufficientAsync(productId, totalRequested))
+        // ── MERGE QUANTITY: if product already exists, add qty to existing row ──
+        if (!_editingLineKey.HasValue)
+        {
+            var existingRow = _lines.FirstOrDefault(l => l.ProductId == productId && l.ProductUnitId == productUnitId);
+            if (existingRow != null)
+            {
+                decimal newQty = existingRow.Quantity + quantity;
+                decimal totalRequested = GetExistingQtyForProduct(productId) - existingRow.Quantity + newQty;
+                if (!await IsStockSufficientAsync(productId, totalRequested))
+                {
+                    txtQuantity.Focus();
+                    txtQuantity.SelectAll();
+                    return;
+                }
+                existingRow.Quantity = newQty;
+                // Update discount only if non-zero entered
+                if (lineDiscount > 0m) existingRow.LineDiscount = lineDiscount;
+                ResetEntryState();
+                CalculateTotals();
+                txtBarcode.Focus();
+                return;
+            }
+        }
+
+        // ── Early stock validation ──
+        decimal totalReq = GetExistingQtyForProduct(productId) + quantity;
+        if (!await IsStockSufficientAsync(productId, totalReq))
         {
             txtQuantity.Focus();
             txtQuantity.SelectAll();
@@ -859,17 +908,12 @@ public partial class frmAddUpdateSalesInvoice : Form
                 row.ProductUnitId = productUnitId;
                 row.Quantity = quantity;
                 row.UnitPrice = unitPrice;
+                row.LineDiscount = lineDiscount;
             }
         }
         else
         {
             // ── Add new row ──
-            if (IsDuplicateProduct(productId))
-            {
-                WarnDuplicateProduct();
-                return;
-            }
-
             _lines.Add(new InvoiceLineItemViewModel
             {
                 ProductId = productId,
@@ -879,7 +923,8 @@ public partial class frmAddUpdateSalesInvoice : Form
                 UnitName = unitName,
                 ProductUnitId = productUnitId,
                 Quantity = quantity,
-                UnitPrice = unitPrice
+                UnitPrice = unitPrice,
+                LineDiscount = lineDiscount
             });
         }
 
@@ -918,6 +963,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         cmbUnit.Tag = null;
         txtQuantity.Text = "1";
         txtUnitPrice.Clear();
+        txtLineDiscount.Text = "0";
         lblLineTotal.Text = "0.00";
     }
 

@@ -134,7 +134,6 @@ Default schema: **`dbo`**
 | `TaxNumber` | nvarchar(30) null | |
 | `Notes` | nvarchar(1000) null | |
 | `AccountId` | int not null FK → Accounts(Id) | links to accounting tree |
-| `CurrentBalance` | decimal(18,2) not null default 0 | operating balance (رصيد تشغيلي) |
 | `BranchId` | smallint not null FK → Branches(Id) | default=1 |
 | `CreditLimit` | decimal(18,2) not null default 0 | |
 | `IsActive` | bit not null default 1 | |
@@ -155,7 +154,6 @@ Default schema: **`dbo`**
 | `TaxNumber` | nvarchar(30) null | |
 | `Notes` | nvarchar(1000) null | |
 | `AccountId` | int not null FK → Accounts(Id) | link to accounting; balance maintained in Accounting module |
-| `CurrentBalance` | decimal(18,2) not null default 0 | operating balance |
 | `BranchId` | smallint not null FK → Branches(Id) | default=1 |
 | `CreditLimit` | decimal(18,2) not null default 0 | |
 | `IsActive` | bit not null default 1 | |
@@ -172,6 +170,7 @@ Default schema: **`dbo`**
 | `UserName` | nvarchar(50) not null | unique |
 | `PasswordHash` | nvarchar(max) not null | |
 | `RoleId` | smallint not null FK → Roles(Id) | Dynamic RBAC (Role-Based Access Control) |
+| `EmployeeId` | int null FK → Employees(Id) | Optional link to employee card |
 | `BranchId` | smallint null FK → Branches(Id) | null = all branches |
 | `MustChangePassword` | bit not null default 0 | |
 | `LoginAttempts` | smallint not null default 0 | |
@@ -402,10 +401,13 @@ Default schema: **`dbo`**
 |--------|------|-------|
 | `Id` | int PK | |
 | `Name` | nvarchar(200) not null | |
-| `Barcode` | varchar(50) null | unique filtered `Barcode IS NOT NULL AND IsActive=1` |
+| `ForeignName` | nvarchar(200) null | |
 | `CategoryId` | int not null FK → ProductCategories(Id) | |
 | `Description` | nvarchar(500) null | |
 | `TrackExpiry` | bit not null default 0 | |
+| `ExpiryAlertDays` | smallint null | |
+| `LocationInStore` | nvarchar(100) null | |
+| `MinSalePrice` | decimal(18,2) not null default 0 | |
 | `ImagePath` | nvarchar(500) null | primary image |
 | `ReorderLevel` | decimal(18,3) not null default 0 | |
 | `IsActive` | bit not null default 1 | |
@@ -433,27 +435,23 @@ Default schema: **`dbo`**
 | `Id` | int PK | |
 | `ProductId` | int not null FK → Products(Id) | |
 | `UnitId` | smallint not null FK → Units(Id) | |
-| `Factor` | decimal(18,3) not null | conversion factor: base=1, box=24 |
-| `IsBaseUnit` | bit not null default 0 | exactly one base unit per product |
+| `Barcode` | nvarchar(50) null | unique filtered `Barcode IS NOT NULL AND IsActive=1` |
+| `Factor` | decimal(18,3) not null | معامل التحويل: الوحدة الأساسية=1، كرتون=24 |
+| `IsBaseUnit` | bit not null default 0 | وحدة أساسية واحدة فقط لكل منتج |
+| `SalePrice` | decimal(18,2) not null default 0 | سعر التجزئة (Retail Price) |
+| `WholesalePrice` | decimal(18,2) null | سعر الجملة (Wholesale Price) — اختياري |
+| `CostPrice` | decimal(18,2) not null default 0 | سعر التكلفة المرجعي أو متوسط التكلفة المحسوبة |
+| `MaxDiscountAmount` | decimal(18,2) null | أقصى خصم مسموح به (مبلغ ثابت) لهذه الوحدة |
 | `CreatedByUserId` | int null FK | |
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-### 3.5 ProductPrices
-| Column | Type | Notes |
-|--------|------|---------|
-| `Id` | int PK | |
-| `ProductUnitId` | int not null FK → ProductUnits(Id) | |
-| `Price` | decimal(18,2) not null | CHK `>= 0` |
-| `EffectiveFrom` | date not null | |
-| `EffectiveTo` | date null | null = currently active |
-| `CreatedByUserId` | int null FK | |
-| `UpdatedByUserId` | int null FK | |
-| `CreatedAt` | datetime2 not null | |
-| `UpdatedAt` | datetime2 null | |
+> ⚠️ **Cost Price Note**: The `CostPrice` here is a reference/standard cost. Actual purchase prices (which vary per batch) are stored in the `PurchaseInvoiceLines` and tracked via costing methods in the `InventoryBatches` and transactions.
+> ⚠️ **Discount Rule**: `MaxDiscountAmount` is a **fixed amount only** — percentage discounts are NOT supported in V1.
+> ⚠️ **NO CurrencyId in V1** — pricing is per ProductUnit only.
 
-> ⚠️ **NO CurrencyId in V1** — pricing is per ProductUnit only. CurrencyId will be added in a future phase when the Currencies module is implemented.
+
 
 ---
 
@@ -468,9 +466,10 @@ Default schema: **`dbo`**
 | `NameAr` | nvarchar(200) not null | Arabic name |
 | `NameEn` | nvarchar(200) null | English name for bilingual support |
 | `Nature` | tinyint not null | 1=Asset, 2=Liability, 3=Equity, 4=Revenue, 5=Expense |
-| `Level` | tinyint not null default 1 | 1=Group(1 digit), 2=Main(2 digits), 3=Sub(4 digits), 4=Detail(8 digits) — see hierarchical numbering below |
-| `IsLeaf` | bit not null default 1 | leaf accounts allow transactions |
+| `Level` | tinyint not null default 1 | CHECK 1–10 (`CHK_Account_Level_Range`); standard scheme uses tiers 1=Group(1 digit), 2=Main(2 digits), 3=Sub(4 digits), 4=Detail(8 digits) — see hierarchical numbering below |
+| `IsLeaf` | bit not null default 1 | leaf accounts allow transactions (service-layer `AllowTransactions` alias) |
 | `IsSystem` | bit not null default 0 | system accounts protected from modification |
+| `CategoryId` | smallint null FK → AccountCategories(Id) | optional classification (DeleteBehavior.Restrict) |
 | `Description` | nvarchar(500) null | Explanation of account purpose |
 | `ColorCode` | nvarchar(7) null | Auto-generated hex color from Nature: #2B579A (Asset), #D32F2F (Liability), #6A1B9A (Equity), #2E7D32 (Revenue), #795548 (Expense) |
 | `Notes` | nvarchar(300) null | Additional notes |
@@ -479,6 +478,21 @@ Default schema: **`dbo`**
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
+
+#### 4.1.1 AccountCategories (تصنيفات الدليل المحاسبي)
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | smallint PK identity | |
+| `Name` | nvarchar(100) not null | unique index `IX_AccountCategories_Name` |
+| `Description` | nvarchar(300) null | |
+| `IsActive` | bit not null default 1 | |
+| `CreatedByUserId` | int null FK | |
+| `UpdatedByUserId` | int null FK | |
+| `CreatedAt` | datetime2 not null | |
+| `UpdatedAt` | datetime2 null | |
+
+**Per analysis (`AccountNode`) — derived/not stored:** `treePath` ("/1/11/111/"), `financialStatement` (derived from `Nature`), `nature` DEBIT/CREDIT (derived from `Nature`), special-category detection (CUSTOMER / SUPPLIER / CASHBOX / BANK / EMPLOYEE / STANDARD — derived from linked entities). `allowCostCenter` becomes a stored bit only if CostCenters (§4.11) is adopted.
 
 ### Hierarchical Account Numbering Scheme
 
@@ -500,7 +514,6 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 |--------|------|-------|
 | `Id` | int PK | |
 | `AccountId` | int not null FK → Accounts(Id) | link to accounting; balance maintained in Accounting module |
-| `CurrentBalance` | decimal(18,2) not null default 0 | operating balance |
 | `Name` | nvarchar(150) not null | |
 | `BranchId` | smallint null FK → Branches(Id) | NULL = company-wide (HQ treasury, employee custody, payment gateway); set = branch-specific POS box |
 | `Description` | nvarchar(300) null | |
@@ -514,56 +527,88 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 - **BranchId = specific value**: POS cashier box — cashier sees only boxes for his branch
 - **BranchId = NULL**: Employee custody / HQ treasury / payment gateway — accessible from any branch
 
+**Balance rule:** CashBoxes stores **no balance column** — the box balance is always the balance of the linked `Accounts` row (`AccountId`).
+
+**Per analysis (`CashboxRecord`) — planned additions:**
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `Code` | nvarchar(20) null | short box code (e.g. "POS-01") |
+| `Currency` | nvarchar(10) not null default 'YER' | display currency |
+| `MaxCashLimit` | decimal(18,2) null | overdraft guard — withdrawal above limit blocked except Admin (analysis §2.c) |
+| `CashierUserId` | int null FK → Users(Id) | default cashier bound to the box |
+| `OpeningBalance` | decimal(18,2) null | informational only; posted via opening journal entry |
+
 ### 4.3 Banks
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
 | `AccountId` | int not null FK → Accounts(Id) | links to accounting tree |
-| `CurrentBalance` | decimal(18,2) not null default 0 | operating balance (رصيد تشغيلي) |
 | `Name` | nvarchar(150) not null | |
 | `BranchId` | smallint null FK → Branches(Id) | NULL = company-wide bank account (serves all branches); set = branch-specific |
 | `AccountNumber` | nvarchar(100) null | |
 | `IBAN` | nvarchar(100) null | |
+| `ContactPerson` | nvarchar(100) null | contact person at the bank branch |
+| `ContactPhone` | nvarchar(50) null | |
 | `IsActive` | bit not null default 1 | |
 | `CreatedByUserId` | int null FK | |
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
+**Per analysis (`BankRecord`) — planned additions:**
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `Type` | tinyint not null default 1 | 1=BANK, 2=WALLET (e.g. JEB محفظة جيب), 3=POS_NETWORK |
+| `Currency` | nvarchar(10) not null default 'YER' | |
+| `BranchName` | nvarchar(100) null | bank branch name |
+| `OverdraftLimit` | decimal(18,2) null | max negative balance allowed |
+| `LastReconciliationDate` | date null | reconciliation tracking |
+
 ### 4.4 JournalEntries
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
-| `EntryNo` | int not null | unique per fiscal year |
-| `EntryDate` | date not null | |
+| `EntryNumber` | nvarchar(50) not null | unique display string derived from `EntryNo` (unique index) |
+| `EntryNo` | int not null | unique (unique index `IX_JournalEntries_EntryNo`); pure integer sequence (101, 102, 103…) per analysis |
+| `EntryDate` | date not null | index `IX_JournalEntries_EntryDate` |
+| `FiscalYearId` | smallint not null FK → FiscalYears(Id) | Restrict — period reporting + closed-period protection |
 | `BranchId` | smallint not null FK → Branches(Id) | default=1 |
 | `EntryType` | tinyint not null | 1=Manual, 2=Sales, 3=Purchase, 4=Receipt, 5=Payment, 6=Inventory, 7=Adjustment |
 | `ReferenceType` | nvarchar(50) null | 'SalesInvoice', 'PurchaseInvoice', etc. |
 | `ReferenceId` | int null | |
+| `ReferenceNumber` | nvarchar(50) null | external document number (display) |
+| `AttachmentPath` | nvarchar(500) null | local scan/reference path — no cloud storage in V1 (per analysis §7) |
 | `Description` | nvarchar(500) null | |
 | `Status` | tinyint not null | 1=Draft, 2=Posted, 3=Cancelled |
 | `IsReversed` | bit not null default 0 | |
 | `ReversedByEntryId` | int null FK → JournalEntries(Id) | Restrict |
+| `ReviewedByUserId` | int null FK → Users(Id) | set when posted (reviewer) |
+| `ReviewedAt` | datetime2 null | set when posted |
 | `CreatedByUserId` | int null FK → Users(Id) | extracted from JWT, never client-supplied |
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
-| **Indexes** | `EntryNo`, `(ReferenceType, ReferenceId)` | |
+| **Indexes** | unique `EntryNumber`, unique `EntryNo`, `EntryDate`, filtered `(ReferenceType, ReferenceId)` | |
+| **Notes** | query filter hides `Status = 3 (Cancelled)` from default LINQ queries | |
+| **Per analysis** | planned: `SourceModule` nvarchar(30) null — originating module tag (`createdBy`/`sourceModule` in `JournalEntry`) | |
 
 ### 4.5 JournalEntryLines
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
-| `JournalEntryId` | int not null FK → JournalEntries(Id) | |
-| `AccountId` | int not null FK → Accounts(Id) | |
+| `JournalEntryId` | int not null FK → JournalEntries(Id) | index + composite `(JournalEntryId, AccountId)` |
+| `AccountId` | int not null FK → Accounts(Id) | index |
 | `Debit` | decimal(18,2) not null default 0 | |
 | `Credit` | decimal(18,2) not null default 0 | |
 | `Description` | nvarchar(300) null | |
 | `SortOrder` | smallint not null default 0 | |
-| **CHK** | `CHK_DebitOrCredit` | exactly one of Debit/Credit > 0, or both zero |
+| **CHK** | `CHK_DebitOrCredit` | `(Debit > 0 AND Credit = 0) OR (Credit > 0 AND Debit = 0) OR (Debit = 0 AND Credit = 0)` |
 | **CHK** | `CHK_NoNegativeValues` | Debit >= 0 AND Credit >= 0 |
+| **Per analysis** | planned: `CostCenterId` int null FK → CostCenters(Id) — expense/branch attribution (§4.11) | |
 
 ### 4.6 ReceiptVouchers (سندات قبض)
 | Column | Type | Notes |
@@ -584,6 +629,23 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
 
+**Per analysis (`CashVoucher` type=RECEIPT) — planned additions:**
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `PaymentMethod` | tinyint not null default 1 | 1=Cash, 2=BankTransfer, 3=Cheque (analysis `paymentMethod`) |
+| `PartyType` | tinyint null | 1=Customer, 2=Supplier, 3=Expense, 4=Other (analysis `partyType`) |
+| `PartyId` | int null | FK target depends on PartyType (CustomerId/SupplierId/…) |
+| `Reference` | nvarchar(100) null | cheque / حوالة / سند يدوي number (analysis `reference`/`referenceNo`) |
+| `CheckNumber` | nvarchar(50) null | cheque attribute stored on voucher — no separate Cheques table in V1 |
+| `BankName` | nvarchar(100) null | issuing bank name for cheques/transfers |
+| `DueDate` | date null | cheque maturity date |
+| `CostCenterId` | int null FK → CostCenters(Id) | attribution (§4.11) |
+| `VoidedAt` | datetime2 null | analysis `VOID` state maps to existing `Status=3 (Cancelled)` + audit columns |
+| `VoidReason` | nvarchar(300) null | |
+
+> Invoice settlement: use **§4.12 VoucherInvoiceAllocations (planned)** — mirrors analysis `allocatedInvoices`.
+
 ### 4.7 PaymentVouchers (سندات صرف)
 | Column | Type | Notes |
 |--------|------|-------|
@@ -603,15 +665,17 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
 
-### 4.8 Expenses
+**Per analysis (`CashVoucher` type=PAYMENT) — planned additions:** identical set as §4.6 (`PaymentMethod`, `PartyType`, `PartyId`, `Reference`, `CheckNumber`, `BankName`, `DueDate`, `CostCenterId`, `VoidedAt`, `VoidReason`) + **§4.12 VoucherInvoiceAllocations** for supplier-payment settlement.
+
+### 4.8 TreasuryTransfers (تحويلات الخزينة)
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
-| `ExpenseNo` | int not null | unique |
-| `ExpenseDate` | date not null | |
+| `TransferNo` | int not null | unique, pure integer sequence (3001, 3002...) |
+| `TransferDate` | date not null | |
 | `BranchId` | smallint not null FK → Branches(Id) | default=1 |
-| `ExpenseAccountId` | int not null FK → Accounts(Id) | |
-| `CashBoxId` | int not null FK → CashBoxes(Id) | |
+| `FromCashBoxId` | int not null FK → CashBoxes(Id) | source box |
+| `ToCashBoxId` | int not null FK → CashBoxes(Id) | destination box |
 | `Amount` | decimal(18,2) not null | |
 | `Notes` | nvarchar(500) null | |
 | `Status` | tinyint not null | 1=Draft, 2=Posted, 3=Cancelled |
@@ -622,19 +686,63 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
 
-### 4.9 SystemAccountMappings (NEW: Accounting Defaults)
+> ⚠️ **Implementation status:** `TreasuryTransfers` is **not yet an EF entity/table** (no model, no migration). The Desktop currently runs this screen via `MockTreasuryTransferApiService`. Create the table + entity before switching off mock mode.
+
+**Per analysis (`FrmCash_TreasuryTransfer`) — planned columns beyond box→box:**
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `FromBankId` | int null FK → Banks(Id) | nullable box/bank legs allow box↔bank and bank↔bank transfers |
+| `ToBankId` | int null FK → Banks(Id) | |
+| `CostCenterId` | int null FK → CostCenters(Id) | attribution (§4.11) |
+
+### 4.9 Expenses
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
-| `MappingKey` | nvarchar(100) not null | e.g., "SalesRevenue", "COGS" |
-| `BranchId` | smallint null FK → Branches(Id) | NULL = default/global mapping; set = branch-specific override |
-| `AccountId` | int not null FK → Accounts(Id) | |
+| `ExpenseNo` | int not null | unique |
+| `ExpenseDate` | date not null | |
+| `BranchId` | smallint not null FK → Branches(Id) | default=1 |
+| `ExpenseAccountId` | int not null FK → Accounts(Id) | |
+| `CashBoxId` | int not null FK → CashBoxes(Id) | |
+| `Amount` | decimal(18,2) not null | |
+| `BaseNetTotal` | decimal(18,2) null | amount converted to base currency using the exchange rate; NULL = same as Amount |
+| `Notes` | nvarchar(500) null | |
+| `Status` | tinyint not null | 1=Draft, 2=Posted, 3=Cancelled |
 | `CreatedByUserId` | int null FK | |
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
-| **UK** | `UNIQUE(MappingKey, BranchId)` | prevents duplicate key per branch |
-| **Notes** | Flexible key-value design with branch override | replaces fixed-column approach |
+| `PostedAt` | datetime2 null | set when Status=2 |
+| `CancelledAt` | datetime2 null | set when Status=3 |
+
+### 4.10 SystemAccountMappings (NEW: Accounting Defaults)
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | int PK | inherits `Entity` — **no audit columns** |
+| `MappingKey` | nvarchar(100) not null | e.g., "SalesRevenue", "COGS"; matches `SystemAccountKey` enum names |
+| `BranchId` | smallint null FK → Branches(Id) | column exists; see unique-index caveat below |
+| `AccountId` | int not null FK → Accounts(Id) | Restrict |
+| **Indexes** | unique filtered `IX_SystemAccountMappings_MappingKey` on `(MappingKey)` WHERE `MappingKey IS NOT NULL`, plus non-unique `AccountId` | |
+| **Notes** | Flexible key-value design | replaces fixed-column approach |
+
+> ⚠️ **Discrepancy vs analysis branch-override design:** the actual unique index is on `MappingKey` **alone** (one row per key), so a default row + branch-specific override row cannot coexist. To realize the branch routing pattern documented below, the index must be changed to `UNIQUE(MappingKey, BranchId)` and null-distinguished — tracked as a known gap.
+
+**Known `SystemAccountKey` mapping keys (seeded via `AccountingSeeder`):**
+
+| # | Key | # | Key |
+|---|-----|---|-----|
+| 1 | `DefaultCash` | 12 | `Capital` |
+| 2 | `DefaultBank` | 13 | `OpeningBalanceEquity` |
+| 3 | `AccountsReceivable` | 14 | `RetainedEarnings` |
+| 4 | `AccountsPayable` | 15 | `UndistributedProfits` |
+| 5 | `Inventory` | 16 | `InventoryShortage` |
+| 6 | `CostOfGoodsSold` | 17 | `InventorySurplus` |
+| 7 | `SalesRevenue` | 18 | `GeneralExpense` |
+| 8 | `SalesReturns` | 19 | `SpoilageLoss` |
+| 9 | `PurchaseReturns` | 20 | `EmployeeCustody` |
+| 10 | `VatOutput` | 21 | `DeliveryChargesRevenue` |
+| 11 | `VatInput` | | |
 
 **Branch routing pattern (per analysis):**
 - `BranchId IS NULL` → default system mapping (applies to ALL branches)
@@ -668,6 +776,76 @@ Lookup: Branch 2 → override found → uses 1525
 ```
 
 This eliminates the need for a separate `BranchFinancialSettings` table — one unified table handles both global defaults and per-branch overrides.
+
+*(subject to the `MappingKey` unique-index caveat in §4.10 above)*
+
+### 4.11 CostCenters (مراكز التكلفة — per analysis, **planned / not yet in EF**)
+
+> Source: analysis `CostCenterNode` + `FrmAccount_CostCenters` / `AccountingCostCenterModal`. No `CostCenters` table exists in migrations yet.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | int PK | |
+| `Code` | nvarchar(20) not null | unique (e.g. "201") |
+| `Name` | nvarchar(200) not null | Arabic name |
+| `NameEn` | nvarchar(200) null | |
+| `ParentId` | int null FK → CostCenters(Id) | self-referencing hierarchy (Restrict) |
+| `Level` | tinyint not null default 1 | CHECK 1–10 |
+| `IsLeaf` | bit not null default 1 | leaf centers accept postings |
+| `Budget` | decimal(18,2) not null default 0 | الموازنة التقديرية |
+| `ManagerName` | nvarchar(100) null | |
+| `IsActive` | bit not null default 1 | analysis `status ACTIVE/INACTIVE` |
+| `Notes` | nvarchar(300) null | |
+| `CreatedByUserId` | int null FK | |
+| `UpdatedByUserId` | int null FK | |
+| `CreatedAt` | datetime2 not null | |
+| `UpdatedAt` | datetime2 null | |
+
+**Consumers (when adopted):** `JournalEntryLines.CostCenterId` (§4.5), Receipt/Payment Vouchers `CostCenterId` (§4.6/§4.7), TreasuryTransfers `CostCenterId` (§4.8).
+
+### 4.12 VoucherInvoiceAllocations (تسوية السندات على الفواتير — per analysis, **planned / not yet in EF**)
+
+> Source: analysis `VoucherInvoiceAllocation` (`allocatedInvoices` on `CashVoucher`) — lets a receipt/payment be spread across several invoices (partial settlement). Solution currently has this only for `CustomerReceipts` (§6.5/§6.6) and `SupplierPayments` (§7.5/§7.6), **not** for accounting `ReceiptVouchers`/`PaymentVouchers`.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | int PK | |
+| `VoucherType` | tinyint not null | 1=ReceiptVoucher, 2=PaymentVoucher |
+| `VoucherId` | int not null | FK to ReceiptVouchers/PaymentVouchers per `VoucherType` |
+| `InvoiceType` | tinyint not null default 1 | 1=SalesInvoice, 2=PurchaseInvoice |
+| `InvoiceId` | int not null | FK to SalesInvoices/PurchaseInvoices per `InvoiceType` |
+| `AllocatedAmount` | decimal(18,2) not null | must be > 0 and ≤ voucher remaining |
+| **UK** | `UNIQUE(VoucherType, VoucherId, InvoiceType, InvoiceId)` | one allocation row per invoice per voucher |
+| **Notes** | index `(InvoiceType, InvoiceId)` for statement/aging queries | |
+
+### 4.13 FiscalPeriods (الفترات المالية — per analysis, **planned / not yet in EF**)
+
+> Source: analysis `FiscalPeriod` (`AccountingModule` close/reopen with `closingEntryId`). Solution V1 currently tracks only **whole fiscal years** (`FiscalYears`, §2.6: `IsOpen`, `OpenedAt/ClosedAt`, `OpenedBy/ClosedBy`); month/quarter periods are not yet stored.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | int PK | |
+| `FiscalYearId` | smallint not null FK → FiscalYears(Id) | |
+| `PeriodName` | nvarchar(100) not null | e.g. "يناير 2026", "الربع الأول 2026" |
+| `PeriodType` | tinyint not null | 1=Month, 2=Quarter, 3=Year |
+| `StartDate` | date not null | |
+| `EndDate` | date not null | |
+| `IsClosed` | bit not null default 0 | closed periods block voucher/entry dates (analysis §2.د) |
+| `ClosedAt` | datetime2 null | |
+| `ClosedByUserId` | int null FK → Users(Id) | |
+| `ClosingNotes` | nvarchar(500) null | |
+| `ClosingEntryId` | int null FK → JournalEntries(Id) | automated period-closing entry (revenue/expense → retained earnings) |
+| **Notes** | index `(FiscalYearId, StartDate, EndDate)` | date-range lookup for period protection |
+
+### Module 4 Notes (per analysis `AGENTS.md`/`GEMINI.md`)
+
+- **Pure integer document numbers** (no dates/strings embedded): Receipts `1001…`, Payments `2001…`, Treasury Transfers `3001…`, Journal entries `101…` — enforced via `DocumentSequences` (§2.5).
+- **Strict lifecycle enums as tinyint**: journal/voucher states 1=Draft, 2=Posted, 3=Cancelled (analysis additionally shows `VOID` for vouchers → maps to Cancelled + void audit columns).
+- **Balance enforcement**: `SUM(Debit) = SUM(Credit)` validated in the service layer before `Status=2` (DB CHECK allows all-zero rows only as placeholder lines).
+- **Closed-period protection**: `FiscalYears.IsOpen` (§2.6) and planned `FiscalPeriods.IsClosed` (§4.13) block posting entries/vouchers dated inside a closed period.
+- **Cheques**: no standalone Cheques table in V1 — cheque attributes live on the voucher (`PaymentMethod=3`, `CheckNumber`, `BankName`, `DueDate`).
+- **Petty cash / employee advances**: no separate tables — petty-cash requests post as `Expenses` (§4.9) or PaymentVouchers; employee advances/custody use `SystemAccountKey.EmployeeCustody` (20) and employee AR accounts (analysis §6).
+- **Accounting permission flags** (analysis `lib/permissions.ts`): enforced at UI level (e.g. `ViewTrialBalance`); DB-side enforcement is via `User.PermissionsMask` (§1.4).
 
 ---
 
@@ -850,9 +1028,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `CashBoxId` | int null FK → CashBoxes(Id) | |
 | `TaxId` | smallint null FK → Taxes(Id) | |
 | `SubTotal` | decimal(18,2) not null | |
-| `DiscountAmount` | decimal(18,2) not null default 0 | |
-| `DiscountType` | tinyint not null default 0 | 0=Amount, 1=Percentage |
-| `DiscountRate` | decimal(5,2) null | percentage rate when DiscountType=1 |
+| `DiscountAmount` | decimal(18,2) not null default 0 | خصم الفاتورة — مبلغ ثابت فقط |
 | `CostInBaseCurrency` | decimal(18,2) null | total cost in base currency for profit calculation |
 | `TaxAmount` | decimal(18,2) not null default 0 | |
 | `OtherCharges` | decimal(18,2) not null default 0 | |
@@ -973,9 +1149,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `CashBoxId` | int null FK → CashBoxes(Id) | |
 | `TaxId` | smallint null FK → Taxes(Id) |
 | `SubTotal` | decimal(18,2) not null | |
-| `DiscountAmount` | decimal(18,2) not null default 0 | |
-| `DiscountType` | tinyint not null default 0 | 0=Amount, 1=Percentage |
-| `DiscountRate` | decimal(5,2) null | percentage rate when DiscountType=1 |
+| `DiscountAmount` | decimal(18,2) not null default 0 | خصم الفاتورة — مبلغ ثابت فقط |
 | `TaxAmount` | decimal(18,2) not null default 0 | |
 | `OtherCharges` | decimal(18,2) not null default 0 | additional costs (transport, customs) |
 | `NetTotal` | decimal(18,2) not null | SubTotal - Discount + Tax + OtherCharges |
@@ -1112,7 +1286,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `InventoryTransactionType` | Purchase=1, PurchaseReturn=2, Sale=3, SaleReturn=4, TransferOut=5, TransferIn=6, Count=7, Adjustment=8, Damage=9, OpeningBalance=10, InternalIssue=11, InternalReceipt=12 |
 | `InventoryReferenceType` | PurchaseInvoice=1, SalesInvoice=2, PurchaseReturn=3, SalesReturn=4, Transfer=5, Count=6, Adjustment=7 |
 | `AdjustmentType` | Opening=1, Increase=2, Shortage=3, Damage=4 |
-| `DiscountType` | Amount=0, Percentage=1 |
+
 | `PaymentMethod` | Cash=1, Cheque=2, BankTransfer=3, CreditCard=4 |
 | `SettingType` | String=1, Integer=2, Decimal=3, Boolean=4 |
 | `NotificationType` | LowStock=1, ExpirySoon=2, CreditLimitExceeded=3, System=4, Reminder=5 |
@@ -1125,14 +1299,14 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | Module | Table Count | Tables |
 |--------|------------|--------|
 | 1. Core & Security | 5 | Customers, Suppliers, Users, Roles, UserSessions |
-| 2. Organization & Settings | 9 | Warehouses, Taxes, CompanySettings, SystemSettings, DocumentSequences, FiscalYears, Notifications, Attachments, Branches |
-| 3. Products | 5 | ProductCategories, Products, Units, ProductUnits, ProductPrices |
-| 4. Accounting | 9 | Accounts, CashBoxes, Banks, JournalEntries, JournalEntryLines, ReceiptVouchers, PaymentVouchers, Expenses, SystemAccountMappings |
+| 2. Organization & Settings | 10 | Warehouses, Taxes, CompanySettings, SystemSettings, DocumentSequences, FiscalYears, Notifications, Attachments, Branches, Employees |
+| 3. Products | 4 | ProductCategories, Products, Units, ProductUnits |
+| 4. Accounting | 10 | Accounts, CashBoxes, Banks, JournalEntries, JournalEntryLines, ReceiptVouchers, PaymentVouchers, TreasuryTransfers, Expenses, SystemAccountMappings |
 | 5. Inventory | 10 | WarehouseStocks, InventoryBatches, InventoryTransactions, InventoryTransactionLines, InventoryCounts, InventoryCountLines, InventoryAdjustments, InventoryAdjustmentLines, WarehouseTransfers, WarehouseTransferLines |
 | 6. Sales | 6 | SalesInvoices, SalesInvoiceLines, SalesReturns, SalesReturnLines, CustomerReceipts, CustomerReceiptApplications |
 | 7. Purchases | 6 | PurchaseInvoices, PurchaseInvoiceLines, PurchaseReturns, PurchaseReturnLines, SupplierPayments, SupplierPaymentApplications |
 | 8. Infrastructure & Support | 2 | AuditLogs, SystemLogs |
-| **Total** | **52** | |
+| **Total** | **53** | |
 
 ---
 
@@ -1217,29 +1391,7 @@ The following entities are **NOT in V1**. They are deferred to V2 for scope mana
 
 ---
 
-## V2.3 Employees (الموظفون)
-| Column | Type | Notes |
-|--------|------|-------|
-| `Id` | int PK | |
-| `Name` | nvarchar(200) not null | |
-| `EmployeeCode` | nvarchar(30) not null | unique |
-| `Phone` | nvarchar(20) null | |
-| `Email` | nvarchar(100) null | |
-| `NationalId` | nvarchar(20) null | national ID / iqama |
-| `Position` | nvarchar(100) null | job title |
-| `DepartmentId` | smallint null FK → Departments(Id) | |
-| `BranchId` | smallint null FK → Branches(Id) | |
-| `HireDate` | date null | |
-| `AccountId` | int null FK → Accounts(Id) | for salary advances / custody |
-| `IsActive` | bit not null default 1 | |
-| `CreatedByUserId` | int null FK | |
-| `UpdatedByUserId` | int null FK | |
-| `CreatedAt` | datetime2 not null | |
-| `UpdatedAt` | datetime2 null | |
 
-**Purpose**: HR module. Tracks employees, department/branch assignment, and links to accounting for salary advances (custody accounts under `1170`).
-
----
 
 ## V2.4 Currencies (العملات)
 | Column | Type | Notes |
@@ -1377,7 +1529,6 @@ The following entities are **NOT in V1**. They are deferred to V2 for scope mana
 | Entity | V2 Purpose | V1 Impact |
 |--------|-----------|-----------|
 | Departments | Organizational structure | Not needed in V1 |
-| Employees | HR + custody accounts | Deferred to V2 |
 | Currencies | Multi-currency invoices | V1 uses single currency (YER) |
 | CurrencyRates | Exchange rate history | V1 uses fixed rate |
 | CustomerContacts | Multiple contacts per customer | V1 has single contact fields |
