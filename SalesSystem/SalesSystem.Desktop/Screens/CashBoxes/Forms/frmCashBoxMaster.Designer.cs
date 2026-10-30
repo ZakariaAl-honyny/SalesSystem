@@ -85,7 +85,7 @@ partial class frmCashBoxMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
-        txtCode.TabIndex = 1;
+        txtCode.TabIndex = 0;
         // 
         // lblName
         // 
@@ -101,7 +101,7 @@ partial class frmCashBoxMaster
         txtName.Location = new Point(885, 42);
         txtName.Name = "txtName";
         txtName.Size = new Size(356, 32);
-        txtName.TabIndex = 3;
+        txtName.TabIndex = 1;
         // 
         // lblDescription
         // 
@@ -118,7 +118,7 @@ partial class frmCashBoxMaster
         txtDescription.Multiline = true;
         txtDescription.Name = "txtDescription";
         txtDescription.Size = new Size(566, 56);
-        txtDescription.TabIndex = 5;
+        txtDescription.TabIndex = 2;
         // 
         // pnlButtons
         // 
@@ -210,7 +210,7 @@ partial class frmCashBoxMaster
         txtSearch.Location = new Point(690, 7);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 

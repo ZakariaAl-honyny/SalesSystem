@@ -123,7 +123,7 @@ partial class frmProductUnitMaster
         cmbUnit.Margin = new Padding(3, 6, 20, 0);
         cmbUnit.Name = "cmbUnit";
         cmbUnit.Size = new Size(200, 32);
-        cmbUnit.TabIndex = 1;
+        cmbUnit.TabIndex = 0;
         // 
         // lblBarcode
         // 
@@ -141,7 +141,7 @@ partial class frmProductUnitMaster
         txtBarcode.Margin = new Padding(3, 6, 20, 0);
         txtBarcode.Name = "txtBarcode";
         txtBarcode.Size = new Size(180, 32);
-        txtBarcode.TabIndex = 3;
+        txtBarcode.TabIndex = 1;
         // 
         // lblFactor
         // 
@@ -163,7 +163,7 @@ partial class frmProductUnitMaster
         numFactor.Minimum = new decimal(new int[] { 1, 0, 0, 196608 });
         numFactor.Name = "numFactor";
         numFactor.Size = new Size(110, 32);
-        numFactor.TabIndex = 5;
+        numFactor.TabIndex = 2;
         numFactor.Value = new decimal(new int[] { 1, 0, 0, 0 });
         // 
         // lblSalePrice
@@ -185,7 +185,7 @@ partial class frmProductUnitMaster
         numSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numSalePrice.Name = "numSalePrice";
         numSalePrice.Size = new Size(130, 32);
-        numSalePrice.TabIndex = 7;
+        numSalePrice.TabIndex = 3;
         numSalePrice.ThousandsSeparator = true;
         // 
         // pnlFieldsRow2
@@ -223,7 +223,7 @@ partial class frmProductUnitMaster
         numWholesalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numWholesalePrice.Name = "numWholesalePrice";
         numWholesalePrice.Size = new Size(130, 32);
-        numWholesalePrice.TabIndex = 1;
+        numWholesalePrice.TabIndex = 0;
         numWholesalePrice.ThousandsSeparator = true;
         // 
         // lblCostPrice
@@ -245,7 +245,7 @@ partial class frmProductUnitMaster
         numCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numCostPrice.Name = "numCostPrice";
         numCostPrice.Size = new Size(130, 32);
-        numCostPrice.TabIndex = 3;
+        numCostPrice.TabIndex = 1;
         numCostPrice.ThousandsSeparator = true;
         // 
         // lblMaxDiscount
@@ -267,7 +267,7 @@ partial class frmProductUnitMaster
         numMaxDiscount.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMaxDiscount.Name = "numMaxDiscount";
         numMaxDiscount.Size = new Size(130, 32);
-        numMaxDiscount.TabIndex = 5;
+        numMaxDiscount.TabIndex = 2;
         numMaxDiscount.ThousandsSeparator = true;
         // 
         // lblProduct
@@ -393,7 +393,7 @@ partial class frmProductUnitMaster
         txtSearch.Location = new Point(690, 4);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 

@@ -69,13 +69,14 @@ partial class frmCategoryMaster
         pnlFields.Name = "pnlFields";
         pnlFields.Size = new Size(940, 100);
         pnlFields.TabIndex = 1;
+        pnlFields.Paint += pnlFields_Paint;
         // 
         // lblCode
         // 
         lblCode.AutoSize = true;
         lblCode.Location = new Point(740, 14);
         lblCode.Name = "lblCode";
-        lblCode.Size = new Size(112, 24);
+        lblCode.Size = new Size(126, 24);
         lblCode.TabIndex = 0;
         lblCode.Text = "رقم المجموعة";
         // 
@@ -85,14 +86,14 @@ partial class frmCategoryMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(130, 32);
-        txtCode.TabIndex = 1;
+        txtCode.TabIndex = 0;
         // 
         // lblName
         // 
         lblName.AutoSize = true;
         lblName.Location = new Point(560, 14);
         lblName.Name = "lblName";
-        lblName.Size = new Size(116, 24);
+        lblName.Size = new Size(136, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم المجموعة";
         // 
@@ -101,14 +102,14 @@ partial class frmCategoryMaster
         txtName.Location = new Point(420, 41);
         txtName.Name = "txtName";
         txtName.Size = new Size(290, 32);
-        txtName.TabIndex = 3;
+        txtName.TabIndex = 1;
         // 
         // lblDescription
         // 
         lblDescription.AutoSize = true;
         lblDescription.Location = new Point(330, 14);
         lblDescription.Name = "lblDescription";
-        lblDescription.Size = new Size(62, 24);
+        lblDescription.Size = new Size(63, 24);
         lblDescription.TabIndex = 4;
         lblDescription.Text = "الوصف";
         // 
@@ -117,7 +118,7 @@ partial class frmCategoryMaster
         txtDescription.Location = new Point(60, 41);
         txtDescription.Name = "txtDescription";
         txtDescription.Size = new Size(330, 32);
-        txtDescription.TabIndex = 5;
+        txtDescription.TabIndex = 2;
         // 
         // pnlButtons
         // 
@@ -136,7 +137,7 @@ partial class frmCategoryMaster
         // 
         btnNew.BackColor = Color.White;
         btnNew.FlatStyle = FlatStyle.Flat;
-        btnNew.Location = new Point(10, 13);
+        btnNew.Location = new Point(775, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
         btnNew.TabIndex = 0;
@@ -147,7 +148,7 @@ partial class frmCategoryMaster
         // 
         btnSave.BackColor = Color.White;
         btnSave.FlatStyle = FlatStyle.Flat;
-        btnSave.Location = new Point(158, 13);
+        btnSave.Location = new Point(641, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
@@ -158,7 +159,7 @@ partial class frmCategoryMaster
         // 
         btnDelete.BackColor = Color.White;
         btnDelete.FlatStyle = FlatStyle.Flat;
-        btnDelete.Location = new Point(292, 13);
+        btnDelete.Location = new Point(497, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 2;
@@ -173,7 +174,7 @@ partial class frmCategoryMaster
         pnlGrid.Location = new Point(0, 210);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(10);
-        pnlGrid.Size = new Size(940, 410);
+        pnlGrid.Size = new Size(940, 388);
         pnlGrid.TabIndex = 3;
         // 
         // dgvCategories
@@ -191,7 +192,7 @@ partial class frmCategoryMaster
         dgvCategories.RowHeadersVisible = false;
         dgvCategories.RowHeadersWidth = 62;
         dgvCategories.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvCategories.Size = new Size(920, 350);
+        dgvCategories.Size = new Size(920, 328);
         dgvCategories.TabIndex = 0;
         // 
         // pnlFilter
@@ -209,7 +210,7 @@ partial class frmCategoryMaster
         txtSearch.Location = new Point(590, 6);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(260, 32);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 
@@ -222,11 +223,10 @@ partial class frmCategoryMaster
         // 
         // lblDevColumns
         // 
-        lblDevColumns.AutoSize = false;
         lblDevColumns.Dock = DockStyle.Bottom;
         lblDevColumns.Font = new Font("Tahoma", 9F);
         lblDevColumns.ForeColor = SystemColors.GrayText;
-        lblDevColumns.Height = 22;
+        lblDevColumns.Location = new Point(0, 598);
         lblDevColumns.Name = "lblDevColumns";
         lblDevColumns.Size = new Size(940, 22);
         lblDevColumns.TabIndex = 99;

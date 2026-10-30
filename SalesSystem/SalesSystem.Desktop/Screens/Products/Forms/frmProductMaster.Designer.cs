@@ -124,7 +124,7 @@ partial class frmProductMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
-        txtCode.TabIndex = 1;
+        txtCode.TabIndex = 0;
         // 
         // lblName
         // 
@@ -140,7 +140,7 @@ partial class frmProductMaster
         txtName.Location = new Point(911, 30);
         txtName.Name = "txtName";
         txtName.Size = new Size(240, 32);
-        txtName.TabIndex = 3;
+        txtName.TabIndex = 1;
         // 
         // lblForeignName
         // 
@@ -156,7 +156,7 @@ partial class frmProductMaster
         txtForeignName.Location = new Point(675, 30);
         txtForeignName.Name = "txtForeignName";
         txtForeignName.Size = new Size(230, 32);
-        txtForeignName.TabIndex = 5;
+        txtForeignName.TabIndex = 2;
         // 
         // lblCategory
         // 
@@ -173,14 +173,14 @@ partial class frmProductMaster
         cmbCategory.Location = new Point(1157, 30);
         cmbCategory.Name = "cmbCategory";
         cmbCategory.Size = new Size(220, 32);
-        cmbCategory.TabIndex = 7;
+        cmbCategory.TabIndex = 3;
         // 
         // btnAddCategory
         // 
         btnAddCategory.Location = new Point(1383, 31);
         btnAddCategory.Name = "btnAddCategory";
         btnAddCategory.Size = new Size(46, 31);
-        btnAddCategory.TabIndex = 8;
+        btnAddCategory.TabIndex = 4;
         // 
         // lblLocation
         // 
@@ -196,7 +196,7 @@ partial class frmProductMaster
         txtLocationInStore.Location = new Point(989, 161);
         txtLocationInStore.Name = "txtLocationInStore";
         txtLocationInStore.Size = new Size(290, 32);
-        txtLocationInStore.TabIndex = 10;
+        txtLocationInStore.TabIndex = 5;
         // 
         // lblReorderLevel
         // 
@@ -213,7 +213,7 @@ partial class frmProductMaster
         numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numReorderLevel.Name = "numReorderLevel";
         numReorderLevel.Size = new Size(155, 32);
-        numReorderLevel.TabIndex = 12;
+        numReorderLevel.TabIndex = 6;
         // 
         // chkTrackExpiry
         // 
@@ -221,7 +221,7 @@ partial class frmProductMaster
         chkTrackExpiry.Location = new Point(947, 102);
         chkTrackExpiry.Name = "chkTrackExpiry";
         chkTrackExpiry.Size = new Size(153, 28);
-        chkTrackExpiry.TabIndex = 13;
+        chkTrackExpiry.TabIndex = 7;
         chkTrackExpiry.Text = "الصنف ينتهي؟";
         // 
         // lblExpiryDays
@@ -239,7 +239,7 @@ partial class frmProductMaster
         numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
         numExpiryAlertDays.Name = "numExpiryAlertDays";
         numExpiryAlertDays.Size = new Size(175, 32);
-        numExpiryAlertDays.TabIndex = 15;
+        numExpiryAlertDays.TabIndex = 8;
         // 
         // grpMainUnit
         // 
@@ -257,7 +257,7 @@ partial class frmProductMaster
         grpMainUnit.Location = new Point(199, 3);
         grpMainUnit.Name = "grpMainUnit";
         grpMainUnit.Size = new Size(470, 170);
-        grpMainUnit.TabIndex = 2;
+        grpMainUnit.TabIndex = 9;
         grpMainUnit.TabStop = false;
         grpMainUnit.Text = "الوحدة الرئيسية";
         // 
@@ -276,7 +276,7 @@ partial class frmProductMaster
         cmbMainUnit.Location = new Point(302, 54);
         cmbMainUnit.Name = "cmbMainUnit";
         cmbMainUnit.Size = new Size(140, 32);
-        cmbMainUnit.TabIndex = 1;
+        cmbMainUnit.TabIndex = 0;
         // 
         // lblMainUnitCostPrice
         // 
@@ -293,7 +293,7 @@ partial class frmProductMaster
         numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitCostPrice.Name = "numMainUnitCostPrice";
         numMainUnitCostPrice.Size = new Size(127, 32);
-        numMainUnitCostPrice.TabIndex = 3;
+        numMainUnitCostPrice.TabIndex = 1;
         // 
         // lblMainUnitSalePrice
         // 
@@ -310,7 +310,7 @@ partial class frmProductMaster
         numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitSalePrice.Name = "numMainUnitSalePrice";
         numMainUnitSalePrice.Size = new Size(127, 32);
-        numMainUnitSalePrice.TabIndex = 5;
+        numMainUnitSalePrice.TabIndex = 2;
         // 
         // lblMainUnitBarcode
         // 
@@ -326,7 +326,7 @@ partial class frmProductMaster
         txtMainUnitBarcode.Location = new Point(36, 125);
         txtMainUnitBarcode.Name = "txtMainUnitBarcode";
         txtMainUnitBarcode.Size = new Size(180, 32);
-        txtMainUnitBarcode.TabIndex = 7;
+        txtMainUnitBarcode.TabIndex = 3;
         // 
         // lblMainUnitMaxDiscount
         // 
@@ -342,7 +342,7 @@ partial class frmProductMaster
         numMainUnitMaxDiscount.Location = new Point(282, 125);
         numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
         numMainUnitMaxDiscount.Size = new Size(127, 32);
-        numMainUnitMaxDiscount.TabIndex = 9;
+        numMainUnitMaxDiscount.TabIndex = 4;
         // 
         // pnlButtons
         // 
@@ -448,7 +448,7 @@ partial class frmProductMaster
         txtSearch.Location = new Point(690, 7);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 

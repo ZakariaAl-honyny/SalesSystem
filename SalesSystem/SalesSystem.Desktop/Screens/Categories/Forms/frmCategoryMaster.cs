@@ -35,6 +35,7 @@ public partial class frmCategoryMaster : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();
     }
 
@@ -412,5 +413,10 @@ public partial class frmCategoryMaster : Form
                 break;
             }
         }
+    }
+
+    private void pnlFields_Paint(object sender, PaintEventArgs e)
+    {
+
     }
 }

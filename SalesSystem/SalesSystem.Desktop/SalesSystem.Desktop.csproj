@@ -3,6 +3,12 @@
   <!-- Orphaned legacy form (references APIs that do not exist in this solution) -->
 
   <ItemGroup>
+    <Compile Remove="Screens\Products\NewFolder\**" />
+    <EmbeddedResource Remove="Screens\Products\NewFolder\**" />
+    <None Remove="Screens\Products\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SalesSystem.DataAccess\SalesSystem.DataAccess.csproj" />
   </ItemGroup>
 
@@ -35,7 +41,6 @@
     <Folder Include="Screens\Inventory\Controls\" />
     <Folder Include="Screens\Payments\NewFolder\" />
     <Folder Include="Screens\PaymentVouchers\Controls\" />
-    <Folder Include="Screens\Products\NewFolder\" />
     <Folder Include="Screens\Purchases\Controls\" />
     <Folder Include="Screens\Reports\Controls\" />
     <Folder Include="Screens\Returns\NewFolder\" />

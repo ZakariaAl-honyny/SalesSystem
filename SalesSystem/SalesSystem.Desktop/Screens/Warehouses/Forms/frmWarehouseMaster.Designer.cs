@@ -94,7 +94,7 @@ partial class frmWarehouseMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
-        txtCode.TabIndex = 1;
+        txtCode.TabIndex = 0;
         // 
         // lblName
         // 
@@ -110,7 +110,7 @@ partial class frmWarehouseMaster
         txtName.Location = new Point(911, 42);
         txtName.Name = "txtName";
         txtName.Size = new Size(330, 32);
-        txtName.TabIndex = 3;
+        txtName.TabIndex = 1;
         // 
         // lblPhone
         // 
@@ -126,7 +126,7 @@ partial class frmWarehouseMaster
         txtPhone.Location = new Point(675, 42);
         txtPhone.Name = "txtPhone";
         txtPhone.Size = new Size(210, 32);
-        txtPhone.TabIndex = 5;
+        txtPhone.TabIndex = 2;
         // 
         // lblAddress
         // 
@@ -142,7 +142,7 @@ partial class frmWarehouseMaster
         txtAddress.Location = new Point(390, 42);
         txtAddress.Name = "txtAddress";
         txtAddress.Size = new Size(265, 32);
-        txtAddress.TabIndex = 7;
+        txtAddress.TabIndex = 3;
         // 
         // lblNotes
         // 
@@ -159,7 +159,7 @@ partial class frmWarehouseMaster
         txtNotes.Multiline = true;
         txtNotes.Name = "txtNotes";
         txtNotes.Size = new Size(702, 56);
-        txtNotes.TabIndex = 9;
+        txtNotes.TabIndex = 4;
         // 
         // pnlButtons
         // 
@@ -264,7 +264,7 @@ partial class frmWarehouseMaster
         txtSearch.Location = new Point(690, 7);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 

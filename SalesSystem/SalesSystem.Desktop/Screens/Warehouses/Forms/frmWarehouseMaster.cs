@@ -36,6 +36,7 @@ public partial class frmWarehouseMaster : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();
     }
 

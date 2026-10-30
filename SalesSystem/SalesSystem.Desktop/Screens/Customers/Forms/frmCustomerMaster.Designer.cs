@@ -106,7 +106,7 @@ partial class frmCustomerMaster
         txtId.Name = "txtId";
         txtId.ReadOnly = true;
         txtId.Size = new Size(250, 30);
-        txtId.TabIndex = 1;
+        txtId.TabIndex = 0;
         // 
         // lblName
         // 
@@ -122,7 +122,7 @@ partial class frmCustomerMaster
         txtName.Location = new Point(860, 36);
         txtName.Name = "txtName";
         txtName.Size = new Size(250, 30);
-        txtName.TabIndex = 3;
+        txtName.TabIndex = 1;
         // 
         // lblPhone
         // 
@@ -138,7 +138,7 @@ partial class frmCustomerMaster
         txtPhone.Location = new Point(580, 36);
         txtPhone.Name = "txtPhone";
         txtPhone.Size = new Size(250, 30);
-        txtPhone.TabIndex = 5;
+        txtPhone.TabIndex = 2;
         // 
         // lblTaxNumber
         // 
@@ -154,7 +154,7 @@ partial class frmCustomerMaster
         txtTaxNumber.Location = new Point(300, 36);
         txtTaxNumber.Name = "txtTaxNumber";
         txtTaxNumber.Size = new Size(250, 30);
-        txtTaxNumber.TabIndex = 7;
+        txtTaxNumber.TabIndex = 3;
         // 
         // lblEmail
         // 
@@ -170,7 +170,7 @@ partial class frmCustomerMaster
         txtEmail.Location = new Point(1140, 106);
         txtEmail.Name = "txtEmail";
         txtEmail.Size = new Size(250, 30);
-        txtEmail.TabIndex = 9;
+        txtEmail.TabIndex = 4;
         // 
         // lblCreditLimit
         // 
@@ -188,7 +188,7 @@ partial class frmCustomerMaster
         numCreditLimit.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numCreditLimit.Name = "numCreditLimit";
         numCreditLimit.Size = new Size(250, 30);
-        numCreditLimit.TabIndex = 11;
+        numCreditLimit.TabIndex = 5;
         numCreditLimit.ThousandsSeparator = true;
         // 
         // lblAddress
@@ -205,7 +205,7 @@ partial class frmCustomerMaster
         txtAddress.Location = new Point(300, 106);
         txtAddress.Name = "txtAddress";
         txtAddress.Size = new Size(530, 30);
-        txtAddress.TabIndex = 13;
+        txtAddress.TabIndex = 6;
         // 
         // lblNotes
         // 
@@ -223,7 +223,7 @@ partial class frmCustomerMaster
         txtNotes.Name = "txtNotes";
         txtNotes.ScrollBars = ScrollBars.Vertical;
         txtNotes.Size = new Size(1090, 34);
-        txtNotes.TabIndex = 15;
+        txtNotes.TabIndex = 7;
         // 
         // pnlButtons
         // 
@@ -317,7 +317,7 @@ partial class frmCustomerMaster
         txtSearch.Name = "txtSearch";
         txtSearch.PlaceholderText = "بحث بالاسم أو الهاتف أو البريد أو الرقم الضريبي...";
         txtSearch.Size = new Size(400, 30);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 

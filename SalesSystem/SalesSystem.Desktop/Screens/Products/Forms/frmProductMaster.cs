@@ -44,6 +44,7 @@ public partial class frmProductMaster : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();
     }
 

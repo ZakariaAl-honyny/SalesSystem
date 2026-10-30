@@ -85,7 +85,7 @@ partial class frmUnitMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(130, 32);
-        txtCode.TabIndex = 1;
+        txtCode.TabIndex = 0;
         // 
         // lblName
         // 
@@ -101,7 +101,7 @@ partial class frmUnitMaster
         txtName.Location = new Point(380, 41);
         txtName.Name = "txtName";
         txtName.Size = new Size(290, 32);
-        txtName.TabIndex = 3;
+        txtName.TabIndex = 1;
         // 
         // lblSymbol
         // 
@@ -117,7 +117,7 @@ partial class frmUnitMaster
         txtSymbol.Location = new Point(60, 41);
         txtSymbol.Name = "txtSymbol";
         txtSymbol.Size = new Size(290, 32);
-        txtSymbol.TabIndex = 5;
+        txtSymbol.TabIndex = 2;
         // 
         // pnlButtons
         // 
@@ -209,7 +209,7 @@ partial class frmUnitMaster
         txtSearch.Location = new Point(550, 6);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(260, 32);
-        txtSearch.TabIndex = 0;
+        txtSearch.TabIndex = 99;
         // 
         // lblSearch
         // 
