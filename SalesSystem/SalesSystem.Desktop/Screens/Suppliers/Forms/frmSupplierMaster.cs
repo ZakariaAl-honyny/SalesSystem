@@ -58,7 +58,14 @@ public partial class frmSupplierMaster : Form
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvSuppliers.CellClick += dgvSuppliers_CellClick;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم المورد.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم المورد).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>تحديث يدوي لقائمة الموردين مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -245,6 +252,7 @@ public partial class frmSupplierMaster : Form
         txtNotes.Text = s.Notes ?? "";
 
         _UpdateModeHeader();
+        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -276,6 +284,7 @@ public partial class frmSupplierMaster : Form
         dgvSuppliers.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

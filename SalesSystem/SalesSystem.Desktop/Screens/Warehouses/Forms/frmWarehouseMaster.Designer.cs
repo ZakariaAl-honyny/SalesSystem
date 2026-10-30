@@ -21,6 +21,7 @@ partial class frmWarehouseMaster
         lblCode = new Label();
         txtCode = new TextBox();
         lblName = new Label();
+        lblNameReq = new Label();
         txtName = new TextBox();
         lblPhone = new Label();
         txtPhone = new TextBox();
@@ -71,6 +72,7 @@ partial class frmWarehouseMaster
         pnlFields.Controls.Add(lblCode);
         pnlFields.Controls.Add(txtCode);
         pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
         pnlFields.Controls.Add(lblPhone);
         pnlFields.Controls.Add(txtPhone);
@@ -109,6 +111,15 @@ partial class frmWarehouseMaster
         lblName.Size = new Size(106, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم المخزن";
+        // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.Location = new Point(949, 15);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Text = "*";
         // 
         // txtName
         // 
@@ -376,6 +387,7 @@ partial class frmWarehouseMaster
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;
     private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblPhone;
     private System.Windows.Forms.TextBox txtPhone;

@@ -57,7 +57,14 @@ public partial class frmCashBoxMaster : Form
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvCashBoxes.CellClick += dgvCashBoxes_CellClick;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم الصندوق.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم الصندوق).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>تحديث يدوي لقائمة الصناديق مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -224,6 +231,7 @@ public partial class frmCashBoxMaster : Form
         txtDescription.Text = c.Description ?? "";
 
         _UpdateModeHeader();
+        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -250,6 +258,7 @@ public partial class frmCashBoxMaster : Form
         dgvCashBoxes.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

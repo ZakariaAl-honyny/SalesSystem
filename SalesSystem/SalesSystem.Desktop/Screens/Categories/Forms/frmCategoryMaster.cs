@@ -57,7 +57,14 @@ public partial class frmCategoryMaster : Form
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvCategories.CellClick += dgvCategories_CellClick;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم المجموعة.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم المجموعة).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>تحديث يدوي لقائمة المجموعات مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -217,6 +224,7 @@ public partial class frmCategoryMaster : Form
 
         errorProvider.Clear();
         _UpdateModeHeader();
+        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -243,6 +251,7 @@ public partial class frmCategoryMaster : Form
         dgvCategories.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

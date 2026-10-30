@@ -59,7 +59,14 @@ public partial class frmWarehouseMaster : Form
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvWarehouses.CellClick += dgvWarehouses_CellClick;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم المخزن.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم المخزن).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>تحديث يدوي لقائمة المخازن مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -228,6 +235,7 @@ public partial class frmWarehouseMaster : Form
         txtNotes.Text = w.Notes ?? "";
 
         _UpdateModeHeader();
+        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -256,6 +264,7 @@ public partial class frmWarehouseMaster : Form
         dgvWarehouses.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

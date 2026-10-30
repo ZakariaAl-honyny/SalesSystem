@@ -57,7 +57,14 @@ public partial class frmUnitMaster : Form
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvUnits.CellClick += dgvUnits_CellClick;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم الوحدة.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم الوحدة).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>تحديث يدوي لقائمة الوحدات مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -217,6 +224,7 @@ public partial class frmUnitMaster : Form
 
         errorProvider.Clear();
         _UpdateModeHeader();
+        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -243,6 +251,7 @@ public partial class frmUnitMaster : Form
         dgvUnits.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

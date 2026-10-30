@@ -21,10 +21,12 @@ partial class frmProductMaster
         lblCode = new Label();
         txtCode = new TextBox();
         lblName = new Label();
+        lblNameReq = new Label();
         txtName = new TextBox();
         lblForeignName = new Label();
         txtForeignName = new TextBox();
         lblCategory = new Label();
+        lblCategoryReq = new Label();
         cmbCategory = new ComboBox();
         btnAddCategory = new Button();
         lblLocation = new Label();
@@ -36,6 +38,7 @@ partial class frmProductMaster
         numExpiryAlertDays = new NumericUpDown();
         grpMainUnit = new GroupBox();
         lblMainUnit = new Label();
+        lblMainUnitReq = new Label();
         cmbMainUnit = new ComboBox();
         lblMainUnitCostPrice = new Label();
         numMainUnitCostPrice = new NumericUpDown();
@@ -95,10 +98,12 @@ partial class frmProductMaster
         pnlFields.Controls.Add(lblCode);
         pnlFields.Controls.Add(txtCode);
         pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
         pnlFields.Controls.Add(lblForeignName);
         pnlFields.Controls.Add(txtForeignName);
         pnlFields.Controls.Add(lblCategory);
+        pnlFields.Controls.Add(lblCategoryReq);
         pnlFields.Controls.Add(cmbCategory);
         pnlFields.Controls.Add(btnAddCategory);
         pnlFields.Controls.Add(lblLocation);
@@ -141,6 +146,15 @@ partial class frmProductMaster
         lblName.TabIndex = 2;
         lblName.Text = "اسم الصنف";
         // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.Location = new Point(949, 3);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Text = "*";
+        // 
         // txtName
         // 
         txtName.Location = new Point(911, 30);
@@ -172,6 +186,15 @@ partial class frmProductMaster
         lblCategory.Size = new Size(135, 24);
         lblCategory.TabIndex = 6;
         lblCategory.Text = "مجموعة الصنف";
+        // 
+        // lblCategoryReq
+        // 
+        lblCategoryReq.AutoSize = true;
+        lblCategoryReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblCategoryReq.ForeColor = Color.Red;
+        lblCategoryReq.Location = new Point(1182, 3);
+        lblCategoryReq.Name = "lblCategoryReq";
+        lblCategoryReq.Text = "*";
         // 
         // cmbCategory
         // 
@@ -251,6 +274,7 @@ partial class frmProductMaster
         // 
         grpMainUnit.BackColor = Color.FromArgb(200, 230, 200);
         grpMainUnit.Controls.Add(lblMainUnit);
+        grpMainUnit.Controls.Add(lblMainUnitReq);
         grpMainUnit.Controls.Add(cmbMainUnit);
         grpMainUnit.Controls.Add(lblMainUnitCostPrice);
         grpMainUnit.Controls.Add(numMainUnitCostPrice);
@@ -275,6 +299,15 @@ partial class frmProductMaster
         lblMainUnit.Size = new Size(140, 24);
         lblMainUnit.TabIndex = 0;
         lblMainUnit.Text = "الوحدة الرئيسية";
+        // 
+        // lblMainUnitReq
+        // 
+        lblMainUnitReq.AutoSize = true;
+        lblMainUnitReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblMainUnitReq.ForeColor = Color.Red;
+        lblMainUnitReq.Location = new Point(284, 27);
+        lblMainUnitReq.Name = "lblMainUnitReq";
+        lblMainUnitReq.Text = "*";
         // 
         // cmbMainUnit
         // 
@@ -576,10 +609,12 @@ partial class frmProductMaster
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;
     private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblForeignName;
     private System.Windows.Forms.TextBox txtForeignName;
     private System.Windows.Forms.Label lblCategory;
+    private System.Windows.Forms.Label lblCategoryReq;
     private System.Windows.Forms.ComboBox cmbCategory;
     private System.Windows.Forms.Button btnAddCategory;
     private System.Windows.Forms.Label lblLocation;
@@ -593,6 +628,7 @@ partial class frmProductMaster
     // Main Unit Group
     private System.Windows.Forms.GroupBox grpMainUnit;
     private System.Windows.Forms.Label lblMainUnit;
+    private System.Windows.Forms.Label lblMainUnitReq;
     private System.Windows.Forms.ComboBox cmbMainUnit;
     private System.Windows.Forms.Label lblMainUnitCostPrice;
     private System.Windows.Forms.NumericUpDown numMainUnitCostPrice;

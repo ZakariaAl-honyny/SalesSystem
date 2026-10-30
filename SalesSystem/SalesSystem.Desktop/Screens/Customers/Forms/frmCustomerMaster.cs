@@ -58,7 +58,14 @@ public partial class frmCustomerMaster : Form
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvCustomers.CellClick += dgvCustomers_CellClick;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم العميل.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم العميل).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>تحديث يدوي لقائمة العملاء مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -245,6 +252,7 @@ public partial class frmCustomerMaster : Form
         txtNotes.Text = c.Notes ?? "";
 
         _UpdateModeHeader();
+        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -276,6 +284,7 @@ public partial class frmCustomerMaster : Form
         dgvCustomers.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

@@ -21,6 +21,7 @@ partial class frmCategoryMaster
         lblCode = new Label();
         txtCode = new TextBox();
         lblName = new Label();
+        lblNameReq = new Label();
         txtName = new TextBox();
         lblDescription = new Label();
         txtDescription = new TextBox();
@@ -65,6 +66,7 @@ partial class frmCategoryMaster
         pnlFields.Controls.Add(lblCode);
         pnlFields.Controls.Add(txtCode);
         pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
         pnlFields.Controls.Add(lblDescription);
         pnlFields.Controls.Add(txtDescription);
@@ -100,6 +102,15 @@ partial class frmCategoryMaster
         lblName.Size = new Size(136, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم المجموعة";
+        // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.Location = new Point(542, 14);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Text = "*";
         // 
         // txtName
         // 
@@ -312,6 +323,7 @@ partial class frmCategoryMaster
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;
     private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblDescription;
     private System.Windows.Forms.TextBox txtDescription;

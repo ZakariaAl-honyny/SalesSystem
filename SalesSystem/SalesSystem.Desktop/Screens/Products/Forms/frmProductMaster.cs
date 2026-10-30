@@ -69,6 +69,26 @@ public partial class frmProductMaster : Form
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvProducts.CellClick += dgvProducts_CellClick;
         cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إكمال الحقول المطلوبة.
+        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
+        cmbCategory.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
+        cmbMainUnit.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
+    }
+
+    /// <summary>
+    /// تحديث حالة زر الحفظ وفق الحقول المطلوبة (اسم الصنف + المجموعة + الوحدة الرئيسية عند الإضافة).
+    /// </summary>
+    private void _UpdateSaveEnabled()
+    {
+        bool nameOk = !string.IsNullOrWhiteSpace(txtName.Text);
+        bool categoryOk = cmbCategory.SelectedValue is int categoryId && categoryId > 0;
+
+        // الوحدة الرئيسية مطلوبة فقط عند إضافة صنف جديد (في التعديل تُعرض وحدات الصنف للقراءة فقط).
+        bool mainUnitOk = _editId is not null
+            || (cmbMainUnit.SelectedValue is int unitId && unitId > 0);
+
+        btnSave.Enabled = nameOk && categoryOk && mainUnitOk;
     }
 
     /// <summary>تحديث يدوي لقائمة الأصناف مع الإبقاء على نص البحث الحالي.</summary>
@@ -319,6 +339,7 @@ public partial class frmProductMaster : Form
         _UpdateModeHeader();
 
         await _LoadMainUnitAsync(p.Id);
+        _UpdateSaveEnabled();
     }
 
     /// <summary>
@@ -531,6 +552,7 @@ public partial class frmProductMaster : Form
         dgvProducts.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

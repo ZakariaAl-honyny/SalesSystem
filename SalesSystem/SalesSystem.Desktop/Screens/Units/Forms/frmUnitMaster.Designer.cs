@@ -21,6 +21,7 @@ partial class frmUnitMaster
         lblCode = new Label();
         txtCode = new TextBox();
         lblName = new Label();
+        lblNameReq = new Label();
         txtName = new TextBox();
         lblSymbol = new Label();
         txtSymbol = new TextBox();
@@ -65,6 +66,7 @@ partial class frmUnitMaster
         pnlFields.Controls.Add(lblCode);
         pnlFields.Controls.Add(txtCode);
         pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
         pnlFields.Controls.Add(lblSymbol);
         pnlFields.Controls.Add(txtSymbol);
@@ -99,6 +101,15 @@ partial class frmUnitMaster
         lblName.Size = new Size(96, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم الوحدة";
+        // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.Location = new Point(502, 14);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Text = "*";
         // 
         // txtName
         // 
@@ -311,6 +322,7 @@ partial class frmUnitMaster
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;
     private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblSymbol;
     private System.Windows.Forms.TextBox txtSymbol;

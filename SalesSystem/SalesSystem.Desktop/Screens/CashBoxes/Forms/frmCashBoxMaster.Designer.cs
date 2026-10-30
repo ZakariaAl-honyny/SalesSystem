@@ -21,6 +21,7 @@ partial class frmCashBoxMaster
         lblCode = new Label();
         txtCode = new TextBox();
         lblName = new Label();
+        lblNameReq = new Label();
         txtName = new TextBox();
         lblDescription = new Label();
         txtDescription = new TextBox();
@@ -66,6 +67,7 @@ partial class frmCashBoxMaster
         pnlFields.Controls.Add(lblCode);
         pnlFields.Controls.Add(txtCode);
         pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
         pnlFields.Controls.Add(lblDescription);
         pnlFields.Controls.Add(txtDescription);
@@ -100,6 +102,15 @@ partial class frmCashBoxMaster
         lblName.Size = new Size(112, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم الصندوق";
+        // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.Location = new Point(949, 15);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Text = "*";
         // 
         // txtName
         // 
@@ -322,6 +333,7 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;
     private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblDescription;
     private System.Windows.Forms.TextBox txtDescription;

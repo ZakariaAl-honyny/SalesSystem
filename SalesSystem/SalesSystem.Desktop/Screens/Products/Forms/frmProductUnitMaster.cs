@@ -81,7 +81,14 @@ public partial class frmProductUnitMaster : Form
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvUnits.CellClick += dgvUnits_CellClick;
         dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
+
+        // التحقق الحيّ: لا يُتاح زر الحفظ قبل اختيار الوحدة المطلوبة.
+        cmbUnit.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
     }
+
+    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (الوحدة).</summary>
+    private void _UpdateSaveEnabled()
+        => btnSave.Enabled = cmbUnit.SelectedValue is int unitId && unitId > 0;
 
     /// <summary>تحديث يدوي لقائمة وحدات الصنف مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -343,6 +350,7 @@ public partial class frmProductUnitMaster : Form
         errorProvider.Clear();
         _UpdateModeHeader();
 
+        _UpdateSaveEnabled();
         return Task.CompletedTask;
     }
 
@@ -384,6 +392,7 @@ public partial class frmProductUnitMaster : Form
         dgvUnits.ClearSelection();
         _UpdateModeHeader();
         cmbUnit.Focus();
+        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

@@ -21,6 +21,7 @@ partial class frmCustomerMaster
         lblId = new Label();
         txtId = new TextBox();
         lblName = new Label();
+        lblNameReq = new Label();
         txtName = new TextBox();
         lblPhone = new Label();
         txtPhone = new TextBox();
@@ -77,6 +78,7 @@ partial class frmCustomerMaster
         pnlFields.Controls.Add(lblId);
         pnlFields.Controls.Add(txtId);
         pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
         pnlFields.Controls.Add(lblPhone);
         pnlFields.Controls.Add(txtPhone);
@@ -120,7 +122,16 @@ partial class frmCustomerMaster
         lblName.Name = "lblName";
         lblName.Size = new Size(95, 24);
         lblName.TabIndex = 2;
-        lblName.Text = "اسم العميل *";
+        lblName.Text = "اسم العميل";
+        // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.Location = new Point(842, 10);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Text = "*";
         // 
         // txtName
         // 
@@ -429,6 +440,7 @@ partial class frmCustomerMaster
     private System.Windows.Forms.Label lblId;
     private System.Windows.Forms.TextBox txtId;
     private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblPhone;
     private System.Windows.Forms.TextBox txtPhone;

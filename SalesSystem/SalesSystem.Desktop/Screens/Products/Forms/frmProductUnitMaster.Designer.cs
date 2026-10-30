@@ -20,6 +20,7 @@ partial class frmProductUnitMaster
         pnlFields = new Panel();
         pnlFieldsRow1 = new FlowLayoutPanel();
         lblUnit = new Label();
+        lblUnitReq = new Label();
         cmbUnit = new ComboBox();
         lblBarcode = new Label();
         txtBarcode = new TextBox();
@@ -97,6 +98,7 @@ partial class frmProductUnitMaster
         // pnlFieldsRow1
         // 
         pnlFieldsRow1.Controls.Add(lblUnit);
+        pnlFieldsRow1.Controls.Add(lblUnitReq);
         pnlFieldsRow1.Controls.Add(cmbUnit);
         pnlFieldsRow1.Controls.Add(lblBarcode);
         pnlFieldsRow1.Controls.Add(txtBarcode);
@@ -121,6 +123,15 @@ partial class frmProductUnitMaster
         lblUnit.Size = new Size(66, 24);
         lblUnit.TabIndex = 0;
         lblUnit.Text = "الوحدة:";
+        // 
+        // lblUnitReq
+        // 
+        lblUnitReq.AutoSize = true;
+        lblUnitReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblUnitReq.ForeColor = Color.Red;
+        lblUnitReq.Margin = new Padding(0, 12, 6, 0);
+        lblUnitReq.Name = "lblUnitReq";
+        lblUnitReq.Text = "*";
         // 
         // cmbUnit
         // 
@@ -541,6 +552,7 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.Label lblProduct;
     private System.Windows.Forms.FlowLayoutPanel pnlFieldsRow1;
     private System.Windows.Forms.Label lblUnit;
+    private System.Windows.Forms.Label lblUnitReq;
     private System.Windows.Forms.ComboBox cmbUnit;
     private System.Windows.Forms.Label lblBarcode;
     private System.Windows.Forms.TextBox txtBarcode;
