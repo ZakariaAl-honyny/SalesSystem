@@ -38,6 +38,9 @@ public partial class frmProductUnitMaster : Form
     /// <summary>يمنع معالجات الأحداث من إعادة تعبئة النموذج أثناء الربط البرمجي.</summary>
     private bool _isBinding;
 
+    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
+    private bool _validationFailed;
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmProductUnitMaster()
     {
@@ -82,13 +85,41 @@ public partial class frmProductUnitMaster : Form
         dgvUnits.CellClick += dgvUnits_CellClick;
         dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
 
-        // التحقق الحيّ: لا يُتاح زر الحفظ قبل اختيار الوحدة المطلوبة.
+        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
+        // ثم يُعاد تفعيله تلقائياً عند اختيار الوحدة المطلوبة.
         cmbUnit.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
     }
 
-    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (الوحدة).</summary>
+    /// <summary>هل الحقل المطلوب (الوحدة) مكتمل؟</summary>
+    private bool _RequiredFieldsValid()
+        => cmbUnit.SelectedValue is int unitId && unitId > 0;
+
+    /// <summary>أسماء الحقول المطلوبة الناقصة (الوحدة).</summary>
+    private List<string> _MissingRequiredNames()
+    {
+        var missing = new List<string>();
+
+        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
+            missing.Add("الوحدة");
+
+        return missing;
+    }
+
+    /// <summary>
+    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
+    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// </summary>
     private void _UpdateSaveEnabled()
-        => btnSave.Enabled = cmbUnit.SelectedValue is int unitId && unitId > 0;
+    {
+        if (_validationFailed)
+        {
+            // re-enable once the user has filled all required fields
+            if (_RequiredFieldsValid())
+                _validationFailed = false;
+        }
+
+        btnSave.Enabled = !_validationFailed;
+    }
 
     /// <summary>تحديث يدوي لقائمة وحدات الصنف مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -350,6 +381,7 @@ public partial class frmProductUnitMaster : Form
         errorProvider.Clear();
         _UpdateModeHeader();
 
+        _validationFailed = false;
         _UpdateSaveEnabled();
         return Task.CompletedTask;
     }
@@ -392,6 +424,8 @@ public partial class frmProductUnitMaster : Form
         dgvUnits.ClearSelection();
         _UpdateModeHeader();
         cmbUnit.Focus();
+
+        _validationFailed = false;
         _UpdateSaveEnabled();
     }
 
@@ -474,6 +508,20 @@ public partial class frmProductUnitMaster : Form
 
     private async void btnSave_Click(object? sender, EventArgs e)
     {
+        // الحقل المطلوب الناقص: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئته.
+        if (!_RequiredFieldsValid())
+        {
+            _validationFailed = true;
+            _UpdateSaveEnabled();
+
+            var missing = string.Join("، ", _MissingRequiredNames());
+            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
+            return;
+        }
+
         if (!_ValidateForm()) return;
         if (cmbUnit.SelectedValue is not int unitId || unitId <= 0) return;
 

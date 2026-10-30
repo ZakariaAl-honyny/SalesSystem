@@ -31,6 +31,9 @@ public partial class frmWarehouseMaster : Form
     /// <summary>null = إضافة مخزن جديد، &gt; 0 = تعديل مخزن قائم.</summary>
     private int? _editId;
 
+    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
+    private bool _validationFailed;
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmWarehouseMaster()
     {
@@ -60,13 +63,41 @@ public partial class frmWarehouseMaster : Form
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvWarehouses.CellClick += dgvWarehouses_CellClick;
 
-        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إدخال اسم المخزن.
+        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
+        // ثم يُعاد تفعيله تلقائياً عند إدخال اسم المخزن.
         txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
 
-    /// <summary>تحديث حالة زر الحفظ وفق الحقل المطلوب (اسم المخزن).</summary>
+    /// <summary>هل الحقل المطلوب (اسم المخزن) مكتمل؟</summary>
+    private bool _RequiredFieldsValid()
+        => !string.IsNullOrWhiteSpace(txtName.Text);
+
+    /// <summary>أسماء الحقول المطلوبة الناقصة (اسم المخزن).</summary>
+    private List<string> _MissingRequiredNames()
+    {
+        var missing = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(txtName.Text))
+            missing.Add("اسم المخزن");
+
+        return missing;
+    }
+
+    /// <summary>
+    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
+    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// </summary>
     private void _UpdateSaveEnabled()
-        => btnSave.Enabled = !string.IsNullOrWhiteSpace(txtName.Text);
+    {
+        if (_validationFailed)
+        {
+            // re-enable once the user has filled all required fields
+            if (_RequiredFieldsValid())
+                _validationFailed = false;
+        }
+
+        btnSave.Enabled = !_validationFailed;
+    }
 
     /// <summary>تحديث يدوي لقائمة المخازن مع الإبقاء على نص البحث الحالي.</summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -235,6 +266,8 @@ public partial class frmWarehouseMaster : Form
         txtNotes.Text = w.Notes ?? "";
 
         _UpdateModeHeader();
+
+        _validationFailed = false;
         _UpdateSaveEnabled();
     }
 
@@ -264,6 +297,8 @@ public partial class frmWarehouseMaster : Form
         dgvWarehouses.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+
+        _validationFailed = false;
         _UpdateSaveEnabled();
     }
 
@@ -298,6 +333,20 @@ public partial class frmWarehouseMaster : Form
 
     private async void btnSave_Click(object? sender, EventArgs e)
     {
+        // الحقل المطلوب الناقص: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئته.
+        if (!_RequiredFieldsValid())
+        {
+            _validationFailed = true;
+            _UpdateSaveEnabled();
+
+            var missing = string.Join("، ", _MissingRequiredNames());
+            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            errorProvider.SetError(txtName, "اسم المخزن مطلوب");
+            return;
+        }
+
         if (!_ValidateForm()) return;
 
         bool wasEditing = _editId.HasValue;

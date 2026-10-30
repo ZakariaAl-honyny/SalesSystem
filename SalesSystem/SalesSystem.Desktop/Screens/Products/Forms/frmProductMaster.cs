@@ -39,6 +39,9 @@ public partial class frmProductMaster : Form
     /// <summary>يمنع إعادة تحميل سعر الوحدة أثناء تعبئة النموذج برمجياً.</summary>
     private bool _isBindingMainUnit;
 
+    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
+    private bool _validationFailed;
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmProductMaster()
     {
@@ -70,16 +73,17 @@ public partial class frmProductMaster : Form
         dgvProducts.CellClick += dgvProducts_CellClick;
         cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
 
-        // التحقق الحيّ: لا يُتاح زر الحفظ قبل إكمال الحقول المطلوبة.
+        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
+        // ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
         txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
         cmbCategory.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
         cmbMainUnit.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
     }
 
     /// <summary>
-    /// تحديث حالة زر الحفظ وفق الحقول المطلوبة (اسم الصنف + المجموعة + الوحدة الرئيسية عند الإضافة).
+    /// هل الحقول المطلوبة مكتملة؟ (اسم الصنف + المجموعة + الوحدة الرئيسية عند الإضافة).
     /// </summary>
-    private void _UpdateSaveEnabled()
+    private bool _RequiredFieldsValid()
     {
         bool nameOk = !string.IsNullOrWhiteSpace(txtName.Text);
         bool categoryOk = cmbCategory.SelectedValue is int categoryId && categoryId > 0;
@@ -88,7 +92,40 @@ public partial class frmProductMaster : Form
         bool mainUnitOk = _editId is not null
             || (cmbMainUnit.SelectedValue is int unitId && unitId > 0);
 
-        btnSave.Enabled = nameOk && categoryOk && mainUnitOk;
+        return nameOk && categoryOk && mainUnitOk;
+    }
+
+    /// <summary>أسماء الحقول المطلوبة الناقصة (بترتيب ظهورها في النموذج).</summary>
+    private List<string> _MissingRequiredNames()
+    {
+        var missing = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(txtName.Text))
+            missing.Add("اسم الصنف");
+
+        if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0)
+            missing.Add("مجموعة الصنف");
+
+        if (_editId is null && (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0))
+            missing.Add("الوحدة الرئيسية");
+
+        return missing;
+    }
+
+    /// <summary>
+    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
+    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// </summary>
+    private void _UpdateSaveEnabled()
+    {
+        if (_validationFailed)
+        {
+            // re-enable once the user has filled all required fields
+            if (_RequiredFieldsValid())
+                _validationFailed = false;
+        }
+
+        btnSave.Enabled = !_validationFailed;
     }
 
     /// <summary>تحديث يدوي لقائمة الأصناف مع الإبقاء على نص البحث الحالي.</summary>
@@ -339,6 +376,8 @@ public partial class frmProductMaster : Form
         _UpdateModeHeader();
 
         await _LoadMainUnitAsync(p.Id);
+
+        _validationFailed = false;
         _UpdateSaveEnabled();
     }
 
@@ -552,6 +591,8 @@ public partial class frmProductMaster : Form
         dgvProducts.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
+
+        _validationFailed = false;
         _UpdateSaveEnabled();
     }
 
@@ -624,6 +665,26 @@ public partial class frmProductMaster : Form
 
     private async void btnSave_Click(object? sender, EventArgs e)
     {
+        // الحقول المطلوبة الناقصة: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئتها.
+        if (!_RequiredFieldsValid())
+        {
+            _validationFailed = true;
+            _UpdateSaveEnabled();
+
+            var missing = string.Join("، ", _MissingRequiredNames());
+            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+                errorProvider.SetError(txtName, "اسم الصنف مطلوب");
+            if (cmbCategory.SelectedValue is not int missingCategoryId || missingCategoryId <= 0)
+                errorProvider.SetError(cmbCategory, "يرجى اختيار مجموعة الصنف");
+            if (_editId is null && (cmbMainUnit.SelectedValue is not int missingUnitId || missingUnitId <= 0))
+                errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
+
+            return;
+        }
+
         if (!_ValidateForm()) return;
         if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0) return;
 
