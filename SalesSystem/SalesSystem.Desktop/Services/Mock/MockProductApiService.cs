@@ -137,7 +137,12 @@ public class MockProductApiService : IProductApiService
             UnitId: r.UnitId,
             UnitName: unitName,
             ConversionFactor: r.IsBaseUnit ? 1m : r.Factor,
-            IsBaseUnit: r.IsBaseUnit);
+            IsBaseUnit: r.IsBaseUnit,
+            Barcode: string.IsNullOrWhiteSpace(r.Barcode) ? null : r.Barcode.Trim(),
+            SalePrice: r.SalePrice,
+            WholesalePrice: r.WholesalePrice,
+            CostPrice: r.CostPrice,
+            MaxDiscountAmount: r.MaxDiscountAmount);
 
         MockData.ProductUnits.Add(productUnit);
         return Task.FromResult(Result<ProductUnitDto>.Success(productUnit));
@@ -151,7 +156,16 @@ public class MockProductApiService : IProductApiService
 
         var unitName = MockLookupsData.Units.FirstOrDefault(u => u.Id == r.UnitId)?.Name;
 
-        var updated = existing with { UnitId = r.UnitId, UnitName = unitName };
+        var updated = existing with
+        {
+            UnitId = r.UnitId,
+            UnitName = unitName,
+            Barcode = string.IsNullOrWhiteSpace(r.Barcode) ? null : r.Barcode.Trim(),
+            SalePrice = r.SalePrice,
+            WholesalePrice = r.WholesalePrice,
+            CostPrice = r.CostPrice,
+            MaxDiscountAmount = r.MaxDiscountAmount
+        };
         MockData.ProductUnits[MockData.ProductUnits.IndexOf(existing)] = updated;
         return Task.FromResult(Result<ProductUnitDto>.Success(updated));
     }

@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Common.Enums;
 using SalesSystem.DTO;
@@ -11,8 +12,10 @@ using Serilog;
 namespace SalesSystem.Desktop.Screens.Products.Forms;
 
 /// <summary>
-/// شاشة (Master) لإدارة وحدات صنف واحد وأسعار كل وحدة في نفس الشاشة.
-/// تحل محل النموذج المنبثق القديم frmAddUpdateProductUnit.
+/// شاشة (Master) لإدارة وحدات صنف واحد في شاشة واحدة:
+/// بحث مباشر + شبكة + نموذج إدخال/تعديل، مثل <see cref="frmProductMaster"/>.
+/// تعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
+/// كل وحدة تحمل باركودها وأسعارها (تجزئة/جملة/تكلفة) وأقصى خصم مسموح به.
 /// </summary>
 public partial class frmProductUnitMaster : Form
 {
@@ -25,16 +28,14 @@ public partial class frmProductUnitMaster : Form
     private int _productId;
     private string _productName = string.Empty;
 
-    private List<ProductUnitDto> _units = new();
-    private List<ProductPriceDto> _prices = new();
+    private readonly Dictionary<int, ProductUnitDto> _unitsById = new();
+    private DataTable _unitsTable = new();
+    private DataView _unitsView = new();
 
     /// <summary>null = إضافة وحدة جديدة، &gt; 0 = تعديل وحدة قائمة.</summary>
-    private int? _editUnitId;
+    private int? _editId;
 
-    /// <summary>الوحدة المحددة في الشبكة (تُستخدم لإدارة أسعارها).</summary>
-    private int? _selectedUnitId;
-
-    /// <summary>يمنع إعادة التحميل أثناء تعبئة الحقول برمجياً.</summary>
+    /// <summary>يمنع معالجات الأحداث من إعادة تعبئة النموذج أثناء الربط البرمجي.</summary>
     private bool _isBinding;
 
     public frmProductUnitMaster(IServiceProvider serviceProvider)
@@ -53,145 +54,91 @@ public partial class frmProductUnitMaster : Form
         _productId = productId;
         _productName = productName ?? string.Empty;
 
-        Text = "وحدات وأسعار الصنف";
-        lblMode.Text = $"(( وحدات وأسعار الصنف )) — {_productName}";
-        lblProduct.Text = $"الصنف: {_productName}  —  رقم: {_productId}";
+        Text = $"وحدات الصنف — {_productName}";
+        lblProduct.Text = $"الصنف: {_productName}    —    رقم الصنف: {_productId}";
 
-        _ResetUnitForm();
-        _ResetPriceForm();
+        _ResetForm();
     }
 
-    // ── Event wiring ─────────────────────────────────────────────────────────
+    // ── Event wiring (the Designer defines controls only) ─────────────────────
 
     private void _WireEvents()
     {
         Load += frmProductUnitMaster_Load;
 
-        btnNewUnit.Click += btnNewUnit_Click;
-        btnSaveUnit.Click += btnSaveUnit_Click;
-        btnDeleteUnit.Click += btnDeleteUnit_Click;
-
-        btnAddPrice.Click += btnAddPrice_Click;
-        btnDeletePrice.Click += btnDeletePrice_Click;
-
+        btnNew.Click += btnNew_Click;
+        btnSave.Click += btnSave_Click;
+        btnDelete.Click += btnDelete_Click;
         btnClose.Click += btnClose_Click;
 
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        dgvUnits.CellClick += dgvUnits_CellClick;
         dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
     }
 
-    // ── Grid setup ───────────────────────────────────────────────────────────
+    // ── Grid Setup ────────────────────────────────────────────────────────────
 
     private void _SetupGridColumns()
     {
         dgvUnits.Columns.Clear();
         dgvUnits.AutoGenerateColumns = false;
 
-        dgvUnits.Columns.Add(new DataGridViewTextBoxColumn
+        var columns = new[]
         {
-            Name = "Id",
-            HeaderText = "رقم الوحدة",
-            DataPropertyName = "Id",
-            FillWeight = 10,
-            MinimumWidth = 90,
-            ReadOnly = true,
-        });
+            new { Name = "Id",               Header = "رقم الوحدة",      Fill = 8,  Min = 90,  Format = "" },
+            new { Name = "UnitName",         Header = "الوحدة",         Fill = 18, Min = 130, Format = "" },
+            new { Name = "Barcode",          Header = "الباركود",       Fill = 16, Min = 130, Format = "" },
+            new { Name = "ConversionFactor", Header = "معامل التحويل",  Fill = 12, Min = 110, Format = "N3" },
+            new { Name = "SalePrice",        Header = "سعر البيع",      Fill = 13, Min = 110, Format = "N2" },
+            new { Name = "CostPrice",        Header = "سعر التكلفة",    Fill = 13, Min = 110, Format = "N2" },
+        };
 
-        dgvUnits.Columns.Add(new DataGridViewTextBoxColumn
+        foreach (var col in columns)
         {
-            Name = "UnitName",
-            HeaderText = "الوحدة",
-            DataPropertyName = "UnitName",
-            FillWeight = 30,
-            MinimumWidth = 140,
-            ReadOnly = true,
-        });
+            var cellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
+            if (!string.IsNullOrEmpty(col.Format))
+                cellStyle.Format = col.Format;
 
-        dgvUnits.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name = "ConversionFactor",
-            HeaderText = "معامل التحويل",
-            DataPropertyName = "ConversionFactor",
-            FillWeight = 20,
-            MinimumWidth = 120,
-            ReadOnly = true,
-            DefaultCellStyle = new DataGridViewCellStyle { Format = "N3", Alignment = DataGridViewContentAlignment.MiddleCenter },
-        });
+            dgvUnits.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = col.Name,
+                HeaderText = col.Header,
+                DataPropertyName = col.Name,
+                MinimumWidth = col.Min,
+                FillWeight = col.Fill,
+                ReadOnly = true,
+                DefaultCellStyle = cellStyle,
+            });
+        }
 
         dgvUnits.Columns.Add(new DataGridViewCheckBoxColumn
         {
             Name = "IsBaseUnit",
             HeaderText = "الوحدة الأساسية",
             DataPropertyName = "IsBaseUnit",
-            FillWeight = 18,
             MinimumWidth = 110,
-            ReadOnly = true,
-        });
-
-        dgvPrices.Columns.Clear();
-        dgvPrices.AutoGenerateColumns = false;
-
-        dgvPrices.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name = "Id",
-            HeaderText = "رقم السعر",
-            DataPropertyName = "Id",
             FillWeight = 10,
-            MinimumWidth = 80,
             ReadOnly = true,
-        });
-
-        dgvPrices.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name = "Price",
-            HeaderText = "السعر",
-            DataPropertyName = "Price",
-            FillWeight = 22,
-            MinimumWidth = 120,
-            ReadOnly = true,
-            DefaultCellStyle = new DataGridViewCellStyle { Format = "N2", Alignment = DataGridViewContentAlignment.MiddleLeft },
-        });
-
-        dgvPrices.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name = "EffectiveFrom",
-            HeaderText = "ساري من",
-            DataPropertyName = "EffectiveFrom",
-            FillWeight = 22,
-            MinimumWidth = 120,
-            ReadOnly = true,
-            DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter },
-        });
-
-        dgvPrices.Columns.Add(new DataGridViewTextBoxColumn
-        {
-            Name = "EffectiveTo",
-            HeaderText = "ساري حتى",
-            DataPropertyName = "EffectiveTo",
-            FillWeight = 22,
-            MinimumWidth = 120,
-            ReadOnly = true,
-            DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy", Alignment = DataGridViewContentAlignment.MiddleCenter },
         });
 
         ApplyDevColumns();
     }
 
-    /// <summary>يعرض أسماء أعمدة الشبكات في شريط سفلي — في وضع التجربة (Mock) فقط.</summary>
+    /// <summary>يعرض أسماء أعمدة الشبكة في شريط سفلي — في وضع التجربة (Mock) فقط.</summary>
     private void ApplyDevColumns()
     {
         if (!SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
             return;
 
         var headers = new List<string>();
-        foreach (DataGridView grid in new[] { dgvUnits, dgvPrices })
-            foreach (DataGridViewColumn column in grid.Columns)
-                headers.Add(column.HeaderText);
+        foreach (DataGridViewColumn column in dgvUnits.Columns)
+            headers.Add(column.HeaderText);
 
         lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", headers);
         lblDevColumns.Visible = true;
     }
 
-    // ── Form load ────────────────────────────────────────────────────────────
+    // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmProductUnitMaster_Load(object? sender, EventArgs e)
     {
@@ -199,12 +146,13 @@ public partial class frmProductUnitMaster : Form
         try
         {
             _SetupGridColumns();
-            await _LoadUnitsLookupAsync();
+            await _LoadUnitLookupAsync();
             await _LoadUnitsAsync();
+            _ResetForm();
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة وحدات وأسعار الصنف {ProductId}", _productId);
+            Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة وحدات الصنف {ProductId}", _productId);
             MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
@@ -214,115 +162,159 @@ public partial class frmProductUnitMaster : Form
         }
     }
 
-    // ── Lookups ──────────────────────────────────────────────────────────────
+    // ── Lookups ───────────────────────────────────────────────────────────────
 
-    private async Task _LoadUnitsLookupAsync()
+    private async Task _LoadUnitLookupAsync()
     {
-        var result = await UnitService.GetAllAsync(includeInactive: true);
+        try
+        {
+            var result = await UnitService.GetAllAsync(includeInactive: false);
 
-        if (result.IsSuccess && result.Value != null)
-        {
-            cmbUnit.DisplayMember = "Name";
-            cmbUnit.ValueMember = "Id";
-            cmbUnit.DataSource = result.Value.ToList();
-            cmbUnit.SelectedIndex = -1;
+            if (result.IsSuccess && result.Value != null)
+            {
+                _isBinding = true;
+                try
+                {
+                    cmbUnit.DisplayMember = "Name";
+                    cmbUnit.ValueMember = "Id";
+                    cmbUnit.DataSource = result.Value.ToList();
+                    cmbUnit.SelectedIndex = -1;
+                }
+                finally
+                {
+                    _isBinding = false;
+                }
+            }
+            else
+            {
+                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الوحدات.",
+                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الوحدات.",
+            Log.Error(ex, "خطأ أثناء تحميل قائمة الوحدات");
+            MessageBox.Show("تعذر تحميل قائمة الوحدات. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
-    // ── Data loading ─────────────────────────────────────────────────────────
+    // ── Data Loading ──────────────────────────────────────────────────────────
 
     private async Task _LoadUnitsAsync()
     {
-        var result = await ProductService.GetProductUnitsAsync(_productId);
+        var table = new DataTable();
+        table.Columns.Add("Id", typeof(int));
+        table.Columns.Add("UnitName", typeof(string));
+        table.Columns.Add("Barcode", typeof(string));
+        table.Columns.Add("ConversionFactor", typeof(decimal));
+        table.Columns.Add("SalePrice", typeof(decimal));
+        table.Columns.Add("CostPrice", typeof(decimal));
+        table.Columns.Add("IsBaseUnit", typeof(bool));
 
-        if (!result.IsSuccess || result.Value == null)
-        {
-            MessageBox.Show(result.Error ?? "تعذر تحميل وحدات الصنف.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-        }
-
-        _units = result.Value.OrderByDescending(u => u.IsBaseUnit).ThenBy(u => u.UnitName).ToList();
-
-        // إعادة تحديد الوحدة السابقة إن وُجدت، وإلا أول وحدة في القائمة
-        var keepId = _selectedUnitId ?? _units.FirstOrDefault()?.Id;
-
-        _isBinding = true;
         try
         {
-            dgvUnits.DataSource = null;
-            dgvUnits.DataSource = _units;
-            dgvUnits.ClearSelection();
+            var result = await ProductService.GetProductUnitsAsync(_productId);
+
+            _unitsById.Clear();
+
+            if (result.IsSuccess && result.Value != null)
+            {
+                foreach (var unit in result.Value.OrderByDescending(u => u.IsBaseUnit).ThenBy(u => u.UnitName))
+                {
+                    _unitsById[unit.Id] = unit;
+                    table.Rows.Add(
+                        unit.Id,
+                        unit.UnitName ?? "",
+                        unit.Barcode ?? "",
+                        unit.ConversionFactor,
+                        unit.SalePrice,
+                        unit.CostPrice,
+                        unit.IsBaseUnit);
+                }
+            }
+            else
+            {
+                MessageBox.Show(result.Error ?? "تعذر تحميل وحدات الصنف.",
+                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحميل وحدات الصنف {ProductId}", _productId);
+            MessageBox.Show("تعذر تحميل وحدات الصنف. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
-            _isBinding = false;
-        }
+            _unitsTable = table;
+            _unitsView = new DataView(_unitsTable);
 
-        _selectedUnitId = null;
+            _isBinding = true;
+            try
+            {
+                dgvUnits.DataSource = _unitsView;
+                dgvUnits.ClearSelection();
+            }
+            finally
+            {
+                _isBinding = false;
+            }
 
-        if (keepId is int id)
-            _SelectUnitRow(id);
+            _ApplyFilter();
+            _ApplyRowColoring();
 
-        if (_selectedUnitId is int selected)
-        {
-            var unit = _units.FirstOrDefault(u => u.Id == selected);
-            if (unit != null)
-                _FillUnitForm(unit);
-
-            await _LoadPricesAsync(selected);
-        }
-        else
-        {
-            _prices = new List<ProductPriceDto>();
-            dgvPrices.DataSource = null;
+            // الحفاظ على الوحدة المحددة إن كانت لا تزال موجودة
+            if (_editId is int keepId && _unitsById.ContainsKey(keepId))
+                _SelectGridRow(keepId);
         }
     }
 
-    private async Task _LoadPricesAsync(int productUnitId)
+    private void _ApplyRowColoring()
     {
-        var result = await ProductService.GetProductPricesByUnitAsync(productUnitId);
-
-        if (!result.IsSuccess || result.Value == null)
+        foreach (DataGridViewRow row in dgvUnits.Rows)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل أسعار الوحدة المحددة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            bool isBase = row.Cells["IsBaseUnit"].Value is bool b && b;
+            if (isBase)
+            {
+                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 250, 205);
+                row.DefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            }
+        }
+    }
+
+    // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
+
+    private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void _ApplyFilter()
+    {
+        if (_unitsView is null) return;
+
+        string text = txtSearch.Text.Trim().Replace("'", "''");
+
+        if (string.IsNullOrEmpty(text))
+        {
+            _unitsView.RowFilter = "";
             return;
         }
 
-        _prices = result.Value.OrderByDescending(p => p.EffectiveFrom).ToList();
-
-        _isBinding = true;
-        try
-        {
-            dgvPrices.DataSource = null;
-            dgvPrices.DataSource = _prices;
-        }
-        finally
-        {
-            _isBinding = false;
-        }
+        _unitsView.RowFilter =
+            $"UnitName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
+            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
     }
 
-    // ── Grid selection ───────────────────────────────────────────────────────
+    // ── Grid Selection ────────────────────────────────────────────────────────
 
-    private async void dgvUnits_SelectionChanged(object? sender, EventArgs e)
+    private async void dgvUnits_CellClick(object? sender, DataGridViewCellEventArgs e)
     {
-        if (_isBinding) return;
-
         try
         {
-            if (dgvUnits.CurrentRow?.DataBoundItem is not ProductUnitDto unit) return;
-            if (unit.Id == _selectedUnitId) return;
+            if (e.RowIndex < 0) return;
+            if (dgvUnits.Rows[e.RowIndex].DataBoundItem is not DataRowView row) return;
+            if (row["Id"] is not int id || id <= 0) return;
 
-            _selectedUnitId = unit.Id;
-            _FillUnitForm(unit);
-            await _LoadPricesAsync(unit.Id);
+            await _FillFormAsync(id);
         }
         catch (Exception ex)
         {
@@ -332,74 +324,238 @@ public partial class frmProductUnitMaster : Form
         }
     }
 
-    private void _FillUnitForm(ProductUnitDto unit)
+    private async void dgvUnits_SelectionChanged(object? sender, EventArgs e)
     {
-        _editUnitId = unit.Id;
+        if (_isBinding) return;
+
+        try
+        {
+            if (dgvUnits.CurrentRow?.DataBoundItem is not DataRowView row) return;
+            if (row["Id"] is not int id || id <= 0) return;
+            if (_editId == id) return;
+
+            await _FillFormAsync(id);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحديد وحدة في الشبكة");
+            MessageBox.Show("تعذر عرض بيانات الوحدة المحددة. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private Task _FillFormAsync(int productUnitId)
+    {
+        if (!_unitsById.TryGetValue(productUnitId, out var unit))
+            return Task.CompletedTask;
+
+        _editId = unit.Id;
 
         _isBinding = true;
         try
         {
             cmbUnit.SelectedValue = unit.UnitId;
+
+            // الوحدة قد تكون غير موجودة في القائمة (معطّلة) — لا نُغيّر التحديد عندها
+            if (cmbUnit.SelectedValue is not int selectedUnitId || selectedUnitId != unit.UnitId)
+                cmbUnit.SelectedIndex = -1;
+
+            txtBarcode.Text = unit.Barcode ?? "";
             numFactor.Value = _Clamp(numFactor, unit.ConversionFactor);
-            chkIsBaseUnit.Checked = unit.IsBaseUnit;
+            numSalePrice.Value = _Clamp(numSalePrice, unit.SalePrice);
+            numWholesalePrice.Value = _Clamp(numWholesalePrice, unit.WholesalePrice ?? 0m);
+            numCostPrice.Value = _Clamp(numCostPrice, unit.CostPrice);
+            numMaxDiscount.Value = _Clamp(numMaxDiscount, unit.MaxDiscountAmount ?? 0m);
         }
         finally
         {
             _isBinding = false;
         }
 
-        lblMode.Text = $"(( وحدات وأسعار الصنف )) — {_productName} — تعديل وحدة";
+        errorProvider.Clear();
+        _UpdateModeHeader();
+
+        return Task.CompletedTask;
     }
 
-    // ── Unit CRUD ────────────────────────────────────────────────────────────
+    // ── Mode / Reset ──────────────────────────────────────────────────────────
 
-    private void btnNewUnit_Click(object? sender, EventArgs e) => _ResetUnitForm();
+    private void _UpdateModeHeader()
+        => lblMode.Text = _editId.HasValue
+            ? $"(( وحدات الصنف )) — {_productName} — تعديل وحدة"
+            : $"(( وحدات الصنف )) — {_productName} — إضافة وحدة جديدة";
 
-    private async void btnSaveUnit_Click(object? sender, EventArgs e)
+    private void _ResetForm()
     {
-        if (!_ValidateUnitForm()) return;
+        _editId = null;
+        errorProvider.Clear();
 
+        _isBinding = true;
+        try
+        {
+            if (cmbUnit.Items.Count > 0)
+                cmbUnit.SelectedIndex = -1;
+
+            txtBarcode.Clear();
+            numFactor.Value = 1m;
+            numSalePrice.Value = 0m;
+            numWholesalePrice.Value = 0m;
+            numCostPrice.Value = 0m;
+            numMaxDiscount.Value = 0m;
+        }
+        finally
+        {
+            _isBinding = false;
+        }
+
+        dgvUnits.ClearSelection();
+        _UpdateModeHeader();
+        cmbUnit.Focus();
+    }
+
+    // ── Validation ────────────────────────────────────────────────────────────
+
+    private bool _ValidateForm()
+    {
+        bool isValid = true;
+
+        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
+        {
+            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
+            isValid = false;
+        }
+        else if (_unitsById.Values.Any(u => u.UnitId == unitId && u.Id != (_editId ?? 0)))
+        {
+            errorProvider.SetError(cmbUnit, "هذه الوحدة مضافة بالفعل لهذا الصنف");
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(cmbUnit, "");
+        }
+
+        // كل وحدة تُضاف من هذه الشاشة هي وحدة فرعية (الأساسية تُنشأ من شاشة الصنف)
+        // لذلك يجب أن يكون معامل التحويل أكبر من 1. لا يُتحقق عند التعديل لأن
+        // معامل التحويل غير قابل للتعديل بعد الإضافة.
+        if (_editId is null && numFactor.Value <= 1m)
+        {
+            errorProvider.SetError(numFactor, "معامل التحويل يجب أن يكون أكبر من 1 للوحدات الفرعية");
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(numFactor, "");
+        }
+
+        if (numSalePrice.Value < 0m)
+        {
+            errorProvider.SetError(numSalePrice, "سعر البيع يجب أن يكون قيمة موجبة");
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(numSalePrice, "");
+        }
+
+        if (numCostPrice.Value < 0m)
+        {
+            errorProvider.SetError(numCostPrice, "سعر التكلفة يجب أن يكون قيمة موجبة");
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(numCostPrice, "");
+        }
+
+        if (numMaxDiscount.Value < 0m)
+        {
+            errorProvider.SetError(numMaxDiscount, "أقصى خصم يجب أن يكون قيمة موجبة");
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(numMaxDiscount, "");
+        }
+
+        if (!isValid)
+        {
+            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
+                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        return isValid;
+    }
+
+    // ── Buttons ───────────────────────────────────────────────────────────────
+
+    private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
+
+    private async void btnSave_Click(object? sender, EventArgs e)
+    {
+        if (!_ValidateForm()) return;
         if (cmbUnit.SelectedValue is not int unitId || unitId <= 0) return;
 
-        bool isBase = chkIsBaseUnit.Checked;
-        decimal factor = isBase ? 1m : numFactor.Value;
-        bool wasEditing = _editUnitId.HasValue;
-
+        bool wasEditing = _editId.HasValue;
         Cursor = Cursors.WaitCursor;
-        btnSaveUnit.Enabled = false;
+        btnSave.Enabled = false;
 
         try
         {
+            string? barcode = string.IsNullOrWhiteSpace(txtBarcode.Text)
+                ? null
+                : txtBarcode.Text.Trim();
+
+            decimal salePrice = numSalePrice.Value;
+            decimal costPrice = numCostPrice.Value;
+            decimal? wholesalePrice = numWholesalePrice.Value > 0m
+                ? numWholesalePrice.Value
+                : null;
+            decimal? maxDiscount = numMaxDiscount.Value > 0m
+                ? numMaxDiscount.Value
+                : null;
+
             Result<ProductUnitDto> result;
 
-            if (_editUnitId is int productUnitId)
+            if (_editId is int productUnitId)
             {
-                // UpdateProductUnitRequest لا يحتوي إلا على UnitId — معامل التحويل
-                // والوحدة الأساسية لا يمكن تعديلهما بعد الإضافة (قاعدة نطاق في BLL).
-                result = await ProductService.UpdateProductUnitAsync(
-                    _productId, productUnitId, new UpdateProductUnitRequest((short)unitId));
+                // التعديل يشمل الوحدة والباركود والأسعار فقط
+                // (معامل التحويل والوحدة الأساسية لا يتغيران بعد الإضافة).
+                var request = new UpdateProductUnitRequest(
+                    UnitId: (short)unitId,
+                    Barcode: barcode,
+                    SalePrice: salePrice,
+                    WholesalePrice: wholesalePrice,
+                    CostPrice: costPrice,
+                    MaxDiscountAmount: maxDiscount);
 
-                if (result.IsSuccess)
-                    MessageBox.Show("تم تعديل وحدة الصنف بنجاح.\nملاحظة: معامل التحويل والوحدة الأساسية لا يتم تعديلهما بعد الإضافة.",
-                        "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                result = await ProductService.UpdateProductUnitAsync(_productId, productUnitId, request);
             }
             else
             {
-                var request = new AddProductUnitRequest((short)unitId, factor, isBase);
-                result = await ProductService.AddProductUnitAsync(_productId, request);
+                // الإضافة من هذه الشاشة تُنشئ وحدة فرعية دائماً؛
+                // الوحدة الأساسية تُنشأ من شاشة دليل الأصناف.
+                var request = new AddProductUnitRequest(
+                    UnitId: (short)unitId,
+                    Factor: numFactor.Value,
+                    IsBaseUnit: false,
+                    Barcode: barcode,
+                    SalePrice: salePrice,
+                    WholesalePrice: wholesalePrice,
+                    CostPrice: costPrice,
+                    MaxDiscountAmount: maxDiscount);
 
-                if (result.IsSuccess)
-                    MessageBox.Show("تمت إضافة وحدة الصنف بنجاح.",
-                        "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                result = await ProductService.AddProductUnitAsync(_productId, request);
             }
 
             if (result.IsSuccess && result.Value != null)
             {
-                _selectedUnitId = result.Value.Id;
+                MessageBox.Show(wasEditing ? "تم تعديل وحدة الصنف بنجاح." : "تمت إضافة وحدة الصنف بنجاح.",
+                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                _editId = result.Value.Id;
                 await _LoadUnitsAsync();
-                _SelectUnitRow(result.Value.Id);
-                _ResetUnitForm();
-                lblMode.Text = $"(( وحدات وأسعار الصنف )) — {_productName}";
+                _SelectGridRow(result.Value.Id);
+                _UpdateModeHeader();
             }
             else
             {
@@ -415,21 +571,28 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            btnSaveUnit.Enabled = true;
+            btnSave.Enabled = true;
             Cursor = Cursors.Default;
         }
     }
 
-    private async void btnDeleteUnit_Click(object? sender, EventArgs e)
+    private async void btnDelete_Click(object? sender, EventArgs e)
     {
-        if (_editUnitId is not int productUnitId)
+        if (_editId is not int productUnitId)
         {
             MessageBox.Show("يرجى اختيار وحدة من القائمة أولاً.",
                 "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        string unitName = dgvUnits.CurrentRow?.DataBoundItem is ProductUnitDto unit
+        if (_unitsById.TryGetValue(productUnitId, out var current) && current.IsBaseUnit)
+        {
+            MessageBox.Show("لا يمكن حذف الوحدة الأساسية للصنف. يمكنك تعديل أسعارها فقط.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string unitName = _unitsById.TryGetValue(productUnitId, out var unit)
             ? unit.UnitName ?? ""
             : "";
 
@@ -439,19 +602,19 @@ public partial class frmProductUnitMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
-        btnDeleteUnit.Enabled = false;
+        btnDelete.Enabled = false;
 
         try
         {
-            var result = await ProductService.DeleteProductUnitAsync(_productId, productUnitId, DeleteStrategy.Permanent);
+            var result = await ProductService.DeleteProductUnitAsync(
+                _productId, productUnitId, DeleteStrategy.Permanent);
 
             if (result.IsSuccess)
             {
                 MessageBox.Show("تم حذف وحدة الصنف بنجاح.", "تم الحذف",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                _selectedUnitId = null;
-                _ResetUnitForm();
+                _ResetForm();
                 await _LoadUnitsAsync();
             }
             else
@@ -468,214 +631,10 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            btnDeleteUnit.Enabled = true;
+            btnDelete.Enabled = true;
             Cursor = Cursors.Default;
         }
     }
-
-    // ── Price CRUD ───────────────────────────────────────────────────────────
-
-    private async void btnAddPrice_Click(object? sender, EventArgs e)
-    {
-        if (_selectedUnitId is not int productUnitId)
-        {
-            MessageBox.Show("يرجى اختيار وحدة من القائمة أولاً لإضافة سعر لها.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
-
-        if (numPrice.Value <= 0)
-        {
-            errorProvider.SetError(numPrice, "السعر يجب أن يكون أكبر من صفر");
-            MessageBox.Show("يرجى إدخال سعر أكبر من صفر.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
-
-        errorProvider.SetError(numPrice, "");
-
-        DateTime from = dtpEffectiveFrom.Value.Date;
-        DateTime? to = dtpEffectiveTo.Checked ? dtpEffectiveTo.Value.Date : null;
-
-        if (to.HasValue && to.Value < from)
-        {
-            errorProvider.SetError(dtpEffectiveTo, "تاريخ النهاية يجب أن يكون بعد تاريخ البداية");
-            MessageBox.Show("تاريخ نهاية السعر يجب أن يكون بعد تاريخ بدايته.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
-
-        errorProvider.SetError(dtpEffectiveTo, "");
-
-        Cursor = Cursors.WaitCursor;
-        btnAddPrice.Enabled = false;
-
-        try
-        {
-            var request = new CreateProductPriceRequest(productUnitId, numPrice.Value, from, to);
-            var result = await ProductService.CreateProductPriceAsync(request);
-
-            if (result.IsSuccess)
-            {
-                MessageBox.Show("تمت إضافة سعر الوحدة بنجاح.", "تم الحفظ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                _ResetPriceForm();
-                await _LoadPricesAsync(productUnitId);
-            }
-            else
-            {
-                MessageBox.Show($"لم يتم إضافة السعر.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء إضافة سعر للوحدة {ProductUnitId}", productUnitId);
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        finally
-        {
-            btnAddPrice.Enabled = true;
-            Cursor = Cursors.Default;
-        }
-    }
-
-    private async void btnDeletePrice_Click(object? sender, EventArgs e)
-    {
-        if (dgvPrices.CurrentRow?.DataBoundItem is not ProductPriceDto price)
-        {
-            MessageBox.Show("يرجى اختيار سعر من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
-
-        if (MessageBox.Show($"هل أنت متأكد من حذف السعر ({price.Price:N2})؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
-            return;
-
-        Cursor = Cursors.WaitCursor;
-        btnDeletePrice.Enabled = false;
-
-        try
-        {
-            var result = await ProductService.DeleteProductPriceAsync(price.Id);
-
-            if (result.IsSuccess)
-            {
-                MessageBox.Show("تم حذف السعر بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                if (_selectedUnitId is int productUnitId)
-                    await _LoadPricesAsync(productUnitId);
-            }
-            else
-            {
-                MessageBox.Show($"لم يتم حذف السعر.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء حذف السعر {PriceId}", price.Id);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        finally
-        {
-            btnDeletePrice.Enabled = true;
-            Cursor = Cursors.Default;
-        }
-    }
-
-    // ── Validation ───────────────────────────────────────────────────────────
-
-    private bool _ValidateUnitForm()
-    {
-        bool isValid = true;
-
-        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
-        {
-            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
-            isValid = false;
-        }
-        else if (_units.Any(u => u.UnitId == unitId && u.Id != (_editUnitId ?? 0)))
-        {
-            errorProvider.SetError(cmbUnit, "هذه الوحدة مضافة بالفعل لهذا الصنف");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbUnit, "");
-        }
-
-        if (!chkIsBaseUnit.Checked && numFactor.Value <= 1m)
-        {
-            errorProvider.SetError(numFactor, "معامل التحويل يجب أن يكون أكبر من 1 للوحدات الفرعية");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(numFactor, "");
-        }
-
-        if (chkIsBaseUnit.Checked && _units.Any(u => u.IsBaseUnit && u.Id != (_editUnitId ?? 0)))
-        {
-            errorProvider.SetError(chkIsBaseUnit, "يوجد بالفعل وحدة أساسية لهذا الصنف");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(chkIsBaseUnit, "");
-        }
-
-        if (!isValid)
-        {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-
-        return isValid;
-    }
-
-    // ── Reset ────────────────────────────────────────────────────────────────
-
-    private void _ResetUnitForm()
-    {
-        _editUnitId = null;
-        errorProvider.SetError(cmbUnit, "");
-
-        _isBinding = true;
-        try
-        {
-            if (cmbUnit.Items.Count > 0)
-                cmbUnit.SelectedIndex = -1;
-
-            numFactor.Value = 1m;
-            chkIsBaseUnit.Checked = false;
-        }
-        finally
-        {
-            _isBinding = false;
-        }
-
-        lblMode.Text = $"(( وحدات وأسعار الصنف )) — {_productName}";
-    }
-
-    private void _ResetPriceForm()
-    {
-        numPrice.Value = 0m;
-        dtpEffectiveFrom.Value = DateTime.Today;
-        dtpEffectiveTo.Checked = false;
-        dtpEffectiveTo.Value = DateTime.Today;
-
-        errorProvider.SetError(numPrice, "");
-        errorProvider.SetError(dtpEffectiveTo, "");
-    }
-
-    // ── Close ────────────────────────────────────────────────────────────────
 
     private void btnClose_Click(object? sender, EventArgs e)
     {
@@ -683,18 +642,26 @@ public partial class frmProductUnitMaster : Form
         Close();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private void _SelectUnitRow(int productUnitId)
+    private void _SelectGridRow(int productUnitId)
     {
         foreach (DataGridViewRow row in dgvUnits.Rows)
         {
-            if (row.DataBoundItem is ProductUnitDto unit && unit.Id == productUnitId)
+            if (row.Cells["Id"].Value is int id && id == productUnitId)
             {
-                // التعيين قبل التحديد حتى يتجاهل معالج SelectionChanged هذه الخطوة
-                _selectedUnitId = unit.Id;
-                row.Selected = true;
-                dgvUnits.CurrentCell = row.Cells["UnitName"];
+                _isBinding = true;
+                try
+                {
+                    dgvUnits.ClearSelection();
+                    row.Selected = true;
+                    dgvUnits.CurrentCell = row.Cells["UnitName"];
+                }
+                finally
+                {
+                    _isBinding = false;
+                }
+
                 break;
             }
         }

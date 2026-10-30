@@ -20,6 +20,28 @@ public class ProductUnitConfiguration : IEntityTypeConfiguration<ProductUnit>
             .HasPrecision(18, 3)
             .IsRequired();
 
+        builder.Property(x => x.Barcode)
+            .HasMaxLength(50)
+            .IsRequired(false);
+
+        builder.Property(x => x.SalePrice)
+            .HasPrecision(18, 2)
+            .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(x => x.WholesalePrice)
+            .HasPrecision(18, 2)
+            .IsRequired(false);
+
+        builder.Property(x => x.CostPrice)
+            .HasPrecision(18, 2)
+            .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(x => x.MaxDiscountAmount)
+            .HasPrecision(18, 2)
+            .IsRequired(false);
+
         // ─── CHECK constraint: base units must have Factor = 1 ──
         builder.ToTable(t => t.HasCheckConstraint(
             "CHK_ProductUnits_BaseUnitFactor",

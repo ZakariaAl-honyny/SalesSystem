@@ -22,12 +22,16 @@ public partial class frmProductMaster : Form
 
     private IProductApiService ProductService => _serviceProvider.GetRequiredService<IProductApiService>();
     private ICategoryApiService CategoryService => _serviceProvider.GetRequiredService<ICategoryApiService>();
+    private IUnitApiService UnitService => _serviceProvider.GetRequiredService<IUnitApiService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, ProductDto> _productsById = new();
     private DataTable _productsTable = new();
     private DataView _productsView = new();
+
+    /// <summary>قائمة الوحدات المتاحة لاختيار الوحدة الرئيسية عند إضافة صنف جديد.</summary>
+    private List<UnitDto> _unitLookup = new();
 
     /// <summary>null = إضافة صنف جديد، &gt; 0 = تعديل صنف قائم.</summary>
     private int? _editId;
@@ -115,6 +119,7 @@ public partial class frmProductMaster : Form
         {
             _SetupGridColumns();
             await _LoadCategoriesAsync();
+            await _LoadUnitLookupAsync();
             await _LoadProductsAsync();
             _ResetForm();
         }
@@ -163,6 +168,33 @@ public partial class frmProductMaster : Form
         {
             Log.Error(ex, "خطأ أثناء تحميل مجموعات الأصناف");
             MessageBox.Show("تعذر تحميل مجموعات الأصناف. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>تحميل قائمة الوحدات لاختيار الوحدة الرئيسية عند إضافة صنف جديد.</summary>
+    private async Task _LoadUnitLookupAsync()
+    {
+        try
+        {
+            var result = await UnitService.GetAllAsync(includeInactive: false);
+
+            if (result.IsSuccess && result.Value != null)
+            {
+                _unitLookup = result.Value.ToList();
+            }
+            else
+            {
+                _unitLookup = new List<UnitDto>();
+                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الوحدات.",
+                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            _unitLookup = new List<UnitDto>();
+            Log.Error(ex, "خطأ أثناء تحميل قائمة الوحدات");
+            MessageBox.Show("تعذر تحميل قائمة الوحدات. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -305,6 +337,61 @@ public partial class frmProductMaster : Form
         await _LoadMainUnitAsync(p.Id);
     }
 
+    /// <summary>
+    /// إنشاء الوحدة الأساسية (الرئيسية) لصنف جديد مع سعر بيعها.
+    /// أي تعثر هنا لا يُفشل حفظ الصنف — يُسجَّل الخطأ فقط.
+    /// </summary>
+    private async Task _CreateMainUnitAsync(int productId, int unitId)
+    {
+        try
+        {
+            // بيانات الوحدة الأساسية: الباركود والأسعار والخصم المسموح به
+            // تُقرأ من حقول مجموعة (الوحدة الرئيسية) في هذه الشاشة.
+            string? unitBarcode = string.IsNullOrWhiteSpace(txtMainUnitBarcode.Text)
+                ? null
+                : txtMainUnitBarcode.Text.Trim();
+
+            decimal salePrice = numMainUnitSalePrice.Value;
+            decimal costPrice = numMainUnitCostPrice.Value;
+            decimal? maxDiscount = numMainUnitMaxDiscount.Value > 0m
+                ? numMainUnitMaxDiscount.Value
+                : null;
+
+            var addUnit = await ProductService.AddProductUnitAsync(
+                productId,
+                new AddProductUnitRequest(
+                    UnitId: (short)unitId,
+                    Factor: 1m,
+                    IsBaseUnit: true,
+                    Barcode: unitBarcode,
+                    SalePrice: salePrice,
+                    WholesalePrice: null,
+                    CostPrice: costPrice,
+                    MaxDiscountAmount: maxDiscount));
+
+            if (!addUnit.IsSuccess || addUnit.Value == null)
+            {
+                Log.Error("تعذر إنشاء الوحدة الأساسية للصنف {ProductId}. السبب: {Error}",
+                    productId, addUnit.Error);
+                return;
+            }
+
+            if (numMainUnitSalePrice.Value > 0)
+            {
+                var priceResult = await ProductService.CreateProductPriceAsync(
+                    new CreateProductPriceRequest(addUnit.Value.Id, numMainUnitSalePrice.Value, DateTime.Today, null));
+
+                if (!priceResult.IsSuccess)
+                    Log.Error("تعذر حفظ سعر الوحدة الأساسية للصنف {ProductId}. السبب: {Error}",
+                        productId, priceResult.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء إنشاء الوحدة الأساسية للصنف {ProductId}", productId);
+        }
+    }
+
     private void _SelectCategory(int categoryId)
     {
         cmbCategory.SelectedValue = categoryId;
@@ -329,6 +416,7 @@ public partial class frmProductMaster : Form
                 cmbMainUnit.DisplayMember = "UnitName";
                 cmbMainUnit.ValueMember = "Id";
                 cmbMainUnit.DataSource = units;
+                cmbMainUnit.Enabled = false;    // للعرض فقط في وضع التعديل
 
                 var baseUnit = units.FirstOrDefault(u => u.IsBaseUnit) ?? units[0];
                 cmbMainUnit.SelectedValue = baseUnit.Id;
@@ -338,6 +426,7 @@ public partial class frmProductMaster : Form
             else
             {
                 cmbMainUnit.DataSource = null;
+                cmbMainUnit.Enabled = false;
                 numMainUnitSalePrice.Value = 0;
                 numMainUnitCostPrice.Value = 0;
                 numMainUnitMaxDiscount.Value = 0;
@@ -381,6 +470,10 @@ public partial class frmProductMaster : Form
     private async void cmbMainUnit_SelectedIndexChanged(object? sender, EventArgs e)
     {
         if (_isBindingMainUnit) return;
+
+        // في وضع الإضافة يكون SelectedValue هو رقم الوحدة (UnitDto.Id) وليس رقم وحدة الصنف،
+        // لذلك لا يُبحث عن سعر إلا في وضع التعديل.
+        if (_editId is not int) return;
 
         try
         {
@@ -427,13 +520,25 @@ public partial class frmProductMaster : Form
         numMainUnitCostPrice.Value = 0;
         numMainUnitSalePrice.Value = 0;
         numMainUnitMaxDiscount.Value = 0;
+        errorProvider.SetError(cmbMainUnit, "");
 
         if (cmbCategory.Items.Count > 0)
             cmbCategory.SelectedIndex = 0;
 
         _isBindingMainUnit = true;
-        try { cmbMainUnit.DataSource = null; }
-        finally { _isBindingMainUnit = false; }
+        try
+        {
+            // في وضع الإضافة تُربَط الوحدة الرئيسية بقائمة الوحدات (اختيار) لا بوحدات الصنف.
+            cmbMainUnit.DisplayMember = "Name";
+            cmbMainUnit.ValueMember = "Id";
+            cmbMainUnit.DataSource = _unitLookup;
+            cmbMainUnit.SelectedIndex = -1;
+            cmbMainUnit.Enabled = true;
+        }
+        finally
+        {
+            _isBindingMainUnit = false;
+        }
 
         dgvProducts.ClearSelection();
         _UpdateModeHeader();
@@ -474,6 +579,24 @@ public partial class frmProductMaster : Form
         else
         {
             errorProvider.SetError(numReorderLevel, "");
+        }
+
+        // عند إضافة صنف جديد يجب اختيار الوحدة الرئيسية (تُنشأ وحدتها الأساسية مع الحفظ).
+        if (_editId is null)
+        {
+            if (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0)
+            {
+                errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
+                isValid = false;
+            }
+            else
+            {
+                errorProvider.SetError(cmbMainUnit, "");
+            }
+        }
+        else
+        {
+            errorProvider.SetError(cmbMainUnit, "");
         }
 
         if (!isValid)
@@ -533,7 +656,16 @@ public partial class frmProductMaster : Form
                     null,
                     barcode);
 
+                // الوحدة المختارة من قائمة الوحدات في وضع الإضافة (UnitDto.Id)
+                int? mainUnitId = cmbMainUnit.SelectedValue is int selectedUnitId && selectedUnitId > 0
+                    ? selectedUnitId
+                    : null;
+
                 result = await ProductService.CreateAsync(request);
+
+                // إنشاء الوحدة الأساسية للصنف الجديد مع سعر بيعها (لا يُفشل الحفظ عند تعثره).
+                if (result.IsSuccess && result.Value != null && mainUnitId is int unitId)
+                    await _CreateMainUnitAsync(result.Value.Id, unitId);
             }
 
             if (result.IsSuccess && result.Value != null)
@@ -547,6 +679,10 @@ public partial class frmProductMaster : Form
                 await _LoadProductsAsync();
                 _SelectGridRow(result.Value.Id);
                 _UpdateModeHeader();
+
+                // بعد الإضافة: تحويل حقل الوحدة الرئيسية إلى عرض وحدات الصنف المضافة (للقراءة فقط).
+                if (!wasEditing)
+                    await _LoadMainUnitAsync(result.Value.Id);
             }
             else
             {

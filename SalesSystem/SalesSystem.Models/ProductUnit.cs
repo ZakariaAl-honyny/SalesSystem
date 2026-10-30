@@ -35,6 +35,32 @@ public class ProductUnit : AuditableEntity
 
     public bool IsBaseUnit { get; private set; }
 
+    /// <summary>
+    /// Barcode for this unit (unique, optional). nvarchar(50) in DB.
+    /// </summary>
+    public string? Barcode { get; private set; }
+
+    /// <summary>
+    /// Retail price (سعر التجزئة). decimal(18,2) not null, default 0.
+    /// </summary>
+    public decimal SalePrice { get; private set; }
+
+    /// <summary>
+    /// Wholesale price (سعر الجملة) — optional. decimal(18,2) null.
+    /// </summary>
+    public decimal? WholesalePrice { get; private set; }
+
+    /// <summary>
+    /// Reference/standard cost price. decimal(18,2) not null, default 0.
+    /// Actual purchase prices live on PurchaseInvoiceLines.
+    /// </summary>
+    public decimal CostPrice { get; private set; }
+
+    /// <summary>
+    /// Max allowed discount (fixed amount only) for this unit. decimal(18,2) null.
+    /// </summary>
+    public decimal? MaxDiscountAmount { get; private set; }
+
     // Navigation
     public Product Product { get; private set; } = null!;
 
@@ -111,6 +137,34 @@ public class ProductUnit : AuditableEntity
         if (newUnitId <= 0)
             throw new DomainException("معرف الوحدة مطلوب.");
         UnitId = newUnitId;
+        UpdateTimestamp();
+    }
+
+    /// <summary>
+    /// Updates the barcode + pricing (retail, wholesale, cost, max discount) for this unit.
+    /// MaxDiscountAmount is a fixed amount only — percentage discounts are not supported.
+    /// </summary>
+    public void UpdatePricing(
+        string? barcode,
+        decimal salePrice,
+        decimal? wholesalePrice,
+        decimal costPrice,
+        decimal? maxDiscountAmount)
+    {
+        if (salePrice < 0)
+            throw new DomainException("سعر التجزئة لا يمكن أن يكون سالباً.");
+        if (costPrice < 0)
+            throw new DomainException("سعر التكلفة لا يمكن أن يكون سالباً.");
+        if (wholesalePrice < 0)
+            throw new DomainException("سعر الجملة لا يمكن أن يكون سالباً.");
+        if (maxDiscountAmount < 0)
+            throw new DomainException("أقصى خصم مسموح لا يمكن أن يكون سالباً.");
+
+        Barcode = string.IsNullOrWhiteSpace(barcode) ? null : barcode.Trim();
+        SalePrice = salePrice;
+        WholesalePrice = wholesalePrice;
+        CostPrice = costPrice;
+        MaxDiscountAmount = maxDiscountAmount;
         UpdateTimestamp();
     }
 }

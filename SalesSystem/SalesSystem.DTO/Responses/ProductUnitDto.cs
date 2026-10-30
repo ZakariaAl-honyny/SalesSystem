@@ -6,5 +6,10 @@ public record ProductUnitDto(
     int UnitId,
     string? UnitName,
     decimal ConversionFactor,
-    bool IsBaseUnit
+    bool IsBaseUnit,
+    string? Barcode,
+    decimal SalePrice,
+    decimal? WholesalePrice,
+    decimal CostPrice,
+    decimal? MaxDiscountAmount
 );

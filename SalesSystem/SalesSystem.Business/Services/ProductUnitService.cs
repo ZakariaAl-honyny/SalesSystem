@@ -50,11 +50,11 @@ public class ProductUnitService : IProductUnitService
             if (product == null)
                 return Result<ProductUnitDto>.Failure("المنتج غير موجود", ErrorCodes.NotFound);
 
-            // Phase 28: Prices managed via ProductPrices entity (not on ProductUnit).
-            // Barcodes managed via Product.Barcode column (single source of truth).
             var unit = req.IsBaseUnit
                 ? ProductUnit.CreateBaseUnit(productId, (short)req.UnitId)
                 : ProductUnit.CreateDerivedUnit(productId, (short)req.UnitId, req.Factor);
+
+            unit.UpdatePricing(req.Barcode, req.SalePrice, req.WholesalePrice, req.CostPrice, req.MaxDiscountAmount);
 
             product.AddUnit(unit);
             await _uow.ProductUnits.AddAsync(unit, ct);
@@ -95,6 +95,7 @@ public class ProductUnitService : IProductUnitService
                 return Result<ProductUnitDto>.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
 
             unit.ChangeUnit((short)req.UnitId);
+            unit.UpdatePricing(req.Barcode, req.SalePrice, req.WholesalePrice, req.CostPrice, req.MaxDiscountAmount);
 
             await _uow.ProductUnits.UpdateAsync(unit, ct);
             await _uow.SaveChangesAsync(ct);
@@ -217,6 +218,11 @@ public class ProductUnitService : IProductUnitService
             unit.UnitId,
             unit.Unit?.Name ?? "",
             unit.Factor,
-            unit.IsBaseUnit);
+            unit.IsBaseUnit,
+            unit.Barcode,
+            unit.SalePrice,
+            unit.WholesalePrice,
+            unit.CostPrice,
+            unit.MaxDiscountAmount);
     }
 }

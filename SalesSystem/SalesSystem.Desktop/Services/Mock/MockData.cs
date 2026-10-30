@@ -78,16 +78,28 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     public static List<ProductUnitDto> ProductUnits { get; } = new()
     {
-        new ProductUnitDto(1,  1,  1, "قطعة",  1m, true),
-        new ProductUnitDto(2,  2,  1, "زجاجة", 1m, true),
-        new ProductUnitDto(3,  3,  1, "كيس",   1m, true),
-        new ProductUnitDto(4,  4,  1, "كيس",   1m, true),
-        new ProductUnitDto(5,  5,  1, "كيس",   1m, true),
-        new ProductUnitDto(6,  6,  1, "علبة",  1m, true),
-        new ProductUnitDto(7,  7,  1, "علبة",  1m, true),
-        new ProductUnitDto(8,  8,  1, "علبة",  1m, true),
-        new ProductUnitDto(9,  9,  1, "علبة",  1m, true),
-        new ProductUnitDto(10, 10, 1, "كيس",   1m, true)
+        // Id, ProductId, UnitId, UnitName, ConversionFactor, IsBaseUnit,
+        // Barcode, SalePrice, WholesalePrice, CostPrice, MaxDiscountAmount
+        new ProductUnitDto(1,  1,  1, "قطعة",  1m, true,
+            "6200000000011", 150m, 140m, 120m, 10m),
+        new ProductUnitDto(2,  2,  1, "زجاجة", 1m, true,
+            "6200000000028",  80m, null,  65m, null),
+        new ProductUnitDto(3,  3,  1, "كيس",   1m, true,
+            null,             60m, 55m,  50m,  5m),
+        new ProductUnitDto(4,  4,  1, "كيس",   1m, true,
+            null,            200m, null, 180m, null),
+        new ProductUnitDto(5,  5,  1, "كيس",   1m, true,
+            "6200000000059", 120m, 115m, 105m, null),
+        new ProductUnitDto(6,  6,  1, "علبة",  1m, true,
+            null,             90m, null,  75m, null),
+        new ProductUnitDto(7,  7,  1, "علبة",  1m, true,
+            null,             45m, null,  38m, null),
+        new ProductUnitDto(8,  8,  1, "علبة",  1m, true,
+            null,             30m, null,  25m, null),
+        new ProductUnitDto(9,  9,  1, "علبة",  1m, true,
+            null,            200m, null, 170m, null),
+        new ProductUnitDto(10, 10, 1, "كيس",   1m, true,
+            null,             75m, null,  62m, null)
     };
 
     // ═══════════════════════════════════════════════
