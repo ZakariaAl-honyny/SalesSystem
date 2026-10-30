@@ -30,10 +30,14 @@ partial class frmCashBoxMaster
         btnDelete = new Button();
         pnlGrid = new Panel();
         dgvCashBoxes = new DataGridView();
+        colId = new DataGridViewTextBoxColumn();
+        colName = new DataGridViewTextBoxColumn();
+        colDescription = new DataGridViewTextBoxColumn();
+        colAccountName = new DataGridViewTextBoxColumn();
+        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        lblDevColumns = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -181,9 +185,11 @@ partial class frmCashBoxMaster
         // 
         dgvCashBoxes.AllowUserToAddRows = false;
         dgvCashBoxes.AllowUserToDeleteRows = false;
+        dgvCashBoxes.AutoGenerateColumns = false;
         dgvCashBoxes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvCashBoxes.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvCashBoxes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvCashBoxes.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colDescription, colAccountName, colIsActive });
         dgvCashBoxes.Dock = DockStyle.Fill;
         dgvCashBoxes.Location = new Point(10, 50);
         dgvCashBoxes.MultiSelect = false;
@@ -194,6 +200,51 @@ partial class frmCashBoxMaster
         dgvCashBoxes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvCashBoxes.Size = new Size(1412, 350);
         dgvCashBoxes.TabIndex = 0;
+        // 
+        // colId
+        // 
+        colId.DataPropertyName = "Id";
+        colId.FillWeight = 8F;
+        colId.HeaderText = "رقم الصندوق";
+        colId.MinimumWidth = 90;
+        colId.Name = "colId";
+        colId.ReadOnly = true;
+        // 
+        // colName
+        // 
+        colName.DataPropertyName = "Name";
+        colName.FillWeight = 26F;
+        colName.HeaderText = "اسم الصندوق";
+        colName.MinimumWidth = 200;
+        colName.Name = "colName";
+        colName.ReadOnly = true;
+        // 
+        // colDescription
+        // 
+        colDescription.DataPropertyName = "Description";
+        colDescription.FillWeight = 34F;
+        colDescription.HeaderText = "الوصف";
+        colDescription.MinimumWidth = 220;
+        colDescription.Name = "colDescription";
+        colDescription.ReadOnly = true;
+        // 
+        // colAccountName
+        // 
+        colAccountName.DataPropertyName = "AccountName";
+        colAccountName.FillWeight = 24F;
+        colAccountName.HeaderText = "الحساب";
+        colAccountName.MinimumWidth = 180;
+        colAccountName.Name = "colAccountName";
+        colAccountName.ReadOnly = true;
+        // 
+        // colIsActive
+        // 
+        colIsActive.DataPropertyName = "IsActive";
+        colIsActive.FillWeight = 8F;
+        colIsActive.HeaderText = "نشط";
+        colIsActive.MinimumWidth = 60;
+        colIsActive.Name = "colIsActive";
+        colIsActive.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -221,19 +272,6 @@ partial class frmCashBoxMaster
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
         // 
-        // lblDevColumns
-        // 
-        lblDevColumns.AutoSize = false;
-        lblDevColumns.Dock = DockStyle.Bottom;
-        lblDevColumns.Font = new Font("Tahoma", 9F);
-        lblDevColumns.ForeColor = SystemColors.GrayText;
-        lblDevColumns.Height = 22;
-        lblDevColumns.Name = "lblDevColumns";
-        lblDevColumns.Size = new Size(1432, 22);
-        lblDevColumns.TabIndex = 99;
-        lblDevColumns.TextAlign = ContentAlignment.MiddleLeft;
-        lblDevColumns.Visible = false;
-        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -249,7 +287,6 @@ partial class frmCashBoxMaster
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
-        Controls.Add(lblDevColumns);
         Font = new Font("Tahoma", 10F);
         Name = "frmCashBoxMaster";
         RightToLeft = RightToLeft.Yes;
@@ -281,9 +318,13 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvCashBoxes;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colDescription;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colAccountName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.Label lblDevColumns;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

@@ -53,46 +53,6 @@ public partial class frmCategoryMaster : Form
         dgvCategories.CellClick += dgvCategories_CellClick;
     }
 
-    // ── Grid Setup ────────────────────────────────────────────────────────────
-
-    private void _SetupGridColumns()
-    {
-        dgvCategories.Columns.Clear();
-
-        var columns = new[]
-        {
-            new { Name = "Id",          Header = "رقم المجموعة", Fill = 8,  Min = 80  },
-            new { Name = "Name",        Header = "اسم المجموعة", Fill = 30, Min = 200 },
-            new { Name = "Description", Header = "الوصف",        Fill = 45, Min = 250 },
-            new { Name = "IsActive",    Header = "نشط",          Fill = 8,  Min = 60  },
-        };
-
-        foreach (var col in columns)
-        {
-            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = col.Name,
-                HeaderText = col.Header,
-                DataPropertyName = col.Name,
-                MinimumWidth = col.Min,
-                FillWeight = col.Fill,
-                ReadOnly = true,
-            });
-        }
-
-        ApplyDevColumns();
-    }
-
-    /// <summary>عرض أسماء أعمدة الشبكة — للتطوير فقط (وضع البيانات التجريبية).</summary>
-    private void ApplyDevColumns()
-    {
-        if (SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
-        {
-            lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", dgvCategories.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText));
-            lblDevColumns.Visible = true;
-        }
-    }
-
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmCategoryMaster_Load(object? sender, EventArgs e)
@@ -100,7 +60,6 @@ public partial class frmCategoryMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            _SetupGridColumns();
             await _LoadCategoriesAsync();
             _ResetForm();
         }

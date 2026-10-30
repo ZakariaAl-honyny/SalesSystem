@@ -42,10 +42,16 @@ partial class frmProductUnitMaster
         btnClose = new Button();
         pnlGrid = new Panel();
         dgvUnits = new DataGridView();
+        colId = new DataGridViewTextBoxColumn();
+        colUnitName = new DataGridViewTextBoxColumn();
+        colBarcode = new DataGridViewTextBoxColumn();
+        colConversionFactor = new DataGridViewTextBoxColumn();
+        colSalePrice = new DataGridViewTextBoxColumn();
+        colCostPrice = new DataGridViewTextBoxColumn();
+        colIsBaseUnit = new DataGridViewCheckBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        lblDevColumns = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlFieldsRow1.SuspendLayout();
@@ -349,7 +355,6 @@ partial class frmProductUnitMaster
         // 
         pnlGrid.Controls.Add(dgvUnits);
         pnlGrid.Controls.Add(pnlFilter);
-        pnlGrid.Controls.Add(lblDevColumns);
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 242);
         pnlGrid.Name = "pnlGrid";
@@ -365,6 +370,7 @@ partial class frmProductUnitMaster
         dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvUnits.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colId, colUnitName, colBarcode, colConversionFactor, colSalePrice, colCostPrice, colIsBaseUnit });
         dgvUnits.Dock = DockStyle.Fill;
         dgvUnits.Font = new Font("Tahoma", 10F);
         dgvUnits.Location = new Point(10, 50);
@@ -376,6 +382,75 @@ partial class frmProductUnitMaster
         dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvUnits.Size = new Size(1180, 398);
         dgvUnits.TabIndex = 0;
+        // 
+        // colId
+        // 
+        colId.DataPropertyName = "Id";
+        colId.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
+        colId.FillWeight = 8F;
+        colId.HeaderText = "رقم الوحدة";
+        colId.MinimumWidth = 90;
+        colId.Name = "colId";
+        colId.ReadOnly = true;
+        // 
+        // colUnitName
+        // 
+        colUnitName.DataPropertyName = "UnitName";
+        colUnitName.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
+        colUnitName.FillWeight = 18F;
+        colUnitName.HeaderText = "الوحدة";
+        colUnitName.MinimumWidth = 130;
+        colUnitName.Name = "colUnitName";
+        colUnitName.ReadOnly = true;
+        // 
+        // colBarcode
+        // 
+        colBarcode.DataPropertyName = "Barcode";
+        colBarcode.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
+        colBarcode.FillWeight = 16F;
+        colBarcode.HeaderText = "الباركود";
+        colBarcode.MinimumWidth = 130;
+        colBarcode.Name = "colBarcode";
+        colBarcode.ReadOnly = true;
+        // 
+        // colConversionFactor
+        // 
+        colConversionFactor.DataPropertyName = "ConversionFactor";
+        colConversionFactor.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "N3" };
+        colConversionFactor.FillWeight = 12F;
+        colConversionFactor.HeaderText = "معامل التحويل";
+        colConversionFactor.MinimumWidth = 110;
+        colConversionFactor.Name = "colConversionFactor";
+        colConversionFactor.ReadOnly = true;
+        // 
+        // colSalePrice
+        // 
+        colSalePrice.DataPropertyName = "SalePrice";
+        colSalePrice.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "N2" };
+        colSalePrice.FillWeight = 13F;
+        colSalePrice.HeaderText = "سعر البيع";
+        colSalePrice.MinimumWidth = 110;
+        colSalePrice.Name = "colSalePrice";
+        colSalePrice.ReadOnly = true;
+        // 
+        // colCostPrice
+        // 
+        colCostPrice.DataPropertyName = "CostPrice";
+        colCostPrice.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "N2" };
+        colCostPrice.FillWeight = 13F;
+        colCostPrice.HeaderText = "سعر التكلفة";
+        colCostPrice.MinimumWidth = 110;
+        colCostPrice.Name = "colCostPrice";
+        colCostPrice.ReadOnly = true;
+        // 
+        // colIsBaseUnit
+        // 
+        colIsBaseUnit.DataPropertyName = "IsBaseUnit";
+        colIsBaseUnit.FillWeight = 10F;
+        colIsBaseUnit.HeaderText = "الوحدة الأساسية";
+        colIsBaseUnit.MinimumWidth = 110;
+        colIsBaseUnit.Name = "colIsBaseUnit";
+        colIsBaseUnit.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -404,18 +479,6 @@ partial class frmProductUnitMaster
         lblSearch.Size = new Size(56, 24);
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
-        // 
-        // lblDevColumns
-        // 
-        lblDevColumns.Dock = DockStyle.Bottom;
-        lblDevColumns.Font = new Font("Tahoma", 9F);
-        lblDevColumns.ForeColor = Color.DimGray;
-        lblDevColumns.Location = new Point(10, 426);
-        lblDevColumns.Name = "lblDevColumns";
-        lblDevColumns.Size = new Size(1180, 22);
-        lblDevColumns.TabIndex = 2;
-        lblDevColumns.Text = "الأعمدة:";
-        lblDevColumns.Visible = false;
         // 
         // errorProvider
         // 
@@ -486,9 +549,15 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvUnits;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colUnitName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colBarcode;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colConversionFactor;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colSalePrice;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colCostPrice;
+    private System.Windows.Forms.DataGridViewCheckBoxColumn colIsBaseUnit;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.Label lblDevColumns;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

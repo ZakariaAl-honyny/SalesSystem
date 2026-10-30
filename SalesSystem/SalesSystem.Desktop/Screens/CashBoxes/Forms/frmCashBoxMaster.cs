@@ -53,47 +53,6 @@ public partial class frmCashBoxMaster : Form
         dgvCashBoxes.CellClick += dgvCashBoxes_CellClick;
     }
 
-    // ── Grid Setup ────────────────────────────────────────────────────────────
-
-    private void _SetupGridColumns()
-    {
-        dgvCashBoxes.Columns.Clear();
-
-        var columns = new[]
-        {
-            new { Name = "Id",          Header = "رقم الصندوق", Fill = 8,  Min = 90  },
-            new { Name = "Name",        Header = "اسم الصندوق", Fill = 26, Min = 200 },
-            new { Name = "Description", Header = "الوصف",       Fill = 34, Min = 220 },
-            new { Name = "AccountName", Header = "الحساب",      Fill = 24, Min = 180 },
-            new { Name = "IsActive",    Header = "نشط",         Fill = 8,  Min = 60  },
-        };
-
-        foreach (var col in columns)
-        {
-            dgvCashBoxes.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = col.Name,
-                HeaderText = col.Header,
-                DataPropertyName = col.Name,
-                MinimumWidth = col.Min,
-                FillWeight = col.Fill,
-                ReadOnly = true,
-            });
-        }
-
-        ApplyDevColumns();
-    }
-
-    /// <summary>عرض أسماء أعمدة الشبكة — للتطوير فقط (وضع البيانات التجريبية).</summary>
-    private void ApplyDevColumns()
-    {
-        if (SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
-        {
-            lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", dgvCashBoxes.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText));
-            lblDevColumns.Visible = true;
-        }
-    }
-
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmCashBoxMaster_Load(object? sender, EventArgs e)
@@ -101,7 +60,6 @@ public partial class frmCashBoxMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            _SetupGridColumns();
             await _LoadCashBoxesAsync();
             _ResetForm();
         }

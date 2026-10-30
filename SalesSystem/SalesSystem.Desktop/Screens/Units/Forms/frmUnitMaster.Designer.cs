@@ -30,10 +30,13 @@ partial class frmUnitMaster
         btnDelete = new Button();
         pnlGrid = new Panel();
         dgvUnits = new DataGridView();
+        colId = new DataGridViewTextBoxColumn();
+        colName = new DataGridViewTextBoxColumn();
+        colSymbol = new DataGridViewTextBoxColumn();
+        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        lblDevColumns = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -180,9 +183,11 @@ partial class frmUnitMaster
         // 
         dgvUnits.AllowUserToAddRows = false;
         dgvUnits.AllowUserToDeleteRows = false;
+        dgvUnits.AutoGenerateColumns = false;
         dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvUnits.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colSymbol, colIsActive });
         dgvUnits.Dock = DockStyle.Fill;
         dgvUnits.Location = new Point(10, 50);
         dgvUnits.MultiSelect = false;
@@ -193,6 +198,42 @@ partial class frmUnitMaster
         dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvUnits.Size = new Size(880, 330);
         dgvUnits.TabIndex = 0;
+        // 
+        // colId
+        // 
+        colId.DataPropertyName = "Id";
+        colId.FillWeight = 10F;
+        colId.HeaderText = "رقم الوحدة";
+        colId.MinimumWidth = 80;
+        colId.Name = "colId";
+        colId.ReadOnly = true;
+        // 
+        // colName
+        // 
+        colName.DataPropertyName = "Name";
+        colName.FillWeight = 50F;
+        colName.HeaderText = "اسم الوحدة";
+        colName.MinimumWidth = 220;
+        colName.Name = "colName";
+        colName.ReadOnly = true;
+        // 
+        // colSymbol
+        // 
+        colSymbol.DataPropertyName = "Symbol";
+        colSymbol.FillWeight = 25F;
+        colSymbol.HeaderText = "الرمز";
+        colSymbol.MinimumWidth = 120;
+        colSymbol.Name = "colSymbol";
+        colSymbol.ReadOnly = true;
+        // 
+        // colIsActive
+        // 
+        colIsActive.DataPropertyName = "IsActive";
+        colIsActive.FillWeight = 10F;
+        colIsActive.HeaderText = "نشط";
+        colIsActive.MinimumWidth = 60;
+        colIsActive.Name = "colIsActive";
+        colIsActive.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -220,19 +261,6 @@ partial class frmUnitMaster
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
         // 
-        // lblDevColumns
-        // 
-        lblDevColumns.AutoSize = false;
-        lblDevColumns.Dock = DockStyle.Bottom;
-        lblDevColumns.Font = new Font("Tahoma", 9F);
-        lblDevColumns.ForeColor = SystemColors.GrayText;
-        lblDevColumns.Height = 22;
-        lblDevColumns.Name = "lblDevColumns";
-        lblDevColumns.Size = new Size(900, 22);
-        lblDevColumns.TabIndex = 99;
-        lblDevColumns.TextAlign = ContentAlignment.MiddleLeft;
-        lblDevColumns.Visible = false;
-        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -248,7 +276,6 @@ partial class frmUnitMaster
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
-        Controls.Add(lblDevColumns);
         Font = new Font("Tahoma", 10F);
         Name = "frmUnitMaster";
         RightToLeft = RightToLeft.Yes;
@@ -280,9 +307,12 @@ partial class frmUnitMaster
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvUnits;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colSymbol;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.Label lblDevColumns;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

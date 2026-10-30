@@ -54,47 +54,6 @@ public partial class frmCustomerMaster : Form
         dgvCustomers.CellClick += dgvCustomers_CellClick;
     }
 
-    // ── Grid Setup ────────────────────────────────────────────────────────────
-
-    private void _SetupGridColumns()
-    {
-        dgvCustomers.Columns.Clear();
-
-        var columns = new[]
-        {
-            new { Name = "Id",          Header = "رقم العميل",  Fill = 8,  Min = 90  },
-            new { Name = "Name",        Header = "اسم العميل",  Fill = 40, Min = 220 },
-            new { Name = "Phone",       Header = "الهاتف",      Fill = 20, Min = 130 },
-            new { Name = "CreditLimit", Header = "حد الائتمان", Fill = 20, Min = 130 },
-            new { Name = "IsActive",    Header = "نشط",         Fill = 8,  Min = 60  },
-        };
-
-        foreach (var col in columns)
-        {
-            dgvCustomers.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = col.Name,
-                HeaderText = col.Header,
-                DataPropertyName = col.Name,
-                MinimumWidth = col.Min,
-                FillWeight = col.Fill,
-                ReadOnly = true,
-            });
-        }
-
-        ApplyDevColumns();
-    }
-
-    /// <summary>عرض أسماء أعمدة الشبكة — للتطوير فقط (وضع البيانات التجريبية).</summary>
-    private void ApplyDevColumns()
-    {
-        if (SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
-        {
-            lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", dgvCustomers.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText));
-            lblDevColumns.Visible = true;
-        }
-    }
-
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmCustomerMaster_Load(object? sender, EventArgs e)
@@ -102,7 +61,6 @@ public partial class frmCustomerMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            _SetupGridColumns();
             await _LoadCustomersAsync();
             _ResetForm();
         }

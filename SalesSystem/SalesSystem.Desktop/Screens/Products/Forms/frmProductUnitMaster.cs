@@ -77,68 +77,6 @@ public partial class frmProductUnitMaster : Form
         dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
     }
 
-    // ── Grid Setup ────────────────────────────────────────────────────────────
-
-    private void _SetupGridColumns()
-    {
-        dgvUnits.Columns.Clear();
-        dgvUnits.AutoGenerateColumns = false;
-
-        var columns = new[]
-        {
-            new { Name = "Id",               Header = "رقم الوحدة",      Fill = 8,  Min = 90,  Format = "" },
-            new { Name = "UnitName",         Header = "الوحدة",         Fill = 18, Min = 130, Format = "" },
-            new { Name = "Barcode",          Header = "الباركود",       Fill = 16, Min = 130, Format = "" },
-            new { Name = "ConversionFactor", Header = "معامل التحويل",  Fill = 12, Min = 110, Format = "N3" },
-            new { Name = "SalePrice",        Header = "سعر البيع",      Fill = 13, Min = 110, Format = "N2" },
-            new { Name = "CostPrice",        Header = "سعر التكلفة",    Fill = 13, Min = 110, Format = "N2" },
-        };
-
-        foreach (var col in columns)
-        {
-            var cellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
-            if (!string.IsNullOrEmpty(col.Format))
-                cellStyle.Format = col.Format;
-
-            dgvUnits.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = col.Name,
-                HeaderText = col.Header,
-                DataPropertyName = col.Name,
-                MinimumWidth = col.Min,
-                FillWeight = col.Fill,
-                ReadOnly = true,
-                DefaultCellStyle = cellStyle,
-            });
-        }
-
-        dgvUnits.Columns.Add(new DataGridViewCheckBoxColumn
-        {
-            Name = "IsBaseUnit",
-            HeaderText = "الوحدة الأساسية",
-            DataPropertyName = "IsBaseUnit",
-            MinimumWidth = 110,
-            FillWeight = 10,
-            ReadOnly = true,
-        });
-
-        ApplyDevColumns();
-    }
-
-    /// <summary>يعرض أسماء أعمدة الشبكة في شريط سفلي — في وضع التجربة (Mock) فقط.</summary>
-    private void ApplyDevColumns()
-    {
-        if (!SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
-            return;
-
-        var headers = new List<string>();
-        foreach (DataGridViewColumn column in dgvUnits.Columns)
-            headers.Add(column.HeaderText);
-
-        lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", headers);
-        lblDevColumns.Visible = true;
-    }
-
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmProductUnitMaster_Load(object? sender, EventArgs e)
@@ -146,7 +84,6 @@ public partial class frmProductUnitMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            _SetupGridColumns();
             await _LoadUnitLookupAsync();
             await _LoadUnitsAsync();
             _ResetForm();

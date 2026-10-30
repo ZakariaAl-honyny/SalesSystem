@@ -65,52 +65,6 @@ public partial class frmProductMaster : Form
         cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
     }
 
-    // ── Grid Setup ────────────────────────────────────────────────────────────
-
-    private void _SetupGridColumns()
-    {
-        dgvProducts.Columns.Clear();
-
-        var columns = new[]
-        {
-            new { Name = "Id",            Header = "رقم الصنف",        Fill = 7,  Min = 80  },
-            new { Name = "Name",          Header = "اسم الصنف",        Fill = 22, Min = 200 },
-            new { Name = "CategoryName",  Header = "المجموعة",         Fill = 12, Min = 120 },
-            new { Name = "Barcode",       Header = "الباركود",         Fill = 12, Min = 110 },
-            new { Name = "ReorderLevel",  Header = "نقطة إعادة الطلب", Fill = 10, Min = 110 },
-            new { Name = "IsActive",      Header = "نشط",              Fill = 6,  Min = 60  },
-        };
-
-        foreach (var col in columns)
-        {
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = col.Name,
-                HeaderText = col.Header,
-                DataPropertyName = col.Name,
-                MinimumWidth = col.Min,
-                FillWeight = col.Fill,
-                ReadOnly = true,
-            });
-        }
-
-        ApplyDevColumns();
-    }
-
-    /// <summary>يعرض أسماء أعمدة الشبكة في شريط سفلي — في وضع التجربة (Mock) فقط.</summary>
-    private void ApplyDevColumns()
-    {
-        if (!SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
-            return;
-
-        var headers = new List<string>();
-        foreach (DataGridViewColumn column in dgvProducts.Columns)
-            headers.Add(column.HeaderText);
-
-        lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", headers);
-        lblDevColumns.Visible = true;
-    }
-
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmProductMaster_Load(object? sender, EventArgs e)
@@ -118,7 +72,6 @@ public partial class frmProductMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            _SetupGridColumns();
             await _LoadCategoriesAsync();
             await _LoadUnitLookupAsync();
             await _LoadProductsAsync();

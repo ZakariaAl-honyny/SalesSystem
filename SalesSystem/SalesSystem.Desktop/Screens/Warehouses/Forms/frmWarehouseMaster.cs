@@ -55,47 +55,6 @@ public partial class frmWarehouseMaster : Form
         dgvWarehouses.CellClick += dgvWarehouses_CellClick;
     }
 
-    // ── Grid Setup ────────────────────────────────────────────────────────────
-
-    private void _SetupGridColumns()
-    {
-        dgvWarehouses.Columns.Clear();
-
-        var columns = new[]
-        {
-            new { Name = "Id",       Header = "رقم المخزن", Fill = 8,  Min = 80  },
-            new { Name = "Name",     Header = "اسم المخزن", Fill = 24, Min = 200 },
-            new { Name = "Phone",    Header = "الهاتف",     Fill = 14, Min = 130 },
-            new { Name = "Address",  Header = "العنوان",    Fill = 32, Min = 200 },
-            new { Name = "IsActive", Header = "نشط",        Fill = 8,  Min = 60  },
-        };
-
-        foreach (var col in columns)
-        {
-            dgvWarehouses.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = col.Name,
-                HeaderText = col.Header,
-                DataPropertyName = col.Name,
-                MinimumWidth = col.Min,
-                FillWeight = col.Fill,
-                ReadOnly = true,
-            });
-        }
-
-        ApplyDevColumns();
-    }
-
-    /// <summary>عرض أسماء أعمدة الشبكة — للتطوير فقط (وضع البيانات التجريبية).</summary>
-    private void ApplyDevColumns()
-    {
-        if (SalesSystem.Desktop.Configuration.AppSettings.Current.UseMockData)
-        {
-            lblDevColumns.Text = "الأعمدة: " + string.Join(" | ", dgvWarehouses.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText));
-            lblDevColumns.Visible = true;
-        }
-    }
-
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmWarehouseMaster_Load(object? sender, EventArgs e)
@@ -103,7 +62,6 @@ public partial class frmWarehouseMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            _SetupGridColumns();
             await _LoadWarehousesAsync();
             _ResetForm();
         }

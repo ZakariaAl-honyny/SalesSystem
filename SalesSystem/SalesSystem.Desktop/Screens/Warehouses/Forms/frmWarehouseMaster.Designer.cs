@@ -35,10 +35,14 @@ partial class frmWarehouseMaster
         btnSetDefault = new Button();
         pnlGrid = new Panel();
         dgvWarehouses = new DataGridView();
+        colId = new DataGridViewTextBoxColumn();
+        colName = new DataGridViewTextBoxColumn();
+        colPhone = new DataGridViewTextBoxColumn();
+        colAddress = new DataGridViewTextBoxColumn();
+        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        lblDevColumns = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -235,9 +239,11 @@ partial class frmWarehouseMaster
         // 
         dgvWarehouses.AllowUserToAddRows = false;
         dgvWarehouses.AllowUserToDeleteRows = false;
+        dgvWarehouses.AutoGenerateColumns = false;
         dgvWarehouses.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvWarehouses.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvWarehouses.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvWarehouses.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colPhone, colAddress, colIsActive });
         dgvWarehouses.Dock = DockStyle.Fill;
         dgvWarehouses.Location = new Point(10, 50);
         dgvWarehouses.MultiSelect = false;
@@ -248,6 +254,51 @@ partial class frmWarehouseMaster
         dgvWarehouses.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvWarehouses.Size = new Size(1412, 350);
         dgvWarehouses.TabIndex = 0;
+        // 
+        // colId
+        // 
+        colId.DataPropertyName = "Id";
+        colId.FillWeight = 8F;
+        colId.HeaderText = "رقم المخزن";
+        colId.MinimumWidth = 80;
+        colId.Name = "colId";
+        colId.ReadOnly = true;
+        // 
+        // colName
+        // 
+        colName.DataPropertyName = "Name";
+        colName.FillWeight = 24F;
+        colName.HeaderText = "اسم المخزن";
+        colName.MinimumWidth = 200;
+        colName.Name = "colName";
+        colName.ReadOnly = true;
+        // 
+        // colPhone
+        // 
+        colPhone.DataPropertyName = "Phone";
+        colPhone.FillWeight = 14F;
+        colPhone.HeaderText = "الهاتف";
+        colPhone.MinimumWidth = 130;
+        colPhone.Name = "colPhone";
+        colPhone.ReadOnly = true;
+        // 
+        // colAddress
+        // 
+        colAddress.DataPropertyName = "Address";
+        colAddress.FillWeight = 32F;
+        colAddress.HeaderText = "العنوان";
+        colAddress.MinimumWidth = 200;
+        colAddress.Name = "colAddress";
+        colAddress.ReadOnly = true;
+        // 
+        // colIsActive
+        // 
+        colIsActive.DataPropertyName = "IsActive";
+        colIsActive.FillWeight = 8F;
+        colIsActive.HeaderText = "نشط";
+        colIsActive.MinimumWidth = 60;
+        colIsActive.Name = "colIsActive";
+        colIsActive.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -275,19 +326,6 @@ partial class frmWarehouseMaster
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
         // 
-        // lblDevColumns
-        // 
-        lblDevColumns.AutoSize = false;
-        lblDevColumns.Dock = DockStyle.Bottom;
-        lblDevColumns.Font = new Font("Tahoma", 9F);
-        lblDevColumns.ForeColor = SystemColors.GrayText;
-        lblDevColumns.Height = 22;
-        lblDevColumns.Name = "lblDevColumns";
-        lblDevColumns.Size = new Size(1432, 22);
-        lblDevColumns.TabIndex = 99;
-        lblDevColumns.TextAlign = ContentAlignment.MiddleLeft;
-        lblDevColumns.Visible = false;
-        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -303,7 +341,6 @@ partial class frmWarehouseMaster
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
-        Controls.Add(lblDevColumns);
         Font = new Font("Tahoma", 10F);
         Name = "frmWarehouseMaster";
         RightToLeft = RightToLeft.Yes;
@@ -340,9 +377,13 @@ partial class frmWarehouseMaster
     private System.Windows.Forms.Button btnSetDefault;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvWarehouses;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colPhone;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colAddress;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.Label lblDevColumns;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

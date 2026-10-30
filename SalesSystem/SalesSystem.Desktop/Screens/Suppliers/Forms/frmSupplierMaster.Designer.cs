@@ -40,10 +40,14 @@ partial class frmSupplierMaster
         btnDelete = new Button();
         pnlGrid = new Panel();
         dgvSuppliers = new DataGridView();
+        colId = new DataGridViewTextBoxColumn();
+        colName = new DataGridViewTextBoxColumn();
+        colPhone = new DataGridViewTextBoxColumn();
+        colCreditLimit = new DataGridViewTextBoxColumn();
+        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        lblDevColumns = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numCreditLimit).BeginInit();
@@ -286,9 +290,11 @@ partial class frmSupplierMaster
         // 
         dgvSuppliers.AllowUserToAddRows = false;
         dgvSuppliers.AllowUserToDeleteRows = false;
+        dgvSuppliers.AutoGenerateColumns = false;
         dgvSuppliers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvSuppliers.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvSuppliers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvSuppliers.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colPhone, colCreditLimit, colIsActive });
         dgvSuppliers.Dock = DockStyle.Fill;
         dgvSuppliers.Location = new Point(10, 50);
         dgvSuppliers.MultiSelect = false;
@@ -299,6 +305,51 @@ partial class frmSupplierMaster
         dgvSuppliers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvSuppliers.Size = new Size(1412, 280);
         dgvSuppliers.TabIndex = 0;
+        // 
+        // colId
+        // 
+        colId.DataPropertyName = "Id";
+        colId.FillWeight = 8F;
+        colId.HeaderText = "رقم المورد";
+        colId.MinimumWidth = 90;
+        colId.Name = "colId";
+        colId.ReadOnly = true;
+        // 
+        // colName
+        // 
+        colName.DataPropertyName = "Name";
+        colName.FillWeight = 40F;
+        colName.HeaderText = "اسم المورد";
+        colName.MinimumWidth = 220;
+        colName.Name = "colName";
+        colName.ReadOnly = true;
+        // 
+        // colPhone
+        // 
+        colPhone.DataPropertyName = "Phone";
+        colPhone.FillWeight = 20F;
+        colPhone.HeaderText = "الهاتف";
+        colPhone.MinimumWidth = 130;
+        colPhone.Name = "colPhone";
+        colPhone.ReadOnly = true;
+        // 
+        // colCreditLimit
+        // 
+        colCreditLimit.DataPropertyName = "CreditLimit";
+        colCreditLimit.FillWeight = 20F;
+        colCreditLimit.HeaderText = "حد الائتمان";
+        colCreditLimit.MinimumWidth = 130;
+        colCreditLimit.Name = "colCreditLimit";
+        colCreditLimit.ReadOnly = true;
+        // 
+        // colIsActive
+        // 
+        colIsActive.DataPropertyName = "IsActive";
+        colIsActive.FillWeight = 8F;
+        colIsActive.HeaderText = "نشط";
+        colIsActive.MinimumWidth = 60;
+        colIsActive.Name = "colIsActive";
+        colIsActive.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -327,19 +378,6 @@ partial class frmSupplierMaster
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
         // 
-        // lblDevColumns
-        // 
-        lblDevColumns.AutoSize = false;
-        lblDevColumns.Dock = DockStyle.Bottom;
-        lblDevColumns.Font = new Font("Tahoma", 9F);
-        lblDevColumns.ForeColor = SystemColors.GrayText;
-        lblDevColumns.Height = 22;
-        lblDevColumns.Name = "lblDevColumns";
-        lblDevColumns.Size = new Size(1432, 22);
-        lblDevColumns.TabIndex = 99;
-        lblDevColumns.TextAlign = ContentAlignment.MiddleLeft;
-        lblDevColumns.Visible = false;
-        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -355,7 +393,6 @@ partial class frmSupplierMaster
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
-        Controls.Add(lblDevColumns);
         Font = new Font("Tahoma", 10F);
         Name = "frmSupplierMaster";
         RightToLeft = RightToLeft.Yes;
@@ -398,9 +435,13 @@ partial class frmSupplierMaster
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvSuppliers;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colPhone;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colCreditLimit;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.Label lblDevColumns;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

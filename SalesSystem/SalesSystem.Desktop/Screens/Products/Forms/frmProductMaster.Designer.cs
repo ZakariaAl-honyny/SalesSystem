@@ -52,10 +52,15 @@ partial class frmProductMaster
         btnManageUnits = new Button();
         pnlGrid = new Panel();
         dgvProducts = new DataGridView();
+        colId = new DataGridViewTextBoxColumn();
+        colName = new DataGridViewTextBoxColumn();
+        colCategoryName = new DataGridViewTextBoxColumn();
+        colBarcode = new DataGridViewTextBoxColumn();
+        colReorderLevel = new DataGridViewTextBoxColumn();
+        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        lblDevColumns = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
@@ -407,7 +412,6 @@ partial class frmProductMaster
         // 
         pnlGrid.Controls.Add(dgvProducts);
         pnlGrid.Controls.Add(pnlFilter);
-        pnlGrid.Controls.Add(lblDevColumns);
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 310);
         pnlGrid.Name = "pnlGrid";
@@ -419,9 +423,11 @@ partial class frmProductMaster
         // 
         dgvProducts.AllowUserToAddRows = false;
         dgvProducts.AllowUserToDeleteRows = false;
+        dgvProducts.AutoGenerateColumns = false;
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategoryName, colBarcode, colReorderLevel, colIsActive });
         dgvProducts.Dock = DockStyle.Fill;
         dgvProducts.Location = new Point(10, 50);
         dgvProducts.MultiSelect = false;
@@ -432,6 +438,60 @@ partial class frmProductMaster
         dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvProducts.Size = new Size(1412, 300);
         dgvProducts.TabIndex = 0;
+        // 
+        // colId
+        // 
+        colId.DataPropertyName = "Id";
+        colId.FillWeight = 7F;
+        colId.HeaderText = "رقم الصنف";
+        colId.MinimumWidth = 80;
+        colId.Name = "colId";
+        colId.ReadOnly = true;
+        // 
+        // colName
+        // 
+        colName.DataPropertyName = "Name";
+        colName.FillWeight = 22F;
+        colName.HeaderText = "اسم الصنف";
+        colName.MinimumWidth = 200;
+        colName.Name = "colName";
+        colName.ReadOnly = true;
+        // 
+        // colCategoryName
+        // 
+        colCategoryName.DataPropertyName = "CategoryName";
+        colCategoryName.FillWeight = 12F;
+        colCategoryName.HeaderText = "المجموعة";
+        colCategoryName.MinimumWidth = 120;
+        colCategoryName.Name = "colCategoryName";
+        colCategoryName.ReadOnly = true;
+        // 
+        // colBarcode
+        // 
+        colBarcode.DataPropertyName = "Barcode";
+        colBarcode.FillWeight = 12F;
+        colBarcode.HeaderText = "الباركود";
+        colBarcode.MinimumWidth = 110;
+        colBarcode.Name = "colBarcode";
+        colBarcode.ReadOnly = true;
+        // 
+        // colReorderLevel
+        // 
+        colReorderLevel.DataPropertyName = "ReorderLevel";
+        colReorderLevel.FillWeight = 10F;
+        colReorderLevel.HeaderText = "نقطة إعادة الطلب";
+        colReorderLevel.MinimumWidth = 110;
+        colReorderLevel.Name = "colReorderLevel";
+        colReorderLevel.ReadOnly = true;
+        // 
+        // colIsActive
+        // 
+        colIsActive.DataPropertyName = "IsActive";
+        colIsActive.FillWeight = 6F;
+        colIsActive.HeaderText = "نشط";
+        colIsActive.MinimumWidth = 60;
+        colIsActive.Name = "colIsActive";
+        colIsActive.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -463,18 +523,6 @@ partial class frmProductMaster
         // 
         errorProvider.ContainerControl = this;
         errorProvider.RightToLeft = true;
-        // 
-        // lblDevColumns
-        // 
-        lblDevColumns.Dock = DockStyle.Bottom;
-        lblDevColumns.Font = new Font("Tahoma", 9F);
-        lblDevColumns.ForeColor = Color.DimGray;
-        lblDevColumns.Location = new Point(10, 328);
-        lblDevColumns.Name = "lblDevColumns";
-        lblDevColumns.Size = new Size(1412, 22);
-        lblDevColumns.TabIndex = 2;
-        lblDevColumns.Text = "الأعمدة:";
-        lblDevColumns.Visible = false;
         // 
         // frmProductMaster
         // 
@@ -549,10 +597,15 @@ partial class frmProductMaster
     private System.Windows.Forms.Button btnManageUnits;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvProducts;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colCategoryName;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colBarcode;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colReorderLevel;
+    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.Label lblDevColumns;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }
 
