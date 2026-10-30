@@ -19,6 +19,7 @@ public interface IProductService
     Task<Result<ProductDto>> UpdateAsync(int id, UpdateProductRequest request, CancellationToken ct);
     Task<Result> DeleteAsync(int id, CancellationToken ct);
     Task<Result> PermanentDeleteAsync(int id, CancellationToken ct);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
     Task<Result<ProductDto>> GetByBarcodeAsync(string barcode, CancellationToken ct);
 
     /// <summary>

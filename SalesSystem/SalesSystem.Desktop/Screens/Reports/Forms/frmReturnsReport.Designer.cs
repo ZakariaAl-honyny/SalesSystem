@@ -42,7 +42,7 @@ partial class frmReturnsReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "طھظ‚ط±ظٹط± ط§ظ„ظ…ط±طھط¬ط¹ط§طھ";
+        lblMode.Text = "تقرير المرتجعات";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -77,7 +77,7 @@ partial class frmReturnsReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(173, 40);
         btnRefresh.TabIndex = 5;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -96,7 +96,7 @@ partial class frmReturnsReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(173, 40);
         btnExport.TabIndex = 6;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -113,7 +113,7 @@ partial class frmReturnsReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(170, 45);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -127,7 +127,7 @@ partial class frmReturnsReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 3;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -191,7 +191,7 @@ partial class frmReturnsReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 9;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // label4
         // 
@@ -203,7 +203,7 @@ partial class frmReturnsReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 11;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // frmReturnsReport
         // 
@@ -223,7 +223,7 @@ partial class frmReturnsReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "طھظ‚ط±ظٹط± ط§ظ„ظ…ط±طھط¬ط¹ط§طھ";
+        Text = "تقرير المرتجعات";
         Load += frmReturnsReport_Load;
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);

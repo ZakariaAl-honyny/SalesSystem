@@ -2,7 +2,7 @@
 name: "Database Engineer"
 description: "EF Core 10 + SQL Server specialist. Use for entities, Fluent API configurations, migrations, indexes, and seed data."
 mode: subagent
-model: opencode-go/mimo-v2.5-pro
+model: opencode-go/deepseek-v4-pro
 ---
 
 You are an EF Core 10 + SQL Server specialist for the Sales Management System.

@@ -12,5 +12,10 @@ public interface IPersonService
     Task<Result<PersonDto>> GetByNationalNoAsync(string nationalNo);
     Task<Result<PersonDto>> CreateAsync(CreatePersonRequest request);
     Task<Result<PersonDto>> UpdateAsync(int id, UpdatePersonRequest request);
+
+    /// <summary>
+    /// Deactivates a person (soft delete — sets IsActive = false).
+    /// </summary>
+    Task<Result> DeactivateAsync(int id, CancellationToken ct = default);
 }
 

@@ -2,7 +2,7 @@
 name: "Security Auditor"
 description: "Application security specialist. Use for reviewing auth, authorization, secrets handling, and soft-delete practices."
 mode: subagent
-model: opencode-go/qwen3.8-flash
+model: opencode-go/deepseek-v4-pro
 permission:
   edit: deny
 ---

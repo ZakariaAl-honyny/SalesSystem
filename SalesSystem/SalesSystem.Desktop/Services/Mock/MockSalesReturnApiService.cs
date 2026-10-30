@@ -105,8 +105,9 @@ public class MockSalesReturnApiService : ISalesReturnApiService
             CashBoxName: null,
             RefundAmount: 0m,
             Items: items.AsReadOnly(),
-            BranchId: r.BranchId ?? 0,
-            Currency: "YER");
+            BranchId: r.BranchId ?? 0);
+
+        // TODO: Currency removed from SalesReturnDto — العملة تُحدد من إعدادات النظام.
 
         MockReturnsData.SalesReturns.Add(salesReturn);
         return Task.FromResult(Result<SalesReturnDto>.Success(salesReturn));

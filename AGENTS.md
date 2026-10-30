@@ -1,7 +1,7 @@
-# AGENTS.md — Sales Management System (v5.0.0 — N-Layer WinForms Edition)
+# AGENTS.md — Sales Management System (v5.0.0 — 2-Tier WinForms Edition)
 # READ THIS FILE FIRST — BEFORE WRITING ANY CODE
-# Platform: .NET 10 | N-Layer Architecture
-# ASP.NET Core 10 API + WinForms Desktop + SQL Server
+# Platform: .NET 10 | 2-Tier Architecture
+# WinForms Desktop + Business Logic Layer + SQL Server (no HTTP/API layer)
 
 ---
 
@@ -9,7 +9,7 @@
 
 A local desktop sales management system for small retail shops.
 
-**Solution Structure (8 Projects):**
+**Solution Structure (7 Projects):**
 
 ```text
 SalesSystem/
@@ -18,22 +18,21 @@ SalesSystem/
 ├── SalesSystem.DTO/          ← DTOs + Requests + Responses + Result<T>
 ├── SalesSystem.DataAccess/   ← EF Core + DbContext + Repositories + Migrations
 ├── SalesSystem.Business/     ← Business Logic Services (57 services)
-├── SalesSystem.API/          ← ASP.NET Core API + Controllers (59) + Validators
 ├── SalesSystem.Desktop/      ← WinForms Desktop (frm* forms)
 └── SalesSystem.Tests/        ← Tests
 ```
 
+> **No API project.** The former `SalesSystem.API/` (ASP.NET Core + Controllers + Validators) has been removed. The solution is 2-Tier: the Desktop host calls BLL services in-process.
+
 **Data Flow (NEVER break this chain):**
 
 ```text
-# CRUD / data screens (API path)
-Desktop (WinForms) → (HttpClient) → API Controllers → Business Services → DataAccess (EF Core) → SQL Server
-
-# Authentication + Reports (in-process BLL path)
-Desktop (WinForms) → Business Services → DataAccess (EF Core) → SQL Server
+Desktop (WinForms) → BLL Services → DataAccess (EF Core) → SQL Server
 ```
 
-The Desktop never accesses the database directly (no `DbContext`/EF/SQL in the Desktop project); it always goes through BLL services, either in-process or via the API.
+The Desktop never accesses the database directly (no `DbContext`/EF/SQL in the Desktop project); it always calls Business Layer services in-process.
+
+**Mock mode (UI-first testing):** when `AppSettings.UseMockData = true`, each `I*ApiService` is implemented by a `Mock*ApiService` (in `Services/Mock/`) backed by in-memory `MockData` — no database required. When `false`, the same interface is implemented by a `Direct*Service` (in `Services/Direct/`) that calls the BLL in-process.
 
 ---
 
@@ -97,15 +96,15 @@ public class Result<T> : Result
 
 | RULE | DO THIS | DON'T DO THIS |
 |------|---------|---------------|
-| RULE-007 | CRUD/data screens call the API via `HttpClient`; auth + reports call BLL in-process | Desktop NEVER touches `DbContext`/EF/SQL directly |
-| RULE-022 | Controllers delegate to Services | Controllers NEVER have business logic |
+| RULE-007 | Desktop screens call the BLL in-process — through a `Direct*Service` wrapper, never `HttpClient` | Desktop NEVER touches `DbContext`/EF/SQL directly |
+| RULE-022 | `Direct*Service` wrappers translate DTOs only — all business logic lives in BLL services | `Direct*Service` NEVER contains business logic |
 | RULE-024 | Use `IUnitOfWork` for multi-table ops | NEVER use raw DbContext in Services |
 
 ### 2.7 Stock Integrity
 
 `WarehouseStocks.Quantity` has `CHECK (Quantity >= 0)`. Record EVERY stock change in `InventoryTransactions`.
 
-### 2.8 Desktop WinForms Patterns (N-Layer)
+### 2.8 Desktop WinForms Patterns (2-Tier)
 
 | RULE | DIRECTIVE |
 |------|-----------|
@@ -113,12 +112,12 @@ public class Result<T> : Result
 | RULE-N02 | Forms are resolved via DI (`Program.ServiceProvider.GetRequiredService<T>()`) — NEVER `new frmXxx()` |
 | RULE-N03 | Forms receive `IServiceProvider` via constructor injection and resolve services with `_serviceProvider.GetRequiredService<T>()` |
 | RULE-N04 | Resolved services are exposed as typed properties (e.g., `private ICustomerApiService ApiService => _serviceProvider.GetRequiredService<ICustomerApiService>();`) |
-| RULE-N05 | ALL HTTP API services are in `Services/Http/` with interfaces in `Services/Interfaces/` |
-| RULE-N06 | API Services use `HttpClientService` via DI (`IHttpClientFactory` + `AuthTokenHandler`) |
+| RULE-N05 | `I*ApiService` interfaces live in `Services/Interfaces/`; real implementations (`Direct*Service`) live in `Services/Direct/`, mock implementations (`Mock*ApiService`) in `Services/Mock/` |
+| RULE-N06 | `Direct*Service` classes call BLL services in-process via constructor injection (e.g. `SalesSystem.Business.Interfaces.Services.ICustomerService`) — NEVER `HttpClient`, never HTTP |
 | RULE-N07 | Global exception handlers in `Program.cs`: `Application.ThreadException` + `AppDomain.CurrentDomain.UnhandledException` |
 | RULE-N08 | `MessageBox.Show` is the standard user feedback mechanism — use `MessageBoxIcon.Error`/`Information`/`Warning` appropriately |
 | RULE-N09 | Forms are shown modally via `ShowDialog()` — NEVER non-modal for data-entry screens |
-| RULE-N10 | Every API service interface + implementation pair registered in `Program.cs` DI container |
+| RULE-N10 | Every `I*ApiService` interface is registered in the `Program.cs` DI container — mapped to `Mock*ApiService` (mock mode) or `Direct*Service` (real mode) |
 
 **Service Resolution Pattern:**
 ```csharp
@@ -140,44 +139,32 @@ public partial class frmAddUpdateCustomer : Form
 
 **Program.cs DI Registration:**
 ```csharp
-// Http Services
-services.AddTransient<AuthTokenHandler>();
-services.AddHttpClient<HttpClientService>(client =>
-{
-    client.BaseAddress = new Uri(apiSettings.BaseUrl);
-}).AddHttpMessageHandler<AuthTokenHandler>();
-
-// API Services (CRUD / data screens)
-services.AddTransient<IAuthApiService, AuthApiService>();
-services.AddTransient<IUserApiService, UserApiService>();
-// ... all API services
+// DataAccess + Business Logic (2-Tier: Desktop calls BLL in-process)
+services.AddDbContext<SalesDbContext>(options =>
+    options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
+services.AddScoped<IUnitOfWork, UnitOfWork>();
+services.AddScoped<BizInterfaces.ICustomerService, BizServices.CustomerService>();
+// ... all BLL services
 
 // Mock / Real service toggle (switch UseMockData in appsettings.json)
 if (appSettings.UseMockData)
 {
-    services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
     services.AddTransient<ICustomerApiService, MockCustomerApiService>();
     services.AddTransient<IProductApiService, MockProductApiService>();
     services.AddTransient<IWarehouseApiService, MockWarehouseApiService>();
+    services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
     services.AddTransient<ISettingsApiService, MockSettingsApiService>();
     services.AddScoped<BizInterfaces.IAuthService, MockAuthService>();
 }
 else
 {
-    services.AddTransient<ISalesInvoiceApiService, SalesInvoiceApiService>();
-    services.AddTransient<ICustomerApiService, CustomerApiService>();
-    services.AddTransient<IProductApiService, ProductApiService>();
-    services.AddTransient<IWarehouseApiService, WarehouseApiService>();
-    services.AddTransient<ISettingsApiService, SettingsApiService>();
+    services.AddTransient<ICustomerApiService, DirectCustomerService>();
+    services.AddTransient<IProductApiService, DirectProductService>();
+    services.AddTransient<IWarehouseApiService, DirectWarehouseService>();
+    services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
+    services.AddTransient<ISettingsApiService, DirectSettingsService>();
     services.AddScoped<BizInterfaces.IAuthService, BizServices.AuthService>();
 }
-
-// DataAccess + Business Logic (in-process BLL path — auth + reports)
-services.AddDbContext<SalesDbContext>(options =>
-    options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
-services.AddScoped<IUnitOfWork, UnitOfWork>();
-services.AddScoped<BizInterfaces.IAccountService, BizServices.AccountService>();
-// ... all BLL services
 
 // Forms
 services.AddTransient<frmLogin>();
@@ -185,16 +172,17 @@ services.AddTransient<frmMain>();
 // ... all forms
 ```
 
-### 2.9 API Patterns
+### 2.9 Direct BLL Pattern
+
+There are no HTTP controllers, no routes, no JWT policies to configure for data screens. The Desktop communicates with the backend through thin `Direct*Service` wrappers.
 
 | RULE | DIRECTIVE |
 |------|-----------|
-| RULE-N11 | ALL controllers use `[Authorize]` attribute (except AuthController) |
-| RULE-N12 | Route prefix: `api/v1/[controller]` |
-| RULE-N13 | JWT auth with role-based policies: `AdminOnly` (role 1), `ManagerAndAbove` (roles 1,2), `AllStaff` (roles 1,2,3) |
-| RULE-N14 | FluentValidation on ALL Create/Update request DTOs |
-| RULE-N15 | Error responses return `Result.Failure` with Arabic message + ErrorCode |
-| RULE-N16 | `ExceptionMiddleware` catches all unhandled exceptions and returns structured JSON |
+| RULE-N11 | `Direct*Service` implements the `I*ApiService` interface and delegates to a single BLL service — no business logic of its own |
+| RULE-N12 | `Direct*Service` returns the BLL's `Result<T>` unchanged (or maps paged results to the interface's shape) — never rewraps error messages |
+| RULE-N13 | Every method passes `CancellationToken` through and supplies the current `UserId` from `ISessionService.Current?.UserId` where the BLL requires it |
+| RULE-N14 | Exceptions never escape a `Direct*Service` — BLL returns `Result<T>`; unexpected exceptions are returned as `Result.Failure` with an Arabic message |
+| RULE-N15 | FluentValidation (where used) lives in the BLL/validators — there is no API pipeline to run it |
 
 ### 2.10 Entity Base Classes
 
@@ -213,21 +201,16 @@ services.AddTransient<frmMain>();
 | `Microsoft.EntityFrameworkCore.SqlServer` 10.x | DataAccess |
 | `Microsoft.EntityFrameworkCore.Tools` 10.x | DataAccess |
 | `BCrypt.Net-Next` 4.x | DataAccess |
-| `FluentValidation.AspNetCore` 11.x | API |
-| `Serilog.AspNetCore` 8.x | API |
-| `Serilog.Sinks.File` 5.x | API + Desktop |
-| `Microsoft.AspNetCore.Authentication.JwtBearer` 10.x | API |
-| `Swashbuckle.AspNetCore` 6.x | API |
-| `Microsoft.Extensions.Http` 10.x | Desktop |
+| `Serilog.Sinks.File` 5.x | Desktop |
 | `System.Text.Json` 10.x | Desktop |
 | `ClosedXML` 0.102.x | Desktop (Excel export) |
 | `QuestPDF` 2024.3.x | DataAccess (A4 PDF) |
 | `SixLabors.ImageSharp` 3.1.x | DataAccess |
 | `System.Drawing.Common` 10.x | DataAccess |
 | `Microsoft.Extensions.Hosting` 10.x | Desktop |
-| `Microsoft.Extensions.Hosting.WindowsServices` 10.x | API |
 | `Microsoft.AspNetCore.DataProtection` 10.x | DataAccess |
-| `Serilog.Sinks.EventLog` 8.x | API |
+
+> The API-only packages (`FluentValidation.AspNetCore`, `Serilog.AspNetCore`, `Microsoft.AspNetCore.Authentication.JwtBearer`, `Swashbuckle.AspNetCore`, `Microsoft.Extensions.Hosting.WindowsServices`, `Serilog.Sinks.EventLog`) and `Microsoft.Extensions.Http` were removed with the API project.
 
 ### 2.12 WinForms UI Conventions
 
@@ -245,7 +228,7 @@ services.AddTransient<frmMain>();
 | RULE-N29 | Error messages log via Serilog, show `MessageBox.Show` to user |
 | RULE-N30 | Forms handle dispose pattern: `components?.Dispose()` in `Dispose(bool)` |
 
-### 2.13 Users & Permissions (N-Layer)
+### 2.13 Users & Permissions (2-Tier)
 
 | RULE | DIRECTIVE |
 |------|-----------|
@@ -257,10 +240,12 @@ services.AddTransient<frmMain>();
 | RULE-N36 | Password hashing via BCrypt (work factor 12) in service layer |
 | RULE-N37 | Lockout after 5 failed login attempts (`LoginAttempts >= 5 → IsLocked = true`) |
 
-### 2.14 API Service Interface Pattern
+### 2.14 Desktop Service Interface Pattern (`I*ApiService` → `Direct*Service`)
+
+Interfaces are **unchanged** by the shift to 2-Tier. The name `I*ApiService` is historical; the implementation is now a `Direct*Service` wrapper over the BLL (not HTTP).
 
 ```csharp
-// Interface (Services/Interfaces/)
+// Interface (Services/Interfaces/) — unchanged
 public interface IUserApiService
 {
     Task<Result<List<UserDto>>> GetAllAsync();
@@ -270,53 +255,69 @@ public interface IUserApiService
     Task<Result> DeleteAsync(int id);
     Task<Result> ResetPasswordAsync(int id, ResetPasswordRequest request);
 }
-
-// Implementation (Services/Http/)
-public class UserApiService : IUserApiService
-{
-    private readonly HttpClientService _http;
-    public UserApiService(HttpClientService http) => _http = http;
-    
-    public async Task<Result<List<UserDto>>> GetAllAsync()
-        => await _http.GetAsync<List<UserDto>>("api/v1/users");
-    // ...
-}
 ```
-
-### 2.15 Controller Pattern
 
 ```csharp
-[Authorize]
-[ApiController]
-[Route("api/v1/[controller]")]
-public class UsersController : ControllerBase
+// Implementation (Services/Direct/) — calls the BLL in-process
+using SalesSystem.Desktop.Services.Interfaces;
+using ISessionService = SalesSystem.Desktop.Services.Interfaces.ISessionService;
+using BizInterfaces = SalesSystem.Business.Interfaces.Services;
+
+namespace SalesSystem.Desktop.Services.Direct;
+
+public class DirectCustomerService : ICustomerApiService
 {
-    private readonly IUserService _userService;
-    
-    public UsersController(IUserService userService) => _userService = userService;
-    
-    [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    private readonly BizInterfaces.ICustomerService _customers;
+    private readonly ISessionService _session;
+
+    public DirectCustomerService(BizInterfaces.ICustomerService customers, ISessionService session)
     {
-        var result = await _userService.GetAllAsync(ct);
-        return result.IsSuccess ? Ok(result.Value) : BadRequest(new { error = result.Error });
+        _customers = customers;
+        _session = session;
     }
+
+    private int UserId => _session.Current?.UserId ?? 0;
+
+    public async Task<Result<IReadOnlyList<CustomerDto>>> GetAllAsync(
+        string? search = null, bool includeInactive = false, CancellationToken ct = default)
+    {
+        var result = await _customers.GetAllAsync(search, 1, 1000, includeInactive, ct);
+        return result.IsSuccess
+            ? Result<IReadOnlyList<CustomerDto>>.Success(result.Value!.Items.ToList())
+            : Result<IReadOnlyList<CustomerDto>>.Failure(result.Error!, result.ErrorCode);
+    }
+
+    public Task<Result<CustomerDto>> GetByIdAsync(int id, CancellationToken ct = default)
+        => _customers.GetByIdAsync(id, ct);
+
+    public Task<Result<CustomerDto>> CreateAsync(CreateCustomerRequest r, CancellationToken ct = default)
+        => _customers.CreateAsync(r, UserId, ct);
+
+    public Task<Result<CustomerDto>> UpdateAsync(int id, UpdateCustomerRequest r, CancellationToken ct = default)
+        => _customers.UpdateAsync(id, r, UserId, ct);
+
+    public Task<Result> DeactivateAsync(int id, CancellationToken ct = default)
+        => _customers.DeleteAsync(id, UserId, ct);
+
+    // ReactivateAsync / other members map to the remaining ICustomerService operations
 }
 ```
+
+> BLL interfaces live in `SalesSystem.Business.Interfaces.Services` (Aliased as `BizInterfaces`). Implementations are registered as `Scoped` BLL services in `Program.cs`.
 
 ### 2.16 Mock Data / UI-First Testing
 
-The Desktop app supports a mock-data mode so the UI can be built and tested before (or without) a running API and database.
+The Desktop app supports a mock-data mode so the UI can be built and tested without a database.
 
 | Aspect | Detail |
 |--------|--------|
 | Flag | `AppSettings.UseMockData` in `SalesSystem.Desktop/appsettings.json` (default `true`) |
-| Mock implementations | `SalesSystem.Desktop/Services/Mock/` — `MockAuthService` plus mock implementations of the API interfaces (`MockCustomerApiService`, `MockProductApiService`, `MockWarehouseApiService`, `MockSalesInvoiceApiService`, `MockSettingsApiService`) and shared `MockData` |
-| Switching | Set `UseMockData` to `true` (mock) or `false` (real API/DB) in `appsettings.json`; `Program.cs` registers the matching service set at startup |
+| Mock implementations | `SalesSystem.Desktop/Services/Mock/` — `MockAuthService` plus mock implementations of the `I*ApiService` interfaces (`MockCustomerApiService`, `MockProductApiService`, `MockWarehouseApiService`, `MockSalesInvoiceApiService`, `MockSettingsApiService`) and shared in-memory `MockData` |
+| Switching | Set `UseMockData` to `true` (mock) or `false` (real BLL/DB) in `appsettings.json`; `Program.cs` maps each `I*ApiService` to `Mock*ApiService` or `Direct*Service` at startup |
 | Indicator | `frmMain` appends `وضع التجربة (Mock)` to the title bar when mock mode is active |
-| Login | In mock mode, login accepts any credentials (no API/database required) |
+| Login | In mock mode, login accepts any credentials (no database required) |
 
-**Workflow rule:** Test UI/UX with mock data **before** wiring the real backend (UI-first). Mock mode requires no API or database running.
+**Workflow rule:** Test UI/UX with mock data **before** wiring the real BLL (UI-first). Mock mode requires no database and no server running.
 
 ---
 
@@ -357,7 +358,8 @@ public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Dam
 ❌ varchar (always use nvarchar for Arabic-supporting text)
 ❌ Console.WriteLine (use Serilog)
 ❌ Direct DB from Desktop
-❌ Business logic in Controllers
+❌ Desktop calling HttpClient / any HTTP endpoint — always call BLL services in-process
+❌ Business logic in `Direct*Service` wrappers (they delegate to BLL only)
 ❌ Throwing exceptions from Services (use Result<T>)
 ❌ Hard-deleting invoices or users
 ❌ Editing a Posted invoice
@@ -367,7 +369,6 @@ public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Dam
 ❌ Async void handlers without try/catch
 ❌ English user-facing messages (must be Arabic)
 ❌ Showing exception details directly to users
-❌ Missing authorization on API controllers
 ```
 
 ---
@@ -380,18 +381,21 @@ dotnet build .\SalesSystem.slnx
 
 # Build individual projects
 dotnet build .\SalesSystem.Desktop\SalesSystem.Desktop.csproj
-dotnet build .\SalesSystem.API\SalesSystem.API.csproj
+dotnet build .\SalesSystem.Business\SalesSystem.Business.csproj
+dotnet build .\SalesSystem.DataAccess\SalesSystem.DataAccess.csproj
 ```
 
 ---
 
-## 6. API Endpoint Naming Convention
+## 6. Desktop ↔ BLL Service Convention
 
-All controllers under `SalesSystem.API/Controllers/` use:
-- Route: `api/v1/[controller]` (kebab-case for multi-word: `cash-boxes`, `sales-invoices`)
-- HTTP methods: GET (list), GET/{id} (single), POST (create), PUT/{id} (update), DELETE/{id} (soft delete)
-- Authorization: `[Authorize]` with policy where needed
-- Response: `Result<T>` model
+There is no HTTP surface. Each Desktop data screen talks to the BLL through one `I*ApiService` interface:
+
+- Interface: `Services/Interfaces/I<Entity>ApiService.cs`
+- Real implementation: `Services/Direct/Direct<Entity>Service.cs` → calls `Business.Interfaces.Services.I<Entity>Service`
+- Mock implementation: `Services/Mock/Mock<Entity>ApiService.cs` → in-memory `MockData`
+- Return type: always `Result` / `Result<T>` — never raw values, never exceptions
+- Registration: `Program.cs` maps the interface to the mock or direct implementation based on `AppSettings.UseMockData`
 
 ---
 
@@ -436,17 +440,12 @@ SalesSystem.slnx
 │   └── Services/                     ← Data-layer services
 │
 ├── SalesSystem.Business/             ← Business Logic Layer
-│   ├── Interfaces/                   ← IProductService, ISalesInvoiceService, etc.
+│   ├── Interfaces/                   ← Business service interfaces
+│   │   └── Services/                 ← ICustomerService, ISalesService, IProductService, etc. (BizInterfaces alias)
 │   ├── Services/                     ← Service implementations
 │   ├── Accounting/                   ← Journal entry automation
 │   ├── Helpers/                      ← Business calculation helpers
 │   └── Printing/                     ← Print business logic
-│
-├── SalesSystem.API/                  ← ASP.NET Core 10 Web API
-│   ├── Controllers/                  ← 59 API controllers
-│   ├── Validators/                   ← FluentValidation validators
-│   ├── Middleware/                   ← ExceptionMiddleware
-│   └── Program.cs                    ← DI setup, JWT auth, Swagger
 │
 ├── SalesSystem.Desktop/              ← WinForms Desktop Client
 │   ├── Program.cs                    ← DI container, entry point
@@ -455,15 +454,15 @@ SalesSystem.slnx
 │   │   ├── Products/                 ← frm* forms for products
 │   │   ├── Customers/                ← frm* forms for customers
 │   │   └── ... (24 modules)
-│   ├── Services/                     ← HTTP API services + HttpClientService
-│   │   ├── Http/                     ← API service implementations
-│   │   ├── Interfaces/               ← API service interfaces
-│   │   └── Mock/                     ← Mock API services + MockAuthService + MockData (UI-first testing)
+│   ├── Services/                     ← Service implementations
+│   │   ├── Direct/                   ← Direct*Service wrappers (I*ApiService → BLL)
+│   │   ├── Interfaces/               ← I*ApiService interfaces (unchanged)
+│   │   └── Mock/                     ← Mock*ApiService + MockData (in-memory, no DB)
 │   ├── Controls/                     ← Custom WinForms controls
 │   ├── Helpers/                      ← Desktop utility classes
 │   ├── Models/                       ← Desktop-specific view models
 │   ├── Printing/                     ← Desktop print handling
-│   └── Configuration/                ← App configuration (ApiSettings.cs, AppSettings.cs)
+│   └── Configuration/                ← App configuration (AppSettings.cs)
 │
 └── SalesSystem.Tests/                ← Unit + Integration tests
 ```
@@ -472,32 +471,34 @@ SalesSystem.slnx
 
 ## 9. Current Module Status
 
-| Module | Status | Desktop Screens | API | Business | DB |
-|--------|--------|-----------------|-----|----------|----|
-| Users & Permissions | ✅ Done | frmUsers, frmRoles | ✅ | ✅ | ✅ |
-| Settings | ✅ Done | frmSettings | ✅ | ✅ | ✅ |
-| Currencies | ✅ Done | frmCurrencies | ✅ | ✅ | ✅ |
-| Chart of Accounts | ✅ Done | frmAccounts | ✅ | ✅ | ✅ |
-| Customers | ✅ Done | frmCustomers | ✅ | ✅ | ✅ |
-| Suppliers | ✅ Done | frmSuppliers | ✅ | ✅ | ✅ |
-| Categories | ✅ Done | frmCategories | ✅ | ✅ | ✅ |
-| Units | ✅ Done | frmUnits | ✅ | ✅ | ✅ |
-| Taxes | ✅ Done | frmTaxes | ✅ | ✅ | ✅ |
-| Warehouses | ✅ Done | frmWarehouses | ✅ | ✅ | ✅ |
-| Products | 🔄 In Progress | frmProducts | ✅ | ✅ | ✅ |
-| CashBoxes | ✅ Done | frmCashBoxes | ✅ | ✅ | ✅ |
-| Banks | ✅ Done | frmBanks | ✅ | ✅ | ✅ |
-| Purchases | 🔄 In Progress | frmPurchases | ✅ | ✅ | ✅ |
-| Sales | 🔄 In Progress | frmSales | ✅ | ✅ | ✅ |
-| Sales Returns | 🔄 In Progress | frmReturns | 🔄 | 🔄 | ✅ |
-| Receipts & Payments | 🔄 In Progress | frmReceipts, frmPayments | 🔄 | 🔄 | ✅ |
-| Journal Entries | 🔄 In Progress | frmJournalEntries | 🔄 | 🔄 | ✅ |
-| Reports | ❌ Not Started | — | — | — | — |
-| Dashboard | ❌ Not Started | frmDashboard (shell) | — | — | — |
-| Inventory (Transfers/Adjustments) | 🔄 In Progress | frmInventory | 🔄 | 🔄 | ✅ |
-| Expenses | ✅ Done | frmExpenses | ✅ | ✅ | ✅ |
-| Accounting Engine | ✅ Done | — (auto) | ✅ | ✅ | ✅ |
-| Printing | 🔄 In Progress | — | ✅ | ✅ | ✅ |
+| Module | Status | Desktop Screens | Business | DB |
+|--------|--------|-----------------|----------|----|
+| Users & Permissions | ✅ Done | frmUsers, frmRoles | ✅ | ✅ |
+| Settings | ✅ Done | frmSettings | ✅ | ✅ |
+| Currencies | ✅ Done | frmCurrencies | ✅ | ✅ |
+| Chart of Accounts | ✅ Done | frmAccounts | ✅ | ✅ |
+| Customers | ✅ Done | frmCustomers | ✅ | ✅ |
+| Suppliers | ✅ Done | frmSuppliers | ✅ | ✅ |
+| Categories | ✅ Done | frmCategories | ✅ | ✅ |
+| Units | ✅ Done | frmUnits | ✅ | ✅ |
+| Taxes | ✅ Done | frmTaxes | ✅ | ✅ |
+| Warehouses | ✅ Done | frmWarehouses | ✅ | ✅ |
+| Products | 🔄 In Progress | frmProducts | ✅ | ✅ |
+| CashBoxes | ✅ Done | frmCashBoxes | ✅ | ✅ |
+| Banks | ✅ Done | frmBanks | ✅ | ✅ |
+| Purchases | 🔄 In Progress | frmPurchases | ✅ | ✅ |
+| Sales | 🔄 In Progress | frmSales | ✅ | ✅ |
+| Sales Returns | 🔄 In Progress | frmReturns | 🔄 | ✅ |
+| Receipts & Payments | 🔄 In Progress | frmReceipts, frmPayments | 🔄 | ✅ |
+| Journal Entries | 🔄 In Progress | frmJournalEntries | 🔄 | ✅ |
+| Reports | ❌ Not Started | — | — | — |
+| Dashboard | ❌ Not Started | frmDashboard (shell) | — | — |
+| Inventory (Transfers/Adjustments) | 🔄 In Progress | frmInventory | 🔄 | ✅ |
+| Expenses | ✅ Done | frmExpenses | ✅ | ✅ |
+| Accounting Engine | ✅ Done | — (auto) | ✅ | ✅ |
+| Printing | 🔄 In Progress | — | ✅ | ✅ |
+
+> The former `API` column was removed — there is no HTTP/API layer; every module's Desktop layer goes straight to Business.
 
 ---
 
@@ -521,13 +522,13 @@ This is NOT part of the solution build. Use it to understand how the owner write
 ### Architecture (NEVER violate)
 
 ```text
-# CRUD / data screens (API path)
-Desktop (WinForms)  →  HttpClient  →  API Controllers  →  Business Services  →  DataAccess (EF Core)  →  SQL Server
+Desktop (WinForms)  →  BLL Services  →  DataAccess (EF Core)  →  SQL Server
 
-# Authentication + Reports (in-process BLL path)
-Desktop (WinForms)  →  Business Services  →  DataAccess (EF Core)  →  SQL Server
-
-     frm* forms          HTTP            [Authorize]        Result<T>              IUnitOfWork
-     GetRequiredService  JSON             Thin              All logic here         Fluent API
-     DI resolved         REST             Validate           No exceptions          Repositories
+ frm* forms          Result<T>            IUnitOfWork          decimal(18,2)/(18,3)
+ GetRequiredService  All logic here       Fluent API           CHECK constraints
+ DI resolved         No exceptions        Repositories
+     ↓
+ I*ApiService  →  Direct*Service (Services/Direct/)  or  Mock*ApiService (Services/Mock/)
 ```
+
+No HTTP, no controllers, no JSON serialization on the data path. If you find yourself importing `System.Net.Http`, you are in the wrong layer.

@@ -2,7 +2,7 @@
 name: "UI Agent"
 description: "WinForms Desktop specialist. Use for forms, controls, RTL/Tahoma styling, DataGridView patterns, and DI-resolved frm* screens."
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/deepseek-v4.1-flash
 ---
 
 You are the WinForms Desktop specialist for the Sales Management System (N-Layer).

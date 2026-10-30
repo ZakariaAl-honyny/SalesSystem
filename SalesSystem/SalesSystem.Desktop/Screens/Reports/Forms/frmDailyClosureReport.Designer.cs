@@ -38,7 +38,7 @@ partial class frmDailyClosureReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظٹظˆظ…ظٹ ظ„ظ„طµظ†ط¯ظˆظ‚";
+        lblMode.Text = "التقرير اليومي للصندوق";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -73,7 +73,7 @@ partial class frmDailyClosureReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(173, 40);
         btnRefresh.TabIndex = 5;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -92,7 +92,7 @@ partial class frmDailyClosureReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(173, 40);
         btnExport.TabIndex = 6;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -109,7 +109,7 @@ partial class frmDailyClosureReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(170, 47);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -123,7 +123,7 @@ partial class frmDailyClosureReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 3;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -169,7 +169,7 @@ partial class frmDailyClosureReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ظٹظˆظ…ظٹ ظ„ظ„طµظ†ط¯ظˆظ‚";
+        Text = "التقرير اليومي للصندوق";
         Load += frmDailyClosureReport_Load;
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);

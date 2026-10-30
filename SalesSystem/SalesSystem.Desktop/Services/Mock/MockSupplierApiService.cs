@@ -23,7 +23,7 @@ public class MockSupplierApiService : ISupplierApiService
             query = query.Where(sup =>
                 sup.Name.Contains(s, StringComparison.OrdinalIgnoreCase) ||
                 (sup.Phone != null && sup.Phone.Contains(s)) ||
-                (sup.Company != null && sup.Company.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                // TODO: Company removed from SupplierDto and requests.
                 (sup.Email != null && sup.Email.Contains(s, StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -48,9 +48,9 @@ public class MockSupplierApiService : ISupplierApiService
             Address: r.Address, TaxNumber: r.TaxNumber, Notes: r.Notes,
             CreditLimit: r.CreditLimit, IsActive: true,
             AccountId: nextAccountId, AccountName: $"موردون - {r.Name}",
-            Code: r.Code, Company: r.Company,
-            Currency: r.Currency ?? "YER", ContactPerson: r.ContactPerson,
-            CreditDays: r.CreditDays);
+            CategoryId: r.CategoryId, BranchId: r.BranchId ?? 0);
+        // TODO: Code / Company / Currency / ContactPerson / CreditDays removed from
+        // SupplierDto and CreateSupplierRequest.
 
         MockSuppliersData.Suppliers.Add(supplier);
         return Task.FromResult(Result<SupplierDto>.Success(supplier));
@@ -72,11 +72,10 @@ public class MockSupplierApiService : ISupplierApiService
             Notes = r.Notes,
             CreditLimit = r.CreditLimit,
             IsActive = r.IsActive,
-            Company = r.Company,
-            Currency = r.Currency ?? existing.Currency,
-            ContactPerson = r.ContactPerson,
-            CreditDays = r.CreditDays
+            CategoryId = r.CategoryId
         };
+        // TODO: Company / Currency / ContactPerson / CreditDays removed from
+        // UpdateSupplierRequest and SupplierDto.
 
         var index = MockSuppliersData.Suppliers.IndexOf(existing);
         MockSuppliersData.Suppliers[index] = updated;

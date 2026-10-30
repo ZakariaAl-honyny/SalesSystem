@@ -58,10 +58,10 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             var result = tuple.Result;
             if (!result.IsSuccess || result.Value == null)
                 return Result<Dictionary<SystemAccountKey, int>>.Failure(
-                    $"������ ������� ��� ����: {key}");
+                    $"تعذر العثور على الحساب المطلوب: {key}");
             if (result.Value.AccountId <= 0)
                 return Result<Dictionary<SystemAccountKey, int>>.Failure(
-                    $"������ ������� ��� ����: {key}");
+                    $"تعذر العثور على الحساب المطلوب: {key}");
             dict[key] = result.Value.AccountId;
         }
         return Result<Dictionary<SystemAccountKey, int>>.Success(dict);
@@ -69,24 +69,24 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
     private static string GetAccountName(SystemAccountKey key) => key switch
     {
-        SystemAccountKey.DefaultCash => "���� ������� ������",
-        SystemAccountKey.DefaultBank => "������ ������",
-        SystemAccountKey.AccountsReceivable => "���� ����� �������",
-        SystemAccountKey.AccountsPayable => "���� ����� �������",
-        SystemAccountKey.Inventory => "���� ��� �������",
-        SystemAccountKey.CostOfGoodsSold => "���� ����� ������� �������",
-        SystemAccountKey.SalesRevenue => "���� ������� ��������",
-        SystemAccountKey.SalesReturns => "���� ������� ��������",
-        SystemAccountKey.PurchaseReturns => "���� ������� ���������",
-        SystemAccountKey.VatOutput => "���� ����� ��������",
-        SystemAccountKey.VatInput => "���� ����� ��������",
-        SystemAccountKey.Capital => "���� ��� �����",
-        SystemAccountKey.OpeningBalanceEquity => "���� ���� ������� ������ ���������",
-        SystemAccountKey.RetainedEarnings => "���� ������� ��������",
-        SystemAccountKey.UndistributedProfits => "���� ������� ����",
-        SystemAccountKey.InventoryShortage => "���� ��� �������",
-        SystemAccountKey.InventorySurplus => "���� ����� �������",
-        SystemAccountKey.DeliveryChargesRevenue => "���� ������� �������",
+        SystemAccountKey.DefaultCash => "حساب الصندوق النقدي",
+        SystemAccountKey.DefaultBank => "حساب البنك",
+        SystemAccountKey.AccountsReceivable => "حساب الذمم المدينة",
+        SystemAccountKey.AccountsPayable => "حساب الذمم الدائنة",
+        SystemAccountKey.Inventory => "حساب أصل المخزون",
+        SystemAccountKey.CostOfGoodsSold => "حساب تكلفة البضاعة المباعة",
+        SystemAccountKey.SalesRevenue => "حساب إيرادات المبيعات",
+        SystemAccountKey.SalesReturns => "حساب مردودات المبيعات",
+        SystemAccountKey.PurchaseReturns => "حساب مردودات المشتريات",
+        SystemAccountKey.VatOutput => "حساب ضريبة المبيعات",
+        SystemAccountKey.VatInput => "حساب ضريبة المشتريات",
+        SystemAccountKey.Capital => "حساب رأس المال",
+        SystemAccountKey.OpeningBalanceEquity => "حساب الرصيد الافتتاحي",
+        SystemAccountKey.RetainedEarnings => "حساب الأرباح المحتجزة",
+        SystemAccountKey.UndistributedProfits => "حساب الأرباح غير الموزعة",
+        SystemAccountKey.InventoryShortage => "حساب عجز المخزون",
+        SystemAccountKey.InventorySurplus => "حساب زيادة المخزون",
+        SystemAccountKey.DeliveryChargesRevenue => "حساب إيرادات التوصيل",
         _ => key.ToString()
     };
 
@@ -96,9 +96,9 @@ public class AccountingIntegrationService : IAccountingIntegrationService
     {
         var result = await _systemAccountService.GetMappingAsync(key, branchId, ct);
         if (!result.IsSuccess || result.Value == null)
-            return Result<int>.Failure($"������ ������� ��� ����: {GetAccountName(key)}");
+            return Result<int>.Failure($"تعذر العثور على الحساب المطلوب: {GetAccountName(key)}");
         if (result.Value.AccountId <= 0)
-            return Result<int>.Failure($"������ ������� ��� ����: {GetAccountName(key)}");
+            return Result<int>.Failure($"تعذر العثور على الحساب المطلوب: {GetAccountName(key)}");
         return Result<int>.Success(result.Value.AccountId);
     }
 
@@ -135,7 +135,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateCustomerOpeningEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateCustomerOpeningEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -150,15 +150,15 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: transactionDate,
-                Description: $"��� ������� � ���� ������� ������: {customerName}",
+                Description: $"قيد الرصيد الافتتاحي للعميل: {customerName}",
                 EntryType: JournalEntryType.OpeningBalance,
                 ReferenceType: "Customer",
                 ReferenceId: customerId,
                 ReferenceNumber: customerId.ToString(),
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(customerAccountId, openingBalance, 0, "���� ������� ������"),
-                    new(openingBalanceEquityAccountId, 0, openingBalance, "���� ������� ������")
+                    new(customerAccountId, openingBalance, 0, "رصيد افتتاحي للعميل"),
+                    new(openingBalanceEquityAccountId, 0, openingBalance, "رصيد افتتاحي للعميل")
                 }
             );
 
@@ -173,7 +173,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating customer opening entry for customer {CustomerId}", customerId);
-            return Result<int>.Failure("��� ��� ����� ����� ����� ��������� ������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء القيد الافتتاحي للعميل");
         }
     }
 
@@ -195,7 +195,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateSupplierOpeningEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateSupplierOpeningEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -210,15 +210,15 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: transactionDate,
-                Description: $"��� ������� � ���� ������� ������: {supplierName}",
+                Description: $"قيد الرصيد الافتتاحي للمورد: {supplierName}",
                 EntryType: JournalEntryType.OpeningBalance,
                 ReferenceType: "Supplier",
                 ReferenceId: supplierId,
                 ReferenceNumber: supplierId.ToString(),
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(openingBalanceEquityAccountId, openingBalance, 0, "���� ������� ������"),
-                    new(supplierAccountId, 0, openingBalance, "���� ������� ������")
+                    new(openingBalanceEquityAccountId, openingBalance, 0, "رصيد افتتاحي للمورد"),
+                    new(supplierAccountId, 0, openingBalance, "رصيد افتتاحي للمورد")
                 }
             );
 
@@ -233,7 +233,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating supplier opening entry for supplier {SupplierId}", supplierId);
-            return Result<int>.Failure("��� ��� ����� ����� ����� ��������� ������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء القيد الافتتاحي للمورد");
         }
     }
 
@@ -254,7 +254,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateProductOpeningEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateProductOpeningEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -274,7 +274,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: transactionDate,
-                Description: $"��� ������� � ���� ������� ������: {productName}",
+                Description: $"قيد الرصيد الافتتاحي للمنتج: {productName}",
                 EntryType: JournalEntryType.OpeningBalance,
                 ReferenceType: "Product",
                 ReferenceId: productId,
@@ -282,9 +282,9 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 Lines: new List<JournalEntryLineRequest>
                 {
                     new(m[SystemAccountKey.Inventory], totalOpeningValue, 0,
-                        "���� ������� �������"),
+                        "رصيد افتتاحي للمخزون"),
                     new(m[SystemAccountKey.OpeningBalanceEquity], 0, totalOpeningValue,
-                        "���� ������� �������")
+                        "رصيد افتتاحي للمخزون")
                 }
             );
 
@@ -299,7 +299,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating product opening entry for product {ProductId}", productId);
-            return Result<int>.Failure("��� ��� ����� ����� ����� ��������� ������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء القيد الافتتاحي للمنتج");
         }
     }
 
@@ -315,7 +315,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateSalesPostEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateSalesPostEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -340,7 +340,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             // Validate: discount cannot exceed subtotal
             if (invoice.DiscountAmount > invoice.SubTotal)
-                return Result<int>.Failure("�� ���� �� ���� ����� ���� �� ������ ��������");
+                return Result<int>.Failure("لا يمكن أن يتجاوز الخصم قيمة الإجمالي الفرعي");
 
             // Net revenue after header discount
             var netRevenue = invoice.SubTotal - invoice.DiscountAmount;
@@ -358,7 +358,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     invoice.NetTotal * rate,
                     0,
-                    "����� ������ �� ������ �����"));
+                    "نقدية من فاتورة البيع"));
             }
             else if (invoice.PaymentType == PaymentType.Credit)
             {
@@ -367,7 +367,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     customerAccountId,
                     invoice.NetTotal * rate,
                     0,
-                    "����� ����� �� ������ �����"));
+                    "ذمم عميل من فاتورة البيع"));
             }
             else if (invoice.PaymentType == PaymentType.Mixed)
             {
@@ -375,13 +375,13 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     invoice.PaidAmount * rate,
                     0,
-                    "����� ������ �� ������ ����� (�����)"));
+                    "نقدية من فاتورة البيع (دفعة جزئية)"));
                 var customerAccountId = GetCustomerAccountId(invoice, m);
                 lines.Add(new JournalEntryLineRequest(
                     customerAccountId,
                     invoice.RemainingAmount * rate,
                     0,
-                    "����� ����� �� ������ ����� (�����)"));
+                    "ذمم عميل من فاتورة البيع (دفعة جزئية)"));
             }
 
             // Credit side - Sales Revenue (net after discount, excluding other charges)
@@ -389,7 +389,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 m[SystemAccountKey.SalesRevenue],
                 0,
                 netRevenue * rate,
-                "����� �������� (���� ��� �����)"));
+                "إيرادات المبيعات (صافي بعد الخصم)"));
 
             // Credit side - Delivery Charges Revenue (separate from SalesRevenue)
             if (invoice.OtherCharges > 0)
@@ -398,7 +398,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DeliveryChargesRevenue],
                     0,
                     invoice.OtherCharges * rate,
-                    "������� ������� ����� ������"));
+                    "إيرادات رسوم التوصيل"));
             }
 
             // Credit side - VAT Output
@@ -408,27 +408,27 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.VatOutput],
                     0,
                     invoice.TaxAmount * rate,
-                    "����� ��������"));
+                    "ضريبة القيمة المضافة"));
             }
 
-            // ?? COGS Side (ALWAYS in base currency � do NOT multiply by rate) ??
+            // ?? COGS Side (ALWAYS in base currency — do NOT multiply by rate) ??
             if (totalCost > 0)
             {
                 lines.Add(new JournalEntryLineRequest(
                     m[SystemAccountKey.CostOfGoodsSold],
                     totalCost,
                     0,
-                    "����� ������� �������"));
+                    "تكلفة البضاعة المباعة"));
                 lines.Add(new JournalEntryLineRequest(
                     m[SystemAccountKey.Inventory],
                     0,
                     totalCost,
-                    "����� �������"));
+                    "المخزون"));
             }
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: invoice.InvoiceDate,
-                Description: $"��� ����� ������ ��� ��� {invoice.InvoiceNo}",
+                Description: $"قيد مبيعات فاتورة رقم {invoice.InvoiceNo}",
                 EntryType: JournalEntryType.Sales,
                 ReferenceType: "SalesInvoice",
                 ReferenceId: invoice.Id,
@@ -447,7 +447,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating sales post entry for invoice #{InvoiceNo}", invoice.InvoiceNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ����� ������ �����");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد مبيعات فاتورة البيع");
         }
     }
 
@@ -462,7 +462,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReverseSalesPostEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReverseSalesPostEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -487,7 +487,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var netRevenue = invoice.SubTotal - invoice.DiscountAmount;
             if (netRevenue < 0)
-                return Result<int>.Failure("�� ���� �� ���� ����� ���� �� ������ ��������");
+                return Result<int>.Failure("لا يمكن أن يتجاوز الخصم قيمة الإجمالي الفرعي");
 
             // Use the SAME exchange rate as the original entry
             var rate = 1m; // exchange rate removed in v4.10 currency cleanup
@@ -501,7 +501,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 m[SystemAccountKey.SalesRevenue],
                 netRevenue * rate,
                 0,
-                "��� ����� ��������"));
+                "عكس إيرادات المبيعات"));
 
             // Reverse: Dr DeliveryChargesRevenue (if applicable)
             if (invoice.OtherCharges > 0)
@@ -510,7 +510,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DeliveryChargesRevenue],
                     invoice.OtherCharges * rate,
                     0,
-                    "��� ������� ������� ����� ������"));
+                    "عكس إيرادات رسوم التوصيل"));
             }
 
             if (invoice.TaxAmount > 0)
@@ -519,7 +519,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.VatOutput],
                     invoice.TaxAmount * rate,
                     0,
-                    "��� ����� ��������"));
+                    "عكس ضريبة القيمة المضافة"));
             }
 
             // Original: Dr Cash/AR
@@ -530,7 +530,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     0,
                     invoice.NetTotal * rate,
-                    "��� ����� ������ �� ������ �����"));
+                    "عكس نقدية من فاتورة البيع"));
             }
             else if (invoice.PaymentType == PaymentType.Credit)
             {
@@ -539,7 +539,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     customerAccountId,
                     0,
                     invoice.NetTotal * rate,
-                    "��� ����� ����� �� ������ �����"));
+                    "عكس ذمم عميل من فاتورة البيع"));
             }
             else if (invoice.PaymentType == PaymentType.Mixed)
             {
@@ -547,13 +547,13 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     0,
                     invoice.PaidAmount * rate,
-                    "��� ����� ������ �� ������ ����� (�����)"));
+                    "عكس نقدية من فاتورة البيع (دفعة جزئية)"));
                 var customerAccountId = GetCustomerAccountId(invoice, m);
                 lines.Add(new JournalEntryLineRequest(
                     customerAccountId,
                     0,
                     invoice.RemainingAmount * rate,
-                    "��� ����� ����� �� ������ ����� (�����)"));
+                    "عكس ذمم عميل من فاتورة البيع (دفعة جزئية)"));
             }
 
             // ?? Reverse COGS Side (mirror: swap Dr ? Cr) ?????????
@@ -586,12 +586,12 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                         m[SystemAccountKey.Inventory],
                         cogsLine.Debit,
                         0,
-                        "��� ����� ������� ������� � ����� �������"));
+                        "عكس تكلفة البضاعة المباعة وإعادة المخزون"));
                     lines.Add(new JournalEntryLineRequest(
                         m[SystemAccountKey.CostOfGoodsSold],
                         0,
                         cogsLine.Debit,
-                        "��� ����� ������� �������"));
+                        "عكس تكلفة البضاعة المباعة"));
                 }
             }
             else
@@ -605,7 +605,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� ����� ������ ��� ��� {invoice.InvoiceNo}",
+                Description: $"عكس قيد مبيعات فاتورة رقم {invoice.InvoiceNo}",
                 EntryType: JournalEntryType.SalesReturn,
                 ReferenceType: "SalesInvoice",
                 ReferenceId: invoice.Id,
@@ -624,7 +624,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing sales post entry for invoice #{InvoiceNo}", invoice.InvoiceNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� ������ �����");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد مبيعات فاتورة البيع");
         }
     }
 
@@ -639,7 +639,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreatePurchasePostEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreatePurchasePostEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -661,7 +661,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             // Validate: discount cannot exceed subtotal
             if (invoice.DiscountAmount > invoice.SubTotal)
-                return Result<int>.Failure("�� ���� �� ���� ����� ���� �� ������ ������ ������");
+                return Result<int>.Failure("لا يمكن أن يتجاوز الخصم قيمة إجمالي فاتورة الشراء");
 
             // Net inventory cost = SubTotal - DiscountAmount + OtherCharges (landed cost)
             var netInventoryCost = invoice.SubTotal - invoice.DiscountAmount + invoice.OtherCharges;
@@ -671,31 +671,31 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // Dr Inventory Asset (net cost after discount) � converted to base currency
+            // Dr Inventory Asset (net cost after discount) — converted to base currency
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.Inventory],
                 netInventoryCost * rate,
                 0,
-                "����� ��������� (���� ��� �����)"));
+                "قيمة المشتريات (صافي بعد الخصم)"));
 
-            // Dr VAT Input � converted to base currency
+            // Dr VAT Input — converted to base currency
             if (invoice.TaxAmount > 0)
             {
                 lines.Add(new JournalEntryLineRequest(
                     m[SystemAccountKey.VatInput],
                     invoice.TaxAmount * rate,
                     0,
-                    "����� ��������"));
+                    "ضريبة القيمة المضافة"));
             }
 
-            // Credit side (Cash / AP) depends on PaymentType � converted to base currency
+            // Credit side (Cash / AP) depends on PaymentType — converted to base currency
             if (invoice.PaymentType == PaymentType.Cash)
             {
                 lines.Add(new JournalEntryLineRequest(
                     m[SystemAccountKey.DefaultCash],
                     0,
                     invoice.NetTotal * rate,
-                    "����� ������ �� ������ ������"));
+                    "نقدية من فاتورة الشراء"));
             }
             else if (invoice.PaymentType == PaymentType.Credit)
             {
@@ -704,7 +704,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     supplierAccountId,
                     0,
                     invoice.NetTotal * rate,
-                    "����� ����� �� ������ ������"));
+                    "ذمم مورد من فاتورة الشراء"));
             }
             else if (invoice.PaymentType == PaymentType.Mixed)
             {
@@ -712,19 +712,19 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     0,
                     invoice.PaidAmount * rate,
-                    "����� ������ �� ������ ������ (�����)"));
+                    "نقدية من فاتورة الشراء (دفعة جزئية)"));
                 var supplierAccountId = GetSupplierAccountId(invoice, m);
                 lines.Add(new JournalEntryLineRequest(
                     supplierAccountId,
                     0,
                     invoice.RemainingAmount * rate,
-                    "����� ����� �� ������ ������ (�����)"));
+                    "ذمم مورد من فاتورة الشراء (دفعة جزئية)"));
             }
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue),
-                Description: $"��� ����� ������ ���� ��� {invoice.InvoiceNo}" +
-                    (invoice.OtherCharges > 0 ? $" (����� �����: {invoice.OtherCharges:N2} ������ ������)" : ""),
+                Description: $"قيد مشتريات فاتورة رقم {invoice.InvoiceNo}" +
+                    (invoice.OtherCharges > 0 ? $" (رسوم أخرى: {invoice.OtherCharges:N2} عملة أساسية)" : ""),
                 EntryType: JournalEntryType.Purchase,
                 ReferenceType: "PurchaseInvoice",
                 ReferenceId: invoice.Id,
@@ -743,7 +743,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating purchase post entry for invoice #{InvoiceNo}", invoice.InvoiceNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ����� ������ ������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد مشتريات فاتورة الشراء");
         }
     }
 
@@ -758,7 +758,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReversePurchasePostEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReversePurchasePostEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -781,7 +781,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var netInventoryCost = invoice.SubTotal - invoice.DiscountAmount + invoice.OtherCharges;
             if (netInventoryCost < 0)
-                return Result<int>.Failure("�� ���� �� ���� ����� ���� �� ������ ��������");
+                return Result<int>.Failure("لا يمكن أن يتجاوز الخصم قيمة الإجمالي الفرعي");
 
             // Use the SAME exchange rate as the original entry
             var rate = 1m; // exchange rate removed in v4.10 currency cleanup
@@ -795,7 +795,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 m[SystemAccountKey.PurchaseReturns],
                 0,
                 netInventoryCost * rate,
-                "��� ����� ��������� - ������� �������"));
+                "عكس قيمة المشتريات - مردودات المشتريات"));
 
             if (invoice.TaxAmount > 0)
             {
@@ -803,7 +803,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.VatInput],
                     0,
                     invoice.TaxAmount * rate,
-                    "��� ����� ��������"));
+                    "عكس ضريبة القيمة المضافة"));
             }
 
             // Original: Cr Cash/AP
@@ -814,7 +814,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     invoice.NetTotal * rate,
                     0,
-                    "��� ����� ������ �� ������ ������"));
+                    "عكس نقدية من فاتورة الشراء"));
             }
             else if (invoice.PaymentType == PaymentType.Credit)
             {
@@ -823,7 +823,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     supplierAccountId,
                     invoice.NetTotal * rate,
                     0,
-                    "��� ����� ����� �� ������ ������"));
+                    "عكس ذمم مورد من فاتورة الشراء"));
             }
             else if (invoice.PaymentType == PaymentType.Mixed)
             {
@@ -831,18 +831,18 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.DefaultCash],
                     invoice.PaidAmount * rate,
                     0,
-                    "��� ����� ������ �� ������ ������ (�����)"));
+                    "عكس نقدية من فاتورة الشراء (دفعة جزئية)"));
                 var supplierAccountId = GetSupplierAccountId(invoice, m);
                 lines.Add(new JournalEntryLineRequest(
                     supplierAccountId,
                     invoice.RemainingAmount * rate,
                     0,
-                    "��� ����� ����� �� ������ ������ (�����)"));
+                    "عكس ذمم مورد من فاتورة الشراء (دفعة جزئية)"));
             }
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� ����� ������ ���� ��� {invoice.InvoiceNo}",
+                Description: $"عكس قيد مشتريات فاتورة رقم {invoice.InvoiceNo}",
                 EntryType: JournalEntryType.PurchaseReturn,
                 ReferenceType: "PurchaseInvoice",
                 ReferenceId: invoice.Id,
@@ -861,12 +861,12 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing purchase post entry for invoice #{InvoiceNo}", invoice.InvoiceNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� ������ ������");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد مشتريات فاتورة الشراء");
         }
     }
 
     // ????????????????????????????????????????????????????????????????
-    //  F4. Sales Return Entry (standalone � partial return, NOT full cancellation)
+    //  F4. Sales Return Entry (standalone — partial return, NOT full cancellation)
     // ????????????????????????????????????????????????????????????????
     public async Task<Result<int>> CreateSalesReturnEntryAsync(
         SalesReturn salesReturn,
@@ -877,7 +877,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateSalesReturnEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateSalesReturnEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -908,21 +908,21 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             var lines = new List<JournalEntryLineRequest>();
 
             // ?? Revenue reversal (converted to base currency) ????????
-            // Dr: SalesReturnsAccount (contra revenue) = return amount � rate
-            // Cr: CustomerAccount (reduces AR) = return amount � rate
+            // Dr: SalesReturnsAccount (contra revenue) = return amount — rate
+            // Cr: CustomerAccount (reduces AR) = return amount — rate
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.SalesReturns],
                 salesReturn.TotalAmount * rate,
                 0,
-                "����� ������ � ����� �������"));
+                "مردودات المبيعات وذمم العملاء"));
 
             lines.Add(new JournalEntryLineRequest(
                 customerAccountId,
                 0,
                 salesReturn.TotalAmount * rate,
-                "����� ������ � ����� ���� ������"));
+                "مردودات المبيعات وائتمان العميل"));
 
-            // ?? COGS reversal (ALWAYS in base currency � do NOT multiply by rate) ??
+            // ?? COGS reversal (ALWAYS in base currency — do NOT multiply by rate) ??
             if (totalCost > 0)
             {
                 // Dr: InventoryAccount (add stock back)
@@ -931,21 +931,21 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.Inventory],
                     totalCost,
                     0,
-                    "����� ������ � ����� �������"));
+                    "إعادة المخزون من المردودات"));
 
                 lines.Add(new JournalEntryLineRequest(
                     m[SystemAccountKey.CostOfGoodsSold],
                     0,
                     totalCost,
-                    "����� ������ � ��� �������"));
+                    "تخفيض تكلفة البضاعة المباعة"));
             }
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: salesReturn.ReturnDate,
-                Description: $"��� ����� ����� ������ ��� {salesReturn.ReturnNo}" +
+                Description: $"قيد مرتجع مبيعات رقم {salesReturn.ReturnNo}" +
                     (salesReturn.SalesInvoiceId > 0
-                        ? $" (����� ������� ��� {salesReturn.SalesInvoiceId})"
-                        : " (����� �����)"),
+                        ? $" (فاتورة المبيعات رقم {salesReturn.SalesInvoiceId})"
+                        : " (مرتجع حر)"),
                 EntryType: JournalEntryType.SalesReturn,
                 ReferenceType: "SalesReturn",
                 ReferenceId: salesReturn.Id,
@@ -964,7 +964,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating sales return entry for return #{ReturnNo}", salesReturn.ReturnNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ����� ��������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد مرتجع المبيعات");
         }
     }
 
@@ -981,7 +981,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReverseSalesReturnEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReverseSalesReturnEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1013,21 +1013,21 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             // ?? Reverse revenue reversal (converted to base currency) ?
             // Reverse of create: swap Dr ? Cr
-            // Dr: CustomerAccount (re-instate AR) = return amount � rate
-            // Cr: SalesReturnsAccount (reduce contra-revenue) = return amount � rate
+            // Dr: CustomerAccount (re-instate AR) = return amount — rate
+            // Cr: SalesReturnsAccount (reduce contra-revenue) = return amount — rate
             lines.Add(new JournalEntryLineRequest(
                 customerAccountId,
                 salesReturn.TotalAmount * rate,
                 0,
-                "��� ����� ������ � ����� ���� ������"));
+                "عكس مردودات المبيعات وائتمان العميل"));
 
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.SalesReturns],
                 0,
                 salesReturn.TotalAmount * rate,
-                "��� ����� ������ � ����� �������"));
+                "عكس مردودات المبيعات وذمم العملاء"));
 
-            // ?? Reverse COGS reversal (ALWAYS in base currency � do NOT multiply) ??
+            // ?? Reverse COGS reversal (ALWAYS in base currency — do NOT multiply) ??
             if (totalCost > 0)
             {
                 // Dr: COGSAccount (re-instate COGS)
@@ -1036,18 +1036,18 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     m[SystemAccountKey.CostOfGoodsSold],
                     totalCost,
                     0,
-                    "��� ����� ������ � ����� �������"));
+                    "إعادة تكلفة البضاعة المباعة"));
 
                 lines.Add(new JournalEntryLineRequest(
                     m[SystemAccountKey.Inventory],
                     0,
                     totalCost,
-                    "��� ����� ������ � ����� �������"));
+                    "عكس إعادة المخزون"));
             }
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� ����� ����� ������ ��� {salesReturn.ReturnNo}",
+                Description: $"عكس قيد مرتجع مبيعات رقم {salesReturn.ReturnNo}",
                 EntryType: JournalEntryType.SalesReturn,
                 ReferenceType: "SalesReturn",
                 ReferenceId: salesReturn.Id,
@@ -1066,7 +1066,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing sales return entry for return #{ReturnNo}", salesReturn.ReturnNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� ����� ��������");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد مرتجع المبيعات");
         }
     }
 
@@ -1081,7 +1081,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreatePurchaseReturnEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreatePurchaseReturnEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1108,26 +1108,26 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // Dr: AccountsPayable (supplier) � decreases the liability (converted to base currency)
+            // Dr: AccountsPayable (supplier) — decreases the liability (converted to base currency)
             lines.Add(new JournalEntryLineRequest(
                 supplierAccountId,
                 purchaseReturn.TotalAmount * rate,
                 0,
-                "����� ������� � ����� ���� ������"));
+                "ذمم مورد - مردودات المشتريات"));
 
-            // Cr: PurchaseReturnAccount � records the return (converted to base currency)
+            // Cr: PurchaseReturnAccount — records the return (converted to base currency)
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.PurchaseReturns],
                 0,
                 purchaseReturn.TotalAmount * rate,
-                "����� �������"));
+                "مردودات المشتريات"));
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: purchaseReturn.ReturnDate.ToDateTime(TimeOnly.MinValue),
-                Description: $"��� ����� ����� ������� ��� {purchaseReturn.ReturnNo}" +
+                Description: $"قيد مرتجع مشتريات رقم {purchaseReturn.ReturnNo}" +
                     (purchaseReturn.PurchaseInvoiceId > 0
-                        ? $" (����� ������� ���� {purchaseReturn.PurchaseInvoiceId})"
-                        : " (����� �����)"),
+                        ? $" (فاتورة الشراء رقم {purchaseReturn.PurchaseInvoiceId})"
+                        : " (مرتجع حر)"),
                 EntryType: JournalEntryType.PurchaseReturn,
                 ReferenceType: "PurchaseReturn",
                 ReferenceId: purchaseReturn.Id,
@@ -1146,7 +1146,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating purchase return entry for return #{ReturnNo}", purchaseReturn.ReturnNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ����� ���������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد مرتجع المشتريات");
         }
     }
 
@@ -1161,7 +1161,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReversePurchaseReturnEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReversePurchaseReturnEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1194,18 +1194,18 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 m[SystemAccountKey.PurchaseReturns],
                 purchaseReturn.TotalAmount * rate,
                 0,
-                "��� ����� �������"));
+                "عكس مردودات المشتريات"));
 
-            // Cr: AccountsPayable (supplier) � re-instates the liability (converted to base currency)
+            // Cr: AccountsPayable (supplier) — re-instates the liability (converted to base currency)
             lines.Add(new JournalEntryLineRequest(
                 supplierAccountId,
                 0,
                 purchaseReturn.TotalAmount * rate,
-                "��� ����� ������� � ����� ���� ������"));
+                "عكس ذمم مورد - مردودات المشتريات"));
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� ����� ����� ������� ��� {purchaseReturn.ReturnNo}",
+                Description: $"عكس قيد مرتجع مشتريات رقم {purchaseReturn.ReturnNo}",
                 EntryType: JournalEntryType.PurchaseReturn,
                 ReferenceType: "PurchaseReturn",
                 ReferenceId: purchaseReturn.Id,
@@ -1224,7 +1224,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing purchase return entry for return #{ReturnNo}", purchaseReturn.ReturnNo);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� ����� ���������");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد مرتجع المشتريات");
         }
     }
 
@@ -1240,7 +1240,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateCustomerPaymentEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateCustomerPaymentEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1262,15 +1262,15 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: receipt.ReceiptDate,
-                Description: $"��� ��� ��� �� ������: {customerName}",
+                Description: $"قيد سند قبض من العميل: {customerName}",
                 EntryType: JournalEntryType.CustomerReceipt,
                 ReferenceType: "CustomerReceipt",
                 ReferenceId: receipt.Id,
                 ReferenceNumber: receipt.Id.ToString(),
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(m[SystemAccountKey.DefaultCash], receipt.Amount * rate, 0, "��� ��� �� ������"),
-                    new(receipt.Customer?.AccountId ?? m[SystemAccountKey.AccountsReceivable], 0, receipt.Amount * rate, "��� ��� �� ������")
+                    new(m[SystemAccountKey.DefaultCash], receipt.Amount * rate, 0, "سند قبض من العميل"),
+                    new(receipt.Customer?.AccountId ?? m[SystemAccountKey.AccountsReceivable], 0, receipt.Amount * rate, "سند قبض من العميل")
                 }
             );
 
@@ -1285,7 +1285,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating customer payment entry for receipt {ReceiptId}", receipt.Id);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� �����");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد سند القبض");
         }
     }
 
@@ -1303,7 +1303,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReverseCustomerPaymentEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReverseCustomerPaymentEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1318,15 +1318,15 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             // Reverse: Dr AR / Cr Cash (mirror of original Dr Cash / Cr AR)
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� ��� ��� �� ������: {customerName}",
+                Description: $"عكس قيد سند قبض من العميل: {customerName}",
                 EntryType: JournalEntryType.Manual,
                 ReferenceType: "CustomerReceipt",
                 ReferenceId: receiptId,
                 ReferenceNumber: $"{receiptId}-REV",
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(customerAccountId, amount, 0, "��� ��� ��� �� ������"),
-                    new(defaultCashAccountId, 0, amount, "��� ��� ��� �� ������")
+                    new(customerAccountId, amount, 0, "عكس سند قبض من العميل"),
+                    new(defaultCashAccountId, 0, amount, "عكس سند قبض من العميل")
                 }
             );
 
@@ -1341,7 +1341,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing customer payment entry for receipt {ReceiptId}", receiptId);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� ��� �����");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد سند القبض");
         }
     }
 
@@ -1357,7 +1357,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateSupplierPaymentEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateSupplierPaymentEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1379,15 +1379,15 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var request = new CreateJournalEntryRequest(
                 EntryDate: payment.PaymentDate.ToDateTime(TimeOnly.MinValue),
-                Description: $"��� ��� ��� ������: {supplierName}",
+                Description: $"قيد سند صرف للمورد: {supplierName}",
                 EntryType: JournalEntryType.SupplierPayment,
                 ReferenceType: "SupplierPayment",
                 ReferenceId: payment.Id,
                 ReferenceNumber: payment.Id.ToString(),
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(payment.Supplier?.AccountId ?? m[SystemAccountKey.AccountsPayable], payment.Amount * rate, 0, "��� ��� ������"),
-                    new(m[SystemAccountKey.DefaultCash], 0, payment.Amount * rate, "��� ��� ������")
+                    new(payment.Supplier?.AccountId ?? m[SystemAccountKey.AccountsPayable], payment.Amount * rate, 0, "سند صرف للمورد"),
+                    new(m[SystemAccountKey.DefaultCash], 0, payment.Amount * rate, "سند صرف للمورد")
                 }
             );
 
@@ -1402,7 +1402,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating supplier payment entry for payment {PaymentId}", payment.Id);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� �����");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد سند الصرف");
         }
     }
 
@@ -1420,7 +1420,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReverseSupplierPaymentEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReverseSupplierPaymentEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1435,15 +1435,15 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             // Reverse: Dr Cash / Cr AP (mirror of original Dr AP / Cr Cash)
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� ��� ��� ������: {supplierName}",
+                Description: $"عكس قيد سند صرف للمورد: {supplierName}",
                 EntryType: JournalEntryType.Manual,
                 ReferenceType: "SupplierPayment",
                 ReferenceId: paymentId,
                 ReferenceNumber: $"{paymentId}-REV",
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(defaultCashAccountId, amount, 0, "��� ��� ��� ������"),
-                    new(supplierAccountId, 0, amount, "��� ��� ��� ������")
+                    new(defaultCashAccountId, amount, 0, "عكس سند صرف للمورد"),
+                    new(supplierAccountId, 0, amount, "عكس سند صرف للمورد")
                 }
             );
 
@@ -1458,7 +1458,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing supplier payment entry for payment {PaymentId}", paymentId);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� ��� �����");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد سند الصرف");
         }
     }
 
@@ -1473,7 +1473,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(CreateExpenseEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(CreateExpenseEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1483,25 +1483,25 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             var cashBox = await _uow.CashBoxes.FirstOrDefaultAsync(
                 cb => cb.Id == expense.CashBoxId, ct);
             if (cashBox == null)
-                return Result<int>.Failure("������� ��� �����");
+                return Result<int>.Failure("الصندوق النقدي غير موجود");
 
             var cashAccountId = cashBox.AccountId;
 
-            // Get exchange rate (expense has ExchangeRate nullable � use 1m as fallback)
+            // Get exchange rate (expense has ExchangeRate nullable — use 1m as fallback)
             var rate = 1m;
 
-            // Dr ExpenseAccount / Cr CashBox.Account (cash outflow) � converted to base currency
+            // Dr ExpenseAccount / Cr CashBox.Account (cash outflow) — converted to base currency
             var request = new CreateJournalEntryRequest(
                 EntryDate: expense.ExpenseDate,
-                Description: $"�����: {expense.Notes ?? $"��� {expense.ExpenseNo}"}",
+                Description: $"مصروف: {expense.Notes ?? $"رقم {expense.ExpenseNo}"}",
                 EntryType: JournalEntryType.Manual,
                 ReferenceType: "Expense",
                 ReferenceId: expense.Id,
                 ReferenceNumber: expense.ExpenseNo.ToString(),
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(expense.ExpenseAccountId, expense.Amount * rate, 0, "�����"),
-                    new(cashAccountId, 0, expense.Amount * rate, "���� ���� �� �������")
+                    new(expense.ExpenseAccountId, expense.Amount * rate, 0, "مصروف"),
+                    new(cashAccountId, 0, expense.Amount * rate, "دفع نقدي من الصندوق")
                 }
             );
 
@@ -1518,7 +1518,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating expense entry for expense {ExpenseId}", expense.Id);
-            return Result<int>.Failure("��� ��� ����� ����� ��� �������");
+            return Result<int>.Failure("حدث خطأ أثناء إنشاء قيد المصروف");
         }
     }
 
@@ -1533,7 +1533,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         var autoCreate = await _systemSettingsRepo.GetBoolAsync("AutoCreateJournalEntry", true, ct);
         if (!autoCreate)
         {
-            _logger.LogInformation("Auto journal entry creation disabled via setting � skipping {Method}", nameof(ReverseExpenseEntryAsync));
+            _logger.LogInformation("Auto journal entry creation disabled via setting — skipping {Method}", nameof(ReverseExpenseEntryAsync));
             return Result<int>.Success(0);
         }
 
@@ -1542,25 +1542,25 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             var cashBox = await _uow.CashBoxes.FirstOrDefaultAsync(
                 cb => cb.Id == expense.CashBoxId, ct);
             if (cashBox == null)
-                return Result<int>.Failure("������� ��� �����");
+                return Result<int>.Failure("الصندوق النقدي غير موجود");
 
             var cashAccountId = cashBox.AccountId;
 
             // Use the SAME exchange rate as the original entry
             var rate = 1m;
 
-            // Reverse: Dr CashBox.Account / Cr ExpenseAccount (cash returned) � converted to base currency
+            // Reverse: Dr CashBox.Account / Cr ExpenseAccount (cash returned) — converted to base currency
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
-                Description: $"��� ��� �����: {expense.Notes ?? $"��� {expense.ExpenseNo}"}",
+                Description: $"عكس المصروف: {expense.Notes ?? $"رقم {expense.ExpenseNo}"}",
                 EntryType: JournalEntryType.Manual,
                 ReferenceType: "Expense",
                 ReferenceId: expense.Id,
                 ReferenceNumber: $"{expense.ExpenseNo}-REV",
                 Lines: new List<JournalEntryLineRequest>
                 {
-                    new(cashAccountId, expense.Amount * rate, 0, "����� ���� �������"),
-                    new(expense.ExpenseAccountId, 0, expense.Amount * rate, "��� �����")
+                    new(cashAccountId, expense.Amount * rate, 0, "إعادة نقدية للصندوق"),
+                    new(expense.ExpenseAccountId, 0, expense.Amount * rate, "عكس المصروف")
                 }
             );
 
@@ -1577,7 +1577,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reversing expense entry for expense {ExpenseId}", expense.Id);
-            return Result<int>.Failure("��� ��� ����� ����� ��� ��� �������");
+            return Result<int>.Failure("حدث خطأ أثناء عكس قيد المصروف");
         }
     }
 }

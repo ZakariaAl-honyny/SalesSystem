@@ -73,7 +73,7 @@
             lblSupplier.Name = "lblSupplier";
             lblSupplier.Size = new Size(125, 20);
             lblSupplier.TabIndex = 0;
-            lblSupplier.Text = "������:";
+            lblSupplier.Text = "المورد:";
             // 
             // cmbSupplier
             // 
@@ -91,7 +91,7 @@
             lblBalance.Name = "lblBalance";
             lblBalance.Size = new Size(125, 20);
             lblBalance.TabIndex = 2;
-            lblBalance.Text = "������ ������:";
+            lblBalance.Text = "الرصيد الحالي:";
             // 
             // lblBalanceVal
             // 
@@ -111,7 +111,7 @@
             lblInvoice.Name = "lblInvoice";
             lblInvoice.Size = new Size(125, 20);
             lblInvoice.TabIndex = 4;
-            lblInvoice.Text = "��� �������:";
+            lblInvoice.Text = "رقم الفاتورة:";
             // 
             // cmbInvoice
             // 
@@ -129,7 +129,7 @@
             lblAmount.Name = "lblAmount";
             lblAmount.Size = new Size(125, 20);
             lblAmount.TabIndex = 6;
-            lblAmount.Text = "������ �������:";
+            lblAmount.Text = "المبلغ المدفوع:";
             // 
             // numAmount
             // 
@@ -149,7 +149,7 @@
             lblDate.Name = "lblDate";
             lblDate.Size = new Size(125, 20);
             lblDate.TabIndex = 8;
-            lblDate.Text = "�������:";
+            lblDate.Text = "التاريخ:";
             // 
             // dtpDate
             // 
@@ -167,7 +167,7 @@
             lblNotes.Name = "lblNotes";
             lblNotes.Size = new Size(125, 29);
             lblNotes.TabIndex = 10;
-            lblNotes.Text = "�������:";
+            lblNotes.Text = "ملاحظات:";
             // 
             // txtNotes
             // 
@@ -204,7 +204,7 @@
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(100, 44);
             btnCancel.TabIndex = 0;
-            btnCancel.Text = "�����";
+            btnCancel.Text = "إلغاء";
             btnCancel.UseVisualStyleBackColor = false;
             // 
             // btnSave
@@ -219,7 +219,7 @@
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(125, 44);
             btnSave.TabIndex = 1;
-            btnSave.Text = "��� �����";
+            btnSave.Text = "حفظ السند";
             btnSave.UseVisualStyleBackColor = false;
             // 
             // errorProvider
@@ -243,7 +243,7 @@
             RightToLeft = RightToLeft.Yes;
             RightToLeftLayout = true;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "��� ��� ����";
+            Text = "سند صرف جديد";
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numAmount).EndInit();

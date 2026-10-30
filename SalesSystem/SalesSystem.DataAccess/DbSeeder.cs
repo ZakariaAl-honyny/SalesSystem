@@ -104,6 +104,8 @@ public static class DbSeeder
                 SystemSetting.Create("AllowDuplicateBarcode", "false", settingType: 4, category: "Barcode", displayName: "السماح بالباركود المكرر", description: "السماح بوجود باركود مكرر لمنتجات مختلفة"),
                 // General
                 SystemSetting.Create("EnableAttachments", "true", settingType: 4, category: "General", displayName: "تفعيل المرفقات", description: "إظهار وإخفاء ميزة إرفاق الملفات في الفواتير"),
+                // Security — رمز الدخول الرقمي (MVP) لشاشة تسجيل الدخول في الوضع الحقيقي
+                SystemSetting.Create("AdminPin", "1234", settingType: 1, category: "Security", displayName: "رمز دخول المدير", description: "رمز الدخول الرقمي (PIN) الخاص بالمدير في شاشة تسجيل الدخول"),
                 // Print
                 SystemSetting.Create("PrintBarcode", "false", settingType: 4, category: "Print", displayName: "طباعة الباركود", description: "طباعة باركود المنتج على الفاتورة"),
                 SystemSetting.Create("PrintQRCode", "false", settingType: 4, category: "Print", displayName: "طباعة رمز QR", description: "طباعة رمز QR على الفاتورة"),

@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,7 +6,7 @@ using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.Forms;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Controls.Users;
-using SalesSystem.Desktop.Services.Http;
+using SalesSystem.Desktop.Services.Direct;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Services.Mock;
 using SalesSystem.Desktop.Products.Forms;
@@ -88,91 +88,107 @@ static class Program
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    // Configuration
-                    var apiSettings = context.Configuration.GetSection("ApiSettings").Get<ApiSettings>() 
-                                     ?? new ApiSettings();
-                    services.AddSingleton(apiSettings);
-
                     // App Settings (Mock Mode Toggle)
                     var appSettings = context.Configuration.GetSection("AppSettings").Get<AppSettings>() ?? new AppSettings();
                     AppSettings.Current = appSettings;
                     services.AddSingleton(appSettings);
 
-                    // Http Services
-                    services.AddTransient<AuthTokenHandler>();
-                    
-                    services.AddHttpClient<HttpClientService>(client =>
-                    {
-                        client.BaseAddress = new Uri(apiSettings.BaseUrl);
-                    }).AddHttpMessageHandler<AuthTokenHandler>();
+                    // --- I*ApiService implementations (2-Tier) ---
+                    // Phantom modules (no BLL backend yet) — always mock:
+                    services.AddTransient<ICostCenterApiService, MockCostCenterApiService>();
+                    services.AddTransient<ICurrencyApiService, MockCurrencyApiService>();
+                    services.AddTransient<ICustomerPaymentApiService, MockCustomerPaymentApiService>();
+                    services.AddTransient<IEmployeeApiService, MockEmployeeApiService>();
+                    services.AddTransient<IPettyCashApiService, MockPettyCashApiService>();
+                    services.AddTransient<IPurchaseOrderApiService, MockPurchaseOrderApiService>();
+                    services.AddTransient<IQuotationApiService, MockQuotationApiService>();
+                    services.AddTransient<ITreasuryTransferApiService, MockTreasuryTransferApiService>();
 
-                    // API Services (Inject HttpClientService)
-                    services.AddTransient<IAuthApiService, AuthApiService>();
-                    services.AddTransient<ICategoryApiService, CategoryApiService>();
-                    services.AddTransient<IUnitApiService, UnitApiService>();
-                    services.AddTransient<ISupplierApiService, SupplierApiService>();
-                    services.AddTransient<IPurchaseInvoiceApiService, PurchaseInvoiceApiService>();
-                    services.AddTransient<ISalesReturnApiService, SalesReturnApiService>();
-                    services.AddTransient<IPurchaseReturnApiService, PurchaseReturnApiService>();
-                    services.AddTransient<IStockTransferApiService, StockTransferApiService>();
-                    services.AddTransient<ICustomerPaymentApiService, CustomerPaymentApiService>();
-                    services.AddTransient<ISupplierPaymentApiService, SupplierPaymentApiService>();
-                    services.AddTransient<IReportApiService, ReportApiService>();
-                    services.AddTransient<IDashboardApiService, DashboardApiService>();
-                    services.AddTransient<IInventoryApiService, InventoryApiService>();
-                    services.AddTransient<IInventoryAdjustmentApiService, InventoryAdjustmentApiService>();
-                    services.AddTransient<IInventoryCountApiService, InventoryCountApiService>();
-                    services.AddTransient<IInventoryBatchApiService, InventoryBatchApiService>();
-                    services.AddTransient<IProductPriceApiService, ProductPriceApiService>();
-                    services.AddTransient<ICompanySettingsApiService, CompanySettingsApiService>();
-                    services.AddTransient<INotificationApiService, NotificationApiService>();
-                    services.AddTransient<IBackupApiService, BackupApiService>();
-                    services.AddTransient<IUserApiService, UserApiService>();
-                    services.AddTransient<IPersonApiService, PersonApiService>();
-                    services.AddTransient<IAccountApiService, AccountApiService>();
-                    services.AddTransient<IJournalEntryApiService, JournalEntryApiService>();
-                    services.AddTransient<ISystemAccountMappingApiService, SystemAccountMappingApiService>();
-                    services.AddTransient<IAccountCategoryApiService, AccountCategoryApiService>();
-                    // Report API Services
-                    services.AddTransient<IFinancialReportApiService, FinancialReportApiService>();
-                    services.AddTransient<ISalesReportApiService, SalesReportApiService>();
-                    services.AddTransient<IPurchaseReportApiService, PurchaseReportApiService>();
-                    services.AddTransient<ICashBoxReportApiService, CashBoxReportApiService>();
-                    services.AddTransient<IUserReportApiService, UserReportApiService>();
-                    // Admin/Settings API Services
-                    services.AddTransient<IRoleApiService, RoleApiService>();
-                    services.AddTransient<IUserSessionApiService, UserSessionApiService>();
-                    services.AddTransient<IDocumentSequenceApiService, DocumentSequenceApiService>();
-                    services.AddTransient<IAuditLogApiService, AuditLogApiService>();
-                    services.AddTransient<ILogsApiService, LogsApiService>();
+                    // Interfaces with NO mock — always Direct:
+                    services.AddTransient<IAccountCategoryApiService, DirectAccountCategoryService>();
+                    services.AddTransient<IAuditLogApiService, DirectAuditLogService>();
+                    services.AddTransient<IAuthApiService, DirectAuthService>();
+                    services.AddTransient<IBackupApiService, DirectBackupService>();
+                    services.AddTransient<IBranchApiService, DirectBranchApiService>();
+                    services.AddTransient<ICashBoxReportApiService, DirectCashBoxReportService>();
+                    services.AddTransient<ICompanySettingsApiService, DirectCompanySettingsService>();
+                    services.AddTransient<IDashboardApiService, DirectDashboardService>();
+                    services.AddTransient<IDocumentSequenceApiService, DirectDocumentSequenceService>();
+                    services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
+                    services.AddTransient<IInventoryApiService, DirectInventoryService>();
+                    services.AddTransient<ILogsApiService, DirectLogsService>();
+                    services.AddTransient<INotificationApiService, DirectNotificationService>();
+                    services.AddTransient<IPersonApiService, DirectPersonService>();
+                    services.AddTransient<IProductPriceApiService, DirectProductPriceService>();
+                    services.AddTransient<IPurchaseReportApiService, DirectPurchaseReportService>();
+                    services.AddTransient<IReportApiService, DirectReportService>();
+                    services.AddTransient<ISalesReportApiService, DirectSalesReportService>();
+                    services.AddTransient<ISystemAccountMappingApiService, DirectSystemAccountMappingService>();
+                    services.AddTransient<IUserReportApiService, DirectUserReportService>();
 
-                    // Module API Services
-                    services.AddTransient<IBranchApiService, BranchApiService>();
-                    services.AddTransient<ICashBoxApiService, CashBoxApiService>();
-                    services.AddTransient<IBankApiService, BankApiService>();
-                    services.AddTransient<IExpenseApiService, ExpenseApiService>();
-                    services.AddTransient<ICustomerReceiptApiService, CustomerReceiptApiService>();
-                    services.AddTransient<IPaymentVoucherApiService, PaymentVoucherApiService>();
-
-                    // Mock / Real service toggle (6 services)
+                    // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
-                        services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
+                        services.AddTransient<IAccountApiService, MockAccountApiService>();
+                        services.AddTransient<IBankApiService, MockBankApiService>();
+                        services.AddTransient<ICashBoxApiService, MockCashBoxApiService>();
+                        services.AddTransient<ICategoryApiService, MockCategoryApiService>();
                         services.AddTransient<ICustomerApiService, MockCustomerApiService>();
+                        services.AddTransient<ICustomerReceiptApiService, MockCustomerReceiptApiService>();
+                        services.AddTransient<IExpenseApiService, MockExpenseApiService>();
+                        services.AddTransient<IInventoryAdjustmentApiService, MockInventoryAdjustmentApiService>();
+                        services.AddTransient<IInventoryBatchApiService, MockInventoryBatchApiService>();
+                        services.AddTransient<IInventoryCountApiService, MockInventoryCountApiService>();
+                        services.AddTransient<IJournalEntryApiService, MockJournalEntryApiService>();
+                        services.AddTransient<IPaymentVoucherApiService, MockPaymentVoucherApiService>();
                         services.AddTransient<IProductApiService, MockProductApiService>();
-                        services.AddTransient<IWarehouseApiService, MockWarehouseApiService>();
+                        services.AddTransient<IPurchaseInvoiceApiService, MockPurchaseInvoiceApiService>();
+                        services.AddTransient<IPurchaseReturnApiService, MockPurchaseReturnApiService>();
+                        services.AddTransient<IReceiptVoucherApiService, MockReceiptVoucherApiService>();
+                        services.AddTransient<IRoleApiService, MockRoleApiService>();
+                        services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
+                        services.AddTransient<ISalesReturnApiService, MockSalesReturnApiService>();
                         services.AddTransient<ISettingsApiService, MockSettingsApiService>();
+                        services.AddTransient<IStockTransferApiService, MockStockTransferApiService>();
+                        services.AddTransient<ISupplierApiService, MockSupplierApiService>();
+                        services.AddTransient<ISupplierPaymentApiService, MockSupplierPaymentApiService>();
                         services.AddTransient<ITaxesApiService, MockTaxesApiService>();
+                        services.AddTransient<IUnitApiService, MockUnitApiService>();
+                        services.AddTransient<IUserApiService, MockUserApiService>();
+                        services.AddTransient<IUserSessionApiService, MockUserSessionApiService>();
+                        services.AddTransient<IWarehouseApiService, MockWarehouseApiService>();
                         services.AddScoped<BizInterfaces.IAuthService, MockAuthService>();
                     }
                     else
                     {
-                        services.AddTransient<ISalesInvoiceApiService, SalesInvoiceApiService>();
-                        services.AddTransient<ICustomerApiService, CustomerApiService>();
-                        services.AddTransient<IProductApiService, ProductApiService>();
-                        services.AddTransient<IWarehouseApiService, WarehouseApiService>();
-                        services.AddTransient<ISettingsApiService, SettingsApiService>();
-                        services.AddTransient<ITaxesApiService, TaxesApiService>();
+                        services.AddTransient<IAccountApiService, DirectAccountService>();
+                        services.AddTransient<IBankApiService, DirectBankService>();
+                        services.AddTransient<ICashBoxApiService, DirectCashBoxService>();
+                        services.AddTransient<ICategoryApiService, DirectCategoryService>();
+                        services.AddTransient<ICustomerApiService, DirectCustomerService>();
+                        services.AddTransient<ICustomerReceiptApiService, DirectCustomerReceiptService>();
+                        services.AddTransient<IExpenseApiService, DirectExpenseService>();
+                        services.AddTransient<IInventoryAdjustmentApiService, DirectInventoryAdjustmentService>();
+                        services.AddTransient<IInventoryBatchApiService, DirectInventoryBatchService>();
+                        services.AddTransient<IInventoryCountApiService, DirectInventoryCountService>();
+                        services.AddTransient<IJournalEntryApiService, DirectJournalEntryService>();
+                        services.AddTransient<IPaymentVoucherApiService, DirectPaymentVoucherService>();
+                        services.AddTransient<IProductApiService, DirectProductService>();
+                        services.AddTransient<IPurchaseInvoiceApiService, DirectPurchaseInvoiceService>();
+                        services.AddTransient<IPurchaseReturnApiService, DirectPurchaseReturnApiService>();
+                        services.AddTransient<IReceiptVoucherApiService, DirectReceiptVoucherService>();
+                        services.AddTransient<IRoleApiService, DirectRoleService>();
+                        services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
+                        services.AddTransient<ISalesReturnApiService, DirectSalesReturnApiService>();
+                        services.AddTransient<ISettingsApiService, DirectSettingsService>();
+                        services.AddTransient<IStockTransferApiService, DirectStockTransferService>();
+                        services.AddTransient<ISupplierApiService, DirectSupplierService>();
+                        services.AddTransient<ISupplierPaymentApiService, DirectSupplierPaymentService>();
+                        services.AddTransient<ITaxesApiService, DirectTaxesService>();
+                        services.AddTransient<IUnitApiService, DirectUnitService>();
+                        services.AddTransient<IUserApiService, DirectUserService>();
+                        services.AddTransient<IUserSessionApiService, DirectUserSessionService>();
+                        services.AddTransient<IWarehouseApiService, DirectWarehouseService>();
                         services.AddScoped<BizInterfaces.IAuthService, BizServices.AuthService>();
                     }
 
@@ -274,40 +290,52 @@ static class Program
                     // UI Components - Essential Forms
                     services.AddTransient<frmLogin>();
                     services.AddTransient<frmMain>();
-                    services.AddTransient<frmAddUpdateCategory>();
-                    services.AddTransient<frmAddUpdateUnit>();
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmAddUpdateCategory>();
+                    // services.AddTransient<frmAddUpdateUnit>();
                     services.AddTransient<frmAddUpdateWarehouse>();
-                    services.AddTransient<frmAddUpdateCustomer>();
-                    services.AddTransient<frmAddUpdateSupplier>();
-                    services.AddTransient<frmAddUpdateProduct>();
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmAddUpdateCustomer>();
+                    // services.AddTransient<frmAddUpdateSupplier>();
+                    // services.AddTransient<frmAddUpdateProduct>();
                     services.AddTransient<frmSalesInvoice>();
                     services.AddTransient<frmPurchaseInvoice>();
                     services.AddTransient<frmSalesReturn>();
                     services.AddTransient<frmPurchaseReturn>();
-                    services.AddTransient<frmStockTransfer>();
+                    // services.AddTransient<frmStockTransfer>(); // MVP: hidden (V2)
                     services.AddTransient<frmListPeople>();
                     services.AddTransient<frmAddUpdatePerson>();
                     services.AddTransient<frmShowPersonInfo>();
                     services.AddTransient<frmFindPerson>();
                     services.AddTransient<frmListReturns>();
-                    services.AddTransient<frmListWarehouses>();
-                    services.AddTransient<frmListUnits>();
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmListWarehouses>();
+                    services.AddTransient<frmWarehouseMaster>();
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmListUnits>();
                     services.AddTransient<frmListSales>();
                     services.AddTransient<frmListPurchases>();
                     
                     // Module Controls — NEW Forms
-                    services.AddTransient<frmDashboard>();
-                    services.AddTransient<frmListProducts>();
-                    services.AddTransient<frmListCustomers>();
-                    services.AddTransient<frmListSuppliers>();
+                    // services.AddTransient<frmDashboard>(); // MVP: hidden (V2)
+                    services.AddTransient<frmProductMaster>();
+                    // Master forms (navigation targets from frmMain)
+                    services.AddTransient<frmCategoryMaster>();
+                    services.AddTransient<frmUnitMaster>();
+                    services.AddTransient<frmCustomerMaster>();
+                    services.AddTransient<frmSupplierMaster>();
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmListProducts>();
+                    // services.AddTransient<frmListCustomers>();
+                    // services.AddTransient<frmListSuppliers>();
                     services.AddTransient<frmInventoryList>();
-                    services.AddTransient<frmListStockTransfers>();
+                    // services.AddTransient<frmListStockTransfers>(); // MVP: hidden (V2)
                     services.AddTransient<frmListPayments>();
                     services.AddTransient<frmSettings>();
                     services.AddTransient<frmCompanySettings>();
-                    services.AddTransient<frmNotifications>();
-                    services.AddTransient<frmUpdateCheck>();
-                    services.AddTransient<frmUsers>();
+                    // services.AddTransient<frmNotifications>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmUpdateCheck>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmUsers>(); // MVP: hidden (V2)
                     services.AddTransient<frmReports>();
                     services.AddTransient<frmSalesReport>();
                     services.AddTransient<frmPurchasesReport>();
@@ -317,49 +345,52 @@ static class Program
                     services.AddTransient<frmProductMovementReport>();
                     services.AddTransient<frmLowStockReport>();
                     // Accounting Forms
-                    services.AddTransient<frmListJournalEntries>();
-                    services.AddTransient<frmAddUpdateJournalEntry>();
-                    services.AddTransient<frmListAccounts>();
-                    services.AddTransient<frmAddUpdateAccount>();
-                    services.AddTransient<frmSystemAccountMappings>();
-                    services.AddTransient<frmListAccountCategories>();
-                    services.AddTransient<frmListCategories>();
-                    services.AddTransient<frmAddUpdateAccountCategory>();
+                    // services.AddTransient<frmListJournalEntries>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateJournalEntry>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmListAccounts>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateAccount>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmSystemAccountMappings>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmListAccountCategories>(); // MVP: hidden (V2)
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmListCategories>();
+                    // services.AddTransient<frmAddUpdateAccountCategory>(); // MVP: hidden (V2)
                     // Users/Admin Forms
-                    services.AddTransient<frmAddUpdateUser>();
+                    // services.AddTransient<frmAddUpdateUser>(); // MVP: hidden (V2)
                     services.AddTransient<frmPasswordChange>();
                     services.AddTransient<frmBackup>();
-                    services.AddTransient<frmListUsers>();
-                    services.AddTransient<frmListRoles>();
-                    services.AddTransient<frmAddUpdateRole>();
-                    services.AddTransient<frmAuditLog>();
-                    services.AddTransient<frmSystemLogs>();
-                    services.AddTransient<frmUserSessions>();
-                    services.AddTransient<frmDocumentSequences>();
-                    services.AddTransient<frmListTaxes>();
-                    services.AddTransient<frmAddUpdateTax>();
-                    services.AddTransient<frmListAccountCategories>();
-                    services.AddTransient<frmAddUpdateAccountCategory>();
+                    // services.AddTransient<frmListUsers>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmListRoles>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateRole>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAuditLog>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmSystemLogs>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmUserSessions>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmDocumentSequences>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmListTaxes>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateTax>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmListAccountCategories>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateAccountCategory>(); // MVP: hidden (V2)
 
                     // Inventory Module - New Forms
                     services.AddTransient<frmListInventoryAdjustments>();
                     services.AddTransient<frmAddUpdateInventoryAdjustment>();
-                    services.AddTransient<frmListInventoryCounts>();
-                    services.AddTransient<frmInventoryCountEditor>();
+                    // services.AddTransient<frmListInventoryCounts>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmInventoryCountEditor>(); // MVP: hidden (V2)
                     services.AddTransient<frmListInventoryTransactions>();
                     services.AddTransient<frmListInventoryBatches>();
                     services.AddTransient<frmOpeningStock>();
 
                     // CashBoxes Module
-                    services.AddTransient<frmListCashBoxes>();
+                    // MVP: مخفي — replaced by Master form
+                    // services.AddTransient<frmListCashBoxes>();
+                    services.AddTransient<frmCashBoxMaster>();
                     services.AddTransient<frmAddUpdateCashBox>();
                     services.AddTransient<frmCashTransfer>();
                     services.AddTransient<frmCashBoxTransactions>();
                     services.AddTransient<frmDailyClosure>();
 
                     // Banks Module
-                    services.AddTransient<frmListBanks>();
-                    services.AddTransient<frmAddUpdateBank>();
+                    // services.AddTransient<frmListBanks>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateBank>(); // MVP: hidden (V2)
 
                     // Expenses Module
                     services.AddTransient<frmListExpenses>();
@@ -370,8 +401,8 @@ static class Program
                     services.AddTransient<frmAddUpdateCustomerReceipt>();
 
                     // PaymentVouchers Module
-                    services.AddTransient<frmListPaymentVouchers>();
-                    services.AddTransient<frmAddUpdatePaymentVoucher>();
+                    // services.AddTransient<frmListPaymentVouchers>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdatePaymentVoucher>(); // MVP: hidden (V2)
 
                     // Supplier Payments Module
                     services.AddTransient<frmListSupplierPayments>();
@@ -382,10 +413,14 @@ static class Program
                     services.AddTransient<frmSupplierPaymentDialog>();
 
                     // Product Management Forms
-                    services.AddTransient<frmProductPrices>();
-                    services.AddTransient<frmProductUnitsList>();
-                    services.AddTransient<frmAddUpdateProductUnit>();
-                    services.AddTransient<frmAddUpdateProductCategory>();
+                    // TODO(Products module owner): frmProductPrices / frmProductUnitsList no longer exist
+                    // (product master consolidation → frmProductMaster). Registrations disabled to keep
+                    // Program.cs compiling; re-add once the screens are restored or repointed.
+                    // services.AddTransient<frmProductPrices>();
+                    // services.AddTransient<frmProductUnitsList>();
+                    // services.AddTransient<frmAddUpdateProductUnit>(); // MVP: hidden - replaced by frmProductUnitMaster
+                    services.AddTransient<frmProductUnitMaster>();
+                    // services.AddTransient<frmAddUpdateProductCategory>(); // MVP: hidden - replaced by frmCategoryMaster
                     // Fully-qualified: two frmProductSelection types exist.
                     // Old API-backed picker (Products.Forms) — used by frmOpeningStock / frmAddUpdateSalesInvoice.
                     services.AddTransient<SalesSystem.Desktop.Products.Forms.frmProductSelection>();
@@ -393,14 +428,14 @@ static class Program
                     services.AddTransient<SalesSystem.Desktop.Screens.Sales.Forms.frmSmartProductSelection>();
 
                     // Receipt Vouchers
-                    services.AddTransient<frmListReceiptVouchers>();
+                    // services.AddTransient<frmListReceiptVouchers>(); // MVP: hidden (V2)
 
                     // Newly-built screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmPOS>();
-                    services.AddTransient<frmListEmployees>();
-                    services.AddTransient<frmAddUpdateEmployee>();
+                    // services.AddTransient<frmListEmployees>(); // MVP: hidden (V2)
+                    // services.AddTransient<frmAddUpdateEmployee>(); // MVP: hidden (V2)
                     services.AddTransient<frmDiscountExpenses>();
-                    services.AddTransient<frmCurrencySelection>();
+                    // services.AddTransient<frmCurrencySelection>(); // MVP: hidden (V2)
                     services.AddTransient<frmCustomerPicker>();
 
                     // المبيعات — أدوات الفاتورة الإضافية (جديد)
@@ -416,10 +451,10 @@ static class Program
                     services.AddTransient<frmSalesInlineGrid>();
 
                     // Newly-built module hub screens (wired into frmMain MenuStrip)
-                    services.AddTransient<frmCashVouchers>();
+                    // services.AddTransient<frmCashVouchers>(); // MVP: hidden (V2)
                     services.AddTransient<frmPurchases>();
                     services.AddTransient<frmInventory>();
-                    services.AddTransient<frmAccounting>();
+                    // services.AddTransient<frmAccounting>(); // MVP: hidden (V2)
                     services.AddTransient<frmReportsDashboard>();
                 })
                 .Build();

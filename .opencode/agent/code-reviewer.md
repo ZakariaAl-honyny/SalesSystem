@@ -2,7 +2,7 @@
 name: "Code Reviewer"
 description: "Reviews code for quality, financial integrity, architecture, and WinForms conventions. Use before merging a feature branch."
 mode: subagent
-model: opencode-go/qwen3.8-flash
+model: opencode-go/deepseek-v4-pro
 permission:
   edit: deny
 ---

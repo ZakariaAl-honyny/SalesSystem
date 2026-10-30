@@ -12,4 +12,5 @@ public interface IWarehouseService
     Task<Result<WarehouseDto>> UpdateAsync(int id, UpdateWarehouseRequest request, CancellationToken ct);
     Task<Result> DeleteAsync(int id, CancellationToken ct);
     Task<Result> PermanentDeleteAsync(int id, CancellationToken ct);
+    Task<Result> SetDefaultAsync(int id, CancellationToken ct = default);
 }

@@ -8,10 +8,8 @@
         {
             components = new System.ComponentModel.Container();
             lblTitle = new Label();
-            lblUserName = new Label();
-            txtUserName = new TextBox();
-            lblPassword = new Label();
-            txtPassword = new TextBox();
+            lblPin = new Label();
+            txtPin = new TextBox();
             btnLogin = new Button();
             lblError = new Label();
             errorProvider1 = new ErrorProvider(components);
@@ -29,44 +27,27 @@
             lblTitle.Text = "برنامج إدارة المبيعات";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // lblUserName
+            // lblPin
             // 
-            lblUserName.Location = new Point(114, 167);
-            lblUserName.Margin = new Padding(4, 0, 4, 0);
-            lblUserName.Name = "lblUserName";
-            lblUserName.Size = new Size(143, 42);
-            lblUserName.TabIndex = 5;
-            lblUserName.Text = "اسم المستخدم:";
+            lblPin.Location = new Point(114, 210);
+            lblPin.Margin = new Padding(4, 0, 4, 0);
+            lblPin.Name = "lblPin";
+            lblPin.Size = new Size(143, 31);
+            lblPin.TabIndex = 3;
+            lblPin.Text = "رمز الدخول (PIN):";
+            lblPin.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // txtUserName
+            // txtPin
             // 
-            txtUserName.Location = new Point(257, 162);
-            txtUserName.Margin = new Padding(4, 5, 4, 5);
-            txtUserName.Name = "txtUserName";
-            txtUserName.Size = new Size(284, 31);
-            txtUserName.TabIndex = 1;
-            txtUserName.KeyDown += txtUserName_KeyDown;
-            txtUserName.Validating += _ValidateEmptyTextBox;
-            // 
-            // lblPassword
-            // 
-            lblPassword.Location = new Point(114, 233);
-            lblPassword.Margin = new Padding(4, 0, 4, 0);
-            lblPassword.Name = "lblPassword";
-            lblPassword.Size = new Size(143, 42);
-            lblPassword.TabIndex = 4;
-            lblPassword.Text = "كلمة المرور:";
-            // 
-            // txtPassword
-            // 
-            txtPassword.Location = new Point(257, 228);
-            txtPassword.Margin = new Padding(4, 5, 4, 5);
-            txtPassword.Name = "txtPassword";
-            txtPassword.Size = new Size(284, 31);
-            txtPassword.TabIndex = 2;
-            txtPassword.UseSystemPasswordChar = true;
-            txtPassword.KeyDown += txtPassword_KeyDown;
-            txtPassword.Validating += _ValidateEmptyTextBox;
+            txtPin.Location = new Point(257, 206);
+            txtPin.Margin = new Padding(4, 5, 4, 5);
+            txtPin.MaxLength = 12;
+            txtPin.Name = "txtPin";
+            txtPin.Size = new Size(284, 31);
+            txtPin.TabIndex = 1;
+            txtPin.TextAlign = HorizontalAlignment.Center;
+            txtPin.UseSystemPasswordChar = true;
+            txtPin.KeyPress += txtPin_KeyPress;
             // 
             // btnLogin
             // 
@@ -75,11 +56,11 @@
             btnLogin.FlatAppearance.BorderSize = 2;
             btnLogin.FlatStyle = FlatStyle.Popup;
             btnLogin.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnLogin.Location = new Point(257, 308);
+            btnLogin.Location = new Point(257, 285);
             btnLogin.Margin = new Padding(4, 5, 4, 5);
             btnLogin.Name = "btnLogin";
             btnLogin.Size = new Size(286, 68);
-            btnLogin.TabIndex = 3;
+            btnLogin.TabIndex = 2;
             btnLogin.Text = "دخول";
             btnLogin.UseVisualStyleBackColor = false;
             btnLogin.Click += btnLogin_Click;
@@ -87,11 +68,11 @@
             // lblError
             // 
             lblError.ForeColor = Color.Red;
-            lblError.Location = new Point(0, 392);
+            lblError.Location = new Point(0, 380);
             lblError.Margin = new Padding(4, 0, 4, 0);
             lblError.Name = "lblError";
             lblError.Size = new Size(686, 50);
-            lblError.TabIndex = 0;
+            lblError.TabIndex = 4;
             lblError.TextAlign = ContentAlignment.MiddleCenter;
             lblError.Visible = false;
             // 
@@ -99,13 +80,11 @@
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.WhiteSmoke;
-            ClientSize = new Size(686, 533);
+            ClientSize = new Size(686, 470);
             Controls.Add(lblError);
             Controls.Add(btnLogin);
-            Controls.Add(txtPassword);
-            Controls.Add(lblPassword);
-            Controls.Add(txtUserName);
-            Controls.Add(lblUserName);
+            Controls.Add(txtPin);
+            Controls.Add(lblPin);
             Controls.Add(lblTitle);
             Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -122,10 +101,8 @@
         }
 
         private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.Label lblUserName;
-        private System.Windows.Forms.TextBox txtUserName;
-        private System.Windows.Forms.Label lblPassword;
-        private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.Label lblPin;
+        private System.Windows.Forms.TextBox txtPin;
         private System.Windows.Forms.Button btnLogin;
         private System.Windows.Forms.Label lblError;
         private System.Windows.Forms.ErrorProvider errorProvider1;

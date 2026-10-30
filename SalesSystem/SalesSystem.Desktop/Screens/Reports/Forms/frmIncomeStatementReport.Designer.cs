@@ -56,7 +56,7 @@ partial class frmIncomeStatementReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ظ‚ط§ط¦ظ…ط© ط§ظ„ط¯ط®ظ„";
+        lblMode.Text = "قائمة الدخل";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -91,7 +91,7 @@ partial class frmIncomeStatementReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(173, 40);
         btnRefresh.TabIndex = 5;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -110,7 +110,7 @@ partial class frmIncomeStatementReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(173, 40);
         btnExport.TabIndex = 6;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -126,7 +126,7 @@ partial class frmIncomeStatementReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 40);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -140,7 +140,7 @@ partial class frmIncomeStatementReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 3;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -163,7 +163,7 @@ partial class frmIncomeStatementReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 9;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // dtpFrom
         // 
@@ -184,7 +184,7 @@ partial class frmIncomeStatementReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 11;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // dtpTo
         // 
@@ -220,7 +220,7 @@ partial class frmIncomeStatementReport
         loadingLabel.Name = "loadingLabel";
         loadingLabel.Size = new Size(1200, 680);
         loadingLabel.TabIndex = 0;
-        loadingLabel.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        loadingLabel.Text = "جارٍ التحميل...";
         loadingLabel.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // frmIncomeStatementReport
@@ -245,7 +245,7 @@ partial class frmIncomeStatementReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ظ‚ط§ط¦ظ…ط© ط§ظ„ط¯ط®ظ„";
+        Text = "قائمة الدخل";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

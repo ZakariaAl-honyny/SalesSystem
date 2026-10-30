@@ -18,7 +18,7 @@ public class MockReceiptVoucherApiService : IReceiptVoucherApiService
         {
             query = query.Where(v =>
                 v.VoucherNo.ToString().Contains(search) ||
-                (v.PartyName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (v.AccountName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 (v.CashBoxName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 (v.Notes ?? "").Contains(search, StringComparison.OrdinalIgnoreCase));
         }
@@ -58,9 +58,8 @@ public class MockReceiptVoucherApiService : IReceiptVoucherApiService
             Status: 1, // Draft
             CreatedAt: DateTime.UtcNow,
             PostedAt: null,
-            CancelledAt: null,
-            PaymentMethod: 0,
-            Currency: "YER"
+            CancelledAt: null
+            // TODO: PaymentMethod / Currency removed from ReceiptVoucherDto.
         );
 
         MockVouchersData.Receipts.Add(voucher);

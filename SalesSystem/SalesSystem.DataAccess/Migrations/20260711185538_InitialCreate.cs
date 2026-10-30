@@ -272,7 +272,7 @@ namespace SalesSystem.DataAccess.Migrations
                 {
                     Id = table.Column<short>(type: "smallint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, comment: "��� ��������"),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false, comment: "اسم المستودع"),
                     Phone = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
@@ -341,7 +341,7 @@ namespace SalesSystem.DataAccess.Migrations
                     ReorderLevel = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false),
                     TrackExpiry = table.Column<bool>(type: "bit", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Barcode = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "Primary barcode for quick lookup � ASCII-only, not a unique identifier"),
+                    Barcode = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true, comment: "Primary barcode for quick lookup — ASCII-only, not a unique identifier"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedByUserId = table.Column<int>(type: "int", nullable: true),
@@ -608,14 +608,14 @@ namespace SalesSystem.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TransactionNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "��� �������� � ����"),
-                    MovementType = table.Column<byte>(type: "tinyint", nullable: false, comment: "��� ������ (������ʡ �����ʡ ����� ����ɡ ���)"),
+                    TransactionNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "رقم المعاملة — فريد"),
+                    MovementType = table.Column<byte>(type: "tinyint", nullable: false, comment: "نوع الحركة (مشتريات، مبيعات، تحويل، تسوية، إلخ)"),
                     WarehouseId = table.Column<short>(type: "smallint", nullable: false),
-                    ReferenceType = table.Column<byte>(type: "tinyint", nullable: true, comment: "��� ������� �������"),
-                    ReferenceId = table.Column<int>(type: "int", nullable: true, comment: "���� ������� �������"),
+                    ReferenceType = table.Column<byte>(type: "tinyint", nullable: true, comment: "نوع المستند المرجعي"),
+                    ReferenceId = table.Column<int>(type: "int", nullable: true, comment: "معرف المستند المرجعي"),
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()", comment: "����� �������"),
-                    CreatedByUserId = table.Column<int>(type: "int", nullable: false, defaultValue: 0, comment: "���� �������� ������")
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()", comment: "تاريخ الإنشاء"),
+                    CreatedByUserId = table.Column<int>(type: "int", nullable: false, defaultValue: 0, comment: "معرف المستخدم المنشئ")
                 },
                 constraints: table =>
                 {
@@ -634,7 +634,7 @@ namespace SalesSystem.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TransferNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "��� ������� � ����"),
+                    TransferNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "رقم التحويل — فريد"),
                     SourceWarehouseId = table.Column<short>(type: "smallint", nullable: false),
                     DestinationWarehouseId = table.Column<short>(type: "smallint", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
@@ -1313,11 +1313,11 @@ namespace SalesSystem.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InventoryTransactionId = table.Column<int>(type: "int", nullable: false),
                     ProductUnitId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "������ ������ ������� ��������"),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, comment: "����� ������"),
-                    BatchNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, comment: "��� ������"),
-                    ExpiryDate = table.Column<DateOnly>(type: "date", nullable: true, comment: "����� ������ ��������"),
-                    WarehouseId = table.Column<short>(type: "smallint", nullable: true, comment: "���� �������� (��� ��� ������� �� �������� �������)")
+                    Quantity = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "الكمية بوحدات التخزين الأساسية"),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, comment: "تكلفة الوحدة"),
+                    BatchNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, comment: "رقم الدفعة"),
+                    ExpiryDate = table.Column<DateOnly>(type: "date", nullable: true, comment: "تاريخ انتهاء الصلاحية"),
+                    WarehouseId = table.Column<short>(type: "smallint", nullable: true, comment: "معرف المستودع (إذا كان مختلفاً عن المستودع الرئيسي)")
                 },
                 constraints: table =>
                 {
@@ -1345,9 +1345,9 @@ namespace SalesSystem.DataAccess.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductUnitId = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, comment: "�����"),
-                    EffectiveFrom = table.Column<DateTime>(type: "date", nullable: false, comment: "����� ��� �������"),
-                    EffectiveTo = table.Column<DateTime>(type: "date", nullable: true, comment: "����� ������ ������� (�������)"),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, comment: "السعر"),
+                    EffectiveFrom = table.Column<DateTime>(type: "date", nullable: false, comment: "تاريخ بدء السريان"),
+                    EffectiveTo = table.Column<DateTime>(type: "date", nullable: true, comment: "تاريخ انتهاء السريان (اختياري)"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedByUserId = table.Column<int>(type: "int", nullable: true),
@@ -1373,8 +1373,8 @@ namespace SalesSystem.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     WarehouseTransferId = table.Column<int>(type: "int", nullable: false),
                     ProductUnitId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "������ ������ ������� ��������"),
-                    BatchNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, comment: "��� ������ ��������")
+                    Quantity = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "الكمية بوحدات التخزين الأساسية"),
+                    BatchNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, comment: "رقم الدفعة المنقولة")
                 },
                 constraints: table =>
                 {
@@ -1758,17 +1758,17 @@ namespace SalesSystem.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BatchNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "��� ������ (nvarchar 50)"),
+                    BatchNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false, comment: "رقم الدفعة (nvarchar 50)"),
                     ProductId = table.Column<int>(type: "int", nullable: false),
-                    WarehouseId = table.Column<short>(type: "smallint", nullable: false, comment: "���� �������� (smallint FK)"),
+                    WarehouseId = table.Column<short>(type: "smallint", nullable: false, comment: "معرف المستودع (smallint FK)"),
                     PurchaseInvoiceId = table.Column<int>(type: "int", nullable: true),
                     PurchaseInvoiceLineId = table.Column<int>(type: "int", nullable: true),
-                    SupplierBatchNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true, comment: "��� ������ �� ������"),
-                    ExpiryDate = table.Column<DateOnly>(type: "date", nullable: true, comment: "����� ������ ��������"),
-                    QuantityReceived = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "������ �������� �� ������"),
-                    QuantityRemaining = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "������ �������� �� ������"),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, comment: "����� ������ ��� ������"),
-                    IsClosed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false, comment: "�� ������ ����� (�� ��������� �������)"),
+                    SupplierBatchNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true, comment: "رقم الدفعة من المورد"),
+                    ExpiryDate = table.Column<DateOnly>(type: "date", nullable: true, comment: "تاريخ انتهاء الصلاحية"),
+                    QuantityReceived = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "الكمية المستلمة في الدفعة"),
+                    QuantityRemaining = table.Column<decimal>(type: "decimal(18,3)", precision: 18, scale: 3, nullable: false, comment: "الكمية المتبقية في الدفعة"),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, comment: "تكلفة الوحدة عند الشراء"),
+                    IsClosed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false, comment: "هل الدفعة مغلقة (تم استهلاكها بالكامل)"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedByUserId = table.Column<int>(type: "int", nullable: true),

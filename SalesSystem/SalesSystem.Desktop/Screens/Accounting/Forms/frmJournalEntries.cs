@@ -229,7 +229,10 @@ public partial class frmJournalEntries : Form
                 line.AccountName ?? "",
                 line.Debit > 0 ? line.Debit.ToString("N2") : "",
                 line.Credit > 0 ? line.Credit.ToString("N2") : "",
-                line.CostCenterCode ?? "",
+                // TODO: JournalEntryLineDetailDto no longer exposes a cost-center field
+                // (CostCenterCode was removed). The column is kept but stays empty until
+                // the DTO carries cost-center data again.
+                string.Empty,
                 line.Description ?? ""
             );
         }

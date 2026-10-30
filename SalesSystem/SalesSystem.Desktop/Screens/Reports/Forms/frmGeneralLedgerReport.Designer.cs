@@ -59,7 +59,7 @@ partial class frmGeneralLedgerReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ط¯ظپطھط± ط§ظ„ط£ط³طھط§ط° ط§ظ„ط¹ط§ظ…";
+        lblMode.Text = "دفتر الأستاذ العام";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -92,7 +92,7 @@ partial class frmGeneralLedgerReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(100, 36);
         btnRefresh.TabIndex = 1;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -109,7 +109,7 @@ partial class frmGeneralLedgerReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(162, 36);
         btnExport.TabIndex = 2;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -124,7 +124,7 @@ partial class frmGeneralLedgerReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 50);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -137,7 +137,7 @@ partial class frmGeneralLedgerReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 11;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -159,7 +159,7 @@ partial class frmGeneralLedgerReport
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(58, 24);
         lblSummary.TabIndex = 10;
-        lblSummary.Text = "ط¬ط§ظ‡ط²";
+        lblSummary.Text = "جاهز";
         // 
         // loadingPanel
         // 
@@ -188,7 +188,7 @@ partial class frmGeneralLedgerReport
         ll.Name = "ll";
         ll.Size = new Size(168, 29);
         ll.TabIndex = 0;
-        ll.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        ll.Text = "جارٍ التحميل...";
         // 
         // dtpTo
         // 
@@ -207,7 +207,7 @@ partial class frmGeneralLedgerReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 7;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // dtpFrom
         // 
@@ -238,7 +238,7 @@ partial class frmGeneralLedgerReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 5;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // label5
         // 
@@ -248,7 +248,7 @@ partial class frmGeneralLedgerReport
         label5.Name = "label5";
         label5.Size = new Size(135, 24);
         label5.TabIndex = 3;
-        label5.Text = "ط±ظ‚ظ… ط§ظ„ط­ط³ط§ط¨:";
+        label5.Text = "رقم الحساب:";
         // 
         // frmGeneralLedgerReport
         // 
@@ -271,7 +271,7 @@ partial class frmGeneralLedgerReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ط¯ظپطھط± ط§ظ„ط£ط³طھط§ط° ط§ظ„ط¹ط§ظ…";
+        Text = "دفتر الأستاذ العام";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

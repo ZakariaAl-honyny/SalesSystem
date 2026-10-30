@@ -42,14 +42,14 @@ public class PersonService : IPersonService
         {
             var person = _people.FirstOrDefault(p => p.Id == id);
             if (person == null)
-                return Task.FromResult(Result<PersonDto>.Failure("ظ„ط§ ظٹظˆط¬ط¯ ط´ط®طµ ط¨ظ‡ط°ط§ ط§ظ„ظ…ط¹ط±ظپ", ErrorCodes.NotFound));
+                return Task.FromResult(Result<PersonDto>.Failure("لا يوجد شخص بهذا المعرف", ErrorCodes.NotFound));
 
             return Task.FromResult(Result<PersonDto>.Success(person));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving person {Id}", id);
-            return Task.FromResult(Result<PersonDto>.Failure("ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ط³طھط±ط¬ط§ط¹ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط´ط®طµ"));
+            return Task.FromResult(Result<PersonDto>.Failure("حدث خطأ أثناء استرجاع بيانات الشخص"));
         }
     }
 
@@ -59,14 +59,14 @@ public class PersonService : IPersonService
         {
             var person = _people.FirstOrDefault(p => p.NationalNo == nationalNo);
             if (person == null)
-                return Task.FromResult(Result<PersonDto>.Failure("ظ„ط§ ظٹظˆط¬ط¯ ط´ط®طµ ط¨ظ‡ط°ط§ ط§ظ„ط±ظ‚ظ… ط§ظ„ظˆط·ظ†ظٹ", ErrorCodes.NotFound));
+                return Task.FromResult(Result<PersonDto>.Failure("لا يوجد شخص بهذا الرقم الوطني", ErrorCodes.NotFound));
 
             return Task.FromResult(Result<PersonDto>.Success(person));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving person by national no {NationalNo}", nationalNo);
-            return Task.FromResult(Result<PersonDto>.Failure("ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ط³طھط±ط¬ط§ط¹ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط´ط®طµ"));
+            return Task.FromResult(Result<PersonDto>.Failure("حدث خطأ أثناء استرجاع بيانات الشخص"));
         }
     }
 
@@ -105,7 +105,7 @@ public class PersonService : IPersonService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating person");
-            return Task.FromResult(Result<PersonDto>.Failure("ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط¥ظ†ط´ط§ط، ط¨ظٹط§ظ†ط§طھ ط§ظ„ط´ط®طµ"));
+            return Task.FromResult(Result<PersonDto>.Failure("حدث خطأ أثناء إنشاء بيانات الشخص"));
         }
     }
 
@@ -115,7 +115,7 @@ public class PersonService : IPersonService
         {
             var index = _people.FindIndex(p => p.Id == id);
             if (index < 0)
-                return Task.FromResult(Result<PersonDto>.Failure("ظ„ط§ ظٹظˆط¬ط¯ ط´ط®طµ ط¨ظ‡ط°ط§ ط§ظ„ظ…ط¹ط±ظپ", ErrorCodes.NotFound));
+                return Task.FromResult(Result<PersonDto>.Failure("لا يوجد شخص بهذا المعرف", ErrorCodes.NotFound));
 
             var updated = new PersonDto(
                 Id: id,
@@ -148,7 +148,33 @@ public class PersonService : IPersonService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating person {Id}", id);
-            return Task.FromResult(Result<PersonDto>.Failure("ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، طھط­ط¯ظٹط« ط¨ظٹط§ظ†ط§طھ ط§ظ„ط´ط®طµ"));
+            return Task.FromResult(Result<PersonDto>.Failure("حدث خطأ أثناء تحديث بيانات الشخص"));
+        }
+    }
+
+    public Task<Result> DeactivateAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            var index = _people.FindIndex(p => p.Id == id);
+            if (index < 0)
+                return Task.FromResult(Result.Failure("لا يوجد شخص بهذا المعرف", ErrorCodes.NotFound));
+
+            _people[index] = _people[index] with { IsActive = false };
+
+            _logger.LogInformation("Person deactivated (ID: {PersonId})", id);
+
+            return Task.FromResult(Result.Success());
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain rule violation deactivating person {Id}: {Message}", id, ex.Message);
+            return Task.FromResult(Result.Failure(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deactivating person {Id}", id);
+            return Task.FromResult(Result.Failure("حدث خطأ أثناء تعطيل بيانات الشخص"));
         }
     }
 }

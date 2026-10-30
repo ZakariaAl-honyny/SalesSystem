@@ -99,18 +99,18 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
 
-            this.lblInvoiceNoLabel.Text = "��� ��������:";
-            this.lblInvoiceNo.Text = "����";
-            this.lblDate.Text = "�������:";
+            this.lblInvoiceNoLabel.Text = "رقم الفاتورة:";
+            this.lblInvoiceNo.Text = "جديد";
+            this.lblDate.Text = "التاريخ:";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblStatus.BackColor = System.Drawing.Color.Blue;
             this.lblStatus.ForeColor = System.Drawing.Color.White;
             this.lblStatus.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.lblSupplier.Text = "������:";
-            this.lblWarehouse.Text = "������ ������:";
-            this.lblPaymentType.Text = "��� �����:";
+            this.lblSupplier.Text = "المورد:";
+            this.lblWarehouse.Text = "المستودع:";
+            this.lblPaymentType.Text = "نوع الدفع:";
 
-            this.cmbPaymentType.Items.AddRange(new object[] { "����", "���", "�����" });
+            this.cmbPaymentType.Items.AddRange(new object[] { "نقدي", "آجل", "مختلط" });
 
             // pnlTaxDiscountHeader
             this.tableLayoutPanel1.SetColumnSpan(this.pnlTaxDiscountHeader, 6);
@@ -120,9 +120,9 @@
             this.pnlTaxDiscountHeader.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlTaxDiscountHeader.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
 
-            this.chkTaxInclusive.Text = "���� �������";
+            this.chkTaxInclusive.Text = "شامل الضريبة";
             this.chkTaxInclusive.Width = 120;
-            this.lblTaxRate.Text = "���� ������� %:";
+            this.lblTaxRate.Text = "نسبة الضريبة %:";
             this.lblTaxRate.AutoSize = true;
             this.lblTaxRate.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.numTaxRate.DecimalPlaces = 2;
@@ -161,13 +161,13 @@
             this.tableLayoutPanel2.Width = 300;
             this.tableLayoutPanel2.RowCount = 6;
 
-            this.lblSubTotal.Text = "�������� ������:";
-            this.lblTaxAmount.Text = "���� �������:";
-            this.lblInvoiceDiscount.Text = "��� ��������:";
-            this.lblTotal.Text = "�������� �������:";
+            this.lblSubTotal.Text = "المجموع الفرعي:";
+            this.lblTaxAmount.Text = "مبلغ الضريبة:";
+            this.lblInvoiceDiscount.Text = "خصم الفاتورة:";
+            this.lblTotal.Text = "الإجمالي النهائي:";
             this.lblTotal.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
-            this.lblPaid.Text = "������ �������:";
-            this.lblDue.Text = "������ �������:";
+            this.lblPaid.Text = "المبلغ المدفوع:";
+            this.lblDue.Text = "المبلغ المتبقي:";
             this.lblDue.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
 
             this.numInvoiceDiscount.DecimalPlaces = 2;
@@ -178,7 +178,7 @@
             this.txtNotes.Dock = System.Windows.Forms.DockStyle.Left;
             this.txtNotes.Width = 400;
             this.txtNotes.Multiline = true;
-            this.txtNotes.PlaceholderText = "������� ��������...";
+            this.txtNotes.PlaceholderText = "ملاحظات اختيارية...";
 
             // pnlButtons
             this.pnlButtons.Controls.Add(this.btnClose);

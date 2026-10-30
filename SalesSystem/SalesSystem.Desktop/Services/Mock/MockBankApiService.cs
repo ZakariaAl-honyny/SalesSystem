@@ -40,18 +40,10 @@ public class MockBankApiService : IBankApiService
             Name: r.Name,
             AccountNumber: r.AccountNumber,
             Iban: r.Iban,
-            IsActive: true,
-            Currency: r.Currency ?? "YER",
-            BranchId: r.BranchId,
-            BranchName: null,
-            ContactPerson: r.ContactPerson,
-            ContactPhone: r.ContactPhone,
-            OverdraftLimit: r.OverdraftLimit,
-            OpeningBalance: r.OpeningBalance,
-            CurrentBalance: r.OpeningBalance,
-            Notes: r.Notes,
-            LastReconciliationDate: null
+            IsActive: true
         );
+        // TODO: Currency / BranchId / BranchName / ContactPerson / ContactPhone / OverdraftLimit /
+        // OpeningBalance / CurrentBalance / Notes / LastReconciliationDate removed from BankDto.
         MockData.Banks.Add(bank);
         return Task.FromResult(Result<BankDto>.Success(bank));
     }
@@ -66,13 +58,10 @@ public class MockBankApiService : IBankApiService
         {
             Name = r.Name,
             AccountNumber = r.AccountNumber,
-            Iban = r.Iban,
-            Currency = r.Currency ?? existing.Currency,
-            ContactPerson = r.ContactPerson,
-            ContactPhone = r.ContactPhone,
-            OverdraftLimit = r.OverdraftLimit,
-            Notes = r.Notes
+            Iban = r.Iban
         };
+        // TODO: Currency / ContactPerson / ContactPhone / OverdraftLimit / Notes removed from
+        // UpdateBankRequest and BankDto — they now live on the linked Account.
 
         var index = MockData.Banks.IndexOf(existing);
         MockData.Banks[index] = updated;

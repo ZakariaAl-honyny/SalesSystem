@@ -68,10 +68,8 @@ public class MockExpenseApiService : IExpenseApiService
             Notes: request.Notes,
             Status: 1,
             StatusName: "مسودة",
-            IsActive: true,
-            Currency: "YER",
-            ExpenseAccountCode: account?.AccountCode,
-            BranchName: null
+            IsActive: true
+            // TODO: Currency / ExpenseAccountCode / BranchName removed from ExpenseDto.
         );
 
         MockExpensesData.Expenses.Add(expense);
@@ -95,7 +93,6 @@ public class MockExpenseApiService : IExpenseApiService
             ExpenseDate = request.ExpenseDate,
             ExpenseAccountId = request.ExpenseAccountId,
             ExpenseAccountName = account?.NameAr ?? existing.ExpenseAccountName,
-            ExpenseAccountCode = account?.AccountCode ?? existing.ExpenseAccountCode,
             CashBoxId = request.CashBoxId,
             CashBoxName = cashBox?.Name ?? existing.CashBoxName,
             Amount = request.Amount,

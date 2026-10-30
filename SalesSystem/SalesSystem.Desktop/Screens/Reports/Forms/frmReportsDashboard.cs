@@ -14,14 +14,43 @@ namespace SalesSystem.Desktop.Screens.Reports.Forms
         private static readonly decimal _stockValue = 2_100_000m;
         private static readonly decimal _receivables = 420_000m;
 
-        // Report list grouped by category
-        private static readonly (string Category, string[] Reports)[] _reportGroups =
+        // Report list — كل التقارير محفوظة هنا، والعمود Mvp يحدد ما يُعرض للمستخدم
+        // MVP: التقارير الستة الأساسية عليها true، والباقي مخفي (HIDE, never delete)
+        private static readonly (string Category, string Report, bool Mvp)[] _reportGroups =
         {
-            ("المبيعات", new[] { "مبيعات حسب الصنف", "مبيعات حسب العميل", "مبيعات حسب التصنيف", "أرباح العملاء" }),
-            ("المشتريات", new[] { "المشتريات حسب المورد", "المشتريات حسب الصنف" }),
-            ("المخزون", new[] { "حركة الأصناف", "أرصدة المخزون", "انتهاء الصلاحية" }),
-            ("المحاسبة", new[] { "ميزان المراجعة", "كشف الحساب", "قائمة الدخل" }),
-            ("الخزينة", new[] { "حركة الصندوق", "Z-Report" }),
+            // ── التقارير الأساسية المعروضة (MVP) ─────────────────────────────────
+            ("المبيعات", "تقرير المبيعات", true),              // MVP: أساسي 1
+            ("المشتريات", "تقرير المشتريات", true),            // MVP: أساسي 2
+            ("المخزون", "تقرير المخزون الحالي", true),         // MVP: أساسي 3
+            ("المبيعات", "تقرير الأرباح", true),               // MVP: أساسي 4
+            ("المحاسبة", "كشف حساب عميل", true),               // MVP: أساسي 5
+            ("المحاسبة", "كشف حساب مورد", true),               // MVP: أساسي 6
+
+            // ── تقارير محفوظة لكنها مخفية عن المستخدم ────────────────────────────
+            ("المبيعات", "مبيعات حسب الصنف", false),           // MVP: مخفي
+            ("المبيعات", "مبيعات حسب العميل", false),          // MVP: مخفي
+            ("المبيعات", "مبيعات حسب التصنيف", false),         // MVP: مخفي
+            ("المبيعات", "مبيعات يومية", false),               // MVP: مخفي
+            ("المبيعات", "أرباح العملاء", false),              // MVP: مخفي
+            ("المشتريات", "المشتريات حسب المورد", false),      // MVP: مخفي
+            ("المشتريات", "المشتريات حسب الصنف", false),       // MVP: مخفي
+            ("المخزون", "حركة الأصناف", false),                // MVP: مخفي
+            ("المخزون", "أرصدة المخزون", false),               // MVP: مخفي
+            ("المخزون", "انتهاء الصلاحية", false),             // MVP: مخفي
+            ("المخزون", "دفتر المخزون التفصيلي", false),       // MVP: مخفي
+            ("المخزون", "حركات المخازن", false),               // MVP: مخفي
+            ("المحاسبة", "ميزان المراجعة", false),             // MVP: مخفي
+            ("المحاسبة", "كشف الحساب (أرصدة)", false),         // MVP: مخفي
+            ("المحاسبة", "قائمة الدخل", false),                // MVP: مخفي
+            ("المحاسبة", "الميزانية العمومية", false),         // MVP: مخفي
+            ("المحاسبة", "دفتر الأستاذ العام", false),         // MVP: مخفي
+            ("المحاسبة", "التدفق النقدي", false),              // MVP: مخفي
+            ("المحاسبة", "ضريبة القيمة المضافة", false),       // MVP: مخفي
+            ("المحاسبة", "الأعمار (Aging)", false),            // MVP: مخفي
+            ("الخزينة", "حركة الصندوق", false),                // MVP: مخفي
+            ("الخزينة", "Z-Report", false),                    // MVP: مخفي
+            ("الخزينة", "الإغلاق اليومي", false),              // MVP: مخفي
+            ("أخرى", "تقرير المرتجعات", false),                // MVP: مخفي
         };
 
         public frmReportsDashboard(IServiceProvider serviceProvider)
@@ -60,16 +89,17 @@ namespace SalesSystem.Desktop.Screens.Reports.Forms
             tvReports.BeginUpdate();
             tvReports.Nodes.Clear();
 
-            foreach (var (category, reports) in _reportGroups)
+            // MVP: تُعرض التقارير التي عليها Mvp = true فقط، مجمّعة حسب التصنيف
+            foreach (var group in _reportGroups.Where(r => r.Mvp).GroupBy(r => r.Category))
             {
-                var categoryNode = new TreeNode(category)
+                var categoryNode = new TreeNode(group.Key)
                 {
                     NodeFont = new Font("Tahoma", 10F, FontStyle.Bold)
                 };
 
-                foreach (var report in reports)
+                foreach (var report in group)
                 {
-                    categoryNode.Nodes.Add(new TreeNode(report));
+                    categoryNode.Nodes.Add(new TreeNode(report.Report));
                 }
 
                 tvReports.Nodes.Add(categoryNode);

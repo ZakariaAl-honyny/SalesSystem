@@ -1,9 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
-using SalesSystem.Desktop.Services;
-using SalesSystem.DTO.Common;
-using SalesSystem.Desktop.Helpers;
+﻿using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Settings.Forms
 {
@@ -57,33 +52,11 @@ namespace SalesSystem.Desktop.Screens.Settings.Forms
 
             try
             {
-                // Attempt to check updates via API
-                var httpClient = _serviceProvider.GetRequiredService<HttpClientService>();
-                var result = await httpClient.GetAsync<UpdateCheckResponse>("api/v1/updates/check");
-                if (result.IsSuccess && result.Value != null)
-                {
-                    var update = result.Value;
-                    lblLatestVersionValue.Text = update.LatestVersion;
-                    txtChangelog.Text = string.Join(Environment.NewLine, update.Changelog ?? new List<string>());
-
-                    if (update.HasUpdate)
-                    {
-                            lblStatusValue.Text = "تحديث متوفر!";
-                            lblStatusValue.ForeColor = System.Drawing.Color.FromArgb(46, 204, 113);
-                            btnCheckForUpdates.Text = "تحميل التحديث";
-                        _downloadCts = new CancellationTokenSource();
-                    }
-                    else
-                    {
-                            lblStatusValue.Text = "لديك أحدث إصدار";
-                            lblStatusValue.ForeColor = System.Drawing.Color.FromArgb(52, 152, 219);
-                            btnCheckForUpdates.Text = "التحقق من التحديثات";
-                    }
-                }
-                else
-                {
-                    _SetNoUpdateStatus();
-                }
+                // NOTE: the HTTP layer was removed from this application (2-Tier edition).
+                // Update checking over the network is no longer available, so this is a
+                // no-network stub that simply reports "no update available".
+                await Task.CompletedTask;
+                _SetNoUpdateStatus();
             }
             catch
             {
@@ -99,26 +72,17 @@ namespace SalesSystem.Desktop.Screens.Settings.Forms
 
         private void _SetNoUpdateStatus()
         {
-            lblStatusValue.Text = "لا توجد تحديثات متاحة";
+            lblStatusValue.Text = "لا توجد تحديثات متوفرة";
             lblStatusValue.ForeColor = System.Drawing.Color.Gray;
             lblLatestVersionValue.Text = lblCurrentVersionValue.Text;
-            txtChangelog.Text = "تعذر الاتصال بخادم التحديثات. يرجى المحاولة لاحقاً.";
+            btnCheckForUpdates.Text = "التحقق من التحديثات";
+            txtChangelog.Text = "لا توجد تحديثات متوفرة. لديك أحدث إصدار.";
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
             _downloadCts?.Cancel();
             Close();
-        }
-
-        /// <summary>
-        /// Response model for the update check API endpoint.
-        /// </summary>
-        private class UpdateCheckResponse
-        {
-            public string LatestVersion { get; set; } = string.Empty;
-            public bool HasUpdate { get; set; }
-            public List<string>? Changelog { get; set; }
         }
     }
 }

@@ -50,7 +50,7 @@ partial class frmWorkingCapitalReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ط±ط£ط³ ط§ظ„ظ…ط§ظ„ ط§ظ„ط¹ط§ظ…ظ„";
+        lblMode.Text = "رأس المال العامل";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -83,7 +83,7 @@ partial class frmWorkingCapitalReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(100, 36);
         btnRefresh.TabIndex = 1;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -100,7 +100,7 @@ partial class frmWorkingCapitalReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(164, 36);
         btnExport.TabIndex = 2;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -115,7 +115,7 @@ partial class frmWorkingCapitalReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 50);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -128,7 +128,7 @@ partial class frmWorkingCapitalReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 7;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         label1.Click += label1_Click;
         // 
         // lblRecordsCount
@@ -151,7 +151,7 @@ partial class frmWorkingCapitalReport
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(58, 24);
         lblSummary.TabIndex = 6;
-        lblSummary.Text = "ط¬ط§ظ‡ط²";
+        lblSummary.Text = "جاهز";
         // 
         // loadingPanel
         // 
@@ -176,7 +176,7 @@ partial class frmWorkingCapitalReport
         ll.Name = "ll";
         ll.Size = new Size(168, 29);
         ll.TabIndex = 0;
-        ll.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        ll.Text = "جارٍ التحميل...";
         // 
         // dtpAsOf
         // 
@@ -195,7 +195,7 @@ partial class frmWorkingCapitalReport
         label3.Name = "label3";
         label3.Size = new Size(71, 24);
         label3.TabIndex = 3;
-        label3.Text = "ط¨طھط§ط±ظٹط®:";
+        label3.Text = "بتاريخ:";
         // 
         // frmWorkingCapitalReport
         // 
@@ -218,7 +218,7 @@ partial class frmWorkingCapitalReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ط±ط£ط³ ط§ظ„ظ…ط§ظ„ ط§ظ„ط¹ط§ظ…ظ„";
+        Text = "رأس المال العامل";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

@@ -54,7 +54,7 @@ partial class frmSalesByProductReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط§ظ„ظ…ظ†طھط¬";
+        lblMode.Text = "المبيعات حسب المنتج";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -87,7 +87,7 @@ partial class frmSalesByProductReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(176, 32);
         btnRefresh.TabIndex = 1;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -104,7 +104,7 @@ partial class frmSalesByProductReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(176, 32);
         btnExport.TabIndex = 2;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -119,7 +119,7 @@ partial class frmSalesByProductReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 50);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -132,7 +132,7 @@ partial class frmSalesByProductReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 9;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -154,7 +154,7 @@ partial class frmSalesByProductReport
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(58, 24);
         lblSummary.TabIndex = 8;
-        lblSummary.Text = "ط¬ط§ظ‡ط²";
+        lblSummary.Text = "جاهز";
         // 
         // loadingPanel
         // 
@@ -182,7 +182,7 @@ partial class frmSalesByProductReport
         ll.Name = "ll";
         ll.Size = new Size(168, 29);
         ll.TabIndex = 0;
-        ll.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        ll.Text = "جارٍ التحميل...";
         // 
         // dtpFrom
         // 
@@ -210,7 +210,7 @@ partial class frmSalesByProductReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 3;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // label4
         // 
@@ -220,7 +220,7 @@ partial class frmSalesByProductReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 5;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // frmSalesByProductReport
         // 
@@ -242,7 +242,7 @@ partial class frmSalesByProductReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط­ط³ط¨ ط§ظ„ظ…ظ†طھط¬";
+        Text = "المبيعات حسب المنتج";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

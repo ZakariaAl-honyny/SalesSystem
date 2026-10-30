@@ -216,6 +216,22 @@ public class ProductService : IProductService
         }
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var product = await _uow.Products.FirstOrDefaultIgnoreFiltersAsync(p => p.Id == id, ct);
+        if (product == null)
+            return Result.Failure("المنتج غير موجود", ErrorCodes.NotFound);
+
+        if (product.IsActive)
+            return Result.Failure("المنتج نشط بالفعل");
+
+        product.Restore();
+        await _uow.SaveChangesAsync(ct);
+
+        _logger.LogInformation("Product reactivated: {ProductId}", id);
+        return Result.Success();
+    }
+
     public async Task<Result<ProductDto>> GetByBarcodeAsync(string barcode, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(barcode))

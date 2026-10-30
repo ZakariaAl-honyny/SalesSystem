@@ -37,16 +37,10 @@ public class MockCashBoxApiService : ICashBoxApiService
             Description: r.Description,
             IsActive: true,
             BranchId: r.BranchId,
-            BranchName: null,
-            Code: r.Code,
-            Currency: r.Currency ?? "YER",
-            CashierName: null,
-            CashierId: r.CashierId,
-            MaxCashLimit: r.MaxCashLimit,
-            OpeningBalance: r.OpeningBalance,
-            CurrentBalance: r.OpeningBalance,
-            LastMovementDate: null
+            BranchName: null
         );
+        // TODO: Code / Currency / CashierId / MaxCashLimit / OpeningBalance / CurrentBalance /
+        // LastMovementDate removed from CashBoxDto — the balance lives on the linked Account.
         MockData.CashBoxes.Add(box);
         return Task.FromResult(Result<CashBoxDto>.Success(box));
     }
@@ -60,12 +54,10 @@ public class MockCashBoxApiService : ICashBoxApiService
         var updated = existing with
         {
             Name = r.Name,
-            Description = r.Description,
-            Code = r.Code ?? existing.Code,
-            Currency = r.Currency ?? existing.Currency,
-            CashierId = r.CashierId ?? existing.CashierId,
-            MaxCashLimit = r.MaxCashLimit
+            Description = r.Description
         };
+        // TODO: Code / Currency / CashierId / MaxCashLimit removed from
+        // UpdateCashBoxRequest and CashBoxDto.
 
         var index = MockData.CashBoxes.IndexOf(existing);
         MockData.CashBoxes[index] = updated;

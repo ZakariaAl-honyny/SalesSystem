@@ -877,7 +877,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 }
                 existingRow.Quantity = newQty;
                 // Update discount only if non-zero entered
-                if (lineDiscount > 0m) existingRow.LineDiscount = lineDiscount;
+                if (lineDiscount > 0m) existingRow.DiscountAmount = lineDiscount;
                 ResetEntryState();
                 CalculateTotals();
                 txtBarcode.Focus();
@@ -908,7 +908,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 row.ProductUnitId = productUnitId;
                 row.Quantity = quantity;
                 row.UnitPrice = unitPrice;
-                row.LineDiscount = lineDiscount;
+                row.DiscountAmount = lineDiscount;
             }
         }
         else
@@ -924,7 +924,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 ProductUnitId = productUnitId,
                 Quantity = quantity,
                 UnitPrice = unitPrice,
-                LineDiscount = lineDiscount
+                DiscountAmount = lineDiscount
             });
         }
 

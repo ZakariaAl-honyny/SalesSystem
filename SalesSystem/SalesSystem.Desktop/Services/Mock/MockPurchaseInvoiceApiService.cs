@@ -7,7 +7,7 @@ using SalesSystem.DTO.Requests;
 namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
-/// ظ…ط­ط§ظƒط§ط© ط®ط¯ظ…ط© ظپظˆط§طھظٹط± ط§ظ„ظ…ط´طھط±ظٹط§طھ â€” طھط¯ط¹ظ… CRUD + طھط±ط­ظٹظ„ + ط¥ظ„ط؛ط§ط،.
+/// محاكاة خدمة فواتير المشتريات — تدعم CRUD + ترحيل + إلغاء.
 /// </summary>
 public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
 {
@@ -49,7 +49,7 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
     {
         var invoice = MockPurchasesData.Purchases.FirstOrDefault(i => i.Id == id);
         return invoice is null
-            ? Task.FromResult(Result<PurchaseInvoiceDto>.Failure("ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©"))
+            ? Task.FromResult(Result<PurchaseInvoiceDto>.Failure("فاتورة المشتريات غير موجودة"))
             : Task.FromResult(Result<PurchaseInvoiceDto>.Success(invoice));
     }
 
@@ -58,12 +58,12 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
         var nextId = MockPurchasesData.Purchases.Count == 0 ? 1 : MockPurchasesData.Purchases.Max(i => i.Id) + 1;
         var nextInvoiceNo = MockPurchasesData.Purchases.Count == 0 ? 5001 : MockPurchasesData.Purchases.Max(i => i.InvoiceNo) + 1;
         var supplierName = MockSuppliersData.Suppliers.FirstOrDefault(s => s.Id == r.SupplierId)?.Name
-            ?? "ظ…ظˆط±ط¯ ط؛ظٹط± ظ…ط¹ط±ظˆظپ";
+            ?? "مورد غير معروف";
         var warehouse = MockData.Warehouses.FirstOrDefault(w => w.Id == (short)r.WarehouseId);
 
         var items = r.Items.Select((line, idx) =>
         {
-            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "ظ…ظ†طھط¬ ط؛ظٹط± ظ…ط¹ط±ظˆظپ";
+            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "منتج غير معروف";
             decimal lineDiscount = line.DiscountType == DiscountType.Percentage && line.DiscountRate.HasValue
                 ? line.Quantity * line.UnitPrice * line.DiscountRate.Value / 100m
                 : line.DiscountRate ?? 0m;
@@ -73,7 +73,8 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
                 ProductUnitId: line.ProductUnitId, ProductUnitName: null,
                 Quantity: line.Quantity, UnitPrice: line.UnitPrice, LineTotal: lineTotal,
                 LandedUnitCost: line.UnitPrice,
-                DiscountType: (byte)(line.DiscountType ?? 0), DiscountAmount: lineDiscount,
+                DiscountType: (byte)(line.DiscountType ?? 0), DiscountRate: line.DiscountRate,
+                DiscountAmount: lineDiscount,
                 CostInBaseCurrency: null, AdditionalFeesAmount: 0m);
         }).ToList();
 
@@ -85,11 +86,12 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
             Id: nextId, InvoiceNo: nextInvoiceNo,
             SupplierId: r.SupplierId, SupplierName: supplierName,
             WarehouseId: r.WarehouseId,
-            WarehouseName: warehouse?.Name ?? "ظ…ط®ط²ظ† ط؛ظٹط± ظ…ط¹ط±ظˆظپ",
+            WarehouseName: warehouse?.Name ?? "مخزن غير معروف",
             InvoiceDate: DateOnly.FromDateTime(r.InvoiceDate ?? DateTime.Today),
             PaymentType: (byte)r.PaymentType,
             SubTotal: subTotal, DiscountAmount: r.DiscountAmount,
-            DiscountType: (byte)(r.DiscountType ?? 0), CostInBaseCurrency: null,
+            DiscountType: (byte)(r.DiscountType ?? 0), DiscountRate: r.DiscountRate,
+            CostInBaseCurrency: null,
             TaxAmount: r.TaxAmount, OtherCharges: r.OtherCharges,
             NetTotal: netTotal, PaidAmount: r.PaidAmount, RemainingAmount: remaining,
             Notes: r.Notes, SupplierInvoiceNo: null,
@@ -105,12 +107,12 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
     {
         var existing = MockPurchasesData.Purchases.FirstOrDefault(i => i.Id == id);
         if (existing is null)
-            return Task.FromResult(Result<PurchaseInvoiceDto>.Failure("ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©"));
+            return Task.FromResult(Result<PurchaseInvoiceDto>.Failure("فاتورة المشتريات غير موجودة"));
 
         if (existing.Status == 2)
-            return Task.FromResult(Result<PurchaseInvoiceDto>.Failure("ظ„ط§ ظٹظ…ظƒظ† طھط¹ط¯ظٹظ„ ظپط§طھظˆط±ط© ظ…ط±ط­ظ„ط©"));
+            return Task.FromResult(Result<PurchaseInvoiceDto>.Failure("لا يمكن تعديل فاتورة مرحلة"));
         if (existing.Status == 3)
-            return Task.FromResult(Result<PurchaseInvoiceDto>.Failure("ظ„ط§ ظٹظ…ظƒظ† طھط¹ط¯ظٹظ„ ظپط§طھظˆط±ط© ظ…ظ„ط؛ظٹط©"));
+            return Task.FromResult(Result<PurchaseInvoiceDto>.Failure("لا يمكن تعديل فاتورة ملغية"));
 
         var supplierName = MockSuppliersData.Suppliers.FirstOrDefault(s => s.Id == r.SupplierId)?.Name
             ?? existing.SupplierName;
@@ -118,7 +120,7 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
 
         var items = r.Items.Select((line, idx) =>
         {
-            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "ظ…ظ†طھط¬ ط؛ظٹط± ظ…ط¹ط±ظˆظپ";
+            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "منتج غير معروف";
             decimal lineDiscount = line.DiscountType == DiscountType.Percentage && line.DiscountRate.HasValue
                 ? line.Quantity * line.UnitPrice * line.DiscountRate.Value / 100m
                 : line.DiscountRate ?? 0m;
@@ -128,7 +130,8 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
                 ProductUnitId: line.ProductUnitId, ProductUnitName: null,
                 Quantity: line.Quantity, UnitPrice: line.UnitPrice, LineTotal: lineTotal,
                 LandedUnitCost: line.UnitPrice,
-                DiscountType: (byte)(line.DiscountType ?? 0), DiscountAmount: lineDiscount,
+                DiscountType: (byte)(line.DiscountType ?? 0), DiscountRate: line.DiscountRate,
+                DiscountAmount: lineDiscount,
                 CostInBaseCurrency: null, AdditionalFeesAmount: 0m);
         }).ToList();
 
@@ -167,13 +170,13 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
     {
         var existing = MockPurchasesData.Purchases.FirstOrDefault(i => i.Id == id);
         if (existing is null)
-            return Task.FromResult(Result.Failure("ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©"));
+            return Task.FromResult(Result.Failure("فاتورة المشتريات غير موجودة"));
 
         if (existing.Status == 2)
-            return Task.FromResult(Result.Failure("ط§ظ„ظپط§طھظˆط±ط© ظ…ط±ط­ظ„ط© ط¨ط§ظ„ظپط¹ظ„"));
+            return Task.FromResult(Result.Failure("الفاتورة مرحلة بالفعل"));
 
         if (existing.Status == 3)
-            return Task.FromResult(Result.Failure("ظ„ط§ ظٹظ…ظƒظ† طھط±ط­ظٹظ„ ظپط§طھظˆط±ط© ظ…ظ„ط؛ظٹط©"));
+            return Task.FromResult(Result.Failure("لا يمكن ترحيل فاتورة ملغية"));
 
         var index = MockPurchasesData.Purchases.IndexOf(existing);
         MockPurchasesData.Purchases[index] = existing with { Status = 2 };
@@ -184,10 +187,10 @@ public class MockPurchaseInvoiceApiService : IPurchaseInvoiceApiService
     {
         var existing = MockPurchasesData.Purchases.FirstOrDefault(i => i.Id == id);
         if (existing is null)
-            return Task.FromResult(Result.Failure("ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©"));
+            return Task.FromResult(Result.Failure("فاتورة المشتريات غير موجودة"));
 
         if (existing.Status == 3)
-            return Task.FromResult(Result.Failure("ط§ظ„ظپط§طھظˆط±ط© ظ…ظ„ط؛ظٹط© ط¨ط§ظ„ظپط¹ظ„"));
+            return Task.FromResult(Result.Failure("الفاتورة ملغية بالفعل"));
 
         var index = MockPurchasesData.Purchases.IndexOf(existing);
         MockPurchasesData.Purchases[index] = existing with { Status = 3 };

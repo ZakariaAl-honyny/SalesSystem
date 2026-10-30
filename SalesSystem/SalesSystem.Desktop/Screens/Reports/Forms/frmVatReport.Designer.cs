@@ -54,7 +54,7 @@ partial class frmVatReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "طھظ‚ط±ظٹط± ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©";
+        lblMode.Text = "تقرير ضريبة القيمة المضافة";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -87,7 +87,7 @@ partial class frmVatReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(175, 32);
         btnRefresh.TabIndex = 1;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -104,7 +104,7 @@ partial class frmVatReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(175, 32);
         btnExport.TabIndex = 2;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -119,7 +119,7 @@ partial class frmVatReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 50);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -132,7 +132,7 @@ partial class frmVatReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 9;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -154,7 +154,7 @@ partial class frmVatReport
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(58, 24);
         lblSummary.TabIndex = 8;
-        lblSummary.Text = "ط¬ط§ظ‡ط²";
+        lblSummary.Text = "جاهز";
         // 
         // loadingPanel
         // 
@@ -182,7 +182,7 @@ partial class frmVatReport
         ll.Name = "ll";
         ll.Size = new Size(168, 29);
         ll.TabIndex = 0;
-        ll.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        ll.Text = "جارٍ التحميل...";
         // 
         // dtpFrom
         // 
@@ -210,7 +210,7 @@ partial class frmVatReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 3;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // label4
         // 
@@ -220,7 +220,7 @@ partial class frmVatReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 5;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // frmVatReport
         // 
@@ -242,7 +242,7 @@ partial class frmVatReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "طھظ‚ط±ظٹط± ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©";
+        Text = "تقرير ضريبة القيمة المضافة";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

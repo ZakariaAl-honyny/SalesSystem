@@ -60,6 +60,30 @@ public class NotificationService : INotificationService
         }
     }
 
+    public async Task<Result> MarkAllAsReadAsync(int userId, CancellationToken ct = default)
+    {
+        try
+        {
+            var notifications = await _uow.Notifications.ToListAsync(
+                n => n.UserId == userId,
+                null,
+                ct);
+
+            foreach (var notification in notifications)
+                notification.MarkAsRead();
+
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("All notifications marked as read for user {UserId}", userId);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error marking all notifications as read for user {UserId}", userId);
+            return Result.Failure("حدث خطأ أثناء تحديث حالة الإشعارات");
+        }
+    }
+
     public async Task<Result<int>> GetUnreadCountAsync(int userId, CancellationToken ct)
     {
         try

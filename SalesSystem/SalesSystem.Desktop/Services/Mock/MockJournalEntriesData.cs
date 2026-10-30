@@ -6,6 +6,12 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// بيانات تجريبية للقيود اليومية — تُستخدم بواسطة MockJournalEntryApiService.
 /// 4 قيود متوازنة مع بنودها (EntryNo 101..104) مأخوذة من INITIAL_JOURNAL_ENTRIES.
 /// </summary>
+/// <remarks>
+/// TODO: الحقول التالية أُزيلت من DTOs القيود ولم تُعد موجودة:
+/// JournalEntryListDto / JournalEntryDetailDto → SourceModule
+/// JournalEntryLineDetailDto → CostCenterCode, CostCenterName
+/// (مراكز التكلفة المحذوفة كانت: 201 فرع حدة، 202 فرع التحرير، 102 إدارة IT.)
+/// </remarks>
 internal static class MockJournalEntriesData
 {
     // ═══════════════════════════════════════════════
@@ -26,26 +32,14 @@ internal static class MockJournalEntriesData
 
     private static List<JournalEntryLineDetailDto> Lines3 => new()
     {
-        new JournalEntryLineDetailDto(5, 5, "مصروفات الإيجار والكهرباء والمياه", "421", 45000m, 0m, "إيجار فرع حدة لشهر سبتمبر")
-        {
-            CostCenterCode = "201",
-            CostCenterName = "فرع حدة الرئيسي (صنعاء)",
-        },
-        new JournalEntryLineDetailDto(6, 5, "مصروفات الإيجار والكهرباء والمياه", "421", 30000m, 0m, "إيجار فرع التحرير لشهر سبتمبر")
-        {
-            CostCenterCode = "202",
-            CostCenterName = "فرع التحرير التجاري (صنعاء)",
-        },
+        new JournalEntryLineDetailDto(5, 5, "مصروفات الإيجار والكهرباء والمياه", "421", 45000m, 0m, "إيجار فرع حدة لشهر سبتمبر"),
+        new JournalEntryLineDetailDto(6, 5, "مصروفات الإيجار والكهرباء والمياه", "421", 30000m, 0m, "إيجار فرع التحرير لشهر سبتمبر"),
         new JournalEntryLineDetailDto(7, 1, "الصندوق الرئيسي (الخزينة المركزية)", "1111", 0m, 75000m, "صرف كاش بموجب سند صرف رقم 2002"),
     };
 
     private static List<JournalEntryLineDetailDto> Lines4 => new()
     {
-        new JournalEntryLineDetailDto(8, 6, "مصروفات الصيانة وضيافة المحل", "423", 8000m, 0m, "صيانة سيرفرات وشبكة POS الفرعية")
-        {
-            CostCenterCode = "102",
-            CostCenterName = "إدارة تكنولوجيا المعلومات ونقاط البيع IT",
-        },
+        new JournalEntryLineDetailDto(8, 6, "مصروفات الصيانة وضيافة المحل", "423", 8000m, 0m, "صيانة سيرفرات وشبكة POS الفرعية"),
         new JournalEntryLineDetailDto(9, 1, "الصندوق الرئيسي (الخزينة المركزية)", "1111", 0m, 8000m, "سداد نقدي لمهندس الصيانة"),
     };
 
@@ -70,10 +64,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 8, 30),
             CreatedByUserId: 1
-        )
-        {
-            SourceModule = "رصيد افتتاحي",
-        },
+        ),
 
         new JournalEntryListDto(
             Id: 2,
@@ -90,10 +81,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 8, 31),
             CreatedByUserId: 1
-        )
-        {
-            SourceModule = "مدفوعات",
-        },
+        ),
 
         new JournalEntryListDto(
             Id: 3,
@@ -110,10 +98,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 9, 1),
             CreatedByUserId: 1
-        )
-        {
-            SourceModule = "مصروف",
-        },
+        ),
 
         new JournalEntryListDto(
             Id: 4,
@@ -130,10 +115,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 9, 2),
             CreatedByUserId: 1
-        )
-        {
-            SourceModule = "مصروف",
-        },
+        ),
     };
 
     // ═══════════════════════════════════════════════
@@ -157,10 +139,7 @@ internal static class MockJournalEntriesData
             CreatedAt: new DateTime(2026, 8, 30),
             CreatedByUserId: 1,
             Lines: Lines1
-        )
-        {
-            SourceModule = "رصيد افتتاحي",
-        },
+        ),
 
         new JournalEntryDetailDto(
             Id: 2,
@@ -177,10 +156,7 @@ internal static class MockJournalEntriesData
             CreatedAt: new DateTime(2026, 8, 31),
             CreatedByUserId: 1,
             Lines: Lines2
-        )
-        {
-            SourceModule = "مدفوعات",
-        },
+        ),
 
         new JournalEntryDetailDto(
             Id: 3,
@@ -197,10 +173,7 @@ internal static class MockJournalEntriesData
             CreatedAt: new DateTime(2026, 9, 1),
             CreatedByUserId: 1,
             Lines: Lines3
-        )
-        {
-            SourceModule = "مصروف",
-        },
+        ),
 
         new JournalEntryDetailDto(
             Id: 4,
@@ -217,9 +190,6 @@ internal static class MockJournalEntriesData
             CreatedAt: new DateTime(2026, 9, 2),
             CreatedByUserId: 1,
             Lines: Lines4
-        )
-        {
-            SourceModule = "مصروف",
-        },
+        ),
     };
 }

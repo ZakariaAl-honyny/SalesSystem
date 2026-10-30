@@ -52,6 +52,71 @@ public partial class frmMain : Form
 
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
+
+        // MVP: إخفاء شاشات النسخة الثانية (V2) — الكود سليم ومحفوظ لإعادة التفعيل لاحقاً
+        ApplyMvpMenuVisibility();
+    }
+
+    /// <summary>
+    /// MVP (محل واحد / مستخدم واحد / فرع واحد): إخفاء عناصر القوائم المؤجلة إلى V2.
+    /// لا يتم حذف أي عنصر — الإخفاء فقط، مع إبقاء المعالجات وكود الشاشات كما هو.
+    /// </summary>
+    private void ApplyMvpMenuVisibility()
+    {
+        // ── المنتجات ─────────────────────────────────────────────────────────
+        msbtnProductPrices.Visible = false;         // MVP: مخفي (V2)
+        msbtnProductUnits.Visible = false;          // MVP: مخفي (V2)
+        msbtnProductCategories.Visible = false;     // MVP: مخفي (V2)
+
+        // ── إضافة سريعة (أصبحت داخل شاشات الـ Master) ───────────────────────
+        msbtnAddProduct.Visible = false;            // MVP: مخفي — add handled inside Master form
+        msbtnAddCustomer.Visible = false;           // MVP: مخفي — add handled inside Master form
+        msbtnAddSupplier.Visible = false;           // MVP: مخفي — add handled inside Master form
+
+        // ── المخزون ─────────────────────────────────────────────────────────
+        msbtnStockTransfer.Visible = false;         // MVP: مخفي (V2)
+        msbtnInventoryCounts.Visible = false;       // MVP: مخفي (V2)
+
+        // ── المبيعات ────────────────────────────────────────────────────────
+        msbtnCurrencySelection.Visible = false;     // MVP: مخفي (V2)
+        msbtnSalesProfitBreakdown.Visible = false;  // MVP: مخفي (V2)
+        msbtnSalesImportConvert.Visible = false;    // MVP: مخفي (V2)
+        msbtnSalesSmartF3Lookup.Visible = false;    // MVP: مخفي (V2)
+        msbtnSalesInputStrategies.Visible = false;  // MVP: مخفي (V2)
+        msbtnSalesContinuousScanner.Visible = false;// MVP: مخفي (V2)
+        msbtnSalesTouchGrid.Visible = false;        // MVP: مخفي (V2)
+        msbtnSalesRapidBar.Visible = false;         // MVP: مخفي (V2)
+        msbtnSalesInlineGrid.Visible = false;       // MVP: مخفي (V2)
+
+        // ── الخزينة ─────────────────────────────────────────────────────────
+        msbtnCashVouchers.Visible = false;          // MVP: مخفي (V2)
+        msbtnBanks.Visible = false;                 // MVP: مخفي (V2)
+        msbtnPaymentVouchers.Visible = false;       // MVP: مخفي (V2)
+
+        // ── حسابات (القائمة بالكامل — المحاسبة آلية في MVP) ──────────────────
+        msAccounting.Visible = false;               // MVP: مخفي (V2)
+        msbtnAccounting.Visible = false;            // MVP: مخفي (V2)
+        msbtnChartOfAccounts.Visible = false;       // MVP: مخفي (V2)
+        msbtnJournalEntries.Visible = false;        // MVP: مخفي (V2)
+        msbtnAccountCategories.Visible = false;     // MVP: مخفي (V2)
+        msbtnSystemAccountMappings.Visible = false; // MVP: مخفي (V2)
+        msbtnReceiptVouchers.Visible = false;       // MVP: مخفي (V2)
+
+        // ── بيانات ──────────────────────────────────────────────────────────
+        msbtnManageUsers.Visible = false;           // MVP: مخفي (V2)
+        msbtnRoles.Visible = false;                 // MVP: مخفي (V2)
+        msbtnEmployees.Visible = false;             // MVP: مخفي (V2)
+        msbtnPermissions.Visible = false;           // MVP: مخفي (V2)
+        msbtnAuditLog.Visible = false;              // MVP: مخفي (V2)
+        msbtnSystemLogs.Visible = false;            // MVP: مخفي (V2)
+        msbtnUserSessions.Visible = false;          // MVP: مخفي (V2)
+        msbtnDocumentSequences.Visible = false;     // MVP: مخفي (V2)
+        msbtnTaxes.Visible = false;                 // MVP: مخفي (V2) — الضرائب
+
+        // ── الإعدادات ───────────────────────────────────────────────────────
+        msbtnNotifications.Visible = false;         // MVP: مخفي (V2)
+        msbtnUpdateCheck.Visible = false;           // MVP: مخفي (V2)
+        // msbtnSettings / msbtnCompanySettings / msbtnBackup تبقى ظاهرة
     }
 
     private void frmMain_Load(object sender, EventArgs e)
@@ -164,6 +229,9 @@ public partial class frmMain : Form
             MessageBox.Show("حدث خطأ أثناء التحقق من صلاحيات المستخدم", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        // MVP: إعادة تطبيق إخفاء شاشات V2 بعد منطق الصلاحيات (الصلاحيات تُظهر بعض العناصر المخفية)
+        ApplyMvpMenuVisibility();
+
         // Mock-mode visual indicator
         if (AppSettings.Current.UseMockData)
         {
@@ -174,42 +242,57 @@ public partial class frmMain : Form
     // ── المنتجات (Products) ───────────────────────────────────────────────────
 
     private void msbtnManageProducts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListProducts>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductMaster>());
 
     private void msbtnAddProduct_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateProduct>());
+    {
+        // MVP: مخفي — add handled inside Master form
+        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateProduct>());
+    }
 
     private void msbtnManageCustomers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListCustomers>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCustomerMaster>());
 
     private void msbtnAddCustomer_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateCustomer>());
+    {
+        // MVP: مخفي — add handled inside Master form
+        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateCustomer>());
+    }
 
     private void msbtnManageSuppliers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListSuppliers>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSupplierMaster>());
 
     private void msbtnAddSupplier_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateSupplier>());
+    {
+        // MVP: مخفي — add handled inside Master form
+        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateSupplier>());
+    }
 
     private void msbtnManageCategories_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListCategories>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCategoryMaster>());
 
     private void msbtnManageUnits_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListUnits>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUnitMaster>());
 
     private void msbtnProductPrices_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductPrices>());
+    {
+        // TODO: product prices screen was removed — restore or repoint
+        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductPrices>());
+    }
 
     private void msbtnProductUnits_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductUnitsList>());
+    {
+        // TODO: product units screen was removed — restore or repoint
+        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductUnitsList>());
+    }
 
     private void msbtnProductCategories_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListCategories>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCategoryMaster>());
 
     // ── المخزون (Warehouse / Stock Transfers / Inventory) ────────────────────
 
     private void msbtnManageWarehouses_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListWarehouses>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWarehouseMaster>());
 
     private void msbtnStockTransfer_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListStockTransfers>());
@@ -303,7 +386,7 @@ public partial class frmMain : Form
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListPayments>());
 
     private void msbtnCashBoxes_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListCashBoxes>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxMaster>());
 
     private void msbtnBanks_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListBanks>());

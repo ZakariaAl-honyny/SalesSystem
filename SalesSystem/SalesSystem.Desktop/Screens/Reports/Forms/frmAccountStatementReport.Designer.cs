@@ -64,7 +64,7 @@ partial class frmAccountStatementReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ظƒط´ظپ ط­ط³ط§ط¨ ط§ظ„ط·ط±ظپ";
+        lblMode.Text = "كشف حساب الطرف";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -97,7 +97,7 @@ partial class frmAccountStatementReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(100, 36);
         btnRefresh.TabIndex = 1;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -114,7 +114,7 @@ partial class frmAccountStatementReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(110, 36);
         btnExport.TabIndex = 2;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -129,7 +129,7 @@ partial class frmAccountStatementReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 50);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -142,7 +142,7 @@ partial class frmAccountStatementReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 13;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -164,7 +164,7 @@ partial class frmAccountStatementReport
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(58, 24);
         lblSummary.TabIndex = 12;
-        lblSummary.Text = "ط¬ط§ظ‡ط²";
+        lblSummary.Text = "جاهز";
         // 
         // loadingPanel
         // 
@@ -194,7 +194,7 @@ partial class frmAccountStatementReport
         ll.Name = "ll";
         ll.Size = new Size(168, 29);
         ll.TabIndex = 0;
-        ll.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        ll.Text = "جارٍ التحميل...";
         // 
         // dtpFrom
         // 
@@ -230,7 +230,7 @@ partial class frmAccountStatementReport
         cmbPartyType.BackColor = SystemColors.Control;
         cmbPartyType.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbPartyType.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        cmbPartyType.Items.AddRange(new object[] { "ط¹ظ…ظٹظ„", "ظ…ظˆط±ط¯" });
+        cmbPartyType.Items.AddRange(new object[] { "عميل", "مورد" });
         cmbPartyType.Location = new Point(801, 53);
         cmbPartyType.Name = "cmbPartyType";
         cmbPartyType.Size = new Size(90, 32);
@@ -244,7 +244,7 @@ partial class frmAccountStatementReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 7;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // label4
         // 
@@ -254,7 +254,7 @@ partial class frmAccountStatementReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 9;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // label5
         // 
@@ -264,7 +264,7 @@ partial class frmAccountStatementReport
         label5.Name = "label5";
         label5.Size = new Size(63, 24);
         label5.TabIndex = 3;
-        label5.Text = "ط§ظ„ظ†ظˆط¹:";
+        label5.Text = "النوع:";
         // 
         // label6
         // 
@@ -274,7 +274,7 @@ partial class frmAccountStatementReport
         label6.Name = "label6";
         label6.Size = new Size(118, 24);
         label6.TabIndex = 5;
-        label6.Text = "ط±ظ‚ظ… ط§ظ„ط·ط±ظپ:";
+        label6.Text = "رقم الطرف:";
         // 
         // frmAccountStatementReport
         // 
@@ -297,7 +297,7 @@ partial class frmAccountStatementReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ظƒط´ظپ ط­ط³ط§ط¨ ط§ظ„ط·ط±ظپ";
+        Text = "كشف حساب الطرف";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

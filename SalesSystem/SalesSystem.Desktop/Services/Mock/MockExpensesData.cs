@@ -22,10 +22,7 @@ internal static class MockExpensesData
             Notes: "إيجار شهر سبتمبر 2026 — محل شارع الستين",
             Status: 2,
             StatusName: "مرحّل",
-            IsActive: true,
-            Currency: "YER",
-            ExpenseAccountCode: "421",
-            BranchName: "الفرع الرئيسي — صنعاء"
+            IsActive: true // TODO: Currency, ExpenseAccountCode, BranchName removed from DTO
         ),
 
         // ── 2: كهرباء وמים — مرحّل ──
@@ -41,10 +38,7 @@ internal static class MockExpensesData
             Notes: "فاتورة كهرباء شهر أغسطس 2026 — شركة كهرباء صنعاء",
             Status: 2,
             StatusName: "مرحّل",
-            IsActive: true,
-            Currency: "YER",
-            ExpenseAccountCode: "421",
-            BranchName: "الفرع الرئيسي — صنعاء"
+            IsActive: true // TODO: Currency, ExpenseAccountCode, BranchName removed from DTO
         ),
 
         // ── 3: رواتب الموظفين — مرحّل ──
@@ -60,10 +54,7 @@ internal static class MockExpensesData
             Notes: "رواتب 4 موظفين — شهر أغسطس 2026",
             Status: 2,
             StatusName: "مرحّل",
-            IsActive: true,
-            Currency: "YER",
-            ExpenseAccountCode: "422",
-            BranchName: "الفرع الرئيسي — صنعاء"
+            IsActive: true // TODO: Currency, ExpenseAccountCode, BranchName removed from DTO
         ),
 
         // ── 4: صيانة ثلاجات العرض — مسودة ──
@@ -79,10 +70,7 @@ internal static class MockExpensesData
             Notes: "صيانة دورية لثلاجة عرض الألبان — فني أحمد",
             Status: 1,
             StatusName: "مسودة",
-            IsActive: true,
-            Currency: "YER",
-            ExpenseAccountCode: "423",
-            BranchName: "الفرع الرئيسي — صنعاء"
+            IsActive: true // TODO: Currency, ExpenseAccountCode, BranchName removed from DTO
         ),
 
         // ── 5: نقل بضاعة من المخزن للمعرض — مسودة ──
@@ -98,10 +86,7 @@ internal static class MockExpensesData
             Notes: "أجرة نقل بضاعة من المخزن الرئيسي إلى مخزن المعرض",
             Status: 1,
             StatusName: "مسودة",
-            IsActive: true,
-            Currency: "YER",
-            ExpenseAccountCode: "424",
-            BranchName: "الفرع الرئيسي — صنعاء"
+            IsActive: true // TODO: Currency, ExpenseAccountCode, BranchName removed from DTO
         ),
 
         // ── 6: مشتريات نثرية (قرطاسية ومواد تنظيف) — ملغية ──
@@ -117,10 +102,7 @@ internal static class MockExpensesData
             Notes: "قرطاسية ومواد تنظيف — تم إلغاؤها بسبب تكرار الطلب",
             Status: 3,
             StatusName: "ملغي",
-            IsActive: false,
-            Currency: "YER",
-            ExpenseAccountCode: "429",
-            BranchName: null
+            IsActive: false // TODO: Currency, ExpenseAccountCode, BranchName removed from DTO
         )
     };
 }

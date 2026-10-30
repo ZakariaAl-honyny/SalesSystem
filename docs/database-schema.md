@@ -1,7 +1,10 @@
 # Database Schema Design
 # Sales Management System — v5.0.0 (WinForms N-Layer)
 # Platform: SQL Server 2019+
-# 65 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
+# MVP (V1): ~35 Active Tables | V2 Deferred: ~18 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
+
+> **MVP Scope**: Single shop, single user (Admin), single branch, single warehouse, single cash box.
+> Tables marked `⛔ V2 DEFERRED` are defined in the schema but **hidden from the UI**. They remain in the database for future upgrade compatibility.
 
 ---
 
@@ -41,9 +44,9 @@ Includes: `Accounts`, `Currencies`, `JournalEntries`, `JournalEntryLines`, `Cash
 ##########################
 
 # Database Schema Design
-# Sales Management System — V1 Final (Module-by-Module Organization)
+# Sales Management System — MVP V1 (Single-Shop Edition)
 # Platform: SQL Server 2019+
-# 55 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
+# ~35 Active Tables (MVP) + ~18 V2 Deferred | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
 
 ---
 
@@ -219,7 +222,10 @@ Default schema: **`dbo`**
 > 3. Custom roles are generated dynamically from the UI and saved directly to this table.
 > 4. Users strictly inherit all permissions from their linked `RoleId`.
 
-### 1.5 UserSessions
+### 1.5 UserSessions ⛔ V2 DEFERRED
+
+> **MVP Decision**: Single user (Admin) — no session tracking needed. Table exists in DB, UI hidden.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -265,7 +271,7 @@ Default schema: **`dbo`**
 - Stock tracking (`WarehouseStocks`) is always per (Warehouse, Product) — branch-level stock is derived from warehouse ownership
 
 
-### 2.2 Taxes
+### 2.2 Taxes ⛔ V2 DEFERRED
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | **smallint** PK | |
@@ -279,6 +285,8 @@ Default schema: **`dbo`**
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
+
+> **MVP Decision**: tax MANAGEMENT is hidden (V2). Invoices keep working with a single seeded default tax (e.g. VAT-15); adding/editing tax rates is deferred to V2.
 
 ### 2.3 CompanySettings
 | Column | Type | Notes |
@@ -319,7 +327,10 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-### 2.6 FiscalYears
+### 2.6 FiscalYears ⛔ V2 DEFERRED
+
+> **MVP Decision**: Not required for initial release. Table exists in DB but not exposed in UI. JournalEntries reference will use a seeded default FiscalYear row.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -332,7 +343,10 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-### 2.7 Notifications
+### 2.7 Notifications ⛔ V2 DEFERRED
+
+> **MVP Decision**: Single user — no multi-user notification system needed. Table exists, UI hidden.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -349,7 +363,10 @@ Default schema: **`dbo`**
 | `UpdatedAt` | datetime2 null | |
 | **Indexes** | `(UserId, IsRead, CreatedAt DESC)` | for unread notification queries |
 
-### 2.8 Attachments
+### 2.8 Attachments ⛔ V2 DEFERRED
+
+> **MVP Decision**: Not essential for first release. Table exists, UI hidden.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -365,7 +382,10 @@ Default schema: **`dbo`**
 | `UpdatedAt` | datetime2 null | |
 | **Index** | `(ReferenceType, ReferenceId)` | for document attachment lookup |
 
-### 2.9 Branches (الفروع)
+### 2.9 Branches (الفروع) — 🔒 MVP: Hardcoded Single Branch
+
+> **MVP Decision**: Table exists with one seeded row `(Id=1, Name='المركز الرئيسي')`. `BranchId=1` is hardcoded everywhere. Branch management UI is **hidden**. V2 enables multi-branch UI.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | smallint PK | IDENTITY(1,1) |
@@ -378,7 +398,8 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-**Purpose**: Branch support. V1 seeds one default branch (المركز الرئيسي). V2 adds branch management UI, user-branch assignment, and branch-scoped reporting.
+**MVP Seed**: `Id=1, Name='المركز الرئيسي', IsActive=1`. All BranchId FKs default to 1. No branch picker in UI.
+**V2 Upgrade**: Enable branch dropdown, add branch management screen, user-branch assignment, branch-scoped reporting.
 
 ---
 
@@ -479,7 +500,9 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-#### 4.1.1 AccountCategories (تصنيفات الدليل المحاسبي)
+#### 4.1.1 AccountCategories (تصنيفات الدليل المحاسبي) ⛔ V2 DEFERRED
+
+> **MVP Decision**: Unnecessary complexity for single-shop MVP. `CategoryId` on Accounts is nullable — no impact. Table exists, UI hidden.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -539,7 +562,10 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `CashierUserId` | int null FK → Users(Id) | default cashier bound to the box |
 | `OpeningBalance` | decimal(18,2) null | informational only; posted via opening journal entry |
 
-### 4.3 Banks
+### 4.3 Banks ⛔ V2 DEFERRED
+
+> **MVP Decision**: Single cash box covers all cash needs. No bank account management in MVP. Table exists, UI hidden. Enable in V2 when needed.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -667,7 +693,10 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 
 **Per analysis (`CashVoucher` type=PAYMENT) — planned additions:** identical set as §4.6 (`PaymentMethod`, `PartyType`, `PartyId`, `Reference`, `CheckNumber`, `BankName`, `DueDate`, `CostCenterId`, `VoidedAt`, `VoidReason`) + **§4.12 VoucherInvoiceAllocations** for supplier-payment settlement.
 
-### 4.8 TreasuryTransfers (تحويلات الخزينة)
+### 4.8 TreasuryTransfers (تحويلات الخزينة) ⛔ V2 DEFERRED
+
+> **MVP Decision**: Single cash box — no transfers between boxes needed. Table not yet in EF. UI hidden.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -917,7 +946,10 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `UnitCost` | decimal(18,2) not null | |
 | `TotalCost` | decimal(18,2) not null | UnitCost x Quantity |
 
-### 5.5 InventoryCounts
+### 5.5 InventoryCounts ⛔ V2 DEFERRED
+
+> **MVP Decision**: Manual inventory counting is sufficient for a small shop MVP. Use InventoryAdjustments for opening balances and corrections. Enable full counting module in V2.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -934,7 +966,10 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
 
-### 5.6 InventoryCountLines
+### 5.6 InventoryCountLines ⛔ V2 DEFERRED
+
+> **MVP Decision**: Deferred with InventoryCounts (§5.5).
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -974,7 +1009,10 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `UnitCost` | decimal(18,2) not null | |
 | `TotalCost` | decimal(18,2) not null | UnitCost x Quantity |
 
-### 5.9 WarehouseTransfers
+### 5.9 WarehouseTransfers ⛔ V2 DEFERRED
+
+> **MVP Decision**: Single warehouse — no transfers needed. `WarehouseId=1` hardcoded everywhere. Table exists, UI hidden. Enable in V2 when multiple warehouses are needed.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -992,7 +1030,10 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
 
-### 5.10 WarehouseTransferLines
+### 5.10 WarehouseTransferLines ⛔ V2 DEFERRED
+
+> **MVP Decision**: Deferred with WarehouseTransfers (§5.9).
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | int PK | |
@@ -1296,17 +1337,44 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 
 # 5) Table Count Summary
 
-| Module | Table Count | Tables |
-|--------|------------|--------|
-| 1. Core & Security | 5 | Customers, Suppliers, Users, Roles, UserSessions |
-| 2. Organization & Settings | 10 | Warehouses, Taxes, CompanySettings, SystemSettings, DocumentSequences, FiscalYears, Notifications, Attachments, Branches, Employees |
+## ✅ MVP Active Tables (~35)
+
+| Module | Count | Tables (Active in MVP) |
+|--------|-------|------------------------|
+| 1. Core & Security | 3 | Customers, Suppliers, Users, Roles |
+| 2. Organization & Settings | 4 | Warehouses🔒, CompanySettings, SystemSettings, DocumentSequences, Branches🔒 |
 | 3. Products | 4 | ProductCategories, Products, Units, ProductUnits |
-| 4. Accounting | 10 | Accounts, CashBoxes, Banks, JournalEntries, JournalEntryLines, ReceiptVouchers, PaymentVouchers, TreasuryTransfers, Expenses, SystemAccountMappings |
-| 5. Inventory | 10 | WarehouseStocks, InventoryBatches, InventoryTransactions, InventoryTransactionLines, InventoryCounts, InventoryCountLines, InventoryAdjustments, InventoryAdjustmentLines, WarehouseTransfers, WarehouseTransferLines |
+| 4. Accounting | 8 | Accounts, CashBoxes🔒, JournalEntries, JournalEntryLines, ReceiptVouchers, PaymentVouchers, Expenses, SystemAccountMappings |
+| 5. Inventory | 6 | WarehouseStocks, InventoryBatches, InventoryTransactions, InventoryTransactionLines, InventoryAdjustments, InventoryAdjustmentLines |
 | 6. Sales | 6 | SalesInvoices, SalesInvoiceLines, SalesReturns, SalesReturnLines, CustomerReceipts, CustomerReceiptApplications |
 | 7. Purchases | 6 | PurchaseInvoices, PurchaseInvoiceLines, PurchaseReturns, PurchaseReturnLines, SupplierPayments, SupplierPaymentApplications |
-| 8. Infrastructure & Support | 2 | AuditLogs, SystemLogs |
-| **Total** | **53** | |
+| 8. Infrastructure | 2 | AuditLogs, SystemLogs |
+| **MVP Total** | **~35** | 🔒 = hardcoded single instance in MVP |
+
+## ⛔ V2 Deferred Tables (~18)
+
+| Table | Module | Reason Deferred |
+|-------|--------|-----------------|
+| UserSessions | Core | Single user — no session tracking |
+| FiscalYears | Settings | Not needed for MVP |
+| Notifications | Settings | Single user — no multi-user notifications |
+| Attachments | Settings | Not essential for MVP |
+| Taxes | Settings | Management UI hidden — single seeded default tax used |
+| AccountCategories | Accounting | Unnecessary complexity |
+| Banks | Accounting | Single cash box covers all needs |
+| TreasuryTransfers | Accounting | Single cash box — no transfers |
+| CostCenters | Accounting | Not yet in EF — planned |
+| VoucherInvoiceAllocations | Accounting | Not yet in EF — planned |
+| FiscalPeriods | Accounting | Not yet in EF — planned |
+| InventoryCounts | Inventory | Manual counting sufficient for MVP |
+| InventoryCountLines | Inventory | Deferred with InventoryCounts |
+| WarehouseTransfers | Inventory | Single warehouse — no transfers |
+| WarehouseTransferLines | Inventory | Deferred with WarehouseTransfers |
+| Currencies | V2 | Multi-currency not needed |
+| CurrencyRates | V2 | Multi-currency not needed |
+| SalesQuotations | V2 | Quotations deferred |
+| SalesQuotationItems | V2 | Deferred with SalesQuotations |
+| **V2 Total** | **~18** | |
 
 ---
 
@@ -1483,7 +1551,7 @@ The following entities are **NOT in V1**. They are deferred to V2 for scope mana
 | `Id` | int PK | |
 | `QuotationNo` | int not null | user-facing number, UNIQUE |
 | `QuotationDate` | date not null | |
-| `ValidUntil` | date null | optional expiry date |
+| `ValidUnti` | date null | optional expiry date |
 | `CustomerId` | int not null FK → Customers(Id) | |
 | `WarehouseId` | smallint not null FK → Warehouses(Id) | |
 | `PaymentType` | tinyint not null | 1=Cash, 2=Credit |

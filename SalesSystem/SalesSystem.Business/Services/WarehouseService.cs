@@ -14,6 +14,8 @@ public class WarehouseService : IWarehouseService
     private readonly IUnitOfWork _uow;
     private readonly ILogger<WarehouseService> _logger;
 
+    private const string DefaultWarehouseKey = "DefaultWarehouse";
+
     public WarehouseService(IUnitOfWork uow, ILogger<WarehouseService> logger)
     {
         _uow = uow;
@@ -126,6 +128,37 @@ public class WarehouseService : IWarehouseService
             _logger.LogError(ex, "Failed to permanently delete warehouse {Id} due to database constraint", id);
             return Result.Failure("لا يمكن حذف المخزن نهائياً. قد يكون مرتبطاً ببيانات أخرى في النظام.");
         }
+    }
+
+    public async Task<Result> SetDefaultAsync(int id, CancellationToken ct = default)
+    {
+        var warehouse = await _uow.Warehouses.GetByIdAsync(id, ct);
+        if (warehouse == null)
+            return Result.Failure("المخزن غير موجود", ErrorCodes.NotFound);
+
+        // The "default warehouse" is stored in the SystemSettings table (key "DefaultWarehouse"),
+        // not as an IsDefault column on the Warehouse entity. Match that existing concept.
+        var setting = await _uow.SystemSettings.FirstOrDefaultAsync(
+            s => s.SettingKey == DefaultWarehouseKey, ct);
+
+        if (setting != null)
+        {
+            setting.UpdateValue(id.ToString());
+            await _uow.SystemSettings.UpdateAsync(setting, ct);
+        }
+        else
+        {
+            var newSetting = SystemSetting.Create(
+                DefaultWarehouseKey,
+                id.ToString(),
+                category: "General");
+            await _uow.SystemSettings.AddAsync(newSetting, ct);
+        }
+
+        await _uow.SaveChangesAsync(ct);
+
+        _logger.LogInformation("Warehouse {WarehouseId} set as default", id);
+        return Result.Success();
     }
 
     private static WarehouseDto MapToDto(Warehouse w)

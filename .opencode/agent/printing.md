@@ -2,7 +2,7 @@
 name: "Printing Agent"
 description: "Printing and PDF specialist. Use for invoice/receipt print layouts and PDF generation."
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/deepseek-v4.1-flash
 ---
 
 You are the printing specialist for the Sales Management System (WinForms Desktop).

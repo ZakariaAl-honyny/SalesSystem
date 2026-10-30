@@ -10,13 +10,6 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// </summary>
 public class MockStockTransferApiService : IStockTransferApiService
 {
-    // Mock cost prices per product ID (YER)
-    private static readonly Dictionary<int, decimal> _mockCostLookup = new()
-    {
-        [1] = 150m,  [2] = 80m,  [3] = 60m,  [4] = 200m, [5] = 120m,
-        [6] = 90m,   [7] = 45m,  [8] = 30m,  [9] = 200m, [10] = 75m
-    };
-
     public Task<Result<IReadOnlyList<StockTransferDto>>> GetAllAsync(
         string? search = null, DateTime? from = null, DateTime? to = null, CancellationToken ct = default)
     {
@@ -32,9 +25,8 @@ public class MockStockTransferApiService : IStockTransferApiService
         {
             query = query.Where(t =>
                 t.TransferNo.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                (t.FromWarehouseName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                (t.ToWarehouseName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                (t.DriverName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (t.SourceWarehouseName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (t.DestinationWarehouseName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 (t.Notes ?? "").Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -77,23 +69,20 @@ public class MockStockTransferApiService : IStockTransferApiService
         if (r.Items is null || r.Items.Count == 0)
             return Task.FromResult(Result<StockTransferDto>.Failure("يجب إضافة صنف واحد على الأقل للتحويل"));
 
-        // Build line items with product cost from mock lookup
+        // Build line items — ProductName/ProductCode from shared mock data
+        // TODO: UnitCost / TotalCost / UnitName removed from StockTransferItemDto
         var items = r.Items.Select(item =>
         {
             var product = MockData.Products.FirstOrDefault(p => p.Id == item.ProductId);
-            var unitCost = _mockCostLookup.GetValueOrDefault(item.ProductId, 0m);
             return new StockTransferItemDto(
                 ProductId:   item.ProductId,
                 ProductCode: product?.Barcode,
                 ProductName: product?.Name ?? $"منتج {item.ProductId}",
-                Quantity:    item.Quantity)
-            {
-                UnitCost  = unitCost,
-                TotalCost = item.Quantity * unitCost,
-                UnitName  = null
-            };
+                Quantity:    item.Quantity);
         }).ToList();
 
+        // TODO: FromWarehouseName / ToWarehouseName / TotalCost / TotalQuantity / CreatedByUserId
+        //       removed from StockTransferDto — warehouse names are resolved by the caller.
         var transfer = new StockTransferDto(
             Id:               nextId,
             TransferNo:       nextTransferNo.ToString(),
@@ -102,14 +91,7 @@ public class MockStockTransferApiService : IStockTransferApiService
             ToWarehouseId:    r.ToWarehouseId,
             Notes:            r.Notes,
             Status:           1, // مسودة
-            Items:            items)
-        {
-            FromWarehouseName = srcWh.Name,
-            ToWarehouseName   = dstWh.Name,
-            TotalCost         = items.Sum(i => i.TotalCost),
-            TotalQuantity     = items.Sum(i => i.Quantity),
-            CreatedByUserId   = 1
-        };
+            Items:            items);
 
         MockStockTransfersData.Transfers.Add(transfer);
         return Task.FromResult(Result<StockTransferDto>.Success(transfer));

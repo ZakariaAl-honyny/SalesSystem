@@ -44,9 +44,8 @@ public class MockInventoryCountApiService : IInventoryCountApiService
             Notes: request.Notes,
             CreatedAt: DateTime.Now,
             CreatedByUserId: 1,
-            Lines: new List<InventoryCountLineDto>(),
-            BranchId: request.BranchId ?? 1,
-            BranchName: "الفرع الرئيسي — صنعاء");
+            Lines: new List<InventoryCountLineDto>());
+        // TODO: BranchId / BranchName removed from InventoryCountDto.
 
         MockInventoryData.Counts.Add(count);
         return Task.FromResult(Result<InventoryCountDto>.Success(count));
@@ -65,9 +64,9 @@ public class MockInventoryCountApiService : IInventoryCountApiService
         var posted = existing with
         {
             Status = 2,
-            StatusName = "مرحّل",
-            PostedAt = DateTime.Now
+            StatusName = "مرحّل"
         };
+        // TODO: PostedAt removed from InventoryCountDto.
         MockInventoryData.Counts[index] = posted;
         return Task.FromResult(Result<InventoryCountDto>.Success(posted));
     }
@@ -85,9 +84,9 @@ public class MockInventoryCountApiService : IInventoryCountApiService
         MockInventoryData.Counts[index] = existing with
         {
             Status = 3,
-            StatusName = "ملغي",
-            CancelledAt = DateTime.Now
+            StatusName = "ملغي"
         };
+        // TODO: CancelledAt removed from InventoryCountDto.
         return Task.FromResult(Result.Success());
     }
 
@@ -115,10 +114,8 @@ public class MockInventoryCountApiService : IInventoryCountApiService
             ExpectedQuantity: request.ExpectedQuantity,
             ActualQuantity: request.ActualQuantity,
             Difference: request.ActualQuantity - request.ExpectedQuantity,
-            Notes: request.Notes,
-            ProductName: productName,
-            ProductId: productUnit?.ProductId ?? 0,
-            UnitName: productUnit?.UnitName);
+            Notes: request.Notes);
+        // TODO: ProductName / ProductId / UnitName removed from InventoryCountLineDto.
 
         var lines = existing.Lines is { Count: > 0 }
             ? new List<InventoryCountLineDto>(existing.Lines) { line }

@@ -85,7 +85,7 @@
             lblTransferNoLabel.Name = "lblTransferNoLabel";
             lblTransferNoLabel.Size = new Size(94, 20);
             lblTransferNoLabel.TabIndex = 0;
-            lblTransferNoLabel.Text = "��� �������:";
+            lblTransferNoLabel.Text = "رقم التحويل:";
             // 
             // lblTransferNo
             // 
@@ -93,7 +93,7 @@
             lblTransferNo.Name = "lblTransferNo";
             lblTransferNo.Size = new Size(100, 20);
             lblTransferNo.TabIndex = 1;
-            lblTransferNo.Text = "����";
+            lblTransferNo.Text = "جديد";
             // 
             // lblDate
             // 
@@ -101,7 +101,7 @@
             lblDate.Name = "lblDate";
             lblDate.Size = new Size(94, 20);
             lblDate.TabIndex = 2;
-            lblDate.Text = "�������:";
+            lblDate.Text = "التاريخ:";
             // 
             // dtpDate
             // 
@@ -127,7 +127,7 @@
             lblSource.Name = "lblSource";
             lblSource.Size = new Size(94, 23);
             lblSource.TabIndex = 5;
-            lblSource.Text = "�� ������:";
+            lblSource.Text = "من مستودع:";
             // 
             // cmbSource
             // 
@@ -142,7 +142,7 @@
             lblDest.Name = "lblDest";
             lblDest.Size = new Size(94, 23);
             lblDest.TabIndex = 7;
-            lblDest.Text = "��� ������:";
+            lblDest.Text = "إلى مستودع:";
             // 
             // cmbDest
             // 
@@ -178,7 +178,7 @@
             txtNotes.Location = new Point(10, 10);
             txtNotes.Multiline = true;
             txtNotes.Name = "txtNotes";
-            txtNotes.PlaceholderText = "������� �������...";
+            txtNotes.PlaceholderText = "ملاحظات التحويل...";
             txtNotes.Size = new Size(951, 80);
             txtNotes.TabIndex = 0;
             // 

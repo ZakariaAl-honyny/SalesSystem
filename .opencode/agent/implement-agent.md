@@ -2,7 +2,7 @@
 name: "Implement Agent"
 description: "Writes production-quality C# code for the WinForms N-Layer system. Use for implementing features, services, forms, and business logic."
 mode: subagent
-model: opencode-go/mimo-v2.5-pro
+model: opencode-go/deepseek-v4.1-flash
 ---
 
 You write production-quality C# code for the Sales Management System (WinForms N-Layer).

@@ -25,17 +25,7 @@ internal static class MockVouchersData
             Status: 2, // Posted
             CreatedAt: new DateTime(2026, 9, 1, 9, 30, 0),
             PostedAt: new DateTime(2026, 9, 1, 9, 35, 0),
-            CancelledAt: null,
-            PaymentMethod: 1, // Cash
-            Currency: "YER",
-            PartyName: "مؤسسة النور للتجارة والتوزيع",
-            ContraAccountCode: "1131",
-            ContraAccountName: "العملاء والذمم المدينة",
-            Reference: "سداد دفعة نقدية من الحساب الآجل",
-            CheckNumber: null,
-            BankName: null,
-            CostCenterCode: "201",
-            CostCenterName: "فرع حدة الرئيسي (صنعاء)"
+            CancelledAt: null // TODO: PaymentMethod, Currency, PartyName, ContraAccountCode, ContraAccountName, Reference, CheckNumber, BankName, CostCenterCode, CostCenterName removed from DTO
         ),
         new ReceiptVoucherDto(
             Id: 2,
@@ -50,17 +40,7 @@ internal static class MockVouchersData
             Status: 2, // Posted
             CreatedAt: new DateTime(2026, 9, 2, 11, 15, 0),
             PostedAt: new DateTime(2026, 9, 2, 11, 20, 0),
-            CancelledAt: null,
-            PaymentMethod: 2, // Bank
-            Currency: "YER",
-            PartyName: "سوبرماركت البركة",
-            ContraAccountCode: "1131",
-            ContraAccountName: "العملاء والذمم المدينة",
-            Reference: "حوالة بنكية رقم TR-88392",
-            CheckNumber: null,
-            BankName: "بنك التضامن الإسلامي",
-            CostCenterCode: "202",
-            CostCenterName: "فرع التحرير التجاري (صنعاء)"
+            CancelledAt: null // TODO: PaymentMethod, Currency, PartyName, ContraAccountCode, ContraAccountName, Reference, CheckNumber, BankName, CostCenterCode, CostCenterName removed from DTO
         )
     };
 
@@ -82,17 +62,7 @@ internal static class MockVouchersData
             Status: 2, // Posted
             CreatedAt: new DateTime(2026, 9, 1, 12, 40, 0),
             PostedAt: new DateTime(2026, 9, 1, 12, 45, 0),
-            CancelledAt: null,
-            PaymentMethod: 2, // Bank
-            Currency: "YER",
-            PartyName: "شركة كبوس للصناعة والتجارة",
-            ContraAccountCode: "2111",
-            ContraAccountName: "الموردون وحسابات الدائنين",
-            Reference: "شيك بنكي رقم 440912",
-            CheckNumber: "440912",
-            BankName: "بنك التضامن الإسلامي",
-            CostCenterCode: "301",
-            CostCenterName: "مستودع صنعاء المركزي والشحن"
+            CancelledAt: null // TODO: PaymentMethod, Currency, PartyName, ContraAccountCode, ContraAccountName, Reference, CheckNumber, BankName, CostCenterCode, CostCenterName removed from DTO
         ),
         new PaymentVoucherDto(
             Id: 2,
@@ -107,17 +77,7 @@ internal static class MockVouchersData
             Status: 2, // Posted
             CreatedAt: new DateTime(2026, 9, 1, 14, 0, 0),
             PostedAt: new DateTime(2026, 9, 1, 14, 5, 0),
-            CancelledAt: null,
-            PaymentMethod: 1, // Cash
-            Currency: "YER",
-            PartyName: "مالك عقار فروع حدة والتحرير",
-            ContraAccountCode: "421",
-            ContraAccountName: "مصروفات الإيجار والكهرباء والمياه",
-            Reference: "إيصال إيجار رقم RNT-09",
-            CheckNumber: null,
-            BankName: null,
-            CostCenterCode: "201",
-            CostCenterName: "فرع حدة الرئيسي (صنعاء)"
+            CancelledAt: null // TODO: PaymentMethod, Currency, PartyName, ContraAccountCode, ContraAccountName, Reference, CheckNumber, BankName, CostCenterCode, CostCenterName removed from DTO
         ),
         new PaymentVoucherDto(
             Id: 3,
@@ -132,17 +92,7 @@ internal static class MockVouchersData
             Status: 2, // Posted
             CreatedAt: new DateTime(2026, 9, 2, 16, 30, 0),
             PostedAt: new DateTime(2026, 9, 2, 16, 35, 0),
-            CancelledAt: null,
-            PaymentMethod: 1, // Cash
-            Currency: "YER",
-            PartyName: "ورشة التقنية لخدمات الشبكات",
-            ContraAccountCode: "423",
-            ContraAccountName: "مصروفات الصيانة وضيافة المحل",
-            Reference: "فاتورة صيانة IT-77",
-            CheckNumber: null,
-            BankName: null,
-            CostCenterCode: "102",
-            CostCenterName: "إدارة تكنولوجيا المعلومات ونقاط البيع IT"
+            CancelledAt: null // TODO: PaymentMethod, Currency, PartyName, ContraAccountCode, ContraAccountName, Reference, CheckNumber, BankName, CostCenterCode, CostCenterName removed from DTO
         )
     };
 }

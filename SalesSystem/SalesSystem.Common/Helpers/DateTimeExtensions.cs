@@ -1,26 +1,26 @@
 ﻿// *********************************************************************
 //  DateTimeExtensions.cs
-//  ظ…ظ„ط­ظ‚ ظ„ظ„طھط¹ط§ظ…ظ„ ظ…ط¹ ط§ظ„طھظˆط§ط±ظٹط® ط­ط³ط¨ ط§ظ„طھظ‚ظˆظٹظ… ط§ظ„ط¹ط±ط¨ظٹ (ط§ظ„ط³ط¨طھ ط£ظˆظ„ ط§ظ„ط£ط³ط¨ظˆط¹)
+//  ملحق للتعامل مع التواريخ حسب التقويم العربي (السبت أول الأسبوع)
 // *********************************************************************
 
 namespace SalesSystem.Common.Helpers;
 
 /// <summary>
-/// ظ…ظ„ط­ظ‚ ظ„ط¯ظˆط§ظ„ ط§ظ„طھط§ط±ظٹط® ظˆط§ظ„ظˆظ‚طھطŒ ظ…طھظˆط§ظپظ‚ ظ…ط¹ ط§ظ„طھظ‚ظˆظٹظ… ط§ظ„ط¹ط±ط¨ظٹ ط­ظٹط«
-/// ظٹط¨ط¯ط£ ط§ظ„ط£ط³ط¨ظˆط¹ ظٹظˆظ… ط§ظ„ط³ط¨طھ ظˆظٹظ†طھظ‡ظٹ ظٹظˆظ… ط§ظ„ط¬ظ…ط¹ط©.
+/// ملحق لدوال التاريخ والوقت، متوافق مع التقويم العربي حيث
+/// يبدأ الأسبوع يوم السبت وينتهي يوم الجمعة.
 /// </summary>
 public static class DateTimeExtensions
 {
     /// <summary>
-    /// ظٹط­ط³ط¨ طھط§ط±ظٹط® ط£ظˆظ„ ظٹظˆظ… ظپظٹ ط§ظ„ط£ط³ط¨ظˆط¹ ط§ظ„ط°ظٹ ظٹظ‚ط¹ ظپظٹظ‡ ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط­ط¯ط¯.
+    /// يحسب تاريخ أول يوم في الأسبوع الذي يقع فيه التاريخ المحدد.
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط¬ط¹ظٹ.</param>
-    /// <param name="startOfWeek">ط£ظˆظ„ ط£ظٹط§ظ… ط§ظ„ط£ط³ط¨ظˆط¹ (ط§ظ„ط³ط¨طھ ط§ظپطھط±ط§ط¶ظٹط§ظ‹).</param>
-    /// <returns>طھط§ط±ظٹط® ط£ظˆظ„ ظٹظˆظ… ظپظٹ ط§ظ„ط£ط³ط¨ظˆط¹.</returns>
+    /// <param name="date">التاريخ المرجعي.</param>
+    /// <param name="startOfWeek">أول أيام الأسبوع (السبت افتراضياً).</param>
+    /// <returns>تاريخ أول يوم في الأسبوع.</returns>
     /// <example>
     /// <code>
-    /// var wednesday = new DateTime(2026, 7, 22); // ط§ظ„ط£ط±ط¨ط¹ط§ط،
-    /// var start = wednesday.StartOfWeek(); // ط§ظ„ط³ط¨طھ 2026-07-18
+    /// var wednesday = new DateTime(2026, 7, 22); // الأربعاء
+    /// var start = wednesday.StartOfWeek(); // السبت 2026-07-18
     /// </code>
     /// </example>
     public static DateTime StartOfWeek(this DateTime date, DayOfWeek startOfWeek = DayOfWeek.Saturday)
@@ -30,15 +30,15 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// ظٹط­ط³ط¨ طھط§ط±ظٹط® ط¢ط®ط± ظٹظˆظ… ظپظٹ ط§ظ„ط£ط³ط¨ظˆط¹ ط§ظ„ط°ظٹ ظٹظ‚ط¹ ظپظٹظ‡ ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط­ط¯ط¯.
+    /// يحسب تاريخ آخر يوم في الأسبوع الذي يقع فيه التاريخ المحدد.
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط¬ط¹ظٹ.</param>
-    /// <param name="endOfWeek">ط¢ط®ط± ط£ظٹط§ظ… ط§ظ„ط£ط³ط¨ظˆط¹ (ط§ظ„ط¬ظ…ط¹ط© ط§ظپطھط±ط§ط¶ظٹط§ظ‹).</param>
-    /// <returns>طھط§ط±ظٹط® ط¢ط®ط± ظٹظˆظ… ظپظٹ ط§ظ„ط£ط³ط¨ظˆط¹.</returns>
+    /// <param name="date">التاريخ المرجعي.</param>
+    /// <param name="endOfWeek">آخر أيام الأسبوع (الجمعة افتراضياً).</param>
+    /// <returns>تاريخ آخر يوم في الأسبوع.</returns>
     /// <example>
     /// <code>
-    /// var wednesday = new DateTime(2026, 7, 22); // ط§ظ„ط£ط±ط¨ط¹ط§ط،
-    /// var end = wednesday.EndOfWeek(); // ط§ظ„ط¬ظ…ط¹ط© 2026-07-24
+    /// var wednesday = new DateTime(2026, 7, 22); // الأربعاء
+    /// var end = wednesday.EndOfWeek(); // الجمعة 2026-07-24
     /// </code>
     /// </example>
     public static DateTime EndOfWeek(this DateTime date, DayOfWeek endOfWeek = DayOfWeek.Friday)
@@ -48,10 +48,10 @@ public static class DateTimeExtensions
     }
 
     /// <summary>
-    /// ظٹط­ط³ط¨ طھط§ط±ظٹط® ط£ظˆظ„ ظٹظˆظ… ظپظٹ ط§ظ„ط´ظ‡ط± ط§ظ„ط°ظٹ ظٹظ‚ط¹ ظپظٹظ‡ ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط­ط¯ط¯.
+    /// يحسب تاريخ أول يوم في الشهر الذي يقع فيه التاريخ المحدد.
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط¬ط¹ظٹ.</param>
-    /// <returns>طھط§ط±ظٹط® ط£ظˆظ„ ظٹظˆظ… ظ…ظ† ط§ظ„ط´ظ‡ط± ظ…ط¹ ط¶ط¨ط· ط§ظ„ظˆظ‚طھ ط¥ظ„ظ‰ 00:00:00.</returns>
+    /// <param name="date">التاريخ المرجعي.</param>
+    /// <returns>تاريخ أول يوم من الشهر مع ضبط الوقت إلى 00:00:00.</returns>
     /// <example>
     /// <code>
     /// var midMonth = new DateTime(2026, 7, 15);
@@ -62,10 +62,10 @@ public static class DateTimeExtensions
         => new(date.Year, date.Month, 1, 0, 0, 0, DateTimeKind.Local);
 
     /// <summary>
-    /// ظٹط­ط³ط¨ طھط§ط±ظٹط® ط¢ط®ط± ظٹظˆظ… ظپظٹ ط§ظ„ط´ظ‡ط± ط§ظ„ط°ظٹ ظٹظ‚ط¹ ظپظٹظ‡ ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط­ط¯ط¯.
+    /// يحسب تاريخ آخر يوم في الشهر الذي يقع فيه التاريخ المحدد.
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط¬ط¹ظٹ.</param>
-    /// <returns>طھط§ط±ظٹط® ط¢ط®ط± ظٹظˆظ… ظ…ظ† ط§ظ„ط´ظ‡ط±.</returns>
+    /// <param name="date">التاريخ المرجعي.</param>
+    /// <returns>تاريخ آخر يوم من الشهر.</returns>
     /// <example>
     /// <code>
     /// var midMonth = new DateTime(2026, 7, 15);
@@ -76,10 +76,10 @@ public static class DateTimeExtensions
         => date.StartOfMonth().AddMonths(1).AddDays(-1);
 
     /// <summary>
-    /// ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ…ط§ ط¥ط°ط§ ظƒط§ظ† ط§ظ„طھط§ط±ظٹط® ظٹظ‚ط¹ ظپظٹ ط¹ط·ظ„ط© ظ†ظ‡ط§ظٹط© ط§ظ„ط£ط³ط¨ظˆط¹ (ط§ظ„ط¬ظ…ط¹ط© ط£ظˆ ط§ظ„ط³ط¨طھ).
+    /// للتحقق مما إذا كان التاريخ يقع في عطلة نهاية الأسبوع (الجمعة أو السبت).
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط§ط¯ ظپط­طµظ‡.</param>
-    /// <returns>true ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظٹظˆظ… ط¬ظ…ط¹ط© ط£ظˆ ط³ط¨طھ.</returns>
+    /// <param name="date">التاريخ المراد فحصه.</param>
+    /// <returns>true إذا كان اليوم جمعة أو سبت.</returns>
     /// <example>
     /// <code>
     /// var friday = new DateTime(2026, 7, 24);
@@ -90,18 +90,18 @@ public static class DateTimeExtensions
         => date.DayOfWeek is DayOfWeek.Friday or DayOfWeek.Saturday;
 
     /// <summary>
-    /// ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ…ط§ ط¥ط°ط§ ظƒط§ظ† ط§ظ„طھط§ط±ظٹط® ظٹظˆط§ظپظ‚ ظٹظˆظ… ط§ظ„ط¬ظ…ط¹ط©.
+    /// للتحقق مما إذا كان التاريخ يوافق يوم الجمعة.
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط§ط¯ ظپط­طµظ‡.</param>
-    /// <returns>true ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظٹظˆظ… ط¬ظ…ط¹ط©.</returns>
+    /// <param name="date">التاريخ المراد فحصه.</param>
+    /// <returns>true إذا كان اليوم جمعة.</returns>
     public static bool IsFriday(this DateTime date)
         => date.DayOfWeek == DayOfWeek.Friday;
 
     /// <summary>
-    /// ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ…ط§ ط¥ط°ط§ ظƒط§ظ† ط§ظ„طھط§ط±ظٹط® ظٹظˆط§ظپظ‚ ظٹظˆظ… ط§ظ„ط³ط¨طھ.
+    /// للتحقق مما إذا كان التاريخ يوافق يوم السبت.
     /// </summary>
-    /// <param name="date">ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط±ط§ط¯ ظپط­طµظ‡.</param>
-    /// <returns>true ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظٹظˆظ… ط³ط¨طھ.</returns>
+    /// <param name="date">التاريخ المراد فحصه.</param>
+    /// <returns>true إذا كان اليوم سبت.</returns>
     public static bool IsSaturday(this DateTime date)
         => date.DayOfWeek == DayOfWeek.Saturday;
 }

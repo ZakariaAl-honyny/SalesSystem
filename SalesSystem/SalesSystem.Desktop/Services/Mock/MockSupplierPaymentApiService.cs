@@ -45,11 +45,8 @@ public class MockSupplierPaymentApiService : ISupplierPaymentApiService
         var supplier = MockSuppliersData.Suppliers.FirstOrDefault(s => s.Id == r.SupplierId);
         var supplierName = supplier?.Name ?? "غير معروف";
 
-        // Resolve cashbox name from mock data
-        var cashBox = r.CashBoxId.HasValue
-            ? MockData.CashBoxes.FirstOrDefault(c => c.Id == r.CashBoxId.Value)
-            : null;
-
+        // TODO: CashBoxId / CashBoxName / Status / Currency / CreatedAt / PostedAt / CancelledAt
+        //       removed from SupplierPaymentDto — السند لا يحمل صندوقاً أو حالة في هذا الإصدار.
         var payment = new SupplierPaymentDto(
             Id: nextId,
             PaymentNo: nextNo.ToString(),
@@ -62,14 +59,7 @@ public class MockSupplierPaymentApiService : ISupplierPaymentApiService
                 : DateOnly.FromDateTime(DateTime.UtcNow),
             PurchaseInvoiceId: r.PurchaseInvoiceId,
             Notes: r.Notes,
-            BranchId: r.BranchId ?? 1,
-            CashBoxId: r.CashBoxId,
-            CashBoxName: cashBox?.Name,
-            Status: 1, // مسودة
-            Currency: "YER",
-            CreatedAt: DateTime.UtcNow,
-            PostedAt: null,
-            CancelledAt: null);
+            BranchId: r.BranchId ?? 1);
 
         MockSupplierPaymentsData.Payments.Add(payment);
         return Task.FromResult(Result<SupplierPaymentDto>.Success(payment));
@@ -81,13 +71,8 @@ public class MockSupplierPaymentApiService : ISupplierPaymentApiService
         if (existing is null)
             return Task.FromResult(Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود"));
 
-        if (existing.Status != 1)
-            return Task.FromResult(Result<SupplierPaymentDto>.Failure("لا يمكن ترحيل السند إلا في حالة المسودة"));
-
-        var posted = existing with { Status = 2, PostedAt = DateTime.UtcNow };
-        var index = MockSupplierPaymentsData.Payments.IndexOf(existing);
-        MockSupplierPaymentsData.Payments[index] = posted;
-        return Task.FromResult(Result<SupplierPaymentDto>.Success(posted));
+        // TODO: Status / PostedAt removed from SupplierPaymentDto — لا يمكن تعقّب حالة الترحيل في البيانات التجريبية.
+        return Task.FromResult(Result<SupplierPaymentDto>.Success(existing));
     }
 
     public Task<Result<SupplierPaymentDto>> CancelAsync(int id, CancellationToken ct = default)
@@ -96,12 +81,9 @@ public class MockSupplierPaymentApiService : ISupplierPaymentApiService
         if (existing is null)
             return Task.FromResult(Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود"));
 
-        if (existing.Status == 3)
-            return Task.FromResult(Result<SupplierPaymentDto>.Failure("السند ملغي بالفعل"));
-
-        var cancelled = existing with { Status = 3, CancelledAt = DateTime.UtcNow };
+        // TODO: Status / CancelledAt removed from SupplierPaymentDto — الإلغاء يُنفذ بحذف السند من البيانات التجريبية.
         var index = MockSupplierPaymentsData.Payments.IndexOf(existing);
-        MockSupplierPaymentsData.Payments[index] = cancelled;
-        return Task.FromResult(Result<SupplierPaymentDto>.Success(cancelled));
+        MockSupplierPaymentsData.Payments.RemoveAt(index);
+        return Task.FromResult(Result<SupplierPaymentDto>.Success(existing));
     }
 }

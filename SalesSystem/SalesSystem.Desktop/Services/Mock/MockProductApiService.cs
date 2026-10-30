@@ -1,3 +1,4 @@
+using SalesSystem.Common.Enums;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -117,6 +118,55 @@ public class MockProductApiService : IProductApiService
             .ToList()
             .AsReadOnly();
         return Task.FromResult(Result<IReadOnlyList<ProductUnitDto>>.Success(units));
+    }
+
+    public Task<Result<ProductUnitDto>> AddProductUnitAsync(int productId, AddProductUnitRequest r, CancellationToken ct = default)
+    {
+        if (!MockData.Products.Any(p => p.Id == productId))
+            return Task.FromResult(Result<ProductUnitDto>.Failure("المنتج غير موجود"));
+
+        if (MockData.ProductUnits.Any(u => u.ProductId == productId && u.UnitId == r.UnitId))
+            return Task.FromResult(Result<ProductUnitDto>.Failure("هذه الوحدة مضافة بالفعل للمنتج"));
+
+        var unitName = MockLookupsData.Units.FirstOrDefault(u => u.Id == r.UnitId)?.Name;
+        var nextId = MockData.ProductUnits.Count == 0 ? 1 : MockData.ProductUnits.Max(u => u.Id) + 1;
+
+        var productUnit = new ProductUnitDto(
+            Id: nextId,
+            ProductId: productId,
+            UnitId: r.UnitId,
+            UnitName: unitName,
+            ConversionFactor: r.IsBaseUnit ? 1m : r.Factor,
+            IsBaseUnit: r.IsBaseUnit);
+
+        MockData.ProductUnits.Add(productUnit);
+        return Task.FromResult(Result<ProductUnitDto>.Success(productUnit));
+    }
+
+    public Task<Result<ProductUnitDto>> UpdateProductUnitAsync(int productId, int productUnitId, UpdateProductUnitRequest r, CancellationToken ct = default)
+    {
+        var existing = MockData.ProductUnits.FirstOrDefault(u => u.Id == productUnitId && u.ProductId == productId);
+        if (existing is null)
+            return Task.FromResult(Result<ProductUnitDto>.Failure("وحدة المنتج غير موجودة"));
+
+        var unitName = MockLookupsData.Units.FirstOrDefault(u => u.Id == r.UnitId)?.Name;
+
+        var updated = existing with { UnitId = r.UnitId, UnitName = unitName };
+        MockData.ProductUnits[MockData.ProductUnits.IndexOf(existing)] = updated;
+        return Task.FromResult(Result<ProductUnitDto>.Success(updated));
+    }
+
+    public Task<Result> DeleteProductUnitAsync(int productId, int productUnitId, DeleteStrategy strategy = DeleteStrategy.Permanent, CancellationToken ct = default)
+    {
+        var existing = MockData.ProductUnits.FirstOrDefault(u => u.Id == productUnitId && u.ProductId == productId);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("وحدة المنتج غير موجودة"));
+
+        if (MockData.ProductUnits.Count(u => u.ProductId == productId) <= 1)
+            return Task.FromResult(Result.Failure("يجب أن يكون للمنتج وحدة قياس واحدة على الأقل"));
+
+        MockData.ProductUnits.Remove(existing);
+        return Task.FromResult(Result.Success());
     }
 
     // ── Product Prices ───────────────────────────────────────────────────

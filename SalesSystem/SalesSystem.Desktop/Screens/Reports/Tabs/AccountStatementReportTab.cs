@@ -27,7 +27,10 @@ public class AccountStatementReportTab : UserControl, IExportableReport
     private Label lblSummary = null!;
     private Panel loadingPanel = null!;
 
-    public AccountStatementReportTab(IServiceProvider serviceProvider)
+    /// <param name="supplierDefault">
+    /// عند true يبدأ التقرير على نوع "مورد" (كشف حساب مورد)، وإلا يبدأ على "عميل" (كشف حساب عميل).
+    /// </param>
+    public AccountStatementReportTab(IServiceProvider serviceProvider, bool supplierDefault = false)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
@@ -35,6 +38,8 @@ public class AccountStatementReportTab : UserControl, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true; dgvReport.AllowUserToAddRows = false; dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect; dgvReport.AutoGenerateColumns = true;
+        // MVP: كشف حساب العميل/المورد — ضبط النوع الافتراضي حسب التبويب المفتوح
+        if (supplierDefault && cmbPartyType.Items.Count > 1) cmbPartyType.SelectedIndex = 1;
     }
 
     protected override async void OnLoad(EventArgs e) { base.OnLoad(e); }

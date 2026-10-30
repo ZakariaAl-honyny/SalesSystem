@@ -94,12 +94,9 @@ public class MockAccountApiService : IAccountApiService
             Level: level,
             Description: request.Description,
             ColorCode: null,
-            Notes: request.Notes,
-            ParentAccountCode: parentCode,
-            FinancialStatement: request.Nature <= 3 ? (byte)1 : (byte)2,
-            TreePath: null,
-            AllowCostCenter: false,
-            CurrentBalance: request.OpeningBalance ?? 0m);
+            Notes: request.Notes);
+        // TODO: ParentAccountCode / FinancialStatement / TreePath / AllowCostCenter / CurrentBalance
+        //       removed from AccountDto — القيم تُشتق من شجرة الحسابات عند الحاجة.
 
         MockAccountsData.Accounts.Add(account);
         return Task.FromResult(Result<int>.Success(account.Id));

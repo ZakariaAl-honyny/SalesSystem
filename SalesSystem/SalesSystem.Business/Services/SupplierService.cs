@@ -226,6 +226,43 @@ public class SupplierService : ISupplierService
         }, ct);
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var supplier = await _uow.Suppliers.FirstOrDefaultIgnoreFiltersAsync(s => s.Id == id, ct);
+        if (supplier == null)
+            return Result.Failure("المورد غير موجود", ErrorCodes.NotFound);
+
+        if (supplier.IsActive)
+            return Result.Failure("المورد نشط بالفعل");
+
+        return await _uow.ExecuteTransactionAsync<Result>(async () =>
+        {
+            try
+            {
+                // Reactivate linked Account — per accounts summry.md
+                if (supplier.AccountId > 0)
+                {
+                    await _accountLink.ActivateAsync(supplier.AccountId, ct);
+                }
+
+                supplier.Restore();
+                await _uow.SaveChangesAsync(ct);
+
+                _logger.LogInformation("Supplier reactivated: {SupplierName} (ID: {SupplierId})", supplier.Name, supplier.Id);
+                return Result.Success();
+            }
+            catch (DomainException ex)
+            {
+                return Result.Failure(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while reactivating supplier {Id}", id);
+                return Result.Failure("حدث خطأ أثناء إعادة تنشيط المورد.");
+            }
+        }, ct);
+    }
+
     /// <summary>
     /// Auto-creates a Level 4 Liability account under the AP parent account for this supplier.
     /// Delegates to IAccountLinkService for centralized account creation.

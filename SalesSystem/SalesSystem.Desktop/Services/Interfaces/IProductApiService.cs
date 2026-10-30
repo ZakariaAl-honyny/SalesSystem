@@ -1,4 +1,5 @@
 ﻿using SalesSystem.Common;
+using SalesSystem.Common.Enums;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
@@ -18,6 +19,9 @@ public interface IProductApiService
 
     // ── Product Units ────────────────────────────────────────────────────────
     Task<Result<IReadOnlyList<ProductUnitDto>>> GetProductUnitsAsync(int productId, CancellationToken ct = default);
+    Task<Result<ProductUnitDto>> AddProductUnitAsync(int productId, AddProductUnitRequest r, CancellationToken ct = default);
+    Task<Result<ProductUnitDto>> UpdateProductUnitAsync(int productId, int productUnitId, UpdateProductUnitRequest r, CancellationToken ct = default);
+    Task<Result> DeleteProductUnitAsync(int productId, int productUnitId, DeleteStrategy strategy = DeleteStrategy.Permanent, CancellationToken ct = default);
 
     // ── Product Prices ───────────────────────────────────────────────────────
     Task<Result<IReadOnlyList<ProductPriceDto>>> GetProductPricesByUnitAsync(int productUnitId, CancellationToken ct = default);

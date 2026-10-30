@@ -17,6 +17,12 @@ partial class frmCustomerStatement
 
     private void InitializeComponent()
     {
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
         pnlHeader = new Panel();
         lblMode = new Label();
         pnlFilter = new Panel();
@@ -50,10 +56,10 @@ partial class frmCustomerStatement
         lblAgingTitle = new Label();
         dgvAging = new DataGridView();
         pnlFooter = new Panel();
-        lblFooterLine = new Label();
         btnClose = new Button();
         lblRecordsLabel = new Label();
         lblRecordsCount = new Label();
+        lblFooterLine = new Label();
         dgvStatement = new DataGridView();
         splitMain = new SplitContainer();
         pnlHeader.SuspendLayout();
@@ -79,6 +85,7 @@ partial class frmCustomerStatement
         pnlHeader.BackColor = Color.FromArgb(33, 43, 54);
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
+        pnlHeader.Location = new Point(0, 0);
         pnlHeader.Name = "pnlHeader";
         pnlHeader.Size = new Size(880, 56);
         pnlHeader.TabIndex = 0;
@@ -88,6 +95,7 @@ partial class frmCustomerStatement
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblMode.ForeColor = Color.White;
+        lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(880, 56);
         lblMode.TabIndex = 0;
@@ -99,6 +107,7 @@ partial class frmCustomerStatement
         pnlFilter.BackColor = Color.White;
         pnlFilter.Controls.Add(flowFilter);
         pnlFilter.Dock = DockStyle.Top;
+        pnlFilter.Location = new Point(0, 56);
         pnlFilter.Name = "pnlFilter";
         pnlFilter.Size = new Size(880, 54);
         pnlFilter.TabIndex = 1;
@@ -115,8 +124,11 @@ partial class frmCustomerStatement
         flowFilter.Controls.Add(btnRefresh);
         flowFilter.Dock = DockStyle.Fill;
         flowFilter.FlowDirection = FlowDirection.RightToLeft;
+        flowFilter.Location = new Point(0, 0);
         flowFilter.Name = "flowFilter";
         flowFilter.Padding = new Padding(8, 2, 8, 2);
+        flowFilter.Size = new Size(880, 54);
+        flowFilter.TabIndex = 0;
         flowFilter.WrapContents = false;
         // 
         // lblCustomerCaption
@@ -124,10 +136,10 @@ partial class frmCustomerStatement
         lblCustomerCaption.AutoSize = true;
         lblCustomerCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblCustomerCaption.ForeColor = Color.FromArgb(52, 73, 94);
-        lblCustomerCaption.Location = new Point(3, 15);
+        lblCustomerCaption.Location = new Point(10, 14);
         lblCustomerCaption.Margin = new Padding(4, 12, 2, 12);
         lblCustomerCaption.Name = "lblCustomerCaption";
-        lblCustomerCaption.Size = new Size(55, 24);
+        lblCustomerCaption.Size = new Size(79, 24);
         lblCustomerCaption.TabIndex = 0;
         lblCustomerCaption.Text = "العميل:";
         // 
@@ -135,7 +147,7 @@ partial class frmCustomerStatement
         // 
         cmbCustomer.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCustomer.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        cmbCustomer.Location = new Point(62, 12);
+        cmbCustomer.Location = new Point(95, 14);
         cmbCustomer.Margin = new Padding(2, 12, 2, 12);
         cmbCustomer.Name = "cmbCustomer";
         cmbCustomer.Size = new Size(220, 32);
@@ -147,22 +159,21 @@ partial class frmCustomerStatement
         lblCustomerInfo.AutoSize = true;
         lblCustomerInfo.Font = new Font("Tahoma", 8.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblCustomerInfo.ForeColor = Color.FromArgb(108, 117, 125);
-        lblCustomerInfo.Location = new Point(286, 16);
+        lblCustomerInfo.Location = new Point(325, 16);
         lblCustomerInfo.Margin = new Padding(2, 14, 8, 14);
         lblCustomerInfo.Name = "lblCustomerInfo";
-        lblCustomerInfo.Size = new Size(100, 20);
+        lblCustomerInfo.Size = new Size(0, 21);
         lblCustomerInfo.TabIndex = 2;
-        lblCustomerInfo.Text = "";
         // 
         // lblFrom
         // 
         lblFrom.AutoSize = true;
         lblFrom.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblFrom.ForeColor = Color.FromArgb(52, 73, 94);
-        lblFrom.Location = new Point(396, 15);
+        lblFrom.Location = new Point(329, 14);
         lblFrom.Margin = new Padding(4, 12, 2, 12);
         lblFrom.Name = "lblFrom";
-        lblFrom.Size = new Size(42, 24);
+        lblFrom.Size = new Size(46, 24);
         lblFrom.TabIndex = 3;
         lblFrom.Text = "من:";
         // 
@@ -170,10 +181,10 @@ partial class frmCustomerStatement
         // 
         dtpFrom.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpFrom.Format = DateTimePickerFormat.Short;
-        dtpFrom.Location = new Point(442, 12);
+        dtpFrom.Location = new Point(381, 14);
         dtpFrom.Margin = new Padding(2, 12, 2, 12);
         dtpFrom.Name = "dtpFrom";
-        dtpFrom.Size = new Size(120, 30);
+        dtpFrom.Size = new Size(120, 32);
         dtpFrom.TabIndex = 4;
         dtpFrom.ValueChanged += dtpFrom_ValueChanged;
         // 
@@ -182,10 +193,10 @@ partial class frmCustomerStatement
         lblTo.AutoSize = true;
         lblTo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTo.ForeColor = Color.FromArgb(52, 73, 94);
-        lblTo.Location = new Point(566, 15);
+        lblTo.Location = new Point(505, 14);
         lblTo.Margin = new Padding(4, 12, 2, 12);
         lblTo.Name = "lblTo";
-        lblTo.Size = new Size(40, 24);
+        lblTo.Size = new Size(52, 24);
         lblTo.TabIndex = 5;
         lblTo.Text = "إلى:";
         // 
@@ -193,10 +204,10 @@ partial class frmCustomerStatement
         // 
         dtpTo.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpTo.Format = DateTimePickerFormat.Short;
-        dtpTo.Location = new Point(610, 12);
+        dtpTo.Location = new Point(563, 14);
         dtpTo.Margin = new Padding(2, 12, 2, 12);
         dtpTo.Name = "dtpTo";
-        dtpTo.Size = new Size(120, 30);
+        dtpTo.Size = new Size(120, 32);
         dtpTo.TabIndex = 6;
         dtpTo.ValueChanged += dtpTo_ValueChanged;
         // 
@@ -206,7 +217,7 @@ partial class frmCustomerStatement
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         btnRefresh.ForeColor = Color.White;
-        btnRefresh.Location = new Point(734, 8);
+        btnRefresh.Location = new Point(687, 10);
         btnRefresh.Margin = new Padding(2, 8, 2, 8);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(80, 34);
@@ -220,6 +231,7 @@ partial class frmCustomerStatement
         pnlStats.BackColor = Color.WhiteSmoke;
         pnlStats.Controls.Add(flowCards);
         pnlStats.Dock = DockStyle.Top;
+        pnlStats.Location = new Point(0, 110);
         pnlStats.Name = "pnlStats";
         pnlStats.Size = new Size(880, 100);
         pnlStats.TabIndex = 2;
@@ -232,8 +244,11 @@ partial class frmCustomerStatement
         flowCards.Controls.Add(cardClosing);
         flowCards.Dock = DockStyle.Fill;
         flowCards.FlowDirection = FlowDirection.RightToLeft;
+        flowCards.Location = new Point(0, 0);
         flowCards.Name = "flowCards";
         flowCards.Padding = new Padding(8, 6, 8, 6);
+        flowCards.Size = new Size(880, 100);
+        flowCards.TabIndex = 0;
         // 
         // cardOpening
         // 
@@ -241,6 +256,7 @@ partial class frmCustomerStatement
         cardOpening.Controls.Add(cardOpeningAccent);
         cardOpening.Controls.Add(cardOpeningTitle);
         cardOpening.Controls.Add(cardOpeningValue);
+        cardOpening.Location = new Point(16, 12);
         cardOpening.Margin = new Padding(8, 6, 8, 6);
         cardOpening.Name = "cardOpening";
         cardOpening.Padding = new Padding(10, 4, 10, 4);
@@ -251,8 +267,9 @@ partial class frmCustomerStatement
         // 
         cardOpeningAccent.BackColor = Color.FromArgb(149, 165, 166);
         cardOpeningAccent.Dock = DockStyle.Bottom;
-        cardOpeningAccent.Height = 3;
+        cardOpeningAccent.Location = new Point(10, 65);
         cardOpeningAccent.Name = "cardOpeningAccent";
+        cardOpeningAccent.Size = new Size(170, 3);
         cardOpeningAccent.TabIndex = 0;
         // 
         // cardOpeningTitle
@@ -262,7 +279,7 @@ partial class frmCustomerStatement
         cardOpeningTitle.ForeColor = Color.FromArgb(108, 117, 125);
         cardOpeningTitle.Location = new Point(10, 4);
         cardOpeningTitle.Name = "cardOpeningTitle";
-        cardOpeningTitle.Size = new Size(85, 18);
+        cardOpeningTitle.Size = new Size(134, 22);
         cardOpeningTitle.TabIndex = 1;
         cardOpeningTitle.Text = "الرصيد السابق";
         // 
@@ -273,7 +290,7 @@ partial class frmCustomerStatement
         cardOpeningValue.ForeColor = Color.FromArgb(52, 73, 94);
         cardOpeningValue.Location = new Point(10, 28);
         cardOpeningValue.Name = "cardOpeningValue";
-        cardOpeningValue.Size = new Size(65, 29);
+        cardOpeningValue.Size = new Size(78, 34);
         cardOpeningValue.TabIndex = 2;
         cardOpeningValue.Text = "0.00";
         // 
@@ -283,6 +300,7 @@ partial class frmCustomerStatement
         cardDebit.Controls.Add(cardDebitAccent);
         cardDebit.Controls.Add(cardDebitTitle);
         cardDebit.Controls.Add(cardDebitValue);
+        cardDebit.Location = new Point(222, 12);
         cardDebit.Margin = new Padding(8, 6, 8, 6);
         cardDebit.Name = "cardDebit";
         cardDebit.Padding = new Padding(10, 4, 10, 4);
@@ -293,8 +311,9 @@ partial class frmCustomerStatement
         // 
         cardDebitAccent.BackColor = Color.FromArgb(192, 57, 43);
         cardDebitAccent.Dock = DockStyle.Bottom;
-        cardDebitAccent.Height = 3;
+        cardDebitAccent.Location = new Point(10, 65);
         cardDebitAccent.Name = "cardDebitAccent";
+        cardDebitAccent.Size = new Size(170, 3);
         cardDebitAccent.TabIndex = 0;
         // 
         // cardDebitTitle
@@ -304,7 +323,7 @@ partial class frmCustomerStatement
         cardDebitTitle.ForeColor = Color.FromArgb(108, 117, 125);
         cardDebitTitle.Location = new Point(10, 4);
         cardDebitTitle.Name = "cardDebitTitle";
-        cardDebitTitle.Size = new Size(98, 18);
+        cardDebitTitle.Size = new Size(135, 22);
         cardDebitTitle.TabIndex = 1;
         cardDebitTitle.Text = "إجمالي المدين";
         // 
@@ -315,7 +334,7 @@ partial class frmCustomerStatement
         cardDebitValue.ForeColor = Color.FromArgb(192, 57, 43);
         cardDebitValue.Location = new Point(10, 28);
         cardDebitValue.Name = "cardDebitValue";
-        cardDebitValue.Size = new Size(65, 29);
+        cardDebitValue.Size = new Size(78, 34);
         cardDebitValue.TabIndex = 2;
         cardDebitValue.Text = "0.00";
         // 
@@ -325,6 +344,7 @@ partial class frmCustomerStatement
         cardCredit.Controls.Add(cardCreditAccent);
         cardCredit.Controls.Add(cardCreditTitle);
         cardCredit.Controls.Add(cardCreditValue);
+        cardCredit.Location = new Point(428, 12);
         cardCredit.Margin = new Padding(8, 6, 8, 6);
         cardCredit.Name = "cardCredit";
         cardCredit.Padding = new Padding(10, 4, 10, 4);
@@ -335,8 +355,9 @@ partial class frmCustomerStatement
         // 
         cardCreditAccent.BackColor = Color.FromArgb(39, 174, 96);
         cardCreditAccent.Dock = DockStyle.Bottom;
-        cardCreditAccent.Height = 3;
+        cardCreditAccent.Location = new Point(10, 65);
         cardCreditAccent.Name = "cardCreditAccent";
+        cardCreditAccent.Size = new Size(170, 3);
         cardCreditAccent.TabIndex = 0;
         // 
         // cardCreditTitle
@@ -346,7 +367,7 @@ partial class frmCustomerStatement
         cardCreditTitle.ForeColor = Color.FromArgb(108, 117, 125);
         cardCreditTitle.Location = new Point(10, 4);
         cardCreditTitle.Name = "cardCreditTitle";
-        cardCreditTitle.Size = new Size(98, 18);
+        cardCreditTitle.Size = new Size(129, 22);
         cardCreditTitle.TabIndex = 1;
         cardCreditTitle.Text = "إجمالي الدائن";
         // 
@@ -357,7 +378,7 @@ partial class frmCustomerStatement
         cardCreditValue.ForeColor = Color.FromArgb(39, 174, 96);
         cardCreditValue.Location = new Point(10, 28);
         cardCreditValue.Name = "cardCreditValue";
-        cardCreditValue.Size = new Size(65, 29);
+        cardCreditValue.Size = new Size(78, 34);
         cardCreditValue.TabIndex = 2;
         cardCreditValue.Text = "0.00";
         // 
@@ -367,6 +388,7 @@ partial class frmCustomerStatement
         cardClosing.Controls.Add(cardClosingAccent);
         cardClosing.Controls.Add(cardClosingTitle);
         cardClosing.Controls.Add(cardClosingValue);
+        cardClosing.Location = new Point(634, 12);
         cardClosing.Margin = new Padding(8, 6, 8, 6);
         cardClosing.Name = "cardClosing";
         cardClosing.Padding = new Padding(10, 4, 10, 4);
@@ -377,8 +399,9 @@ partial class frmCustomerStatement
         // 
         cardClosingAccent.BackColor = Color.FromArgb(243, 156, 18);
         cardClosingAccent.Dock = DockStyle.Bottom;
-        cardClosingAccent.Height = 3;
+        cardClosingAccent.Location = new Point(10, 65);
         cardClosingAccent.Name = "cardClosingAccent";
+        cardClosingAccent.Size = new Size(170, 3);
         cardClosingAccent.TabIndex = 0;
         // 
         // cardClosingTitle
@@ -388,7 +411,7 @@ partial class frmCustomerStatement
         cardClosingTitle.ForeColor = Color.FromArgb(108, 117, 125);
         cardClosingTitle.Location = new Point(10, 4);
         cardClosingTitle.Name = "cardClosingTitle";
-        cardClosingTitle.Size = new Size(90, 18);
+        cardClosingTitle.Size = new Size(132, 22);
         cardClosingTitle.TabIndex = 1;
         cardClosingTitle.Text = "الرصيد النهائي";
         // 
@@ -399,27 +422,9 @@ partial class frmCustomerStatement
         cardClosingValue.ForeColor = Color.FromArgb(52, 73, 94);
         cardClosingValue.Location = new Point(10, 28);
         cardClosingValue.Name = "cardClosingValue";
-        cardClosingValue.Size = new Size(65, 29);
+        cardClosingValue.Size = new Size(78, 34);
         cardClosingValue.TabIndex = 2;
         cardClosingValue.Text = "0.00";
-        // 
-        // splitMain
-        // 
-        splitMain.Dock = DockStyle.Fill;
-        splitMain.Name = "splitMain";
-        splitMain.Orientation = Orientation.Horizontal;
-        splitMain.SplitterDistance = 320;
-        splitMain.TabIndex = 3;
-        // 
-        // splitMain.Panel1
-        // 
-        splitMain.Panel1.Controls.Add(dgvStatement);
-        // 
-        // splitMain.Panel2
-        // 
-        splitMain.Panel2.Controls.Add(dgvAging);
-        splitMain.Panel2.Controls.Add(lblAgingTitle);
-        splitMain.Panel2MinSize = 120;
         // 
         // lblAgingTitle
         // 
@@ -427,6 +432,7 @@ partial class frmCustomerStatement
         lblAgingTitle.Dock = DockStyle.Top;
         lblAgingTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblAgingTitle.ForeColor = Color.White;
+        lblAgingTitle.Location = new Point(0, 0);
         lblAgingTitle.Name = "lblAgingTitle";
         lblAgingTitle.Size = new Size(880, 28);
         lblAgingTitle.TabIndex = 0;
@@ -438,75 +444,46 @@ partial class frmCustomerStatement
         dgvAging.AllowUserToAddRows = false;
         dgvAging.AllowUserToDeleteRows = false;
         dgvAging.AllowUserToResizeRows = false;
+        dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
+        dgvAging.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvAging.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvAging.BackgroundColor = Color.White;
         dgvAging.BorderStyle = BorderStyle.None;
         dgvAging.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         dgvAging.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+        dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle2.BackColor = Color.FromArgb(33, 43, 54);
+        dataGridViewCellStyle2.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        dataGridViewCellStyle2.ForeColor = Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(33, 43, 54);
+        dataGridViewCellStyle2.SelectionForeColor = Color.White;
+        dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+        dgvAging.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvAging.ColumnHeadersHeight = 36;
         dgvAging.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+        dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle3.BackColor = Color.White;
+        dataGridViewCellStyle3.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        dataGridViewCellStyle3.ForeColor = Color.FromArgb(52, 73, 94);
+        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(0, 120, 215);
+        dataGridViewCellStyle3.SelectionForeColor = Color.White;
+        dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+        dgvAging.DefaultCellStyle = dataGridViewCellStyle3;
         dgvAging.Dock = DockStyle.Fill;
         dgvAging.EnableHeadersVisualStyles = false;
         dgvAging.GridColor = Color.FromArgb(222, 226, 230);
+        dgvAging.Location = new Point(0, 28);
         dgvAging.MultiSelect = false;
         dgvAging.Name = "dgvAging";
         dgvAging.ReadOnly = true;
         dgvAging.RowHeadersVisible = false;
+        dgvAging.RowHeadersWidth = 62;
         dgvAging.RowTemplate.Height = 28;
         dgvAging.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvAging.Size = new Size(880, 92);
         dgvAging.TabIndex = 1;
         dgvAging.TabStop = false;
-        dgvAging.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(33, 43, 54);
-        dgvAging.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvAging.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        dgvAging.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvAging.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(33, 43, 54);
-        dgvAging.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
-        dgvAging.DefaultCellStyle.BackColor = Color.White;
-        dgvAging.DefaultCellStyle.ForeColor = Color.FromArgb(52, 73, 94);
-        dgvAging.DefaultCellStyle.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        dgvAging.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
-        dgvAging.DefaultCellStyle.SelectionForeColor = Color.White;
-        dgvAging.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
         dgvAging.CellFormatting += dgvAging_CellFormatting;
-        // 
-        // dgvStatement
-        // 
-        dgvStatement.AllowUserToAddRows = false;
-        dgvStatement.AllowUserToDeleteRows = false;
-        dgvStatement.AllowUserToResizeRows = false;
-        dgvStatement.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvStatement.BackgroundColor = Color.White;
-        dgvStatement.BorderStyle = BorderStyle.None;
-        dgvStatement.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-        dgvStatement.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-        dgvStatement.ColumnHeadersHeight = 44;
-        dgvStatement.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-        dgvStatement.Dock = DockStyle.Fill;
-        dgvStatement.EnableHeadersVisualStyles = false;
-        dgvStatement.GridColor = Color.FromArgb(222, 226, 230);
-        dgvStatement.MultiSelect = false;
-        dgvStatement.Name = "dgvStatement";
-        dgvStatement.ReadOnly = true;
-        dgvStatement.RowHeadersVisible = false;
-        dgvStatement.RowTemplate.Height = 32;
-        dgvStatement.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvStatement.TabIndex = 4;
-        dgvStatement.TabStop = false;
-        dgvStatement.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(33, 43, 54);
-        dgvStatement.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvStatement.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        dgvStatement.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvStatement.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(33, 43, 54);
-        dgvStatement.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
-        dgvStatement.DefaultCellStyle.BackColor = Color.White;
-        dgvStatement.DefaultCellStyle.ForeColor = Color.FromArgb(52, 73, 94);
-        dgvStatement.DefaultCellStyle.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        dgvStatement.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
-        dgvStatement.DefaultCellStyle.SelectionForeColor = Color.White;
-        dgvStatement.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
-        dgvStatement.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
-        dgvStatement.CellFormatting += dgvStatement_CellFormatting;
         // 
         // pnlFooter
         // 
@@ -516,17 +493,10 @@ partial class frmCustomerStatement
         pnlFooter.Controls.Add(lblRecordsCount);
         pnlFooter.Controls.Add(lblFooterLine);
         pnlFooter.Dock = DockStyle.Bottom;
+        pnlFooter.Location = new Point(0, 586);
         pnlFooter.Name = "pnlFooter";
         pnlFooter.Size = new Size(880, 54);
         pnlFooter.TabIndex = 4;
-        // 
-        // lblFooterLine
-        // 
-        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
-        lblFooterLine.Dock = DockStyle.Top;
-        lblFooterLine.Height = 2;
-        lblFooterLine.Name = "lblFooterLine";
-        lblFooterLine.TabIndex = 0;
         // 
         // btnClose
         // 
@@ -534,7 +504,6 @@ partial class frmCustomerStatement
         btnClose.BackColor = Color.White;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
-        btnClose.FlatAppearance.BorderSize = 1;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
         btnClose.ForeColor = Color.FromArgb(52, 73, 94);
@@ -555,7 +524,7 @@ partial class frmCustomerStatement
         lblRecordsLabel.Location = new Point(330, 15);
         lblRecordsLabel.Margin = new Padding(4, 0, 4, 0);
         lblRecordsLabel.Name = "lblRecordsLabel";
-        lblRecordsLabel.Size = new Size(115, 24);
+        lblRecordsLabel.Size = new Size(135, 24);
         lblRecordsLabel.TabIndex = 1;
         lblRecordsLabel.Text = "عدد الحركات:";
         // 
@@ -568,9 +537,87 @@ partial class frmCustomerStatement
         lblRecordsCount.Location = new Point(500, 15);
         lblRecordsCount.Margin = new Padding(4, 0, 4, 0);
         lblRecordsCount.Name = "lblRecordsCount";
-        lblRecordsCount.Size = new Size(30, 24);
+        lblRecordsCount.Size = new Size(23, 24);
         lblRecordsCount.TabIndex = 2;
         lblRecordsCount.Text = "0";
+        // 
+        // lblFooterLine
+        // 
+        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
+        lblFooterLine.Dock = DockStyle.Top;
+        lblFooterLine.Location = new Point(0, 0);
+        lblFooterLine.Name = "lblFooterLine";
+        lblFooterLine.Size = new Size(880, 2);
+        lblFooterLine.TabIndex = 0;
+        // 
+        // dgvStatement
+        // 
+        dgvStatement.AllowUserToAddRows = false;
+        dgvStatement.AllowUserToDeleteRows = false;
+        dgvStatement.AllowUserToResizeRows = false;
+        dataGridViewCellStyle4.BackColor = Color.FromArgb(248, 249, 250);
+        dgvStatement.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+        dgvStatement.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvStatement.BackgroundColor = Color.White;
+        dgvStatement.BorderStyle = BorderStyle.None;
+        dgvStatement.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+        dgvStatement.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+        dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle5.BackColor = Color.FromArgb(33, 43, 54);
+        dataGridViewCellStyle5.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        dataGridViewCellStyle5.ForeColor = Color.White;
+        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(33, 43, 54);
+        dataGridViewCellStyle5.SelectionForeColor = Color.White;
+        dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
+        dgvStatement.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+        dgvStatement.ColumnHeadersHeight = 44;
+        dgvStatement.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+        dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle6.BackColor = Color.White;
+        dataGridViewCellStyle6.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        dataGridViewCellStyle6.ForeColor = Color.FromArgb(52, 73, 94);
+        dataGridViewCellStyle6.Padding = new Padding(6, 0, 6, 0);
+        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(0, 120, 215);
+        dataGridViewCellStyle6.SelectionForeColor = Color.White;
+        dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+        dgvStatement.DefaultCellStyle = dataGridViewCellStyle6;
+        dgvStatement.Dock = DockStyle.Fill;
+        dgvStatement.EnableHeadersVisualStyles = false;
+        dgvStatement.GridColor = Color.FromArgb(222, 226, 230);
+        dgvStatement.Location = new Point(0, 0);
+        dgvStatement.MultiSelect = false;
+        dgvStatement.Name = "dgvStatement";
+        dgvStatement.ReadOnly = true;
+        dgvStatement.RowHeadersVisible = false;
+        dgvStatement.RowHeadersWidth = 62;
+        dgvStatement.RowTemplate.Height = 32;
+        dgvStatement.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvStatement.Size = new Size(880, 252);
+        dgvStatement.TabIndex = 4;
+        dgvStatement.TabStop = false;
+        dgvStatement.CellFormatting += dgvStatement_CellFormatting;
+        // 
+        // splitMain
+        // 
+        splitMain.Dock = DockStyle.Fill;
+        splitMain.Location = new Point(0, 210);
+        splitMain.Name = "splitMain";
+        splitMain.Orientation = Orientation.Horizontal;
+        // 
+        // splitMain.Panel1
+        // 
+        splitMain.Panel1.Controls.Add(dgvStatement);
+        splitMain.Panel1.RightToLeft = RightToLeft.Yes;
+        // 
+        // splitMain.Panel2
+        // 
+        splitMain.Panel2.Controls.Add(dgvAging);
+        splitMain.Panel2.Controls.Add(lblAgingTitle);
+        splitMain.Panel2.RightToLeft = RightToLeft.Yes;
+        splitMain.Panel2MinSize = 120;
+        splitMain.Size = new Size(880, 376);
+        splitMain.SplitterDistance = 252;
+        splitMain.TabIndex = 3;
         // 
         // frmCustomerStatement
         // 
@@ -616,7 +663,6 @@ partial class frmCustomerStatement
         ((System.ComponentModel.ISupportInitialize)splitMain).EndInit();
         splitMain.ResumeLayout(false);
         ResumeLayout(false);
-        PerformLayout();
     }
 
     #endregion

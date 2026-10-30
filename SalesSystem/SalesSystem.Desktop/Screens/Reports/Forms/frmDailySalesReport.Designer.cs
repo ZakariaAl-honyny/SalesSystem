@@ -41,7 +41,7 @@ partial class frmDailySalesReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظٹظˆظ…ظٹط©";
+        lblMode.Text = "المبيعات اليومية";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -76,7 +76,7 @@ partial class frmDailySalesReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(173, 40);
         btnRefresh.TabIndex = 5;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
         // 
@@ -95,7 +95,7 @@ partial class frmDailySalesReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(173, 40);
         btnExport.TabIndex = 6;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += new System.EventHandler(this.btnExport_Click);
         // 
@@ -111,7 +111,7 @@ partial class frmDailySalesReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(181, 40);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += new System.EventHandler(this.btnClose_Click);
         // 
@@ -125,7 +125,7 @@ partial class frmDailySalesReport
         label1.Name = "label1";
         label1.Size = new Size(126, 24);
         label1.TabIndex = 3;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -148,7 +148,7 @@ partial class frmDailySalesReport
         label3.Name = "label3";
         label3.Size = new Size(46, 24);
         label3.TabIndex = 9;
-        label3.Text = "ظ…ظ†:";
+        label3.Text = "من:";
         // 
         // dtpFrom
         // 
@@ -169,7 +169,7 @@ partial class frmDailySalesReport
         label4.Name = "label4";
         label4.Size = new Size(52, 24);
         label4.TabIndex = 11;
-        label4.Text = "ط¥ظ„ظ‰:";
+        label4.Text = "إلى:";
         // 
         // dtpTo
         // 
@@ -216,7 +216,7 @@ partial class frmDailySalesReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظٹظˆظ…ظٹط©";
+        Text = "المبيعات اليومية";
         Load += frmDailySalesReport_Load;
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         ResumeLayout(false);

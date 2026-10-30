@@ -1,7 +1,7 @@
 ---
 name: "Backend Architect"
 description: "ASP.NET Core 10 N-Layer backend and business logic specialist. Use for designing service interfaces and implementations, thin API controllers, and FluentValidation validators."
-mode: subagent
+mode: subagent    
 model: opencode-go/deepseek-v4-pro
 ---
 

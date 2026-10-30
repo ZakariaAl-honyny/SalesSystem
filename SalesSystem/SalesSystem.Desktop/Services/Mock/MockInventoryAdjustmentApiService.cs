@@ -56,9 +56,8 @@ public class MockInventoryAdjustmentApiService : IInventoryAdjustmentApiService
             CreatedByUserId: 1,
             PostedAt: null,
             CancelledAt: null,
-            Lines: new List<InventoryAdjustmentLineDto>(),
-            BranchId: request.BranchId ?? 1,
-            BranchName: "الفرع الرئيسي — صنعاء");
+            Lines: new List<InventoryAdjustmentLineDto>());
+        // TODO: BranchId / BranchName removed from InventoryAdjustmentDto.
 
         MockInventoryData.Adjustments.Add(adj);
         return Task.FromResult(Result<InventoryAdjustmentDto>.Success(adj));
@@ -129,10 +128,8 @@ public class MockInventoryAdjustmentApiService : IInventoryAdjustmentApiService
             ProductUnitName: $"{productName} — {productUnit?.UnitName ?? "وحدة"}",
             ExpectedQuantity: request.ExpectedQuantity,
             ActualQuantity: request.ActualQuantity,
-            UnitCost: request.UnitCost,
-            ProductName: productName,
-            ProductId: productUnit?.ProductId ?? 0,
-            UnitName: productUnit?.UnitName);
+            UnitCost: request.UnitCost);
+        // TODO: ProductName / ProductId / UnitName removed from InventoryAdjustmentLineDto.
 
         var lines = existing.Lines is { Count: > 0 }
             ? new List<InventoryAdjustmentLineDto>(existing.Lines) { line }

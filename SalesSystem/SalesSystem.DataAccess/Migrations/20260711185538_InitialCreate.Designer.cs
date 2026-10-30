@@ -1223,7 +1223,7 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
-                        .HasComment("��� ������ (nvarchar 50)");
+                        .HasComment("رقم الدفعة (nvarchar 50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1233,13 +1233,13 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<DateOnly?>("ExpiryDate")
                         .HasColumnType("date")
-                        .HasComment("����� ������ ��������");
+                        .HasComment("تاريخ انتهاء الصلاحية");
 
                     b.Property<bool>("IsClosed")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
-                        .HasComment("�� ������ ����� (�� ��������� �������)");
+                        .HasComment("هل الدفعة مغلقة (تم استهلاكها بالكامل)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -1253,22 +1253,22 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<decimal>("QuantityReceived")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)")
-                        .HasComment("������ �������� �� ������");
+                        .HasComment("الكمية المستلمة في الدفعة");
 
                     b.Property<decimal>("QuantityRemaining")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)")
-                        .HasComment("������ �������� �� ������");
+                        .HasComment("الكمية المتبقية في الدفعة");
 
                     b.Property<string>("SupplierBatchNo")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
-                        .HasComment("��� ������ �� ������");
+                        .HasComment("رقم الدفعة من المورد");
 
                     b.Property<decimal>("UnitCost")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
-                        .HasComment("����� ������ ��� ������");
+                        .HasComment("تكلفة الوحدة عند الشراء");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1278,7 +1278,7 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint")
-                        .HasComment("���� �������� (smallint FK)");
+                        .HasComment("معرف المستودع (smallint FK)");
 
                     b.HasKey("Id");
 
@@ -1421,17 +1421,17 @@ namespace SalesSystem.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()")
-                        .HasComment("����� �������");
+                        .HasComment("تاريخ الإنشاء");
 
                     b.Property<int>("CreatedByUserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0)
-                        .HasComment("���� �������� ������");
+                        .HasComment("معرف المستخدم المنشئ");
 
                     b.Property<byte>("MovementType")
                         .HasColumnType("tinyint")
-                        .HasComment("��� ������ (������ʡ �����ʡ ����� ����ɡ ���)");
+                        .HasComment("نوع الحركة (مشتريات، مبيعات، تحويل، تسوية، إلخ)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -1439,17 +1439,17 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<int?>("ReferenceId")
                         .HasColumnType("int")
-                        .HasComment("���� ������� �������");
+                        .HasComment("معرف المستند المرجعي");
 
                     b.Property<byte?>("ReferenceType")
                         .HasColumnType("tinyint")
-                        .HasComment("��� ������� �������");
+                        .HasComment("نوع المستند المرجعي");
 
                     b.Property<string>("TransactionNo")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
-                        .HasComment("��� �������� � ����");
+                        .HasComment("رقم المعاملة — فريد");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint");
@@ -1481,11 +1481,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<string>("BatchNo")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
-                        .HasComment("��� ������");
+                        .HasComment("رقم الدفعة");
 
                     b.Property<DateOnly?>("ExpiryDate")
                         .HasColumnType("date")
-                        .HasComment("����� ������ ��������");
+                        .HasComment("تاريخ انتهاء الصلاحية");
 
                     b.Property<int>("InventoryTransactionId")
                         .HasColumnType("int");
@@ -1496,16 +1496,16 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)")
-                        .HasComment("������ ������ ������� ��������");
+                        .HasComment("الكمية بوحدات التخزين الأساسية");
 
                     b.Property<decimal>("UnitCost")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
-                        .HasComment("����� ������");
+                        .HasComment("تكلفة الوحدة");
 
                     b.Property<short?>("WarehouseId")
                         .HasColumnType("smallint")
-                        .HasComment("���� �������� (��� ��� ������� �� �������� �������)");
+                        .HasComment("معرف المستودع (إذا كان مختلفاً عن المستودع الرئيسي)");
 
                     b.HasKey("Id");
 
@@ -1642,7 +1642,7 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<string>("Barcode")
                         .HasMaxLength(50)
                         .HasColumnType("varchar")
-                        .HasComment("Primary barcode for quick lookup � ASCII-only, not a unique identifier");
+                        .HasComment("Primary barcode for quick lookup — ASCII-only, not a unique identifier");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -1751,16 +1751,16 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<DateTime>("EffectiveFrom")
                         .HasColumnType("date")
-                        .HasComment("����� ��� �������");
+                        .HasComment("تاريخ بدء السريان");
 
                     b.Property<DateTime?>("EffectiveTo")
                         .HasColumnType("date")
-                        .HasComment("����� ������ ������� (�������)");
+                        .HasComment("تاريخ انتهاء السريان (اختياري)");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
-                        .HasComment("�����");
+                        .HasComment("السعر");
 
                     b.Property<int>("ProductUnitId")
                         .HasColumnType("int");
@@ -3210,7 +3210,7 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)")
-                        .HasComment("��� ��������");
+                        .HasComment("اسم المستودع");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -3318,7 +3318,7 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
-                        .HasComment("��� ������� � ����");
+                        .HasComment("رقم التحويل — فريد");
 
                     b.HasKey("Id");
 
@@ -3346,7 +3346,7 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<string>("BatchNo")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
-                        .HasComment("��� ������ ��������");
+                        .HasComment("رقم الدفعة المنقولة");
 
                     b.Property<int>("ProductUnitId")
                         .HasColumnType("int");
@@ -3354,7 +3354,7 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)")
-                        .HasComment("������ ������ ������� ��������");
+                        .HasComment("الكمية بوحدات التخزين الأساسية");
 
                     b.Property<int>("WarehouseTransferId")
                         .HasColumnType("int");

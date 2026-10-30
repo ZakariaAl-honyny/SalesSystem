@@ -50,7 +50,7 @@ partial class frmBalanceSheetReport
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1200, 39);
         lblMode.TabIndex = 30;
-        lblMode.Text = "ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط©";
+        lblMode.Text = "الميزانية العمومية";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // dgvReport
@@ -83,7 +83,7 @@ partial class frmBalanceSheetReport
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(100, 36);
         btnRefresh.TabIndex = 1;
-        btnRefresh.Text = "طھط­ط¯ظٹط«";
+        btnRefresh.Text = "تحديث";
         btnRefresh.UseVisualStyleBackColor = true;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -100,7 +100,7 @@ partial class frmBalanceSheetReport
         btnExport.Name = "btnExport";
         btnExport.Size = new Size(110, 36);
         btnExport.TabIndex = 2;
-        btnExport.Text = "طھطµط¯ظٹط± Excel";
+        btnExport.Text = "تصدير Excel";
         btnExport.UseVisualStyleBackColor = true;
         btnExport.Click += btnExport_Click;
         // 
@@ -115,7 +115,7 @@ partial class frmBalanceSheetReport
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 50);
         btnClose.TabIndex = 0;
-        btnClose.Text = "ط¥ط؛ظ„ط§ظ‚";
+        btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -128,7 +128,7 @@ partial class frmBalanceSheetReport
         label1.Name = "label1";
         label1.Size = new Size(145, 24);
         label1.TabIndex = 7;
-        label1.Text = "ط¹ط¯ط¯ ط§ظ„ط³ط¬ظ„ط§طھ:";
+        label1.Text = "عدد السجلات:";
         // 
         // lblRecordsCount
         // 
@@ -150,7 +150,7 @@ partial class frmBalanceSheetReport
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(58, 24);
         lblSummary.TabIndex = 6;
-        lblSummary.Text = "ط¬ط§ظ‡ط²";
+        lblSummary.Text = "جاهز";
         // 
         // loadingPanel
         // 
@@ -173,7 +173,7 @@ partial class frmBalanceSheetReport
         ll.Name = "ll";
         ll.Size = new Size(168, 29);
         ll.TabIndex = 0;
-        ll.Text = "ط¬ط§ط±ظچ ط§ظ„طھط­ظ…ظٹظ„...";
+        ll.Text = "جارٍ التحميل...";
         // 
         // dtpAsOf
         // 
@@ -192,7 +192,7 @@ partial class frmBalanceSheetReport
         label3.Name = "label3";
         label3.Size = new Size(71, 24);
         label3.TabIndex = 3;
-        label3.Text = "ط¨طھط§ط±ظٹط®:";
+        label3.Text = "بتاريخ:";
         // 
         // frmBalanceSheetReport
         // 
@@ -217,7 +217,7 @@ partial class frmBalanceSheetReport
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "ط§ظ„ظ…ظٹط²ط§ظ†ظٹط© ط§ظ„ط¹ظ…ظˆظ…ظٹط©";
+        Text = "الميزانية العمومية";
         ((System.ComponentModel.ISupportInitialize)dgvReport).EndInit();
         loadingPanel.ResumeLayout(false);
         loadingPanel.PerformLayout();

@@ -86,16 +86,16 @@
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.RowCount = 3;
 
-            this.lblInvoiceNoLabel.Text = "��� �������:";
-            this.lblInvoiceNo.Text = "����";
-            this.lblDate.Text = "�������:";
+            this.lblInvoiceNoLabel.Text = "رقم المرتجع:";
+            this.lblInvoiceNo.Text = "جديد";
+            this.lblDate.Text = "التاريخ:";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblStatus.BackColor = System.Drawing.Color.DarkRed;
             this.lblStatus.ForeColor = System.Drawing.Color.White;
             this.lblStatus.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.lblSupplier.Text = "������:";
-            this.lblWarehouse.Text = "������ �����:";
-            this.lblReference.Text = "������ ������:";
+            this.lblSupplier.Text = "المورد:";
+            this.lblWarehouse.Text = "المستودع:";
+            this.lblReference.Text = "المرجع الأصلي:";
 
             this.tableLayoutPanel1.SetColumnSpan(this.pnlTaxDiscountHeader, 6);
             this.pnlTaxDiscountHeader.Controls.Add(this.chkTaxInclusive);
@@ -104,7 +104,7 @@
             this.pnlTaxDiscountHeader.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlTaxDiscountHeader.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
 
-            this.chkTaxInclusive.Text = "���� �������";
+            this.chkTaxInclusive.Text = "شامل الضريبة";
             this.numTaxRate.Value = 15;
 
             this.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -128,15 +128,15 @@
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Right;
             this.tableLayoutPanel2.Width = 300;
 
-            this.lblSubTotal.Text = "�������� ������:";
-            this.lblTaxAmount.Text = "���� �������:";
-            this.lblTotal.Text = "������ �������:";
+            this.lblSubTotal.Text = "المجموع الفرعي:";
+            this.lblTaxAmount.Text = "مبلغ الضريبة:";
+            this.lblTotal.Text = "الإجمالي النهائي:";
             this.lblTotal.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
 
             this.txtNotes.Dock = System.Windows.Forms.DockStyle.Left;
             this.txtNotes.Width = 400;
             this.txtNotes.Multiline = true;
-            this.txtNotes.PlaceholderText = "������� �������...";
+            this.txtNotes.PlaceholderText = "ملاحظات الإرجاع...";
 
             this.pnlButtons.Controls.Add(this.btnClose);
             this.pnlButtons.Controls.Add(this.btnPost);

@@ -7,7 +7,7 @@ using SalesSystem.DTO.Requests;
 namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
-/// ظ…ط­ط§ظƒط§ط© ط®ط¯ظ…ط© ظ…ط±طھط¬ط¹ط§طھ ط§ظ„ظ…ط´طھط±ظٹط§طھ â€” طھط¹ظٹط¯ ط¨ظٹط§ظ†ط§طھ ظ…ظ† MockReturnsData.
+/// محاكاة خدمة مرتجعات المشتريات — تعيد بيانات من MockReturnsData.
 /// </summary>
 public class MockPurchaseReturnApiService : IPurchaseReturnApiService
 {
@@ -43,7 +43,7 @@ public class MockPurchaseReturnApiService : IPurchaseReturnApiService
     {
         var item = MockReturnsData.PurchaseReturns.FirstOrDefault(r => r.Id == id);
         return item is null
-            ? Task.FromResult(Result<PurchaseReturnDto>.Failure("ظ…ط±طھط¬ط¹ ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯"))
+            ? Task.FromResult(Result<PurchaseReturnDto>.Failure("مرتجع المشتريات غير موجود"))
             : Task.FromResult(Result<PurchaseReturnDto>.Success(item));
     }
 
@@ -58,13 +58,13 @@ public class MockPurchaseReturnApiService : IPurchaseReturnApiService
             : MockReturnsData.PurchaseReturns.Max(x => x.ReturnNo) + 1;
 
         var supplierName = MockSuppliersData.Suppliers.FirstOrDefault(s => s.Id == r.SupplierId)?.Name
-            ?? "ظ…ظˆط±ط¯ ط؛ظٹط± ظ…ط¹ط±ظˆظپ";
+            ?? "مورد غير معروف";
 
         var warehouse = MockData.Warehouses.FirstOrDefault(w => w.Id == (short)r.WarehouseId);
 
         var items = r.Items.Select((line, idx) =>
         {
-            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "ظ…ظ†طھط¬ ط؛ظٹط± ظ…ط¹ط±ظˆظپ";
+            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "منتج غير معروف";
             return new PurchaseReturnItemDto(
                 Id: nextId * 100 + idx + 1,
                 ProductId: line.ProductId,
@@ -87,7 +87,7 @@ public class MockPurchaseReturnApiService : IPurchaseReturnApiService
             Id: nextId,
             ReturnNo: nextReturnNo,
             WarehouseId: r.WarehouseId,
-            WarehouseName: warehouse?.Name ?? "ظ…ط®ط²ظ† ط؛ظٹط± ظ…ط¹ط±ظˆظپ",
+            WarehouseName: warehouse?.Name ?? "مخزن غير معروف",
             SupplierId: r.SupplierId,
             SupplierName: supplierName,
             PurchaseInvoiceId: r.PurchaseInvoiceId,
@@ -100,11 +100,13 @@ public class MockPurchaseReturnApiService : IPurchaseReturnApiService
             ReturnedChargeAmount: 0m,
             TaxId: null,
             DiscountType: (byte)(r.DiscountType ?? DiscountType.Amount),
+            DiscountRate: r.DiscountRate,
             Notes: r.Notes,
             Status: 1,
             Items: items.AsReadOnly(),
-            BranchId: r.BranchId ?? 0,
-            Currency: "YER");
+            BranchId: r.BranchId ?? 0);
+
+        // TODO: Currency removed from PurchaseReturnDto — العملة تُحدد من إعدادات النظام.
 
         MockReturnsData.PurchaseReturns.Add(purchaseReturn);
         return Task.FromResult(Result<PurchaseReturnDto>.Success(purchaseReturn));
@@ -114,13 +116,13 @@ public class MockPurchaseReturnApiService : IPurchaseReturnApiService
     {
         var existing = MockReturnsData.PurchaseReturns.FirstOrDefault(r => r.Id == id);
         if (existing is null)
-            return Task.FromResult(Result.Failure("ظ…ط±طھط¬ط¹ ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯"));
+            return Task.FromResult(Result.Failure("مرتجع المشتريات غير موجود"));
 
         if (existing.Status == 2)
-            return Task.FromResult(Result.Failure("ط§ظ„ظ…ط±طھط¬ط¹ ظ…ط±ط­ظ‘ظ„ ط¨ط§ظ„ظپط¹ظ„"));
+            return Task.FromResult(Result.Failure("المرتجع مرحّل بالفعل"));
 
         if (existing.Status == 3)
-            return Task.FromResult(Result.Failure("ظ„ط§ ظٹظ…ظƒظ† طھط±ط­ظٹظ„ ظ…ط±طھط¬ط¹ ظ…ظ„ط؛ظٹ"));
+            return Task.FromResult(Result.Failure("لا يمكن ترحيل مرتجع ملغي"));
 
         var index = MockReturnsData.PurchaseReturns.IndexOf(existing);
         MockReturnsData.PurchaseReturns[index] = existing with { Status = 2 };
@@ -131,10 +133,10 @@ public class MockPurchaseReturnApiService : IPurchaseReturnApiService
     {
         var existing = MockReturnsData.PurchaseReturns.FirstOrDefault(r => r.Id == id);
         if (existing is null)
-            return Task.FromResult(Result.Failure("ظ…ط±طھط¬ط¹ ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯"));
+            return Task.FromResult(Result.Failure("مرتجع المشتريات غير موجود"));
 
         if (existing.Status == 3)
-            return Task.FromResult(Result.Failure("ط§ظ„ظ…ط±طھط¬ط¹ ظ…ظ„ط؛ظٹ ط¨ط§ظ„ظپط¹ظ„"));
+            return Task.FromResult(Result.Failure("المرتجع ملغي بالفعل"));
 
         var index = MockReturnsData.PurchaseReturns.IndexOf(existing);
         MockReturnsData.PurchaseReturns[index] = existing with { Status = 3 };

@@ -25,15 +25,16 @@ internal static class MockLookupsData
     // ═══════════════════════════════════════════════
     // الوحدات — Units (8 وحدات)
     // ═══════════════════════════════════════════════
+    // TODO: Description removed from UnitDto — الوصف لم يعد جزءاً من DTO الوحدة
     public static List<UnitDto> Units { get; } = new()
     {
-        new UnitDto(1, "حبة",   "حبة",   true,  "وحدة بيع بالتجزئة — صنف واحد"),
-        new UnitDto(2, "كرتون", "كرتون", true,  "علبة كرتونية تحتوي على عدة حبات"),
-        new UnitDto(3, "باكت",  "باكت",  true,  "كيس بلاستيكي أو ورقي يحتوي على قطع"),
-        new UnitDto(4, "كيس",   "كيس",   true,  "كيس كبير للحبوب والسكر والدقيق"),
-        new UnitDto(5, "علبة",  "علبة",  true,  "علبة معدنية أو بلاستيكية مغلقة"),
-        new UnitDto(6, "طقم",   "طقم",   true,  "مجموعة أصناف مترابطة في طقم واحد"),
-        new UnitDto(7, "رول",   "رول",   true,  "لفافة ورق أو بلاستيك"),
-        new UnitDto(8, "كجم",   "كجم",   true,  "كيلوغرام — وحدة وزن")
+        new UnitDto(1, "حبة",   "حبة",   true),
+        new UnitDto(2, "كرتون", "كرتون", true),
+        new UnitDto(3, "باكت",  "باكت",  true),
+        new UnitDto(4, "كيس",   "كيس",   true),
+        new UnitDto(5, "علبة",  "علبة",  true),
+        new UnitDto(6, "طقم",   "طقم",   true),
+        new UnitDto(7, "رول",   "رول",   true),
+        new UnitDto(8, "كجم",   "كجم",   true)
     };
 }

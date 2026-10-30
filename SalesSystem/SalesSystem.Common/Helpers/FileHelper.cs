@@ -7,15 +7,15 @@ using Microsoft.Extensions.Logging;
 namespace SalesSystem.Common.Helpers;
 
 /// <summary>
-/// ظپط¦ط© ظ…ط³ط§ط¹ط¯ط© ظ„ظ„طھط¹ط§ظ…ظ„ ظ…ط¹ ط¹ظ…ظ„ظٹط§طھ ط§ظ„ظ…ظ„ظپط§طھ ظˆط§ظ„ظ…ط¬ظ„ط¯ط§طھ ط¨ط´ظƒظ„ ط¢ظ…ظ† ظ…ط¹ ظ…ط¹ط§ظ„ط¬ط© ط§ظ„ط£ط®ط·ط§ط،.
+/// فئة مساعدة للتعامل مع عمليات الملفات والمجلدات بشكل آمن مع معالجة الأخطاء.
 /// </summary>
 public static class FileHelper
 {
     /// <summary>
-    /// ظٹظ‚ط±ط£ ظ…ط­طھظˆظ‰ ط§ظ„ظ…ظ„ظپ ط§ظ„ظ†طµظٹ ط¨ط§ظ„ظƒط§ظ…ظ„. ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظ…ط³ط§ط± ظپط§ط±ط؛ط§ظ‹ ط£ظˆ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ ظٹظڈط±ط¬ط¹ <c>null</c>.
+    /// يقرأ محتوى الملف النصي بالكامل. إذا كان المسار فارغاً أو الملف غير موجود يُرجع <c>null</c>.
     /// </summary>
-    /// <param name="filePath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپ ط§ظ„ظ…ط±ط§ط¯ ظ‚ط±ط§ط،طھظ‡.</param>
-    /// <returns>ظ…ط­طھظˆظ‰ ط§ظ„ظ…ظ„ظپ ظƒظ†طµ ط£ظˆ <c>null</c> ظپظٹ ط­ط§ظ„ ط¹ط¯ظ… ظˆط¬ظˆط¯ ط§ظ„ظ…ظ„ظپ.</returns>
+    /// <param name="filePath">المسار الكامل للملف المراد قراءته.</param>
+    /// <returns>محتوى الملف كنص أو <c>null</c> في حال عدم وجود الملف.</returns>
     public static string? ReadAllText(string? filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
@@ -24,12 +24,12 @@ public static class FileHelper
     }
 
     /// <summary>
-    /// ظٹظ‚ط±ط£ ظ…ط­طھظˆظ‰ ط§ظ„ظ…ظ„ظپ ط§ظ„ظ†طµظٹ ط¨ط§ظ„ظƒط§ظ…ظ„ ط¨ط´ظƒظ„ ط؛ظٹط± ظ…طھط²ط§ظ…ظ†.
-    /// ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظ…ط³ط§ط± ظپط§ط±ط؛ط§ظ‹ ط£ظˆ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ ظٹظڈط±ط¬ط¹ <c>null</c>.
+    /// يقرأ محتوى الملف النصي بالكامل بشكل غير متزامن.
+    /// إذا كان المسار فارغاً أو الملف غير موجود يُرجع <c>null</c>.
     /// </summary>
-    /// <param name="filePath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپ ط§ظ„ظ…ط±ط§ط¯ ظ‚ط±ط§ط،طھظ‡.</param>
-    /// <param name="ct">ط±ظ…ط² ط§ظ„ط¥ظ„ط؛ط§ط، ظ„ط¥ظ„ط؛ط§ط، ط§ظ„ط¹ظ…ظ„ظٹط©.</param>
-    /// <returns>ظ…ط­طھظˆظ‰ ط§ظ„ظ…ظ„ظپ ظƒظ†طµ ط£ظˆ <c>null</c> ظپظٹ ط­ط§ظ„ ط¹ط¯ظ… ظˆط¬ظˆط¯ ط§ظ„ظ…ظ„ظپ.</returns>
+    /// <param name="filePath">المسار الكامل للملف المراد قراءته.</param>
+    /// <param name="ct">رمز الإلغاء لإلغاء العملية.</param>
+    /// <returns>محتوى الملف كنص أو <c>null</c> في حال عدم وجود الملف.</returns>
     public static async Task<string?> ReadAllTextAsync(string? filePath, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
@@ -38,12 +38,12 @@ public static class FileHelper
     }
 
     /// <summary>
-    /// ظٹط­ط§ظˆظ„ ظƒطھط§ط¨ط© ظ†طµ ط¥ظ„ظ‰ ظ…ظ„ظپ ظ…ط¹ ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط¬ظ„ط¯ط§طھ ط§ظ„ظپط±ط¹ظٹط© طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ط¹ظ†ط¯ ط§ظ„ط­ط§ط¬ط©.
+    /// يحاول كتابة نص إلى ملف مع إنشاء المجلدات الفرعية تلقائياً عند الحاجة.
     /// </summary>
-    /// <param name="filePath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپ ط§ظ„ظ…ط±ط§ط¯ ط§ظ„ظƒطھط§ط¨ط© ط¥ظ„ظٹظ‡.</param>
-    /// <param name="contents">ظ…ط­طھظˆظ‰ ط§ظ„ظ†طµ ط§ظ„ظ…ط±ط§ط¯ ظƒطھط§ط¨طھظ‡.</param>
-    /// <param name="logger">ظ…ظڈط³ط¬ظ„ ط§ظ„ط£ط®ط·ط§ط، ط§ط®طھظٹط§ط±ظٹ â€” ظٹظڈط³طھط®ط¯ظ… ظ„طھط³ط¬ظٹظ„ ط§ظ„ط§ط³طھط«ظ†ط§ط،ط§طھ ظپظٹ ط­ط§ظ„ ظپط´ظ„طھ ط§ظ„ط¹ظ…ظ„ظٹط©.</param>
-    /// <returns><c>true</c> ط¥ط°ط§ طھظ…طھ ط§ظ„ظƒطھط§ط¨ط© ط¨ظ†ط¬ط§ط­طŒ ظˆط¥ظ„ط§ <c>false</c>.</returns>
+    /// <param name="filePath">المسار الكامل للملف المراد الكتابة إليه.</param>
+    /// <param name="contents">محتوى النص المراد كتابته.</param>
+    /// <param name="logger">مُسجل الأخطاء اختياري — يُستخدم لتسجيل الاستثناءات في حال فشلت العملية.</param>
+    /// <returns><c>true</c> إذا تمت الكتابة بنجاح، وإلا <c>false</c>.</returns>
     public static bool TryWriteAllText(string filePath, string contents, ILogger? logger = null)
     {
         try
@@ -56,19 +56,19 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "ظپط´ظ„ ظپظٹ ظƒطھط§ط¨ط© ط§ظ„ظ…ظ„ظپ: {FilePath}", filePath);
+            logger?.LogError(ex, "فشل في كتابة الملف: {FilePath}", filePath);
             return false;
         }
     }
 
     /// <summary>
-    /// ظٹط­ط§ظˆظ„ ظƒطھط§ط¨ط© ظ†طµ ط¥ظ„ظ‰ ظ…ظ„ظپ ط¨ط´ظƒظ„ ط؛ظٹط± ظ…طھط²ط§ظ…ظ† ظ…ط¹ ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط¬ظ„ط¯ط§طھ ط§ظ„ظپط±ط¹ظٹط© طھظ„ظ‚ط§ط¦ظٹط§ظ‹.
+    /// يحاول كتابة نص إلى ملف بشكل غير متزامن مع إنشاء المجلدات الفرعية تلقائياً.
     /// </summary>
-    /// <param name="filePath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپ ط§ظ„ظ…ط±ط§ط¯ ط§ظ„ظƒطھط§ط¨ط© ط¥ظ„ظٹظ‡.</param>
-    /// <param name="contents">ظ…ط­طھظˆظ‰ ط§ظ„ظ†طµ ط§ظ„ظ…ط±ط§ط¯ ظƒطھط§ط¨طھظ‡.</param>
-    /// <param name="ct">ط±ظ…ط² ط§ظ„ط¥ظ„ط؛ط§ط، ظ„ط¥ظ„ط؛ط§ط، ط§ظ„ط¹ظ…ظ„ظٹط©.</param>
-    /// <param name="logger">ظ…ظڈط³ط¬ظ„ ط§ظ„ط£ط®ط·ط§ط، ط§ط®طھظٹط§ط±ظٹ â€” ظٹظڈط³طھط®ط¯ظ… ظ„طھط³ط¬ظٹظ„ ط§ظ„ط§ط³طھط«ظ†ط§ط،ط§طھ ظپظٹ ط­ط§ظ„ ظپط´ظ„طھ ط§ظ„ط¹ظ…ظ„ظٹط©.</param>
-    /// <returns><c>true</c> ط¥ط°ط§ طھظ…طھ ط§ظ„ظƒطھط§ط¨ط© ط¨ظ†ط¬ط§ط­طŒ ظˆط¥ظ„ط§ <c>false</c>.</returns>
+    /// <param name="filePath">المسار الكامل للملف المراد الكتابة إليه.</param>
+    /// <param name="contents">محتوى النص المراد كتابته.</param>
+    /// <param name="ct">رمز الإلغاء لإلغاء العملية.</param>
+    /// <param name="logger">مُسجل الأخطاء اختياري — يُستخدم لتسجيل الاستثناءات في حال فشلت العملية.</param>
+    /// <returns><c>true</c> إذا تمت الكتابة بنجاح، وإلا <c>false</c>.</returns>
     public static async Task<bool> TryWriteAllTextAsync(string filePath, string contents, CancellationToken ct = default, ILogger? logger = null)
     {
         try
@@ -81,17 +81,17 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "ظپط´ظ„ ظپظٹ ظƒطھط§ط¨ط© ط§ظ„ظ…ظ„ظپ ط¨ط´ظƒظ„ ط؛ظٹط± ظ…طھط²ط§ظ…ظ†: {FilePath}", filePath);
+            logger?.LogError(ex, "فشل في كتابة الملف بشكل غير متزامن: {FilePath}", filePath);
             return false;
         }
     }
 
     /// <summary>
-    /// ظٹط­ط§ظˆظ„ ط­ط°ظپ ظ…ظ„ظپ. ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ ظٹط¹طھط¨ط± ط§ظ„ط­ط°ظپ ظ†ط§ط¬ط­ط§ظ‹.
+    /// يحاول حذف ملف. إذا كان الملف غير موجود يعتبر الحذف ناجحاً.
     /// </summary>
-    /// <param name="filePath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپ ط§ظ„ظ…ط±ط§ط¯ ط­ط°ظپظ‡.</param>
-    /// <param name="logger">ظ…ظڈط³ط¬ظ„ ط§ظ„ط£ط®ط·ط§ط، ط§ط®طھظٹط§ط±ظٹ â€” ظٹظڈط³طھط®ط¯ظ… ظ„طھط³ط¬ظٹظ„ ط§ظ„ط§ط³طھط«ظ†ط§ط،ط§طھ ظپظٹ ط­ط§ظ„ ظپط´ظ„طھ ط§ظ„ط¹ظ…ظ„ظٹط©.</param>
-    /// <returns><c>true</c> ط¥ط°ط§ طھظ… ط§ظ„ط­ط°ظپ ط¨ظ†ط¬ط§ط­ ط£ظˆ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯طŒ ظˆط¥ظ„ط§ <c>false</c>.</returns>
+    /// <param name="filePath">المسار الكامل للملف المراد حذفه.</param>
+    /// <param name="logger">مُسجل الأخطاء اختياري — يُستخدم لتسجيل الاستثناءات في حال فشلت العملية.</param>
+    /// <returns><c>true</c> إذا تم الحذف بنجاح أو الملف غير موجود، وإلا <c>false</c>.</returns>
     public static bool TryDelete(string? filePath, ILogger? logger = null)
     {
         try
@@ -102,16 +102,16 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "ظپط´ظ„ ظپظٹ ط­ط°ظپ ط§ظ„ظ…ظ„ظپ: {FilePath}", filePath);
+            logger?.LogError(ex, "فشل في حذف الملف: {FilePath}", filePath);
             return false;
         }
     }
 
     /// <summary>
-    /// ظٹط­طµظ„ ط¹ظ„ظ‰ ط­ط¬ظ… ط§ظ„ظ…ظ„ظپ ط¨ط§ظ„ط¨ط§ظٹطھ. ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظ…ط³ط§ط± ظپط§ط±ط؛ط§ظ‹ ط£ظˆ ط§ظ„ظ…ظ„ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ ظٹظڈط±ط¬ط¹ <c>null</c>.
+    /// يحصل على حجم الملف بالبايت. إذا كان المسار فارغاً أو الملف غير موجود يُرجع <c>null</c>.
     /// </summary>
-    /// <param name="filePath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ظ„ظپ.</param>
-    /// <returns>ط­ط¬ظ… ط§ظ„ظ…ظ„ظپ ط¨ط§ظ„ط¨ط§ظٹطھ ط£ظˆ <c>null</c> ظپظٹ ط­ط§ظ„ ط¹ط¯ظ… ظˆط¬ظˆط¯ ط§ظ„ظ…ظ„ظپ.</returns>
+    /// <param name="filePath">المسار الكامل للملف.</param>
+    /// <returns>حجم الملف بالبايت أو <c>null</c> في حال عدم وجود الملف.</returns>
     public static long? GetFileSize(string? filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
@@ -120,11 +120,11 @@ public static class FileHelper
     }
 
     /// <summary>
-    /// ظٹطھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ط¬ظ„ط¯ ط§ظ„ظ…ط­ط¯ط¯طŒ ظˆط¥ظ† ظ„ظ… ظٹظƒظ† ظ…ظˆط¬ظˆط¯ط§ظ‹ ظٹظڈظ†ط´ط¦ظ‡ (ط¨ظ…ط§ ظپظٹ ط°ظ„ظƒ ط§ظ„ظ…ط¬ظ„ط¯ط§طھ ط§ظ„ظپط±ط¹ظٹط©).
+    /// يتأكد من وجود المجلد المحدد، وإن لم يكن موجوداً يُنشئه (بما في ذلك المجلدات الفرعية).
     /// </summary>
-    /// <param name="directoryPath">ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„ ظ„ظ„ظ…ط¬ظ„ط¯ ط§ظ„ظ…ط±ط§ط¯ ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ظ‡.</param>
-    /// <param name="logger">ظ…ظڈط³ط¬ظ„ ط§ظ„ط£ط®ط·ط§ط، ط§ط®طھظٹط§ط±ظٹ â€” ظٹظڈط³طھط®ط¯ظ… ظ„طھط³ط¬ظٹظ„ ط§ظ„ط§ط³طھط«ظ†ط§ط،ط§طھ ظپظٹ ط­ط§ظ„ ظپط´ظ„طھ ط§ظ„ط¹ظ…ظ„ظٹط©.</param>
-    /// <returns><c>true</c> ط¥ط°ط§ طھظ… ط§ظ„طھط£ظƒط¯ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ط¬ظ„ط¯ ط£ظˆ ط¥ظ†ط´ط§ط¤ظ‡ ط¨ظ†ط¬ط§ط­طŒ ظˆط¥ظ„ط§ <c>false</c>.</returns>
+    /// <param name="directoryPath">المسار الكامل للمجلد المراد التأكد من وجوده.</param>
+    /// <param name="logger">مُسجل الأخطاء اختياري — يُستخدم لتسجيل الاستثناءات في حال فشلت العملية.</param>
+    /// <returns><c>true</c> إذا تم التأكد من وجود المجلد أو إنشاؤه بنجاح، وإلا <c>false</c>.</returns>
     public static bool EnsureDirectoryExists(string? directoryPath, ILogger? logger = null)
     {
         if (string.IsNullOrWhiteSpace(directoryPath))
@@ -137,17 +137,17 @@ public static class FileHelper
         }
         catch (Exception ex)
         {
-            logger?.LogError(ex, "ظپط´ظ„ ظپظٹ ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط¬ظ„ط¯: {DirectoryPath}", directoryPath);
+            logger?.LogError(ex, "فشل في إنشاء المجلد: {DirectoryPath}", directoryPath);
             return false;
         }
     }
 
     /// <summary>
-    /// ظٹظڈظ†ط¸ظپ ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ظ…ظ† ط§ظ„ط£ط­ط±ظپ ط؛ظٹط± ط§ظ„طµط§ظ„ط­ط© ظ„ط£ظ†ط¸ظ…ط© ط§ظ„ظ…ظ„ظپط§طھ.
-    /// ط¥ط°ط§ ظƒط§ظ†طھ ط§ظ„ظ†طھظٹط¬ط© ظپط§ط±ط؛ط© ط¨ط¹ط¯ ط§ظ„طھظ†ط¸ظٹظپ ظٹظڈط±ط¬ط¹ ط§ظ„ط§ط³ظ… ط§ظ„ط§ظپطھط±ط§ط¶ظٹ "file".
+    /// يُنظف اسم الملف من الأحرف غير الصالحة لأنظمة الملفات.
+    /// إذا كانت النتيجة فارغة بعد التنظيف يُرجع الاسم الافتراضي "file".
     /// </summary>
-    /// <param name="fileName">ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ط§ظ„ظ…ط±ط§ط¯ طھظ†ط¸ظٹظپظ‡.</param>
-    /// <returns>ط§ط³ظ… ظ…ظ„ظپ طµط§ظ„ط­ ظ„ظ„ط§ط³طھط®ط¯ط§ظ… ظپظٹ ظ†ط¸ط§ظ… ط§ظ„ظ…ظ„ظپط§طھ.</returns>
+    /// <param name="fileName">اسم الملف المراد تنظيفه.</param>
+    /// <returns>اسم ملف صالح للاستخدام في نظام الملفات.</returns>
     public static string SanitizeFileName(string fileName)
     {
         var invalid = Path.GetInvalidFileNameChars();
@@ -156,13 +156,13 @@ public static class FileHelper
     }
 
     /// <summary>
-    /// ظٹظڈظ†ط´ط¦ ط§ط³ظ…ط§ظ‹ ظپط±ظٹط¯ط§ظ‹ ظ„ظ„ظ…ظ„ظپ ط¯ط§ط®ظ„ ط§ظ„ظ…ط¬ظ„ط¯ ط§ظ„ظ…ط­ط¯ط¯ ط¨ط¥ط¶ط§ظپط© ط±ظ‚ظ… طھط³ظ„ط³ظ„ظٹ
-    /// ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظ…ظ„ظپ ظ…ظˆط¬ظˆط¯ط§ظ‹ ظ…ط³ط¨ظ‚ط§ظ‹ (ظ…ط«ط§ظ„: file_1.txt, file_2.txt).
+    /// يُنشئ اسماً فريداً للملف داخل المجلد المحدد بإضافة رقم تسلسلي
+    /// إذا كان الملف موجوداً مسبقاً (مثال: file_1.txt, file_2.txt).
     /// </summary>
-    /// <param name="directory">ط§ظ„ظ…ط¬ظ„ط¯ ط§ظ„ط°ظٹ ط³ظٹطھظ… ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظˆط¬ظˆط¯ ط§ظ„ظ…ظ„ظپ ظپظٹظ‡.
-    /// ط¥ط°ط§ ظƒط§ظ† <c>null</c> ظٹظڈط³طھط®ط¯ظ… ط§ظ„ظ…ط¬ظ„ط¯ ط§ظ„ط­ط§ظ„ظٹ ظ„ظ„طھط·ط¨ظٹظ‚.</param>
-    /// <param name="fileName">ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ط§ظ„ط£طµظ„ظٹ ط§ظ„ظ…ط±ط§ط¯ ط¥ظ†ط´ط§ط، ظ†ط³ط®ط© ظپط±ظٹط¯ط© ظ…ظ†ظ‡.</param>
-    /// <returns>ط§ط³ظ… ط§ظ„ظ…ظ„ظپ ط§ظ„ظپط±ظٹط¯ (ط¨ط¯ظˆظ† ط§ظ„ظ…ط³ط§ط± ط§ظ„ظƒط§ظ…ظ„).</returns>
+    /// <param name="directory">المجلد الذي سيتم التحقق من وجود الملف فيه.
+    /// إذا كان <c>null</c> يُستخدم المجلد الحالي للتطبيق.</param>
+    /// <param name="fileName">اسم الملف الأصلي المراد إنشاء نسخة فريدة منه.</param>
+    /// <returns>اسم الملف الفريد (بدون المسار الكامل).</returns>
     public static string GetUniqueFileName(string? directory, string fileName)
     {
         if (string.IsNullOrWhiteSpace(directory))

@@ -22,54 +22,71 @@ public partial class frmReports : Form
             RightToLeftLayout = true
         };
 
+        // ═══════════════════════════════════════════════════════════════════════
+        // MVP: التقارير الأساسية الستة المعروضة للمستخدم فقط (HIDE, never delete)
+        // ═══════════════════════════════════════════════════════════════════════
+        AddTab("تقرير المبيعات", () => new SalesReportTab(_serviceProvider));                       // MVP: أساسي 1
+        AddTab("تقرير المشتريات", () => new PurchasesReportTab(_serviceProvider));                  // MVP: أساسي 2
+        AddTab("تقرير المخزون الحالي", () => new InventoryReportTab(_serviceProvider));             // MVP: أساسي 3
+        AddTab("تقرير الأرباح", () => new ProductProfitabilityReportTab(_serviceProvider));         // MVP: أساسي 4
+        AddTab("كشف حساب عميل", () => new AccountStatementReportTab(_serviceProvider));             // MVP: أساسي 5
+        AddTab("كشف حساب مورد", () => new AccountStatementReportTab(_serviceProvider, true));        // MVP: أساسي 6
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // MVP: مخفي — التقارير التالية محفوظة كاملة في الكود لكنها لا تُعرض
+        // لإعادة تفعيل أي تقرير: احذف الوسيط الأخير (false) من السطر المعني
+        // ═══════════════════════════════════════════════════════════════════════
+
         // Basic Reports
-        AddTab("\u062a\u0642\u0631\u064a\u0631 \u0627\u0644\u0645\u0628\u064a\u0639\u0627\u062a", new SalesReportTab(_serviceProvider));
-        AddTab("\u062a\u0642\u0631\u064a\u0631 \u0627\u0644\u0645\u0634\u062a\u0631\u064a\u0627\u062a", new PurchasesReportTab(_serviceProvider));
-        AddTab("\u062a\u0642\u0631\u064a\u0631 \u0627\u0644\u0645\u062e\u0632\u0648\u0646", new InventoryReportTab(_serviceProvider));
-        AddTab("\u0643\u0634\u0641 \u062d\u0633\u0627\u0628 \u0639\u0645\u0644\u0627\u0621", new CustomerBalanceReportTab(_serviceProvider));
-        AddTab("\u0643\u0634\u0641 \u062d\u0633\u0627\u0628 \u0645\u0648\u0631\u062f\u064a\u0646", new SupplierBalanceReportTab(_serviceProvider));
-        AddTab("\u062d\u0631\u0643\u0627\u062a \u0645\u0646\u062a\u062c", new ProductMovementReportTab(_serviceProvider));
-        AddTab("\u062a\u0646\u0628\u064a\u0647 \u0627\u0644\u0645\u062e\u0632\u0648\u0646 \u0627\u0644\u0645\u0646\u062e\u0641\u0636", new LowStockReportTab(_serviceProvider));
+        AddTab("كشف حساب عملاء", () => new CustomerBalanceReportTab(_serviceProvider), false);      // MVP: مخفي
+        AddTab("كشف حساب موردين", () => new SupplierBalanceReportTab(_serviceProvider), false);     // MVP: مخفي
+        AddTab("حركات منتج", () => new ProductMovementReportTab(_serviceProvider), false);          // MVP: مخفي
+        AddTab("تنبيه المخزون المنخفض", () => new LowStockReportTab(_serviceProvider), false);      // MVP: مخفي
 
         // Financial Reports
-        AddTab("\u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u062f\u062e\u0644", new IncomeStatementReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0645\u0631\u062c\u0639 \u0627\u0644\u0645\u0627\u0644\u064a", new BalanceSheetReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0645\u0631\u062c\u0639 \u0627\u0644\u0645\u062a\u0648\u0627\u0632\u0646", new TrialBalanceReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0623\u0633\u062c\u062f \u0627\u0644\u0639\u0627\u0645", new GeneralLedgerReportTab(_serviceProvider));
-        AddTab("\u062a\u0642\u0631\u064a\u0631 \u0627\u0644\u062a\u062f\u0641\u0642 \u0627\u0644\u0646\u0642\u062f\u064a", new CashFlowReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0631\u0623\u0645\u0627\u0644 \u0627\u0644\u0639\u0627\u0645\u0644", new WorkingCapitalReportTab(_serviceProvider));
-        AddTab("\u0636\u0631\u064a\u0628\u0629 \u0627\u0644\u0642\u0637\u0648\u0633 \u0627\u0644\u0645\u0631\u062c\u0639\u064a\u0629", new VatReportTab(_serviceProvider));
-        AddTab("\u0643\u0634\u0641 \u062d\u0633\u0627\u0628 \u0639\u0645\u064a\u0644", new AccountStatementReportTab(_serviceProvider));
+        AddTab("قائمة الدخل", () => new IncomeStatementReportTab(_serviceProvider), false);         // MVP: مخفي
+        AddTab("الميزانية العمومية", () => new BalanceSheetReportTab(_serviceProvider), false);     // MVP: مخفي
+        AddTab("ميزان المراجعة", () => new TrialBalanceReportTab(_serviceProvider), false);         // MVP: مخفي
+        AddTab("دفتر الأستاذ العام", () => new GeneralLedgerReportTab(_serviceProvider), false);    // MVP: مخفي
+        AddTab("التدفق النقدي", () => new CashFlowReportTab(_serviceProvider), false);              // MVP: مخفي
+        AddTab("رأس المال العامل", () => new WorkingCapitalReportTab(_serviceProvider), false);     // MVP: مخفي
+        AddTab("ضريبة القيمة المضافة", () => new VatReportTab(_serviceProvider), false);            // MVP: مخفي
 
         // Sales Reports
-        AddTab("\u0645\u0628\u064a\u0639\u0627\u062a \u0628\u0645\u0646\u062a\u062c", new SalesByProductReportTab(_serviceProvider));
-        AddTab("\u0645\u0628\u064a\u0639\u0627\u062a \u0628\u0639\u0645\u0644\u0627\u0621", new SalesByCustomerReportTab(_serviceProvider));
-        AddTab("\u0645\u0628\u064a\u0639\u0627\u062a \u0628\u062a\u0635\u0646\u064a\u0641", new SalesByCategoryReportTab(_serviceProvider));
-        AddTab("\u0645\u0628\u064a\u0639\u0627\u062a \u064a\u0648\u0645\u064a\u0629", new DailySalesReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0631\u0628\u062d \u0645\u0646 \u0627\u0644\u0645\u0646\u062a\u062c", new ProductProfitabilityReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0631\u0628\u062d \u0628\u0639\u0645\u0644\u0627\u0621", new ProfitByCustomerReportTab(_serviceProvider));
+        AddTab("مبيعات بمنتج", () => new SalesByProductReportTab(_serviceProvider), false);         // MVP: مخفي
+        AddTab("مبيعات بعملاء", () => new SalesByCustomerReportTab(_serviceProvider), false);       // MVP: مخفي
+        AddTab("مبيعات بتصنيف", () => new SalesByCategoryReportTab(_serviceProvider), false);       // MVP: مخفي
+        AddTab("مبيعات يومية", () => new DailySalesReportTab(_serviceProvider), false);             // MVP: مخفي
+        AddTab("الربح بعملاء", () => new ProfitByCustomerReportTab(_serviceProvider), false);       // MVP: مخفي
 
         // Purchase Reports
-        AddTab("\u0645\u0634\u062a\u0631\u064a\u0627\u062a \u0628\u0645\u0648\u0631\u062f", new PurchasesBySupplierReportTab(_serviceProvider));
-        AddTab("\u0645\u0634\u062a\u0631\u064a\u0627\u062a \u0628\u0645\u0646\u062a\u062c", new PurchasesByProductReportTab(_serviceProvider));
+        AddTab("مشتريات بمورد", () => new PurchasesBySupplierReportTab(_serviceProvider), false);   // MVP: مخفي
+        AddTab("مشتريات بمنتج", () => new PurchasesByProductReportTab(_serviceProvider), false);    // MVP: مخفي
 
         // Inventory Reports
-        AddTab("\u0631\u0635\u064a\u062f \u0627\u0644\u0645\u062e\u0632\u0648\u0646", new StockBalanceReportTab(_serviceProvider));
-        AddTab("\u062f\u0641\u062a\u0631 \u0627\u0644\u0645\u062e\u0632\u0648\u0646 \u0627\u0644\u062a\u0641\u0635\u064a\u0644\u064a", new DetailedStockLedgerReportTab(_serviceProvider));
-        AddTab("\u062d\u0631\u0643\u0627\u062a \u0627\u0644\u0645\u062e\u0627\u0632\u0646", new WarehouseMovementReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0645\u0646\u062a\u062c\u0627\u062a \u0627\u0644\u0645\u0647\u0644\u0643\u0629", new ExpiredProductsReportTab(_serviceProvider));
+        AddTab("رصيد المخزون", () => new StockBalanceReportTab(_serviceProvider), false);           // MVP: مخفي
+        AddTab("دفتر المخزون التفصيلي", () => new DetailedStockLedgerReportTab(_serviceProvider), false); // MVP: مخفي
+        AddTab("حركات المخازن", () => new WarehouseMovementReportTab(_serviceProvider), false);     // MVP: مخفي
+        AddTab("المنتجات المهلكة", () => new ExpiredProductsReportTab(_serviceProvider), false);    // MVP: مخفي
 
         // Other Reports
-        AddTab("\u062a\u0642\u0631\u064a\u0631 \u0627\u0644\u0645\u0631\u062a\u062c\u0639\u0627\u062a", new ReturnsReportTab(_serviceProvider));
-        AddTab("\u0625\u063a\u0644\u0627\u0642 \u064a\u0648\u0645\u064a", new DailyClosureReportTab(_serviceProvider));
-        AddTab("\u0643\u0634\u0641 \u0635\u0646\u062f\u064a\u0642", new CashBoxSummaryReportTab(_serviceProvider));
-        AddTab("\u0627\u0644\u0623\u0642\u0633\u0627\u0645 \u0627\u0644\u0645\u062a\u0639\u0644\u0642\u0629", new AgingReportTab(_serviceProvider));
+        AddTab("تقرير المرتجعات", () => new ReturnsReportTab(_serviceProvider), false);             // MVP: مخفي
+        AddTab("إغلاق يومي", () => new DailyClosureReportTab(_serviceProvider), false);             // MVP: مخفي
+        AddTab("كشف صندوق", () => new CashBoxSummaryReportTab(_serviceProvider), false);            // MVP: مخفي
+        AddTab("الأعمار (Aging)", () => new AgingReportTab(_serviceProvider), false);               // MVP: مخفي
 
         this.Controls.Add(tabControl);
     }
 
-    private void AddTab(string title, UserControl control)
+    /// <summary>
+    /// إضافة تبويب تقرير. عند تمرير <paramref name="mvpVisible"/> = false لا يُنشأ التبويب
+    /// ولا يُضاف إلى شريط التبويبات (مخفي عن المستخدم) مع الاحتفاظ الكامل بكود التقرير.
+    /// </summary>
+    private void AddTab(string title, Func<UserControl> reportFactory, bool mvpVisible = true)
     {
+        if (!mvpVisible) return; // MVP: مخفي — التقرير غير معروض للمستخدم
+
+        var control = reportFactory();
         control.Dock = DockStyle.Fill;
         var page = new TabPage(title);
         page.Controls.Add(control);

@@ -3,13 +3,13 @@
 namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
-/// ط¨ظٹط§ظ†ط§طھ طھط¬ط±ظٹط¨ظٹط© ظ„ظپظˆط§طھظٹط± ط§ظ„ظ…ط´طھط±ظٹط§طھ â€” ظ…ط³طھظˆط­ط§ط© ظ…ظ† INITIAL_PURCHASE_INVOICES ظپظٹ ظˆط§ط¬ظ‡ط© ط§ظ„ظˆظٹط¨.
+/// بيانات تجريبية لفواتير المشتريات — مستوحاة من INITIAL_PURCHASE_INVOICES في واجهة الويب.
 /// </summary>
 internal static class MockPurchasesData
 {
-    // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
-    // ظپظˆط§طھظٹط± ط§ظ„ظ…ط´طھط±ظٹط§طھ â€” Purchase Invoices
-    // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+    // ═══════════════════════════════════════════════
+    // فواتير المشتريات — Purchase Invoices
+    // ═══════════════════════════════════════════════
     private static List<PurchaseInvoiceDto> _purchases = CreateSeedPurchases();
     public static List<PurchaseInvoiceDto> Purchases => _purchases;
 
@@ -17,53 +17,53 @@ internal static class MockPurchasesData
     {
         return new List<PurchaseInvoiceDto>
         {
-            // ظپط§طھظˆط±ط© 1: ظ…ط³ظˆط¯ط© â€” ظ…ط¬ظ…ظˆط¹ط© ظ‡ط§ط¦ظ„ ط³ط¹ظٹط¯ â€” ط¢ط¬ظ„ â€” ظ„ظ… طھظڈط¯ظپط¹
+            // فاتورة 1: مسودة — مجموعة هائل سعيد — آجل — لم تُدفع
             CreatePurchase(
                 id: 1, invoiceNo: 5001, supplierId: 1,
-                supplierName: "ظ…ط¬ظ…ظˆط¹ط© ظ‡ط§ط¦ظ„ ط³ط¹ظٹط¯ ط£ظ†ط¹ظ… ظˆط´ط±ظƒط§ظ‡",
-                whId: 1, whName: "ط§ظ„ظ…ط®ط²ظ† ط§ظ„ط±ط¦ظٹط³ظٹ",
+                supplierName: "مجموعة هائل سعيد أنعم وشركاه",
+                whId: 1, whName: "المخزن الرئيسي",
                 date: new DateOnly(2026, 8, 25), payType: 2, status: 1,
                 paid: 0m, disc: 0m, tax: 0m, other: 0m,
-                notes: "طھظˆط±ظٹط¯ ط¯ظپط¹ط© ظ…ظˆط§ط¯ ط؛ط°ط§ط¦ظٹط© ط£ظˆظ„ظٹط© ظ„ظ„ط´ظ‡ط±",
+                notes: "توريد دفعة مواد غذائية أولية للشهر",
                 supplierInvoiceNo: "HSA-INV-9921",
                 lines: new[]
                 {
-                    (1, 1, "ط´ط§ظٹ ظ„ظٹط¨طھظˆظ† 250ط؛",    1, "ظ‚ط·ط¹ط©",  50m, 1200m),
-                    (2, 2, "ط²ظٹطھ ظ†ط¨ط§طھظٹ 1 ظ„طھط±",     2, "ط²ط¬ط§ط¬ط©", 40m, 1500m)
+                    (1, 1, "شاي ليبتون 250غ",    1, "قطعة",  50m, 1200m),
+                    (2, 2, "زيت نباتي 1 لتر",     2, "زجاجة", 40m, 1500m)
                 }),
 
-            // ظپط§طھظˆط±ط© 2: ظ…ط±ط­ظ„ â€” ط´ط±ظƒط© ظ…ظٹط§ظ‡ ط­ط¯ط© â€” ظ†ظ‚ط¯ظٹ â€” ظ…ط¯ظپظˆط¹ط© ط¨ط§ظ„ظƒط§ظ…ظ„
+            // فاتورة 2: مرحل — شركة مياه حدة — نقدي — مدفوعة بالكامل
             CreatePurchase(
                 id: 2, invoiceNo: 5002, supplierId: 2,
-                supplierName: "ط´ط±ظƒط© ظ…ظٹط§ظ‡ ظˆظ…ط´ط±ظˆط¨ط§طھ ط­ط¯ط© ط§ظ„ظ…ط­ط¯ظˆط¯ط©",
-                whId: 2, whName: "ظ…ط®ط²ظ† ط§ظ„ظ…ط¹ط±ط¶",
+                supplierName: "شركة مياه ومشروبات حدة المحدودة",
+                whId: 2, whName: "مخزن المعرض",
                 date: new DateOnly(2026, 8, 28), payType: 1, status: 2,
                 paid: 19000m, disc: 1000m, tax: 0m, other: 0m,
-                notes: "ط´ط±ط§ط، ظ†ظ‚ط¯ظٹ ظ…ظ† ظ…طµظ†ط¹ ظ…ظٹط§ظ‡ ط­ط¯ط© ظ…ط¹ ط®طµظ… طھط´ط¬ظٹط¹ظٹ",
+                notes: "شراء نقدي من مصنع مياه حدة مع خصم تشجيعي",
                 supplierInvoiceNo: "HADA-664",
                 lines: new[]
                 {
-                    (3, 6, "ظ…ط¹ط¬ظˆظ† ط·ظ…ط§ط·ظ… 400ط؛", 6, "ط¹ظ„ط¨ط©", 100m, 200m)
+                    (3, 6, "معجون طماطم 400غ", 6, "علبة", 100m, 200m)
                 }),
 
-            // ظپط§طھظˆط±ط© 3: ظ…ط±ط­ظ„ â€” ط´ط±ظƒط© ط§ظ„ظƒط¨ظˆط³ â€” ط¢ط¬ظ„ â€” ظ„ظ… طھظڈط¯ظپط¹
+            // فاتورة 3: مرحل — شركة الكبوس — آجل — لم تُدفع
             CreatePurchase(
                 id: 3, invoiceNo: 5003, supplierId: 4,
-                supplierName: "ط´ط±ظƒط© ط§ظ„ظƒط¨ظˆط³ ظ„ظ„طھط¬ط§ط±ط© ظˆط§ظ„طµظ†ط§ط¹ط©",
-                whId: 1, whName: "ط§ظ„ظ…ط®ط²ظ† ط§ظ„ط±ط¦ظٹط³ظٹ",
+                supplierName: "شركة الكبوس للتجارة والصناعة",
+                whId: 1, whName: "المخزن الرئيسي",
                 date: new DateOnly(2026, 8, 30), payType: 2, status: 2,
                 paid: 0m, disc: 0m, tax: 0m, other: 0m,
-                notes: "ط´ط§ظٹ ط§ظ„ظƒط¨ظˆط³ ط§ظ„ظ…ظ…طھط§ط² طھظˆط±ظٹط¯ ط¢ط¬ظ„",
+                notes: "شاي الكبوس الممتاز توريد آجل",
                 supplierInvoiceNo: "KAB-8832",
                 lines: new[]
                 {
-                    (4, 7, "طھظˆظ†ط§ ظ…ط¹ظ„ط¨ط© 185ط؛", 7, "ط¹ظ„ط¨ط©", 30m, 1750m)
+                    (4, 7, "تونا معلبة 185غ", 7, "علبة", 30m, 1750m)
                 })
         };
     }
 
     /// <summary>
-    /// ظ…ط³ط§ط¹ط¯ ظ„ط¥ظ†ط´ط§ط، ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ ظ…ط¹ ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† طµط­ط© ط§ظ„ط­ط³ط§ط¨ط§طھ ط§ظ„ظ…ط§ظ„ظٹط©.
+    /// مساعد لإنشاء فاتورة مشتريات مع التحقق من صحة الحسابات المالية.
     /// </summary>
     private static PurchaseInvoiceDto CreatePurchase(
         int id, int invoiceNo, int supplierId, string supplierName,
@@ -80,6 +80,8 @@ internal static class MockPurchasesData
                 ProductUnitId: l.unitId, ProductUnitName: l.unitName,
                 Quantity: l.qty, UnitPrice: l.cost, LineTotal: lineTotal,
                 LandedUnitCost: l.cost,
+                DiscountType: 0,
+                DiscountRate: null,
                 DiscountAmount: 0m,
                 CostInBaseCurrency: null, AdditionalFeesAmount: 0m);
         }).ToList();
@@ -94,6 +96,7 @@ internal static class MockPurchasesData
             WarehouseId: whId, WarehouseName: whName,
             InvoiceDate: date, PaymentType: payType,
             SubTotal: subTotal, DiscountAmount: disc,
+            DiscountType: 0, DiscountRate: null,
             CostInBaseCurrency: null,
             TaxAmount: tax, OtherCharges: other,
             NetTotal: netTotal, PaidAmount: paid, RemainingAmount: remaining,

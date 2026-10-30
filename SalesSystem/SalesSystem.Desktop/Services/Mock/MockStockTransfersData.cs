@@ -5,6 +5,13 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// <summary>
 /// بيانات تجريبية للتحويلات المخزنية — 4 تحويلات واقعية ببيانات عربية.
 /// </summary>
+/// <remarks>
+/// TODO: الحقول التالية أُزيلت من DTOs التحويلات ولم تُعد موجودة:
+/// StockTransferDto → FromWarehouseName, ToWarehouseName, DriverName, VehiclePlate,
+///                    Reference, TotalCost, TotalQuantity, CreatedByUserId
+/// StockTransferItemDto → UnitCost, TotalCost, UnitName
+/// (تُحسب هذه القيم الآن في طبقة الأعمال، وليست جزءاً من نموذج العرض.)
+/// </remarks>
 internal static class MockStockTransfersData
 {
     public static List<StockTransferDto> Transfers { get; } = new()
@@ -20,20 +27,10 @@ internal static class MockStockTransfersData
             Status: 2,
             Items: new List<StockTransferItemDto>
             {
-                new(1, "102030", "شاي ليبتون 250غ", 50m)   { UnitCost = 150m, TotalCost = 7500m, UnitName = "قطعة" },
-                new(2, "102031", "زيت نباتي 1 لتر", 30m)   { UnitCost = 80m,  TotalCost = 2400m, UnitName = "زجاجة" },
-                new(4, "102033", "سكر أبيض 1 كغ", 40m)     { UnitCost = 200m, TotalCost = 8000m, UnitName = "كيس" }
-            })
-        {
-            FromWarehouseName = "المخزن الرئيسي",
-            ToWarehouseName   = "مخزن المعرض",
-            DriverName        = "علي حسن",
-            VehiclePlate      = "أ ب ج 1234",
-            Reference         = "إذن صرف رقم 501",
-            TotalCost         = 17900m,
-            TotalQuantity     = 120m,
-            CreatedByUserId   = 1
-        },
+                new(1, "102030", "شاي ليبتون 250غ", 50m),
+                new(2, "102031", "زيت نباتي 1 لتر", 30m),
+                new(4, "102033", "سكر أبيض 1 كغ", 40m)
+            }),
 
         // ── 2: تحويل مسودة — المخزن الرئيسي → مخزن الفرع عدن ──
         new StockTransferDto(
@@ -46,21 +43,11 @@ internal static class MockStockTransfersData
             Status: 1,
             Items: new List<StockTransferItemDto>
             {
-                new(3, "102032", "أرز بسمتي 5 كغ", 100m)  { UnitCost = 60m,  TotalCost = 6000m, UnitName = "كيس" },
-                new(5, "102034", "دقيق فاخر 2 كغ", 80m)    { UnitCost = 120m, TotalCost = 9600m, UnitName = "كيس" },
-                new(6, "102035", "معجون طماطم 400غ", 60m)  { UnitCost = 90m,  TotalCost = 5400m, UnitName = "علبة" },
-                new(8, "102037", "حليب مجفف 900غ", 25m)    { UnitCost = 30m,  TotalCost = 750m,  UnitName = "علبة" }
-            })
-        {
-            FromWarehouseName = "المخزن الرئيسي",
-            ToWarehouseName   = "مخزن الفرع - عدن",
-            DriverName        = "محمد سالم",
-            VehiclePlate      = "ع د ن 5678",
-            Reference         = null,
-            TotalCost         = 21750m,
-            TotalQuantity     = 265m,
-            CreatedByUserId   = 1
-        },
+                new(3, "102032", "أرز بسمتي 5 كغ", 100m),
+                new(5, "102034", "دقيق فاخر 2 كغ", 80m),
+                new(6, "102035", "معجون طماطم 400غ", 60m),
+                new(8, "102037", "حليب مجفف 900غ", 25m)
+            }),
 
         // ── 3: تحويل مرحل — مخزن المعرض → المخزن الرئيسي (إعادة) ──
         new StockTransferDto(
@@ -73,19 +60,9 @@ internal static class MockStockTransfersData
             Status: 2,
             Items: new List<StockTransferItemDto>
             {
-                new(7, "102036", "تونا معلبة 185غ", 15m)  { UnitCost = 45m,  TotalCost = 675m, UnitName = "علبة" },
-                new(9, "102038", "مناديل ورقية 150 ورقة", 20m) { UnitCost = 200m, TotalCost = 4000m, UnitName = "علبة" }
-            })
-        {
-            FromWarehouseName = "مخزن المعرض",
-            ToWarehouseName   = "المخزن الرئيسي",
-            DriverName        = "علي حسن",
-            VehiclePlate      = "أ ب ج 1234",
-            Reference         = "إذن استلام رقم 302",
-            TotalCost         = 4675m,
-            TotalQuantity     = 35m,
-            CreatedByUserId   = 2
-        },
+                new(7, "102036", "تونا معلبة 185غ", 15m),
+                new(9, "102038", "مناديل ورقية 150 ورقة", 20m)
+            }),
 
         // ── 4: تحويل ملغية — المخزن الرئيسي → مخزن المعرض ──
         new StockTransferDto(
@@ -98,17 +75,7 @@ internal static class MockStockTransfersData
             Status: 3,
             Items: new List<StockTransferItemDto>
             {
-                new(10, "102039", "صابون غسيل 1 كغ", 45m) { UnitCost = 75m, TotalCost = 3375m, UnitName = "كيس" }
+                new(10, "102039", "صابون غسيل 1 كغ", 45m)
             })
-        {
-            FromWarehouseName = "المخزن الرئيسي",
-            ToWarehouseName   = "مخزن المعرض",
-            DriverName        = null,
-            VehiclePlate      = null,
-            Reference         = null,
-            TotalCost         = 3375m,
-            TotalQuantity     = 45m,
-            CreatedByUserId   = 1
-        }
     };
 }

@@ -82,10 +82,8 @@ public class MockJournalEntryApiService : IJournalEntryApiService
             StatusDisplay: statusDisplay,
             CreatedAt: DateTime.Now,
             CreatedByUserId: 1
-        )
-        {
-            SourceModule = "يدوي",
-        };
+        );
+        // TODO: SourceModule removed from JournalEntryListDto
         MockJournalEntriesData.Entries.Add(listDto);
 
         // إنشاء القيد في قائمة التفاصيل
@@ -104,10 +102,8 @@ public class MockJournalEntryApiService : IJournalEntryApiService
             CreatedAt: DateTime.Now,
             CreatedByUserId: 1,
             Lines: lineDtos
-        )
-        {
-            SourceModule = "يدوي",
-        };
+        );
+        // TODO: SourceModule removed from JournalEntryDetailDto
         MockJournalEntriesData.EntryDetails.Add(detailDto);
 
         return Task.FromResult(Result<int>.Success(nextId));

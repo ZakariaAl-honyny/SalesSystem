@@ -72,6 +72,8 @@ internal static class MockSecurityData
     // ═══════════════════════════════════════════════
     // المستخدمون — Users (6 مستخدمين)
     // ═══════════════════════════════════════════════
+    // TODO: FullName / EmployeeId / BranchName / DefaultCashboxName / DefaultWarehouseName
+    //       أُزيلت من UserDto (لم تعد جزءاً من نموذج العرض) — حُذفت من البيانات التجريبية أدناه.
     public static List<UserDto> Users { get; } = new()
     {
         // 1. مدير النظام الأعلى (Admin)
@@ -81,14 +83,7 @@ internal static class MockSecurityData
             BranchId: null, MustChangePassword: false,
             IsLocked: false, IsActive: true,
             LastLoginAt: new DateTime(2026, 9, 1, 8, 30, 0),
-            LoginAttempts: 0, DefaultCashBoxId: 1)
-        {
-            FullName = "مدير النظام الأعلى (Admin)",
-            EmployeeId = 7,
-            BranchName = "جميع الفروع (المركز الرئيسي)",
-            DefaultCashboxName = "الصندوق الرئيسي (الخزينة المركزية)",
-            DefaultWarehouseName = "المخزن الرئيسي",
-        },
+            LoginAttempts: 0, DefaultCashBoxId: 1),
 
         // 2. كاشير — أحمد علي عبده
         new UserDto(
@@ -97,14 +92,7 @@ internal static class MockSecurityData
             BranchId: 1, MustChangePassword: false,
             IsLocked: false, IsActive: true,
             LastLoginAt: new DateTime(2026, 9, 1, 8, 0, 0),
-            LoginAttempts: 0, DefaultCashBoxId: 2)
-        {
-            FullName = "أحمد علي عبده",
-            EmployeeId = 1,
-            BranchName = "المركز الرئيسي (صنعاء)",
-            DefaultCashboxName = "درج كاشير نقطة البيع 1 (الصالة)",
-            DefaultWarehouseName = "المخزن الرئيسي",
-        },
+            LoginAttempts: 0, DefaultCashBoxId: 2),
 
         // 3. محاسب — سامي عبدالملك الجوفي
         new UserDto(
@@ -113,14 +101,7 @@ internal static class MockSecurityData
             BranchId: 1, MustChangePassword: false,
             IsLocked: false, IsActive: true,
             LastLoginAt: new DateTime(2026, 8, 31, 14, 15, 0),
-            LoginAttempts: 0, DefaultCashBoxId: 1)
-        {
-            FullName = "سامي عبدالملك الجوفي",
-            EmployeeId = 6,
-            BranchName = "المركز الرئيسي (صنعاء)",
-            DefaultCashboxName = "الصندوق الرئيسي (الخزينة المركزية)",
-            DefaultWarehouseName = "المخزن الرئيسي",
-        },
+            LoginAttempts: 0, DefaultCashBoxId: 1),
 
         // 4. مشرف مخازن — خالد صالح القاضي
         new UserDto(
@@ -129,14 +110,7 @@ internal static class MockSecurityData
             BranchId: 1, MustChangePassword: true,
             IsLocked: false, IsActive: true,
             LastLoginAt: null,
-            LoginAttempts: 0, DefaultCashBoxId: null)
-        {
-            FullName = "خالد صالح القاضي",
-            EmployeeId = 3,
-            BranchName = "مستودع صنعاء الرئيسي",
-            DefaultCashboxName = null,
-            DefaultWarehouseName = "المخزن الرئيسي",
-        },
+            LoginAttempts: 0, DefaultCashBoxId: null),
 
         // 5. مستخدم تجريبي مقفل — locked_test
         new UserDto(
@@ -145,14 +119,7 @@ internal static class MockSecurityData
             BranchId: 1, MustChangePassword: false,
             IsLocked: true, IsActive: true,
             LastLoginAt: new DateTime(2026, 8, 30, 10, 0, 0),
-            LoginAttempts: 5, DefaultCashBoxId: null)
-        {
-            FullName = "مستخدم تجريبي مقفل",
-            EmployeeId = 8,
-            BranchName = "فرع عدن",
-            DefaultCashboxName = null,
-            DefaultWarehouseName = null,
-        },
+            LoginAttempts: 5, DefaultCashBoxId: null),
     };
 
     // ═══════════════════════════════════════════════

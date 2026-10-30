@@ -209,6 +209,43 @@ public class CustomerService : ICustomerService
         }, ct);
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var customer = await _uow.Customers.FirstOrDefaultIgnoreFiltersAsync(c => c.Id == id, ct);
+        if (customer == null)
+            return Result.Failure("العميل غير موجود", ErrorCodes.NotFound);
+
+        if (customer.IsActive)
+            return Result.Failure("العميل نشط بالفعل");
+
+        return await _uow.ExecuteTransactionAsync<Result>(async () =>
+        {
+            try
+            {
+                // Reactivate linked Account — per accounts summry.md
+                if (customer.AccountId > 0)
+                {
+                    await _accountLink.ActivateAsync(customer.AccountId, ct);
+                }
+
+                customer.Restore();
+                await _uow.SaveChangesAsync(ct);
+
+                _logger.LogInformation("Customer reactivated: {CustomerName} (ID: {CustomerId})", customer.Name, customer.Id);
+                return Result.Success();
+            }
+            catch (DomainException ex)
+            {
+                return Result.Failure(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while reactivating customer {Id}", id);
+                return Result.Failure("حدث خطأ أثناء إعادة تنشيط العميل.");
+            }
+        }, ct);
+    }
+
     public async Task<Result<PagedResult<CustomerBalanceReportDto>>> GetCustomerBalanceReportAsync(int page, int pageSize, string? search = null, CancellationToken ct = default)
     {
         try

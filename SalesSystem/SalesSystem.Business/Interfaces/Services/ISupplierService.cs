@@ -12,4 +12,5 @@ public interface ISupplierService
     Task<Result<SupplierDto>> UpdateAsync(int id, UpdateSupplierRequest request, int userId, CancellationToken ct);
     Task<Result> DeleteAsync(int id, int userId, CancellationToken ct);
     Task<Result> PermanentDeleteAsync(int id, int userId, CancellationToken ct);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }
