@@ -78,7 +78,6 @@ public partial class frmMain : Form
         msbtnInventoryCounts.Visible = false;       // MVP: مخفي (V2)
 
         // ── المبيعات ────────────────────────────────────────────────────────
-        msbtnCurrencySelection.Visible = false;     // MVP: مخفي (V2)
         msbtnSalesProfitBreakdown.Visible = false;  // MVP: مخفي (V2)
         msbtnSalesImportConvert.Visible = false;    // MVP: مخفي (V2)
         msbtnSalesSmartF3Lookup.Visible = false;    // MVP: مخفي (V2)
@@ -90,7 +89,6 @@ public partial class frmMain : Form
 
         // ── الخزينة ─────────────────────────────────────────────────────────
         msbtnCashVouchers.Visible = false;          // MVP: مخفي (V2)
-        msbtnBanks.Visible = false;                 // MVP: مخفي (V2)
         msbtnPaymentVouchers.Visible = false;       // MVP: مخفي (V2)
 
         // ── حسابات (القائمة بالكامل — المحاسبة آلية في MVP) ──────────────────
@@ -103,9 +101,7 @@ public partial class frmMain : Form
         msbtnReceiptVouchers.Visible = false;       // MVP: مخفي (V2)
 
         // ── بيانات ──────────────────────────────────────────────────────────
-        msbtnManageUsers.Visible = false;           // MVP: مخفي (V2)
-        msbtnRoles.Visible = false;                 // MVP: مخفي (V2)
-        msbtnEmployees.Visible = false;             // MVP: مخفي (V2)
+        // msbtnManageUsers / msbtnRoles / msbtnEmployees تُدار الآن عبر شاشات Master
         msbtnPermissions.Visible = false;           // MVP: مخفي (V2)
         msbtnAuditLog.Visible = false;              // MVP: مخفي (V2)
         msbtnSystemLogs.Visible = false;            // MVP: مخفي (V2)
@@ -165,7 +161,7 @@ public partial class frmMain : Form
             msbtnProductSelection.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
             msbtnCustomerPicker.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
             msbtnDiscountExpenses.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ManageDiscounts);
-            msbtnCurrencySelection.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
+            msbtnCurrencySelection.Visible = false; // MVP: محذوف (وحدة العملات الوهمية) — يبقى مخفياً
             msbtnSalesProfitBreakdown.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
             msbtnPOSHeldOrders.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
             msbtnSalesImportConvert.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
@@ -349,7 +345,8 @@ public partial class frmMain : Form
         => _serviceProvider.GetRequiredService<frmDiscountExpenses>().ShowDialog(this);
 
     private void msbtnCurrencySelection_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmCurrencySelection>().ShowDialog(this);
+        => MessageBox.Show("وحدة العملات غير متوفرة في نسخة MVP الحالية؛ العملة الافتراضية هي الريال اليمني.",
+            "العملات", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
     // ── المبيعات — أدوات الفاتورة الإضافية (جديد) ───────────────────────
 
@@ -389,7 +386,7 @@ public partial class frmMain : Form
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxMaster>());
 
     private void msbtnBanks_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListBanks>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmBankMaster>());
 
     private void msbtnExpenses_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListExpenses>());
@@ -429,22 +426,16 @@ public partial class frmMain : Form
     // ── بيانات (Data / Users) ────────────────────────────────────────────────
 
     private void msbtnManageUsers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListUsers>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUserMaster>());
 
     private void msbtnRoles_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListRoles>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmRoleMaster>());
 
     private void msbtnEmployees_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListEmployees>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmEmployeeMaster>());
 
     private void msbtnPermissions_Click(object sender, EventArgs e)
-    {
-        // Permissions are now managed per-role via the Roles editor
-        // Redirect to Roles list where permissions are configured
-        MessageBox.Show("يتم إدارة الصلاحيات من خلال الأدوار. الرجاء استخدام قائمة الأدوار.", 
-            "إدارة الصلاحيات", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListRoles>());
-    }
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmRoleMaster>());
 
     private void msbtnAuditLog_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAuditLog>());

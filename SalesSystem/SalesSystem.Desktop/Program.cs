@@ -94,15 +94,8 @@ static class Program
                     services.AddSingleton(appSettings);
 
                     // --- I*ApiService implementations (2-Tier) ---
-                    // Phantom modules (no BLL backend yet) — always mock:
-                    services.AddTransient<ICostCenterApiService, MockCostCenterApiService>();
-                    services.AddTransient<ICurrencyApiService, MockCurrencyApiService>();
-                    services.AddTransient<ICustomerPaymentApiService, MockCustomerPaymentApiService>();
+                    // Mock-only by design (no BLL backend yet) — Employee module is intentionally kept:
                     services.AddTransient<IEmployeeApiService, MockEmployeeApiService>();
-                    services.AddTransient<IPettyCashApiService, MockPettyCashApiService>();
-                    services.AddTransient<IPurchaseOrderApiService, MockPurchaseOrderApiService>();
-                    services.AddTransient<IQuotationApiService, MockQuotationApiService>();
-                    services.AddTransient<ITreasuryTransferApiService, MockTreasuryTransferApiService>();
 
                     // Interfaces with NO mock — always Direct:
                     services.AddTransient<IAccountCategoryApiService, DirectAccountCategoryService>();
@@ -335,7 +328,6 @@ static class Program
                     services.AddTransient<frmCompanySettings>();
                     // services.AddTransient<frmNotifications>(); // MVP: hidden (V2)
                     // services.AddTransient<frmUpdateCheck>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmUsers>(); // MVP: hidden (V2)
                     services.AddTransient<frmReports>();
                     services.AddTransient<frmSalesReport>();
                     services.AddTransient<frmPurchasesReport>();
@@ -355,12 +347,11 @@ static class Program
                     // services.AddTransient<frmListCategories>();
                     // services.AddTransient<frmAddUpdateAccountCategory>(); // MVP: hidden (V2)
                     // Users/Admin Forms
-                    // services.AddTransient<frmAddUpdateUser>(); // MVP: hidden (V2)
                     services.AddTransient<frmPasswordChange>();
                     services.AddTransient<frmBackup>();
-                    // services.AddTransient<frmListUsers>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmListRoles>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmAddUpdateRole>(); // MVP: hidden (V2)
+                    // Master forms — replace the removed frmList* / frmAddUpdate* screens
+                    services.AddTransient<frmUserMaster>();
+                    services.AddTransient<frmRoleMaster>();
                     // services.AddTransient<frmAuditLog>(); // MVP: hidden (V2)
                     // services.AddTransient<frmSystemLogs>(); // MVP: hidden (V2)
                     // services.AddTransient<frmUserSessions>(); // MVP: hidden (V2)
@@ -389,8 +380,7 @@ static class Program
                     services.AddTransient<frmDailyClosure>();
 
                     // Banks Module
-                    // services.AddTransient<frmListBanks>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmAddUpdateBank>(); // MVP: hidden (V2)
+                    services.AddTransient<frmBankMaster>();
 
                     // Expenses Module
                     services.AddTransient<frmListExpenses>();
@@ -409,7 +399,6 @@ static class Program
                     services.AddTransient<frmAddUpdateSupplierPayment>();
 
                     // Payment Dialogs
-                    services.AddTransient<frmCustomerPaymentDialog>();
                     services.AddTransient<frmSupplierPaymentDialog>();
 
                     // Product Management Forms
@@ -432,10 +421,8 @@ static class Program
 
                     // Newly-built screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmPOS>();
-                    // services.AddTransient<frmListEmployees>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmAddUpdateEmployee>(); // MVP: hidden (V2)
+                    services.AddTransient<frmEmployeeMaster>();
                     services.AddTransient<frmDiscountExpenses>();
-                    // services.AddTransient<frmCurrencySelection>(); // MVP: hidden (V2)
                     services.AddTransient<frmCustomerPicker>();
 
                     // المبيعات — أدوات الفاتورة الإضافية (جديد)

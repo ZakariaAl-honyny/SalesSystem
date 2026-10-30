@@ -5,6 +5,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Screens.Payments;
+using SalesSystem.Desktop.CustomerReceipts.Forms;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Payments.Forms
@@ -88,7 +89,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 _customerTable.Columns.Add("ReceiptDate", typeof(string));
                 _customerTable.Columns.Add("Notes", typeof(string));
 
-                var result = await _serviceProvider.GetRequiredService<ICustomerPaymentApiService>().GetAllAsync();
+                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().GetAllAsync();
 
                 if (result.IsSuccess && result.Value != null)
                 {
@@ -196,8 +197,8 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
         private void btnAddCustomerPayment_Click(object sender, EventArgs e)
         {
-            var dialog = _serviceProvider.GetRequiredService<frmCustomerPaymentDialog>();
-            dialog.ShowDialog();
+            using var dialog = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
+            dialog.ShowDialog(this);
             _RefreshCustomerPayments();
         }
 
