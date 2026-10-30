@@ -37,6 +37,7 @@ partial class frmProductUnitMaster
         lblProduct = new Label();
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
+        btnRefresh = new Button();
         btnSave = new Button();
         btnDelete = new Button();
         btnClose = new Button();
@@ -454,6 +455,7 @@ partial class frmProductUnitMaster
         // 
         // pnlFilter
         // 
+        pnlFilter.Controls.Add(btnRefresh);
         pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
         pnlFilter.Dock = DockStyle.Top;
@@ -469,6 +471,17 @@ partial class frmProductUnitMaster
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 99;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.White;
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Location = new Point(550, 4);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 32);
+        btnRefresh.TabIndex = 98;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
         // 
         // lblSearch
         // 
@@ -558,6 +571,7 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.DataGridViewCheckBoxColumn colIsBaseUnit;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
+    private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

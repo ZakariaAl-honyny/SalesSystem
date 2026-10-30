@@ -75,11 +75,32 @@ public partial class frmProductUnitMaster : Form
         btnNew.Click += btnNew_Click;
         btnSave.Click += btnSave_Click;
         btnDelete.Click += btnDelete_Click;
+        btnRefresh.Click += btnRefresh_Click;
         btnClose.Click += btnClose_Click;
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvUnits.CellClick += dgvUnits_CellClick;
         dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
+    }
+
+    /// <summary>تحديث يدوي لقائمة وحدات الصنف مع الإبقاء على نص البحث الحالي.</summary>
+    private async void btnRefresh_Click(object? sender, EventArgs e)
+    {
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            await _LoadUnitsAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحديث البيانات");
+            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
     }
 
     // ── Form Load ─────────────────────────────────────────────────────────────
@@ -294,6 +315,10 @@ public partial class frmProductUnitMaster : Form
 
         _editId = unit.Id;
 
+        // وضع التعديل: زر الحفظ يُحدّث السجل المحدد، وزر الحذف متاح.
+        btnSave.Text = "💾 تعديل";
+        btnDelete.Enabled = true;
+
         _isBinding = true;
         try
         {
@@ -331,6 +356,11 @@ public partial class frmProductUnitMaster : Form
     private void _ResetForm()
     {
         _editId = null;
+
+        // وضع الإضافة: زر الحفظ يُضيف سجلاً جديداً، وزر الحذف معطّل لعدم وجود سجل محدد.
+        btnSave.Text = "💾 إضافة";
+        btnDelete.Enabled = false;
+
         errorProvider.Clear();
 
         _isBinding = true;
@@ -496,6 +526,11 @@ public partial class frmProductUnitMaster : Form
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 _editId = result.Value.Id;
+
+                // بعد الحفظ ينتقل النموذج إلى وضع التعديل (السجل محدد).
+                btnSave.Text = "💾 تعديل";
+                btnDelete.Enabled = true;
+
                 await _LoadUnitsAsync();
                 _SelectGridRow(result.Value.Id);
                 _UpdateModeHeader();
@@ -574,7 +609,8 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            btnDelete.Enabled = true;
+            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زر الحذف معطّلاً.
+            btnDelete.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
     }

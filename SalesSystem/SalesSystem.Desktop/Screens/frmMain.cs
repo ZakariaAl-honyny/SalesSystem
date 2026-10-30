@@ -504,6 +504,7 @@ public partial class frmMain : Form
 
     private void msbtnExit_Click(object sender, EventArgs e)
     {
-        this.Close();
+        Application.Exit();
+        //this.Close();
     }
 }

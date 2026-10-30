@@ -26,6 +26,7 @@ partial class frmCategoryMaster
         txtDescription = new TextBox();
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
+        btnRefresh = new Button();
         btnSave = new Button();
         btnDelete = new Button();
         pnlGrid = new Panel();
@@ -238,6 +239,7 @@ partial class frmCategoryMaster
         // 
         // pnlFilter
         // 
+        pnlFilter.Controls.Add(btnRefresh);
         pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
         pnlFilter.Dock = DockStyle.Top;
@@ -252,6 +254,17 @@ partial class frmCategoryMaster
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(260, 32);
         txtSearch.TabIndex = 99;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.White;
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Location = new Point(450, 4);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 32);
+        btnRefresh.TabIndex = 98;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
         // 
         // lblSearch
         // 
@@ -314,6 +327,7 @@ partial class frmCategoryMaster
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
+    private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

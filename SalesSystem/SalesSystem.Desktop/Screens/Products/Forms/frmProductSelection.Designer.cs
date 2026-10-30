@@ -17,8 +17,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             tooltip = new ToolTip(components);
-            txtSearch = new TextBox();
             dgvProducts = new DataGridView();
             colId = new DataGridViewTextBoxColumn();
             colName = new DataGridViewTextBoxColumn();
@@ -26,21 +26,12 @@
             colBarcode = new DataGridViewTextBoxColumn();
             btnSelect = new Button();
             btnCancel = new Button();
+            txtSearch = new TextBox();
             lblSearch = new Label();
             lblMode = new Label();
             lblRecordsCount = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
             SuspendLayout();
-            // 
-            // txtSearch
-            // 
-            txtSearch.Font = new Font("Tahoma", 10F);
-            txtSearch.Location = new Point(130, 65);
-            txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(400, 32);
-            txtSearch.TabIndex = 0;
-            txtSearch.TextChanged += txtSearch_TextChanged;
-            txtSearch.KeyPress += txtSearch_KeyPress;
             // 
             // dgvProducts
             // 
@@ -51,28 +42,10 @@
             dgvProducts.BorderStyle = BorderStyle.Fixed3D;
             dgvProducts.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dgvProducts.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-            {
-                BackColor = Color.FromArgb(52, 73, 94),
-                ForeColor = Color.White,
-                Font = new Font("Tahoma", 10F, FontStyle.Bold),
-                Alignment = DataGridViewContentAlignment.MiddleCenter,
-                Padding = new Padding(0, 4, 0, 4),
-                SelectionBackColor = Color.FromArgb(52, 73, 94),
-                SelectionForeColor = Color.White,
-            };
+            dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgvProducts.ColumnHeadersHeight = 45;
             dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategory, colBarcode });
-            dgvProducts.DefaultCellStyle = new DataGridViewCellStyle
-            {
-                BackColor = Color.White,
-                ForeColor = Color.FromArgb(33, 37, 41),
-                Font = new Font("Tahoma", 10F),
-                Alignment = DataGridViewContentAlignment.MiddleCenter,
-                SelectionBackColor = Color.FromArgb(13, 110, 253),
-                SelectionForeColor = Color.White,
-            };
             dgvProducts.EnableHeadersVisualStyles = false;
             dgvProducts.GridColor = Color.FromArgb(222, 226, 230);
             dgvProducts.Location = new Point(12, 109);
@@ -80,13 +53,14 @@
             dgvProducts.Name = "dgvProducts";
             dgvProducts.ReadOnly = true;
             dgvProducts.RowHeadersVisible = false;
+            dgvProducts.RowHeadersWidth = 62;
             dgvProducts.RowTemplate.Height = 32;
             dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProducts.Size = new Size(886, 442);
             dgvProducts.TabIndex = 1;
             dgvProducts.TabStop = false;
-            dgvProducts.DoubleClick += dgvProducts_DoubleClick;
             tooltip.SetToolTip(dgvProducts, "انقر مرتين لاختيار المنتج");
+            dgvProducts.DoubleClick += dgvProducts_DoubleClick;
             // 
             // colId
             // 
@@ -130,9 +104,9 @@
             btnSelect.Size = new Size(118, 40);
             btnSelect.TabIndex = 2;
             btnSelect.Text = "تحديد";
+            tooltip.SetToolTip(btnSelect, "اختيار المنتج المحدد");
             btnSelect.UseVisualStyleBackColor = false;
             btnSelect.Click += btnSelect_Click;
-            tooltip.SetToolTip(btnSelect, "اختيار المنتج المحدد");
             // 
             // btnCancel
             // 
@@ -149,9 +123,19 @@
             btnCancel.Size = new Size(118, 40);
             btnCancel.TabIndex = 3;
             btnCancel.Text = "إلغاء";
+            tooltip.SetToolTip(btnCancel, "إلغاء و إغلاق النافذة");
             btnCancel.UseVisualStyleBackColor = false;
             btnCancel.Click += btnCancel_Click;
-            tooltip.SetToolTip(btnCancel, "إلغاء و إغلاق النافذة");
+            // 
+            // txtSearch
+            // 
+            txtSearch.Font = new Font("Tahoma", 10F);
+            txtSearch.Location = new Point(130, 65);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(400, 32);
+            txtSearch.TabIndex = 0;
+            txtSearch.TextChanged += txtSearch_TextChanged;
+            txtSearch.KeyPress += txtSearch_KeyPress;
             // 
             // lblSearch
             // 
@@ -159,7 +143,7 @@
             lblSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             lblSearch.Location = new Point(12, 68);
             lblSearch.Name = "lblSearch";
-            lblSearch.Size = new Size(101, 24);
+            lblSearch.Size = new Size(60, 24);
             lblSearch.TabIndex = 4;
             lblSearch.Text = "بحث:";
             // 
@@ -183,7 +167,7 @@
             lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             lblRecordsCount.Location = new Point(800, 68);
             lblRecordsCount.Name = "lblRecordsCount";
-            lblRecordsCount.Size = new Size(72, 24);
+            lblRecordsCount.Size = new Size(41, 24);
             lblRecordsCount.TabIndex = 5;
             lblRecordsCount.Text = "[0]";
             // 
