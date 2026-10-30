@@ -30,10 +30,15 @@ public partial class frmCategoryMaster : Form
     /// <summary>null = إضافة مجموعة جديدة، &gt; 0 = تعديل مجموعة قائمة.</summary>
     private int? _editId;
 
-    public frmCategoryMaster(IServiceProvider serviceProvider)
+    /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
+    private frmCategoryMaster()
+    {
+        InitializeComponent();
+    }
+
+    public frmCategoryMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();

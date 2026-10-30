@@ -38,10 +38,15 @@ public partial class frmProductUnitMaster : Form
     /// <summary>يمنع معالجات الأحداث من إعادة تعبئة النموذج أثناء الربط البرمجي.</summary>
     private bool _isBinding;
 
-    public frmProductUnitMaster(IServiceProvider serviceProvider)
+    /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
+    private frmProductUnitMaster()
+    {
+        InitializeComponent();
+    }
+
+    public frmProductUnitMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();

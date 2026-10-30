@@ -31,10 +31,15 @@ public partial class frmWarehouseMaster : Form
     /// <summary>null = إضافة مخزن جديد، &gt; 0 = تعديل مخزن قائم.</summary>
     private int? _editId;
 
-    public frmWarehouseMaster(IServiceProvider serviceProvider)
+    /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
+    private frmWarehouseMaster()
+    {
+        InitializeComponent();
+    }
+
+    public frmWarehouseMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();

@@ -30,10 +30,15 @@ public partial class frmCashBoxMaster : Form
     /// <summary>null = إضافة صندوق جديد، &gt; 0 = تعديل صندوق قائم.</summary>
     private int? _editId;
 
-    public frmCashBoxMaster(IServiceProvider serviceProvider)
+    /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
+    private frmCashBoxMaster()
+    {
+        InitializeComponent();
+    }
+
+    public frmCashBoxMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();

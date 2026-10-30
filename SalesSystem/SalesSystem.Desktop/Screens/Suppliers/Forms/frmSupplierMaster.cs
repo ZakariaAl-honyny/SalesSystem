@@ -31,10 +31,15 @@ public partial class frmSupplierMaster : Form
     /// <summary>null = إضافة مورد جديد، &gt; 0 = تعديل مورد قائم.</summary>
     private int? _editId;
 
-    public frmSupplierMaster(IServiceProvider serviceProvider)
+    /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
+    private frmSupplierMaster()
+    {
+        InitializeComponent();
+    }
+
+    public frmSupplierMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         _WireEvents();
