@@ -44,7 +44,6 @@ public class SalesDbContext : DbContext
     public DbSet<InventoryAdjustment> InventoryAdjustments => Set<InventoryAdjustment>();
     public DbSet<InventoryAdjustmentLine> InventoryAdjustmentLines => Set<InventoryAdjustmentLine>();
     public DbSet<Branch> Branches => Set<Branch>();
-    public DbSet<BillOfMaterials> BillOfMaterials => Set<BillOfMaterials>();
 
     public SalesDbContext(DbContextOptions<SalesDbContext> options) : base(options) { }
 

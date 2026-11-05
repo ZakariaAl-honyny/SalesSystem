@@ -56,16 +56,10 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<CustomerReceiptApplication>? _customerReceiptApplications;
     private IGenericRepository<SupplierPaymentApplication>? _supplierPaymentApplications;
     private IGenericRepository<CompanySettings>? _companySettings;
-    // Customer/Supplier Contact repositories
-    private IGenericRepository<CustomerContact>? _customerContacts;
-    private IGenericRepository<SupplierContact>? _supplierContacts;
 
     // === New Inventory Module (v4.10+) ===
     private IGenericRepository<InventoryTransaction>? _inventoryTransactions;
     private IGenericRepository<InventoryTransactionLine>? _inventoryTransactionLines;
-
-    // === Bill of Materials (BOM) — Phase 25 Products Module ===
-    private IGenericRepository<BillOfMaterials>? _billOfMaterials;
 
     public UnitOfWork(SalesDbContext context)
     {
@@ -111,16 +105,9 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<SupplierPaymentApplication> SupplierPaymentApplications => _supplierPaymentApplications ??= new GenericRepository<SupplierPaymentApplication>(_context);
     public IGenericRepository<CompanySettings> CompanySettings => _companySettings ??= new GenericRepository<CompanySettings>(_context);
 
-    // Customer/Supplier Contact repositories
-    public IGenericRepository<CustomerContact> CustomerContacts => _customerContacts ??= new GenericRepository<CustomerContact>(_context);
-    public IGenericRepository<SupplierContact> SupplierContacts => _supplierContacts ??= new GenericRepository<SupplierContact>(_context);
-
     // === New Inventory Module (v4.10+) ===
     public IGenericRepository<InventoryTransaction> InventoryTransactions => _inventoryTransactions ??= new GenericRepository<InventoryTransaction>(_context);
     public IGenericRepository<InventoryTransactionLine> InventoryTransactionLines => _inventoryTransactionLines ??= new GenericRepository<InventoryTransactionLine>(_context);
-
-    // === Bill of Materials (BOM) — Phase 25 Products Module ===
-    public IGenericRepository<BillOfMaterials> BillOfMaterials => _billOfMaterials ??= new GenericRepository<BillOfMaterials>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {

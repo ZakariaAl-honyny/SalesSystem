@@ -335,3 +335,308 @@ public static class ReportDataTableHelper
         return table;
     }
 }
+
+// ═══════════════════════════════════════════════════════
+// Operational Reports DTOs
+// ═══════════════════════════════════════════════════════
+
+public record SalesReportDto(
+    DateTime InvoiceDate,
+    int Id,
+    string CustomerName,
+    decimal SubTotal,
+    decimal DiscountAmount,
+    decimal TaxAmount,
+    decimal TotalAmount,
+    decimal PaidAmount,
+    decimal DueAmount
+)
+{
+    // Backward-compatible properties
+    public int InvoiceNo => Id;
+}
+
+public record PurchaseReportDto(
+    DateTime InvoiceDate,
+    int Id,
+    string SupplierName,
+    decimal SubTotal,
+    decimal DiscountAmount,
+    decimal TaxAmount,
+    decimal TotalAmount,
+    decimal PaidAmount,
+    decimal DueAmount
+)
+{
+    // Backward-compatible properties
+    public int InvoiceNo => Id;
+}
+
+public record StockReportDto(
+    int ProductId,
+    string ProductName,
+    string CategoryName,
+    string UnitName,
+    string WarehouseName,
+    decimal CurrentStock,
+    decimal ReorderLevel,
+    decimal PurchasePrice,
+    decimal TotalValue
+)
+{
+    // Backward-compatible properties
+    public string? ProductCode => null;
+}
+
+public record CustomerFinancialBalanceDto(
+    int CustomerId,
+    string CustomerName,
+    decimal OpeningBalance,
+    decimal TotalSales,
+    decimal TotalReturns,
+    decimal TotalPayments,
+    decimal TotalCredit,
+    decimal CurrentBalance
+);
+
+public record SupplierBalanceReportDto(
+    int SupplierId,
+    string SupplierName,
+    decimal OpeningBalance,
+    decimal TotalPurchases,
+    decimal TotalReturns,
+    decimal TotalPayments,
+    decimal TotalDebit,
+    decimal CurrentBalance
+)
+{
+    // Backward-compatible properties
+    public string SupplierCode => SupplierId.ToString();
+}
+
+public record ProductMovementReportDto(
+    DateTime Date,
+    string WarehouseName,
+    string MovementType,
+    string ReferenceNo,
+    decimal QuantityChange,
+    decimal QuantityAfter
+);
+
+public record ExpiredProductDto(
+    int ProductId,
+    string ProductName,
+    string? CategoryName,
+    string? WarehouseName,
+    decimal CurrentStock,
+    DateTime ExpirationDate,
+    int DaysExpired);
+
+public record StockBalanceReportDto(
+    int ProductId,
+    string ProductName,
+    string? CategoryName,
+    int WarehouseId,
+    string WarehouseName,
+    decimal CurrentStock,
+    decimal ReorderLevel,
+    decimal Cost,
+    decimal TotalValue
+)
+{
+    public string BalanceStatus => CurrentStock < ReorderLevel ? "منخفض" : "طبيعي";
+    public bool IsLowStock => CurrentStock < ReorderLevel;
+}
+
+public record WarehouseMovementReportDto(
+    DateTime Date,
+    int ProductId,
+    string ProductName,
+    string WarehouseName,
+    string MovementType,
+    decimal QuantityChange,
+    decimal QuantityBefore,
+    decimal QuantityAfter,
+    string? ReferenceType,
+    int? ReferenceId
+);
+
+public record LowStockReportDto(
+    int     ProductId,
+    string  ProductName,
+    string? CategoryName,
+    string  WarehouseName,
+    decimal CurrentRetailQty,
+    decimal ReorderLevelRetailQty,
+    decimal DeficitRetailQty,
+    decimal SuggestedWholesaleBoxes,
+    decimal SuggestedRetailRemainder,
+    string  WholesaleUnitName,
+    string  RetailUnitName,
+    decimal ConversionFactor
+)
+{
+    // Backward-compatible properties
+    public string? ProductCode => null;
+    public string UnitName => RetailUnitName;
+    public decimal Quantity => CurrentRetailQty;
+    public decimal ReorderLevel => ReorderLevelRetailQty;
+}
+
+// Financial Reports DTOs
+public record IncomeStatementDto(
+    string Category,
+    string Description,
+    decimal Amount);
+
+public record CashFlowItemDto(
+    string Category,
+    decimal Amount);
+
+public record CashFlowReportDto(
+    decimal OpeningBalance,
+    decimal TotalIncome,
+    decimal TotalExpense,
+    decimal NetCashFlow,
+    decimal ClosingBalance,
+    List<CashFlowItemDto> IncomeItems,
+    List<CashFlowItemDto> ExpenseItems);
+
+public record VatReportDto(
+    string InvoiceNumber,
+    DateTime InvoiceDate,
+    string? PartyName,
+    decimal TaxableAmount,
+    decimal TaxRate,
+    decimal TaxAmount);
+
+// ═══════════════════════════════════════════════════════
+// Phase 23 — Customer Reports DTOs
+// ═══════════════════════════════════════════════════════
+
+public record CustomerBalanceReportDto(
+    int Id,
+    string Name,
+    string? Phone,
+    string? GroupName,
+    decimal CurrentBalance,
+    decimal CreditLimit,
+    string BalanceStatus
+)
+{
+    // Backward-compatible properties
+    public string CustomerCode => Id.ToString();
+    public string CustomerName => Name;
+    public decimal OpeningBalance => 0m;
+    public decimal TotalSales => 0m;
+    public decimal TotalPayments => 0m;
+}
+
+public record CustomerAgingReportDto(
+    int Id,
+    string Name,
+    string? Phone,
+    decimal CurrentBalance,
+    string AgingBucket,
+    DateTime CalculationDate
+);
+
+// ═══════════════════════════════════════════════════════
+// 7 New Report DTOs
+// ═══════════════════════════════════════════════════════
+
+/// <summary>
+/// Detailed stock ledger entry — shows inventory movements with full audit trail.
+/// </summary>
+public record DetailedStockLedgerDto(
+    DateTime Date,
+    string ReferenceNo,
+    string ReferenceType,
+    string MovementType,
+    decimal QuantityBefore,
+    decimal QuantityChange,
+    decimal QuantityAfter,
+    decimal UnitCost,
+    decimal TotalCost,
+    string? CreatedBy);
+
+/// <summary>
+/// Product profitability — sales revenue vs COGS per product.
+/// </summary>
+public record ProductProfitabilityDto(
+    string ProductName,
+    string? Category,
+    decimal TotalSoldQty,
+    decimal TotalSalesAmount,
+    decimal TotalCOGS,
+    decimal GrossProfit,
+    decimal ProfitMargin);
+
+/// <summary>
+/// Profit broken down by customer.
+/// </summary>
+public record ProfitByCustomerDto(
+    string CustomerName,
+    decimal TotalSales,
+    decimal TotalCost,
+    decimal GrossProfit,
+    decimal ProfitMargin,
+    int InvoiceCount);
+
+/// <summary>
+/// Combined sales/purchase returns report.
+/// </summary>
+public record ReturnsReportDto(
+    string ReturnNo,
+    DateTime Date,
+    string Type,
+    string? PartyName,
+    string? ProductName,
+    decimal Quantity,
+    decimal Amount,
+    string? Reason,
+    string Status);
+
+/// <summary>
+/// Aging report — customer/supplier balance aging buckets.
+/// </summary>
+public record AgingReportDto(
+    string Name,
+    decimal TotalBalance,
+    decimal Current,
+    decimal Days1To30,
+    decimal Days31To60,
+    decimal Days61To90,
+    decimal Days90Plus,
+    decimal TotalDue);
+
+/// <summary>
+/// Working capital summary — current assets, liabilities, ratio.
+/// </summary>
+public record WorkingCapitalSummaryDto(
+    decimal CurrentAssets,
+    decimal CurrentLiabilities,
+    decimal WorkingCapital,
+    decimal CurrentRatio,
+    List<WorkingCapitalAccountDto> Accounts);
+
+/// <summary>
+/// A single account in the working capital breakdown.
+/// </summary>
+public record WorkingCapitalAccountDto(
+    string AccountName,
+    string AccountCode,
+    decimal Balance,
+    string Type);
+
+/// <summary>
+/// Account balance report line — all accounts with debit/credit/net.
+/// </summary>
+public record AccountBalanceReportDto(
+    string AccountCode,
+    string AccountName,
+    string AccountTypeDisplay,
+    int Level,
+    decimal DebitBalance,
+    decimal CreditBalance,
+    decimal NetBalance);

@@ -188,14 +188,12 @@ static class Program
                     services.AddScoped<BizInterfaces.IAccountCodeGeneratorService, BizServices.AccountCodeGeneratorService>();
                     services.AddScoped<BizInterfaces.IAccountLinkService, BizServices.AccountLinkService>();
                     services.AddScoped<BizInterfaces.IAccountService, BizServices.AccountService>();
-                    services.AddScoped<BizInterfaces.IAssemblyService, BizServices.AssemblyService>();
                     services.AddScoped<BizInterfaces.IAuditLogService, BizServices.AuditLogService>();
                     services.AddScoped<BizInterfaces.IBarcodeLookupService, BizServices.BarcodeLookupService>();
                     services.AddScoped<BizInterfaces.IBranchService, BizServices.BranchService>();
                     services.AddScoped<BizInterfaces.ICashBoxReportService, BizServices.CashBoxReportService>();
                     services.AddScoped<BizInterfaces.ICashBoxService, BizServices.CashBoxService>();
                     services.AddScoped<BizInterfaces.ICompanySettingsService, BizServices.CompanySettingsService>();
-                    services.AddScoped<BizInterfaces.ICustomerContactService, BizServices.CustomerContactService>();
                     services.AddScoped<BizInterfaces.ICustomerReceiptService, BizServices.CustomerReceiptService>();
                     services.AddScoped<BizInterfaces.ICustomerService, BizServices.CustomerService>();
                     services.AddScoped<BizInterfaces.IDocumentSequenceService, BizServices.DocumentSequenceService>();
@@ -205,7 +203,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IInventoryAdjustmentService, BizServices.InventoryAdjustmentService>();
                     services.AddScoped<BizInterfaces.IInventoryBatchService, BizServices.InventoryBatchService>();
                     services.AddScoped<BizInterfaces.IInventoryService, BizServices.InventoryService>();
-                    services.AddScoped<BizInterfaces.IMinStockAlertService, BizServices.MinStockAlertService>();
                     services.AddScoped<BizInterfaces.IPaymentVoucherService, BizServices.PaymentVoucherService>();
                     services.AddScoped<BizInterfaces.IPersonService, BizServices.PersonService>();
                     services.AddScoped<BizInterfaces.IProductCategoryService, BizServices.ProductCategoryService>();
@@ -223,7 +220,6 @@ static class Program
                     services.AddScoped<BizInterfaces.ISalesReturnService, BizServices.SalesReturnService>();
                     services.AddScoped<BizInterfaces.ISalesService, BizServices.SalesService>();
                     services.AddScoped<BizInterfaces.IStoreSettingsService, BizServices.StoreSettingsService>();
-                    services.AddScoped<BizInterfaces.ISupplierContactService, BizServices.SupplierContactService>();
                     services.AddScoped<BizInterfaces.ISupplierPaymentApplicationService, BizServices.SupplierPaymentApplicationService>();
                     services.AddScoped<BizInterfaces.ISupplierPaymentService, BizServices.SupplierPaymentService>();
                     services.AddScoped<BizInterfaces.ISupplierService, BizServices.SupplierService>();

@@ -46,13 +46,6 @@ public interface IUnitOfWork
     IGenericRepository<SupplierPaymentApplication> SupplierPaymentApplications { get; }
     IGenericRepository<CompanySettings> CompanySettings { get; }
 
-    // Customer/Supplier Contact repositories
-    IGenericRepository<CustomerContact> CustomerContacts { get; }
-    IGenericRepository<SupplierContact> SupplierContacts { get; }
-
-    // Bill of Materials (Assembly / BOM)
-    IGenericRepository<BillOfMaterials> BillOfMaterials { get; }
-
     // === New Inventory Module (v4.10+) ===
     IGenericRepository<InventoryTransaction> InventoryTransactions { get; }
     IGenericRepository<InventoryTransactionLine> InventoryTransactionLines { get; }
