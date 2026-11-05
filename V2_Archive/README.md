@@ -9,7 +9,7 @@ git checkout c135e5b -- <path>  # or e6d8323^ for the earlier V2-backend removal
 - Banks, Taxes, FiscalYears, AccountCategories, Notifications, Attachments, UserSessions
 - InventoryCounts, WarehouseTransfers
 - Phantom modules: Currency, CostCenter, PettyCash, PurchaseOrder, Quotation, TreasuryTransfer, CustomerPayment
-- Roles & Permissions (Role entity, IRoleService, frmRoleMaster, permission bitmasks) — single admin user only
+- Roles & Permissions (Role entity, IRoleService, frmRoleMaster) and the permission bitmask system (SalesPermissions/InventoryPermissions/AccountingPermissions/SystemPermissions enums, PermissionService, PermissionHelper, SessionManager.Has*Permission) — single admin user only
 - JWT auth (JwtTokenGenerator, IJwtTokenGenerator, JwtSettings) — desktop 2-tier, no HTTP tokens
 
 ## Removed settings screens (simplified to Backup/Restore only)

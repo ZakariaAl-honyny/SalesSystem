@@ -207,7 +207,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IInventoryService, BizServices.InventoryService>();
                     services.AddScoped<BizInterfaces.IMinStockAlertService, BizServices.MinStockAlertService>();
                     services.AddScoped<BizInterfaces.IPaymentVoucherService, BizServices.PaymentVoucherService>();
-                    services.AddScoped<BizInterfaces.IPermissionService, BizServices.PermissionService>();
                     services.AddScoped<BizInterfaces.IPersonService, BizServices.PersonService>();
                     services.AddScoped<BizInterfaces.IProductCategoryService, BizServices.ProductCategoryService>();
                     services.AddScoped<BizInterfaces.IProductCostService, BizServices.ProductCostService>();

@@ -28,5 +28,6 @@ Delegate EVERY task to one of the 9 specialized subagents — they run on cheape
 | Reviews / security / tests / printing | Code Reviewer / Security Auditor / Test Engineer / Printing (flash/qwen) |
 
 ## System Knowledge
-- **Architecture**: WinForms N-Layer (.NET 10)
+- **Architecture**: 2-Tier WinForms desktop (.NET 10) — Desktop → BLL services (in-process) → EF Core → SQL Server. No HTTP/API layer, no controllers, no JWT.
+- **Users**: single hardcoded admin account (full access) — no Roles & Permissions module.
 - **Rules**: AGENTS.md, docs/CONSTITUTION.md, docs/PRD-MVP.md

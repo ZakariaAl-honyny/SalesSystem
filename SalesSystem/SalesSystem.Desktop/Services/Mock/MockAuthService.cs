@@ -21,11 +21,7 @@ public class MockAuthService : IAuthService
             Token: "mock-token-0000000000000000",
             ExpiresAt: DateTime.UtcNow.AddHours(8),
             MustChangePassword: false,
-            IsPasswordless: false,
-            SalesPermissions: -1,
-            InventoryPermissions: -1,
-            AccountingPermissions: -1,
-            SystemPermissions: -1);
+            IsPasswordless: false);
 
         return Task.FromResult(Result<LoginResponse>.Success(response));
     }

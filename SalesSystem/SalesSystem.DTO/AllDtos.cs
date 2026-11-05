@@ -14,8 +14,7 @@ public record AuditLogDto(long Id, int? UserId, string? UserName, string Action,
     string? ChangedColumns, string? IpAddress, DateTime Timestamp);
 
 public record CurrentUserDto(int Id, string UserName,
-    short? BranchId, long SalesPermissions, long InventoryPermissions,
-    long AccountingPermissions, long SystemPermissions);
+    short? BranchId);
 
 public record ChangePasswordRequest(string CurrentPassword, string NewPassword, string ConfirmPassword);
 

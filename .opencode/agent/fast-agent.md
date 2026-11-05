@@ -17,8 +17,8 @@ You fix simple errors and clean code for the Sales Management System. You do NOT
 - Fix broken references between projects
 - Fix garbled Arabic strings (mojibake → correct UTF-8)
 - Wrap async void UI handlers in `try/catch` with `MessageBox.Show`
-- Fix `new frmXxx()` to resolve from DI via `ServiceHelper.GetService<T>()`
-- Ensure `[Authorize]` is on API controllers
+- Fix `new frmXxx()` to resolve from DI via `_serviceProvider.GetRequiredService<T>()`
+- Ensure the data path stays 2-tier: no `HttpClient`/HTTP/routes/JWT in Desktop code (forms call BLL via `Direct*Service`)
 
 ## What You Do NOT Do
 - Add new features or functionality

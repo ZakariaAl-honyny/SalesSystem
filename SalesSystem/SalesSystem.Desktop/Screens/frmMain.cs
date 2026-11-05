@@ -4,7 +4,6 @@ using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Products.Forms;
 using SalesSystem.Desktop.Controls.Users;
 using SalesSystem.Desktop.CustomerReceipts.Forms;
-using SalesSystem.Common.Enums.Permissions;
 
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Screens.Users.Forms;
@@ -72,6 +71,7 @@ public partial class frmMain : Form
         // (تحويل المخزون والجرد: أُزيلت شاشاتهما مع وحدة V2)
 
         // ── المبيعات ────────────────────────────────────────────────────────
+        msbtnCurrencySelection.Visible = false;     // MVP: محذوف (وحدة العملات الوهمية) — يبقى مخفياً
         msbtnSalesProfitBreakdown.Visible = false;  // MVP: مخفي (V2)
         msbtnSalesImportConvert.Visible = false;    // MVP: مخفي (V2)
         msbtnSalesSmartF3Lookup.Visible = false;    // MVP: مخفي (V2)
@@ -101,7 +101,7 @@ public partial class frmMain : Form
 
         // ── الإعدادات ───────────────────────────────────────────────────────
         // الإعدادات العامة وإعدادات الشركة أُزيلتا — تبقى شاشتا النسخ الاحتياطي والتحديث فقط
-        // (ظهور التحديث/النسخ الاحتياطي يحدده فحص الصلاحيات في frmMain_Load)
+        // (شاشتا النسخ الاحتياطي والتحديث مخفيتان في MVP — انظر msbtnUpdateCheck أدناه)
         msbtnSettings.Visible = false;
         msbtnCompanySettings.Visible = false;
         msbtnUpdateCheck.Visible = false; // V2
@@ -123,91 +123,7 @@ public partial class frmMain : Form
         if (MdiContainerPage != null)
             MdiContainerPage.BackColor = Color.WhiteSmoke;
 
-        // ── التحقق من صلاحيات المستخدم وإخفاء الأزرار غير المصرح بها ──────
-        try
-        {
-            // النظام (SystemPermissions)
-            msbtnManageUsers.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageUsers);
-            msbtnEmployees.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageUsers);
-            msbtnAuditLog.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
-            msbtnSystemLogs.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
-            msbtnDocumentSequences.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
-            // msbtnSettings / msbtnCompanySettings: removed — always hidden (see ApplyMvpMenuVisibility)
-            msbtnBackup.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageBackups);
-            msbtnUpdateCheck.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
-
-            // المبيعات (SalesPermissions)
-            msbtnManageSales.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ViewInvoices);
-            msbtnSalesInvoice.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesReturn.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateReturns);
-            msbtnCustomerReceipts.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ViewReceipts);
-            msbtnManagePayments.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ViewReceipts);
-            // المبيعات — نقطة البيع وأدوات الفاتورة
-            msbtnPOS.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnProductSelection.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnCustomerPicker.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnDiscountExpenses.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ManageDiscounts);
-            msbtnCurrencySelection.Visible = false; // MVP: محذوف (وحدة العملات الوهمية) — يبقى مخفياً
-            msbtnSalesProfitBreakdown.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnPOSHeldOrders.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesImportConvert.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnReceiptPrint.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesSmartF3Lookup.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesInputStrategies.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesContinuousScanner.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesTouchGrid.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesRapidBar.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-            msbtnSalesInlineGrid.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-
-            // العملاء (مرتبط بالمبيعات)
-            msbtnManageCustomers.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.ViewInvoices);
-            msbtnAddCustomer.Visible = SessionManager.HasSalesPermission((long)SalesPermissions.CreateInvoices);
-
-            // المخزون (InventoryPermissions)
-            msbtnManageProducts.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
-            msbtnAddProduct.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.CreateProducts);
-            msbtnProductPrices.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
-            msbtnProductUnits.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ManageUnits);
-            msbtnProductCategories.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ManageCategories);
-            msbtnManageCategories.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ManageCategories);
-            msbtnManageUnits.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ManageUnits);
-            msbtnManageWarehouses.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
-            msbtnInventoryMovement.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
-            msbtnInventory.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
-            msbtnInventoryAdjustments.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.AdjustStock);
-
-            // المشتريات (مرتبط بالمخزون)
-            msbtnManagePurchases.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
-            msbtnPurchases.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
-            msbtnPurchaseInvoice.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.CreateProducts);
-            msbtnPurchaseReturn.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.AdjustStock);
-            msbtnSupplierPayments.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
-
-            // الموردين (مرتبط بالمشتريات)
-            msbtnManageSuppliers.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
-            msbtnAddSupplier.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.CreateProducts);
-
-            // المحاسبة (AccountingPermissions)
-            msbtnChartOfAccounts.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewAccounts);
-            msbtnAccounting.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewAccounts);
-            msbtnJournalEntries.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewJournalEntries);
-            msbtnSystemAccountMappings.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ManageAccounts);
-            msbtnReceiptVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReceiptVouchers);
-            msbtnPaymentVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewPaymentVouchers);
-            msbtnCashBoxes.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
-            msbtnCashVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
-            msbtnExpenses.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewExpenses);
-
-            // التقارير
-            msbtnReports.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReports);
-            msbtnReportsDashboard.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReports);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("حدث خطأ أثناء التحقق من صلاحيات المستخدم", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        // MVP: إعادة تطبيق إخفاء شاشات V2 بعد منطق الصلاحيات (الصلاحيات تُظهر بعض العناصر المخفية)
+        // MVP: إخفاء شاشات V2 (يُطبَّق أيضاً في المنشئ — إبقاء العناصر المؤجلة مخفية بعد التحميل)
         ApplyMvpMenuVisibility();
 
         // Mock-mode visual indicator

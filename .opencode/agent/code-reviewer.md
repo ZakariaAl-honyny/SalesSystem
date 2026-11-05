@@ -21,14 +21,14 @@ You are a code quality reviewer for the Sales Management System (WinForms N-Laye
 
 ### Architecture
 - [ ] Service returns `Result<T>`?
-- [ ] Controller is THIN (no business logic)?
+- [ ] `Direct*Service` wrapper is thin (delegates to BLL, no business logic)?
 - [ ] All FKs use `DeleteBehavior.Restrict`?
-- [ ] `[Authorize]` on controller?
+- [ ] No HTTP/`HttpClient`/JWT anywhere in the data path (Desktop calls BLL in-process)?
 - [ ] No direct DB connections in Desktop project?
 
 ### WinForms UI
 - [ ] Uses `frm*` naming convention?
-- [ ] Forms resolved via DI (`ServiceHelper.GetService<T>()`) not `new frmXxx()`?
+- [ ] Forms resolved via DI (`_serviceProvider.GetRequiredService<T>()`) not `new frmXxx()`?
 - [ ] `async void` UI handlers wrapped in `try/catch`?
 - [ ] `MessageBox.Show` for feedback with Arabic text?
 - [ ] RTL layout enforced?

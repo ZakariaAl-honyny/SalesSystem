@@ -324,11 +324,7 @@ public partial class frmLogin : Form
         Token: "local-admin-session",
         ExpiresAt: DateTime.UtcNow.AddHours(8),
         MustChangePassword: false,
-        IsPasswordless: true,
-        SalesPermissions: -1,
-        InventoryPermissions: -1,
-        AccountingPermissions: -1,
-        SystemPermissions: -1);
+        IsPasswordless: true);
 
     // ── حالة التحميل ────────────────────────────────────────────────────────
 

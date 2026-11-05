@@ -228,15 +228,11 @@ public class UserService : IUserService
             if (user == null)
                 return Result<CurrentUserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
-            // Single-admin system: full access across all permission modules.
+            // Single-admin system: full access across all modules.
             return Result<CurrentUserDto>.Success(new CurrentUserDto(
                 Id: user.Id,
                 UserName: user.UserName,
-                BranchId: user.BranchId,
-                SalesPermissions: -1,
-                InventoryPermissions: -1,
-                AccountingPermissions: -1,
-                SystemPermissions: -1
+                BranchId: user.BranchId
             ));
         }
         catch (Exception ex)

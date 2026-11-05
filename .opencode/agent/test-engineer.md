@@ -13,7 +13,7 @@ You are the test automation specialist for the Sales Management System.
 
 ## Test Stack
 - **Unit Tests:** xUnit + Moq + FluentAssertions
-- **Integration Tests:** WebApplicationFactory
+- **Integration Tests:** EF Core against a throwaway/real SQL Server test database (no `WebApplicationFactory` — there is no HTTP/API host)
 - **Naming:** `MethodName_Scenario_ExpectedResult`
 
 ## Critical Test Areas
@@ -32,10 +32,11 @@ You are the test automation specialist for the Sales Management System.
 - Stock cannot go below 0
 - All stock changes create `InventoryTransaction` records
 
-### N-Layer Verification
-- Services return `Result<T>` or `Result.Failure`
-- Controllers map `Result.Failure` to correct HTTP status codes
-- FluentValidation runs on all API request models
+### Layering Verification
+- Services return `Result<T>` or `Result.Failure` — no exceptions escape a service
+- `Direct*Service` wrappers return the BLL's `Result<T>` unchanged (no rewrapped errors, no business logic)
+- Desktop forms call the BLL only through `I*ApiService` (`Direct*Service`/`Mock*ApiService`) — no `HttpClient`, no HTTP, no JWT
+- Single admin user — there is no Roles & Permissions behaviour to test
 
 Hooks: advance
 Logs: advance

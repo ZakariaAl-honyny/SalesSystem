@@ -189,7 +189,7 @@ Default schema: **`dbo`**
 
 ### 1.4 Roles ⛔ V2 DEFERRED
 
-> **MVP Decision**: Removed — single admin user has no role/permission system. The Role entity, its EF config, BLL service, DTOs, and the rmRoleMaster UI were deleted and archived in git history. Schema retained as V2 design reference.
+> **MVP Decision**: Removed — single admin user has no role/permission system. The Role entity, its EF config, BLL service, DTOs, and the `frmRoleMaster` UI were deleted and archived in git history. Schema retained as V2 design reference.
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -882,7 +882,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 - **Closed-period protection**: `FiscalYears.IsOpen` (§2.6) and planned `FiscalPeriods.IsClosed` (§4.13) block posting entries/vouchers dated inside a closed period.
 - **Cheques**: no standalone Cheques table in V1 — cheque attributes live on the voucher (`PaymentMethod=3`, `CheckNumber`, `BankName`, `DueDate`).
 - **Petty cash / employee advances**: no separate tables — petty-cash requests post as `Expenses` (§4.9) or PaymentVouchers; employee advances/custody use `SystemAccountKey.EmployeeCustody` (20) and employee AR accounts (analysis §6).
-- **Accounting permission flags** (analysis `lib/permissions.ts`): enforced at UI level (e.g. `ViewTrialBalance`); DB-side enforcement is via `User.PermissionsMask` (§1.4).
+- **Accounting permission flags** (analysis `lib/permissions.ts`): enforced at UI level (e.g. `ViewTrialBalance`); DB-side enforcement is not needed in MVP (single admin user has full access). Permission flags are a V2 concern (§1.4).
 
 ---
 
