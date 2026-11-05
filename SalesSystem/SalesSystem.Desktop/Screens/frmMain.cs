@@ -103,8 +103,10 @@ public partial class frmMain : Form
         msbtnDocumentSequences.Visible = false;     // MVP: مخفي (V2)
 
         // ── الإعدادات ───────────────────────────────────────────────────────
-        msbtnUpdateCheck.Visible = false;           // MVP: مخفي (V2)
-        // msbtnSettings / msbtnCompanySettings / msbtnBackup تبقى ظاهرة
+        // الإعدادات العامة وإعدادات الشركة أُزيلتا — تبقى شاشتا النسخ الاحتياطي والتحديث فقط
+        // (ظهور التحديث/النسخ الاحتياطي يحدده فحص الصلاحيات في frmMain_Load)
+        msbtnSettings.Visible = false;
+        msbtnCompanySettings.Visible = false;
     }
 
     private void frmMain_Load(object sender, EventArgs e)
@@ -134,8 +136,7 @@ public partial class frmMain : Form
             msbtnAuditLog.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
             msbtnSystemLogs.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
             msbtnDocumentSequences.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
-            msbtnSettings.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
-            msbtnCompanySettings.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
+            // msbtnSettings / msbtnCompanySettings: removed — always hidden (see ApplyMvpMenuVisibility)
             msbtnBackup.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageBackups);
             msbtnUpdateCheck.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
 
@@ -433,12 +434,18 @@ public partial class frmMain : Form
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReportsDashboard>());
 
     // ── الإعدادات (Settings) ──────────────────────────────────────────────────
+    // الإعدادات العامة وإعدادات الشركة أُزيلتا من الواجهة — المعالجات تبقى فارغة
+    // فقط لأنهما مرتبطتان في ملف الـ Designer.
 
     private void msbtnSettings_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSettings>());
+    {
+        // أُزيلت شاشة الإعدادات العامة (Settings فقط: نسخ احتياطي + تحديث)
+    }
 
     private void msbtnCompanySettings_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCompanySettings>());
+    {
+        // أُزيلت شاشة إعدادات الشركة
+    }
 
     private void msbtnUpdateCheck_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUpdateCheck>());

@@ -297,9 +297,7 @@ static class Program
                     // services.AddTransient<frmListSuppliers>();
                     services.AddTransient<frmInventoryList>();
                     services.AddTransient<frmListPayments>();
-                    services.AddTransient<frmSettings>();
-                    services.AddTransient<frmCompanySettings>();
-                    // services.AddTransient<frmUpdateCheck>(); // MVP: hidden (V2)
+                    services.AddTransient<frmUpdateCheck>();
                     services.AddTransient<frmReports>();
                     services.AddTransient<frmSalesReport>();
                     services.AddTransient<frmPurchasesReport>();

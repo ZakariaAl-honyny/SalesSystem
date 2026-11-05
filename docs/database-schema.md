@@ -4,7 +4,7 @@
 # MVP (V1): ~35 Active Tables | V2 Deferred: ~18 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
 
 > **MVP Scope**: Single shop, single user (Admin), single branch, single warehouse, single cash box.
-> Tables marked `⛔ V2 DEFERRED` are defined in the schema but **hidden from the UI**. They remain in the database for future upgrade compatibility.
+> Tables marked `⛔ V2 DEFERRED` were **removed from the MVP codebase** (their entities, migrations, services, and UI are deleted and archived in git history for a future V2). The schema below documents the full design; only the MVP Active tables are implemented.
 
 ---
 
@@ -301,6 +301,8 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
+> **MVP**: the settings UI is simplified — only Backup/Restore and Update Check are exposed; SystemSettings/CompanySettings are managed internally (e.g. AdminPin, default warehouse, company name/logo for printing).
+
 ### 2.4 SystemSettings
 | Column | Type | Notes |
 |--------|------|-------|
@@ -315,6 +317,8 @@ Default schema: **`dbo`**
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
+
+> **MVP**: the settings UI is simplified — only Backup/Restore and Update Check are exposed; SystemSettings/CompanySettings are managed internally (e.g. AdminPin, default warehouse, company name/logo for printing).
 
 ### 2.5 DocumentSequences
 | Column | Type | Notes |
@@ -1352,6 +1356,8 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | **MVP Total** | **~35** | 🔒 = hardcoded single instance in MVP |
 
 ## ⛔ V2 Deferred Tables (~18)
+
+> These tables are NOT implemented in the current MVP codebase — they were removed. Their schema is retained here as a design reference for V2.
 
 | Table | Module | Reason Deferred |
 |-------|--------|-----------------|
