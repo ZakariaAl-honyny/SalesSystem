@@ -2,7 +2,6 @@ using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Products.Forms;
-using SalesSystem.Desktop.Controls.Users;
 using SalesSystem.Desktop.CustomerReceipts.Forms;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -14,14 +13,11 @@ using SalesSystem.Desktop.Screens.Employees.Forms;
 using SalesSystem.Desktop.Screens.Products.Forms;
 using SalesSystem.Desktop.Screens.Purchases.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
-using SalesSystem.Desktop.Screens.PaymentVouchers.Forms;
 using SalesSystem.Desktop.Screens.Customers.Forms;
 using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
 using SalesSystem.Desktop.Screens.CashBoxes.Forms;
-using SalesSystem.Desktop.Screens.CashVouchers.Forms;
-using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
@@ -53,13 +49,10 @@ public partial class frmMain : Form
 
     /// <summary>
     /// MVP (محل واحد / مستخدم واحد / فرع واحد): إخفاء عناصر القوائم المؤجلة إلى V2.
-    /// لا يتم حذف أي عنصر — الإخفاء فقط، مع إبقاء المعالجات وكود الشاشات كما هو.
     /// </summary>
     private void ApplyMvpMenuVisibility()
     {
         // ── المنتجات ─────────────────────────────────────────────────────────
-        msbtnProductPrices.Visible = false;         // MVP: مخفي (V2)
-        msbtnProductUnits.Visible = false;          // MVP: مخفي (V2)
         msbtnProductCategories.Visible = false;     // MVP: مخفي (V2)
 
         // ── إضافة سريعة (أصبحت داخل شاشات الـ Master) ───────────────────────
@@ -67,37 +60,8 @@ public partial class frmMain : Form
         msbtnAddCustomer.Visible = false;           // MVP: مخفي — add handled inside Master form
         msbtnAddSupplier.Visible = false;           // MVP: مخفي — add handled inside Master form
 
-        // ── المخزون ─────────────────────────────────────────────────────────
-        // (تحويل المخزون والجرد: أُزيلت شاشاتهما مع وحدة V2)
-
         // ── المبيعات ────────────────────────────────────────────────────────
         msbtnCurrencySelection.Visible = false;     // MVP: محذوف (وحدة العملات الوهمية) — يبقى مخفياً
-        msbtnSalesProfitBreakdown.Visible = false;  // MVP: مخفي (V2)
-        msbtnSalesImportConvert.Visible = false;    // MVP: مخفي (V2)
-        msbtnSalesSmartF3Lookup.Visible = false;    // MVP: مخفي (V2)
-        msbtnSalesInputStrategies.Visible = false;  // MVP: مخفي (V2)
-        msbtnSalesContinuousScanner.Visible = false;// MVP: مخفي (V2)
-        msbtnSalesTouchGrid.Visible = false;        // MVP: مخفي (V2)
-        msbtnSalesRapidBar.Visible = false;         // MVP: مخفي (V2)
-        msbtnSalesInlineGrid.Visible = false;       // MVP: مخفي (V2)
-
-        // ── الخزينة ─────────────────────────────────────────────────────────
-        msbtnCashVouchers.Visible = false;          // MVP: مخفي (V2)
-        msbtnPaymentVouchers.Visible = false;       // MVP: مخفي (V2)
-
-        // ── حسابات (القائمة بالكامل — المحاسبة آلية في MVP) ──────────────────
-        msAccounting.Visible = false;               // MVP: مخفي (V2)
-        msbtnAccounting.Visible = false;            // MVP: مخفي (V2)
-        msbtnChartOfAccounts.Visible = false;       // MVP: مخفي (V2)
-        msbtnJournalEntries.Visible = false;        // MVP: مخفي (V2)
-        msbtnSystemAccountMappings.Visible = false; // MVP: مخفي (V2)
-        msbtnReceiptVouchers.Visible = false;       // MVP: مخفي (V2)
-
-        // ── بيانات ──────────────────────────────────────────────────────────
-        // msbtnManageUsers / msbtnEmployees تُدار الآن عبر شاشات Master
-        msbtnAuditLog.Visible = false;              // MVP: مخفي (V2)
-        msbtnSystemLogs.Visible = false;            // MVP: مخفي (V2)
-        msbtnDocumentSequences.Visible = false;     // MVP: مخفي (V2)
 
         // ── الإعدادات ───────────────────────────────────────────────────────
         // الإعدادات العامة وإعدادات الشركة أُزيلتا — تبقى شاشتا النسخ الاحتياطي والتحديث فقط
@@ -168,18 +132,6 @@ public partial class frmMain : Form
     private void msbtnManageUnits_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUnitMaster>());
 
-    private void msbtnProductPrices_Click(object sender, EventArgs e)
-    {
-        // TODO: product prices screen was removed — restore or repoint
-        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductPrices>());
-    }
-
-    private void msbtnProductUnits_Click(object sender, EventArgs e)
-    {
-        // TODO: product units screen was removed — restore or repoint
-        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductUnitsList>());
-    }
-
     private void msbtnProductCategories_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCategoryMaster>());
 
@@ -232,47 +184,9 @@ public partial class frmMain : Form
     private void msbtnPOS_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPOS>());
 
-    private void msbtnProductSelection_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<SalesSystem.Desktop.Screens.Sales.Forms.frmSmartProductSelection>().ShowDialog(this);
-
-    private void msbtnCustomerPicker_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmCustomerPicker>().ShowDialog(this);
-
-    private void msbtnDiscountExpenses_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmDiscountExpenses>().ShowDialog(this);
-
     private void msbtnCurrencySelection_Click(object sender, EventArgs e)
         => MessageBox.Show("وحدة العملات غير متوفرة في نسخة MVP الحالية؛ العملة الافتراضية هي الريال اليمني.",
             "العملات", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-    // ── المبيعات — أدوات الفاتورة الإضافية (جديد) ───────────────────────
-
-    private void msbtnSalesProfitBreakdown_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesProfitBreakdown>().ShowDialog(this);
-
-    private void msbtnPOSHeldOrders_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmPOSHeldOrders>().ShowDialog(this);
-
-    private void msbtnSalesImportConvert_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesImportConvert>().ShowDialog(this);
-
-    private void msbtnReceiptPrint_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmReceiptPrint>().ShowDialog(this);
-
-    private void msbtnSalesSmartF3Lookup_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesSmartF3Lookup>().ShowDialog(this);
-
-    private void msbtnSalesContinuousScanner_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesContinuousScanner>().ShowDialog(this);
-
-    private void msbtnSalesTouchGrid_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesTouchGrid>().ShowDialog(this);
-
-    private void msbtnSalesRapidBar_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesRapidBar>().ShowDialog(this);
-
-    private void msbtnSalesInlineGrid_Click(object sender, EventArgs e)
-        => _serviceProvider.GetRequiredService<frmSalesInlineGrid>().ShowDialog(this);
 
     // ── الخزينة (Treasury) ───────────────────────────────────────────────────
 
@@ -288,31 +202,8 @@ public partial class frmMain : Form
     private void msbtnCustomerReceipts_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListCustomerReceipts>());
 
-    private void msbtnPaymentVouchers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListPaymentVouchers>());
-
     private void msbtnSupplierPayments_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListSupplierPayments>());
-
-    private void msbtnCashVouchers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashVouchers>());
-
-    // ── حسابات (Accounting) ─────────────────────────────────────────────────
-
-    private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListAccounts>());
-
-    private void msbtnJournalEntries_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListJournalEntries>());
-
-    private void msbtnSystemAccountMappings_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSystemAccountMappings>());
-
-    private void msbtnReceiptVouchers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListReceiptVouchers>());
-
-    private void msbtnAccounting_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccounting>());
 
     // ── بيانات (Data / Users) ────────────────────────────────────────────────
 
@@ -321,15 +212,6 @@ public partial class frmMain : Form
 
     private void msbtnEmployees_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmEmployeeMaster>());
-
-    private void msbtnAuditLog_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAuditLog>());
-
-    private void msbtnSystemLogs_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSystemLogs>());
-
-    private void msbtnDocumentSequences_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDocumentSequences>());
 
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
 

@@ -485,59 +485,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.ToTable("AuditLogs", (string)null);
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.BillOfMaterials", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ComponentProductId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FinishedProductId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar");
-
-                    b.Property<decimal>("QuantityRequired")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<short?>("UnitId")
-                        .HasColumnType("smallint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ComponentProductId");
-
-                    b.HasIndex("UnitId");
-
-                    b.HasIndex("FinishedProductId", "ComponentProductId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_BillOfMaterials_FinishedProductId_ComponentProductId");
-
-                    b.ToTable("BillOfMaterials", (string)null);
-                });
-
             modelBuilder.Entity("SalesSystem.Models.Branch", b =>
                 {
                     b.Property<short>("Id")
@@ -755,64 +702,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasDatabaseName("IX_Customers_Phone");
 
                     b.ToTable("Customers", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.CustomerContact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Position")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .HasDatabaseName("IX_CustomerContacts_CustomerId");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("IX_CustomerContacts_Name");
-
-                    b.ToTable("CustomerContacts", (string)null);
                 });
 
             modelBuilder.Entity("SalesSystem.Models.CustomerReceipt", b =>
@@ -2333,64 +2222,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.ToTable("Suppliers", (string)null);
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.SupplierContact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Position")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("IX_SupplierContacts_Name");
-
-                    b.HasIndex("SupplierId")
-                        .HasDatabaseName("IX_SupplierContacts_SupplierId");
-
-                    b.ToTable("SupplierContacts", (string)null);
-                });
-
             modelBuilder.Entity("SalesSystem.Models.SupplierPayment", b =>
                 {
                     b.Property<int>("Id")
@@ -2940,32 +2771,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.BillOfMaterials", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Product", "ComponentProduct")
-                        .WithMany()
-                        .HasForeignKey("ComponentProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Product", "FinishedProduct")
-                        .WithMany()
-                        .HasForeignKey("FinishedProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ComponentProduct");
-
-                    b.Navigation("FinishedProduct");
-
-                    b.Navigation("Unit");
-                });
-
             modelBuilder.Entity("SalesSystem.Models.CashBox", b =>
                 {
                     b.HasOne("SalesSystem.Models.Accounting.Account", "Account")
@@ -3001,17 +2806,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.CustomerContact", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.CustomerReceipt", b =>
@@ -3509,17 +3303,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.SupplierContact", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.SupplierPayment", b =>

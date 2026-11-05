@@ -37,8 +37,6 @@
             msbtnAddSupplier = new ToolStripMenuItem();
             msbtnManageCategories = new ToolStripMenuItem();
             msbtnManageUnits = new ToolStripMenuItem();
-            msbtnProductPrices = new ToolStripMenuItem();
-            msbtnProductUnits = new ToolStripMenuItem();
             msbtnProductCategories = new ToolStripMenuItem();
             // ── المخزون ──────────────────────────────────────────────────────────────────────────────
             msStore = new ToolStripMenuItem();
@@ -61,20 +59,10 @@
             msbtnCashBoxes = new ToolStripMenuItem();
             msbtnExpenses = new ToolStripMenuItem();
             msbtnCustomerReceipts = new ToolStripMenuItem();
-            msbtnPaymentVouchers = new ToolStripMenuItem();
             msbtnSupplierPayments = new ToolStripMenuItem();
-            // ── حسابات ────────────────────────────────────────────────────────────────────────────────
-            msAccounting = new ToolStripMenuItem();
-            msbtnChartOfAccounts = new ToolStripMenuItem();
-            msbtnJournalEntries = new ToolStripMenuItem();
-            msbtnSystemAccountMappings = new ToolStripMenuItem();
-            msbtnReceiptVouchers = new ToolStripMenuItem();
             // ── بيانات ────────────────────────────────────────────────────────────────────────────────
             msData = new ToolStripMenuItem();
             msbtnManageUsers = new ToolStripMenuItem();
-            msbtnAuditLog = new ToolStripMenuItem();
-            msbtnSystemLogs = new ToolStripMenuItem();
-            msbtnDocumentSequences = new ToolStripMenuItem();
             // ── تقارير ────────────────────────────────────────────────────────────────────────────────
             msReport = new ToolStripMenuItem();
             msbtnReports = new ToolStripMenuItem();
@@ -93,28 +81,12 @@
             msbtnExit = new ToolStripMenuItem();
             // ── المبيعات — نقطة البيع وأدوات الفاتورة (جديد) ───────────────────────────────────────
             msbtnPOS = new ToolStripMenuItem();
-            msbtnProductSelection = new ToolStripMenuItem();
-            msbtnCustomerPicker = new ToolStripMenuItem();
-            msbtnDiscountExpenses = new ToolStripMenuItem();
             msbtnCurrencySelection = new ToolStripMenuItem();
-            // ── المبيعات — أدوات الفاتورة الإضافية (جديد) ────────────────────────────────────────
-            msbtnSalesProfitBreakdown = new ToolStripMenuItem();
-            msbtnPOSHeldOrders = new ToolStripMenuItem();
-            msbtnSalesImportConvert = new ToolStripMenuItem();
-            msbtnReceiptPrint = new ToolStripMenuItem();
-            msbtnSalesSmartF3Lookup = new ToolStripMenuItem();
-            msbtnSalesInputStrategies = new ToolStripMenuItem();
-            msbtnSalesContinuousScanner = new ToolStripMenuItem();
-            msbtnSalesTouchGrid = new ToolStripMenuItem();
-            msbtnSalesRapidBar = new ToolStripMenuItem();
-            msbtnSalesInlineGrid = new ToolStripMenuItem();
             // ── الموظفون (جديد) ────────────────────────────────────────────────────────────────────
             msbtnEmployees = new ToolStripMenuItem();
             // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
-            msbtnCashVouchers = new ToolStripMenuItem();
             msbtnPurchases = new ToolStripMenuItem();
             msbtnInventory = new ToolStripMenuItem();
-            msbtnAccounting = new ToolStripMenuItem();
             msbtnReportsDashboard = new ToolStripMenuItem();
 
             errorProvider1 = new ErrorProvider(components);
@@ -130,7 +102,7 @@
             msMainMenu.ImageScalingSize = new Size(24, 24);
             msMainMenu.Items.AddRange(new ToolStripItem[] {
                 msFile, msSale, msBuy, msBasis, msStore, msRevenue,
-                msAccounting, msData, msReport, msSettings, msAccoutSettings
+                msData, msReport, msSettings, msAccoutSettings
             });
             msMainMenu.Location = new Point(0, 0);
             msMainMenu.Name = "msMainMenu";
@@ -168,7 +140,7 @@
             msBasis.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnManageProducts, msbtnAddProduct,
                 new ToolStripSeparator(),
-                msbtnProductPrices, msbtnProductUnits, msbtnProductCategories
+                msbtnProductCategories
             });
             msBasis.Name = "msBasis";
             msBasis.Size = new Size(105, 33);
@@ -230,20 +202,6 @@
             msbtnManageUnits.Text = "الوحدات";
             msbtnManageUnits.Click += msbtnManageUnits_Click;
             // 
-            // msbtnProductPrices
-            // 
-            msbtnProductPrices.Name = "msbtnProductPrices";
-            msbtnProductPrices.Size = new Size(300, 38);
-            msbtnProductPrices.Text = "أسعار المنتجات";
-            msbtnProductPrices.Click += msbtnProductPrices_Click;
-            // 
-            // msbtnProductUnits
-            // 
-            msbtnProductUnits.Name = "msbtnProductUnits";
-            msbtnProductUnits.Size = new Size(300, 38);
-            msbtnProductUnits.Text = "وحدات المنتجات";
-            msbtnProductUnits.Click += msbtnProductUnits_Click;
-            // 
             // msbtnProductCategories
             // 
             msbtnProductCategories.Name = "msbtnProductCategories";
@@ -300,7 +258,7 @@
                 new ToolStripSeparator(),
                 msbtnManageSuppliers, msbtnAddSupplier,
                 new ToolStripSeparator(),
-                msbtnPaymentVouchers, msbtnSupplierPayments
+                msbtnSupplierPayments
             });
             msBuy.Name = "msBuy";
             msBuy.Size = new Size(115, 33);
@@ -341,10 +299,7 @@
                 new ToolStripSeparator(),
                 msbtnSalesInvoice, msbtnManageSales, msbtnSalesReturn,
                 new ToolStripSeparator(),
-                msbtnProductSelection, msbtnCustomerPicker, msbtnDiscountExpenses, msbtnCurrencySelection,
-                new ToolStripSeparator(),
-                msbtnSalesProfitBreakdown, msbtnPOSHeldOrders, msbtnSalesImportConvert,
-                msbtnReceiptPrint, msbtnSalesSmartF3Lookup, msbtnSalesInputStrategies,
+                msbtnCurrencySelection,
                 new ToolStripSeparator(),
                 msbtnManageCustomers, msbtnAddCustomer,
                 new ToolStripSeparator(),
@@ -382,27 +337,6 @@
             msbtnPOS.Text = "نقطة البيع";
             msbtnPOS.Click += msbtnPOS_Click;
             // 
-            // msbtnProductSelection
-            // 
-            msbtnProductSelection.Name = "msbtnProductSelection";
-            msbtnProductSelection.Size = new Size(300, 38);
-            msbtnProductSelection.Text = "اختيار منتج [F3]";
-            msbtnProductSelection.Click += msbtnProductSelection_Click;
-            // 
-            // msbtnCustomerPicker
-            // 
-            msbtnCustomerPicker.Name = "msbtnCustomerPicker";
-            msbtnCustomerPicker.Size = new Size(300, 38);
-            msbtnCustomerPicker.Text = "اختيار عميل";
-            msbtnCustomerPicker.Click += msbtnCustomerPicker_Click;
-            // 
-            // msbtnDiscountExpenses
-            // 
-            msbtnDiscountExpenses.Name = "msbtnDiscountExpenses";
-            msbtnDiscountExpenses.Size = new Size(300, 38);
-            msbtnDiscountExpenses.Text = "الخصم والمصروفات [F7]";
-            msbtnDiscountExpenses.Click += msbtnDiscountExpenses_Click;
-            // 
             // msbtnCurrencySelection
             // 
             msbtnCurrencySelection.Name = "msbtnCurrencySelection";
@@ -410,98 +344,14 @@
             msbtnCurrencySelection.Text = "العملة";
             msbtnCurrencySelection.Click += msbtnCurrencySelection_Click;
             // 
-            // msbtnSalesProfitBreakdown
-            // 
-            msbtnSalesProfitBreakdown.Name = "msbtnSalesProfitBreakdown";
-            msbtnSalesProfitBreakdown.Size = new Size(300, 38);
-            msbtnSalesProfitBreakdown.Text = "توزيع الأرباح";
-            msbtnSalesProfitBreakdown.Click += msbtnSalesProfitBreakdown_Click;
-            // 
-            // msbtnPOSHeldOrders
-            // 
-            msbtnPOSHeldOrders.Name = "msbtnPOSHeldOrders";
-            msbtnPOSHeldOrders.Size = new Size(300, 38);
-            msbtnPOSHeldOrders.Text = "الفواتير المعلقة [F4]";
-            msbtnPOSHeldOrders.Click += msbtnPOSHeldOrders_Click;
-            // 
-            // msbtnSalesImportConvert
-            // 
-            msbtnSalesImportConvert.Name = "msbtnSalesImportConvert";
-            msbtnSalesImportConvert.Size = new Size(300, 38);
-            msbtnSalesImportConvert.Text = "تحويل عرض سعر / تكرار فاتورة";
-            msbtnSalesImportConvert.Click += msbtnSalesImportConvert_Click;
-            // 
-            // msbtnReceiptPrint
-            // 
-            msbtnReceiptPrint.Name = "msbtnReceiptPrint";
-            msbtnReceiptPrint.Size = new Size(300, 38);
-            msbtnReceiptPrint.Text = "طباعة وصل مبيعات";
-            msbtnReceiptPrint.Click += msbtnReceiptPrint_Click;
-            // 
-            // msbtnSalesSmartF3Lookup
-            // 
-            msbtnSalesSmartF3Lookup.Name = "msbtnSalesSmartF3Lookup";
-            msbtnSalesSmartF3Lookup.Size = new Size(300, 38);
-            msbtnSalesSmartF3Lookup.Text = "البحث الذكي عن منتج";
-            msbtnSalesSmartF3Lookup.Click += msbtnSalesSmartF3Lookup_Click;
-            // 
-            // msbtnSalesInputStrategies
-            // 
-            msbtnSalesInputStrategies.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnSalesContinuousScanner,
-                msbtnSalesTouchGrid,
-                msbtnSalesRapidBar,
-                msbtnSalesInlineGrid
-            });
-            msbtnSalesInputStrategies.Name = "msbtnSalesInputStrategies";
-            msbtnSalesInputStrategies.Size = new Size(300, 38);
-            msbtnSalesInputStrategies.Text = "استراتيجيات الإدخال";
-            // 
-            // msbtnSalesContinuousScanner
-            // 
-            msbtnSalesContinuousScanner.Name = "msbtnSalesContinuousScanner";
-            msbtnSalesContinuousScanner.Size = new Size(300, 38);
-            msbtnSalesContinuousScanner.Text = "المسح المتواصل";
-            msbtnSalesContinuousScanner.Click += msbtnSalesContinuousScanner_Click;
-            // 
-            // msbtnSalesTouchGrid
-            // 
-            msbtnSalesTouchGrid.Name = "msbtnSalesTouchGrid";
-            msbtnSalesTouchGrid.Size = new Size(300, 38);
-            msbtnSalesTouchGrid.Text = "شبكة اللمس";
-            msbtnSalesTouchGrid.Click += msbtnSalesTouchGrid_Click;
-            // 
-            // msbtnSalesRapidBar
-            // 
-            msbtnSalesRapidBar.Name = "msbtnSalesRapidBar";
-            msbtnSalesRapidBar.Size = new Size(300, 38);
-            msbtnSalesRapidBar.Text = "شريط الإدخال السريع";
-            msbtnSalesRapidBar.Click += msbtnSalesRapidBar_Click;
-            // 
-            // msbtnSalesInlineGrid
-            // 
-            msbtnSalesInlineGrid.Name = "msbtnSalesInlineGrid";
-            msbtnSalesInlineGrid.Size = new Size(300, 38);
-            msbtnSalesInlineGrid.Text = "التعديل الداخلي";
-            msbtnSalesInlineGrid.Click += msbtnSalesInlineGrid_Click;
-            // 
             // msRevenue
             // 
             msRevenue.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnCashVouchers,
-                new ToolStripSeparator(),
                 msbtnCashBoxes, msbtnExpenses
             });
             msRevenue.Name = "msRevenue";
             msRevenue.Size = new Size(95, 33);
             msRevenue.Text = "الخزينة";
-            // 
-            // msbtnCashVouchers
-            // 
-            msbtnCashVouchers.Name = "msbtnCashVouchers";
-            msbtnCashVouchers.Size = new Size(300, 38);
-            msbtnCashVouchers.Text = "سندات القبض والصرف";
-            msbtnCashVouchers.Click += msbtnCashVouchers_Click;
             // 
             // msbtnManagePayments
             // 
@@ -531,13 +381,6 @@
             msbtnCustomerReceipts.Text = "سندات قبض العملاء";
             msbtnCustomerReceipts.Click += msbtnCustomerReceipts_Click;
             // 
-            // msbtnPaymentVouchers
-            // 
-            msbtnPaymentVouchers.Name = "msbtnPaymentVouchers";
-            msbtnPaymentVouchers.Size = new Size(300, 38);
-            msbtnPaymentVouchers.Text = "سندات صرف الموردين";
-            msbtnPaymentVouchers.Click += msbtnPaymentVouchers_Click;
-            // 
             // msbtnSupplierPayments
             // 
             msbtnSupplierPayments.Name = "msbtnSupplierPayments";
@@ -545,58 +388,10 @@
             msbtnSupplierPayments.Text = "سداد الموردين";
             msbtnSupplierPayments.Click += msbtnSupplierPayments_Click;
             // 
-            // msAccounting
-            // 
-            msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnAccounting,
-                new ToolStripSeparator(),
-                msbtnChartOfAccounts, msbtnJournalEntries,
-                msbtnSystemAccountMappings, msbtnReceiptVouchers
-            });
-            msAccounting.Name = "msAccounting";
-            msAccounting.Size = new Size(104, 33);
-            msAccounting.Text = "حسابات";
-            // 
-            // msbtnAccounting
-            // 
-            msbtnAccounting.Name = "msbtnAccounting";
-            msbtnAccounting.Size = new Size(300, 38);
-            msbtnAccounting.Text = "الحسابات";
-            msbtnAccounting.Click += msbtnAccounting_Click;
-            // 
-            // msbtnChartOfAccounts
-            // 
-            msbtnChartOfAccounts.Name = "msbtnChartOfAccounts";
-            msbtnChartOfAccounts.Size = new Size(300, 38);
-            msbtnChartOfAccounts.Text = "دليل الحسابات";
-            msbtnChartOfAccounts.Click += msbtnChartOfAccounts_Click;
-            // 
-            // msbtnJournalEntries
-            // 
-            msbtnJournalEntries.Name = "msbtnJournalEntries";
-            msbtnJournalEntries.Size = new Size(300, 38);
-            msbtnJournalEntries.Text = "القيود اليومية";
-            msbtnJournalEntries.Click += msbtnJournalEntries_Click;
-            // 
-            // msbtnSystemAccountMappings
-            // 
-            msbtnSystemAccountMappings.Name = "msbtnSystemAccountMappings";
-            msbtnSystemAccountMappings.Size = new Size(300, 38);
-            msbtnSystemAccountMappings.Text = "ربط الحسابات النظامية";
-            msbtnSystemAccountMappings.Click += msbtnSystemAccountMappings_Click;
-            // 
-            // msbtnReceiptVouchers
-            // 
-            msbtnReceiptVouchers.Name = "msbtnReceiptVouchers";
-            msbtnReceiptVouchers.Size = new Size(300, 38);
-            msbtnReceiptVouchers.Text = "سندات القبض";
-            msbtnReceiptVouchers.Click += msbtnReceiptVouchers_Click;
-            // 
             // msData
             // 
             msData.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnManageUsers, msbtnEmployees, msbtnAuditLog,
-                msbtnSystemLogs, msbtnDocumentSequences
+                msbtnManageUsers, msbtnEmployees
             });
             msData.Name = "msData";
             msData.Size = new Size(80, 33);
@@ -615,27 +410,6 @@
             msbtnEmployees.Size = new Size(300, 38);
             msbtnEmployees.Text = "الموظفون";
             msbtnEmployees.Click += msbtnEmployees_Click;
-            // 
-            // msbtnAuditLog
-            // 
-            msbtnAuditLog.Name = "msbtnAuditLog";
-            msbtnAuditLog.Size = new Size(300, 38);
-            msbtnAuditLog.Text = "سجل التدقيق";
-            msbtnAuditLog.Click += msbtnAuditLog_Click;
-            // 
-            // msbtnSystemLogs
-            // 
-            msbtnSystemLogs.Name = "msbtnSystemLogs";
-            msbtnSystemLogs.Size = new Size(300, 38);
-            msbtnSystemLogs.Text = "سجلات النظام";
-            msbtnSystemLogs.Click += msbtnSystemLogs_Click;
-            // 
-            // msbtnDocumentSequences
-            // 
-            msbtnDocumentSequences.Name = "msbtnDocumentSequences";
-            msbtnDocumentSequences.Size = new Size(300, 38);
-            msbtnDocumentSequences.Text = "تسلسل المستندات";
-            msbtnDocumentSequences.Click += msbtnDocumentSequences_Click;
             // 
             // msReport
             // 
@@ -756,20 +530,7 @@
         private ToolStripMenuItem msbtnChangePassword;
         private ToolStripMenuItem msbtnExit;
         private ToolStripMenuItem msbtnPOS;
-        private ToolStripMenuItem msbtnProductSelection;
-        private ToolStripMenuItem msbtnCustomerPicker;
-        private ToolStripMenuItem msbtnDiscountExpenses;
         private ToolStripMenuItem msbtnCurrencySelection;
-        private ToolStripMenuItem msbtnSalesProfitBreakdown;
-        private ToolStripMenuItem msbtnPOSHeldOrders;
-        private ToolStripMenuItem msbtnSalesImportConvert;
-        private ToolStripMenuItem msbtnReceiptPrint;
-        private ToolStripMenuItem msbtnSalesSmartF3Lookup;
-        private ToolStripMenuItem msbtnSalesInputStrategies;
-        private ToolStripMenuItem msbtnSalesContinuousScanner;
-        private ToolStripMenuItem msbtnSalesTouchGrid;
-        private ToolStripMenuItem msbtnSalesRapidBar;
-        private ToolStripMenuItem msbtnSalesInlineGrid;
         private ToolStripMenuItem msbtnEmployees;
         private ToolStripMenuItem msBasis;
         private ToolStripMenuItem msbtnManageProducts;
@@ -780,8 +541,6 @@
         private ToolStripMenuItem msbtnAddSupplier;
         private ToolStripMenuItem msbtnManageCategories;
         private ToolStripMenuItem msbtnManageUnits;
-        private ToolStripMenuItem msbtnProductPrices;
-        private ToolStripMenuItem msbtnProductUnits;
         private ToolStripMenuItem msbtnProductCategories;
         private ToolStripMenuItem msStore;
         private ToolStripMenuItem msbtnManageWarehouses;
@@ -800,25 +559,14 @@
         private ToolStripMenuItem msbtnCashBoxes;
         private ToolStripMenuItem msbtnExpenses;
         private ToolStripMenuItem msbtnCustomerReceipts;
-        private ToolStripMenuItem msbtnPaymentVouchers;
         private ToolStripMenuItem msbtnSupplierPayments;
-        private ToolStripMenuItem msAccounting;
-        private ToolStripMenuItem msbtnChartOfAccounts;
-        private ToolStripMenuItem msbtnJournalEntries;
-        private ToolStripMenuItem msbtnSystemAccountMappings;
-        private ToolStripMenuItem msbtnReceiptVouchers;
         private ToolStripMenuItem msData;
         private ToolStripMenuItem msbtnManageUsers;
-        private ToolStripMenuItem msbtnAuditLog;
-        private ToolStripMenuItem msbtnSystemLogs;
-        private ToolStripMenuItem msbtnDocumentSequences;
         private ToolStripMenuItem msReport;
         private ToolStripMenuItem msbtnReports;
         private ToolStripMenuItem msbtnReportsDashboard;
-        private ToolStripMenuItem msbtnCashVouchers;
         private ToolStripMenuItem msbtnPurchases;
         private ToolStripMenuItem msbtnInventory;
-        private ToolStripMenuItem msbtnAccounting;
         private ToolStripMenuItem msSettings;
         private ToolStripMenuItem msbtnSettings;
         private ToolStripMenuItem msbtnCompanySettings;
