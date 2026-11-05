@@ -24,7 +24,6 @@ public partial class frmLogin : Form
     private const int AdminUserId = 1;
     private const string AdminLoginName = "admin";
     private const string AdminDisplayName = "المدير";
-    private const string AdminRoleName = "مدير النظام";
 
     /// <summary>مفتاح إعداد النظام الذي يحمل رمز الدخول الرقمي في الوضع الحقيقي.</summary>
     private const string AdminPinKey = "AdminPin";
@@ -136,7 +135,7 @@ public partial class frmLogin : Form
             var result = await _authService.LoginAsync(new LoginRequest(AdminLoginName, string.Empty));
 
             var loginResponse = result.IsSuccess && result.Value is not null
-                ? result.Value with { UserName = AdminDisplayName, RoleName = AdminRoleName }
+                ? result.Value with { UserName = AdminDisplayName, IsAdmin = true }
                 : CreateAdminLoginResponse();
 
             CompleteSignIn(loginResponse);
@@ -300,7 +299,7 @@ public partial class frmLogin : Form
             UserId = loginResponse.UserId,
             UserName = loginResponse.UserName,
             FullName = loginResponse.FullName,
-            Role = (UserRole)loginResponse.RoleId,
+            Role = UserRole.Admin,
             Token = loginResponse.Token
         });
 
@@ -320,8 +319,7 @@ public partial class frmLogin : Form
     private static LoginResponse CreateAdminLoginResponse() => new(
         UserId: AdminUserId,
         UserName: AdminDisplayName,
-        RoleId: (short)UserRole.Admin,
-        RoleName: AdminRoleName,
+        IsAdmin: true,
         BranchId: null,
         Token: "local-admin-session",
         ExpiresAt: DateTime.UtcNow.AddHours(8),

@@ -15,7 +15,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.UserName).IsUnique();
         builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(256);
 
-        builder.Property(u => u.RoleId).IsRequired().HasColumnType("smallint");
         builder.Property(u => u.BranchId).IsRequired(false).HasColumnType("smallint");
 
         builder.Property(u => u.EmployeeId).IsRequired(false);
@@ -25,10 +24,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.LastLoginAt).IsRequired(false);
 
         builder.HasQueryFilter(u => u.IsActive);
-
-        builder.HasOne(u => u.Role)
-            .WithMany()
-            .HasForeignKey(u => u.RoleId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

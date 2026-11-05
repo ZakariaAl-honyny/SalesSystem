@@ -32,7 +32,7 @@ public class UserService : IUserService
 
     public async Task<Result<UserDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == id, ct, "Role");
+        var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
         if (user == null)
             return Result<UserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
@@ -45,7 +45,7 @@ public class UserService : IUserService
             return Result<UserDto>.Failure("اسم المستخدم مطلوب", ErrorCodes.ValidationError);
 
         var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(
-            u => u.UserName == userName, ct, "Role");
+            u => u.UserName == userName, ct);
         if (user == null)
             return Result<UserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
@@ -57,11 +57,11 @@ public class UserService : IUserService
         List<User> users;
         if (includeInactive)
         {
-            users = await _uow.Users.ToListIgnoreFiltersAsync(ct, "Role");
+            users = await _uow.Users.ToListIgnoreFiltersAsync(ct);
         }
         else
         {
-            users = await _uow.Users.ToListAsync(ct, "Role");
+            users = await _uow.Users.ToListAsync(ct);
         }
 
         var dtos = users.Select(MapToDto).OrderByDescending(x => x.Id).ToList();
@@ -84,11 +84,10 @@ public class UserService : IUserService
             string passwordToHash = string.IsNullOrWhiteSpace(request.Password) ? DefaultPassword : request.Password;
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(passwordToHash, workFactor: 12);
 
-            // 3. Create user with RoleId and BranchId directly
+            // 3. Create user with BranchId directly
             var user = User.CreateWithPassword(
                 request.UserName,
                 passwordHash,
-                roleId: request.RoleId,
                 branchId: request.BranchId,
                 employeeId: null,
                 createdByUserId: null,
@@ -98,8 +97,8 @@ public class UserService : IUserService
             await _uow.Users.AddAsync(user, ct);
             await _uow.SaveChangesAsync(ct);
 
-            _logger.LogInformation("Created new user: {UserName} (Id={UserId}, RoleId={RoleId})",
-                user.UserName, user.Id, user.RoleId);
+            _logger.LogInformation("Created new user: {UserName} (Id={UserId})",
+                user.UserName, user.Id);
 
             return Result<UserDto>.Success(MapToDto(user));
         }
@@ -118,13 +117,12 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct, "Role");
+            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
             if (user == null)
                 return Result<UserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
-            // Update role and branch directly
+            // Update branch directly
             user.Update(
-                roleId: request.RoleId,
                 branchId: request.BranchId,
                 employeeId: null,
                 updatedByUserId: null
@@ -152,8 +150,8 @@ public class UserService : IUserService
             }
 
             await _uow.SaveChangesAsync(ct);
-            _logger.LogInformation("Updated user: {UserName} (Id={UserId}, RoleId={RoleId})",
-                user.UserName, user.Id, user.RoleId);
+            _logger.LogInformation("Updated user: {UserName} (Id={UserId})",
+                user.UserName, user.Id);
 
             return Result<UserDto>.Success(MapToDto(user));
         }
@@ -175,18 +173,6 @@ public class UserService : IUserService
             var user = await _uow.Users.GetByIdAsync(id, ct);
             if (user == null)
                 return Result.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
-
-            // Check if user has the Admin role (RoleId=1)
-            if (user.RoleId == 1 && user.IsActive)
-            {
-                var activeAdminCount = await _uow.Users.CountAsync(
-                    u => u.RoleId == 1 && u.IsActive, ct);
-
-                if (activeAdminCount <= 1)
-                {
-                    return Result.Failure("لا يمكن تعطيل آخر مدير نشط في النظام", ErrorCodes.InvalidOperation);
-                }
-            }
 
             await _uow.Users.SoftDeleteAsync(id, ct);
             await _uow.SaveChangesAsync(ct);
@@ -238,20 +224,19 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == id, ct, "Role");
+            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
             if (user == null)
                 return Result<CurrentUserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
+            // Single-admin system: full access across all permission modules.
             return Result<CurrentUserDto>.Success(new CurrentUserDto(
                 Id: user.Id,
                 UserName: user.UserName,
-                RoleId: user.RoleId,
-                RoleName: user.Role?.Name,
                 BranchId: user.BranchId,
-                SalesPermissions: user.Role?.SalesPermissions ?? 0,
-                InventoryPermissions: user.Role?.InventoryPermissions ?? 0,
-                AccountingPermissions: user.Role?.AccountingPermissions ?? 0,
-                SystemPermissions: user.Role?.SystemPermissions ?? 0
+                SalesPermissions: -1,
+                InventoryPermissions: -1,
+                AccountingPermissions: -1,
+                SystemPermissions: -1
             ));
         }
         catch (Exception ex)
@@ -261,66 +246,11 @@ public class UserService : IUserService
         }
     }
 
-    // ─── Role Management ────────────────────────────
-
-    public async Task<Result<RoleDto>> GetUserRoleAsync(int userId, CancellationToken ct)
-    {
-        try
-        {
-            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(
-                u => u.Id == userId, ct, "Role");
-            if (user == null)
-                return Result<RoleDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
-
-            var role = user.Role;
-            if (role == null)
-                return Result<RoleDto>.Failure("لم يتم تعيين دور للمستخدم.");
-
-            var dto = new RoleDto(role.Id, role.Name, role.Description, role.IsActive, role.IsSystem,
-                role.SalesPermissions, role.InventoryPermissions,
-                role.AccountingPermissions, role.SystemPermissions);
-
-            return Result<RoleDto>.Success(dto);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting role for user {UserId}", userId);
-            return Result<RoleDto>.Failure("حدث خطأ أثناء جلب دور المستخدم.");
-        }
-    }
-
-    public async Task<Result> UpdateUserRoleAsync(int userId, short roleId, CancellationToken ct)
-    {
-        try
-        {
-            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == userId, ct);
-            if (user == null)
-                return Result.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
-
-            var role = await _uow.Roles.GetByIdAsync(roleId, ct);
-            if (role == null)
-                return Result.Failure("الدور غير موجود.", ErrorCodes.NotFound);
-
-            user.SetRoleId(roleId);
-            await _uow.SaveChangesAsync(ct);
-
-            _logger.LogInformation("Updated role for user {UserId} to RoleId={RoleId}", userId, roleId);
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating role for user {UserId}", userId);
-            return Result.Failure("حدث خطأ أثناء تحديث دور المستخدم.");
-        }
-    }
-
     private static UserDto MapToDto(User user)
     {
         return new UserDto(
             Id: user.Id,
             UserName: user.UserName,
-            RoleId: user.RoleId,
-            RoleName: user.Role?.Name,
             BranchId: user.BranchId,
             MustChangePassword: user.MustChangePassword,
             IsLocked: user.IsLocked,

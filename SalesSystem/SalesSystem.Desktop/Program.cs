@@ -17,7 +17,6 @@ using SalesSystem.Desktop.Suppliers;
 using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Printing.Core;
 using SalesSystem.Desktop.CustomerReceipts.Forms;
-using SalesSystem.Desktop.Screens.Roles.Forms;
 using SalesSystem.Desktop.Screens.Users.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
@@ -130,7 +129,6 @@ static class Program
                         services.AddTransient<IPurchaseInvoiceApiService, MockPurchaseInvoiceApiService>();
                         services.AddTransient<IPurchaseReturnApiService, MockPurchaseReturnApiService>();
                         services.AddTransient<IReceiptVoucherApiService, MockReceiptVoucherApiService>();
-                        services.AddTransient<IRoleApiService, MockRoleApiService>();
                         services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
                         services.AddTransient<ISalesReturnApiService, MockSalesReturnApiService>();
                         services.AddTransient<ISettingsApiService, MockSettingsApiService>();
@@ -157,7 +155,6 @@ static class Program
                         services.AddTransient<IPurchaseInvoiceApiService, DirectPurchaseInvoiceService>();
                         services.AddTransient<IPurchaseReturnApiService, DirectPurchaseReturnApiService>();
                         services.AddTransient<IReceiptVoucherApiService, DirectReceiptVoucherService>();
-                        services.AddTransient<IRoleApiService, DirectRoleService>();
                         services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
                         services.AddTransient<ISalesReturnApiService, DirectSalesReturnApiService>();
                         services.AddTransient<ISettingsApiService, DirectSettingsService>();
@@ -174,14 +171,9 @@ static class Program
                         options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
                     services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-                    var jwtSettings = context.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
-                                     ?? new JwtSettings();
-                    services.AddSingleton(jwtSettings);
-
                     // Infrastructure Services (implemented in DataAccess)
                     services.AddScoped<BizInterfaces.IBackupService, BackupService>();
                     services.AddScoped<BizInterfaces.IConnectionStringProtector, ConnectionStringProtector>();
-                    services.AddScoped<BizInterfaces.IJwtTokenGenerator, JwtTokenGenerator>();
                     services.AddSingleton<BizInterfaces.ILocalImageStorageService, LocalImageStorageService>();
                     services.AddScoped<BizInterfaces.ILogService, LogService>();
                     services.AddScoped<BizInterfaces.IReportExportService, ReportExportService>();
@@ -228,7 +220,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IPurchaseService, BizServices.PurchaseService>();
                     services.AddScoped<BizInterfaces.IReceiptVoucherService, BizServices.ReceiptVoucherService>();
                     services.AddScoped<BizInterfaces.IReportService, BizServices.ReportService>();
-                    services.AddScoped<BizInterfaces.IRoleService, BizServices.RoleService>();
                     services.AddScoped<BizInterfaces.ISalesReportService, BizServices.SalesReportService>();
                     services.AddScoped<BizInterfaces.ISalesReturnService, BizServices.SalesReturnService>();
                     services.AddScoped<BizInterfaces.ISalesService, BizServices.SalesService>();
@@ -318,7 +309,6 @@ static class Program
                     services.AddTransient<frmBackup>();
                     // Master forms — replace the removed frmList* / frmAddUpdate* screens
                     services.AddTransient<frmUserMaster>();
-                    services.AddTransient<frmRoleMaster>();
                     // services.AddTransient<frmAuditLog>(); // MVP: hidden (V2)
                     // services.AddTransient<frmSystemLogs>(); // MVP: hidden (V2)
                     // services.AddTransient<frmDocumentSequences>(); // MVP: hidden (V2)

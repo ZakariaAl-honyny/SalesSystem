@@ -1,4 +1,5 @@
-﻿using SalesSystem.DTO.Responses;
+﻿using SalesSystem.Common.Enums;
+using SalesSystem.DTO.Responses;
 
 namespace SalesSystem.Desktop.Services;
 
@@ -32,8 +33,15 @@ public static class SessionManager
     public static bool IsLoggedIn => _loginResponse is not null;
     public static int UserId => _loginResponse?.UserId ?? 0;
     public static string UserName => _loginResponse?.UserName ?? string.Empty;
-    public static short RoleId => _loginResponse?.RoleId ?? 0;
-    public static string? RoleName => _loginResponse?.RoleName;
+
+    /// <summary>
+    /// نسخة MVP: الجلسة دائماً مدير النظام (مستخدم واحد مُهيأ في الإعدادات).
+    /// </summary>
+    public static UserRole Role => UserRole.Admin;
+
+    /// <summary>نسخة MVP: الجلسة دائماً إدارية.</summary>
+    public static bool IsAdmin => true;
+
     public static short? BranchId => _loginResponse?.BranchId;
     public static string Token => _loginResponse?.Token ?? string.Empty;
     public static DateTime ExpiresAt => _loginResponse?.ExpiresAt ?? DateTime.MinValue;

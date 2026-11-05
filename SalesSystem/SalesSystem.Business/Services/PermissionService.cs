@@ -1,36 +1,27 @@
 ﻿using Microsoft.Extensions.Logging;
-using SalesSystem.Business.Interfaces;
 using SalesSystem.Business.Interfaces.Services;
-using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
-using SalesSystem.Models;
 
 namespace SalesSystem.Business.Services;
 
 /// <summary>
-/// Permission checking service using Role-based 4-category bitmasks.
-/// Permissions are stored across 4 fields on the Role entity:
-///   - SalesPermissions: Sales.View, Sales.Create, Sales.Edit, Sales.Delete, Sales.Cancel, Sales.Return, Sales.Print
-///   - InventoryPermissions: Purchases.*, Inventory.*, Warehouse.*, Products.*, Suppliers.*
-///   - AccountingPermissions: Reports.View, Accounting.*, Operations.*
-///   - SystemPermissions: System.*, Roles.*, Audit.*, Backup.*, FiscalYear.*, Currencies.*, Customers.*
-/// User permissions are determined by the user's assigned Role (User.RoleId -> Role).
-/// A field value of -1 = all permissions for that category (super admin for that module).
+/// Permission checking service for the single-admin system.
+/// There is no role entity — the only account is the Super Admin, which is granted
+/// full access (-1) across every permission module. All checks short-circuit to
+/// "allowed" without a database lookup.
 /// </summary>
 public class PermissionService : IPermissionService
 {
-    private readonly IUnitOfWork _uow;
     private readonly ILogger<PermissionService> _logger;
 
-    public PermissionService(IUnitOfWork uow, ILogger<PermissionService> logger)
+    public PermissionService(ILogger<PermissionService> logger)
     {
-        _uow = uow;
         _logger = logger;
     }
 
     // ═════════════════════════════════════════════════════════════════
-    //  Permission code → bit value mapping
-    //  These must stay in sync with the codes seeded in DbSeeder.
+    //  Permission code → bit value mapping (kept for the Desktop API
+    //  surface and for future multi-user work).
     // ═════════════════════════════════════════════════════════════════
 
     private static readonly Dictionary<string, long> PermissionCodeToBit = new()
@@ -104,250 +95,38 @@ public class PermissionService : IPermissionService
         ["Currencies.Manage"] = 1L << 45,  // 35184372088832
     };
 
-    private static readonly Dictionary<long, string> BitToPermissionCode;
-
-    static PermissionService()
-    {
-        BitToPermissionCode = PermissionCodeToBit
-            .GroupBy(kvp => kvp.Value)
-            .ToDictionary(g => g.Key, g => g.First().Key);
-    }
-
     // ═════════════════════════════════════════════════════════════════
-    //  Permission module routing
-    //  Maps each permission code to one of the 4 Role permission fields.
-    // ═════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// Determines which permission module (field on Role) a given code belongs to.
-    /// </summary>
-    private static string GetPermissionModule(string permissionCode) => permissionCode switch
-    {
-        "Sales.View" or "Sales.Create" or "Sales.Edit" or "Sales.Delete" or "Sales.Cancel" or "Sales.Return" or "Sales.Print" => "Sales",
-        "Customers.View" or "Customers.Create" or "Customers.Edit" or "Customers.Delete" => "System",
-        "Purchases.View" or "Purchases.Create" or "Purchases.Edit" or "Purchases.Cancel" or "Purchases.Print" or "Purchases.Return"
-            or "Inventory.View" or "Inventory.Transfer" or "Inventory.Adjust" or "Inventory.Count" or "Warehouse.Manage"
-            or "Products.View" or "Products.Create" or "Products.Edit" or "Products.Delete"
-            or "Suppliers.View" or "Suppliers.Create" or "Suppliers.Edit" or "Suppliers.Delete" => "Inventory",
-        "Reports.View" or "Accounting.View" or "Accounting.Manage"
-            or "Operations.Cashbox" or "Operations.Banking" or "Operations.Expenses" => "Accounting",
-        "System.Settings" or "System.Users" or "Roles.Manage" or "Audit.Log"
-            or "Backup.Manage" or "FiscalYear.Manage"
-            or "Currencies.View" or "Currencies.Manage" => "System",
-        _ => "System"
-    };
-
-    /// <summary>
-    /// Gets the appropriate permission bitmask field from the role for the given permission code.
-    /// </summary>
-    private static long GetRoleModuleMask(Role role, string permissionCode)
-    {
-        var module = GetPermissionModule(permissionCode);
-        return module switch
-        {
-            "Sales" => role.SalesPermissions,
-            "Inventory" => role.InventoryPermissions,
-            "Accounting" => role.AccountingPermissions,
-            "System" => role.SystemPermissions,
-            _ => 0L
-        };
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  Core permission check methods
+    //  Core permission check methods — single admin always has full access
     // ═════════════════════════════════════════════════════════════════
 
     /// <inheritdoc />
-    public async Task<bool> HasPermissionAsync(int userId, long requiredPermission, CancellationToken ct = default)
+    public Task<bool> HasPermissionAsync(int userId, long requiredPermission, CancellationToken ct = default)
     {
-        try
-        {
-            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == userId, ct, "Role");
-            if (user?.Role == null)
-                return false;
-
-            // Determine which module this permission bit belongs to by finding its code
-            var permissionCode = BitToPermissionCode.GetValueOrDefault(requiredPermission);
-            if (permissionCode == null)
-                return false;
-
-            var moduleMask = GetRoleModuleMask(user.Role, permissionCode);
-
-            // -1 = all permissions for this module (super admin for category)
-            if (moduleMask == -1)
-                return true;
-
-            return (moduleMask & requiredPermission) == requiredPermission;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to check permission mask {Mask} for user {UserId}", requiredPermission, userId);
-            return false;
-        }
+        return Task.FromResult(true);
     }
 
     /// <inheritdoc />
-    public async Task<long> GetPermissionsMaskAsync(int userId, CancellationToken ct = default)
+    public Task<long> GetPermissionsMaskAsync(int userId, CancellationToken ct = default)
     {
-        try
-        {
-            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == userId, ct, "Role");
-            if (user?.Role == null)
-                return 0;
-
-            // For backward compatibility: combine all 4 masks into one
-            return user.Role.SalesPermissions
-                 | user.Role.InventoryPermissions
-                 | user.Role.AccountingPermissions
-                 | user.Role.SystemPermissions;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get permissions mask for user {UserId}", userId);
-            return 0;
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  Role permission management
-    // ═════════════════════════════════════════════════════════════════
-
-    /// <inheritdoc />
-    public async Task<Result> SetRolePermissionsAsync(short roleId,
-        long? salesPermissions = null, long? inventoryPermissions = null,
-        long? accountingPermissions = null, long? systemPermissions = null,
-        CancellationToken ct = default)
-    {
-        try
-        {
-            var role = await _uow.Roles.FirstOrDefaultIgnoreFiltersAsync(r => r.Id == roleId, ct);
-            if (role is null)
-                return Result.Failure("الدور غير موجود", ErrorCodes.NotFound);
-
-            if (salesPermissions.HasValue) role.SetSalesPermissions(salesPermissions.Value);
-            if (inventoryPermissions.HasValue) role.SetInventoryPermissions(inventoryPermissions.Value);
-            if (accountingPermissions.HasValue) role.SetAccountingPermissions(accountingPermissions.Value);
-            if (systemPermissions.HasValue) role.SetSystemPermissions(systemPermissions.Value);
-
-            await _uow.SaveChangesAsync(ct);
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error setting role permissions for role {RoleId}", roleId);
-            return Result.Failure("حدث خطأ أثناء تحديث صلاحيات الدور.");
-        }
+        // -1 = all bits set (super admin).
+        return Task.FromResult(-1L);
     }
 
     /// <inheritdoc />
-    public async Task<Result<List<RoleDto>>> GetAllRoleMasksAsync(CancellationToken ct = default)
+    public Task<Result<List<string>>> GetUserPermissionsAsync(int userId, CancellationToken ct = default)
     {
-        try
-        {
-            var roles = await _uow.Roles.GetAllAsync(ct);
-            var dtos = roles.Select(r => new RoleDto(
-                r.Id, r.Name, r.Description, r.IsActive, r.IsSystem,
-                r.SalesPermissions, r.InventoryPermissions,
-                r.AccountingPermissions, r.SystemPermissions)).ToList();
-            return Result<List<RoleDto>>.Success(dtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting all role masks");
-            return Result<List<RoleDto>>.Failure("حدث خطأ أثناء جلب صلاحيات الأدوار.");
-        }
+        var all = PermissionCodeToBit.Keys.OrderBy(x => x).ToList();
+        return Task.FromResult(Result<List<string>>.Success(all));
     }
 
     /// <inheritdoc />
-    public async Task<Result> AssignRoleToUserAsync(int userId, short roleId, CancellationToken ct = default)
+    public Task<bool> UserHasPermissionAsync(int userId, string permissionName, CancellationToken ct = default)
     {
-        try
+        if (!PermissionCodeToBit.ContainsKey(permissionName))
         {
-            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
-            if (user == null)
-                return Result.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
-
-            var role = await _uow.Roles.FirstOrDefaultAsync(r => r.Id == roleId, ct);
-            if (role == null)
-                return Result.Failure("الدور غير موجود", ErrorCodes.NotFound);
-
-            // Set the user's RoleId directly (single-role model)
-            user.SetRoleId(roleId);
-            await _uow.SaveChangesAsync(ct);
-
-            _logger.LogInformation("Assigned role {RoleId} to user {UserId}", roleId, userId);
-            return Result.Success();
+            _logger.LogWarning("Unknown permission code: {Permission}", permissionName);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to assign role {RoleId} to user {UserId}", roleId, userId);
-            return Result.Failure("حدث خطأ أثناء تعيين الدور للمستخدم.");
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════
-    //  Permission code ↔ mask translation
-    // ═════════════════════════════════════════════════════════════════
-
-    /// <inheritdoc />
-    public async Task<Result<List<string>>> GetUserPermissionsAsync(int userId, CancellationToken ct = default)
-    {
-        try
-        {
-            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == userId, ct, "Role");
-            if (user?.Role == null)
-                return Result<List<string>>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
-
-            var role = user.Role;
-
-            // Walk through each known permission code and check the appropriate module mask
-            var granted = new List<string>();
-            foreach (var (code, bitValue) in PermissionCodeToBit)
-            {
-                var moduleMask = GetRoleModuleMask(role, code);
-
-                // -1 = all permissions (super admin for this module)
-                if (moduleMask == -1 || (moduleMask & bitValue) == bitValue)
-                    granted.Add(code);
-            }
-
-            return Result<List<string>>.Success(granted.OrderBy(x => x).ToList());
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get permissions for user {UserId}", userId);
-            return Result<List<string>>.Failure("حدث خطأ أثناء جلب صلاحيات المستخدم.");
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<bool> UserHasPermissionAsync(int userId, string permissionName, CancellationToken ct = default)
-    {
-        try
-        {
-            if (!PermissionCodeToBit.TryGetValue(permissionName, out var requiredBit))
-            {
-                _logger.LogWarning("Unknown permission code: {Permission}", permissionName);
-                return false;
-            }
-
-            var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == userId, ct, "Role");
-            if (user?.Role == null)
-                return false;
-
-            var moduleMask = GetRoleModuleMask(user.Role, permissionName);
-
-            // -1 = all permissions for this module
-            if (moduleMask == -1)
-                return true;
-
-            return (moduleMask & requiredBit) == requiredBit;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to check permission {Permission} for user {UserId}", permissionName, userId);
-            return false;
-        }
+        return Task.FromResult(true);
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -361,15 +140,6 @@ public class PermissionService : IPermissionService
     public static long GetPermissionBit(string permissionCode)
     {
         return PermissionCodeToBit.TryGetValue(permissionCode, out var bit) ? bit : 0;
-    }
-
-    /// <summary>
-    /// Gets the permission code string for a given bitmask value.
-    /// Returns null if the value does not correspond to a single known permission.
-    /// </summary>
-    public static string? GetPermissionCode(long bitValue)
-    {
-        return BitToPermissionCode.TryGetValue(bitValue, out var code) ? code : null;
     }
 
     /// <summary>

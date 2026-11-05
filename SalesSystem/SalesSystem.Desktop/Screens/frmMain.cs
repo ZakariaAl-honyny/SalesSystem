@@ -7,7 +7,6 @@ using SalesSystem.Desktop.CustomerReceipts.Forms;
 using SalesSystem.Common.Enums.Permissions;
 
 using Microsoft.Extensions.DependencyInjection;
-using SalesSystem.Desktop.Screens.Roles.Forms;
 using SalesSystem.Desktop.Screens.Users.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
@@ -95,8 +94,7 @@ public partial class frmMain : Form
         msbtnReceiptVouchers.Visible = false;       // MVP: مخفي (V2)
 
         // ── بيانات ──────────────────────────────────────────────────────────
-        // msbtnManageUsers / msbtnRoles / msbtnEmployees تُدار الآن عبر شاشات Master
-        msbtnPermissions.Visible = false;           // MVP: مخفي (V2)
+        // msbtnManageUsers / msbtnEmployees تُدار الآن عبر شاشات Master
         msbtnAuditLog.Visible = false;              // MVP: مخفي (V2)
         msbtnSystemLogs.Visible = false;            // MVP: مخفي (V2)
         msbtnDocumentSequences.Visible = false;     // MVP: مخفي (V2)
@@ -130,9 +128,7 @@ public partial class frmMain : Form
         {
             // النظام (SystemPermissions)
             msbtnManageUsers.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageUsers);
-            msbtnRoles.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageRoles);
             msbtnEmployees.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageUsers);
-            msbtnPermissions.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageRoles);
             msbtnAuditLog.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
             msbtnSystemLogs.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
             msbtnDocumentSequences.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
@@ -407,14 +403,8 @@ public partial class frmMain : Form
     private void msbtnManageUsers_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUserMaster>());
 
-    private void msbtnRoles_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmRoleMaster>());
-
     private void msbtnEmployees_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmEmployeeMaster>());
-
-    private void msbtnPermissions_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmRoleMaster>());
 
     private void msbtnAuditLog_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAuditLog>());

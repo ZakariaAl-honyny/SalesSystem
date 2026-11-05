@@ -34,7 +34,6 @@ public interface IUnitOfWork
     IGenericRepository<PaymentVoucher> PaymentVouchers { get; }
     IGenericRepository<InventoryBatch> InventoryBatches { get; }
     IGenericRepository<ProductPrice> ProductPrices { get; }
-    IGenericRepository<Role> Roles { get; }
     IAuditLogRepository AuditLogs { get; }
     // New entity repositories (v4.7+)
     IGenericRepository<Branch> Branches { get; }

@@ -1,7 +1,7 @@
 # Database Schema Design
 # Sales Management System — v5.0.0 (WinForms N-Layer)
 # Platform: SQL Server 2019+
-# MVP (V1): ~35 Active Tables | V2 Deferred: ~18 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
+# MVP (V1): ~35 Active Tables | V2 Deferred: ~19 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
 
 > **MVP Scope**: Single shop, single user (Admin), single branch, single warehouse, single cash box.
 > Tables marked `⛔ V2 DEFERRED` were **removed from the MVP codebase** (their entities, migrations, services, and UI are deleted and archived in git history for a future V2). The schema below documents the full design; only the MVP Active tables are implemented.
@@ -24,7 +24,7 @@ Five base classes control column inheritance:
 ---
 
 ## Module 1: Core & Security
-Includes: `Customers`, `Suppliers`, `Users`, `Roles`, `Permissions`, `RolePermissions`, `SystemLogs`, `AuditLogs`, `Branches`
+Includes: `Customers`, `Suppliers`, `Users`, `SystemLogs`, `AuditLogs`, `Branches`
 
 ## Module 2: Products & Inventory
 Includes: `Categories`, `Products`, `Units`, `ProductUnits`, `UnitBarcodes`, `ProductPrices`
@@ -172,7 +172,6 @@ Default schema: **`dbo`**
 | `Id` | int PK | |
 | `UserName` | nvarchar(50) not null | unique |
 | `PasswordHash` | nvarchar(max) not null | |
-| `RoleId` | smallint not null FK → Roles(Id) | Dynamic RBAC (Role-Based Access Control) |
 | `EmployeeId` | int null FK → Employees(Id) | Optional link to employee card |
 | `BranchId` | smallint null FK → Branches(Id) | null = all branches |
 | `MustChangePassword` | bit not null default 0 | |
@@ -186,7 +185,12 @@ Default schema: **`dbo`**
 | `UpdatedAt` | datetime2 null | |
 | **Index** | `UNIQUE(UserName)` | |
 
-### 1.4 Roles
+> **MVP Decision**: single hardcoded admin user — **no roles & permissions**. The Roles table and Users.RoleId FK were removed from the MVP codebase (see ⛔ V2 below). The UserRole enum remains in SalesSystem.Common.Enums and the admin session always carries full permissions (-1).
+
+### 1.4 Roles ⛔ V2 DEFERRED
+
+> **MVP Decision**: Removed — single admin user has no role/permission system. The Role entity, its EF config, BLL service, DTOs, and the rmRoleMaster UI were deleted and archived in git history. Schema retained as V2 design reference.
+
 | Column | Type | Notes |
 |--------|------|-------|
 | `Id` | **smallint** PK | |
@@ -1345,7 +1349,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 
 | Module | Count | Tables (Active in MVP) |
 |--------|-------|------------------------|
-| 1. Core & Security | 3 | Customers, Suppliers, Users, Roles |
+| 1. Core & Security | 3 | Customers, Suppliers, Users |
 | 2. Organization & Settings | 4 | Warehouses🔒, CompanySettings, SystemSettings, DocumentSequences, Branches🔒 |
 | 3. Products | 4 | ProductCategories, Products, Units, ProductUnits |
 | 4. Accounting | 8 | Accounts, CashBoxes🔒, JournalEntries, JournalEntryLines, ReceiptVouchers, PaymentVouchers, Expenses, SystemAccountMappings |
@@ -1362,6 +1366,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | Table | Module | Reason Deferred |
 |-------|--------|-----------------|
 | UserSessions | Core | Single user — no session tracking |
+| Roles | Core | Single admin user — no roles & permissions |
 | FiscalYears | Settings | Not needed for MVP |
 | Notifications | Settings | Single user — no multi-user notifications |
 | Attachments | Settings | Not essential for MVP |
@@ -1380,7 +1385,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | CurrencyRates | V2 | Multi-currency not needed |
 | SalesQuotations | V2 | Quotations deferred |
 | SalesQuotationItems | V2 | Deferred with SalesQuotations |
-| **V2 Total** | **~18** | |
+| **V2 Total** | **~19** | |
 
 ---
 

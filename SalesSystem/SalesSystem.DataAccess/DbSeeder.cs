@@ -137,137 +137,6 @@ public static class DbSeeder
             logger?.LogInformation("Seeded Store settings into SystemSettings.");
         }
 
-        if (!await db.Set<Role>().AnyAsync())
-        {
-            var adminRole = Role.Create("مدير النظام", "Administrator - كامل الصلاحيات",
-                salesPermissions: (long)SalesPermissions.All,
-                inventoryPermissions: (long)InventoryPermissions.All,
-                accountingPermissions: (long)AccountingPermissions.All,
-                systemPermissions: (long)SystemPermissions.All,
-                isSystem: true);
-
-            var managerRole = Role.Create("مدير", "Manager - صلاحيات إدارية",
-                salesPermissions: (long)(SalesPermissions.All),
-                inventoryPermissions: (long)(InventoryPermissions.All),
-                accountingPermissions: (long)(AccountingPermissions.All),
-                systemPermissions: (long)(SystemPermissions.ManageSettings | SystemPermissions.ViewAuditLogs | SystemPermissions.ManageBranches | SystemPermissions.ManageBackups | SystemPermissions.ManageFiscalYears | SystemPermissions.ManageTaxes),
-                isSystem: true);
-
-            var accountantRole = Role.Create("محاسب", "Accountant - صلاحيات محاسبية",
-                salesPermissions: (long)(SalesPermissions.ViewInvoices | SalesPermissions.ViewReturns | SalesPermissions.ViewReceipts),
-                inventoryPermissions: (long)(InventoryPermissions.ViewProducts | InventoryPermissions.ViewStock | InventoryPermissions.ViewBatches),
-                accountingPermissions: (long)(AccountingPermissions.ViewJournalEntries | AccountingPermissions.CreateJournalEntries | AccountingPermissions.ViewAccounts | AccountingPermissions.ManageAccounts | AccountingPermissions.ViewCashBoxes | AccountingPermissions.ManageCashBoxes | AccountingPermissions.ViewExpenses | AccountingPermissions.ViewReceiptVouchers | AccountingPermissions.ViewPaymentVouchers | AccountingPermissions.ViewReports),
-                systemPermissions: (long)(SystemPermissions.ViewAuditLogs),
-                isSystem: true);
-
-            var treasurerRole = Role.Create("أمين صندوق", "Treasurer - صلاحيات الصندوق",
-                salesPermissions: (long)(SalesPermissions.ViewInvoices | SalesPermissions.ViewReceipts | SalesPermissions.CreateReceipts),
-                inventoryPermissions: 0L,
-                accountingPermissions: (long)(AccountingPermissions.ViewCashBoxes | AccountingPermissions.ViewReceiptVouchers | AccountingPermissions.CreateReceiptVouchers | AccountingPermissions.ViewPaymentVouchers),
-                systemPermissions: 0L,
-                isSystem: true);
-
-            var cashierRole = Role.Create("كاشير", "Cashier - صلاحيات مبيعات محدودة",
-                salesPermissions: (long)(SalesPermissions.ViewInvoices | SalesPermissions.CreateInvoices | SalesPermissions.CancelInvoices | SalesPermissions.PrintInvoices | SalesPermissions.ViewReturns | SalesPermissions.CreateReturns | SalesPermissions.ViewReceipts | SalesPermissions.CreateReceipts | SalesPermissions.ManageDiscounts),
-                inventoryPermissions: (long)(InventoryPermissions.ViewProducts),
-                accountingPermissions: (long)(AccountingPermissions.ViewCashBoxes),
-                systemPermissions: 0L,
-                isSystem: true);
-
-            var warehouseRole = Role.Create("مشرف مخازن", "Warehouse Supervisor - صلاحيات المخازن",
-                salesPermissions: (long)(SalesPermissions.ViewInvoices),
-                inventoryPermissions: (long)(InventoryPermissions.ViewProducts | InventoryPermissions.CreateProducts | InventoryPermissions.EditProducts | InventoryPermissions.ViewStock | InventoryPermissions.AdjustStock | InventoryPermissions.TransferStock | InventoryPermissions.CountStock | InventoryPermissions.ViewBatches | InventoryPermissions.ManageCategories | InventoryPermissions.ManageUnits),
-                accountingPermissions: 0L,
-                systemPermissions: 0L,
-                isSystem: true);
-
-            var salesEmployeeRole = Role.Create("مندوب مبيعات", "Sales Employee - صلاحيات بيع محدودة",
-                salesPermissions: (long)(SalesPermissions.ViewInvoices | SalesPermissions.CreateInvoices | SalesPermissions.ViewReturns | SalesPermissions.CreateReturns | SalesPermissions.ViewReceipts | SalesPermissions.CreateReceipts | SalesPermissions.ManageDiscounts | SalesPermissions.PrintInvoices),
-                inventoryPermissions: (long)(InventoryPermissions.ViewProducts | InventoryPermissions.ViewStock),
-                accountingPermissions: 0L,
-                systemPermissions: 0L,
-                isSystem: true);
-
-            var observerRole = Role.Create("مراقب", "Observer - صلاحيات مشاهدة فقط",
-                salesPermissions: (long)(SalesPermissions.ViewInvoices | SalesPermissions.ViewReturns | SalesPermissions.ViewReceipts),
-                inventoryPermissions: (long)(InventoryPermissions.ViewProducts | InventoryPermissions.ViewStock),
-                accountingPermissions: (long)(AccountingPermissions.ViewJournalEntries | AccountingPermissions.ViewAccounts | AccountingPermissions.ViewCashBoxes | AccountingPermissions.ViewExpenses | AccountingPermissions.ViewReports),
-                systemPermissions: (long)(SystemPermissions.ViewAuditLogs),
-                isSystem: true);
-
-            var branchManagerRole = Role.Create("مدير فرع", "Branch Manager - صلاحيات محدودة بفرع محدد",
-                salesPermissions: (long)(SalesPermissions.All & ~SalesPermissions.DeleteInvoices),
-                inventoryPermissions: (long)(InventoryPermissions.ViewProducts | InventoryPermissions.CreateProducts | InventoryPermissions.EditProducts | InventoryPermissions.ViewStock | InventoryPermissions.AdjustStock | InventoryPermissions.TransferStock | InventoryPermissions.CountStock | InventoryPermissions.ViewBatches),
-                accountingPermissions: (long)(AccountingPermissions.ViewJournalEntries | AccountingPermissions.ViewAccounts | AccountingPermissions.ViewCashBoxes | AccountingPermissions.ViewExpenses | AccountingPermissions.ViewReceiptVouchers | AccountingPermissions.ViewPaymentVouchers | AccountingPermissions.ViewReports),
-                systemPermissions: (long)(SystemPermissions.ViewAuditLogs),
-                isSystem: true);
-
-            db.Set<Role>().AddRange(adminRole, managerRole, accountantRole, treasurerRole,
-                cashierRole, warehouseRole, salesEmployeeRole, observerRole, branchManagerRole);
-            await db.SaveChangesAsync();
-            logger?.LogInformation("Seeded 9 roles with per-module permission bitmasks.");
-        }
-
-        // Fix existing roles that have zero permissions (post-migration fix)
-        // Migration renamed old PermissionsMask → SystemPermissions, but new columns default to 0.
-        var zeroPermRoles = await db.Set<Role>()
-            .Where(r => r.SalesPermissions == 0 && r.InventoryPermissions == 0
-                     && r.AccountingPermissions == 0 && r.Name != null)
-            .ToListAsync();
-        foreach (var role in zeroPermRoles)
-        {
-            switch (role.Name)
-            {
-                case "مدير النظام":
-                    role.SetSalesPermissions((long)SalesPermissions.All);
-                    role.SetInventoryPermissions((long)InventoryPermissions.All);
-                    role.SetAccountingPermissions((long)AccountingPermissions.All);
-                    break;
-                case "مدير":
-                    role.SetSalesPermissions((long)SalesPermissions.All);
-                    role.SetInventoryPermissions((long)InventoryPermissions.All);
-                    role.SetAccountingPermissions((long)AccountingPermissions.All);
-                    break;
-                case "محاسب":
-                    role.SetSalesPermissions((long)(SalesPermissions.ViewInvoices | SalesPermissions.ViewReturns | SalesPermissions.ViewReceipts));
-                    role.SetInventoryPermissions((long)(InventoryPermissions.ViewProducts | InventoryPermissions.ViewStock | InventoryPermissions.ViewBatches));
-                    role.SetAccountingPermissions((long)(AccountingPermissions.All));
-                    break;
-                case "أمين صندوق":
-                    role.SetSalesPermissions((long)(SalesPermissions.ViewInvoices | SalesPermissions.ViewReceipts | SalesPermissions.CreateReceipts));
-                    role.SetAccountingPermissions((long)(AccountingPermissions.ViewCashBoxes | AccountingPermissions.ViewReceiptVouchers | AccountingPermissions.CreateReceiptVouchers | AccountingPermissions.ViewPaymentVouchers));
-                    break;
-                case "كاشير":
-                    role.SetSalesPermissions((long)(SalesPermissions.ViewInvoices | SalesPermissions.CreateInvoices | SalesPermissions.CancelInvoices | SalesPermissions.PrintInvoices | SalesPermissions.ViewReturns | SalesPermissions.CreateReturns | SalesPermissions.ViewReceipts | SalesPermissions.CreateReceipts | SalesPermissions.ManageDiscounts));
-                    role.SetInventoryPermissions((long)(InventoryPermissions.ViewProducts));
-                    role.SetAccountingPermissions((long)(AccountingPermissions.ViewCashBoxes));
-                    break;
-                case "مشرف مخازن":
-                    role.SetSalesPermissions((long)(SalesPermissions.ViewInvoices));
-                    role.SetInventoryPermissions((long)(InventoryPermissions.ViewProducts | InventoryPermissions.CreateProducts | InventoryPermissions.EditProducts | InventoryPermissions.ViewStock | InventoryPermissions.AdjustStock | InventoryPermissions.TransferStock | InventoryPermissions.CountStock | InventoryPermissions.ViewBatches | InventoryPermissions.ManageCategories | InventoryPermissions.ManageUnits));
-                    break;
-                case "مندوب مبيعات":
-                    role.SetSalesPermissions((long)(SalesPermissions.ViewInvoices | SalesPermissions.CreateInvoices | SalesPermissions.ViewReturns | SalesPermissions.CreateReturns | SalesPermissions.ViewReceipts | SalesPermissions.CreateReceipts | SalesPermissions.ManageDiscounts | SalesPermissions.PrintInvoices));
-                    role.SetInventoryPermissions((long)(InventoryPermissions.ViewProducts | InventoryPermissions.ViewStock));
-                    break;
-                case "مراقب":
-                    role.SetSalesPermissions((long)(SalesPermissions.ViewInvoices | SalesPermissions.ViewReturns | SalesPermissions.ViewReceipts));
-                    role.SetInventoryPermissions((long)(InventoryPermissions.ViewProducts | InventoryPermissions.ViewStock));
-                    role.SetAccountingPermissions((long)(AccountingPermissions.ViewJournalEntries | AccountingPermissions.ViewAccounts | AccountingPermissions.ViewCashBoxes | AccountingPermissions.ViewExpenses | AccountingPermissions.ViewReports));
-                    break;
-                case "مدير فرع":
-                    role.SetSalesPermissions((long)(SalesPermissions.All & ~SalesPermissions.DeleteInvoices));
-                    role.SetInventoryPermissions((long)(InventoryPermissions.ViewProducts | InventoryPermissions.CreateProducts | InventoryPermissions.EditProducts | InventoryPermissions.ViewStock | InventoryPermissions.AdjustStock | InventoryPermissions.TransferStock | InventoryPermissions.CountStock | InventoryPermissions.ViewBatches));
-                    role.SetAccountingPermissions((long)(AccountingPermissions.ViewJournalEntries | AccountingPermissions.ViewAccounts | AccountingPermissions.ViewCashBoxes | AccountingPermissions.ViewExpenses | AccountingPermissions.ViewReceiptVouchers | AccountingPermissions.ViewPaymentVouchers | AccountingPermissions.ViewReports));
-                    break;
-            }
-        }
-        if (zeroPermRoles.Count > 0)
-        {
-            await db.SaveChangesAsync();
-            logger?.LogInformation("Fixed {Count} existing roles with zero permissions (post-migration).", zeroPermRoles.Count);
-        }
-
         // ─── Default CashBox (linked to Chart of Accounts) ────────
         if (!await db.CashBoxes.AnyAsync())
         {
@@ -335,14 +204,10 @@ public static class DbSeeder
             return;
         }
 
-        var adminRoleEntity = await db.Set<Role>().FirstAsync(r => r.Name == "مدير النظام");
-        short adminRoleId = adminRoleEntity.Id;
-
         string adminPasswordHash = BCrypt.Net.BCrypt.HashPassword("12345678", workFactor: 12);
         var adminUser = User.CreateWithPassword(
             userName: "admin",
             passwordHash: adminPasswordHash,
-            roleId: adminRoleId,
             branchId: null,
             employeeId: null,
             createdByUserId: null,
@@ -350,7 +215,7 @@ public static class DbSeeder
         );
         db.Users.Add(adminUser);
         await db.SaveChangesAsync();
-        logger?.LogInformation("Created admin user with role '{Role}' (ID: {RoleId}).", adminRoleEntity.Name, adminRoleId);
+        logger?.LogInformation("Created admin user 'admin'.");
 
         var unitPiece = Unit.Create(name: "حبة", symbol: "pcs", isSystem: false, createdByUserId: null);
         var unitKg = Unit.Create(name: "كيلو", symbol: "kg", isSystem: false, createdByUserId: null);

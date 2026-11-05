@@ -17,21 +17,15 @@ namespace SalesSystem.Business.Services;
 public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _uow;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly JwtSettings _jwtSettings;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         IUnitOfWork uow,
-        IJwtTokenGenerator jwtTokenGenerator,
-        JwtSettings jwtSettings,
         IAuditLogService auditLogService,
         ILogger<AuthService> logger)
     {
         _uow = uow;
-        _jwtTokenGenerator = jwtTokenGenerator;
-        _jwtSettings = jwtSettings;
         _auditLogService = auditLogService;
         _logger = logger;
     }
@@ -42,9 +36,9 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation("Login attempt for user: {UserName}", request.UserName);
 
-            // 1. Find user — load with Role navigation for permissions
+            // 1. Find user
             var user = await _uow.Users.FirstOrDefaultAsync(
-                u => u.UserName.ToLower() == request.UserName.ToLower().Trim(), ct, "Role");
+                u => u.UserName.ToLower() == request.UserName.ToLower().Trim(), ct);
 
             if (user == null)
             {
@@ -95,25 +89,21 @@ public class AuthService : IAuthService
                 await _auditLogService.LogAsync(user.Id, "LoginRequiresPasswordChange", "User", user.Id,
                     "تسجيل الدخول يتطلب تغيير كلمة المرور", null, ct, autoSave: false);
 
-                // Return a token anyway so the client can navigate to password change screen
-                string token = _jwtTokenGenerator.GenerateToken(user);
-                var expiresAt = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours);
+                // Return a session token so the client can navigate to password change screen
+                string token = Guid.NewGuid().ToString("N");
+                var expiresAt = DateTime.UtcNow.AddHours(8);
 
                 await _uow.SaveChangesAsync(ct);
 
                 return Result<LoginResponse>.Success(new LoginResponse(
-                    user.Id, user.UserName, user.RoleId, user.Role?.Name,
+                    user.Id, user.UserName, IsAdmin: true,
                     user.BranchId, token, expiresAt, MustChangePassword: true,
-                    IsPasswordless: string.IsNullOrWhiteSpace(user.PasswordHash),
-                    SalesPermissions: user.Role?.SalesPermissions ?? 0,
-                    InventoryPermissions: user.Role?.InventoryPermissions ?? 0,
-                    AccountingPermissions: user.Role?.AccountingPermissions ?? 0,
-                    SystemPermissions: user.Role?.SystemPermissions ?? 0));
+                    IsPasswordless: string.IsNullOrWhiteSpace(user.PasswordHash)));
             }
 
-            // 8. Generate JWT
-            string jwtToken = _jwtTokenGenerator.GenerateToken(user);
-            var jwtExpiresAt = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours);
+            // 8. Generate local session token (2-Tier, in-process)
+            string sessionToken = Guid.NewGuid().ToString("N");
+            var sessionExpiresAt = DateTime.UtcNow.AddHours(8);
 
             _logger.LogInformation("Login successful for user: {UserName} (Id={UserId})", user.UserName, user.Id);
             await _auditLogService.LogAsync(user.Id, "LoginSuccess", "User", user.Id,
@@ -124,12 +114,8 @@ public class AuthService : IAuthService
 
             // 10. Return success
             return Result<LoginResponse>.Success(new LoginResponse(
-                user.Id, user.UserName, user.RoleId, user.Role?.Name,
-                user.BranchId, jwtToken, jwtExpiresAt, MustChangePassword: false,
-                SalesPermissions: user.Role?.SalesPermissions ?? 0,
-                InventoryPermissions: user.Role?.InventoryPermissions ?? 0,
-                AccountingPermissions: user.Role?.AccountingPermissions ?? 0,
-                SystemPermissions: user.Role?.SystemPermissions ?? 0));
+                user.Id, user.UserName, IsAdmin: true,
+                user.BranchId, sessionToken, sessionExpiresAt, MustChangePassword: false));
         }
         catch (Exception ex)
         {

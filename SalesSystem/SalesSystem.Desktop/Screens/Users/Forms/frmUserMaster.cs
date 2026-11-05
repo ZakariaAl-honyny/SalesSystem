@@ -20,16 +20,12 @@ public partial class frmUserMaster : Form
     private readonly IServiceProvider _serviceProvider;
 
     private IUserApiService UserService => _serviceProvider.GetRequiredService<IUserApiService>();
-    private IRoleApiService RoleService => _serviceProvider.GetRequiredService<IRoleApiService>();
     private IBranchApiService BranchService => _serviceProvider.GetRequiredService<IBranchApiService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, UserDto> _usersById = new();
     private DataTable _usersTable = new();
     private DataView _usersView = new();
-
-    /// <summary>قائمة الأدوار المتاحة لاختيار دور المستخدم.</summary>
-    private List<RoleDto> _roleLookup = new();
 
     /// <summary>قائمة الفروع المتاحة لاختيار فرع المستخدم.</summary>
     private List<BranchDto> _branchLookup = new();
@@ -74,23 +70,17 @@ public partial class frmUserMaster : Form
         // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
         // ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
         txtUserName.TextChanged += (s, e) => _UpdateSaveEnabled();
-        cmbRole.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
     }
-
-    /// <summary>الدور المحدد (0 = لم يُحدَّد).</summary>
-    private int _SelectedRoleId()
-        => cmbRole.SelectedValue is int roleId ? roleId : 0;
 
     /// <summary>الفرع المحدد (0 = بدون فرع).</summary>
     private short? _SelectedBranchId()
         => cmbBranch.SelectedValue is short branchId && branchId > 0 ? branchId : null;
 
     /// <summary>
-    /// هل الحقول المطلوبة مكتملة؟ (اسم المستخدم + الدور).
-    /// الدور مطلوب لأن <c>CreateUserRequest.RoleId</c> إلزامي.
+    /// هل الحقول المطلوبة مكتملة؟ (اسم المستخدم).
     /// </summary>
     private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtUserName.Text) && _SelectedRoleId() > 0;
+        => !string.IsNullOrWhiteSpace(txtUserName.Text);
 
     /// <summary>أسماء الحقول المطلوبة الناقصة (بترتيب ظهورها في النموذج).</summary>
     private List<string> _MissingRequiredNames()
@@ -99,9 +89,6 @@ public partial class frmUserMaster : Form
 
         if (string.IsNullOrWhiteSpace(txtUserName.Text))
             missing.Add("اسم المستخدم");
-
-        if (_SelectedRoleId() <= 0)
-            missing.Add("الدور");
 
         return missing;
     }
@@ -130,7 +117,6 @@ public partial class frmUserMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            await _LoadRolesAsync();
             await _LoadBranchesAsync();
             await _LoadUsersAsync();
         }
@@ -153,7 +139,6 @@ public partial class frmUserMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            await _LoadRolesAsync();
             await _LoadBranchesAsync();
             await _LoadUsersAsync();
             _ResetForm();
@@ -171,46 +156,6 @@ public partial class frmUserMaster : Form
     }
 
     // ── Lookups ───────────────────────────────────────────────────────────────
-
-    private async Task _LoadRolesAsync()
-    {
-        try
-        {
-            var result = await RoleService.GetAllAsync(includeInactive: false);
-
-            if (result.IsSuccess && result.Value != null)
-            {
-                _roleLookup = result.Value.ToList();
-                _roleLookup.Insert(0, new RoleDto(0, "-- اختر الدور --", null, true, false));
-            }
-            else
-            {
-                _roleLookup = new List<RoleDto> { new RoleDto(0, "-- اختر الدور --", null, true, false) };
-
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الأدوار.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            _isBindingLookups = true;
-            try
-            {
-                cmbRole.DisplayMember = "Name";
-                cmbRole.ValueMember = "Id";
-                cmbRole.DataSource = _roleLookup;
-                cmbRole.SelectedIndex = 0;
-            }
-            finally
-            {
-                _isBindingLookups = false;
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تحميل قائمة الأدوار");
-            MessageBox.Show("تعذر تحميل قائمة الأدوار. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
 
     private async Task _LoadBranchesAsync()
     {
@@ -251,15 +196,6 @@ public partial class frmUserMaster : Form
             MessageBox.Show("تعذر تحميل قائمة الفروع. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-    }
-
-    private void _SelectRole(int roleId)
-    {
-        // RoleDto.Id من نوع int → يجب تمرير int لمطابقة ValueMember.
-        cmbRole.SelectedValue = roleId;
-
-        if (cmbRole.SelectedValue is not int selected || selected != roleId)
-            cmbRole.SelectedIndex = 0; // لم يتم العثور على الدور → العنصر الافتراضي
     }
 
     private void _SelectBranch(short? branchId)
@@ -402,7 +338,6 @@ public partial class frmUserMaster : Form
         _isBindingLookups = true;
         try
         {
-            _SelectRole(u.RoleId);
             _SelectBranch(u.BranchId);
         }
         finally
@@ -452,9 +387,6 @@ public partial class frmUserMaster : Form
         _isBindingLookups = true;
         try
         {
-            if (cmbRole.Items.Count > 0)
-                cmbRole.SelectedIndex = 0;
-
             if (cmbBranch.Items.Count > 0)
                 cmbBranch.SelectedIndex = 0;
         }
@@ -487,16 +419,6 @@ public partial class frmUserMaster : Form
             errorProvider.SetError(txtUserName, "");
         }
 
-        if (_SelectedRoleId() <= 0)
-        {
-            errorProvider.SetError(cmbRole, "يرجى اختيار دور المستخدم");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbRole, "");
-        }
-
         if (!isValid)
         {
             MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
@@ -524,8 +446,6 @@ public partial class frmUserMaster : Form
 
             if (string.IsNullOrWhiteSpace(txtUserName.Text))
                 errorProvider.SetError(txtUserName, "اسم المستخدم مطلوب");
-            if (_SelectedRoleId() <= 0)
-                errorProvider.SetError(cmbRole, "يرجى اختيار دور المستخدم");
 
             return;
         }
@@ -539,7 +459,6 @@ public partial class frmUserMaster : Form
         try
         {
             string userName = txtUserName.Text.Trim();
-            short roleId = (short)_SelectedRoleId();
             short? branchId = _SelectedBranchId();
             string? password = string.IsNullOrWhiteSpace(txtPassword.Text)
                 ? null
@@ -552,7 +471,6 @@ public partial class frmUserMaster : Form
                 // UpdateUserRequest لا يحتوي على اسم المستخدم — يُحفظ عبر CreateUserRequest فقط.
                 // TODO: لا يوجد DefaultCashBoxId في الشاشة → يُمرَّر null.
                 var request = new UpdateUserRequest(
-                    roleId,
                     branchId,
                     chkIsLocked.Checked,
                     chkIsActive.Checked,
@@ -566,7 +484,6 @@ public partial class frmUserMaster : Form
                 // CreateUserRequest: كلمة المرور اختيارية — عند تركها فارغة يفرض النظام تغييرها عند أول دخول.
                 var request = new CreateUserRequest(
                     userName,
-                    roleId,
                     branchId,
                     password,
                     DefaultCashBoxId: null);

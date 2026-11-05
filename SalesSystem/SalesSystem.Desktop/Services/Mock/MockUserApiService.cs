@@ -32,13 +32,10 @@ public class MockUserApiService : IUserApiService
             return Task.FromResult(Result<UserDto>.Failure("اسم المستخدم موجود مسبقاً"));
 
         var nextId = MockSecurityData.Users.Max(u => u.Id) + 1;
-        var roleName = MockSecurityData.Roles.FirstOrDefault(r => r.Id == request.RoleId)?.Name;
 
         var user = new UserDto(
             Id: nextId,
             UserName: request.UserName,
-            RoleId: request.RoleId,
-            RoleName: roleName,
             BranchId: request.BranchId,
             MustChangePassword: true,
             IsLocked: false,
@@ -57,12 +54,8 @@ public class MockUserApiService : IUserApiService
         if (existing is null)
             return Task.FromResult(Result<UserDto>.Failure("المستخدم غير موجود"));
 
-        var roleName = MockSecurityData.Roles.FirstOrDefault(r => r.Id == request.RoleId)?.Name;
-
         var updated = existing with
         {
-            RoleId = request.RoleId,
-            RoleName = roleName ?? existing.RoleName,
             BranchId = request.BranchId,
             IsLocked = request.IsLocked ?? existing.IsLocked,
             IsActive = request.IsActive ?? existing.IsActive
@@ -79,8 +72,8 @@ public class MockUserApiService : IUserApiService
         if (existing is null)
             return Task.FromResult(Result.Failure("المستخدم غير موجود"));
 
-        // لا يمكن حذف مدير النظام
-        if (existing.RoleId == 1)
+        // لا يمكن حذف مدير النظام (المستخدم الجذري)
+        if (existing.UserName.Equals("admin", StringComparison.OrdinalIgnoreCase))
             return Task.FromResult(Result.Failure("لا يمكن حذف حساب مدير النظام."));
 
         var index = MockSecurityData.Users.IndexOf(existing);

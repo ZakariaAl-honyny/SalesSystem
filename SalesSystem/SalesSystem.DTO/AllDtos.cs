@@ -2,7 +2,7 @@
 
 namespace SalesSystem.DTO;
 
-public record UserDto(int Id, string UserName, short RoleId, string? RoleName,
+public record UserDto(int Id, string UserName,
     short? BranchId, bool MustChangePassword, bool IsLocked, bool IsActive,
     DateTime? LastLoginAt, short LoginAttempts, int? DefaultCashBoxId)
 {
@@ -13,13 +13,7 @@ public record AuditLogDto(long Id, int? UserId, string? UserName, string Action,
     string? EntityType, int? EntityId, string? OldValues, string? NewValues,
     string? ChangedColumns, string? IpAddress, DateTime Timestamp);
 
-public record UserRoleDto(int UserId, short RoleId, string? RoleName);
-
-public record RoleDto(int Id, string Name, string? Description, bool IsActive, bool IsSystem,
-    long SalesPermissions = 0, long InventoryPermissions = 0,
-    long AccountingPermissions = 0, long SystemPermissions = 0);
-
-public record CurrentUserDto(int Id, string UserName, short RoleId, string? RoleName,
+public record CurrentUserDto(int Id, string UserName,
     short? BranchId, long SalesPermissions, long InventoryPermissions,
     long AccountingPermissions, long SystemPermissions);
 

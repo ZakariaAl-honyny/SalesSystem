@@ -25,16 +25,4 @@ public interface IUserService
     /// and sets MustChangePassword = true.
     /// </summary>
     Task<Result<ResetPasswordResponse>> ResetPasswordAsync(int id, CancellationToken ct);
-
-    // ─── Role Management (single-role model) ────────
-
-    /// <summary>
-    /// Gets the single role assigned to a user.
-    /// </summary>
-    Task<Result<RoleDto>> GetUserRoleAsync(int userId, CancellationToken ct);
-
-    /// <summary>
-    /// Updates the user's role assignment.
-    /// </summary>
-    Task<Result> UpdateUserRoleAsync(int userId, short roleId, CancellationToken ct);
 }

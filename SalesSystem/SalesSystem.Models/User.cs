@@ -8,23 +8,19 @@ namespace SalesSystem.Models;
 /// Schema §1.9 — Users table. Uses two bit flags for state:
 ///   IsActive (from ActivatableEntity): active=1, soft-deleted=0
 ///   IsLocked: unlocked=0, locked=1 (after 5 failed login attempts)
-/// Roles are assigned via RoleId FK to the Role entity (no join table).
+/// Single-user system: one hardcoded admin account with full access (no role system).
 /// Uses passwordless creation by default (MustChangePassword = true).
 /// </summary>
 public class User : ActivatableEntity
 {
     public string UserName { get; private set; } = string.Empty;
     public string PasswordHash { get; private set; } = string.Empty;
-    public short RoleId { get; private set; }
     public short? BranchId { get; private set; }
     public int? EmployeeId { get; private set; }
     public bool IsLocked { get; private set; }
     public bool MustChangePassword { get; private set; } = true;
     public DateTime? LastLoginAt { get; private set; }
     public short LoginAttempts { get; private set; }
-
-    // Navigation
-    public Role Role { get; private set; } = null!;
 
     protected User() { }
 
@@ -33,7 +29,7 @@ public class User : ActivatableEntity
     /// MustChangePassword is set to true — use <see cref="SetInitialPassword"/> or
     /// <see cref="ChangePassword"/> to set the password later.
     /// </summary>
-    public static User Create(string userName, short roleId, short? branchId = null,
+    public static User Create(string userName, short? branchId = null,
         int? employeeId = null, int? createdByUserId = null)
     {
         if (string.IsNullOrWhiteSpace(userName))
@@ -42,7 +38,6 @@ public class User : ActivatableEntity
         var user = new User
         {
             UserName = userName.Trim(),
-            RoleId = roleId,
             BranchId = branchId,
             EmployeeId = employeeId,
             MustChangePassword = true,
@@ -56,7 +51,7 @@ public class User : ActivatableEntity
     /// Creates a user directly with a pre-hashed password (internal/seed/admin use only).
     /// MustChangePassword is false by default for seeds.
     /// </summary>
-    public static User CreateWithPassword(string userName, string passwordHash, short roleId,
+    public static User CreateWithPassword(string userName, string passwordHash,
         short? branchId = null, int? employeeId = null,
         int? createdByUserId = null, bool mustChangePassword = false)
     {
@@ -69,7 +64,6 @@ public class User : ActivatableEntity
         {
             UserName = userName.Trim(),
             PasswordHash = passwordHash,
-            RoleId = roleId,
             BranchId = branchId,
             EmployeeId = employeeId,
             MustChangePassword = mustChangePassword,
@@ -83,9 +77,8 @@ public class User : ActivatableEntity
     /// Updates the user's profile information.
     /// Does NOT change UserName or password — those have dedicated methods.
     /// </summary>
-    public void Update(short roleId, short? branchId = null, int? employeeId = null, int? updatedByUserId = null)
+    public void Update(short? branchId = null, int? employeeId = null, int? updatedByUserId = null)
     {
-        RoleId = roleId;
         BranchId = branchId;
         EmployeeId = employeeId;
         SetUpdatedBy(updatedByUserId);
@@ -231,12 +224,4 @@ public class User : ActivatableEntity
         UpdateTimestamp();
     }
 
-    /// <summary>
-    /// Updates the user's role assignment.
-    /// </summary>
-    public void SetRoleId(short roleId)
-    {
-        RoleId = roleId;
-        UpdateTimestamp();
-    }
 }

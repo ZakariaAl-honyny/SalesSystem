@@ -43,7 +43,6 @@
     <Folder Include="Screens\Purchases\Controls\" />
     <Folder Include="Screens\Reports\Controls\" />
     <Folder Include="Screens\Returns\NewFolder\" />
-    <Folder Include="Screens\Roles\Controls\" />
     <Folder Include="Screens\Sales\Controls\" />
     <Folder Include="Screens\Settings\Controls\" />
     <Folder Include="Screens\Suppliers\NewFolder\" />

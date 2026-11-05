@@ -72,8 +72,6 @@
             // ── بيانات ────────────────────────────────────────────────────────────────────────────────
             msData = new ToolStripMenuItem();
             msbtnManageUsers = new ToolStripMenuItem();
-            msbtnRoles = new ToolStripMenuItem();
-            msbtnPermissions = new ToolStripMenuItem();
             msbtnAuditLog = new ToolStripMenuItem();
             msbtnSystemLogs = new ToolStripMenuItem();
             msbtnDocumentSequences = new ToolStripMenuItem();
@@ -597,7 +595,7 @@
             // msData
             // 
             msData.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnManageUsers, msbtnRoles, msbtnEmployees, msbtnPermissions, msbtnAuditLog,
+                msbtnManageUsers, msbtnEmployees, msbtnAuditLog,
                 msbtnSystemLogs, msbtnDocumentSequences
             });
             msData.Name = "msData";
@@ -611,26 +609,12 @@
             msbtnManageUsers.Text = "المستخدمين";
             msbtnManageUsers.Click += msbtnManageUsers_Click;
             // 
-            // msbtnRoles
-            // 
-            msbtnRoles.Name = "msbtnRoles";
-            msbtnRoles.Size = new Size(300, 38);
-            msbtnRoles.Text = "الأدوار";
-            msbtnRoles.Click += msbtnRoles_Click;
-            // 
             // msbtnEmployees
             // 
             msbtnEmployees.Name = "msbtnEmployees";
             msbtnEmployees.Size = new Size(300, 38);
             msbtnEmployees.Text = "الموظفون";
             msbtnEmployees.Click += msbtnEmployees_Click;
-            // 
-            // msbtnPermissions
-            // 
-            msbtnPermissions.Name = "msbtnPermissions";
-            msbtnPermissions.Size = new Size(300, 38);
-            msbtnPermissions.Text = "الصلاحيات";
-            msbtnPermissions.Click += msbtnPermissions_Click;
             // 
             // msbtnAuditLog
             // 
@@ -825,8 +809,6 @@
         private ToolStripMenuItem msbtnReceiptVouchers;
         private ToolStripMenuItem msData;
         private ToolStripMenuItem msbtnManageUsers;
-        private ToolStripMenuItem msbtnRoles;
-        private ToolStripMenuItem msbtnPermissions;
         private ToolStripMenuItem msbtnAuditLog;
         private ToolStripMenuItem msbtnSystemLogs;
         private ToolStripMenuItem msbtnDocumentSequences;

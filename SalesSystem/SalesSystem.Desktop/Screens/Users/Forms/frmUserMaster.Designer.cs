@@ -23,9 +23,6 @@ partial class frmUserMaster
         lblUserName = new Label();
         lblUserNameReq = new Label();
         txtUserName = new TextBox();
-        lblRole = new Label();
-        lblRoleReq = new Label();
-        cmbRole = new ComboBox();
         lblBranch = new Label();
         cmbBranch = new ComboBox();
         lblPassword = new Label();
@@ -76,9 +73,6 @@ partial class frmUserMaster
         pnlFields.Controls.Add(lblUserName);
         pnlFields.Controls.Add(lblUserNameReq);
         pnlFields.Controls.Add(txtUserName);
-        pnlFields.Controls.Add(lblRole);
-        pnlFields.Controls.Add(lblRoleReq);
-        pnlFields.Controls.Add(cmbRole);
         pnlFields.Controls.Add(lblBranch);
         pnlFields.Controls.Add(cmbBranch);
         pnlFields.Controls.Add(lblPassword);
@@ -133,32 +127,6 @@ partial class frmUserMaster
         txtUserName.Name = "txtUserName";
         txtUserName.Size = new Size(300, 32);
         txtUserName.TabIndex = 1;
-        // 
-        // lblRole
-        // 
-        lblRole.AutoSize = true;
-        lblRole.Location = new Point(860, 15);
-        lblRole.Name = "lblRole";
-        lblRole.Size = new Size(41, 24);
-        lblRole.TabIndex = 4;
-        lblRole.Text = "الدور";
-        // 
-        // lblRoleReq
-        // 
-        lblRoleReq.AutoSize = true;
-        lblRoleReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblRoleReq.ForeColor = Color.Red;
-        lblRoleReq.Location = new Point(842, 15);
-        lblRoleReq.Name = "lblRoleReq";
-        lblRoleReq.Text = "*";
-        // 
-        // cmbRole
-        // 
-        cmbRole.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbRole.Location = new Point(760, 42);
-        cmbRole.Name = "cmbRole";
-        cmbRole.Size = new Size(240, 32);
-        cmbRole.TabIndex = 2;
         // 
         // lblBranch
         // 
@@ -412,9 +380,6 @@ partial class frmUserMaster
     private System.Windows.Forms.Label lblUserName;
     private System.Windows.Forms.Label lblUserNameReq;
     private System.Windows.Forms.TextBox txtUserName;
-    private System.Windows.Forms.Label lblRole;
-    private System.Windows.Forms.Label lblRoleReq;
-    private System.Windows.Forms.ComboBox cmbRole;
     private System.Windows.Forms.Label lblBranch;
     private System.Windows.Forms.ComboBox cmbBranch;
     private System.Windows.Forms.Label lblPassword;

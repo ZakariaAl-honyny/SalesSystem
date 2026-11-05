@@ -16,8 +16,7 @@ public class MockAuthService : IAuthService
         var response = new LoginResponse(
             UserId: 1,
             UserName: request.UserName,
-            RoleId: 1,
-            RoleName: "مدير النظام",
+            IsAdmin: true,
             BranchId: null,
             Token: "mock-token-0000000000000000",
             ExpiresAt: DateTime.UtcNow.AddHours(8),

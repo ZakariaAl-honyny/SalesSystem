@@ -42,7 +42,6 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<SystemAccountMapping>? _systemAccountMappings;
     private IGenericRepository<ReceiptVoucher>? _receiptVouchers;
     private IGenericRepository<PaymentVoucher>? _paymentVouchers;
-    private IGenericRepository<Role>? _roles;
     private IAuditLogRepository? _auditLogs;
     private IGenericRepository<InventoryBatch>? _inventoryBatches;
     private IGenericRepository<ProductPrice>? _productPrices;
@@ -98,7 +97,6 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<SystemAccountMapping> SystemAccountMappings => _systemAccountMappings ??= new GenericRepository<SystemAccountMapping>(_context);
     public IGenericRepository<ReceiptVoucher> ReceiptVouchers => _receiptVouchers ??= new GenericRepository<ReceiptVoucher>(_context);
     public IGenericRepository<PaymentVoucher> PaymentVouchers => _paymentVouchers ??= new GenericRepository<PaymentVoucher>(_context);
-    public IGenericRepository<Role> Roles => _roles ??= new GenericRepository<Role>(_context);
     public IAuditLogRepository AuditLogs => _auditLogs ??= new AuditLogRepository(_context);
     public IGenericRepository<InventoryBatch> InventoryBatches => _inventoryBatches ??= new GenericRepository<InventoryBatch>(_context);
     public IGenericRepository<ProductPrice> ProductPrices => _productPrices ??= new GenericRepository<ProductPrice>(_context);
