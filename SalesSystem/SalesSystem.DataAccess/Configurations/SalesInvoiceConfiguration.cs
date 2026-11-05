@@ -43,11 +43,6 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
             .HasForeignKey(si => si.BranchId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(si => si.Tax)
-            .WithMany()
-            .HasForeignKey(si => si.TaxId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.Property(si => si.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);
         builder.Property(si => si.DiscountRate).HasPrecision(18, 2).IsRequired(false);
         builder.Property(si => si.CostInBaseCurrency).HasPrecision(18, 2).IsRequired(false);

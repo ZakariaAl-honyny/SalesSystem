@@ -52,11 +52,6 @@ internal static class MockData
     public static List<CashBoxDto> CashBoxes { get; } = new();
 
     // ═══════════════════════════════════════════════
-    // البنوك — Banks
-    // ═══════════════════════════════════════════════
-    public static List<BankDto> Banks { get; } = new();
-
-    // ═══════════════════════════════════════════════
     // المنتجات — Products
     // ═══════════════════════════════════════════════
     public static List<ProductDto> Products { get; } = new()
@@ -117,15 +112,6 @@ internal static class MockData
         new ProductPriceDto(8,  8,  "علبة",  4500m, DateTime.UtcNow.AddMonths(-3), null),
         new ProductPriceDto(9,  9,  "علبة",  500m,  DateTime.UtcNow.AddMonths(-3), null),
         new ProductPriceDto(10, 10, "كيس",   700m,  DateTime.UtcNow.AddMonths(-3), null)
-    };
-
-    // ═══════════════════════════════════════════════
-    // الضرائب — Taxes
-    // ═══════════════════════════════════════════════
-    public static List<TaxDto> Taxes { get; } = new()
-    {
-        new TaxDto(1, "ضريبة القيمة المضافة 15%", "VAT15", 15m, 1, true, true),
-        new TaxDto(2, "ضريبة القيمة المضافة 5%", "VAT5", 5m, 1, false, true)
     };
 
     // ═══════════════════════════════════════════════

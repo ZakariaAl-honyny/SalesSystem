@@ -43,22 +43,3 @@ public record CreateInventoryTransactionLineRequest(
     string? BatchNo = null,
     DateOnly? ExpiryDate = null,
     short? WarehouseId = null);
-
-/// <summary>
-/// Request to create a new warehouse transfer.
-/// </summary>
-public record CreateWarehouseTransferRequest(
-    string? TransferNo,
-    short SourceWarehouseId,
-    short DestinationWarehouseId,
-    string? Notes = null,
-    List<CreateWarehouseTransferLineRequest>? Lines = null,
-    short? BranchId = null);
-
-/// <summary>
-/// A single line in a warehouse transfer.
-/// </summary>
-public record CreateWarehouseTransferLineRequest(
-    int ProductUnitId,
-    decimal Quantity,
-    string? BatchNo = null);

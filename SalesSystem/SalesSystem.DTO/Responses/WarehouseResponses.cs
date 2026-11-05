@@ -49,32 +49,3 @@ public record InventoryTransactionLineResponse(
     decimal UnitCost,
     decimal TotalCost,
     int? BatchId);
-
-/// <summary>
-/// Response for WarehouseTransfer entity.
-/// </summary>
-public record WarehouseTransferResponse(
-    int Id,
-    int TransferNo,
-    short SourceWarehouseId,
-    string? SourceWarehouseName,
-    short DestinationWarehouseId,
-    string? DestinationWarehouseName,
-    DateTime TransferDate,
-    string? Notes,
-    byte Status,
-    List<WarehouseTransferLineResponse>? Lines);
-
-/// <summary>
-/// A single line within a WarehouseTransfer.
-/// </summary>
-public record WarehouseTransferLineResponse(
-    int Id,
-    int ProductId,
-    string? ProductName,
-    int ProductUnitId,
-    string? ProductUnitName,
-    decimal Quantity,
-    decimal UnitCost,
-    decimal TotalCost,
-    int? BatchId);

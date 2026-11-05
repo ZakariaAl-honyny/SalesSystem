@@ -18,7 +18,6 @@ public class PurchaseReturnConfiguration : IEntityTypeConfiguration<PurchaseRetu
         builder.Property(pr => pr.ReturnedDiscountAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(pr => pr.ReturnedTaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(pr => pr.ReturnedChargeAmount).HasPrecision(18, 2).HasDefaultValue(0m);
-        builder.Property(pr => pr.TaxId).HasColumnType("smallint").IsRequired(false);
         builder.Property(pr => pr.Notes).HasMaxLength(500);
         builder.Property(pr => pr.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
         builder.Property(pr => pr.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);

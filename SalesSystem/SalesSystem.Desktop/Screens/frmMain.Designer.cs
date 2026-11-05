@@ -43,10 +43,8 @@
             // ── المخزون ──────────────────────────────────────────────────────────────────────────────
             msStore = new ToolStripMenuItem();
             msbtnManageWarehouses = new ToolStripMenuItem();
-            msbtnStockTransfer = new ToolStripMenuItem();
             msbtnInventoryMovement = new ToolStripMenuItem();
             msbtnInventoryAdjustments = new ToolStripMenuItem();
-            msbtnInventoryCounts = new ToolStripMenuItem();
             // ── المشتريات ──────────────────────────────────────────────────────────────────────────
             msBuy = new ToolStripMenuItem();
             msbtnManagePurchases = new ToolStripMenuItem();
@@ -61,7 +59,6 @@
             msRevenue = new ToolStripMenuItem();
             msbtnManagePayments = new ToolStripMenuItem();
             msbtnCashBoxes = new ToolStripMenuItem();
-            msbtnBanks = new ToolStripMenuItem();
             msbtnExpenses = new ToolStripMenuItem();
             msbtnCustomerReceipts = new ToolStripMenuItem();
             msbtnPaymentVouchers = new ToolStripMenuItem();
@@ -70,7 +67,6 @@
             msAccounting = new ToolStripMenuItem();
             msbtnChartOfAccounts = new ToolStripMenuItem();
             msbtnJournalEntries = new ToolStripMenuItem();
-            msbtnAccountCategories = new ToolStripMenuItem();
             msbtnSystemAccountMappings = new ToolStripMenuItem();
             msbtnReceiptVouchers = new ToolStripMenuItem();
             // ── بيانات ────────────────────────────────────────────────────────────────────────────────
@@ -80,9 +76,7 @@
             msbtnPermissions = new ToolStripMenuItem();
             msbtnAuditLog = new ToolStripMenuItem();
             msbtnSystemLogs = new ToolStripMenuItem();
-            msbtnUserSessions = new ToolStripMenuItem();
             msbtnDocumentSequences = new ToolStripMenuItem();
-            msbtnTaxes = new ToolStripMenuItem();
             // ── تقارير ────────────────────────────────────────────────────────────────────────────────
             msReport = new ToolStripMenuItem();
             msbtnReports = new ToolStripMenuItem();
@@ -90,7 +84,6 @@
             msSettings = new ToolStripMenuItem();
             msbtnSettings = new ToolStripMenuItem();
             msbtnCompanySettings = new ToolStripMenuItem();
-            msbtnNotifications = new ToolStripMenuItem();
             msbtnUpdateCheck = new ToolStripMenuItem();
             msbtnBackup = new ToolStripMenuItem();
             // ── إعدادات الحساب ────────────────────────────────────────────────────────────────────────
@@ -265,8 +258,8 @@
             msStore.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnInventory,
                 new ToolStripSeparator(),
-                msbtnManageWarehouses, msbtnStockTransfer, msbtnInventoryMovement,
-                msbtnInventoryAdjustments, msbtnInventoryCounts
+                msbtnManageWarehouses, msbtnInventoryMovement,
+                msbtnInventoryAdjustments
             });
             msStore.Name = "msStore";
             msStore.Size = new Size(95, 33);
@@ -286,13 +279,6 @@
             msbtnManageWarehouses.Text = "إدارة المخازن";
             msbtnManageWarehouses.Click += msbtnManageWarehouses_Click;
             // 
-            // msbtnStockTransfer
-            // 
-            msbtnStockTransfer.Name = "msbtnStockTransfer";
-            msbtnStockTransfer.Size = new Size(300, 38);
-            msbtnStockTransfer.Text = "تحويل مخزون";
-            msbtnStockTransfer.Click += msbtnStockTransfer_Click;
-            // 
             // msbtnInventoryMovement
             // 
             msbtnInventoryMovement.Name = "msbtnInventoryMovement";
@@ -306,13 +292,6 @@
             msbtnInventoryAdjustments.Size = new Size(300, 38);
             msbtnInventoryAdjustments.Text = "تعديل المخزون";
             msbtnInventoryAdjustments.Click += msbtnInventoryAdjustments_Click;
-            // 
-            // msbtnInventoryCounts
-            // 
-            msbtnInventoryCounts.Name = "msbtnInventoryCounts";
-            msbtnInventoryCounts.Size = new Size(300, 38);
-            msbtnInventoryCounts.Text = "جرد مخزني";
-            msbtnInventoryCounts.Click += msbtnInventoryCounts_Click;
             // 
             // msBuy
             // 
@@ -513,7 +492,7 @@
             msRevenue.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnCashVouchers,
                 new ToolStripSeparator(),
-                msbtnCashBoxes, msbtnBanks, msbtnExpenses
+                msbtnCashBoxes, msbtnExpenses
             });
             msRevenue.Name = "msRevenue";
             msRevenue.Size = new Size(95, 33);
@@ -539,13 +518,6 @@
             msbtnCashBoxes.Size = new Size(300, 38);
             msbtnCashBoxes.Text = "صناديق النقدية";
             msbtnCashBoxes.Click += msbtnCashBoxes_Click;
-            // 
-            // msbtnBanks
-            // 
-            msbtnBanks.Name = "msbtnBanks";
-            msbtnBanks.Size = new Size(300, 38);
-            msbtnBanks.Text = "البنوك";
-            msbtnBanks.Click += msbtnBanks_Click;
             // 
             // msbtnExpenses
             // 
@@ -580,7 +552,7 @@
             msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnAccounting,
                 new ToolStripSeparator(),
-                msbtnChartOfAccounts, msbtnJournalEntries, msbtnAccountCategories,
+                msbtnChartOfAccounts, msbtnJournalEntries,
                 msbtnSystemAccountMappings, msbtnReceiptVouchers
             });
             msAccounting.Name = "msAccounting";
@@ -608,13 +580,6 @@
             msbtnJournalEntries.Text = "القيود اليومية";
             msbtnJournalEntries.Click += msbtnJournalEntries_Click;
             // 
-            // msbtnAccountCategories
-            // 
-            msbtnAccountCategories.Name = "msbtnAccountCategories";
-            msbtnAccountCategories.Size = new Size(300, 38);
-            msbtnAccountCategories.Text = "تصنيفات الحسابات";
-            msbtnAccountCategories.Click += msbtnAccountCategories_Click;
-            // 
             // msbtnSystemAccountMappings
             // 
             msbtnSystemAccountMappings.Name = "msbtnSystemAccountMappings";
@@ -633,7 +598,7 @@
             // 
             msData.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnManageUsers, msbtnRoles, msbtnEmployees, msbtnPermissions, msbtnAuditLog,
-                msbtnSystemLogs, msbtnUserSessions, msbtnDocumentSequences, msbtnTaxes
+                msbtnSystemLogs, msbtnDocumentSequences
             });
             msData.Name = "msData";
             msData.Size = new Size(80, 33);
@@ -681,26 +646,12 @@
             msbtnSystemLogs.Text = "سجلات النظام";
             msbtnSystemLogs.Click += msbtnSystemLogs_Click;
             // 
-            // msbtnUserSessions
-            // 
-            msbtnUserSessions.Name = "msbtnUserSessions";
-            msbtnUserSessions.Size = new Size(300, 38);
-            msbtnUserSessions.Text = "جلسات المستخدمين";
-            msbtnUserSessions.Click += msbtnUserSessions_Click;
-            // 
             // msbtnDocumentSequences
             // 
             msbtnDocumentSequences.Name = "msbtnDocumentSequences";
             msbtnDocumentSequences.Size = new Size(300, 38);
             msbtnDocumentSequences.Text = "تسلسل المستندات";
             msbtnDocumentSequences.Click += msbtnDocumentSequences_Click;
-            // 
-            // msbtnTaxes
-            // 
-            msbtnTaxes.Name = "msbtnTaxes";
-            msbtnTaxes.Size = new Size(300, 38);
-            msbtnTaxes.Text = "الضرائب";
-            msbtnTaxes.Click += msbtnTaxes_Click;
             // 
             // msReport
             // 
@@ -730,7 +681,7 @@
             // msSettings
             // 
             msSettings.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnSettings, msbtnCompanySettings, msbtnNotifications, msbtnUpdateCheck, msbtnBackup
+                msbtnSettings, msbtnCompanySettings, msbtnUpdateCheck, msbtnBackup
             });
             msSettings.Name = "msSettings";
             msSettings.Size = new Size(120, 33);
@@ -749,13 +700,6 @@
             msbtnCompanySettings.Size = new Size(300, 38);
             msbtnCompanySettings.Text = "إعدادات الشركة";
             msbtnCompanySettings.Click += msbtnCompanySettings_Click;
-            // 
-            // msbtnNotifications
-            // 
-            msbtnNotifications.Name = "msbtnNotifications";
-            msbtnNotifications.Size = new Size(300, 38);
-            msbtnNotifications.Text = "التنبيهات";
-            msbtnNotifications.Click += msbtnNotifications_Click;
             // 
             // msbtnUpdateCheck
             // 
@@ -857,10 +801,8 @@
         private ToolStripMenuItem msbtnProductCategories;
         private ToolStripMenuItem msStore;
         private ToolStripMenuItem msbtnManageWarehouses;
-        private ToolStripMenuItem msbtnStockTransfer;
         private ToolStripMenuItem msbtnInventoryMovement;
         private ToolStripMenuItem msbtnInventoryAdjustments;
-        private ToolStripMenuItem msbtnInventoryCounts;
         private ToolStripMenuItem msBuy;
         private ToolStripMenuItem msbtnManagePurchases;
         private ToolStripMenuItem msbtnPurchaseInvoice;
@@ -872,7 +814,6 @@
         private ToolStripMenuItem msRevenue;
         private ToolStripMenuItem msbtnManagePayments;
         private ToolStripMenuItem msbtnCashBoxes;
-        private ToolStripMenuItem msbtnBanks;
         private ToolStripMenuItem msbtnExpenses;
         private ToolStripMenuItem msbtnCustomerReceipts;
         private ToolStripMenuItem msbtnPaymentVouchers;
@@ -880,7 +821,6 @@
         private ToolStripMenuItem msAccounting;
         private ToolStripMenuItem msbtnChartOfAccounts;
         private ToolStripMenuItem msbtnJournalEntries;
-        private ToolStripMenuItem msbtnAccountCategories;
         private ToolStripMenuItem msbtnSystemAccountMappings;
         private ToolStripMenuItem msbtnReceiptVouchers;
         private ToolStripMenuItem msData;
@@ -889,9 +829,7 @@
         private ToolStripMenuItem msbtnPermissions;
         private ToolStripMenuItem msbtnAuditLog;
         private ToolStripMenuItem msbtnSystemLogs;
-        private ToolStripMenuItem msbtnUserSessions;
         private ToolStripMenuItem msbtnDocumentSequences;
-        private ToolStripMenuItem msbtnTaxes;
         private ToolStripMenuItem msReport;
         private ToolStripMenuItem msbtnReports;
         private ToolStripMenuItem msbtnReportsDashboard;
@@ -902,7 +840,6 @@
         private ToolStripMenuItem msSettings;
         private ToolStripMenuItem msbtnSettings;
         private ToolStripMenuItem msbtnCompanySettings;
-        private ToolStripMenuItem msbtnNotifications;
         private ToolStripMenuItem msbtnUpdateCheck;
         private ToolStripMenuItem msbtnBackup;
         private ToolStripMenuItem msAccoutSettings;

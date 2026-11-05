@@ -19,7 +19,6 @@ public class UnitOfWork : IUnitOfWork
     private readonly SalesDbContext _context;
     private IGenericRepository<User>? _users;
     private IGenericRepository<Unit>? _units;
-    private IGenericRepository<Tax>? _taxes;
     private IGenericRepository<Product>? _products;
     private IGenericRepository<Warehouse>? _warehouses;
     private IGenericRepository<Supplier>? _suppliers;
@@ -43,28 +42,20 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<SystemAccountMapping>? _systemAccountMappings;
     private IGenericRepository<ReceiptVoucher>? _receiptVouchers;
     private IGenericRepository<PaymentVoucher>? _paymentVouchers;
-    private IGenericRepository<FiscalYear>? _fiscalYears;
     private IGenericRepository<Role>? _roles;
     private IAuditLogRepository? _auditLogs;
-    private IGenericRepository<UserSession>? _userSessions;
     private IGenericRepository<InventoryBatch>? _inventoryBatches;
     private IGenericRepository<ProductPrice>? _productPrices;
 
     // New entity repositories (v4.7+)
-    private IGenericRepository<Attachment>? _attachments;
-    private IGenericRepository<Notification>? _notifications;
-    private IGenericRepository<Bank>? _banks;
     private IGenericRepository<Branch>? _branches;
     private IGenericRepository<ProductCategory>? _productCategories;
-    private IGenericRepository<InventoryCount>? _inventoryCounts;
-    private IGenericRepository<InventoryCountLine>? _inventoryCountLines;
     private IGenericRepository<InventoryAdjustment>? _inventoryAdjustments;
     private IGenericRepository<InventoryAdjustmentLine>? _inventoryAdjustmentLines;
     private IGenericRepository<Expense>? _expenses;
     private IGenericRepository<CustomerReceipt>? _customerReceipts;
     private IGenericRepository<CustomerReceiptApplication>? _customerReceiptApplications;
     private IGenericRepository<SupplierPaymentApplication>? _supplierPaymentApplications;
-    private IGenericRepository<AccountCategory>? _accountCategories;
     private IGenericRepository<CompanySettings>? _companySettings;
     // Customer/Supplier Contact repositories
     private IGenericRepository<CustomerContact>? _customerContacts;
@@ -73,8 +64,6 @@ public class UnitOfWork : IUnitOfWork
     // === New Inventory Module (v4.10+) ===
     private IGenericRepository<InventoryTransaction>? _inventoryTransactions;
     private IGenericRepository<InventoryTransactionLine>? _inventoryTransactionLines;
-    private IGenericRepository<WarehouseTransfer>? _warehouseTransfers;
-    private IGenericRepository<WarehouseTransferLine>? _warehouseTransferLines;
 
     // === Bill of Materials (BOM) — Phase 25 Products Module ===
     private IGenericRepository<BillOfMaterials>? _billOfMaterials;
@@ -86,7 +75,6 @@ public class UnitOfWork : IUnitOfWork
 
     public IGenericRepository<User> Users => _users ??= new GenericRepository<User>(_context);
     public IGenericRepository<Unit> Units => _units ??= new GenericRepository<Unit>(_context);
-    public IGenericRepository<Tax> Taxes => _taxes ??= new GenericRepository<Tax>(_context);
     public IGenericRepository<Product> Products => _products ??= new GenericRepository<Product>(_context);
     public IGenericRepository<Warehouse> Warehouses => _warehouses ??= new GenericRepository<Warehouse>(_context);
     public IGenericRepository<Supplier> Suppliers => _suppliers ??= new GenericRepository<Supplier>(_context);
@@ -110,27 +98,19 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<SystemAccountMapping> SystemAccountMappings => _systemAccountMappings ??= new GenericRepository<SystemAccountMapping>(_context);
     public IGenericRepository<ReceiptVoucher> ReceiptVouchers => _receiptVouchers ??= new GenericRepository<ReceiptVoucher>(_context);
     public IGenericRepository<PaymentVoucher> PaymentVouchers => _paymentVouchers ??= new GenericRepository<PaymentVoucher>(_context);
-    public IGenericRepository<FiscalYear> FiscalYears => _fiscalYears ??= new GenericRepository<FiscalYear>(_context);
     public IGenericRepository<Role> Roles => _roles ??= new GenericRepository<Role>(_context);
     public IAuditLogRepository AuditLogs => _auditLogs ??= new AuditLogRepository(_context);
-    public IGenericRepository<UserSession> UserSessions => _userSessions ??= new GenericRepository<UserSession>(_context);
     public IGenericRepository<InventoryBatch> InventoryBatches => _inventoryBatches ??= new GenericRepository<InventoryBatch>(_context);
     public IGenericRepository<ProductPrice> ProductPrices => _productPrices ??= new GenericRepository<ProductPrice>(_context);
     // New entity repositories (v4.7+)
-    public IGenericRepository<Attachment> Attachments => _attachments ??= new GenericRepository<Attachment>(_context);
-    public IGenericRepository<Notification> Notifications => _notifications ??= new GenericRepository<Notification>(_context);
-    public IGenericRepository<Bank> Banks => _banks ??= new GenericRepository<Bank>(_context);
     public IGenericRepository<Branch> Branches => _branches ??= new GenericRepository<Branch>(_context);
     public IGenericRepository<ProductCategory> ProductCategories => _productCategories ??= new GenericRepository<ProductCategory>(_context);
-    public IGenericRepository<InventoryCount> InventoryCounts => _inventoryCounts ??= new GenericRepository<InventoryCount>(_context);
-    public IGenericRepository<InventoryCountLine> InventoryCountLines => _inventoryCountLines ??= new GenericRepository<InventoryCountLine>(_context);
     public IGenericRepository<InventoryAdjustment> InventoryAdjustments => _inventoryAdjustments ??= new GenericRepository<InventoryAdjustment>(_context);
     public IGenericRepository<InventoryAdjustmentLine> InventoryAdjustmentLines => _inventoryAdjustmentLines ??= new GenericRepository<InventoryAdjustmentLine>(_context);
     public IGenericRepository<Expense> Expenses => _expenses ??= new GenericRepository<Expense>(_context);
     public IGenericRepository<CustomerReceipt> CustomerReceipts => _customerReceipts ??= new GenericRepository<CustomerReceipt>(_context);
     public IGenericRepository<CustomerReceiptApplication> CustomerReceiptApplications => _customerReceiptApplications ??= new GenericRepository<CustomerReceiptApplication>(_context);
     public IGenericRepository<SupplierPaymentApplication> SupplierPaymentApplications => _supplierPaymentApplications ??= new GenericRepository<SupplierPaymentApplication>(_context);
-    public IGenericRepository<AccountCategory> AccountCategories => _accountCategories ??= new GenericRepository<AccountCategory>(_context);
     public IGenericRepository<CompanySettings> CompanySettings => _companySettings ??= new GenericRepository<CompanySettings>(_context);
 
     // Customer/Supplier Contact repositories
@@ -140,8 +120,6 @@ public class UnitOfWork : IUnitOfWork
     // === New Inventory Module (v4.10+) ===
     public IGenericRepository<InventoryTransaction> InventoryTransactions => _inventoryTransactions ??= new GenericRepository<InventoryTransaction>(_context);
     public IGenericRepository<InventoryTransactionLine> InventoryTransactionLines => _inventoryTransactionLines ??= new GenericRepository<InventoryTransactionLine>(_context);
-    public IGenericRepository<WarehouseTransfer> WarehouseTransfers => _warehouseTransfers ??= new GenericRepository<WarehouseTransfer>(_context);
-    public IGenericRepository<WarehouseTransferLine> WarehouseTransferLines => _warehouseTransferLines ??= new GenericRepository<WarehouseTransferLine>(_context);
 
     // === Bill of Materials (BOM) — Phase 25 Products Module ===
     public IGenericRepository<BillOfMaterials> BillOfMaterials => _billOfMaterials ??= new GenericRepository<BillOfMaterials>(_context);

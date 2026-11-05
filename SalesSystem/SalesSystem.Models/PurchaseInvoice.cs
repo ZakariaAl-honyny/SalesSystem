@@ -11,7 +11,6 @@ public class PurchaseInvoice : DocumentEntity
 {
     public int SupplierId { get; private set; }
     public short WarehouseId { get; private set; }
-    public short? TaxId { get; private set; }
     public DateOnly InvoiceDate { get; private set; }
     public PaymentType PaymentType { get; private set; }
     public decimal SubTotal { get; private set; }
@@ -42,7 +41,6 @@ public class PurchaseInvoice : DocumentEntity
     // Navigation properties
     public virtual Supplier? Supplier { get; private set; }
     public virtual Warehouse? Warehouse { get; private set; }
-    public virtual Tax? Tax { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
     /// <summary>
     /// Navigation property to the Branch this invoice belongs to.
@@ -63,7 +61,6 @@ public class PurchaseInvoice : DocumentEntity
         decimal otherCharges = 0,
         string? notes = null,
         string? supplierInvoiceNo = null,
-        short? taxId = null,
         int? cashBoxId = null,
         DiscountType discountType = DiscountType.Amount,
         decimal? discountRate = null,
@@ -94,7 +91,6 @@ public class PurchaseInvoice : DocumentEntity
             SupplierId = supplierId,
             WarehouseId = warehouseId,
             InvoiceNo = invoiceNo,
-            TaxId = taxId,
             InvoiceDate = invoiceDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             PaymentType = paymentType,
             DiscountType = discountType,
@@ -176,15 +172,6 @@ public class PurchaseInvoice : DocumentEntity
         OtherCharges = otherCharges;
         RecalculateTotals();
         UpdateTimestamp();
-    }
-
-    public void SetTax(short? taxId, decimal taxAmount)
-    {
-        if (taxAmount < 0)
-            throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
-        TaxId = taxId;
-        TaxAmount = taxAmount;
-        RecalculateTotals();
     }
 
     /// <summary>

@@ -44,9 +44,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(x => x.IsSystem)
             .HasDefaultValue(false);
 
-        builder.Property(x => x.CategoryId)
-            .HasColumnType("smallint");
-
         builder.Property(x => x.Description)
             .HasMaxLength(500);
 
@@ -63,12 +60,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.HasOne(x => x.ParentAccount)
             .WithMany(x => x.SubAccounts)
             .HasForeignKey(x => x.ParentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Category FK
-        builder.HasOne(x => x.Category)
-            .WithMany()
-            .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasQueryFilter(x => x.IsActive);

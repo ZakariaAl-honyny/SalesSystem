@@ -900,4 +900,14 @@ public partial class frmProductMaster : Form
 
     private static decimal _Clamp(NumericUpDown control, decimal value)
         => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
+
+    private void btnNew_Click_1(object sender, EventArgs e)
+    {
+
+    }
+
+    private void btnSave_Click_1(object sender, EventArgs e)
+    {
+
+    }
 }

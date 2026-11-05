@@ -121,40 +121,4 @@ internal static class MockSecurityData
             LastLoginAt: new DateTime(2026, 8, 30, 10, 0, 0),
             LoginAttempts: 5, DefaultCashBoxId: null),
     };
-
-    // ═══════════════════════════════════════════════
-    // الجلسات — Sessions (3 جلسات)
-    // ═══════════════════════════════════════════════
-    public static List<UserSessionDto> Sessions { get; } = new()
-    {
-        // جلسة 1: مدير النظام — نشطة
-        new UserSessionDto(
-            Id: 101, UserId: 1, UserName: "admin",
-            DeviceName: "POS-SERVER-01 (Windows 11 WinForms)",
-            IpAddress: "192.168.1.10",
-            CreatedAt: DateTime.UtcNow.AddHours(-8),
-            LastActivityAt: DateTime.UtcNow,
-            ExpiresAt: DateTime.UtcNow.AddHours(16),
-            IsRevoked: false),
-
-        // جلسة 2: كاشير — نشطة
-        new UserSessionDto(
-            Id: 102, UserId: 2, UserName: "cashier1",
-            DeviceName: "POS-CASHIER-PC2 (Terminal 1)",
-            IpAddress: "192.168.1.15",
-            CreatedAt: DateTime.UtcNow.AddHours(-6),
-            LastActivityAt: DateTime.UtcNow.AddMinutes(-5),
-            ExpiresAt: DateTime.UtcNow.AddHours(10),
-            IsRevoked: false),
-
-        // جلسة 3: محاسب — نشطة
-        new UserSessionDto(
-            Id: 103, UserId: 3, UserName: "accountant1",
-            DeviceName: "FINANCE-PC (Accounting Desk)",
-            IpAddress: "192.168.1.22",
-            CreatedAt: DateTime.UtcNow.AddHours(-4),
-            LastActivityAt: DateTime.UtcNow.AddMinutes(-40),
-            ExpiresAt: DateTime.UtcNow.AddHours(8),
-            IsRevoked: false),
-    };
 }

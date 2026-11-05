@@ -937,7 +937,6 @@ public class CashBoxService : ICashBoxService
                 isLeaf: true,
                 parentId: parent.Id,
                 isSystem: false,
-                categoryId: null,
                 level: 4,
                 createdByUserId: userId);
 

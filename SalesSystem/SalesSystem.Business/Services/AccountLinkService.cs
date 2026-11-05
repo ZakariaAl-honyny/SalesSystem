@@ -94,7 +94,6 @@ public class AccountLinkService : IAccountLinkService
             description: account.Description,
             colorCode: account.ColorCode,
             notes: account.Notes,
-            categoryId: account.CategoryId,
             level: account.Level);
 
         await _uow.Accounts.UpdateAsync(account, ct);
@@ -173,7 +172,6 @@ public class AccountLinkService : IAccountLinkService
             isLeaf: true,
             parentId: parentAccount.Id,
             isSystem: false,
-            categoryId: null,
             level: 4,
             description: $"{descriptionPrefix}: {entityName}",
             colorCode: colorCode,

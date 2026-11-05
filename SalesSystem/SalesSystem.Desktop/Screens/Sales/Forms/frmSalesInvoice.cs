@@ -27,12 +27,10 @@ public partial class frmSalesInvoice : Form
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
     private IReceiptPrinter _receiptPrinter => _serviceProvider.GetRequiredService<IReceiptPrinter>();
     private ISettingsApiService _settingsApi => _serviceProvider.GetRequiredService<ISettingsApiService>();
-    private ITaxesApiService _taxesApi => _serviceProvider.GetRequiredService<ITaxesApiService>();
     
     private SalesInvoiceDto? _invoice;
     private BindingList<InvoiceLineItemViewModel> _lines = new();
     private List<ProductDto> _allProducts = new();
-    private List<TaxDto> _taxes = new();
     private Dictionary<int, decimal> _salePriceByProductId = new();
     private Dictionary<int, int> _baseUnitIdByProductId = new();
     private bool _isUpdating = false;
@@ -184,24 +182,8 @@ public partial class frmSalesInvoice : Form
                 }
             }
 
-            var taxesRes = await _taxesApi.GetAllAsync();
-            if (taxesRes.IsSuccess && taxesRes.Value != null)
-            {
-                _taxes = taxesRes.Value.ToList();
-                cmbTax.DataSource = _taxes;
-                cmbTax.DisplayMember = "Name";
-                cmbTax.ValueMember = "Id";
-
-                if (_invoice == null)
-                {
-                    var defaultTax = _taxes.FirstOrDefault(t => t.IsDefault) ?? _taxes.FirstOrDefault();
-                    if (defaultTax != null)
-                    {
-                        cmbTax.SelectedValue = defaultTax.Id;
-                        numTaxRate.Value = defaultTax.Rate;
-                    }
-                }
-            }
+            // الضرائب: أُزيلت وحدة الضرائب (V2) — تُدخل النسبة يدوياً في numTaxRate (بدون قائمة مرجعية).
+            cmbTax.Enabled = false;
         }
         catch (Exception ex)
         {
@@ -220,9 +202,7 @@ public partial class frmSalesInvoice : Form
         cmbWarehouse.SelectedValue = (short)_invoice.WarehouseId;
         cmbPaymentType.SelectedIndex = (byte)_invoice.PaymentType - 1;
         numInvoiceDiscount.Value = _invoice.DiscountAmount;
-        if (_invoice.TaxId.HasValue)
-            cmbTax.SelectedValue = _invoice.TaxId.Value;
-        numTaxRate.Value = _invoice.TaxRate ?? 15;
+        numTaxRate.Value = _invoice.TaxRate ?? 0;
         txtPaid.Text = _invoice.PaidAmount.ToString("N2");
         txtNotes.Text = _invoice.Notes;
 
@@ -252,12 +232,7 @@ public partial class frmSalesInvoice : Form
         numInvoiceDiscount.Value = 0;
         txtPaid.Text = "0";
         txtNotes.Clear();
-        if (_taxes.Count > 0)
-        {
-            var defaultTax = _taxes.FirstOrDefault(t => t.IsDefault) ?? _taxes.First();
-            cmbTax.SelectedValue = defaultTax.Id;
-            numTaxRate.Value = defaultTax.Rate;
-        }
+        numTaxRate.Value = 0;
     }
 
     private void SetupGrid()
@@ -327,10 +302,7 @@ public partial class frmSalesInvoice : Form
 
     private void cmbTax_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        if (cmbTax.SelectedItem is TaxDto tax)
-        {
-            numTaxRate.Value = tax.Rate;
-        }
+        // الضرائب: أُزيلت وحدة الضرائب (V2) — لا قائمة مرجعية؛ النسبة تُدخل يدوياً.
     }
 
     private void UpdateUIState()
@@ -441,7 +413,7 @@ public partial class frmSalesInvoice : Form
                 0m,
                 txtPaid.DecimalValue,
                 txtNotes.Text,
-                cmbTax.SelectedValue is int taxId ? taxId : null,
+                null, // TaxId — أُزيلت وحدة الضرائب (V2)
                 items
             );
 

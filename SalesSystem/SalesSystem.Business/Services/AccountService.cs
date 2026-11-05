@@ -43,7 +43,7 @@ public class AccountService : IAccountService
             account.NameAr,
             account.Nature,
             account.IsLeaf,
-            account.CategoryId,
+            null,
             account.Level,
             account.ColorCode,
             account.Description,
@@ -148,7 +148,6 @@ public class AccountService : IAccountService
             isLeaf: request.IsLeaf,
             parentId: request.ParentId,
             isSystem: request.IsSystem,
-            categoryId: request.CategoryId,
             level: level,
             description: request.Description,
             colorCode: colorCode,
@@ -167,13 +166,6 @@ public class AccountService : IAccountService
                 var systemMapping = await _uow.SystemAccountMappings.FirstOrDefaultAsync(
                     m => m.MappingKey == SystemAccountKey.OpeningBalanceEquity.ToString(), ct);
 
-                // Resolve fiscal year from the current date
-                var fiscalYear = await _uow.FiscalYears.FirstOrDefaultAsync(
-                    fy => fy.IsActive, ct);
-                short fiscalYearId = fiscalYear?.Id != null && fiscalYear.Id > 0
-                    ? fiscalYear.Id
-                    : (short)DateTime.UtcNow.Year;
-
                 var entryNumber = $"OB-{DateTime.UtcNow:yyyyMMdd}-{account.Id:D4}";
 
                 var je = JournalEntry.Create(
@@ -183,7 +175,6 @@ public class AccountService : IAccountService
                     entryDate: DateTime.UtcNow,
                     description: $"الرصيد الافتتاحي للحساب {account.NameAr}",
                     entryType: JournalEntryType.OpeningBalance,
-                    fiscalYearId: fiscalYearId,
                     createdBy: userId,
                     referenceType: "Account",
                     referenceId: account.Id);
@@ -264,7 +255,6 @@ public class AccountService : IAccountService
             nature: request.Nature,
             isLeaf: request.IsLeaf,
             parentId: request.ParentId,
-            categoryId: request.CategoryId,
             level: level,
             description: request.Description,
             colorCode: colorCode,
@@ -363,7 +353,7 @@ public class AccountService : IAccountService
             a.ParentAccount?.NameAr,
             a.IsSystem,
             a.IsActive,
-            a.CategoryId,
+            null,
             a.Level,
             a.Description,
             a.ColorCode,

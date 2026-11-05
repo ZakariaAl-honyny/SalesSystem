@@ -119,18 +119,6 @@ public static class DbSeeder
             logger?.LogInformation("Seeded {Count} SystemSettings key-value pairs.", settings.Count);
         }
 
-        if (!await db.Set<Tax>().AnyAsync())
-        {
-            var taxes = new List<Tax>
-            {
-                Tax.Create("بدون ضريبة", "TAX-EXEMPT", 0m, taxType: 3, isDefault: true),
-                Tax.Create("ضريبة القيمة المضافة 5%", "VAT-5", 5m),
-                Tax.Create("ضريبة القيمة المضافة 15%", "VAT-15", 15m),
-            };
-            db.Set<Tax>().AddRange(taxes);
-            logger?.LogInformation("Seeded {Count} tax records.", taxes.Count);
-        }
-
         if (!await db.Set<SystemSetting>().AnyAsync(s => s.SettingKey == "Store.Name"))
         {
             var storeSettings = new List<SystemSetting>
@@ -327,15 +315,6 @@ public static class DbSeeder
                 .ExecuteUpdateAsync(s => s.SetProperty(w => w.BranchId, (short?)1));
             if (fixedCount > 0)
                 logger?.LogInformation("Fixed default Warehouse BranchId → set to 1.");
-        }
-
-        // ─── Default FiscalYear (current year) ─────────────────────
-        if (!await db.FiscalYears.AnyAsync())
-        {
-            var currentYear = DateTime.UtcNow.Year;
-            db.FiscalYears.Add(FiscalYear.Create(currentYear));
-            await db.SaveChangesAsync();
-            logger?.LogInformation("Seeded default FiscalYear for {Year}.", currentYear);
         }
 
         // ─── ProductCategories ──────────────────────────────────────

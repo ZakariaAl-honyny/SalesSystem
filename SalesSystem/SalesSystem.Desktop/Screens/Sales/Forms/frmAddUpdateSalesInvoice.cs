@@ -29,7 +29,6 @@ public partial class frmAddUpdateSalesInvoice : Form
     private List<ProductDto> _allProducts = new();
     private Dictionary<int, List<ProductUnitDto>> _productUnitsCache = new();
     private List<AccountDto> _bankAccounts = new();
-    private List<TaxDto> _taxes = new();
     private bool _isUpdating;
     private Guid? _editingLineKey = null;
     private InvoiceLineItemViewModel? _editingOriginalItem = null;
@@ -44,7 +43,6 @@ public partial class frmAddUpdateSalesInvoice : Form
     private IReceiptPrinter _receiptPrinter => _serviceProvider.GetRequiredService<IReceiptPrinter>();
     private IStoreSettingsService _settingsApi => _serviceProvider.GetRequiredService<IStoreSettingsService>();
     private IAccountService _accountApi => _serviceProvider.GetRequiredService<IAccountService>();
-    private ITaxService _taxApi => _serviceProvider.GetRequiredService<ITaxService>();
     private IInventoryService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryService>();
 
     // ═════════════════════════════════════════════════════════════════
@@ -328,19 +326,9 @@ public partial class frmAddUpdateSalesInvoice : Form
                 _allProducts = productRes.Value.Items.ToList();
             }
 
-            // Taxes — load from DB
-            var taxesRes = await _taxApi.GetAllAsync(default);
-            _taxes = taxesRes.IsSuccess && taxesRes.Value != null ? taxesRes.Value : [];
-            var activeTaxes = _taxes.Where(t => t.IsActive).ToList();
-            cmbTax.DisplayMember = "Name";
-            cmbTax.ValueMember = "Id";
-            cmbTax.DataSource = activeTaxes;
-            if (activeTaxes.Count > 0)
-            {
-                var defaultTax = activeTaxes.FirstOrDefault(t => t.IsDefault) ?? activeTaxes[0];
-                cmbTax.SelectedValue = defaultTax.Id;
-            }
-            cmbTax.Enabled = false; // disabled until checkbox is checked
+            // الضرائب: أُزيلت وحدة الضرائب (V2) — لا قائمة ضرائب مرجعية، فالنسبة = 0
+            // (يبقى الحقل معطلاً؛ قيمة TaxAmount في الطلب = 0 و TaxId = null).
+            cmbTax.Enabled = false;
 
             // Payment type default
             cmbPaymentType.SelectedIndex = 0;
@@ -475,12 +463,9 @@ public partial class frmAddUpdateSalesInvoice : Form
             ? (_invoice.DiscountRate ?? 0m)
             : _invoice.DiscountAmount;
 
-        // Restore tax — if invoice has a TaxId, tax was applied
-        bool hasTax = _invoice.TaxId.HasValue && _invoice.TaxId.Value > 0;
-        chkApplyTax.Checked = hasTax;
-        if (hasTax && _taxes.Any(t => t.Id == _invoice.TaxId!.Value))
-            cmbTax.SelectedValue = _invoice.TaxId!.Value;
-        cmbTax.Enabled = !chkApplyTax.Checked;
+        // Restore tax — أُزيلت وحدة الضرائب (V2): لا قائمة مرجعية ولا TaxId
+        chkApplyTax.Checked = false;
+        cmbTax.Enabled = false;
 
         // Restore payment amounts — split PaidAmount into cash vs bank
         decimal totalPaid = _invoice.PaidAmount;
@@ -555,7 +540,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtBankAmount.Text = "0";
         txtExpenses.Text = "0";
         chkApplyTax.Checked = false;
-        cmbTax.Enabled = true;
+        cmbTax.Enabled = false;
         lblLineTotal.Text = "0.00";
         ClearEntryPanel();
     }
@@ -1847,7 +1832,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             decimal paidAmount = txtPaid.DecimalValue + txtBankAmount.DecimalValue;
             decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp2) ? exp2 : 0m;
             string notes = txtNotes.Text;
-            int? taxId = chkApplyTax.Checked && cmbTax.SelectedValue is int tid ? tid : null;
+            int? taxId = null; // أُزيلت وحدة الضرائب (V2)
 
             // ── Create or Update? ──
             int invoiceId;
@@ -2041,25 +2026,12 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private decimal CalculateTaxAmount(decimal subTotal)
     {
-        if (cmbTax.SelectedValue is not int taxId) return 0m;
-
-        var tax = _taxes.FirstOrDefault(t => t.Id == taxId);
-        if (tax == null || tax.Rate <= 0) return 0m;
-
-        decimal rate = tax.Rate / 100m;
-
-        if (chkApplyTax.Checked)
-        {
-            // شاملة (Inclusive): Tax is embedded in the amount
-            // TaxAmount = SubTotal - (SubTotal / (1 + rate))
-            return subTotal - (subTotal / (1m + rate));
-        }
-        else
-        {
-            // مضافة (Exclusive): Tax is added on top
-            // TaxAmount = SubTotal * rate
-            return subTotal * rate;
-        }
+        // أُزيلت وحدة الضرائب (V2) — لا توجد ضرائب معرّفة في النظام، لذا قيمة الضريبة = 0.
+        // صيغة القانون المالي (إن أُعيد تفعيل الضرائب):
+        //   شاملة  : TaxAmount = SubTotal - (SubTotal / (1 + rate))
+        //   مضافة  : TaxAmount = SubTotal * rate
+        _ = subTotal;
+        return 0m;
     }
 
     private void UpdateUIState()
@@ -2218,7 +2190,8 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void chkApplyTax_CheckedChanged(object? sender, EventArgs e)
     {
-        cmbTax.Enabled = !chkApplyTax.Checked;
+        // أُزيلت وحدة الضرائب (V2) — يبقى اختيار الضريبة معطلاً دائماً.
+        cmbTax.Enabled = false;
         CalculateTotals();
     }
 

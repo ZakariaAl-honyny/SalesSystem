@@ -28,13 +28,6 @@ public interface IInventoryService
     Task<Result<InventoryTransactionDto>> GetTransactionByIdAsync(int id, CancellationToken ct);
     Task<Result<PagedResult<InventoryTransactionDto>>> GetAllTransactionsAsync(int? warehouseId, int? transactionType, int page, int pageSize, CancellationToken ct);
 
-    // ─── Warehouse Transfer ───────────────────────────
-    Task<Result<WarehouseTransferDto>> CreateTransferAsync(CreateWarehouseTransferRequest request, int userId, CancellationToken ct);
-    Task<Result<WarehouseTransferDto>> PostTransferAsync(int transferId, int userId, CancellationToken ct);
-    Task<Result<WarehouseTransferDto>> CancelTransferAsync(int transferId, int userId, CancellationToken ct);
-    Task<Result<WarehouseTransferDto>> GetTransferByIdAsync(int id, CancellationToken ct);
-    Task<Result<PagedResult<WarehouseTransferDto>>> GetAllTransfersAsync(int? sourceWarehouseId, int? destinationWarehouseId, int page, int pageSize, CancellationToken ct);
-
     // ─── Movement History ────────────────────────────
     Task<Result<PagedResult<InventoryTransactionDto>>> GetMovementsAsync(int? productId, int? warehouseId, int? transactionType, int page, int pageSize, CancellationToken ct);
 }

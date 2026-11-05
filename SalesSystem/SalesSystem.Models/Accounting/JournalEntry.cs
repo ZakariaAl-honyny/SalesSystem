@@ -33,10 +33,6 @@ public class JournalEntry : DocumentEntity
     public JournalEntryType EntryType { get; private set; }
     public JournalEntryStatus Status { get; private set; }
 
-    /// <summary>FK to FiscalYears table (smallint). Required for period reporting.</summary>
-    public short FiscalYearId { get; private set; }
-    public FiscalYear? FiscalYear { get; private set; }
-
     /// <summary>
     /// Navigation property to the Branch this journal entry belongs to.
     /// </summary>
@@ -80,7 +76,6 @@ public class JournalEntry : DocumentEntity
         DateTime entryDate,
         string description,
         JournalEntryType entryType,
-        short fiscalYearId,
         int createdBy,
         string? referenceType = null,
         int? referenceId = null,
@@ -104,9 +99,6 @@ public class JournalEntry : DocumentEntity
         if (!Enum.IsDefined(typeof(JournalEntryType), entryType))
             throw new DomainException("نوع القيد المحاسبي غير صالح");
 
-        if (fiscalYearId <= 0)
-            throw new DomainException("السنة المالية مطلوبة");
-
         if (createdBy <= 0)
             throw new DomainException("منشئ القيد المحاسبي مطلوب");
 
@@ -121,7 +113,6 @@ public class JournalEntry : DocumentEntity
             EntryDate = entryDate,
             Description = description.Trim(),
             EntryType = entryType,
-            FiscalYearId = fiscalYearId,
             Status = JournalEntryStatus.Draft,
             ReferenceType = referenceType?.Trim(),
             ReferenceId = referenceId,

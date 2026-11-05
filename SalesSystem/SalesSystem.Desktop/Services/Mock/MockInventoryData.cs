@@ -3,13 +3,11 @@ using SalesSystem.DTO.Responses;
 namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
-/// بيانات تجريبية للمخزون (دفعات + جرد + تسويات) — بيانات عربية واقعية.
+/// بيانات تجريبية للمخزون (دفعات + تسويات) — بيانات عربية واقعية.
 /// </summary>
 /// <remarks>
 /// TODO: الحقول التالية أُزيلت من DTOs المخزون ولم تُعد موجودة:
 /// InventoryBatchDto → ProductCode, ProductBarcode, ProductCategoryName, ProductUnitName, PurchaseInvoiceNo, SupplierName
-/// InventoryCountDto → PostedAt, CancelledAt, CommitteeMembers, BranchId, BranchName
-/// InventoryCountLineDto → ProductName, ProductCode, ProductId, UnitName, UnitCost, BatchNo
 /// InventoryAdjustmentDto → ApprovedBy, BranchId, BranchName
 /// InventoryAdjustmentLineDto → ProductName, ProductCode, ProductId, UnitName, BatchNo, Notes
 /// </remarks>
@@ -115,79 +113,6 @@ internal static class MockInventoryData
             UnitCost: 380m,
             ExpiryDate: null,
             SupplierBatchNo: null)
-    };
-
-    // ═══════════════════════════════════════════════
-    // جرد المخزون — Inventory Counts (Stocktaking Sessions)
-    // ═══════════════════════════════════════════════
-    public static List<InventoryCountDto> Counts { get; } = new()
-    {
-        // ── 1: جرد ربع سنوي — المخزن الرئيسي — مرحّل ──
-        new InventoryCountDto(
-            Id: 1,
-            CountNo: "ST-2026-001",
-            WarehouseId: 1,
-            WarehouseName: "المخزن الرئيسي",
-            Status: 2,
-            StatusName: "مرحّل",
-            Notes: "جرد ربع سنوي أول — لجنة مكونة من 3 أعضاء",
-            CreatedAt: new DateTime(2026, 8, 15, 9, 0, 0),
-            CreatedByUserId: 1,
-            Lines: new List<InventoryCountLineDto>
-            {
-                new(Id: 1, InventoryCountId: 1, ProductUnitId: 1,
-                    ProductUnitName: "شاي ليبتون 250غ — قطعة",
-                    ExpectedQuantity: 125.000m, ActualQuantity: 123.000m,
-                    Difference: -2.000m, Notes: "عجز — يُرجّح كسر أثناء التحميل"),
-                new(Id: 2, InventoryCountId: 1, ProductUnitId: 2,
-                    ProductUnitName: "زيت نباتي 1 لتر — زجاجة",
-                    ExpectedQuantity: 50.000m, ActualQuantity: 50.000m,
-                    Difference: 0m, Notes: null),
-                new(Id: 3, InventoryCountId: 1, ProductUnitId: 4,
-                    ProductUnitName: "سكر أبيض 1 كغ — كيس",
-                    ExpectedQuantity: 200.000m, ActualQuantity: 203.000m,
-                    Difference: 3.000m, Notes: "فائض — أكياس إضافية من دفعة غير مسجّلة"),
-                new(Id: 4, InventoryCountId: 1, ProductUnitId: 8,
-                    ProductUnitName: "حليب مجفف 900غ — علبة",
-                    ExpectedQuantity: 30.000m, ActualQuantity: 28.000m,
-                    Difference: -2.000m, Notes: "عجز — علب تالفة تم التخلص منها")
-            }),
-
-        // ── 2: جرد شهري — مخزن المعرض — مسودة ──
-        new InventoryCountDto(
-            Id: 2,
-            CountNo: "ST-2026-002",
-            WarehouseId: 2,
-            WarehouseName: "مخزن المعرض",
-            Status: 1,
-            StatusName: "مسودة",
-            Notes: "جرد شهري سبتمبر — تدقيق أصناف العرض",
-            CreatedAt: new DateTime(2026, 9, 20, 10, 0, 0),
-            CreatedByUserId: 2,
-            Lines: new List<InventoryCountLineDto>
-            {
-                new(Id: 5, InventoryCountId: 2, ProductUnitId: 3,
-                    ProductUnitName: "أرز بسمتي 5 كغ — كيس",
-                    ExpectedQuantity: 12.000m, ActualQuantity: 11.000m,
-                    Difference: -1.000m, Notes: "عجز — كيس مفتوح للعرض"),
-                new(Id: 6, InventoryCountId: 2, ProductUnitId: 6,
-                    ProductUnitName: "معجون طماطم 400غ — علبة",
-                    ExpectedQuantity: 90.000m, ActualQuantity: 92.000m,
-                    Difference: 2.000m, Notes: "فائض — علب من عرض ترويجي")
-            }),
-
-        // ── 3: جرد استثنائي — تالف — ملغى ──
-        new InventoryCountDto(
-            Id: 3,
-            CountNo: "ST-2026-003",
-            WarehouseId: 1,
-            WarehouseName: "المخزن الرئيسي",
-            Status: 3,
-            StatusName: "ملغي",
-            Notes: "تم إلغاؤه بسبب خطأ في تحديد المستودع",
-            CreatedAt: new DateTime(2026, 9, 10, 8, 0, 0),
-            CreatedByUserId: 1,
-            Lines: null)
     };
 
     // ═══════════════════════════════════════════════

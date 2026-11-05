@@ -112,9 +112,6 @@ public class WarehouseService : IWarehouseService
         if (await _uow.WarehouseStocks.AnyAsync(ws => ws.WarehouseId == id, ct))
             return Result.Failure("لا يمكن حذف المخزن نهائياً لأنه يحتوي على مخزون");
 
-        if (await _uow.WarehouseTransfers.AnyAsync(st => st.SourceWarehouseId == id || st.DestinationWarehouseId == id, ct))
-            return Result.Failure("لا يمكن حذف المخزن نهائياً لأنه مرتبط بتحويلات مخزون");
-
         try
         {
             await _uow.Warehouses.HardDeleteAsync(id, ct);

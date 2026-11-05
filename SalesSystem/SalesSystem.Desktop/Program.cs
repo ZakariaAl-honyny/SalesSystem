@@ -18,9 +18,7 @@ using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Printing.Core;
 using SalesSystem.Desktop.CustomerReceipts.Forms;
 using SalesSystem.Desktop.Screens.Roles.Forms;
-using SalesSystem.Desktop.Screens.Taxes.Forms;
 using SalesSystem.Desktop.Screens.Users.Forms;
-using SalesSystem.Desktop.Screens.StockTransfers.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
 using SalesSystem.Desktop.Screens.POS.Forms;
@@ -36,7 +34,6 @@ using SalesSystem.Desktop.Screens.Expenses.Forms;
 using SalesSystem.Desktop.Screens.CashBoxes.Forms;
 using SalesSystem.Desktop.Screens.CashVouchers.Forms;
 using SalesSystem.Desktop.Screens.Accounting.Forms;
-using SalesSystem.Desktop.Screens.Banks.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
@@ -98,7 +95,6 @@ static class Program
                     services.AddTransient<IEmployeeApiService, MockEmployeeApiService>();
 
                     // Interfaces with NO mock — always Direct:
-                    services.AddTransient<IAccountCategoryApiService, DirectAccountCategoryService>();
                     services.AddTransient<IAuditLogApiService, DirectAuditLogService>();
                     services.AddTransient<IAuthApiService, DirectAuthService>();
                     services.AddTransient<IBackupApiService, DirectBackupService>();
@@ -110,7 +106,6 @@ static class Program
                     services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
                     services.AddTransient<IInventoryApiService, DirectInventoryService>();
                     services.AddTransient<ILogsApiService, DirectLogsService>();
-                    services.AddTransient<INotificationApiService, DirectNotificationService>();
                     services.AddTransient<IPersonApiService, DirectPersonService>();
                     services.AddTransient<IProductPriceApiService, DirectProductPriceService>();
                     services.AddTransient<IPurchaseReportApiService, DirectPurchaseReportService>();
@@ -123,7 +118,6 @@ static class Program
                     if (appSettings.UseMockData)
                     {
                         services.AddTransient<IAccountApiService, MockAccountApiService>();
-                        services.AddTransient<IBankApiService, MockBankApiService>();
                         services.AddTransient<ICashBoxApiService, MockCashBoxApiService>();
                         services.AddTransient<ICategoryApiService, MockCategoryApiService>();
                         services.AddTransient<ICustomerApiService, MockCustomerApiService>();
@@ -131,7 +125,6 @@ static class Program
                         services.AddTransient<IExpenseApiService, MockExpenseApiService>();
                         services.AddTransient<IInventoryAdjustmentApiService, MockInventoryAdjustmentApiService>();
                         services.AddTransient<IInventoryBatchApiService, MockInventoryBatchApiService>();
-                        services.AddTransient<IInventoryCountApiService, MockInventoryCountApiService>();
                         services.AddTransient<IJournalEntryApiService, MockJournalEntryApiService>();
                         services.AddTransient<IPaymentVoucherApiService, MockPaymentVoucherApiService>();
                         services.AddTransient<IProductApiService, MockProductApiService>();
@@ -142,20 +135,16 @@ static class Program
                         services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
                         services.AddTransient<ISalesReturnApiService, MockSalesReturnApiService>();
                         services.AddTransient<ISettingsApiService, MockSettingsApiService>();
-                        services.AddTransient<IStockTransferApiService, MockStockTransferApiService>();
                         services.AddTransient<ISupplierApiService, MockSupplierApiService>();
                         services.AddTransient<ISupplierPaymentApiService, MockSupplierPaymentApiService>();
-                        services.AddTransient<ITaxesApiService, MockTaxesApiService>();
                         services.AddTransient<IUnitApiService, MockUnitApiService>();
                         services.AddTransient<IUserApiService, MockUserApiService>();
-                        services.AddTransient<IUserSessionApiService, MockUserSessionApiService>();
                         services.AddTransient<IWarehouseApiService, MockWarehouseApiService>();
                         services.AddScoped<BizInterfaces.IAuthService, MockAuthService>();
                     }
                     else
                     {
                         services.AddTransient<IAccountApiService, DirectAccountService>();
-                        services.AddTransient<IBankApiService, DirectBankService>();
                         services.AddTransient<ICashBoxApiService, DirectCashBoxService>();
                         services.AddTransient<ICategoryApiService, DirectCategoryService>();
                         services.AddTransient<ICustomerApiService, DirectCustomerService>();
@@ -163,7 +152,6 @@ static class Program
                         services.AddTransient<IExpenseApiService, DirectExpenseService>();
                         services.AddTransient<IInventoryAdjustmentApiService, DirectInventoryAdjustmentService>();
                         services.AddTransient<IInventoryBatchApiService, DirectInventoryBatchService>();
-                        services.AddTransient<IInventoryCountApiService, DirectInventoryCountService>();
                         services.AddTransient<IJournalEntryApiService, DirectJournalEntryService>();
                         services.AddTransient<IPaymentVoucherApiService, DirectPaymentVoucherService>();
                         services.AddTransient<IProductApiService, DirectProductService>();
@@ -174,13 +162,10 @@ static class Program
                         services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
                         services.AddTransient<ISalesReturnApiService, DirectSalesReturnApiService>();
                         services.AddTransient<ISettingsApiService, DirectSettingsService>();
-                        services.AddTransient<IStockTransferApiService, DirectStockTransferService>();
                         services.AddTransient<ISupplierApiService, DirectSupplierService>();
                         services.AddTransient<ISupplierPaymentApiService, DirectSupplierPaymentService>();
-                        services.AddTransient<ITaxesApiService, DirectTaxesService>();
                         services.AddTransient<IUnitApiService, DirectUnitService>();
                         services.AddTransient<IUserApiService, DirectUserService>();
-                        services.AddTransient<IUserSessionApiService, DirectUserSessionService>();
                         services.AddTransient<IWarehouseApiService, DirectWarehouseService>();
                         services.AddScoped<BizInterfaces.IAuthService, BizServices.AuthService>();
                     }
@@ -204,21 +189,16 @@ static class Program
 
                     // Accounting Services
                     services.AddScoped<BizInterfaces.IAccountingIntegrationService, AccountingIntegrationService>();
-                    services.AddScoped<BizInterfaces.IAnnualClosingService, AnnualClosingService>();
-                    services.AddScoped<BizInterfaces.IFiscalYearService, FiscalYearService>();
                     services.AddScoped<BizInterfaces.IJournalEntryNumberGenerator, JournalEntryNumberGenerator>();
                     services.AddScoped<BizInterfaces.IJournalEntryService, JournalEntryService>();
                     services.AddScoped<BizInterfaces.ISystemAccountService, SystemAccountService>();
 
                     // Business Services
-                    services.AddScoped<BizInterfaces.IAccountCategoryService, BizServices.AccountCategoryService>();
                     services.AddScoped<BizInterfaces.IAccountCodeGeneratorService, BizServices.AccountCodeGeneratorService>();
                     services.AddScoped<BizInterfaces.IAccountLinkService, BizServices.AccountLinkService>();
                     services.AddScoped<BizInterfaces.IAccountService, BizServices.AccountService>();
                     services.AddScoped<BizInterfaces.IAssemblyService, BizServices.AssemblyService>();
-                    services.AddScoped<BizInterfaces.IAttachmentService, BizServices.AttachmentService>();
                     services.AddScoped<BizInterfaces.IAuditLogService, BizServices.AuditLogService>();
-                    services.AddScoped<BizInterfaces.IBankService, BizServices.BankService>();
                     services.AddScoped<BizInterfaces.IBarcodeLookupService, BizServices.BarcodeLookupService>();
                     services.AddScoped<BizInterfaces.IBranchService, BizServices.BranchService>();
                     services.AddScoped<BizInterfaces.ICashBoxReportService, BizServices.CashBoxReportService>();
@@ -233,10 +213,8 @@ static class Program
                     services.AddScoped<BizInterfaces.IFinancialReportService, BizServices.FinancialReportService>();
                     services.AddScoped<BizInterfaces.IInventoryAdjustmentService, BizServices.InventoryAdjustmentService>();
                     services.AddScoped<BizInterfaces.IInventoryBatchService, BizServices.InventoryBatchService>();
-                    services.AddScoped<BizInterfaces.IInventoryCountService, BizServices.InventoryCountService>();
                     services.AddScoped<BizInterfaces.IInventoryService, BizServices.InventoryService>();
                     services.AddScoped<BizInterfaces.IMinStockAlertService, BizServices.MinStockAlertService>();
-                    services.AddScoped<BizInterfaces.INotificationService, BizServices.NotificationService>();
                     services.AddScoped<BizInterfaces.IPaymentVoucherService, BizServices.PaymentVoucherService>();
                     services.AddScoped<BizInterfaces.IPermissionService, BizServices.PermissionService>();
                     services.AddScoped<BizInterfaces.IPersonService, BizServices.PersonService>();
@@ -255,19 +233,16 @@ static class Program
                     services.AddScoped<BizInterfaces.ISalesReportService, BizServices.SalesReportService>();
                     services.AddScoped<BizInterfaces.ISalesReturnService, BizServices.SalesReturnService>();
                     services.AddScoped<BizInterfaces.ISalesService, BizServices.SalesService>();
-                    services.AddScoped<BizInterfaces.ISessionManagementService, BizServices.SessionManagementService>();
                     services.AddScoped<BizInterfaces.IStoreSettingsService, BizServices.StoreSettingsService>();
                     services.AddScoped<BizInterfaces.ISupplierContactService, BizServices.SupplierContactService>();
                     services.AddScoped<BizInterfaces.ISupplierPaymentApplicationService, BizServices.SupplierPaymentApplicationService>();
                     services.AddScoped<BizInterfaces.ISupplierPaymentService, BizServices.SupplierPaymentService>();
                     services.AddScoped<BizInterfaces.ISupplierService, BizServices.SupplierService>();
-                    services.AddScoped<BizInterfaces.ITaxService, BizServices.TaxService>();
                     services.AddScoped<BizInterfaces.IUnitService, BizServices.UnitService>();
                     services.AddScoped<BizInterfaces.IUpdateProductPricingService, BizServices.UpdateProductPricingService>();
                     services.AddScoped<BizInterfaces.IUserReportService, BizServices.UserReportService>();
                     services.AddScoped<BizInterfaces.IUserService, BizServices.UserService>();
                     services.AddScoped<BizInterfaces.IWarehouseService, BizServices.WarehouseService>();
-                    services.AddScoped<BizInterfaces.IWarehouseTransferService, BizServices.WarehouseTransferService>();
 
                     // Core Infrastructure Services
                     services.AddSingleton<IEventBus, EventBus>();
@@ -295,7 +270,6 @@ static class Program
                     services.AddTransient<frmPurchaseInvoice>();
                     services.AddTransient<frmSalesReturn>();
                     services.AddTransient<frmPurchaseReturn>();
-                    // services.AddTransient<frmStockTransfer>(); // MVP: hidden (V2)
                     services.AddTransient<frmListPeople>();
                     services.AddTransient<frmAddUpdatePerson>();
                     services.AddTransient<frmShowPersonInfo>();
@@ -322,11 +296,9 @@ static class Program
                     // services.AddTransient<frmListCustomers>();
                     // services.AddTransient<frmListSuppliers>();
                     services.AddTransient<frmInventoryList>();
-                    // services.AddTransient<frmListStockTransfers>(); // MVP: hidden (V2)
                     services.AddTransient<frmListPayments>();
                     services.AddTransient<frmSettings>();
                     services.AddTransient<frmCompanySettings>();
-                    // services.AddTransient<frmNotifications>(); // MVP: hidden (V2)
                     // services.AddTransient<frmUpdateCheck>(); // MVP: hidden (V2)
                     services.AddTransient<frmReports>();
                     services.AddTransient<frmSalesReport>();
@@ -342,10 +314,8 @@ static class Program
                     // services.AddTransient<frmListAccounts>(); // MVP: hidden (V2)
                     // services.AddTransient<frmAddUpdateAccount>(); // MVP: hidden (V2)
                     // services.AddTransient<frmSystemAccountMappings>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmListAccountCategories>(); // MVP: hidden (V2)
                     // MVP: مخفي — replaced by Master form
                     // services.AddTransient<frmListCategories>();
-                    // services.AddTransient<frmAddUpdateAccountCategory>(); // MVP: hidden (V2)
                     // Users/Admin Forms
                     services.AddTransient<frmPasswordChange>();
                     services.AddTransient<frmBackup>();
@@ -354,18 +324,11 @@ static class Program
                     services.AddTransient<frmRoleMaster>();
                     // services.AddTransient<frmAuditLog>(); // MVP: hidden (V2)
                     // services.AddTransient<frmSystemLogs>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmUserSessions>(); // MVP: hidden (V2)
                     // services.AddTransient<frmDocumentSequences>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmListTaxes>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmAddUpdateTax>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmListAccountCategories>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmAddUpdateAccountCategory>(); // MVP: hidden (V2)
 
                     // Inventory Module - New Forms
                     services.AddTransient<frmListInventoryAdjustments>();
                     services.AddTransient<frmAddUpdateInventoryAdjustment>();
-                    // services.AddTransient<frmListInventoryCounts>(); // MVP: hidden (V2)
-                    // services.AddTransient<frmInventoryCountEditor>(); // MVP: hidden (V2)
                     services.AddTransient<frmListInventoryTransactions>();
                     services.AddTransient<frmListInventoryBatches>();
                     services.AddTransient<frmOpeningStock>();
@@ -378,9 +341,6 @@ static class Program
                     services.AddTransient<frmCashTransfer>();
                     services.AddTransient<frmCashBoxTransactions>();
                     services.AddTransient<frmDailyClosure>();
-
-                    // Banks Module
-                    services.AddTransient<frmBankMaster>();
 
                     // Expenses Module
                     services.AddTransient<frmListExpenses>();

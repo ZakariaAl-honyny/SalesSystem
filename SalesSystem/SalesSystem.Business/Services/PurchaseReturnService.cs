@@ -182,8 +182,7 @@ public class PurchaseReturnService : IPurchaseReturnService
             pr.SetProportionalAmounts(
                 invoice.DiscountAmount * ratio,
                 invoice.TaxAmount * ratio,
-                invoice.OtherCharges * ratio,
-                invoice.TaxId);
+                invoice.OtherCharges * ratio);
         }
 
         return await _uow.ExecuteTransactionAsync<Result<PurchaseReturnDto>>(async () =>
@@ -436,7 +435,7 @@ public class PurchaseReturnService : IPurchaseReturnService
             r.ReturnedDiscountAmount,
             r.ReturnedTaxAmount,
             r.ReturnedChargeAmount,
-            r.TaxId,
+            null,
             (byte)r.DiscountType,
             r.DiscountRate,
             r.Notes,

@@ -23,8 +23,6 @@ public class SalesDbContext : DbContext
     public DbSet<SalesReturnLine> SalesReturnLines => Set<SalesReturnLine>();
     public DbSet<PurchaseReturn> PurchaseReturns => Set<PurchaseReturn>();
     public DbSet<PurchaseReturnLine> PurchaseReturnLines => Set<PurchaseReturnLine>();
-    public DbSet<WarehouseTransfer> WarehouseTransfers => Set<WarehouseTransfer>();
-    public DbSet<WarehouseTransferLine> WarehouseTransferLines => Set<WarehouseTransferLine>();
     public DbSet<SupplierPayment> SupplierPayments => Set<SupplierPayment>();
     public DbSet<CustomerReceipt> CustomerReceipts => Set<CustomerReceipt>();
     public DbSet<CustomerReceiptApplication> CustomerReceiptApplications => Set<CustomerReceiptApplication>();
@@ -42,15 +40,9 @@ public class SalesDbContext : DbContext
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<JournalEntryLine> JournalEntryLines => Set<JournalEntryLine>();
     public DbSet<SystemAccountMapping> SystemAccountMappings => Set<SystemAccountMapping>();
-    public DbSet<Tax> Taxes => Set<Tax>();
-    public DbSet<FiscalYear> FiscalYears => Set<FiscalYear>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<InventoryAdjustment> InventoryAdjustments => Set<InventoryAdjustment>();
     public DbSet<InventoryAdjustmentLine> InventoryAdjustmentLines => Set<InventoryAdjustmentLine>();
-    public DbSet<InventoryCount> InventoryCounts => Set<InventoryCount>();
-    public DbSet<InventoryCountLine> InventoryCountLines => Set<InventoryCountLine>();
-    public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Branch> Branches => Set<Branch>();
     public DbSet<BillOfMaterials> BillOfMaterials => Set<BillOfMaterials>();
 

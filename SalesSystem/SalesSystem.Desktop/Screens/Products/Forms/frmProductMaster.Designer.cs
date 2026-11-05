@@ -50,18 +50,12 @@ partial class frmProductMaster
         numMainUnitMaxDiscount = new NumericUpDown();
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
-        btnRefresh = new Button();
         btnSave = new Button();
         btnDelete = new Button();
         btnManageUnits = new Button();
+        btnRefresh = new Button();
         pnlGrid = new Panel();
         dgvProducts = new DataGridView();
-        colId = new DataGridViewTextBoxColumn();
-        colName = new DataGridViewTextBoxColumn();
-        colCategoryName = new DataGridViewTextBoxColumn();
-        colBarcode = new DataGridViewTextBoxColumn();
-        colReorderLevel = new DataGridViewTextBoxColumn();
-        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
@@ -135,7 +129,8 @@ partial class frmProductMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
-        txtCode.TabIndex = 0;
+        txtCode.TabIndex = 9;
+        txtCode.TabStop = false;
         // 
         // lblName
         // 
@@ -153,6 +148,8 @@ partial class frmProductMaster
         lblNameReq.ForeColor = Color.Red;
         lblNameReq.Location = new Point(949, 3);
         lblNameReq.Name = "lblNameReq";
+        lblNameReq.Size = new Size(23, 24);
+        lblNameReq.TabIndex = 3;
         lblNameReq.Text = "*";
         // 
         // txtName
@@ -160,7 +157,7 @@ partial class frmProductMaster
         txtName.Location = new Point(911, 30);
         txtName.Name = "txtName";
         txtName.Size = new Size(240, 32);
-        txtName.TabIndex = 1;
+        txtName.TabIndex = 4;
         // 
         // lblForeignName
         // 
@@ -176,7 +173,7 @@ partial class frmProductMaster
         txtForeignName.Location = new Point(675, 30);
         txtForeignName.Name = "txtForeignName";
         txtForeignName.Size = new Size(230, 32);
-        txtForeignName.TabIndex = 2;
+        txtForeignName.TabIndex = 5;
         // 
         // lblCategory
         // 
@@ -194,6 +191,8 @@ partial class frmProductMaster
         lblCategoryReq.ForeColor = Color.Red;
         lblCategoryReq.Location = new Point(1182, 3);
         lblCategoryReq.Name = "lblCategoryReq";
+        lblCategoryReq.Size = new Size(23, 24);
+        lblCategoryReq.TabIndex = 7;
         lblCategoryReq.Text = "*";
         // 
         // cmbCategory
@@ -209,7 +208,8 @@ partial class frmProductMaster
         btnAddCategory.Location = new Point(1383, 31);
         btnAddCategory.Name = "btnAddCategory";
         btnAddCategory.Size = new Size(46, 31);
-        btnAddCategory.TabIndex = 4;
+        btnAddCategory.TabIndex = 0;
+        btnAddCategory.TabStop = false;
         // 
         // lblLocation
         // 
@@ -225,7 +225,7 @@ partial class frmProductMaster
         txtLocationInStore.Location = new Point(989, 161);
         txtLocationInStore.Name = "txtLocationInStore";
         txtLocationInStore.Size = new Size(290, 32);
-        txtLocationInStore.TabIndex = 5;
+        txtLocationInStore.TabIndex = 15;
         // 
         // lblReorderLevel
         // 
@@ -242,7 +242,7 @@ partial class frmProductMaster
         numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numReorderLevel.Name = "numReorderLevel";
         numReorderLevel.Size = new Size(155, 32);
-        numReorderLevel.TabIndex = 6;
+        numReorderLevel.TabIndex = 10;
         // 
         // chkTrackExpiry
         // 
@@ -250,7 +250,7 @@ partial class frmProductMaster
         chkTrackExpiry.Location = new Point(947, 102);
         chkTrackExpiry.Name = "chkTrackExpiry";
         chkTrackExpiry.Size = new Size(153, 28);
-        chkTrackExpiry.TabIndex = 7;
+        chkTrackExpiry.TabIndex = 11;
         chkTrackExpiry.Text = "الصنف ينتهي؟";
         // 
         // lblExpiryDays
@@ -268,7 +268,7 @@ partial class frmProductMaster
         numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
         numExpiryAlertDays.Name = "numExpiryAlertDays";
         numExpiryAlertDays.Size = new Size(175, 32);
-        numExpiryAlertDays.TabIndex = 8;
+        numExpiryAlertDays.TabIndex = 12;
         // 
         // grpMainUnit
         // 
@@ -284,10 +284,11 @@ partial class frmProductMaster
         grpMainUnit.Controls.Add(txtMainUnitBarcode);
         grpMainUnit.Controls.Add(lblMainUnitMaxDiscount);
         grpMainUnit.Controls.Add(numMainUnitMaxDiscount);
+        grpMainUnit.ImeMode = ImeMode.On;
         grpMainUnit.Location = new Point(199, 3);
         grpMainUnit.Name = "grpMainUnit";
         grpMainUnit.Size = new Size(470, 170);
-        grpMainUnit.TabIndex = 9;
+        grpMainUnit.TabIndex = 6;
         grpMainUnit.TabStop = false;
         grpMainUnit.Text = "الوحدة الرئيسية";
         // 
@@ -307,6 +308,8 @@ partial class frmProductMaster
         lblMainUnitReq.ForeColor = Color.Red;
         lblMainUnitReq.Location = new Point(284, 27);
         lblMainUnitReq.Name = "lblMainUnitReq";
+        lblMainUnitReq.Size = new Size(23, 24);
+        lblMainUnitReq.TabIndex = 1;
         lblMainUnitReq.Text = "*";
         // 
         // cmbMainUnit
@@ -315,7 +318,7 @@ partial class frmProductMaster
         cmbMainUnit.Location = new Point(302, 54);
         cmbMainUnit.Name = "cmbMainUnit";
         cmbMainUnit.Size = new Size(140, 32);
-        cmbMainUnit.TabIndex = 0;
+        cmbMainUnit.TabIndex = 7;
         // 
         // lblMainUnitCostPrice
         // 
@@ -332,7 +335,7 @@ partial class frmProductMaster
         numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitCostPrice.Name = "numMainUnitCostPrice";
         numMainUnitCostPrice.Size = new Size(127, 32);
-        numMainUnitCostPrice.TabIndex = 1;
+        numMainUnitCostPrice.TabIndex = 7;
         // 
         // lblMainUnitSalePrice
         // 
@@ -349,7 +352,7 @@ partial class frmProductMaster
         numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitSalePrice.Name = "numMainUnitSalePrice";
         numMainUnitSalePrice.Size = new Size(127, 32);
-        numMainUnitSalePrice.TabIndex = 2;
+        numMainUnitSalePrice.TabIndex = 8;
         // 
         // lblMainUnitBarcode
         // 
@@ -365,7 +368,7 @@ partial class frmProductMaster
         txtMainUnitBarcode.Location = new Point(36, 125);
         txtMainUnitBarcode.Name = "txtMainUnitBarcode";
         txtMainUnitBarcode.Size = new Size(180, 32);
-        txtMainUnitBarcode.TabIndex = 3;
+        txtMainUnitBarcode.TabIndex = 14;
         // 
         // lblMainUnitMaxDiscount
         // 
@@ -381,7 +384,7 @@ partial class frmProductMaster
         numMainUnitMaxDiscount.Location = new Point(282, 125);
         numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
         numMainUnitMaxDiscount.Size = new Size(127, 32);
-        numMainUnitMaxDiscount.TabIndex = 4;
+        numMainUnitMaxDiscount.TabIndex = 13;
         // 
         // pnlButtons
         // 
@@ -404,9 +407,10 @@ partial class frmProductMaster
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
-        btnNew.TabIndex = 0;
+        btnNew.TabIndex = 16;
         btnNew.Text = "🆕 إضافة";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click_1;
         // 
         // btnSave
         // 
@@ -415,9 +419,10 @@ partial class frmProductMaster
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
-        btnSave.TabIndex = 1;
+        btnSave.TabIndex = 17;
         btnSave.Text = "💾 تعديل";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click_1;
         // 
         // btnDelete
         // 
@@ -426,7 +431,7 @@ partial class frmProductMaster
         btnDelete.Location = new Point(989, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
-        btnDelete.TabIndex = 2;
+        btnDelete.TabIndex = 18;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
         // 
@@ -438,9 +443,20 @@ partial class frmProductMaster
         btnManageUnits.Location = new Point(803, 13);
         btnManageUnits.Name = "btnManageUnits";
         btnManageUnits.Size = new Size(180, 35);
-        btnManageUnits.TabIndex = 3;
+        btnManageUnits.TabIndex = 20;
         btnManageUnits.Text = "📦 الوحدات والأسعار";
         btnManageUnits.UseVisualStyleBackColor = false;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.White;
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Location = new Point(550, 4);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 32);
+        btnRefresh.TabIndex = 21;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
         // 
         // pnlGrid
         // 
@@ -457,11 +473,9 @@ partial class frmProductMaster
         // 
         dgvProducts.AllowUserToAddRows = false;
         dgvProducts.AllowUserToDeleteRows = false;
-        dgvProducts.AutoGenerateColumns = false;
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategoryName, colBarcode, colReorderLevel, colIsActive });
         dgvProducts.Dock = DockStyle.Fill;
         dgvProducts.Location = new Point(10, 50);
         dgvProducts.MultiSelect = false;
@@ -472,60 +486,6 @@ partial class frmProductMaster
         dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvProducts.Size = new Size(1412, 300);
         dgvProducts.TabIndex = 0;
-        // 
-        // colId
-        // 
-        colId.DataPropertyName = "Id";
-        colId.FillWeight = 7F;
-        colId.HeaderText = "رقم الصنف";
-        colId.MinimumWidth = 80;
-        colId.Name = "colId";
-        colId.ReadOnly = true;
-        // 
-        // colName
-        // 
-        colName.DataPropertyName = "Name";
-        colName.FillWeight = 22F;
-        colName.HeaderText = "اسم الصنف";
-        colName.MinimumWidth = 200;
-        colName.Name = "colName";
-        colName.ReadOnly = true;
-        // 
-        // colCategoryName
-        // 
-        colCategoryName.DataPropertyName = "CategoryName";
-        colCategoryName.FillWeight = 12F;
-        colCategoryName.HeaderText = "المجموعة";
-        colCategoryName.MinimumWidth = 120;
-        colCategoryName.Name = "colCategoryName";
-        colCategoryName.ReadOnly = true;
-        // 
-        // colBarcode
-        // 
-        colBarcode.DataPropertyName = "Barcode";
-        colBarcode.FillWeight = 12F;
-        colBarcode.HeaderText = "الباركود";
-        colBarcode.MinimumWidth = 110;
-        colBarcode.Name = "colBarcode";
-        colBarcode.ReadOnly = true;
-        // 
-        // colReorderLevel
-        // 
-        colReorderLevel.DataPropertyName = "ReorderLevel";
-        colReorderLevel.FillWeight = 10F;
-        colReorderLevel.HeaderText = "نقطة إعادة الطلب";
-        colReorderLevel.MinimumWidth = 110;
-        colReorderLevel.Name = "colReorderLevel";
-        colReorderLevel.ReadOnly = true;
-        // 
-        // colIsActive
-        // 
-        colIsActive.DataPropertyName = "IsActive";
-        colIsActive.FillWeight = 6F;
-        colIsActive.HeaderText = "نشط";
-        colIsActive.MinimumWidth = 60;
-        colIsActive.Name = "colIsActive";
-        colIsActive.ReadOnly = true;
         // 
         // pnlFilter
         // 
@@ -543,18 +503,7 @@ partial class frmProductMaster
         txtSearch.Location = new Point(690, 7);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 99;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = Color.White;
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(550, 4);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
-        btnRefresh.TabIndex = 98;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
+        txtSearch.TabIndex = 20;
         // 
         // lblSearch
         // 

@@ -76,14 +76,6 @@ public class JournalEntryService : IJournalEntryService
             }
 
             // 6. Create the journal entry via domain factory (Draft status)
-            // Resolve fiscal year from entry date — MUST look up actual FiscalYear.Id from DB
-            var fiscalYear = await _uow.FiscalYears.FirstOrDefaultAsync(
-                fy => fy.Year == request.EntryDate.Year && fy.IsActive,
-                ct: ct);
-            if (fiscalYear == null)
-                return Result<int>.Failure(
-                    $"السنة المالية {request.EntryDate.Year} غير موجودة أو غير نشطة — يرجى إنشاء السنة المالية أولاً");
-
             var entry = SalesSystem.Models.Accounting.JournalEntry.Create(
                 branchId: 1,
                 numberResult.Value.EntryNumber,
@@ -91,7 +83,6 @@ public class JournalEntryService : IJournalEntryService
                 request.EntryDate,
                 request.Description ?? string.Empty,
                 request.EntryType,
-                fiscalYear.Id,
                 userId,
                 referenceType: request.ReferenceType,
                 referenceId: request.ReferenceId,

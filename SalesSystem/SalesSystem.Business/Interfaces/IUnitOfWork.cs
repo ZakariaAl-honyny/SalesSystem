@@ -9,7 +9,6 @@ public interface IUnitOfWork
 {
     IGenericRepository<User> Users { get; }
     IGenericRepository<Unit> Units { get; }
-    IGenericRepository<Tax> Taxes { get; }
     IGenericRepository<Product> Products { get; }
     IGenericRepository<Warehouse> Warehouses { get; }
     IGenericRepository<Supplier> Suppliers { get; }
@@ -33,27 +32,19 @@ public interface IUnitOfWork
     IGenericRepository<SystemAccountMapping> SystemAccountMappings { get; }
     IGenericRepository<ReceiptVoucher> ReceiptVouchers { get; }
     IGenericRepository<PaymentVoucher> PaymentVouchers { get; }
-    IGenericRepository<FiscalYear> FiscalYears { get; }
     IGenericRepository<InventoryBatch> InventoryBatches { get; }
     IGenericRepository<ProductPrice> ProductPrices { get; }
     IGenericRepository<Role> Roles { get; }
     IAuditLogRepository AuditLogs { get; }
-    IGenericRepository<UserSession> UserSessions { get; }
     // New entity repositories (v4.7+)
-    IGenericRepository<Attachment> Attachments { get; }
-    IGenericRepository<Notification> Notifications { get; }
-    IGenericRepository<Bank> Banks { get; }
     IGenericRepository<Branch> Branches { get; }
     IGenericRepository<ProductCategory> ProductCategories { get; }
-    IGenericRepository<InventoryCount> InventoryCounts { get; }
-    IGenericRepository<InventoryCountLine> InventoryCountLines { get; }
     IGenericRepository<InventoryAdjustment> InventoryAdjustments { get; }
     IGenericRepository<InventoryAdjustmentLine> InventoryAdjustmentLines { get; }
     IGenericRepository<Expense> Expenses { get; }
     IGenericRepository<CustomerReceipt> CustomerReceipts { get; }
     IGenericRepository<CustomerReceiptApplication> CustomerReceiptApplications { get; }
     IGenericRepository<SupplierPaymentApplication> SupplierPaymentApplications { get; }
-    IGenericRepository<AccountCategory> AccountCategories { get; }
     IGenericRepository<CompanySettings> CompanySettings { get; }
 
     // Customer/Supplier Contact repositories
@@ -66,8 +57,6 @@ public interface IUnitOfWork
     // === New Inventory Module (v4.10+) ===
     IGenericRepository<InventoryTransaction> InventoryTransactions { get; }
     IGenericRepository<InventoryTransactionLine> InventoryTransactionLines { get; }
-    IGenericRepository<WarehouseTransfer> WarehouseTransfers { get; }
-    IGenericRepository<WarehouseTransferLine> WarehouseTransferLines { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);

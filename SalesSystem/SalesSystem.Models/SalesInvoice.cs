@@ -9,7 +9,6 @@ public class SalesInvoice : DocumentEntity
     public int CustomerId { get; private set; }
     public short WarehouseId { get; private set; }
     public int? CashBoxId { get; private set; }
-    public short? TaxId { get; private set; }
     public DateTime InvoiceDate { get; private set; }
     public PaymentType PaymentType { get; private set; }
     public decimal SubTotal { get; private set; }
@@ -42,7 +41,6 @@ public class SalesInvoice : DocumentEntity
     public virtual Customer? Customer { get; private set; }
     public virtual Warehouse? Warehouse { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
-    public virtual Tax? Tax { get; private set; }
     /// <summary>
     /// Navigation property to the Branch this invoice belongs to.
     /// </summary>
@@ -62,7 +60,6 @@ public class SalesInvoice : DocumentEntity
         decimal otherCharges = 0,
         string? notes = null,
         int? cashBoxId = null,
-        short? taxId = null,
         DiscountType discountType = DiscountType.Amount,
         decimal? discountRate = null,
         decimal? baseNetTotal = null,
@@ -91,7 +88,6 @@ public class SalesInvoice : DocumentEntity
             WarehouseId = warehouseId,
             InvoiceNo = invoiceNo,
             CashBoxId = cashBoxId,
-            TaxId = taxId,
             CustomerId = customerId,
             InvoiceDate = invoiceDate ?? DateTime.UtcNow,
             PaymentType = paymentType,
@@ -158,15 +154,6 @@ public class SalesInvoice : DocumentEntity
     {
         if (taxAmount < 0)
             throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
-        TaxAmount = taxAmount;
-        RecalculateTotals();
-    }
-
-    public void SetTax(short? taxId, decimal taxAmount)
-    {
-        if (taxAmount < 0)
-            throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
-        TaxId = taxId;
         TaxAmount = taxAmount;
         RecalculateTotals();
     }

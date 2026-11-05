@@ -7,10 +7,8 @@ using SalesSystem.Desktop.CustomerReceipts.Forms;
 using SalesSystem.Common.Enums.Permissions;
 
 using Microsoft.Extensions.DependencyInjection;
-using SalesSystem.Desktop.Screens.Taxes.Forms;
 using SalesSystem.Desktop.Screens.Roles.Forms;
 using SalesSystem.Desktop.Screens.Users.Forms;
-using SalesSystem.Desktop.Screens.StockTransfers.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
 using SalesSystem.Desktop.Screens.POS.Forms;
@@ -25,7 +23,6 @@ using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
 using SalesSystem.Desktop.Screens.CashBoxes.Forms;
 using SalesSystem.Desktop.Screens.CashVouchers.Forms;
-using SalesSystem.Desktop.Screens.Banks.Forms;
 using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
@@ -74,8 +71,7 @@ public partial class frmMain : Form
         msbtnAddSupplier.Visible = false;           // MVP: مخفي — add handled inside Master form
 
         // ── المخزون ─────────────────────────────────────────────────────────
-        msbtnStockTransfer.Visible = false;         // MVP: مخفي (V2)
-        msbtnInventoryCounts.Visible = false;       // MVP: مخفي (V2)
+        // (تحويل المخزون والجرد: أُزيلت شاشاتهما مع وحدة V2)
 
         // ── المبيعات ────────────────────────────────────────────────────────
         msbtnSalesProfitBreakdown.Visible = false;  // MVP: مخفي (V2)
@@ -96,7 +92,6 @@ public partial class frmMain : Form
         msbtnAccounting.Visible = false;            // MVP: مخفي (V2)
         msbtnChartOfAccounts.Visible = false;       // MVP: مخفي (V2)
         msbtnJournalEntries.Visible = false;        // MVP: مخفي (V2)
-        msbtnAccountCategories.Visible = false;     // MVP: مخفي (V2)
         msbtnSystemAccountMappings.Visible = false; // MVP: مخفي (V2)
         msbtnReceiptVouchers.Visible = false;       // MVP: مخفي (V2)
 
@@ -105,12 +100,9 @@ public partial class frmMain : Form
         msbtnPermissions.Visible = false;           // MVP: مخفي (V2)
         msbtnAuditLog.Visible = false;              // MVP: مخفي (V2)
         msbtnSystemLogs.Visible = false;            // MVP: مخفي (V2)
-        msbtnUserSessions.Visible = false;          // MVP: مخفي (V2)
         msbtnDocumentSequences.Visible = false;     // MVP: مخفي (V2)
-        msbtnTaxes.Visible = false;                 // MVP: مخفي (V2) — الضرائب
 
         // ── الإعدادات ───────────────────────────────────────────────────────
-        msbtnNotifications.Visible = false;         // MVP: مخفي (V2)
         msbtnUpdateCheck.Visible = false;           // MVP: مخفي (V2)
         // msbtnSettings / msbtnCompanySettings / msbtnBackup تبقى ظاهرة
     }
@@ -141,13 +133,10 @@ public partial class frmMain : Form
             msbtnPermissions.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageRoles);
             msbtnAuditLog.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
             msbtnSystemLogs.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ViewAuditLogs);
-            msbtnUserSessions.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageUsers);
             msbtnDocumentSequences.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
             msbtnSettings.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
             msbtnCompanySettings.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
-            msbtnNotifications.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
             msbtnBackup.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageBackups);
-            msbtnTaxes.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageTaxes);
             msbtnUpdateCheck.Visible = SessionManager.HasSystemPermission((long)SystemPermissions.ManageSettings);
 
             // المبيعات (SalesPermissions)
@@ -186,11 +175,9 @@ public partial class frmMain : Form
             msbtnManageCategories.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ManageCategories);
             msbtnManageUnits.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ManageUnits);
             msbtnManageWarehouses.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
-            msbtnStockTransfer.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.TransferStock);
             msbtnInventoryMovement.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
             msbtnInventory.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewStock);
             msbtnInventoryAdjustments.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.AdjustStock);
-            msbtnInventoryCounts.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.CountStock);
 
             // المشتريات (مرتبط بالمخزون)
             msbtnManagePurchases.Visible = SessionManager.HasInventoryPermission((long)InventoryPermissions.ViewProducts);
@@ -207,13 +194,11 @@ public partial class frmMain : Form
             msbtnChartOfAccounts.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewAccounts);
             msbtnAccounting.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewAccounts);
             msbtnJournalEntries.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewJournalEntries);
-            msbtnAccountCategories.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ManageAccounts);
             msbtnSystemAccountMappings.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ManageAccounts);
             msbtnReceiptVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewReceiptVouchers);
             msbtnPaymentVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewPaymentVouchers);
             msbtnCashBoxes.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
             msbtnCashVouchers.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
-            msbtnBanks.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewCashBoxes);
             msbtnExpenses.Visible = SessionManager.HasAccountingPermission((long)AccountingPermissions.ViewExpenses);
 
             // التقارير
@@ -290,9 +275,6 @@ public partial class frmMain : Form
     private void msbtnManageWarehouses_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWarehouseMaster>());
 
-    private void msbtnStockTransfer_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListStockTransfers>());
-
     private void msbtnInventoryMovement_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventoryList>());
 
@@ -300,7 +282,9 @@ public partial class frmMain : Form
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryAdjustments>());
 
     private void msbtnInventoryCounts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryCounts>());
+    {
+        // MVP: شاشة الجرد المخزني (V2) أُزيلت مع الوحدة — لا إجراء.
+    }
 
     private void msbtnInventory_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventory>());
@@ -385,9 +369,6 @@ public partial class frmMain : Form
     private void msbtnCashBoxes_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxMaster>());
 
-    private void msbtnBanks_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmBankMaster>());
-
     private void msbtnExpenses_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListExpenses>());
 
@@ -410,9 +391,6 @@ public partial class frmMain : Form
 
     private void msbtnJournalEntries_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListJournalEntries>());
-
-    private void msbtnAccountCategories_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListAccountCategories>());
 
     private void msbtnSystemAccountMappings_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSystemAccountMappings>());
@@ -443,14 +421,8 @@ public partial class frmMain : Form
     private void msbtnSystemLogs_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSystemLogs>());
 
-    private void msbtnUserSessions_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUserSessions>());
-
     private void msbtnDocumentSequences_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDocumentSequences>());
-
-    private void msbtnTaxes_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListTaxes>());
 
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
 
@@ -467,9 +439,6 @@ public partial class frmMain : Form
 
     private void msbtnCompanySettings_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCompanySettings>());
-
-    private void msbtnNotifications_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmNotifications>());
 
     private void msbtnUpdateCheck_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUpdateCheck>());

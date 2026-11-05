@@ -18,7 +18,6 @@ public class SalesReturnConfiguration : IEntityTypeConfiguration<SalesReturn>
         builder.Property(sr => sr.ReturnedTaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(sr => sr.ReturnedChargeAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(sr => sr.RefundAmount).HasPrecision(18, 2).HasDefaultValue(0m);
-        builder.Property(sr => sr.TaxId).HasColumnType("smallint").IsRequired(false);
         builder.Property(sr => sr.ReturnReason).HasMaxLength(500).IsRequired(false);
         builder.Property(sr => sr.Notes).HasMaxLength(500);
         builder.Property(sr => sr.Status).HasConversion<byte>();

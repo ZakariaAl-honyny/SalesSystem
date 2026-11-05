@@ -56,8 +56,7 @@ public class PurchaseService : IPurchaseService
     {
         var invoice = await _uow.PurchaseInvoices.FirstOrDefaultAsync(
             i => i.Id == id, ct,
-            "Supplier", "Warehouse", "Items.Product", "Items.ProductUnit",
-            "Tax");
+            "Supplier", "Warehouse", "Items.Product", "Items.ProductUnit");
 
         if (invoice == null)
             return Result<PurchaseInvoiceDto>.Failure("فاتورة المشتريات غير موجودة", ErrorCodes.NotFound);
@@ -157,7 +156,6 @@ public class PurchaseService : IPurchaseService
                     discountAmount: request.DiscountAmount,
                     otherCharges: request.OtherCharges,
                     notes: request.Notes,
-                    taxId: null,
                     createdByUserId: userId
                 );
 
@@ -250,7 +248,6 @@ public class PurchaseService : IPurchaseService
                 discountAmount: request.DiscountAmount,
                 otherCharges: request.OtherCharges,
                 notes: request.Notes,
-                taxId: null,
                 createdByUserId: userId
             );
 
@@ -683,9 +680,9 @@ public class PurchaseService : IPurchaseService
             i.SupplierInvoiceNo,
             i.AttachmentPath,
             (byte)i.Status,
-            i.TaxId,
-            i.Tax?.Name,
-            (decimal?)i.Tax?.Rate,
+            null,
+            null,
+            null,
             i.CashBoxId,
             i.Items.Select(it => new PurchaseInvoiceLineDto(
                 it.Id,

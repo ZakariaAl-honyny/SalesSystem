@@ -62,7 +62,6 @@ public class SalesReturn : DocumentEntity
     /// القيمة المكافئة بالعملة الأساسية (TotalAmount × ExchangeRate)
     /// </summary>
     public decimal? BaseNetTotal { get; private set; }
-    public short? TaxId { get; private set; }
     public string? ReturnReason { get; private set; }
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
@@ -146,12 +145,11 @@ public class SalesReturn : DocumentEntity
     /// Called by the service layer BEFORE Post() — the service computes the ratio
     /// from the original invoice's SubTotal, DiscountAmount, TaxAmount, OtherCharges.
     /// </summary>
-    public void SetProportionalAmounts(decimal discountPortion, decimal taxPortion, decimal chargesPortion, short? taxId)
+    public void SetProportionalAmounts(decimal discountPortion, decimal taxPortion, decimal chargesPortion)
     {
         ReturnedDiscountAmount = discountPortion;
         ReturnedTaxAmount = taxPortion;
         ReturnedChargeAmount = chargesPortion;
-        TaxId = taxId;
     }
 
     /// <summary>

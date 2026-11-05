@@ -99,10 +99,6 @@ public class AuthService : IAuthService
                 string token = _jwtTokenGenerator.GenerateToken(user);
                 var expiresAt = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours);
 
-                // Create session
-                var session = UserSession.Create(user.Id, HashToken(token), _jwtSettings.ExpirationHours);
-                await _uow.UserSessions.AddAsync(session, ct);
-
                 await _uow.SaveChangesAsync(ct);
 
                 return Result<LoginResponse>.Success(new LoginResponse(
@@ -118,10 +114,6 @@ public class AuthService : IAuthService
             // 8. Generate JWT
             string jwtToken = _jwtTokenGenerator.GenerateToken(user);
             var jwtExpiresAt = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours);
-
-            // Create session
-            var userSession = UserSession.Create(user.Id, HashToken(jwtToken), _jwtSettings.ExpirationHours);
-            await _uow.UserSessions.AddAsync(userSession, ct);
 
             _logger.LogInformation("Login successful for user: {UserName} (Id={UserId})", user.UserName, user.Id);
             await _auditLogService.LogAsync(user.Id, "LoginSuccess", "User", user.Id,

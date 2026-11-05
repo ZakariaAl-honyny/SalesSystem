@@ -20,13 +20,6 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
         builder.Property(x => x.Description).HasMaxLength(500);
         builder.Property(x => x.EntryType).HasColumnType("tinyint").HasConversion<byte>().IsRequired();
 
-        // ─── FK to FiscalYear (smallint) ────────────────────────────────
-        builder.Property(x => x.FiscalYearId).IsRequired().HasColumnType("smallint");
-        builder.HasOne(x => x.FiscalYear)
-            .WithMany()
-            .HasForeignKey(x => x.FiscalYearId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // ─── FK to Branch ───────────────────────────────────────────────
         builder.HasOne(x => x.Branch)
             .WithMany()

@@ -19,21 +19,6 @@ public record RoleDto(int Id, string Name, string? Description, bool IsActive, b
     long SalesPermissions = 0, long InventoryPermissions = 0,
     long AccountingPermissions = 0, long SystemPermissions = 0);
 
-public record UserSessionDto(
-    long Id,
-    int UserId,
-    string? UserName,
-    string? DeviceName,
-    string? IpAddress,
-    DateTime CreatedAt,
-    DateTime LastActivityAt,
-    DateTime ExpiresAt,
-    bool IsRevoked)
-{
-    public bool IsActive => !IsRevoked && DateTime.UtcNow <= ExpiresAt;
-    public string StatusDisplay => IsRevoked ? "ملغية" : DateTime.UtcNow > ExpiresAt ? "منتهية" : "نشطة";
-}
-
 public record CurrentUserDto(int Id, string UserName, short RoleId, string? RoleName,
     short? BranchId, long SalesPermissions, long InventoryPermissions,
     long AccountingPermissions, long SystemPermissions);
@@ -376,36 +361,6 @@ public record InventoryTransactionLineDto(
     DateOnly? ExpiryDate,
     short? WarehouseId);
 
-public record WarehouseTransferDto(
-    int Id,
-    string TransferNo,
-    short SourceWarehouseId,
-    string? SourceWarehouseName,
-    short DestinationWarehouseId,
-    string? DestinationWarehouseName,
-    string? Notes,
-    byte Status,
-    DateTime CreatedAt,
-    int CreatedByUserId,
-    IReadOnlyList<WarehouseTransferLineDto> Lines)
-{
-    public string StatusDisplay => Status switch
-    {
-        1 => "مسودة",
-        2 => "تم الترحيل",
-        3 => "ملغي",
-        _ => "غير معروف"
-    };
-}
-
-public record WarehouseTransferLineDto(
-    int Id,
-    int WarehouseTransferId,
-    int ProductUnitId,
-    string? ProductUnitName,
-    decimal Quantity,
-    string? BatchNo);
-
 // ═══════════════════════════════════════════════════════════════
 
 public record SupplierPaymentDto(
@@ -652,8 +607,6 @@ public record VatReportDto(
     decimal TaxableAmount,
     decimal TaxRate,
     decimal TaxAmount);
-
-public record TaxDto(int Id, string Name, string Code, decimal Rate, byte TaxType, bool IsDefault, bool IsActive);
 
 // ─── System Log DTO ────────────────────────────────
 public record SystemLogDto(

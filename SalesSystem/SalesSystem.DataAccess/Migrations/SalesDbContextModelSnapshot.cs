@@ -22,46 +22,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SalesSystem.Models.AccountCategory", b =>
-                {
-                    b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("AccountCategories", (string)null);
-                });
-
             modelBuilder.Entity("SalesSystem.Models.Accounting.Account", b =>
                 {
                     b.Property<int>("Id")
@@ -74,9 +34,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<short?>("CategoryId")
-                        .HasColumnType("smallint");
 
                     b.Property<string>("ColorCode")
                         .HasMaxLength(7)
@@ -144,80 +101,12 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsUnique()
                         .HasFilter("[IsActive] = 1");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("ParentId");
 
                     b.ToTable("Accounts", null, t =>
                         {
                             t.HasCheckConstraint("CHK_Account_Level_Range", "[Level] >= 1 AND [Level] <= 10");
                         });
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Accounting.FiscalYear", b =>
-                {
-                    b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Id"));
-
-                    b.Property<DateTime?>("ClosedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ClosedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsOpen")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<DateTime?>("OpenedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("OpenedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.Property<string>("YearName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Year")
-                        .IsUnique();
-
-                    b.HasIndex("YearName")
-                        .IsUnique()
-                        .HasDatabaseName("IX_FiscalYears_YearName");
-
-                    b.ToTable("FiscalYears", (string)null);
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Accounting.JournalEntry", b =>
@@ -262,9 +151,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<byte>("EntryType")
                         .HasColumnType("tinyint");
-
-                    b.Property<short>("FiscalYearId")
-                        .HasColumnType("smallint");
 
                     b.Property<bool>("IsReversed")
                         .HasColumnType("bit");
@@ -318,8 +204,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.HasIndex("EntryNumber")
                         .IsUnique();
-
-                    b.HasIndex("FiscalYearId");
 
                     b.HasIndex("PaymentVoucherId");
 
@@ -546,59 +430,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.ToTable("SystemAccountMappings", (string)null);
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.Attachment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ContentType")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("ReferenceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReferenceType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReferenceType", "ReferenceId")
-                        .HasDatabaseName("IX_Attachments_ReferenceType_ReferenceId");
-
-                    b.ToTable("Attachments", (string)null);
-                });
-
             modelBuilder.Entity("SalesSystem.Models.AuditLog", b =>
                 {
                     b.Property<long>("Id")
@@ -652,63 +483,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsDescending(false, true);
 
                     b.ToTable("AuditLogs", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Bank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AccountNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<short?>("BranchId")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("ContactPerson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPhone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IBAN")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("BranchId");
-
-                    b.ToTable("Banks", (string)null);
                 });
 
             modelBuilder.Entity("SalesSystem.Models.BillOfMaterials", b =>
@@ -1463,109 +1237,6 @@ namespace SalesSystem.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.InventoryCount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CountNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("CreatedByUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTime?>("PostedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint")
-                        .HasDefaultValue((byte)1);
-
-                    b.Property<short>("WarehouseId")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("CountNo")
-                        .IsUnique()
-                        .HasDatabaseName("IX_InventoryCounts_CountNo");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("InventoryCounts", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.InventoryCountLine", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("ActualQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("Difference")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("ExpectedQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<int>("InventoryCountId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<int>("ProductUnitId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InventoryCountId")
-                        .HasDatabaseName("IX_InvCountLines_CountId");
-
-                    b.HasIndex("ProductUnitId")
-                        .HasDatabaseName("IX_InvCountLines_ProductUnitId");
-
-                    b.ToTable("InventoryCountLines", null, t =>
-                        {
-                            t.HasCheckConstraint("CHK_InvCountLines_ActualQuantity_NonNegative", "[ActualQuantity] >= 0");
-
-                            t.HasCheckConstraint("CHK_InvCountLines_ExpectedQuantity_NonNegative", "[ExpectedQuantity] >= 0");
-                        });
-                });
-
             modelBuilder.Entity("SalesSystem.Models.InventoryTransaction", b =>
                 {
                     b.Property<int>("Id")
@@ -1678,63 +1349,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                             t.HasCheckConstraint("CHK_InvTxLines_UnitCost_NonNegative", "[UnitCost] >= 0");
                         });
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int?>("ReferenceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReferenceType")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<byte>("Type")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "IsRead", "CreatedAt")
-                        .IsDescending(false, false, true)
-                        .HasDatabaseName("IX_Notifications_UserId_IsRead_CreatedAt");
-
-                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Product", b =>
@@ -2069,9 +1683,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<short?>("TaxId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -2091,8 +1702,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsUnique();
 
                     b.HasIndex("SupplierId");
-
-                    b.HasIndex("TaxId");
 
                     b.HasIndex("WarehouseId");
 
@@ -2243,9 +1852,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("int");
-
-                    b.Property<short?>("TaxId")
-                        .HasColumnType("smallint");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
@@ -2476,9 +2082,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<short?>("TaxId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -2498,8 +2101,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.HasIndex("InvoiceNo")
                         .IsUnique();
-
-                    b.HasIndex("TaxId");
 
                     b.HasIndex("WarehouseId");
 
@@ -2647,9 +2248,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
-
-                    b.Property<short?>("TaxId")
-                        .HasColumnType("smallint");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
@@ -3069,69 +2667,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.ToTable("SystemSettings", (string)null);
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.Tax", b =>
-                {
-                    b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("Rate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<byte>("TaxType")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("IsDefault")
-                        .IsUnique()
-                        .HasFilter("[IsDefault] = 1 AND [IsActive] = 1");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Taxes", null, t =>
-                        {
-                            t.HasCheckConstraint("CHK_Taxes_Rate_Range", "[Rate] >= 0 AND [Rate] <= 100");
-
-                            t.HasCheckConstraint("CHK_Taxes_TaxType_Range", "[TaxType] >= 1 AND [TaxType] <= 3");
-                        });
-                });
-
             modelBuilder.Entity("SalesSystem.Models.Unit", b =>
                 {
                     b.Property<short>("Id")
@@ -3248,69 +2783,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.UserSession", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DeviceName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsRevoked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("LastActivityAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SessionToken")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserAgent")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SessionToken")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId", "IsRevoked");
-
-                    b.ToTable("UserSessions", (string)null);
-                });
-
             modelBuilder.Entity("SalesSystem.Models.Warehouse", b =>
                 {
                     b.Property<short>("Id")
@@ -3408,122 +2880,12 @@ namespace SalesSystem.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.WarehouseTransfer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("CreatedByUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<short>("DestinationWarehouseId")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTime?>("PostedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<short>("SourceWarehouseId")
-                        .HasColumnType("smallint");
-
-                    b.Property<byte>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint")
-                        .HasDefaultValue((byte)1);
-
-                    b.Property<string>("TransferNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasComment("رقم التحويل — فريد");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("DestinationWarehouseId")
-                        .HasDatabaseName("IX_WarehouseTransfers_DestWarehouseId");
-
-                    b.HasIndex("SourceWarehouseId")
-                        .HasDatabaseName("IX_WarehouseTransfers_SourceWarehouseId");
-
-                    b.HasIndex("TransferNo")
-                        .IsUnique()
-                        .HasDatabaseName("IX_WarehouseTransfers_TransferNo");
-
-                    b.ToTable("WarehouseTransfers", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.WarehouseTransferLine", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BatchNo")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasComment("رقم الدفعة المنقولة");
-
-                    b.Property<int>("ProductUnitId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)")
-                        .HasComment("الكمية بوحدات التخزين الأساسية");
-
-                    b.Property<int>("WarehouseTransferId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductUnitId")
-                        .HasDatabaseName("IX_WHTxLines_ProductUnitId");
-
-                    b.HasIndex("WarehouseTransferId")
-                        .HasDatabaseName("IX_WHTxLines_TransferId");
-
-                    b.ToTable("WarehouseTransferLines", null, t =>
-                        {
-                            t.HasCheckConstraint("CHK_WHTxLines_Quantity_Positive", "[Quantity] > 0");
-                        });
-                });
-
             modelBuilder.Entity("SalesSystem.Models.Accounting.Account", b =>
                 {
-                    b.HasOne("SalesSystem.Models.AccountCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SalesSystem.Models.Accounting.Account", "ParentAccount")
                         .WithMany("SubAccounts")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Category");
 
                     b.Navigation("ParentAccount");
                 });
@@ -3533,12 +2895,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.HasOne("SalesSystem.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Accounting.FiscalYear", "FiscalYear")
-                        .WithMany()
-                        .HasForeignKey("FiscalYearId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -3556,8 +2912,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Branch");
-
-                    b.Navigation("FiscalYear");
 
                     b.Navigation("ReversedByEntry");
                 });
@@ -3654,24 +3008,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Bank", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Accounting.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.BillOfMaterials", b =>
@@ -3892,44 +3228,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("Warehouse");
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.InventoryCount", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.InventoryCountLine", b =>
-                {
-                    b.HasOne("SalesSystem.Models.InventoryCount", "InventoryCount")
-                        .WithMany("Lines")
-                        .HasForeignKey("InventoryCountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.ProductUnit", "ProductUnit")
-                        .WithMany()
-                        .HasForeignKey("ProductUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("InventoryCount");
-
-                    b.Navigation("ProductUnit");
-                });
-
             modelBuilder.Entity("SalesSystem.Models.InventoryTransaction", b =>
                 {
                     b.HasOne("SalesSystem.Models.Warehouse", "Warehouse")
@@ -3958,17 +3256,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("InventoryTransaction");
 
                     b.Navigation("ProductUnit");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Notification", b =>
-                {
-                    b.HasOne("SalesSystem.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Product", b =>
@@ -4050,11 +3337,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Tax", "Tax")
-                        .WithMany()
-                        .HasForeignKey("TaxId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SalesSystem.Models.Warehouse", "Warehouse")
                         .WithMany()
                         .HasForeignKey("WarehouseId")
@@ -4066,8 +3348,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("CashBox");
 
                     b.Navigation("Supplier");
-
-                    b.Navigation("Tax");
 
                     b.Navigation("Warehouse");
                 });
@@ -4186,11 +3466,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Tax", "Tax")
-                        .WithMany()
-                        .HasForeignKey("TaxId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SalesSystem.Models.Warehouse", "Warehouse")
                         .WithMany()
                         .HasForeignKey("WarehouseId")
@@ -4202,8 +3477,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("CashBox");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("Tax");
 
                     b.Navigation("Warehouse");
                 });
@@ -4385,17 +3658,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.UserSession", b =>
-                {
-                    b.HasOne("SalesSystem.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SalesSystem.Models.Warehouse", b =>
                 {
                     b.HasOne("SalesSystem.Models.Branch", "Branch")
@@ -4423,52 +3685,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Warehouse");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.WarehouseTransfer", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Warehouse", "DestinationWarehouse")
-                        .WithMany()
-                        .HasForeignKey("DestinationWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Warehouse", "SourceWarehouse")
-                        .WithMany()
-                        .HasForeignKey("SourceWarehouseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("DestinationWarehouse");
-
-                    b.Navigation("SourceWarehouse");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.WarehouseTransferLine", b =>
-                {
-                    b.HasOne("SalesSystem.Models.ProductUnit", "ProductUnit")
-                        .WithMany()
-                        .HasForeignKey("ProductUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.WarehouseTransfer", "WarehouseTransfer")
-                        .WithMany("Lines")
-                        .HasForeignKey("WarehouseTransferId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ProductUnit");
-
-                    b.Navigation("WarehouseTransfer");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Accounting.Account", b =>
@@ -4499,11 +3715,6 @@ namespace SalesSystem.DataAccess.Migrations
                 });
 
             modelBuilder.Entity("SalesSystem.Models.InventoryAdjustment", b =>
-                {
-                    b.Navigation("Lines");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.InventoryCount", b =>
                 {
                     b.Navigation("Lines");
                 });
@@ -4545,11 +3756,6 @@ namespace SalesSystem.DataAccess.Migrations
             modelBuilder.Entity("SalesSystem.Models.SupplierPayment", b =>
                 {
                     b.Navigation("Applications");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.WarehouseTransfer", b =>
-                {
-                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }

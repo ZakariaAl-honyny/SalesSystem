@@ -1,6 +1,5 @@
 ﻿using SalesSystem.Models.Accounting.Enums;
 using SalesSystem.Common;
-using SalesSystem.Models;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Models.Accounting;
@@ -49,9 +48,6 @@ public class Account : ActivatableEntity
     /// <summary>True if this account is system-protected (cannot be deleted/modified).</summary>
     public bool IsSystem { get; private set; }
 
-    /// <summary>Optional classification category FK to AccountCategories (smallint).</summary>
-    public short? CategoryId { get; private set; }
-
     /// <summary>Description of this account's purpose (nvarchar(500)).</summary>
     public string? Description { get; private set; }
 
@@ -65,7 +61,6 @@ public class Account : ActivatableEntity
     public Account? ParentAccount { get; private set; }
     private readonly List<Account> _subAccounts = new();
     public IReadOnlyList<Account> SubAccounts => _subAccounts.AsReadOnly();
-    public AccountCategory? Category { get; private set; }
     private readonly List<JournalEntryLine> _journalLines = new();
     public IReadOnlyList<JournalEntryLine> JournalLines => _journalLines.AsReadOnly();
 
@@ -84,7 +79,6 @@ public class Account : ActivatableEntity
         bool isLeaf = true,
         int? parentId = null,
         bool isSystem = false,
-        short? categoryId = null,
         byte level = 1,
         string? description = null,
         string? colorCode = null,
@@ -128,7 +122,6 @@ public class Account : ActivatableEntity
             IsLeaf = isLeaf,
             ParentId = parentId,
             IsSystem = isSystem,
-            CategoryId = categoryId,
             Description = description?.Trim(),
             ColorCode = colorCode?.Trim(),
             Notes = notes?.Trim(),
@@ -146,7 +139,6 @@ public class Account : ActivatableEntity
         byte nature = 1,
         bool isLeaf = true,
         int? parentId = null,
-        short? categoryId = null,
         byte level = 1,
         string? description = null,
         string? colorCode = null,
@@ -180,7 +172,6 @@ public class Account : ActivatableEntity
         Level = level;
         IsLeaf = isLeaf;
         ParentId = parentId;
-        CategoryId = categoryId;
         Description = description?.Trim();
         ColorCode = colorCode?.Trim();
         Notes = notes?.Trim();

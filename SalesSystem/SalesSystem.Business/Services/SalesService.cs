@@ -169,7 +169,6 @@ public class SalesService : ISalesService
                     otherCharges: request.OtherCharges,
                     notes: request.Notes,
                     cashBoxId: request.CashBoxId,
-                    taxId: (short?)request.TaxId,
                     discountType: (DiscountType)request.DiscountType,
                     discountRate: request.DiscountRate,
                     createdByUserId: userId
@@ -286,7 +285,6 @@ public class SalesService : ISalesService
                 otherCharges: request.OtherCharges,
                 notes: request.Notes,
                 cashBoxId: request.CashBoxId,
-                taxId: (short?)request.TaxId,
                 discountType: (DiscountType)request.DiscountType,
                 discountRate: request.DiscountRate,
                 createdByUserId: userId);
@@ -880,9 +878,9 @@ public class SalesService : ISalesService
             i.CostInBaseCurrency,
             i.Notes,
             (byte)i.Status,
-            i.TaxId,
-            i.Tax?.Name,
-            (decimal?)i.Tax?.Rate,
+            null,
+            null,
+            null,
             i.CashBoxId,
             i.CashBox?.Name,
             i.Items.Select(it => new SalesInvoiceLineDto(

@@ -84,7 +84,6 @@ public class PurchaseReturn : DocumentEntity
     public decimal ReturnedDiscountAmount { get; private set; }
     public decimal ReturnedTaxAmount { get; private set; }
     public decimal ReturnedChargeAmount { get; private set; }
-    public short? TaxId { get; private set; }
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
 
@@ -169,12 +168,11 @@ public class PurchaseReturn : DocumentEntity
     /// Called by the service layer BEFORE Post() — the service computes the ratio
     /// from the original invoice's SubTotal, DiscountAmount, TaxAmount, OtherCharges.
     /// </summary>
-    public void SetProportionalAmounts(decimal discountPortion, decimal taxPortion, decimal chargesPortion, short? taxId)
+    public void SetProportionalAmounts(decimal discountPortion, decimal taxPortion, decimal chargesPortion)
     {
         ReturnedDiscountAmount = discountPortion;
         ReturnedTaxAmount = taxPortion;
         ReturnedChargeAmount = chargesPortion;
-        TaxId = taxId;
     }
 
     /// <summary>
