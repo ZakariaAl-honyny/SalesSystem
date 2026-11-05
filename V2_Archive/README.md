@@ -11,6 +11,6 @@ git checkout e6d8323^ -- <path>
 - Phantom modules: Currency, CostCenter, PettyCash, PurchaseOrder, Quotation, TreasuryTransfer, CustomerPayment
 
 ## Removed settings screens (simplified to Backup/Restore + Update Check)
-- frmSettings (general settings), frmCompanySettings (company settings)
+- frmSettings (general settings), frmCompanySettings (company settings), frmUpdateCheck (update check)
 
 Reference: docs/database-schema.md (V2 Deferred Tables section)

@@ -301,7 +301,7 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-> **MVP**: the settings UI is simplified — only Backup/Restore and Update Check are exposed; SystemSettings/CompanySettings are managed internally (e.g. AdminPin, default warehouse, company name/logo for printing).
+> **MVP**: the settings UI is simplified — only Backup/Restore is exposed (Update Check moved to V2); SystemSettings/CompanySettings are managed internally (e.g. AdminPin, default warehouse, company name/logo for printing).
 
 ### 2.4 SystemSettings
 | Column | Type | Notes |
@@ -318,7 +318,7 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-> **MVP**: the settings UI is simplified — only Backup/Restore and Update Check are exposed; SystemSettings/CompanySettings are managed internally (e.g. AdminPin, default warehouse, company name/logo for printing).
+> **MVP**: the settings UI is simplified — only Backup/Restore is exposed (Update Check moved to V2); SystemSettings/CompanySettings are managed internally (e.g. AdminPin, default warehouse, company name/logo for printing).
 
 ### 2.5 DocumentSequences
 | Column | Type | Notes |

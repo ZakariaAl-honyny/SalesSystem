@@ -38,7 +38,6 @@ using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
 using SalesSystem.Desktop.Screens;
-using SalesSystem.Desktop.Screens.Settings.Forms;
 using SalesSystem.Desktop.Screens.Dashboard.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
 using Microsoft.EntityFrameworkCore;
@@ -297,7 +296,7 @@ static class Program
                     // services.AddTransient<frmListSuppliers>();
                     services.AddTransient<frmInventoryList>();
                     services.AddTransient<frmListPayments>();
-                    services.AddTransient<frmUpdateCheck>();
+                    // services.AddTransient<frmUpdateCheck>(); // V2: update-check removed
                     services.AddTransient<frmReports>();
                     services.AddTransient<frmSalesReport>();
                     services.AddTransient<frmPurchasesReport>();

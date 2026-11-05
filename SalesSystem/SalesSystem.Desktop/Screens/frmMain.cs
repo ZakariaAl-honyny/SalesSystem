@@ -1,4 +1,4 @@
-﻿using SalesSystem.Desktop.GlobalClasses;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Products.Forms;
@@ -27,7 +27,6 @@ using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
-using SalesSystem.Desktop.Screens.Settings.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Configuration;
@@ -107,6 +106,7 @@ public partial class frmMain : Form
         // (ظهور التحديث/النسخ الاحتياطي يحدده فحص الصلاحيات في frmMain_Load)
         msbtnSettings.Visible = false;
         msbtnCompanySettings.Visible = false;
+        msbtnUpdateCheck.Visible = false; // V2
     }
 
     private void frmMain_Load(object sender, EventArgs e)
@@ -448,7 +448,7 @@ public partial class frmMain : Form
     }
 
     private void msbtnUpdateCheck_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUpdateCheck>());
+        { /* V2: update-check removed */ }
 
     private void msbtnBackup_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmBackup>());
