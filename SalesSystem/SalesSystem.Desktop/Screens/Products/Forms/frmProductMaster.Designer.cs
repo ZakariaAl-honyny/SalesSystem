@@ -23,19 +23,13 @@ partial class frmProductMaster
         lblName = new Label();
         lblNameReq = new Label();
         txtName = new TextBox();
-        lblForeignName = new Label();
-        txtForeignName = new TextBox();
         lblCategory = new Label();
         lblCategoryReq = new Label();
         cmbCategory = new ComboBox();
         btnAddCategory = new Button();
-        lblLocation = new Label();
-        txtLocationInStore = new TextBox();
         lblReorderLevel = new Label();
         numReorderLevel = new NumericUpDown();
         chkTrackExpiry = new CheckBox();
-        lblExpiryDays = new Label();
-        numExpiryAlertDays = new NumericUpDown();
         grpMainUnit = new GroupBox();
         lblMainUnit = new Label();
         lblMainUnitReq = new Label();
@@ -62,7 +56,6 @@ partial class frmProductMaster
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).BeginInit();
         grpMainUnit.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numMainUnitSalePrice).BeginInit();
@@ -94,19 +87,13 @@ partial class frmProductMaster
         pnlFields.Controls.Add(lblName);
         pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
-        pnlFields.Controls.Add(lblForeignName);
-        pnlFields.Controls.Add(txtForeignName);
         pnlFields.Controls.Add(lblCategory);
         pnlFields.Controls.Add(lblCategoryReq);
         pnlFields.Controls.Add(cmbCategory);
         pnlFields.Controls.Add(btnAddCategory);
-        pnlFields.Controls.Add(lblLocation);
-        pnlFields.Controls.Add(txtLocationInStore);
         pnlFields.Controls.Add(lblReorderLevel);
         pnlFields.Controls.Add(numReorderLevel);
         pnlFields.Controls.Add(chkTrackExpiry);
-        pnlFields.Controls.Add(lblExpiryDays);
-        pnlFields.Controls.Add(numExpiryAlertDays);
         pnlFields.Controls.Add(grpMainUnit);
         pnlFields.Dock = DockStyle.Top;
         pnlFields.Location = new Point(0, 50);
@@ -159,22 +146,6 @@ partial class frmProductMaster
         txtName.Size = new Size(240, 32);
         txtName.TabIndex = 4;
         // 
-        // lblForeignName
-        // 
-        lblForeignName.AutoSize = true;
-        lblForeignName.Location = new Point(694, 3);
-        lblForeignName.Name = "lblForeignName";
-        lblForeignName.Size = new Size(190, 24);
-        lblForeignName.TabIndex = 4;
-        lblForeignName.Text = "الاسم الأجنبي للصنف";
-        // 
-        // txtForeignName
-        // 
-        txtForeignName.Location = new Point(675, 30);
-        txtForeignName.Name = "txtForeignName";
-        txtForeignName.Size = new Size(230, 32);
-        txtForeignName.TabIndex = 5;
-        // 
         // lblCategory
         // 
         lblCategory.AutoSize = true;
@@ -200,32 +171,17 @@ partial class frmProductMaster
         cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCategory.Location = new Point(1157, 30);
         cmbCategory.Name = "cmbCategory";
-        cmbCategory.Size = new Size(220, 32);
+        cmbCategory.Size = new Size(180, 32);
         cmbCategory.TabIndex = 3;
         // 
         // btnAddCategory
         // 
-        btnAddCategory.Location = new Point(1383, 31);
+        btnAddCategory.Location = new Point(1341, 31);
         btnAddCategory.Name = "btnAddCategory";
-        btnAddCategory.Size = new Size(46, 31);
+        btnAddCategory.Size = new Size(90, 31);
         btnAddCategory.TabIndex = 0;
         btnAddCategory.TabStop = false;
-        // 
-        // lblLocation
-        // 
-        lblLocation.AutoSize = true;
-        lblLocation.Location = new Point(1050, 134);
-        lblLocation.Name = "lblLocation";
-        lblLocation.Size = new Size(163, 24);
-        lblLocation.TabIndex = 9;
-        lblLocation.Text = "العنوان في المخزن";
-        // 
-        // txtLocationInStore
-        // 
-        txtLocationInStore.Location = new Point(989, 161);
-        txtLocationInStore.Name = "txtLocationInStore";
-        txtLocationInStore.Size = new Size(290, 32);
-        txtLocationInStore.TabIndex = 15;
+        btnAddCategory.Text = "➕ مجموعة";
         // 
         // lblReorderLevel
         // 
@@ -252,23 +208,6 @@ partial class frmProductMaster
         chkTrackExpiry.Size = new Size(153, 28);
         chkTrackExpiry.TabIndex = 11;
         chkTrackExpiry.Text = "الصنف ينتهي؟";
-        // 
-        // lblExpiryDays
-        // 
-        lblExpiryDays.AutoSize = true;
-        lblExpiryDays.Location = new Point(730, 74);
-        lblExpiryDays.Name = "lblExpiryDays";
-        lblExpiryDays.Size = new Size(175, 24);
-        lblExpiryDays.TabIndex = 14;
-        lblExpiryDays.Text = "نقطة التنبيه بالانتهاء";
-        // 
-        // numExpiryAlertDays
-        // 
-        numExpiryAlertDays.Location = new Point(730, 101);
-        numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
-        numExpiryAlertDays.Name = "numExpiryAlertDays";
-        numExpiryAlertDays.Size = new Size(175, 32);
-        numExpiryAlertDays.TabIndex = 12;
         // 
         // grpMainUnit
         // 
@@ -410,7 +349,6 @@ partial class frmProductMaster
         btnNew.TabIndex = 16;
         btnNew.Text = "🆕 إضافة";
         btnNew.UseVisualStyleBackColor = false;
-        btnNew.Click += btnNew_Click_1;
         // 
         // btnSave
         // 
@@ -422,7 +360,6 @@ partial class frmProductMaster
         btnSave.TabIndex = 17;
         btnSave.Text = "💾 تعديل";
         btnSave.UseVisualStyleBackColor = false;
-        btnSave.Click += btnSave_Click_1;
         // 
         // btnDelete
         // 
@@ -538,7 +475,6 @@ partial class frmProductMaster
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).EndInit();
         grpMainUnit.ResumeLayout(false);
         grpMainUnit.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).EndInit();
@@ -560,19 +496,13 @@ partial class frmProductMaster
     private System.Windows.Forms.Label lblName;
     private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
-    private System.Windows.Forms.Label lblForeignName;
-    private System.Windows.Forms.TextBox txtForeignName;
     private System.Windows.Forms.Label lblCategory;
     private System.Windows.Forms.Label lblCategoryReq;
     private System.Windows.Forms.ComboBox cmbCategory;
     private System.Windows.Forms.Button btnAddCategory;
-    private System.Windows.Forms.Label lblLocation;
-    private System.Windows.Forms.TextBox txtLocationInStore;
     private System.Windows.Forms.Label lblReorderLevel;
     private System.Windows.Forms.NumericUpDown numReorderLevel;
     private System.Windows.Forms.CheckBox chkTrackExpiry;
-    private System.Windows.Forms.Label lblExpiryDays;
-    private System.Windows.Forms.NumericUpDown numExpiryAlertDays;
     
     // Main Unit Group
     private System.Windows.Forms.GroupBox grpMainUnit;
@@ -595,12 +525,6 @@ partial class frmProductMaster
     private System.Windows.Forms.Button btnManageUnits;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvProducts;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colCategoryName;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colBarcode;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colReorderLevel;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Button btnRefresh;

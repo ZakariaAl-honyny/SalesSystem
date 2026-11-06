@@ -51,6 +51,73 @@ public static class KeyboardHelper
         }
     }
 
+    /// <summary>
+    /// تظليل الحقل النشط: عند دخول المؤشر إلى حقل إدخال تُصبغ خلفيته بلون التظليل،
+    /// وعند مغادرته تُعاد خلفيته الأصلية (يُحفظ لون كل حقل في قاموس منفصل).
+    /// </summary>
+    public static void WireFocusHighlight(Control parent, Color focusColor)
+    {
+        var originalColors = new Dictionary<Control, Color>();
+
+        foreach (Control ctrl in parent.Controls)
+        {
+            if (IsFocusHighlightTarget(ctrl))
+            {
+                var input = ctrl;
+                originalColors[input] = input.BackColor;
+
+                input.Enter += (s, e) => input.BackColor = focusColor;
+                input.Leave += (s, e) => input.BackColor = originalColors.TryGetValue(input, out var original)
+                    ? original
+                    : SystemColors.Window;
+            }
+
+            if (ctrl.HasChildren)
+                WireFocusHighlight(ctrl, focusColor);
+        }
+    }
+
+    /// <summary>
+    /// التنقل بالأسهم بين حقول الإدخال: السهم الأعلى/الأيسر ينتقل للحقل السابق،
+    /// والأسفل/الأيمن ينتقل للحقل التالي (مثل Tab). لا يُطبَّق على القوائم المنسدلة
+    /// ولا على الشبكات حتى تحتفظ بسلوك الأسهم الأصلي.
+    /// </summary>
+    public static void WireArrowNavigation(Control parent)
+    {
+        foreach (Control ctrl in parent.Controls)
+        {
+            if (IsArrowNavigationInput(ctrl))
+            {
+                var input = ctrl;
+                input.KeyDown += (s, e) =>
+                {
+                    if (e.Modifiers != Keys.None) return;
+
+                    bool backward = e.KeyCode == Keys.Up || e.KeyCode == Keys.Left;
+                    bool forward = e.KeyCode == Keys.Down || e.KeyCode == Keys.Right;
+
+                    if (!backward && !forward) return;
+
+                    // البحث عن الحقل التالي من جذر النموذج حتى يعبر حدود الحاويات (GroupBox / Panel).
+                    var container = input.FindForm() ?? parent;
+                    container.SelectNextControl(input, forward, true, true, true);
+
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                };
+            }
+
+            if (ctrl.HasChildren)
+                WireArrowNavigation(ctrl);
+        }
+    }
+
+    private static bool IsFocusHighlightTarget(Control ctrl)
+        => ctrl is TextBox or MaskedTextBox or NumericUpDown or ComboBox;
+
+    private static bool IsArrowNavigationInput(Control ctrl)
+        => ctrl is TextBox or MaskedTextBox or NumericUpDown;
+
     private static bool IsEnterNavigationInput(Control ctrl)
         => ctrl is TextBox or MaskedTextBox or ComboBox or NumericUpDown or DateTimePicker;
 

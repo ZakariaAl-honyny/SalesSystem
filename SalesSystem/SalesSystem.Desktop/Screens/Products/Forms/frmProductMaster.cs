@@ -53,6 +53,8 @@ public partial class frmProductMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireArrowNavigation(this);
         _WireEvents();
     }
 
@@ -72,6 +74,9 @@ public partial class frmProductMaster : Form
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvProducts.CellClick += dgvProducts_CellClick;
         cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
+
+        // قارئ الباركود: Enter بعد الترميز يُفعّل البحث عن الصنف أو ينتقل لاسم الصنف للإضافة السريعة.
+        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
 
         // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
         // ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
@@ -357,20 +362,11 @@ public partial class frmProductMaster : Form
         txtCode.Text = p.Id.ToString();
         txtName.Text = p.Name;
 
-        // TODO: لا يوجد حقل مستقل للاسم الأجنبي في ProductDto — يُستخدم Description مؤقتاً.
-        txtForeignName.Text = p.Description ?? "";
-
         // الباركود الرئيسي للصنف يُخزَّن في ProductDto.Barcode.
         txtMainUnitBarcode.Text = p.Barcode ?? "";
 
-        // TODO: عنوان الصنف في المخزن غير موجود في ProductDto — يحتاج حقل LocationInStore.
-        txtLocationInStore.Clear();
-
         chkTrackExpiry.Checked = p.TrackExpiry;
         numReorderLevel.Value = _Clamp(numReorderLevel, p.ReorderLevel);
-
-        // TODO: نقطة التنبيه بالانتهاء غير موجودة في ProductDto — يحتاج حقل ExpiryAlertDays.
-        numExpiryAlertDays.Value = 0;
 
         _SelectCategory(p.CategoryId);
         _UpdateModeHeader();
@@ -557,14 +553,11 @@ public partial class frmProductMaster : Form
 
         txtCode.Clear();
         txtName.Clear();
-        txtForeignName.Clear();
-        txtLocationInStore.Clear();
         txtMainUnitBarcode.Clear();
 
         chkTrackExpiry.Checked = false;
 
         numReorderLevel.Value = 0;
-        numExpiryAlertDays.Value = 0;
         numMainUnitCostPrice.Value = 0;
         numMainUnitSalePrice.Value = 0;
         numMainUnitMaxDiscount.Value = 0;
@@ -695,7 +688,7 @@ public partial class frmProductMaster : Form
         try
         {
             string name = txtName.Text.Trim();
-            string description = txtForeignName.Text.Trim();
+            string? description = null;
             string? barcode = string.IsNullOrWhiteSpace(txtMainUnitBarcode.Text)
                 ? null
                 : txtMainUnitBarcode.Text.Trim();
@@ -901,13 +894,53 @@ public partial class frmProductMaster : Form
     private static decimal _Clamp(NumericUpDown control, decimal value)
         => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
 
-    private void btnNew_Click_1(object sender, EventArgs e)
+    // ── Barcode Scanner ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Enter من قارئ الباركود: إن كان الباركود مسجّلاً لصنف موجود يُحمَّل الصنف للتعديل،
+    /// وإن كان جديداً يبقى الباركود في الحقل وينتقل المؤشر إلى اسم الصنف (إضافة سريعة).
+    /// </summary>
+    private async void txtMainUnitBarcode_KeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.KeyCode != Keys.Enter || e.Modifiers != Keys.None) return;
 
-    }
+        e.Handled = true;
+        e.SuppressKeyPress = true;
 
-    private void btnSave_Click_1(object sender, EventArgs e)
-    {
+        string code = txtMainUnitBarcode.Text.Trim();
 
+        if (string.IsNullOrEmpty(code))
+        {
+            txtName.Focus();
+            return;
+        }
+
+        try
+        {
+            var existing = _productsById.Values.FirstOrDefault(p =>
+                string.Equals(p.Barcode, code, StringComparison.OrdinalIgnoreCase));
+
+            if (existing is not null)
+            {
+                Cursor = Cursors.WaitCursor;
+                await _FillFormAsync(existing.Id);
+                _SelectGridRow(existing.Id);
+                txtMainUnitBarcode.Focus();
+                return;
+            }
+
+            // باركود غير مسجّل → إضافة سريعة: يبقى الباركود كما هو وننتقل لاسم الصنف.
+            txtName.Focus();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء البحث عن الباركود {Barcode}", code);
+            MessageBox.Show("تعذر البحث عن الباركود. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
     }
 }
