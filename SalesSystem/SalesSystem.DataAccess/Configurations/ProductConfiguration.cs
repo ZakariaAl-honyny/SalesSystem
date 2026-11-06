@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SalesSystem.Models;
 
@@ -17,6 +17,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Name).IsRequired().HasMaxLength(200);
         builder.Property(p => p.Description).HasMaxLength(500);
         builder.Property(p => p.ImagePath).HasMaxLength(500);
+        builder.Property(p => p.ForeignName).HasMaxLength(200);
+        builder.Property(p => p.LocationInStore).HasMaxLength(100);
 
         // ─── Barcode ────────────────────────────────────────
         builder.Property(p => p.Barcode)

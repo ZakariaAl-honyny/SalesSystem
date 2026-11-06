@@ -12,7 +12,10 @@ public record ProductDto(
     bool IsActive,
     string? Barcode = null,
     decimal CurrentStock = 0,
-    short BranchId = 0)
+    short BranchId = 0,
+    string? ForeignName = null,
+    string? LocationInStore = null,
+    short? ExpiryAlertDays = null)
 {
     public bool IsOutOfStock => CurrentStock <= 0;
     public bool IsLowStock => CurrentStock > 0 && CurrentStock <= ReorderLevel;

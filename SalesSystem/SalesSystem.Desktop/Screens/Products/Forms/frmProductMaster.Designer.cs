@@ -23,6 +23,8 @@ partial class frmProductMaster
         lblName = new Label();
         lblNameReq = new Label();
         txtName = new TextBox();
+        lblForeignName = new Label();
+        txtForeignName = new TextBox();
         lblCategory = new Label();
         lblCategoryReq = new Label();
         cmbCategory = new ComboBox();
@@ -30,6 +32,12 @@ partial class frmProductMaster
         lblReorderLevel = new Label();
         numReorderLevel = new NumericUpDown();
         chkTrackExpiry = new CheckBox();
+        lblExpiryDays = new Label();
+        numExpiryAlertDays = new NumericUpDown();
+        lblLocation = new Label();
+        txtLocationInStore = new TextBox();
+        lblNotes = new Label();
+        txtNotes = new TextBox();
         grpMainUnit = new GroupBox();
         lblMainUnit = new Label();
         lblMainUnitReq = new Label();
@@ -57,6 +65,7 @@ partial class frmProductMaster
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).BeginInit();
         grpMainUnit.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numMainUnitSalePrice).BeginInit();
@@ -88,6 +97,8 @@ partial class frmProductMaster
         pnlFields.Controls.Add(lblName);
         pnlFields.Controls.Add(lblNameReq);
         pnlFields.Controls.Add(txtName);
+        pnlFields.Controls.Add(lblForeignName);
+        pnlFields.Controls.Add(txtForeignName);
         pnlFields.Controls.Add(lblCategory);
         pnlFields.Controls.Add(lblCategoryReq);
         pnlFields.Controls.Add(cmbCategory);
@@ -95,6 +106,12 @@ partial class frmProductMaster
         pnlFields.Controls.Add(lblReorderLevel);
         pnlFields.Controls.Add(numReorderLevel);
         pnlFields.Controls.Add(chkTrackExpiry);
+        pnlFields.Controls.Add(lblExpiryDays);
+        pnlFields.Controls.Add(numExpiryAlertDays);
+        pnlFields.Controls.Add(lblLocation);
+        pnlFields.Controls.Add(txtLocationInStore);
+        pnlFields.Controls.Add(lblNotes);
+        pnlFields.Controls.Add(txtNotes);
         pnlFields.Controls.Add(grpMainUnit);
         pnlFields.Dock = DockStyle.Top;
         pnlFields.Location = new Point(0, 50);
@@ -117,7 +134,7 @@ partial class frmProductMaster
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
-        txtCode.TabIndex = 9;
+        txtCode.TabIndex = 1;
         txtCode.TabStop = false;
         // 
         // lblName
@@ -147,13 +164,29 @@ partial class frmProductMaster
         txtName.Size = new Size(240, 32);
         txtName.TabIndex = 4;
         // 
+        // lblForeignName
+        // 
+        lblForeignName.AutoSize = true;
+        lblForeignName.Location = new Point(694, 3);
+        lblForeignName.Name = "lblForeignName";
+        lblForeignName.Size = new Size(132, 24);
+        lblForeignName.TabIndex = 5;
+        lblForeignName.Text = "الاسم الأجنبي للصنف";
+        // 
+        // txtForeignName
+        // 
+        txtForeignName.Location = new Point(675, 30);
+        txtForeignName.Name = "txtForeignName";
+        txtForeignName.Size = new Size(230, 32);
+        txtForeignName.TabIndex = 6;
+        // 
         // lblCategory
         // 
         lblCategory.AutoSize = true;
         lblCategory.Location = new Point(1200, 3);
         lblCategory.Name = "lblCategory";
         lblCategory.Size = new Size(135, 24);
-        lblCategory.TabIndex = 6;
+        lblCategory.TabIndex = 7;
         lblCategory.Text = "مجموعة الصنف";
         // 
         // lblCategoryReq
@@ -164,7 +197,7 @@ partial class frmProductMaster
         lblCategoryReq.Location = new Point(1182, 3);
         lblCategoryReq.Name = "lblCategoryReq";
         lblCategoryReq.Size = new Size(23, 24);
-        lblCategoryReq.TabIndex = 7;
+        lblCategoryReq.TabIndex = 8;
         lblCategoryReq.Text = "*";
         // 
         // cmbCategory
@@ -173,14 +206,14 @@ partial class frmProductMaster
         cmbCategory.Location = new Point(1157, 30);
         cmbCategory.Name = "cmbCategory";
         cmbCategory.Size = new Size(180, 32);
-        cmbCategory.TabIndex = 3;
+        cmbCategory.TabIndex = 9;
         // 
         // btnAddCategory
         // 
         btnAddCategory.Location = new Point(1341, 31);
         btnAddCategory.Name = "btnAddCategory";
         btnAddCategory.Size = new Size(90, 31);
-        btnAddCategory.TabIndex = 0;
+        btnAddCategory.TabIndex = 10;
         btnAddCategory.TabStop = false;
         btnAddCategory.Text = "➕ مجموعة";
         // 
@@ -190,7 +223,7 @@ partial class frmProductMaster
         lblReorderLevel.Location = new Point(1106, 71);
         lblReorderLevel.Name = "lblReorderLevel";
         lblReorderLevel.Size = new Size(155, 24);
-        lblReorderLevel.TabIndex = 11;
+        lblReorderLevel.TabIndex = 12;
         lblReorderLevel.Text = "نقطة اعادة الطلب";
         // 
         // numReorderLevel
@@ -199,7 +232,7 @@ partial class frmProductMaster
         numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numReorderLevel.Name = "numReorderLevel";
         numReorderLevel.Size = new Size(155, 32);
-        numReorderLevel.TabIndex = 10;
+        numReorderLevel.TabIndex = 13;
         // 
         // chkTrackExpiry
         // 
@@ -207,8 +240,58 @@ partial class frmProductMaster
         chkTrackExpiry.Location = new Point(947, 102);
         chkTrackExpiry.Name = "chkTrackExpiry";
         chkTrackExpiry.Size = new Size(153, 28);
-        chkTrackExpiry.TabIndex = 11;
+        chkTrackExpiry.TabIndex = 14;
         chkTrackExpiry.Text = "الصنف ينتهي؟";
+        // 
+        // lblExpiryDays
+        // 
+        lblExpiryDays.AutoSize = true;
+        lblExpiryDays.Location = new Point(730, 74);
+        lblExpiryDays.Name = "lblExpiryDays";
+        lblExpiryDays.Size = new Size(194, 24);
+        lblExpiryDays.TabIndex = 15;
+        lblExpiryDays.Text = "نقطة التنبيه بالانتهاء";
+        // 
+        // numExpiryAlertDays
+        // 
+        numExpiryAlertDays.Location = new Point(730, 101);
+        numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+        numExpiryAlertDays.Name = "numExpiryAlertDays";
+        numExpiryAlertDays.Size = new Size(175, 32);
+        numExpiryAlertDays.TabIndex = 16;
+        // 
+        // lblLocation
+        // 
+        lblLocation.AutoSize = true;
+        lblLocation.Location = new Point(1050, 134);
+        lblLocation.Name = "lblLocation";
+        lblLocation.Size = new Size(110, 24);
+        lblLocation.TabIndex = 17;
+        lblLocation.Text = "العنوان في المخزن";
+        // 
+        // txtLocationInStore
+        // 
+        txtLocationInStore.Location = new Point(989, 161);
+        txtLocationInStore.Name = "txtLocationInStore";
+        txtLocationInStore.Size = new Size(290, 32);
+        txtLocationInStore.TabIndex = 18;
+        // 
+        // lblNotes
+        // 
+        lblNotes.AutoSize = true;
+        lblNotes.Location = new Point(694, 136);
+        lblNotes.Name = "lblNotes";
+        lblNotes.Size = new Size(61, 24);
+        lblNotes.TabIndex = 19;
+        lblNotes.Text = "ملاحظات";
+        // 
+        // txtNotes
+        // 
+        txtNotes.Location = new Point(675, 161);
+        txtNotes.Multiline = false;
+        txtNotes.Name = "txtNotes";
+        txtNotes.Size = new Size(230, 32);
+        txtNotes.TabIndex = 20;
         // 
         // grpMainUnit
         // 
@@ -228,7 +311,7 @@ partial class frmProductMaster
         grpMainUnit.Location = new Point(199, 3);
         grpMainUnit.Name = "grpMainUnit";
         grpMainUnit.Size = new Size(470, 170);
-        grpMainUnit.TabIndex = 6;
+        grpMainUnit.TabIndex = 11;
         grpMainUnit.TabStop = false;
         grpMainUnit.Text = "الوحدة الرئيسية";
         // 
@@ -258,7 +341,7 @@ partial class frmProductMaster
         cmbMainUnit.Location = new Point(302, 54);
         cmbMainUnit.Name = "cmbMainUnit";
         cmbMainUnit.Size = new Size(140, 32);
-        cmbMainUnit.TabIndex = 7;
+        cmbMainUnit.TabIndex = 2;
         // 
         // lblMainUnitCostPrice
         // 
@@ -266,7 +349,7 @@ partial class frmProductMaster
         lblMainUnitCostPrice.Location = new Point(185, 28);
         lblMainUnitCostPrice.Name = "lblMainUnitCostPrice";
         lblMainUnitCostPrice.Size = new Size(111, 24);
-        lblMainUnitCostPrice.TabIndex = 2;
+        lblMainUnitCostPrice.TabIndex = 3;
         lblMainUnitCostPrice.Text = "سعر التكلفة";
         // 
         // numMainUnitCostPrice
@@ -275,7 +358,7 @@ partial class frmProductMaster
         numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitCostPrice.Name = "numMainUnitCostPrice";
         numMainUnitCostPrice.Size = new Size(127, 32);
-        numMainUnitCostPrice.TabIndex = 7;
+        numMainUnitCostPrice.TabIndex = 4;
         // 
         // lblMainUnitSalePrice
         // 
@@ -283,7 +366,7 @@ partial class frmProductMaster
         lblMainUnitSalePrice.Location = new Point(52, 27);
         lblMainUnitSalePrice.Name = "lblMainUnitSalePrice";
         lblMainUnitSalePrice.Size = new Size(111, 24);
-        lblMainUnitSalePrice.TabIndex = 4;
+        lblMainUnitSalePrice.TabIndex = 5;
         lblMainUnitSalePrice.Text = "سعر التجزئة";
         // 
         // numMainUnitSalePrice
@@ -292,7 +375,7 @@ partial class frmProductMaster
         numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitSalePrice.Name = "numMainUnitSalePrice";
         numMainUnitSalePrice.Size = new Size(127, 32);
-        numMainUnitSalePrice.TabIndex = 8;
+        numMainUnitSalePrice.TabIndex = 6;
         // 
         // lblMainUnitBarcode
         // 
@@ -300,7 +383,7 @@ partial class frmProductMaster
         lblMainUnitBarcode.Location = new Point(76, 98);
         lblMainUnitBarcode.Name = "lblMainUnitBarcode";
         lblMainUnitBarcode.Size = new Size(104, 24);
-        lblMainUnitBarcode.TabIndex = 6;
+        lblMainUnitBarcode.TabIndex = 7;
         lblMainUnitBarcode.Text = "رقم الباركود";
         // 
         // txtMainUnitBarcode
@@ -308,7 +391,7 @@ partial class frmProductMaster
         txtMainUnitBarcode.Location = new Point(36, 125);
         txtMainUnitBarcode.Name = "txtMainUnitBarcode";
         txtMainUnitBarcode.Size = new Size(180, 32);
-        txtMainUnitBarcode.TabIndex = 14;
+        txtMainUnitBarcode.TabIndex = 8;
         // 
         // lblMainUnitMaxDiscount
         // 
@@ -316,7 +399,7 @@ partial class frmProductMaster
         lblMainUnitMaxDiscount.Location = new Point(246, 98);
         lblMainUnitMaxDiscount.Name = "lblMainUnitMaxDiscount";
         lblMainUnitMaxDiscount.Size = new Size(196, 24);
-        lblMainUnitMaxDiscount.TabIndex = 8;
+        lblMainUnitMaxDiscount.TabIndex = 9;
         lblMainUnitMaxDiscount.Text = "الخصم المسموح به %";
         // 
         // numMainUnitMaxDiscount
@@ -324,7 +407,7 @@ partial class frmProductMaster
         numMainUnitMaxDiscount.Location = new Point(282, 125);
         numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
         numMainUnitMaxDiscount.Size = new Size(127, 32);
-        numMainUnitMaxDiscount.TabIndex = 13;
+        numMainUnitMaxDiscount.TabIndex = 10;
         // 
         // pnlButtons
         // 
@@ -488,6 +571,7 @@ partial class frmProductMaster
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).EndInit();
+        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).EndInit();
         grpMainUnit.ResumeLayout(false);
         grpMainUnit.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).EndInit();
@@ -509,6 +593,8 @@ partial class frmProductMaster
     private System.Windows.Forms.Label lblName;
     private System.Windows.Forms.Label lblNameReq;
     private System.Windows.Forms.TextBox txtName;
+    private System.Windows.Forms.Label lblForeignName;
+    private System.Windows.Forms.TextBox txtForeignName;
     private System.Windows.Forms.Label lblCategory;
     private System.Windows.Forms.Label lblCategoryReq;
     private System.Windows.Forms.ComboBox cmbCategory;
@@ -516,6 +602,12 @@ partial class frmProductMaster
     private System.Windows.Forms.Label lblReorderLevel;
     private System.Windows.Forms.NumericUpDown numReorderLevel;
     private System.Windows.Forms.CheckBox chkTrackExpiry;
+    private System.Windows.Forms.Label lblExpiryDays;
+    private System.Windows.Forms.NumericUpDown numExpiryAlertDays;
+    private System.Windows.Forms.Label lblLocation;
+    private System.Windows.Forms.TextBox txtLocationInStore;
+    private System.Windows.Forms.Label lblNotes;
+    private System.Windows.Forms.TextBox txtNotes;
     
     // Main Unit Group
     private System.Windows.Forms.GroupBox grpMainUnit;

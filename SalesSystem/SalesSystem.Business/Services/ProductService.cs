@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using SalesSystem.Business.Interfaces;
 using SalesSystem.Business.Interfaces.Repositories;
@@ -90,7 +90,10 @@ public class ProductService : IProductService
                 reorderLevel: request.ReorderLevel,
                 trackExpiry: request.TrackExpiry,
                 imagePath: request.ImagePath,
-                barcode: request.Barcode
+                barcode: request.Barcode,
+                foreignName: request.ForeignName,
+                locationInStore: request.LocationInStore,
+                expiryAlertDays: request.ExpiryAlertDays
             );
 
             await _uow.Products.AddAsync(product, ct);
@@ -142,7 +145,10 @@ public class ProductService : IProductService
                 reorderLevel: request.ReorderLevel,
                 trackExpiry: request.TrackExpiry,
                 imagePath: request.ImagePath,
-                barcode: request.Barcode
+                barcode: request.Barcode,
+                foreignName: request.ForeignName,
+                locationInStore: request.LocationInStore,
+                expiryAlertDays: request.ExpiryAlertDays
             );
 
             if (request.IsActive != product.IsActive)
@@ -277,7 +283,10 @@ public class ProductService : IProductService
             p.ImagePath,
             p.IsActive,
             Barcode: p.Barcode,
-            BranchId: p.BranchId
+            BranchId: p.BranchId,
+            ForeignName: p.ForeignName,
+            LocationInStore: p.LocationInStore,
+            ExpiryAlertDays: p.ExpiryAlertDays
         );
     }
 }

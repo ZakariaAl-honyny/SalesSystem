@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.DTO.Requests;
+namespace SalesSystem.DTO.Requests;
 
 public record CreateProductRequest(
     string Name,
@@ -8,6 +8,9 @@ public record CreateProductRequest(
     bool TrackExpiry = false,
     string? ImagePath = null,
     string? Barcode = null,
+    string? ForeignName = null,
+    string? LocationInStore = null,
+    short? ExpiryAlertDays = null,
     short? BranchId = null
 );
 
@@ -19,5 +22,8 @@ public record UpdateProductRequest(
     bool TrackExpiry = false,
     string? ImagePath = null,
     string? Barcode = null,
+    string? ForeignName = null,
+    string? LocationInStore = null,
+    short? ExpiryAlertDays = null,
     bool IsActive = true
 );

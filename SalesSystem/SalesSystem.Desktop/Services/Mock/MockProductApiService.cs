@@ -58,7 +58,9 @@ public class MockProductApiService : IProductApiService
             Id: nextId, Name: r.Name, CategoryId: r.CategoryId,
             CategoryName: categoryName, Description: r.Description,
             ReorderLevel: r.ReorderLevel, TrackExpiry: r.TrackExpiry,
-            ImagePath: r.ImagePath, IsActive: true, Barcode: r.Barcode);
+            ImagePath: r.ImagePath, IsActive: true, Barcode: r.Barcode,
+            ForeignName: r.ForeignName, LocationInStore: r.LocationInStore,
+            ExpiryAlertDays: r.ExpiryAlertDays);
         MockData.Products.Add(product);
         return Task.FromResult(Result<ProductDto>.Success(product));
     }
@@ -80,6 +82,9 @@ public class MockProductApiService : IProductApiService
             TrackExpiry = r.TrackExpiry,
             ImagePath = r.ImagePath,
             Barcode = r.Barcode,
+            ForeignName = r.ForeignName,
+            LocationInStore = r.LocationInStore,
+            ExpiryAlertDays = r.ExpiryAlertDays,
             IsActive = r.IsActive
         };
 

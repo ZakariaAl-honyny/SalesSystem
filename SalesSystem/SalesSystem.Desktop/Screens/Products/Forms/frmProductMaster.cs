@@ -364,6 +364,10 @@ public partial class frmProductMaster : Form
 
         txtCode.Text = p.Id.ToString();
         txtName.Text = p.Name;
+        txtForeignName.Text = p.ForeignName ?? "";
+        txtLocationInStore.Text = p.LocationInStore ?? "";
+        txtNotes.Text = p.Description ?? "";
+        numExpiryAlertDays.Value = _Clamp(numExpiryAlertDays, p.ExpiryAlertDays ?? 0);
 
         // الباركود الرئيسي للصنف يُخزَّن في ProductDto.Barcode.
         txtMainUnitBarcode.Text = p.Barcode ?? "";
@@ -551,11 +555,15 @@ public partial class frmProductMaster : Form
 
         txtCode.Clear();
         txtName.Clear();
+        txtForeignName.Clear();
+        txtLocationInStore.Clear();
+        txtNotes.Clear();
         txtMainUnitBarcode.Clear();
 
         chkTrackExpiry.Checked = false;
 
         numReorderLevel.Value = 0;
+        numExpiryAlertDays.Value = 0;
         numMainUnitCostPrice.Value = 0;
         numMainUnitSalePrice.Value = 0;
         numMainUnitMaxDiscount.Value = 0;
@@ -697,7 +705,10 @@ public partial class frmProductMaster : Form
         try
         {
             string name = txtName.Text.Trim();
-            string? description = null;
+            string? description = string.IsNullOrWhiteSpace(txtNotes.Text) ? null : txtNotes.Text.Trim();
+            string? foreignName = string.IsNullOrWhiteSpace(txtForeignName.Text) ? null : txtForeignName.Text.Trim();
+            string? locationInStore = string.IsNullOrWhiteSpace(txtLocationInStore.Text) ? null : txtLocationInStore.Text.Trim();
+            short? expiryAlertDays = numExpiryAlertDays.Value > 0 ? (short?)numExpiryAlertDays.Value : null;
             string? barcode = string.IsNullOrWhiteSpace(txtMainUnitBarcode.Text)
                 ? null
                 : txtMainUnitBarcode.Text.Trim();
@@ -714,6 +725,9 @@ public partial class frmProductMaster : Form
                     chkTrackExpiry.Checked,
                     null,
                     barcode,
+                    ForeignName: foreignName,
+                    LocationInStore: locationInStore,
+                    ExpiryAlertDays: expiryAlertDays,
                     IsActive: true);
 
                 result = await ProductService.UpdateAsync(_editId!.Value, request);
@@ -727,7 +741,10 @@ public partial class frmProductMaster : Form
                     numReorderLevel.Value,
                     chkTrackExpiry.Checked,
                     null,
-                    barcode);
+                    barcode,
+                    ForeignName: foreignName,
+                    LocationInStore: locationInStore,
+                    ExpiryAlertDays: expiryAlertDays);
 
                 // الوحدة المختارة من قائمة الوحدات في وضع الإضافة (UnitDto.Id)
                 int? mainUnitId = cmbMainUnit.SelectedValue is int selectedUnitId && selectedUnitId > 0

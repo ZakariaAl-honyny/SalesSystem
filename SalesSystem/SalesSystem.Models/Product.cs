@@ -1,4 +1,4 @@
-﻿using SalesSystem.Common;
+using SalesSystem.Common;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Models;
@@ -57,7 +57,22 @@ public class Product : ActivatableEntity
     /// </summary>
     public string? Barcode { get; private set; }
 
-    // ─── Navigation Properties ────────────────────────────
+    /// <summary>
+    /// Foreign name of the product (الاسم الأجنبي للصنف).
+    /// </summary>
+    public string? ForeignName { get; private set; }
+
+    /// <summary>
+    /// Location of the product inside the store (العنوان في المخزن).
+    /// </summary>
+    public string? LocationInStore { get; private set; }
+
+    /// <summary>
+    /// Expiry alert threshold in days (نقطة التنبيه بالانتهاء).
+    /// </summary>
+    public short? ExpiryAlertDays { get; private set; }
+
+   // ─── Navigation Properties ────────────────────────────
 
     /// <summary>
     /// The category this product belongs to.
@@ -185,6 +200,9 @@ public class Product : ActivatableEntity
     /// <param name="trackExpiry">Whether this product can expire (default false).</param>
     /// <param name="imagePath">Optional primary image path.</param>
     /// <param name="barcode">Optional primary barcode for quick lookup.</param>
+    /// <param name="foreignName">Optional foreign name (الاسم الأجنبي للصنف).</param>
+    /// <param name="locationInStore">Optional location in store (العنوان في المخزن).</param>
+    /// <param name="expiryAlertDays">Optional expiry alert threshold in days (نقطة التنبيه بالانتهاء).</param>
     /// <param name="createdByUserId">User who created this record.</param>
     /// <returns>The newly created Product entity.</returns>
     public static Product Create(
@@ -196,6 +214,9 @@ public class Product : ActivatableEntity
         bool trackExpiry = false,
         string? imagePath = null,
         string? barcode = null,
+        string? foreignName = null,
+        string? locationInStore = null,
+        short? expiryAlertDays = null,
         int? createdByUserId = null)
     {
         if (branchId <= 0)
@@ -217,6 +238,9 @@ public class Product : ActivatableEntity
             TrackExpiry = trackExpiry,
             ImagePath = imagePath?.Trim(),
             Barcode = barcode?.Trim(),
+            ForeignName = foreignName?.Trim(),
+            LocationInStore = locationInStore?.Trim(),
+            ExpiryAlertDays = expiryAlertDays,
             IsActive = true
         };
         product.SetCreatedBy(createdByUserId);
@@ -234,6 +258,9 @@ public class Product : ActivatableEntity
         bool trackExpiry = false,
         string? imagePath = null,
         string? barcode = null,
+        string? foreignName = null,
+        string? locationInStore = null,
+        short? expiryAlertDays = null,
         int? updatedByUserId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -250,6 +277,9 @@ public class Product : ActivatableEntity
         TrackExpiry = trackExpiry;
         ImagePath = imagePath?.Trim();
         Barcode = barcode?.Trim();
+        ForeignName = foreignName?.Trim();
+        LocationInStore = locationInStore?.Trim();
+        ExpiryAlertDays = expiryAlertDays;
 
         SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
