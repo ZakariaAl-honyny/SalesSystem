@@ -52,33 +52,10 @@ public partial class frmProductMaster : Form
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this);
-        _WireEvents();
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         _WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-    }
-
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
-
-    private void _WireEvents()
-    {
-        Load += frmProductMaster_Load;
-
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-        btnManageUnits.Click += btnManageUnits_Click;
-        btnAddCategory.Click += btnAddCategory_Click;
-
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvProducts.CellClick += dgvProducts_CellClick;
-        cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
-
-        // قارئ الباركود: Enter بعد الترميز يُفعّل البحث عن الصنف أو ينتقل لاسم الصنف للإضافة السريعة.
-        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
     }
 
     /// <summary>
@@ -94,23 +71,6 @@ public partial class frmProductMaster : Form
             || (cmbMainUnit.SelectedValue is int unitId && unitId > 0);
 
         return nameOk && categoryOk && mainUnitOk;
-    }
-
-    /// <summary>أسماء الحقول المطلوبة الناقصة (بترتيب ظهورها في النموذج).</summary>
-    private List<string> _MissingRequiredNames()
-    {
-        var missing = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-            missing.Add("اسم الصنف");
-
-        if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0)
-            missing.Add("مجموعة الصنف");
-
-        if (_editId is null && (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0))
-            missing.Add("الوحدة الرئيسية");
-
-        return missing;
     }
 
     /// <summary>

@@ -586,6 +586,20 @@ partial class frmProductMaster
         pnlFilter.ResumeLayout(false);
         pnlFilter.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
+        // ── ربط الأحداث (Event wiring) ──────────────────────────────────
+        Load += frmProductMaster_Load;
+        btnNew.Click += btnNew_Click;
+        btnSave.Click += btnSave_Click;
+        btnEdit.Click += btnEdit_Click;
+        btnDelete.Click += btnDelete_Click;
+        btnRefresh.Click += btnRefresh_Click;
+        btnManageUnits.Click += btnManageUnits_Click;
+        btnAddCategory.Click += btnAddCategory_Click;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        dgvProducts.CellClick += dgvProducts_CellClick;
+        cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
+        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
+
         ResumeLayout(false);
     }
 
