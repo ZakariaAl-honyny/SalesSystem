@@ -53,6 +53,10 @@ public partial class frmProductMaster : Form
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this);
         _WireEvents();
+
+        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
+        _WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
     }
 
     // ── Event wiring (the Designer defines controls only) ─────────────────────
@@ -914,6 +918,27 @@ public partial class frmProductMaster : Form
 
     private static decimal _Clamp(NumericUpDown control, decimal value)
         => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
+
+    /// <summary>
+    /// يمنح الأزرار شكلاً واضحاً عند تعطيلها (خلفية رمادية + نص باهت) بدلاً من المظهر الافتراضي غير الواضح.
+    /// </summary>
+    private static void _WireButtonDisabledVisual(params Button[] buttons)
+    {
+        foreach (var btn in buttons)
+        {
+            var normalBack = btn.BackColor;
+            var normalFore = btn.ForeColor;
+
+            void Apply()
+            {
+                btn.BackColor = btn.Enabled ? normalBack : Color.FromArgb(224, 224, 224);
+                btn.ForeColor = btn.Enabled ? normalFore : Color.FromArgb(150, 150, 150);
+            }
+
+            btn.EnabledChanged += (s, e) => Apply();
+            Apply();
+        }
+    }
 
     // ── Barcode Scanner ───────────────────────────────────────────────────────
 

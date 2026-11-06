@@ -55,8 +55,8 @@ partial class frmProductMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
-        btnManageUnits = new Button();
         btnRefresh = new Button();
+        btnManageUnits = new Button();
         pnlGrid = new Panel();
         dgvProducts = new DataGridView();
         pnlFilter = new Panel();
@@ -119,13 +119,6 @@ partial class frmProductMaster
         pnlFields.Size = new Size(1432, 200);
         pnlFields.TabIndex = 1;
         // 
-        // Tab order داخل pnlFields (سطر بسطر أفقي من اليمين لليسار):
-        // cmbCategory(1) → txtName(2) → txtForeignName(3) → grpMainUnit(4) →
-        // numReorderLevel(5) → chkTrackExpiry(6) → numExpiryAlertDays(7) →
-        // txtLocationInStore(8) → txtNotes(9).  (txtCode غير قابل للتركيز)
-        // ملاحظة: grpMainUnit.TabStop = false حتى لا يُظهر الإطار مستطيل تركيز،
-        // وينتقل التركيز مباشرة إلى أول عنصر بداخله.
-        // 
         // lblCode
         // 
         lblCode.AutoSize = true;
@@ -176,7 +169,7 @@ partial class frmProductMaster
         lblForeignName.AutoSize = true;
         lblForeignName.Location = new Point(694, 3);
         lblForeignName.Name = "lblForeignName";
-        lblForeignName.Size = new Size(132, 24);
+        lblForeignName.Size = new Size(190, 24);
         lblForeignName.TabIndex = 15;
         lblForeignName.Text = "الاسم الأجنبي للصنف";
         // 
@@ -257,7 +250,7 @@ partial class frmProductMaster
         lblExpiryDays.AutoSize = true;
         lblExpiryDays.Location = new Point(730, 74);
         lblExpiryDays.Name = "lblExpiryDays";
-        lblExpiryDays.Size = new Size(194, 24);
+        lblExpiryDays.Size = new Size(175, 24);
         lblExpiryDays.TabIndex = 18;
         lblExpiryDays.Text = "نقطة التنبيه بالانتهاء";
         // 
@@ -274,7 +267,7 @@ partial class frmProductMaster
         lblLocation.AutoSize = true;
         lblLocation.Location = new Point(1050, 134);
         lblLocation.Name = "lblLocation";
-        lblLocation.Size = new Size(110, 24);
+        lblLocation.Size = new Size(163, 24);
         lblLocation.TabIndex = 19;
         lblLocation.Text = "العنوان في المخزن";
         // 
@@ -290,23 +283,18 @@ partial class frmProductMaster
         lblNotes.AutoSize = true;
         lblNotes.Location = new Point(694, 136);
         lblNotes.Name = "lblNotes";
-        lblNotes.Size = new Size(61, 24);
+        lblNotes.Size = new Size(83, 24);
         lblNotes.TabIndex = 20;
         lblNotes.Text = "ملاحظات";
         // 
         // txtNotes
         // 
         txtNotes.Location = new Point(675, 161);
-        txtNotes.Multiline = false;
         txtNotes.Name = "txtNotes";
         txtNotes.Size = new Size(230, 32);
         txtNotes.TabIndex = 9;
         // 
         // grpMainUnit
-        // 
-        // الترتيب الداخلي (سطر بسطر أفقي من اليمين لليسار):
-        // cmbMainUnit(0) → numMainUnitCostPrice(1) → numMainUnitSalePrice(2) →
-        // numMainUnitMaxDiscount(3) → txtMainUnitBarcode(4).
         // 
         grpMainUnit.BackColor = Color.FromArgb(200, 230, 200);
         grpMainUnit.Controls.Add(lblMainUnit);
@@ -466,7 +454,7 @@ partial class frmProductMaster
         // 
         btnEdit.BackColor = Color.White;
         btnEdit.FlatStyle = FlatStyle.Flat;
-        btnEdit.Location = new Point(1000, 13);
+        btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
         btnEdit.TabIndex = 19;
@@ -477,35 +465,35 @@ partial class frmProductMaster
         // 
         btnDelete.BackColor = Color.White;
         btnDelete.FlatStyle = FlatStyle.Flat;
-        btnDelete.Location = new Point(856, 13);
+        btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 18;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
         // 
-        // btnManageUnits
-        // 
-        btnManageUnits.BackColor = Color.FromArgb(30, 86, 160);
-        btnManageUnits.FlatStyle = FlatStyle.Flat;
-        btnManageUnits.ForeColor = Color.White;
-        btnManageUnits.Location = new Point(534, 13);
-        btnManageUnits.Name = "btnManageUnits";
-        btnManageUnits.Size = new Size(180, 35);
-        btnManageUnits.TabIndex = 20;
-        btnManageUnits.Text = "📦 الوحدات والأسعار";
-        btnManageUnits.UseVisualStyleBackColor = false;
-        // 
         // btnRefresh
         // 
         btnRefresh.BackColor = Color.White;
         btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(720, 13);
+        btnRefresh.Location = new Point(719, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 32);
         btnRefresh.TabIndex = 21;
         btnRefresh.Text = "🔄 تحديث";
         btnRefresh.UseVisualStyleBackColor = false;
+        // 
+        // btnManageUnits
+        // 
+        btnManageUnits.BackColor = Color.FromArgb(30, 86, 160);
+        btnManageUnits.FlatStyle = FlatStyle.Flat;
+        btnManageUnits.ForeColor = Color.White;
+        btnManageUnits.Location = new Point(533, 13);
+        btnManageUnits.Name = "btnManageUnits";
+        btnManageUnits.Size = new Size(180, 35);
+        btnManageUnits.TabIndex = 20;
+        btnManageUnits.Text = "📦 الوحدات والأسعار";
+        btnManageUnits.UseVisualStyleBackColor = false;
         // 
         // pnlGrid
         // 
