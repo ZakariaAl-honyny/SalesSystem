@@ -16,7 +16,7 @@ partial class frmProductMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
-        lblMode = new Label();
+        lblTitle = new Label();
         pnlFields = new Panel();
         lblCode = new Label();
         txtCode = new TextBox();
@@ -68,18 +68,18 @@ partial class frmProductMaster
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
-        // lblMode
+        // lblTitle
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
-        lblMode.Dock = DockStyle.Top;
-        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
-        lblMode.Location = new Point(0, 0);
-        lblMode.Name = "lblMode";
-        lblMode.Size = new Size(1432, 50);
-        lblMode.TabIndex = 0;
-        lblMode.Text = "(( دليل الأصناف ))";
-        lblMode.TextAlign = ContentAlignment.MiddleCenter;
+        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
+        lblTitle.Dock = DockStyle.Top;
+        lblTitle.Font = new Font("Tahoma", 14F, FontStyle.Bold);
+        lblTitle.ForeColor = Color.White;
+        lblTitle.Location = new Point(0, 0);
+        lblTitle.Name = "lblTitle";
+        lblTitle.Size = new Size(1432, 50);
+        lblTitle.TabIndex = 0;
+        lblTitle.Text = "(( دليل الأصناف ))";
+        lblTitle.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlFields
         // 
@@ -478,7 +478,7 @@ partial class frmProductMaster
         Controls.Add(pnlGrid);
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
-        Controls.Add(lblMode);
+        Controls.Add(lblTitle);
         Font = new Font("Tahoma", 10F);
         Name = "frmProductMaster";
         RightToLeft = RightToLeft.Yes;
@@ -502,7 +502,7 @@ partial class frmProductMaster
         ResumeLayout(false);
     }
 
-    private System.Windows.Forms.Label lblMode;
+    private System.Windows.Forms.Label lblTitle;
     private System.Windows.Forms.Panel pnlFields;
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;

@@ -372,7 +372,6 @@ public partial class frmProductMaster : Form
         numReorderLevel.Value = _Clamp(numReorderLevel, p.ReorderLevel);
 
         _SelectCategory(p.CategoryId);
-        _UpdateModeHeader();
 
         await _LoadMainUnitAsync(p.Id);
 
@@ -537,12 +536,7 @@ public partial class frmProductMaster : Form
         }
     }
 
-    // ── Mode / Reset ──────────────────────────────────────────────────────────
-
-    private void _UpdateModeHeader()
-        => lblMode.Text = _editId.HasValue
-            ? "(( دليل الأصناف )) — تعديل صنف"
-            : "(( دليل الأصناف )) — إضافة صنف جديد";
+    // ── Reset ──────────────────────────────────────────────────────────
 
     private void _ResetForm()
     {
@@ -586,7 +580,6 @@ public partial class frmProductMaster : Form
         }
 
         dgvProducts.ClearSelection();
-        _UpdateModeHeader();
         txtName.Focus();
 
         _validationFailed = false;
@@ -764,7 +757,6 @@ public partial class frmProductMaster : Form
 
                 await _LoadProductsAsync();
                 _SelectGridRow(result.Value.Id);
-                _UpdateModeHeader();
 
                 // بعد الإضافة: تحويل حقل الوحدة الرئيسية إلى عرض وحدات الصنف المضافة (للقراءة فقط).
                 if (!edit)
