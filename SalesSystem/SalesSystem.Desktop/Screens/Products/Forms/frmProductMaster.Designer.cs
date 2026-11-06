@@ -63,6 +63,7 @@ partial class frmProductMaster
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
+        chkShowInactive = new CheckBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
@@ -315,6 +316,7 @@ partial class frmProductMaster
         grpMainUnit.Name = "grpMainUnit";
         grpMainUnit.Size = new Size(470, 170);
         grpMainUnit.TabIndex = 4;
+        grpMainUnit.TabStop = false;
         grpMainUnit.Text = "الوحدة الرئيسية";
         // 
         // lblMainUnit
@@ -553,6 +555,7 @@ partial class frmProductMaster
         // 
         pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
+        pnlFilter.Controls.Add(chkShowInactive);
         pnlFilter.Dock = DockStyle.Top;
         pnlFilter.Location = new Point(10, 10);
         pnlFilter.Name = "pnlFilter";
@@ -576,6 +579,18 @@ partial class frmProductMaster
         lblSearch.Size = new Size(56, 24);
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.Checked = false;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(20, 9);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(150, 28);
+        chkShowInactive.TabIndex = 21;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
         // 
         // errorProvider
         // 
@@ -667,6 +682,7 @@ partial class frmProductMaster
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
+    private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }
 
