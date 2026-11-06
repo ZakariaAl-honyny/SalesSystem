@@ -313,7 +313,7 @@ partial class frmProductMaster
         grpMainUnit.Name = "grpMainUnit";
         grpMainUnit.Size = new Size(470, 170);
         grpMainUnit.TabIndex = 4;
-        grpMainUnit.TabStop = false;
+        grpMainUnit.TabStop = true;
         grpMainUnit.Text = "الوحدة الرئيسية";
         // 
         // lblMainUnit

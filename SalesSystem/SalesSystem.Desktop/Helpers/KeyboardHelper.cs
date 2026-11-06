@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Helpers;
+namespace SalesSystem.Desktop.Helpers;
 
 public static class KeyboardHelper
 {
@@ -93,8 +93,9 @@ public static class KeyboardHelper
                 {
                     if (e.Modifiers != Keys.None) return;
 
-                    bool backward = e.KeyCode == Keys.Up || e.KeyCode == Keys.Left;
-                    bool forward = e.KeyCode == Keys.Down || e.KeyCode == Keys.Right;
+                    // RTL: Right arrow = previous field, Left arrow = next field.
+                    bool backward = e.KeyCode == Keys.Up || e.KeyCode == Keys.Right;
+                    bool forward = e.KeyCode == Keys.Down || e.KeyCode == Keys.Left;
 
                     if (!backward && !forward) return;
 
