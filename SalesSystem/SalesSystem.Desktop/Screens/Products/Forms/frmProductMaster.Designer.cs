@@ -583,11 +583,10 @@ partial class frmProductMaster
         // chkShowInactive
         // 
         chkShowInactive.AutoSize = true;
-        chkShowInactive.Checked = false;
         chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(20, 9);
+        chkShowInactive.Location = new Point(518, 6);
         chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(150, 28);
+        chkShowInactive.Size = new Size(166, 28);
         chkShowInactive.TabIndex = 21;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;

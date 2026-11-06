@@ -202,4 +202,24 @@ public static class KeyboardHelper
             }
         };
     }
-}
+
+    /// <summary>
+    /// يمنح الأزرار شكلاً واضحاً عند تعطيلها (خلفية رمادية + نص باهت) بدلاً من المظهر الافتراضي غير الواضح.
+    /// </summary>
+    public static void WireButtonDisabledVisual(params Button[] buttons)
+    {
+        foreach (var btn in buttons)
+        {
+            var normalBack = btn.BackColor;
+            var normalFore = btn.ForeColor;
+
+            void Apply()
+            {
+                btn.BackColor = btn.Enabled ? normalBack : Color.FromArgb(224, 224, 224);
+                btn.ForeColor = btn.Enabled ? normalFore : Color.FromArgb(150, 150, 150);
+            }
+
+            btn.EnabledChanged += (s, e) => Apply();
+            Apply();
+        }
+    }}

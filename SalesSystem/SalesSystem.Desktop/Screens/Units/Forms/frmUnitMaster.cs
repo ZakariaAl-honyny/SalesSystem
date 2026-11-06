@@ -30,9 +30,6 @@ public partial class frmUnitMaster : Form
     /// <summary>null = إضافة وحدة جديدة، &gt; 0 = تعديل وحدة قائمة.</summary>
     private int? _editId;
 
-    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
-    private bool _validationFailed;
-
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmUnitMaster()
     {
@@ -44,6 +41,13 @@ public partial class frmUnitMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
         _WireEvents();
     }
 
@@ -55,15 +59,12 @@ public partial class frmUnitMaster : Form
 
         btnNew.Click += btnNew_Click;
         btnSave.Click += btnSave_Click;
+        btnEdit.Click += btnEdit_Click;
         btnDelete.Click += btnDelete_Click;
         btnRefresh.Click += btnRefresh_Click;
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvUnits.CellClick += dgvUnits_CellClick;
-
-        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
-        // ثم يُعاد تفعيله تلقائياً عند إدخال اسم الوحدة.
-        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
 
     /// <summary>هل الحقل المطلوب (اسم الوحدة) مكتمل؟</summary>
@@ -82,19 +83,15 @@ public partial class frmUnitMaster : Form
     }
 
     /// <summary>
-    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
-    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _UpdateSaveEnabled()
+    private void _FocusFirstMissingField()
     {
-        if (_validationFailed)
+        if (string.IsNullOrWhiteSpace(txtName.Text))
         {
-            // re-enable once the user has filled all required fields
-            if (_RequiredFieldsValid())
-                _validationFailed = false;
+            errorProvider.SetError(txtName, "اسم الوحدة مطلوب");
+            txtName.Focus();
         }
-
-        btnSave.Enabled = !_validationFailed;
     }
 
     /// <summary>تحديث يدوي لقائمة الوحدات مع الإبقاء على نص البحث الحالي.</summary>
@@ -245,8 +242,9 @@ public partial class frmUnitMaster : Form
 
         _editId = u.Id;
 
-        // وضع التعديل: زر الحفظ يُحدّث السجل المحدد، وزر الحذف متاح.
-        btnSave.Text = "💾 تعديل";
+        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        btnSave.Enabled = false;
+        btnEdit.Enabled = true;
         btnDelete.Enabled = true;
 
         txtCode.Text = u.Id.ToString();
@@ -255,9 +253,6 @@ public partial class frmUnitMaster : Form
 
         errorProvider.Clear();
         _UpdateModeHeader();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -271,8 +266,9 @@ public partial class frmUnitMaster : Form
     {
         _editId = null;
 
-        // وضع الإضافة: زر الحفظ يُضيف سجلاً جديداً، وزر الحذف معطّل لعدم وجود سجل محدد.
-        btnSave.Text = "💾 إضافة";
+        // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        btnSave.Enabled = true;
+        btnEdit.Enabled = false;
         btnDelete.Enabled = false;
 
         errorProvider.Clear();
@@ -284,9 +280,6 @@ public partial class frmUnitMaster : Form
         dgvUnits.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -334,27 +327,46 @@ public partial class frmUnitMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
-    private async void btnSave_Click(object? sender, EventArgs e)
+    /// <summary>زر الإضافة: يُضيف وحدة جديدة دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveUnitAsync(edit: false);
+
+    /// <summary>زر التعديل: يُحدّث الوحدة المحددة فقط.</summary>
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveUnitAsync(edit: true);
+
+    /// <summary>
+    /// حفظ الوحدة: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
+    /// </summary>
+    private async Task _SaveUnitAsync(bool edit)
     {
-        // الحقل المطلوب الناقص: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئته.
+        // التعديل بدون سجل محدد لا معنى له.
+        if (edit && _editId is null) return;
+
+        // الحقل المطلوب الناقص: نقل المؤشر إلى الحقل مع أيقونة خطأ (الأزرار تبقى مفعّلة).
         if (!_RequiredFieldsValid())
         {
-            _validationFailed = true;
-            _UpdateSaveEnabled();
+            _FocusFirstMissingField();
 
             var missing = string.Join("، ", _MissingRequiredNames());
             MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-            errorProvider.SetError(txtName, "اسم الوحدة مطلوب");
             return;
         }
 
         if (!_ValidateForm()) return;
 
-        bool wasEditing = _editId.HasValue;
+        // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
+        if (edit)
+        {
+            string editName = txtName.Text.Trim();
+            if (MessageBox.Show($"هل أنت متأكد من تعديل الوحدة \"{editName}\"؟",
+                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+                return;
+        }
+
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
+        btnEdit.Enabled = false;
 
         try
         {
@@ -365,8 +377,10 @@ public partial class frmUnitMaster : Form
 
             Result<UnitDto> result;
 
-            if (_editId is int id)
+            if (edit)
             {
+                int id = _editId!.Value;
+
                 // الحفاظ على حالة التنشيط الحالية للسجل أثناء التعديل
                 bool isActive = _unitsById.TryGetValue(id, out var current) && current.IsActive;
 
@@ -383,13 +397,14 @@ public partial class frmUnitMaster : Form
             {
                 EventBus.Publish(new UnitChangedMessage(result.Value.Id));
 
-                MessageBox.Show(wasEditing ? "تم تعديل الوحدة بنجاح." : "تمت إضافة الوحدة بنجاح.",
+                MessageBox.Show(edit ? "تم تعديل الوحدة بنجاح." : "تمت إضافة الوحدة بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
+                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
                 _editId = result.Value.Id;
-
-                // بعد الحفظ ينتقل النموذج إلى وضع التعديل (السجل محدد).
-                btnSave.Text = "💾 تعديل";
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
 
                 await _LoadUnitsAsync();
@@ -410,7 +425,18 @@ public partial class frmUnitMaster : Form
         }
         finally
         {
-            btnSave.Enabled = true;
+            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
+            if (_editId is null)
+            {
+                btnSave.Enabled = true;
+                btnEdit.Enabled = false;
+            }
+            else
+            {
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
+            }
+
             Cursor = Cursors.Default;
         }
     }
@@ -461,8 +487,9 @@ public partial class frmUnitMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زر الحذف معطّلاً.
+            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا الحذف والتعديل معطّلين.
             btnDelete.Enabled = _editId.HasValue;
+            btnEdit.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
     }

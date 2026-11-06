@@ -36,9 +36,6 @@ public partial class frmUserMaster : Form
     /// <summary>يمنع إعادة التقييم أثناء تعبئة القوائم برمجياً.</summary>
     private bool _isBindingLookups;
 
-    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
-    private bool _validationFailed;
-
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmUserMaster()
     {
@@ -50,6 +47,13 @@ public partial class frmUserMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
         _WireEvents();
     }
 
@@ -61,15 +65,12 @@ public partial class frmUserMaster : Form
 
         btnNew.Click += btnNew_Click;
         btnSave.Click += btnSave_Click;
+        btnEdit.Click += btnEdit_Click;
         btnDelete.Click += btnDelete_Click;
         btnRefresh.Click += btnRefresh_Click;
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvUsers.CellClick += dgvUsers_CellClick;
-
-        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
-        // ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
-        txtUserName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
 
     /// <summary>الفرع المحدد (0 = بدون فرع).</summary>
@@ -82,33 +83,16 @@ public partial class frmUserMaster : Form
     private bool _RequiredFieldsValid()
         => !string.IsNullOrWhiteSpace(txtUserName.Text);
 
-    /// <summary>أسماء الحقول المطلوبة الناقصة (بترتيب ظهورها في النموذج).</summary>
-    private List<string> _MissingRequiredNames()
-    {
-        var missing = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(txtUserName.Text))
-            missing.Add("اسم المستخدم");
-
-        return missing;
-    }
-
     /// <summary>
-    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
-    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _UpdateSaveEnabled()
+    private void _FocusFirstMissingField()
     {
-        if (_isBindingLookups) return;
-
-        if (_validationFailed)
+        if (string.IsNullOrWhiteSpace(txtUserName.Text))
         {
-            // re-enable once the user has filled all required fields
-            if (_RequiredFieldsValid())
-                _validationFailed = false;
+            errorProvider.SetError(txtUserName, "اسم المستخدم مطلوب");
+            txtUserName.Focus();
         }
-
-        btnSave.Enabled = !_validationFailed;
     }
 
     /// <summary>تحديث يدوي لقائمة المستخدمين مع الإبقاء على نص البحث الحالي.</summary>
@@ -323,8 +307,9 @@ public partial class frmUserMaster : Form
 
         _editId = userId;
 
-        // وضع التعديل: زر الحفظ يُحدّث السجل المحدد، وزر الحذف متاح.
-        btnSave.Text = "💾 تعديل";
+        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        btnSave.Enabled = false;
+        btnEdit.Enabled = true;
         btnDelete.Enabled = true;
 
         errorProvider.Clear();
@@ -353,9 +338,6 @@ public partial class frmUserMaster : Form
         chkMustChangePassword.Checked = u.MustChangePassword;
 
         _UpdateModeHeader();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -369,8 +351,9 @@ public partial class frmUserMaster : Form
     {
         _editId = null;
 
-        // وضع الإضافة: زر الحفظ يُضيف سجلاً جديداً، وزر الحذف معطّل لعدم وجود سجل محدد.
-        btnSave.Text = "💾 إضافة";
+        // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        btnSave.Enabled = true;
+        btnEdit.Enabled = false;
         btnDelete.Enabled = false;
 
         errorProvider.Clear();
@@ -398,9 +381,6 @@ public partial class frmUserMaster : Form
         dgvUsers.ClearSelection();
         _UpdateModeHeader();
         txtUserName.Focus();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -432,29 +412,42 @@ public partial class frmUserMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
-    private async void btnSave_Click(object? sender, EventArgs e)
+    /// <summary>زر الإضافة: يُضيف مستخدماً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveUserAsync(edit: false);
+
+    /// <summary>زر التعديل: يُحدّث المستخدم المحدد فقط.</summary>
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveUserAsync(edit: true);
+
+    /// <summary>
+    /// حفظ المستخدم: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
+    /// </summary>
+    private async Task _SaveUserAsync(bool edit)
     {
-        // الحقول المطلوبة الناقصة: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئتها.
+        // التعديل بدون سجل محدد لا معنى له.
+        if (edit && _editId is null) return;
+
+        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
         if (!_RequiredFieldsValid())
         {
-            _validationFailed = true;
-            _UpdateSaveEnabled();
-
-            var missing = string.Join("، ", _MissingRequiredNames());
-            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-            if (string.IsNullOrWhiteSpace(txtUserName.Text))
-                errorProvider.SetError(txtUserName, "اسم المستخدم مطلوب");
-
+            _FocusFirstMissingField();
             return;
         }
 
         if (!_ValidateForm()) return;
 
-        bool wasEditing = _editId.HasValue;
+        // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
+        if (edit)
+        {
+            string editName = txtUserName.Text.Trim();
+            if (MessageBox.Show($"هل أنت متأكد من تعديل المستخدم \"{editName}\"؟",
+                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+                return;
+        }
+
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
+        btnEdit.Enabled = false;
 
         try
         {
@@ -466,7 +459,7 @@ public partial class frmUserMaster : Form
 
             Result<UserDto> result;
 
-            if (_editId is int id)
+            if (edit)
             {
                 // UpdateUserRequest لا يحتوي على اسم المستخدم — يُحفظ عبر CreateUserRequest فقط.
                 // TODO: لا يوجد DefaultCashBoxId في الشاشة → يُمرَّر null.
@@ -477,7 +470,7 @@ public partial class frmUserMaster : Form
                     password,
                     DefaultCashBoxId: null);
 
-                result = await UserService.UpdateAsync(id, request);
+                result = await UserService.UpdateAsync(_editId!.Value, request);
             }
             else
             {
@@ -495,13 +488,15 @@ public partial class frmUserMaster : Form
 
             if (result.IsSuccess && result.Value != null)
             {
-                MessageBox.Show(wasEditing ? "تم تعديل المستخدم بنجاح." : "تمت إضافة المستخدم بنجاح.",
+                MessageBox.Show(edit ? "تم تعديل المستخدم بنجاح." : "تمت إضافة المستخدم بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 _editId = result.Value.Id;
 
-                // بعد الحفظ ينتقل النموذج إلى وضع التعديل (السجل محدد).
-                btnSave.Text = "💾 تعديل";
+                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
+                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
 
                 await _LoadUsersAsync();
@@ -523,7 +518,18 @@ public partial class frmUserMaster : Form
         }
         finally
         {
-            btnSave.Enabled = true;
+            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
+            if (_editId is null)
+            {
+                btnSave.Enabled = true;
+                btnEdit.Enabled = false;
+            }
+            else
+            {
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
+            }
+
             Cursor = Cursors.Default;
         }
     }
@@ -573,8 +579,9 @@ public partial class frmUserMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زر الحذف معطّلاً.
+            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا التعديل والحذف معطّلين.
             btnDelete.Enabled = _editId.HasValue;
+            btnEdit.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
     }

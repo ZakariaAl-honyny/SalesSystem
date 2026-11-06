@@ -39,6 +39,7 @@ partial class frmCustomerMaster
         btnNew = new Button();
         btnRefresh = new Button();
         btnSave = new Button();
+        btnEdit = new Button();
         btnDelete = new Button();
         pnlGrid = new Panel();
         dgvCustomers = new DataGridView();
@@ -246,6 +247,7 @@ partial class frmCustomerMaster
         pnlButtons.BackColor = Color.FromArgb(235, 240, 235);
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
+        pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 270);
@@ -273,14 +275,25 @@ partial class frmCustomerMaster
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
-        btnSave.Text = "💾 حفظ";
+        btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        // 
+        // btnEdit
+        // 
+        btnEdit.BackColor = Color.White;
+        btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Location = new Point(999, 13);
+        btnEdit.Name = "btnEdit";
+        btnEdit.Size = new Size(128, 35);
+        btnEdit.TabIndex = 3;
+        btnEdit.Text = "✏️ تعديل";
+        btnEdit.UseVisualStyleBackColor = false;
         // 
         // btnDelete
         // 
         btnDelete.BackColor = Color.White;
         btnDelete.FlatStyle = FlatStyle.Flat;
-        btnDelete.Location = new Point(989, 13);
+        btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 2;
@@ -457,6 +470,7 @@ partial class frmCustomerMaster
     private System.Windows.Forms.FlowLayoutPanel pnlButtons;
     private System.Windows.Forms.Button btnNew;
     private System.Windows.Forms.Button btnSave;
+    private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvCustomers;

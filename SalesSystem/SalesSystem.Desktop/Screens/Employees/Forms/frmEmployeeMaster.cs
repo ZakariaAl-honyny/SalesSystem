@@ -30,9 +30,6 @@ public partial class frmEmployeeMaster : Form
     /// <summary>null = إضافة موظف جديد، &gt; 0 = تعديل موظف قائم.</summary>
     private int? _editId;
 
-    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
-    private bool _validationFailed;
-
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmEmployeeMaster()
     {
@@ -44,6 +41,13 @@ public partial class frmEmployeeMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
         _WireEvents();
     }
 
@@ -55,46 +59,28 @@ public partial class frmEmployeeMaster : Form
 
         btnNew.Click += btnNew_Click;
         btnSave.Click += btnSave_Click;
+        btnEdit.Click += btnEdit_Click;
         btnDelete.Click += btnDelete_Click;
         btnRefresh.Click += btnRefresh_Click;
 
         txtSearch.TextChanged += txtSearch_TextChanged;
         dgvEmployees.CellClick += dgvEmployees_CellClick;
-
-        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
-        // ثم يُعاد تفعيله تلقائياً عند إدخال اسم الموظف.
-        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
     }
 
     /// <summary>هل الحقل المطلوب (اسم الموظف) مكتمل؟</summary>
     private bool _RequiredFieldsValid()
         => !string.IsNullOrWhiteSpace(txtName.Text);
 
-    /// <summary>أسماء الحقول المطلوبة الناقصة (اسم الموظف).</summary>
-    private List<string> _MissingRequiredNames()
-    {
-        var missing = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-            missing.Add("اسم الموظف");
-
-        return missing;
-    }
-
     /// <summary>
-    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
-    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _UpdateSaveEnabled()
+    private void _FocusFirstMissingField()
     {
-        if (_validationFailed)
+        if (string.IsNullOrWhiteSpace(txtName.Text))
         {
-            // re-enable once the user has filled all required fields
-            if (_RequiredFieldsValid())
-                _validationFailed = false;
+            errorProvider.SetError(txtName, "اسم الموظف مطلوب");
+            txtName.Focus();
         }
-
-        btnSave.Enabled = !_validationFailed;
     }
 
     /// <summary>تحديث يدوي لقائمة الموظفين مع الإبقاء على نص البحث الحالي.</summary>
@@ -252,8 +238,9 @@ public partial class frmEmployeeMaster : Form
         _editId = employeeId;
         _selected = e;
 
-        // وضع التعديل: زر الحفظ يُحدّث السجل المحدد، وزر الحذف متاح.
-        btnSave.Text = "💾 تعديل";
+        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        btnSave.Enabled = false;
+        btnEdit.Enabled = true;
         btnDelete.Enabled = true;
 
         errorProvider.Clear();
@@ -276,9 +263,6 @@ public partial class frmEmployeeMaster : Form
         }
 
         _UpdateModeHeader();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
@@ -293,8 +277,9 @@ public partial class frmEmployeeMaster : Form
         _editId = null;
         _selected = null;
 
-        // وضع الإضافة: زر الحفظ يُضيف سجلاً جديداً، وزر الحذف معطّل لعدم وجود سجل محدد.
-        btnSave.Text = "💾 إضافة";
+        // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        btnSave.Enabled = true;
+        btnEdit.Enabled = false;
         btnDelete.Enabled = false;
 
         errorProvider.Clear();
@@ -312,9 +297,6 @@ public partial class frmEmployeeMaster : Form
         dgvEmployees.ClearSelection();
         _UpdateModeHeader();
         txtName.Focus();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -382,27 +364,42 @@ public partial class frmEmployeeMaster : Form
             CommissionRate: _selected?.CommissionRate);
     }
 
-    private async void btnSave_Click(object? sender, EventArgs e)
+    /// <summary>زر الإضافة: يُضيف موظفاً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveEmployeeAsync(edit: false);
+
+    /// <summary>زر التعديل: يُحدّث الموظف المحدد فقط.</summary>
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveEmployeeAsync(edit: true);
+
+    /// <summary>
+    /// حفظ الموظف: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
+    /// </summary>
+    private async Task _SaveEmployeeAsync(bool edit)
     {
-        // الحقل المطلوب الناقص: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئته.
+        // التعديل بدون سجل محدد لا معنى له.
+        if (edit && _editId is null) return;
+
+        // الحقل المطلوب الناقص: نقل المؤشر إلى الحقل مع أيقونة خطأ (الأزرار تبقى مفعّلة).
         if (!_RequiredFieldsValid())
         {
-            _validationFailed = true;
-            _UpdateSaveEnabled();
-
-            var missing = string.Join("، ", _MissingRequiredNames());
-            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-            errorProvider.SetError(txtName, "اسم الموظف مطلوب");
+            _FocusFirstMissingField();
             return;
         }
 
         if (!_ValidateForm()) return;
 
-        bool wasEditing = _editId.HasValue;
+        // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
+        if (edit)
+        {
+            string editName = txtName.Text.Trim();
+            if (MessageBox.Show($"هل أنت متأكد من تعديل الموظف \"{editName}\"؟",
+                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+                return;
+        }
+
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
+        btnEdit.Enabled = false;
 
         try
         {
@@ -410,21 +407,23 @@ public partial class frmEmployeeMaster : Form
 
             Result<EmployeeDto> result;
 
-            if (_editId is int id)
-                result = await EmployeeService.UpdateAsync(id, request);
+            if (edit)
+                result = await EmployeeService.UpdateAsync(_editId!.Value, request);
             else
                 result = await EmployeeService.CreateAsync(request);
 
             if (result.IsSuccess && result.Value != null)
             {
-                MessageBox.Show(wasEditing ? "تم تعديل الموظف بنجاح." : "تمت إضافة الموظف بنجاح.",
+                MessageBox.Show(edit ? "تم تعديل الموظف بنجاح." : "تمت إضافة الموظف بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 _editId = result.Value.Id;
                 _selected = result.Value;
 
-                // بعد الحفظ ينتقل النموذج إلى وضع التعديل (السجل محدد).
-                btnSave.Text = "💾 تعديل";
+                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
+                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
 
                 await _LoadEmployeesAsync();
@@ -445,8 +444,18 @@ public partial class frmEmployeeMaster : Form
         }
         finally
         {
-            btnSave.Enabled = true;
-            _UpdateSaveEnabled();
+            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
+            if (_editId is null)
+            {
+                btnSave.Enabled = true;
+                btnEdit.Enabled = false;
+            }
+            else
+            {
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
+            }
+
             Cursor = Cursors.Default;
         }
     }
@@ -496,8 +505,9 @@ public partial class frmEmployeeMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زر الحذف معطّلاً.
+            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا التعديل والحذف معطّلين.
             btnDelete.Enabled = _editId.HasValue;
+            btnEdit.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
     }
