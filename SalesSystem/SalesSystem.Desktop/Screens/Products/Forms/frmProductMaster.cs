@@ -271,8 +271,40 @@ public partial class frmProductMaster : Form
             _productsTable = table;
             _productsView = new DataView(_productsTable);
             dgvProducts.DataSource = _productsView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يستخدم DataGridView عنوان <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private static readonly Dictionary<string, string> _gridHeaders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Id"] = "الرقم",
+        ["Name"] = "اسم الصنف",
+        ["ForeignName"] = "الاسم الأجنبي",
+        ["CategoryName"] = "مجموعة الصنف",
+        ["Barcode"] = "الباركود",
+        ["CurrentStock"] = "المخزون",
+        ["ReorderLevel"] = "نقطة إعادة الطلب",
+        ["TrackExpiry"] = "ينتهي؟",
+        ["ExpiryAlertDays"] = "نقطة التنبيه",
+        ["LocationInStore"] = "العنوان في المخزن",
+        ["Description"] = "ملاحظات",
+        ["IsActive"] = "الحالة"
+    };
+
+    /// <summary>تطبيق العناوين العربية على أعمدة شبكة الأصناف بعد ربط البيانات.</summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvProducts.Columns)
+        {
+            if (_gridHeaders.TryGetValue(column.DataPropertyName, out var headerText))
+                column.HeaderText = headerText;
         }
     }
 
@@ -449,15 +481,21 @@ public partial class frmProductMaster : Form
             {
                 var units = result.Value.ToList();
 
-                cmbMainUnit.DisplayMember = "UnitName";
+                // توحيد ربط الوحدة الرئيسية بين وضعي الإضافة والتعديل:
+                // دائماً DisplayMember = "Name" و ValueMember = "Id" على قائمة UnitDto.
+                var unitOptions = units
+                    .Select(u => new UnitDto(u.UnitId, u.UnitName ?? "", null, true))
+                    .ToList();
+
+                cmbMainUnit.DisplayMember = "Name";
                 cmbMainUnit.ValueMember = "Id";
-                cmbMainUnit.DataSource = units;
+                cmbMainUnit.DataSource = unitOptions;
                 cmbMainUnit.Enabled = false;    // للعرض فقط في وضع التعديل
 
                 var baseUnit = units.FirstOrDefault(u => u.IsBaseUnit) ?? units[0];
-                cmbMainUnit.SelectedValue = baseUnit.Id;
+                cmbMainUnit.SelectedValue = baseUnit.UnitId;   // رقم الوحدة (متوافق مع وضع الإضافة)
 
-                await _LoadSalePriceAsync(baseUnit.Id);
+                await _LoadSalePriceAsync(baseUnit.Id);        // رقم وحدة الصنف لتحميل السعر
             }
             else
             {
@@ -676,6 +714,16 @@ public partial class frmProductMaster : Form
 
         if (!_ValidateForm()) return;
         if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0) return;
+
+        // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
+        if (edit)
+        {
+            string editName = txtName.Text.Trim();
+            if (MessageBox.Show($"هل أنت متأكد من تعديل الصنف \"{editName}\"؟",
+                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+                return;
+        }
 
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
@@ -982,5 +1030,10 @@ public partial class frmProductMaster : Form
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    private void dgvProducts_ChangeUICues(object sender, UICuesEventArgs e)
+    {
+
     }
 }

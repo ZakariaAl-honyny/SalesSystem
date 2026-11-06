@@ -219,6 +219,7 @@ partial class frmProductMaster
         btnAddCategory.TabIndex = 10;
         btnAddCategory.TabStop = false;
         btnAddCategory.Text = "➕ مجموعة";
+        btnAddCategory.Click += btnAddCategory_Click;
         // 
         // lblReorderLevel
         // 
@@ -314,7 +315,6 @@ partial class frmProductMaster
         grpMainUnit.Name = "grpMainUnit";
         grpMainUnit.Size = new Size(470, 170);
         grpMainUnit.TabIndex = 4;
-        grpMainUnit.TabStop = true;
         grpMainUnit.Text = "الوحدة الرئيسية";
         // 
         // lblMainUnit
@@ -346,6 +346,7 @@ partial class frmProductMaster
         cmbMainUnit.Name = "cmbMainUnit";
         cmbMainUnit.Size = new Size(140, 32);
         cmbMainUnit.TabIndex = 0;
+        cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
         // 
         // lblMainUnitCostPrice
         // 
@@ -396,6 +397,7 @@ partial class frmProductMaster
         txtMainUnitBarcode.Name = "txtMainUnitBarcode";
         txtMainUnitBarcode.Size = new Size(180, 32);
         txtMainUnitBarcode.TabIndex = 4;
+        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
         // 
         // lblMainUnitMaxDiscount
         // 
@@ -440,6 +442,7 @@ partial class frmProductMaster
         btnNew.TabIndex = 16;
         btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
         // 
         // btnSave
         // 
@@ -451,6 +454,7 @@ partial class frmProductMaster
         btnSave.TabIndex = 17;
         btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
         // 
         // btnEdit
         // 
@@ -462,6 +466,7 @@ partial class frmProductMaster
         btnEdit.TabIndex = 19;
         btnEdit.Text = "✏️ تعديل";
         btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
         // 
         // btnDelete
         // 
@@ -473,6 +478,7 @@ partial class frmProductMaster
         btnDelete.TabIndex = 18;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
         // 
         // btnRefresh
         // 
@@ -484,6 +490,7 @@ partial class frmProductMaster
         btnRefresh.TabIndex = 21;
         btnRefresh.Text = "🔄 تحديث";
         btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
         // 
         // btnManageUnits
         // 
@@ -496,18 +503,20 @@ partial class frmProductMaster
         btnManageUnits.TabIndex = 20;
         btnManageUnits.Text = "📦 الوحدات والأسعار";
         btnManageUnits.UseVisualStyleBackColor = false;
+        btnManageUnits.Click += btnManageUnits_Click;
         // 
         // btnClose
         // 
         btnClose.BackColor = Color.White;
         btnClose.FlatStyle = FlatStyle.Flat;
-        btnClose.Location = new Point(347, 13);
+        btnClose.Location = new Point(397, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
         btnClose.TabIndex = 22;
         btnClose.TabStop = false;
         btnClose.Text = "🚪 خروج";
         btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // pnlGrid
         // 
@@ -537,6 +546,8 @@ partial class frmProductMaster
         dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvProducts.Size = new Size(1412, 300);
         dgvProducts.TabIndex = 0;
+        dgvProducts.CellClick += dgvProducts_CellClick;
+        dgvProducts.ChangeUICues += dgvProducts_ChangeUICues;
         // 
         // pnlFilter
         // 
@@ -554,6 +565,8 @@ partial class frmProductMaster
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 20;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // lblSearch
         // 
@@ -585,6 +598,7 @@ partial class frmProductMaster
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
         Text = "دليل الأصناف";
+        Load += frmProductMaster_Load;
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).EndInit();
@@ -600,22 +614,6 @@ partial class frmProductMaster
         pnlFilter.ResumeLayout(false);
         pnlFilter.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
-        // ── ربط الأحداث (Event wiring) ──────────────────────────────────
-        Load += frmProductMaster_Load;
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-        btnManageUnits.Click += btnManageUnits_Click;
-        btnClose.Click += btnClose_Click;
-        btnAddCategory.Click += btnAddCategory_Click;
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
-        dgvProducts.CellClick += dgvProducts_CellClick;
-        cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
-        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
-
         ResumeLayout(false);
     }
 
