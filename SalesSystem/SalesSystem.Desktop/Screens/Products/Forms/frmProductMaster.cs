@@ -39,9 +39,6 @@ public partial class frmProductMaster : Form
     /// <summary>يمنع إعادة تحميل سعر الوحدة أثناء تعبئة النموذج برمجياً.</summary>
     private bool _isBindingMainUnit;
 
-    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
-    private bool _validationFailed;
-
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmProductMaster()
     {
@@ -78,12 +75,6 @@ public partial class frmProductMaster : Form
 
         // قارئ الباركود: Enter بعد الترميز يُفعّل البحث عن الصنف أو ينتقل لاسم الصنف للإضافة السريعة.
         txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
-
-        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
-        // ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
-        txtName.TextChanged += (s, e) => _UpdateSaveEnabled();
-        cmbCategory.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
-        cmbMainUnit.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
     }
 
     /// <summary>
@@ -119,19 +110,30 @@ public partial class frmProductMaster : Form
     }
 
     /// <summary>
-    /// تحديث حالة زر الإضافة: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
-    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة. لا يمسّ زرّي التعديل والحذف.
+    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _UpdateSaveEnabled()
+    private void _FocusFirstMissingField(bool edit)
     {
-        if (_validationFailed)
+        if (string.IsNullOrWhiteSpace(txtName.Text))
         {
-            // re-enable once the user has filled all required fields
-            if (_RequiredFieldsValid())
-                _validationFailed = false;
+            errorProvider.SetError(txtName, "اسم الصنف مطلوب");
+            txtName.Focus();
+            return;
         }
 
-        btnSave.Enabled = !_validationFailed && _editId is null;
+        if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0)
+        {
+            errorProvider.SetError(cmbCategory, "يرجى اختيار مجموعة الصنف");
+            cmbCategory.Focus();
+            return;
+        }
+
+        if (!edit && (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0))
+        {
+            errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
+            cmbMainUnit.Focus();
+            return;
+        }
     }
 
     /// <summary>تحديث يدوي لقائمة الأصناف مع الإبقاء على نص البحث الحالي.</summary>
@@ -378,9 +380,6 @@ public partial class frmProductMaster : Form
         _SelectCategory(p.CategoryId);
 
         await _LoadMainUnitAsync(p.Id);
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     /// <summary>
@@ -589,9 +588,6 @@ public partial class frmProductMaster : Form
 
         dgvProducts.ClearSelection();
         txtName.Focus();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -675,23 +671,10 @@ public partial class frmProductMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: رسالة عربية محددة + تعطيل زر الإضافة حتى تعبئتها.
+        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
         if (!_RequiredFieldsValid())
         {
-            _validationFailed = true;
-            _UpdateSaveEnabled();
-
-            var missing = string.Join("، ", _MissingRequiredNames());
-            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-            if (string.IsNullOrWhiteSpace(txtName.Text))
-                errorProvider.SetError(txtName, "اسم الصنف مطلوب");
-            if (cmbCategory.SelectedValue is not int missingCategoryId || missingCategoryId <= 0)
-                errorProvider.SetError(cmbCategory, "يرجى اختيار مجموعة الصنف");
-            if (!edit && (cmbMainUnit.SelectedValue is not int missingUnitId || missingUnitId <= 0))
-                errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
-
+            _FocusFirstMissingField(edit);
             return;
         }
 
@@ -796,7 +779,7 @@ public partial class frmProductMaster : Form
             // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
             if (_editId is null)
             {
-                btnSave.Enabled = !_validationFailed;
+                btnSave.Enabled = true;
                 btnEdit.Enabled = false;
             }
             else
