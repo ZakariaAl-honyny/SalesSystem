@@ -57,6 +57,7 @@ partial class frmProductMaster
         btnDelete = new Button();
         btnRefresh = new Button();
         btnManageUnits = new Button();
+        btnClose = new Button();
         pnlGrid = new Panel();
         dgvProducts = new DataGridView();
         pnlFilter = new Panel();
@@ -421,6 +422,7 @@ partial class frmProductMaster
         pnlButtons.Controls.Add(btnDelete);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnManageUnits);
+        pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 250);
         pnlButtons.Name = "pnlButtons";
@@ -494,6 +496,18 @@ partial class frmProductMaster
         btnManageUnits.TabIndex = 20;
         btnManageUnits.Text = "📦 الوحدات والأسعار";
         btnManageUnits.UseVisualStyleBackColor = false;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.White;
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Location = new Point(347, 13);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(130, 35);
+        btnClose.TabIndex = 22;
+        btnClose.TabStop = false;
+        btnClose.Text = "🚪 خروج";
+        btnClose.UseVisualStyleBackColor = false;
         // 
         // pnlGrid
         // 
@@ -594,6 +608,7 @@ partial class frmProductMaster
         btnDelete.Click += btnDelete_Click;
         btnRefresh.Click += btnRefresh_Click;
         btnManageUnits.Click += btnManageUnits_Click;
+        btnClose.Click += btnClose_Click;
         btnAddCategory.Click += btnAddCategory_Click;
         txtSearch.TextChanged += txtSearch_TextChanged;
         txtSearch.KeyPress += txtSearch_KeyPress;
@@ -647,6 +662,7 @@ partial class frmProductMaster
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Button btnManageUnits;
+    private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvProducts;
     private System.Windows.Forms.Panel pnlFilter;

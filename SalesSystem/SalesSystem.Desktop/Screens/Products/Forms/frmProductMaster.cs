@@ -56,7 +56,7 @@ public partial class frmProductMaster : Form
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        _WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+        _WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnManageUnits);
     }
 
     /// <summary>
@@ -215,12 +215,12 @@ public partial class frmProductMaster : Form
     private async Task _LoadProductsAsync()
     {
         var table = new DataTable();
-        table.Columns.Add("Id", typeof(int));
-        table.Columns.Add("Name", typeof(string));
-        table.Columns.Add("CategoryName", typeof(string));
-        table.Columns.Add("Barcode", typeof(string));
-        table.Columns.Add("ReorderLevel", typeof(decimal));
-        table.Columns.Add("IsActive", typeof(bool));
+        table.Columns.Add("Id", typeof(int)).Caption = "الرقم";
+        table.Columns.Add("Name", typeof(string)).Caption = "اسم الصنف";
+        table.Columns.Add("CategoryName", typeof(string)).Caption = "مجموعة الصنف";
+        table.Columns.Add("Barcode", typeof(string)).Caption = "الباركود";
+        table.Columns.Add("ReorderLevel", typeof(decimal)).Caption = "نقطة إعادة الطلب";
+        table.Columns.Add("IsActive", typeof(bool)).Caption = "الحالة";
 
         try
         {
@@ -337,9 +337,11 @@ public partial class frmProductMaster : Form
         _editId = p.Id;
 
         // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        // إدارة الوحدات والأسعار تحتاج صنفاً محفوظاً → تُتاح في وضع التعديل فقط.
         btnSave.Enabled = false;
         btnEdit.Enabled = true;
         btnDelete.Enabled = true;
+        btnManageUnits.Enabled = true;
 
         txtCode.Text = p.Id.ToString();
         txtName.Text = p.Name;
@@ -523,9 +525,11 @@ public partial class frmProductMaster : Form
         _editId = null;
 
         // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        // إدارة الوحدات والأسعار معطّلة أيضاً حتى يُحفظ الصنف أولاً.
         btnSave.Enabled = true;
         btnEdit.Enabled = false;
         btnDelete.Enabled = false;
+        btnManageUnits.Enabled = false;
 
         errorProvider.Clear();
 
@@ -564,7 +568,7 @@ public partial class frmProductMaster : Form
         }
 
         dgvProducts.ClearSelection();
-        txtName.Focus();
+        cmbCategory.Focus();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -633,6 +637,9 @@ public partial class frmProductMaster : Form
     // ── Buttons ───────────────────────────────────────────────────────────────
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
+
+    /// <summary>زر الخروج: إغلاق شاشة دليل الأصناف.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
 
     /// <summary>زر الإضافة: يُضيف صنفاً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
     private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveProductAsync(edit: false);
@@ -731,6 +738,7 @@ public partial class frmProductMaster : Form
                 btnSave.Enabled = false;
                 btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
+                btnManageUnits.Enabled = true;
 
                 await _LoadProductsAsync();
                 _SelectGridRow(result.Value.Id);
@@ -818,6 +826,7 @@ public partial class frmProductMaster : Form
             // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا الحذف والتعديل معطّلين.
             btnDelete.Enabled = _editId.HasValue;
             btnEdit.Enabled = _editId.HasValue;
+            btnManageUnits.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
     }
