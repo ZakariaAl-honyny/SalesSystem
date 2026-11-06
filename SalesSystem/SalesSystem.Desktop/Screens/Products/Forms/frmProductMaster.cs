@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Screens.Categories.Forms;
@@ -285,10 +286,11 @@ public partial class frmProductMaster : Form
     /// </summary>
     private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
     {
-        if (char.IsControl(e.KeyChar)) return; // Backspace / Enter
-
-        if (!char.IsLetterOrDigit(e.KeyChar) && !char.IsWhiteSpace(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != '.')
+        if (char.IsPunctuation(e.KeyChar))
+        {
             e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
     }
 
     private void _ApplyFilter()
