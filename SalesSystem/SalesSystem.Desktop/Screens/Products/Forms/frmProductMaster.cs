@@ -217,9 +217,15 @@ public partial class frmProductMaster : Form
         var table = new DataTable();
         table.Columns.Add("Id", typeof(int)).Caption = "الرقم";
         table.Columns.Add("Name", typeof(string)).Caption = "اسم الصنف";
+        table.Columns.Add("ForeignName", typeof(string)).Caption = "الاسم الأجنبي";
         table.Columns.Add("CategoryName", typeof(string)).Caption = "مجموعة الصنف";
         table.Columns.Add("Barcode", typeof(string)).Caption = "الباركود";
+        table.Columns.Add("CurrentStock", typeof(decimal)).Caption = "المخزون";
         table.Columns.Add("ReorderLevel", typeof(decimal)).Caption = "نقطة إعادة الطلب";
+        table.Columns.Add("TrackExpiry", typeof(bool)).Caption = "ينتهي؟";
+        table.Columns.Add("ExpiryAlertDays", typeof(short)).Caption = "نقطة التنبيه";
+        table.Columns.Add("LocationInStore", typeof(string)).Caption = "العنوان في المخزن";
+        table.Columns.Add("Description", typeof(string)).Caption = "ملاحظات";
         table.Columns.Add("IsActive", typeof(bool)).Caption = "الحالة";
 
         try
@@ -236,9 +242,15 @@ public partial class frmProductMaster : Form
                     table.Rows.Add(
                         p.Id,
                         p.Name,
+                        p.ForeignName ?? "",
                         p.CategoryName ?? "",
                         p.Barcode ?? "",
+                        p.CurrentStock,
                         p.ReorderLevel,
+                        p.TrackExpiry,
+                        p.ExpiryAlertDays,
+                        p.LocationInStore ?? "",
+                        p.Description ?? "",
                         p.IsActive);
                 }
             }
