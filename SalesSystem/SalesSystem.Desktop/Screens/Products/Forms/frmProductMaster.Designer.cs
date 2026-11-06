@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Products.Forms;
+namespace SalesSystem.Desktop.Screens.Products.Forms;
 
 partial class frmProductMaster
 {
@@ -331,6 +331,7 @@ partial class frmProductMaster
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnManageUnits);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 250);
@@ -347,7 +348,7 @@ partial class frmProductMaster
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
         btnNew.TabIndex = 16;
-        btnNew.Text = "🆕 إضافة";
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
         // 
         // btnSave
@@ -377,7 +378,7 @@ partial class frmProductMaster
         btnManageUnits.BackColor = Color.FromArgb(30, 86, 160);
         btnManageUnits.FlatStyle = FlatStyle.Flat;
         btnManageUnits.ForeColor = Color.White;
-        btnManageUnits.Location = new Point(803, 13);
+        btnManageUnits.Location = new Point(667, 13);
         btnManageUnits.Name = "btnManageUnits";
         btnManageUnits.Size = new Size(180, 35);
         btnManageUnits.TabIndex = 20;
@@ -388,7 +389,7 @@ partial class frmProductMaster
         // 
         btnRefresh.BackColor = Color.White;
         btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(550, 4);
+        btnRefresh.Location = new Point(853, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 32);
         btnRefresh.TabIndex = 21;
@@ -426,7 +427,6 @@ partial class frmProductMaster
         // 
         // pnlFilter
         // 
-        pnlFilter.Controls.Add(btnRefresh);
         pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
         pnlFilter.Dock = DockStyle.Top;

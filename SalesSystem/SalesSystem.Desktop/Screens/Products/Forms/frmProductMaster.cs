@@ -140,6 +140,7 @@ public partial class frmProductMaster : Form
         try
         {
             await _LoadProductsAsync();
+            _ResetForm(); // تفريغ الحقول + وضع الاستعداد بعد التحديث
         }
         catch (Exception ex)
         {
