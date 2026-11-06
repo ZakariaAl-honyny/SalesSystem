@@ -596,6 +596,7 @@ partial class frmProductMaster
         btnManageUnits.Click += btnManageUnits_Click;
         btnAddCategory.Click += btnAddCategory_Click;
         txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         dgvProducts.CellClick += dgvProducts_CellClick;
         cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
         txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
