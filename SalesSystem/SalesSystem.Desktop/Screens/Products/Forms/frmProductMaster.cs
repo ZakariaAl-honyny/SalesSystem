@@ -66,6 +66,7 @@ public partial class frmProductMaster : Form
 
         btnNew.Click += btnNew_Click;
         btnSave.Click += btnSave_Click;
+        btnEdit.Click += btnEdit_Click;
         btnDelete.Click += btnDelete_Click;
         btnRefresh.Click += btnRefresh_Click;
         btnManageUnits.Click += btnManageUnits_Click;
@@ -118,8 +119,8 @@ public partial class frmProductMaster : Form
     }
 
     /// <summary>
-    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
-    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// تحديث حالة زر الإضافة: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
+    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة. لا يمسّ زرّي التعديل والحذف.
     /// </summary>
     private void _UpdateSaveEnabled()
     {
@@ -130,7 +131,7 @@ public partial class frmProductMaster : Form
                 _validationFailed = false;
         }
 
-        btnSave.Enabled = !_validationFailed;
+        btnSave.Enabled = !_validationFailed && _editId is null;
     }
 
     /// <summary>تحديث يدوي لقائمة الأصناف مع الإبقاء على نص البحث الحالي.</summary>
@@ -356,8 +357,9 @@ public partial class frmProductMaster : Form
 
         _editId = p.Id;
 
-        // وضع التعديل: زر الحفظ يُحدّث السجل المحدد، وزر الحذف متاح.
-        btnSave.Text = "💾 تعديل";
+        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        btnSave.Enabled = false;
+        btnEdit.Enabled = true;
         btnDelete.Enabled = true;
 
         txtCode.Text = p.Id.ToString();
@@ -546,8 +548,9 @@ public partial class frmProductMaster : Form
     {
         _editId = null;
 
-        // وضع الإضافة: زر الحفظ يُضيف سجلاً جديداً، وزر الحذف معطّل لعدم وجود سجل محدد.
-        btnSave.Text = "💾 إضافة";
+        // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        btnSave.Enabled = true;
+        btnEdit.Enabled = false;
         btnDelete.Enabled = false;
 
         errorProvider.Clear();
@@ -657,9 +660,21 @@ public partial class frmProductMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
-    private async void btnSave_Click(object? sender, EventArgs e)
+    /// <summary>زر الإضافة: يُضيف صنفاً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveProductAsync(edit: false);
+
+    /// <summary>زر التعديل: يُحدّث الصنف المحدد فقط.</summary>
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveProductAsync(edit: true);
+
+    /// <summary>
+    /// حفظ الصنف: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
+    /// </summary>
+    private async Task _SaveProductAsync(bool edit)
     {
-        // الحقول المطلوبة الناقصة: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئتها.
+        // التعديل بدون سجل محدد لا معنى له.
+        if (edit && _editId is null) return;
+
+        // الحقول المطلوبة الناقصة: رسالة عربية محددة + تعطيل زر الإضافة حتى تعبئتها.
         if (!_RequiredFieldsValid())
         {
             _validationFailed = true;
@@ -673,7 +688,7 @@ public partial class frmProductMaster : Form
                 errorProvider.SetError(txtName, "اسم الصنف مطلوب");
             if (cmbCategory.SelectedValue is not int missingCategoryId || missingCategoryId <= 0)
                 errorProvider.SetError(cmbCategory, "يرجى اختيار مجموعة الصنف");
-            if (_editId is null && (cmbMainUnit.SelectedValue is not int missingUnitId || missingUnitId <= 0))
+            if (!edit && (cmbMainUnit.SelectedValue is not int missingUnitId || missingUnitId <= 0))
                 errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
 
             return;
@@ -682,9 +697,9 @@ public partial class frmProductMaster : Form
         if (!_ValidateForm()) return;
         if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0) return;
 
-        bool wasEditing = _editId.HasValue;
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
+        btnEdit.Enabled = false;
 
         try
         {
@@ -696,7 +711,7 @@ public partial class frmProductMaster : Form
 
             Result<ProductDto> result;
 
-            if (_editId is int id)
+            if (edit)
             {
                 var request = new UpdateProductRequest(
                     name,
@@ -708,7 +723,7 @@ public partial class frmProductMaster : Form
                     barcode,
                     IsActive: true);
 
-                result = await ProductService.UpdateAsync(id, request);
+                result = await ProductService.UpdateAsync(_editId!.Value, request);
             }
             else
             {
@@ -737,13 +752,14 @@ public partial class frmProductMaster : Form
             {
                 EventBus.Publish(new ProductChangedMessage(result.Value.Id));
 
-                MessageBox.Show(wasEditing ? "تم تعديل الصنف بنجاح." : "تمت إضافة الصنف بنجاح.",
+                MessageBox.Show(edit ? "تم تعديل الصنف بنجاح." : "تمت إضافة الصنف بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
+                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
                 _editId = result.Value.Id;
-
-                // بعد الحفظ ينتقل النموذج إلى وضع التعديل (السجل محدد).
-                btnSave.Text = "💾 تعديل";
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
 
                 await _LoadProductsAsync();
@@ -751,7 +767,7 @@ public partial class frmProductMaster : Form
                 _UpdateModeHeader();
 
                 // بعد الإضافة: تحويل حقل الوحدة الرئيسية إلى عرض وحدات الصنف المضافة (للقراءة فقط).
-                if (!wasEditing)
+                if (!edit)
                     await _LoadMainUnitAsync(result.Value.Id);
             }
             else
@@ -768,7 +784,18 @@ public partial class frmProductMaster : Form
         }
         finally
         {
-            btnSave.Enabled = true;
+            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
+            if (_editId is null)
+            {
+                btnSave.Enabled = !_validationFailed;
+                btnEdit.Enabled = false;
+            }
+            else
+            {
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
+            }
+
             Cursor = Cursors.Default;
         }
     }
@@ -819,8 +846,9 @@ public partial class frmProductMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زر الحذف معطّلاً.
+            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا الحذف والتعديل معطّلين.
             btnDelete.Enabled = _editId.HasValue;
+            btnEdit.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
     }

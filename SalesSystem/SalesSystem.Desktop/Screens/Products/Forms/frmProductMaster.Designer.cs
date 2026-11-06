@@ -45,6 +45,7 @@ partial class frmProductMaster
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
         btnSave = new Button();
+        btnEdit = new Button();
         btnDelete = new Button();
         btnManageUnits = new Button();
         btnRefresh = new Button();
@@ -330,6 +331,7 @@ partial class frmProductMaster
         pnlButtons.BackColor = Color.FromArgb(235, 240, 235);
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
+        pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnManageUnits);
@@ -359,14 +361,25 @@ partial class frmProductMaster
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 17;
-        btnSave.Text = "💾 تعديل";
+        btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        // 
+        // btnEdit
+        // 
+        btnEdit.BackColor = Color.White;
+        btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Location = new Point(1000, 13);
+        btnEdit.Name = "btnEdit";
+        btnEdit.Size = new Size(128, 35);
+        btnEdit.TabIndex = 19;
+        btnEdit.Text = "✏️ تعديل";
+        btnEdit.UseVisualStyleBackColor = false;
         // 
         // btnDelete
         // 
         btnDelete.BackColor = Color.White;
         btnDelete.FlatStyle = FlatStyle.Flat;
-        btnDelete.Location = new Point(989, 13);
+        btnDelete.Location = new Point(856, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 18;
@@ -378,7 +391,7 @@ partial class frmProductMaster
         btnManageUnits.BackColor = Color.FromArgb(30, 86, 160);
         btnManageUnits.FlatStyle = FlatStyle.Flat;
         btnManageUnits.ForeColor = Color.White;
-        btnManageUnits.Location = new Point(667, 13);
+        btnManageUnits.Location = new Point(534, 13);
         btnManageUnits.Name = "btnManageUnits";
         btnManageUnits.Size = new Size(180, 35);
         btnManageUnits.TabIndex = 20;
@@ -389,7 +402,7 @@ partial class frmProductMaster
         // 
         btnRefresh.BackColor = Color.White;
         btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(853, 13);
+        btnRefresh.Location = new Point(720, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 32);
         btnRefresh.TabIndex = 21;
@@ -521,6 +534,7 @@ partial class frmProductMaster
     private System.Windows.Forms.FlowLayoutPanel pnlButtons;
     private System.Windows.Forms.Button btnNew;
     private System.Windows.Forms.Button btnSave;
+    private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Button btnManageUnits;
     private System.Windows.Forms.Panel pnlGrid;
