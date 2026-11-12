@@ -545,6 +545,7 @@ private void ApplyUiTheme()
 | RULE-N75 | كل `I*ReportDesktopService` تحتاج تنفيذاً وهمياً `Mock*ReportDesktopService` وإلا انكسر وضع التجربة |
 | RULE-N76 | لا يُعتبر التصنيف مكتملاً حتى تصل كل تقاريره من القائمة في نقرتين على الأكثر |
 | RULE-N77 | لا يوجد مجلد `Tabs` للتقارير: كل تقرير **نموذج واحد** `frm*Report` بملفَي `.cs` + `.Designer.cs` ومنطقه داخله — ممنوع `UserControl` وسيط لكل تقرير، وممنوع إبقاء تاب ميت بلا مرجع |
+| RULE-N78 | التنقل بين التقارير يكون **بأزرار داخل النموذج** عبر `ReportNavigationHelper.Attach(this, _serviceProvider)` (سطر واحد كآخر سطر في المُنشئ) — ممنوع `TabControl` وممنوع تكرار شريط الأزرار داخل أي تقرير |
 
 ---
 

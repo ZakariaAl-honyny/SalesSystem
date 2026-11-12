@@ -25,6 +25,7 @@ public partial class frmStockBalanceReport : Form, IExportableReport
         dgvReport.AutoGenerateColumns = true;
         dgvReport.DataSource = _bindingSource;
         ReportUiStandardizer.ApplyForm(this);
+        ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
     private void frmStockBalanceReport_Load(object sender, EventArgs e)

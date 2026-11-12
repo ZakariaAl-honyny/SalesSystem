@@ -25,6 +25,7 @@ public partial class frmSalesByCategoryReport : Form, IExportableReport
         dgvReport.AutoGenerateColumns = true;
         dgvReport.DataSource = _bindingSource;
         ReportUiStandardizer.ApplyForm(this);
+        ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
     private void frmSalesByCategoryReport_Load(object sender, EventArgs e)

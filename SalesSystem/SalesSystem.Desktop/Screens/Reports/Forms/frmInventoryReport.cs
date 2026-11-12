@@ -37,6 +37,7 @@ public partial class frmInventoryReport : Form, IExportableReport
             await LoadReportAsync();
         };
         ReportUiStandardizer.ApplyForm(this);
+        ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

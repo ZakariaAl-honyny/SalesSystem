@@ -29,6 +29,7 @@ public partial class frmProductMovementReport : Form, IExportableReport
         dgvReport.CellFormatting += DgvReport_CellFormatting;
         this.Load += OnLoadHandler;
         ReportUiStandardizer.ApplyForm(this);
+        ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

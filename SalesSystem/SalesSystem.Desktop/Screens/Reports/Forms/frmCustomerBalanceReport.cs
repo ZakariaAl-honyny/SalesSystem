@@ -34,6 +34,7 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
         dgvReport.AutoGenerateColumns = true;
         dgvReport.CellFormatting += DgvReport_CellFormatting;
         ReportUiStandardizer.ApplyForm(this);
+        ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
     protected override async void OnLoad(EventArgs e)

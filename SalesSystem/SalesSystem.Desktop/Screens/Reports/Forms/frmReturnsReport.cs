@@ -26,6 +26,7 @@ public partial class frmReturnsReport : Form, IExportableReport
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
         ReportUiStandardizer.ApplyForm(this);
+        ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
     private async void frmReturnsReport_Load(object sender, EventArgs e)

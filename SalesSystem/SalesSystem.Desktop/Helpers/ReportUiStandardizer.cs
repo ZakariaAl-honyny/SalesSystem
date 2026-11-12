@@ -29,13 +29,18 @@
 //      معالجات أحداث ولا تُلمس قيم التصفية.
 //   5) تنتهي بـ GreenThemeHelper.Apply(root) — آخر خطوة دائماً (RULE-N96)،
 //      لأن أي تنسيق لاحق كان سيمحو الأخضر.
+//   6) للنماذج فقط (ApplyForm): تُوصِّل Esc لإغلاق التقرير و Ctrl+E لزر التصدير
+//      في نداء واحد (F5 موصول سابقاً ولا يُضاعف)، وتفرض على شبكات التقرير
+//      ReadOnly + AllowUserToAddRows=false + FullRowSelect (RULE-N22).
 //
 // ما لا تفعله (حدود متعمّدة):
 //   • لا تُعيد بناء أي منطق، ولا تُعيد تسمية عنصر قائم، ولا تلمس أي منطق تقرير
 //     أو SQL أو تصفية أو تصدير أو نص عربي. العنصر الوحيد الذي يُنشأ هو صندوق
 //     التصفية نفسه (gbFilter/pnlFilters) وعناصره الحاوية لا غير.
-//   • لا تلمس ReadOnly / AllowUserToAddRows / SelectionMode / DataSource
-//     (RULE-N52) — كل تقرير يعلن سلوك شبكته بنفسه.
+//   • في Apply (الحاويات المضمَّنة) لا تلمس ReadOnly / AllowUserToAddRows /
+//     SelectionMode / DataSource إطلاقاً (RULE-N52) — وفرض سلوك العرض محصور في
+//     شبكات نماذج التقارير عبر ApplyForm، ولا يُعمَّم على شبكات الإدخال
+//     الاستثنائية (dgvItems / سلة POS) لأنها ليست شاشات تقارير (RULE-N22a).
 //   • كل الأساليب دفاعية: null-safe، ولا تُطلق استثناءً إلى النموذج أبداً.
 //   • آمنة للاستدعاء المتكرر (idempotent): الاستدعاء الثاني لا يُضاعف التوصيل
 //     ولا يُعيد تنسيق الشبكة.
@@ -166,7 +171,9 @@ public static class ReportUiStandardizer
             }
 
             ApplyTitleHeader(form);
-            WireRefreshShortcut(form);
+            WireRefreshShortcut(form);   // F5 — موصول مرة واحدة هنا فقط
+            WireCloseAndExportShortcuts(form);   // Esc / Ctrl+E — نداء واحد
+            EnforceReportGridRules(form);        // RULE-N22 — شبكات التقارير للعرض فقط
         }
         catch (Exception ex)
         {
@@ -673,6 +680,169 @@ public static class ReportUiStandardizer
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تنفيذ تحديث التقرير من اختصار F5");
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  اختصارات الإغلاق والتصدير (Esc / Ctrl+E) — نماذج التقارير فقط
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// يُوصِّل <c>Esc</c> لإغلاق التقرير و<c>Ctrl+E</c> لزر التصدير في نداء واحد
+    /// على <see cref="KeyboardHelper.WireGlobalShortcuts"/> — حتى لا يتضاعف
+    /// المعالج، ولأن <c>F5</c> سبق توصيله في <see cref="WireRefreshShortcut"/>.
+    /// <para>Esc يُوصَّل فقط إن وُجد زر إغلاق؛ وCtrl+E فقط إن وُجد زر تصدير.</para>
+    /// </summary>
+    private static void WireCloseAndExportShortcuts(Form form)
+    {
+        try
+        {
+            var shortcuts = new List<(Keys Key, Action Action)>();
+
+            if (FindCloseButton(form) is Button closeButton)
+                shortcuts.Add((Keys.Escape, () => RaiseClose(form, closeButton)));
+
+            if (FindExportButton(form) is Button exportButton)
+                shortcuts.Add((Keys.Control | Keys.E, () => RaiseExport(exportButton)));
+
+            if (shortcuts.Count == 0)
+            {
+                Serilog.Log.Information(
+                    "لا يوجد زر إغلاق/تصدير في {Form} — لم تُوصَّل اختصارات Esc/Ctrl+E",
+                    form.GetType().Name);
+                return;
+            }
+
+            KeyboardHelper.WireGlobalShortcuts(form, shortcuts.ToArray());
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر توصيل اختصارات الإغلاق والتصدير في تقرير: {Form}", form.GetType().Name);
+        }
+    }
+
+    /// <summary>
+    /// يغلق التقرير عبر زر الإغلاق الحقيقي (فيعمل منطق النموذج كما هو). لا يُنفَّذ
+    /// أثناء حوار مفتوح فوق التقرير: في تلك الحالة لا يكون للنموذج تركيز والضغط
+    /// يذهب إلى الحوار، والفحص هنا احتياط إضافي.
+    /// </summary>
+    private static void RaiseClose(Form form, Button closeButton)
+    {
+        try
+        {
+            if (form.IsDisposed || closeButton.IsDisposed) return;
+            if (!form.ContainsFocus) return;   // حوار مفتوح فوق التقرير ⇒ لا نُغلق تحته
+            if (!closeButton.Enabled) return;  // التقرير في حالة تحميل ⇒ لا إغلاق
+
+            closeButton.PerformClick();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر إغلاق التقرير من اختصار Esc: {Form}", form.GetType().Name);
+        }
+    }
+
+    /// <summary>ينقر زر التصدير برمجياً — يُتجاهل الزر المعطّل/المحذوف.</summary>
+    private static void RaiseExport(Button export)
+    {
+        try
+        {
+            if (export.IsDisposed || !export.Enabled) return;
+            export.PerformClick();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تنفيذ تصدير التقرير من اختصار Ctrl+E");
+        }
+    }
+
+    /// <summary>يجد زر الإغلاق: <c>CancelButton</c> ثم بالاسم <c>btnClose</c> ثم بنص «إغلاق».</summary>
+    private static Button? FindCloseButton(Form form)
+    {
+        if (form.CancelButton is Button cancel) return cancel;
+
+        Button? byText = null;
+
+        foreach (var button in EnumerateButtons(form))
+        {
+            if (string.Equals(button.Name, "btnClose", StringComparison.OrdinalIgnoreCase))
+                return button;
+
+            if (byText is null && !string.IsNullOrEmpty(button.Text) && button.Text.Contains("إغلاق"))
+                byText = button;
+        }
+
+        return byText;
+    }
+
+    /// <summary>يجد زر التصدير: بالاسم <c>btnExport</c> ثم بنص يحتوي «تصدير».</summary>
+    private static Button? FindExportButton(Form form)
+    {
+        Button? byText = null;
+
+        foreach (var button in EnumerateButtons(form))
+        {
+            if (string.Equals(button.Name, "btnExport", StringComparison.OrdinalIgnoreCase))
+                return button;
+
+            if (byText is null && !string.IsNullOrEmpty(button.Text) && button.Text.Contains("تصدير"))
+                byText = button;
+        }
+
+        return byText;
+    }
+
+    /// <summary>يُعدّ كل الأزرار في شجرة النموذج (بلا استثناء عند شجرة غريبة).</summary>
+    private static List<Button> EnumerateButtons(Control parent)
+    {
+        var buttons = new List<Button>();
+
+        try
+        {
+            foreach (Control child in parent.Controls)
+            {
+                if (child is Button btn) buttons.Add(btn);
+                if (child.HasChildren) buttons.AddRange(EnumerateButtons(child));
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تعداد أزرار تقرير: {Control}", parent?.GetType().Name);
+        }
+
+        return buttons;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  سلوك شبكات التقارير (RULE-N22)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// RULE-N22 لشبكات التقارير: عرض فقط. تُضبط خصائص السلوك هنا لأنها ليست من
+    /// عمل <see cref="GreenThemeHelper.ApplyGrid"/> (RULE-N52 لا يُمسّ)، ولا تُطبَّق
+    /// إلا من <see cref="ApplyForm"/> — أي على نماذج التقارير وحدها، فلا تصل إلى
+    /// شبكات الإدخال الاستثنائية (dgvItems / سلة POS) لأنها ليست تقارير (RULE-N22a).
+    /// </summary>
+    private static void EnforceReportGridRules(Control root)
+    {
+        try
+        {
+            foreach (Control child in root.Controls)
+            {
+                if (child is DataGridView grid && !grid.IsDisposed)
+                {
+                    grid.ReadOnly = true;
+                    grid.AllowUserToAddRows = false;
+                    grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                }
+
+                if (child.HasChildren)
+                    EnforceReportGridRules(child);
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر فرض سلوك عرض شبكات التقرير: {Root}", root?.GetType().Name);
         }
     }
 
