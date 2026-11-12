@@ -34,7 +34,7 @@
             lblPin.Name = "lblPin";
             lblPin.Size = new Size(143, 31);
             lblPin.TabIndex = 3;
-            lblPin.Text = "رمز الدخول (PIN):";
+            lblPin.Text = "كلمة المرور:";
             lblPin.TextAlign = ContentAlignment.MiddleRight;
             // 
             // txtPin

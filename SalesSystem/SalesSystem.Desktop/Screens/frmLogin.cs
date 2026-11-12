@@ -2,6 +2,7 @@
 using SalesSystem.Common.Enums;
 using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.Models;
+using SalesSystem.Desktop.Screens.Users.Forms;
 using SalesSystem.DTO.Requests;
 using SalesSystem.DTO.Responses;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,10 +12,11 @@ using SalesSystem.Desktop.Services;
 namespace SalesSystem.Desktop.Screens;
 
 /// <summary>
-/// شاشة تسجيل الدخول — نسخة MVP (متجر واحد / مستخدم واحد هو المدير المُهيأ).
+/// شاشة تسجيل الدخول.
 /// <list type="bullet">
 /// <item>وضع التجربة (Mock): تسجيل دخول تلقائي بالمدير دون أي إدخال من المستخدم.</item>
-/// <item>الوضع الحقيقي (BLL + قاعدة البيانات): إدخال رمز رقمي PIN يُقرأ من إعداد النظام "AdminPin".</item>
+/// <item>الوضع الحقيقي (BLL + قاعدة البيانات): مصادقة حقيقية عبر <see cref="IAuthApiService.LoginAsync"/>
+/// (BCrypt + قفل الحساب بعد المحاولات الفاشلة + MustChangePassword) — لا مقارنة محلية لأي كلمة مرور.</item>
 /// </list>
 /// </summary>
 public partial class frmLogin : Form
@@ -23,10 +25,6 @@ public partial class frmLogin : Form
     private const int AdminUserId = 1;
     private const string AdminLoginName = "admin";
     private const string AdminDisplayName = "المدير";
-
-    /// <summary>مفتاح إعداد النظام الذي يحمل رمز الدخول الرقمي في الوضع الحقيقي.</summary>
-    private const string AdminPinKey = "AdminPin";
-    private const string DefaultAdminPin = "1234";
 
     private readonly IAuthApiService _authService;
     private readonly IServiceProvider _serviceProvider;
@@ -51,9 +49,6 @@ public partial class frmLogin : Form
     // ── خصائص مساعدة ────────────────────────────────────────────────────────
 
     private static bool IsMockMode => AppSettings.Current.UseMockData;
-
-    private ISettingsApiService SettingsService
-        => _serviceProvider.GetRequiredService<ISettingsApiService>();
 
     // ── دورة حياة الشاشة ────────────────────────────────────────────────────
 
@@ -92,8 +87,9 @@ public partial class frmLogin : Form
 
     private void txtPin_KeyPress(object? sender, KeyPressEventArgs e)
     {
-        // السماح بالأرقام ومفاتيح التحكم فقط (Backspace / Delete)
-        if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+        // الحقل صار «كلمة مرور» لا رمزاً رقمياً: لا نُقيّد المحتوى (حروف/أرقام/رموز)،
+        // ونمنع فقط محارف التحكم غير المسموحة في TextBox أحادي السطر.
+        if (char.IsControl(e.KeyChar) && e.KeyChar != '\b')
             e.Handled = true;
     }
 
@@ -148,7 +144,7 @@ public partial class frmLogin : Form
             SetPinModeVisible();
             txtPin.Focus();
 
-            MessageBox.Show("تعذر تسجيل الدخول التلقائي. يرجى إدخال رمز الدخول (PIN).",
+            MessageBox.Show("تعذر تسجيل الدخول التلقائي. يرجى إدخال كلمة المرور.",
                 "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         finally
@@ -158,31 +154,27 @@ public partial class frmLogin : Form
         }
     }
 
-    // ── الوضع الحقيقي: دخول برمز رقمي PIN ───────────────────────────────────
+    // ── الوضع الحقيقي: مصادقة حقيقية عبر BLL ─────────────────────────────────
 
+    /// <summary>
+    /// مصادقة حقيقية: تُمرَّر كلمة المرور المكتوبة إلى <see cref="IAuthApiService.LoginAsync"/>
+    /// (BLL AuthService: BCrypt + عدّ المحاولات + القفل بعد 5 محاولات + MustChangePassword).
+    /// لا مقارنة محلية ولا عدّاد محاولات في الواجهة — كل ذلك مسؤولية الطبقة التجارية.
+    /// </summary>
     private async Task PerformPinLoginAsync()
     {
         errorProvider1.Clear();
         lblError.Visible = false;
         lblError.Text = string.Empty;
 
-        string pin = NormalizeDigits(txtPin.Text);
+        // كلمة المرور تُقرأ كما هي (Trim فقط) — لا تطبيع ولا تحويل حتى لا تتغيّر قيمتها
+        string password = txtPin.Text.Trim();
 
-        if (string.IsNullOrWhiteSpace(pin))
+        if (string.IsNullOrWhiteSpace(password))
         {
             errorProvider1.SetError(txtPin, "هذا الحقل مطلوب");
-            MessageBox.Show("يرجى إدخال رمز الدخول (PIN).", "بيانات ناقصة",
+            MessageBox.Show("يرجى إدخال كلمة المرور.", "بيانات ناقصة",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            txtPin.Focus();
-            return;
-        }
-
-        if (!pin.All(char.IsDigit))
-        {
-            errorProvider1.SetError(txtPin, "الرمز يجب أن يكون أرقاماً فقط");
-            MessageBox.Show("الرمز يجب أن يكون أرقاماً فقط.", "بيانات غير صحيحة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            txtPin.Clear();
             txtPin.Focus();
             return;
         }
@@ -192,27 +184,38 @@ public partial class frmLogin : Form
             Cursor = Cursors.WaitCursor;
             SetLoading(true);
 
-            var expectedPin = await GetAdminPinAsync();
+            var result = await _authService.LoginAsync(new LoginRequest(AdminLoginName, password));
 
-            if (!string.Equals(pin, expectedPin, StringComparison.Ordinal))
+            if (!result.IsSuccess || result.Value is null)
             {
-                Log.Warning("محاولة دخول برمز PIN غير صحيح");
+                // لا تُسجَّل كلمة المرور ولا يُعرض نص الاستثناء — رسالة الطبقة التجارية فقط
+                Log.Warning("فشلت مصادقة المستخدم {UserName} — رمز الخطأ: {ErrorCode}",
+                    AdminLoginName, result.ErrorCode);
 
-                lblError.Text = "الرمز غير صحيح";
+                string message = string.IsNullOrWhiteSpace(result.Error)
+                    ? "كلمة المرور غير صحيحة."
+                    : result.Error!;
+
+                errorProvider1.SetError(txtPin, message);
+                lblError.Text = message;
                 lblError.Visible = true;
 
-                MessageBox.Show("الرمز غير صحيح", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(message, "تعذر تسجيل الدخول",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 txtPin.Clear();
                 txtPin.Focus();
                 return;
             }
 
-            Log.Information("تسجيل دخول المدير بواسطة رمز PIN");
-            CompleteSignIn(CreateAdminLoginResponse());
+            var loginResponse = result.Value;
+            Log.Information("نجحت مصادقة المستخدم {UserId}", loginResponse.UserId);
+
+            CompleteSignIn(loginResponse);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "فشل عملية تسجيل الدخول برمز PIN");
+            Log.Error(ex, "فشل عملية تسجيل الدخول");
             MessageBox.Show("تعذر إكمال عملية تسجيل الدخول. يرجى المحاولة مرة أخرى.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
@@ -223,72 +226,20 @@ public partial class frmLogin : Form
         }
     }
 
-    /// <summary>
-    /// يقرأ رمز الدخول من إعدادات النظام ("AdminPin")، ويُهيّئ القيمة الافتراضية
-    /// "1234" عند غيابها (أول تشغيل) حتى تصبح قابلة للتعديل من شاشة الإعدادات لاحقاً.
-    /// </summary>
-    private async Task<string> GetAdminPinAsync()
-    {
-        try
-        {
-            var result = await SettingsService.GetAllSystemSettingsAsync();
-
-            if (result.IsSuccess && result.Value is not null
-                && result.Value.TryGetValue(AdminPinKey, out var storedPin)
-                && !string.IsNullOrWhiteSpace(storedPin))
-            {
-                var normalized = NormalizeDigits(storedPin);
-
-                // إعداد تالف (حروف بدل أرقام) لا يُستخدم حتى لا تُقفل شاشة الدخول نهائياً
-                if (normalized.All(char.IsDigit))
-                    return normalized;
-
-                Log.Warning("إعداد {Key} غير صالح (يجب أن يكون أرقاماً فقط) — سيتم استخدام القيمة الافتراضية", AdminPinKey);
-                return DefaultAdminPin;
-            }
-
-            // القيمة غير موجودة → تهيئة الافتراضي (أفضل جهد، لا يعطّل الدخول عند الفشل)
-            var seedResult = await SettingsService.UpdateSystemSettingsAsync(
-                new Dictionary<string, string> { [AdminPinKey] = DefaultAdminPin });
-
-            if (!seedResult.IsSuccess)
-                Log.Warning("تعذر تهيئة إعداد {Key}: {Error}", AdminPinKey, seedResult.Error);
-
-            return DefaultAdminPin;
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "تعذر قراءة إعداد {Key} — سيتم استخدام القيمة الافتراضية", AdminPinKey);
-            return DefaultAdminPin;
-        }
-    }
-
-    /// <summary>يحوّل الأرقام العربية/الفارسية إلى أرقام لاتينية ويزيل المسافات.</summary>
-    private static string NormalizeDigits(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
-
-        var chars = value.Trim()
-            .Where(c => !char.IsWhiteSpace(c))
-            .Select(c => c switch
-            {
-                >= '\u0660' and <= '\u0669' => (char)('0' + (c - '\u0660')), // ٠-٩
-                >= '\u06F0' and <= '\u06F9' => (char)('0' + (c - '\u06F0')), // ۰-۹
-                _ => c
-            });
-
-        return new string(chars.ToArray());
-    }
-
     // ── إنهاء الدخول المشترك ────────────────────────────────────────────────
 
     /// <summary>
     /// يهيّئ الجلسة الثابتة (SessionManager) وجلسة DI (ISessionService) ثم يفتح frmMain.
-    /// نفس التدفق المستخدم سابقاً بعد نجاح المصادقة.
+    /// إذا كانت الاستجابة تُلزم بتغيير كلمة المرور فلا تُفتح frmMain قبل التغيير وإعادة المصادقة.
     /// </summary>
     private void CompleteSignIn(LoginResponse loginResponse)
     {
+        if (loginResponse.MustChangePassword)
+        {
+            HandleMustChangePassword(loginResponse);
+            return;
+        }
+
         // Initialize the static session manager (permissions / identity)
         SessionManager.Initialize(loginResponse);
 
@@ -298,13 +249,10 @@ public partial class frmLogin : Form
             UserId = loginResponse.UserId,
             UserName = loginResponse.UserName,
             FullName = loginResponse.FullName,
-            Role = UserRole.Admin,
+            // الدور مشتق من الاستجابة القادمة من الطبقة التجارية (لا افتراض محلي بمدير)
+            Role = loginResponse.IsAdmin ? UserRole.Admin : UserRole.Observer,
             Token = loginResponse.Token
         });
-
-        // TODO (MVP): تم إسقاط خطوة تغيير كلمة المرور/الرمز في نسخة MVP.
-        // عند إضافة شاشة إدارة رمز الدخول، أعد ربط frmPasswordChange هنا
-        // عند loginResponse.MustChangePassword == true.
 
         var mainForm = _serviceProvider.GetRequiredService<frmMain>();
         mainForm.Show();
@@ -312,8 +260,57 @@ public partial class frmLogin : Form
     }
 
     /// <summary>
-    /// استجابة دخول المدير المُهيأ (UserId = 1) — تُستخدم في الوضع الحقيقي
-    /// حيث لا تتوفر كلمة مرور، وفي حال فشل مصادقة وضع التجربة.
+    /// MustChangePassword == true: إلزام المستخدم بتغيير كلمة المرور عبر frmPasswordChange
+    /// ثم طلب إعادة تسجيل الدخول بكلمة المرور الجديدة (لا تُفتح frmMain قبل ذلك).
+    /// </summary>
+    private void HandleMustChangePassword(LoginResponse loginResponse)
+    {
+        MessageBox.Show("يجب تغيير كلمة المرور قبل المتابعة.", "تغيير كلمة المرور مطلوب",
+            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+        try
+        {
+            using var changePasswordForm = _serviceProvider.GetRequiredService<frmPasswordChange>();
+            changePasswordForm._SetSelfServiceMode(loginResponse.UserId);
+
+            var dialogResult = changePasswordForm.ShowDialog(this);
+
+            if (dialogResult == DialogResult.OK)
+            {
+                Log.Information("غيّر المستخدم {UserId} كلمة المرور — إعادة المصادقة مطلوبة",
+                    loginResponse.UserId);
+
+                MessageBox.Show("تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.",
+                    "تغيير كلمة المرور", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                Log.Warning("أُلغيت عملية تغيير كلمة المرور الإلزامية للمستخدم {UserId}",
+                    loginResponse.UserId);
+
+                MessageBox.Show("لم يتم تغيير كلمة المرور، ولا يمكن المتابعة قبل تغييرها.",
+                    "تغيير كلمة المرور مطلوب", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر فتح شاشة تغيير كلمة المرور الإلزامية للمستخدم {UserId}",
+                loginResponse.UserId);
+
+            MessageBox.Show("تعذر فتح شاشة تغيير كلمة المرور. يرجى المحاولة مرة أخرى.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            // إعادة المصادقة تكون بكلمة المرور الجديدة على نفس الشاشة
+            txtPin.Clear();
+            txtPin.Focus();
+        }
+    }
+
+    /// <summary>
+    /// استجابة دخول المدير المُهيأ (UserId = 1) — تُستخدم كاحتياط في وضع التجربة
+    /// فقط عند فشل مصادقة <c>MockAuthService</c>. لا تُستخدم في الوضع الحقيقي.
     /// </summary>
     private static LoginResponse CreateAdminLoginResponse() => new(
         UserId: AdminUserId,

@@ -5,6 +5,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
 using SalesSystem.Models.Accounting.Enums;
+using SalesSystem.Models;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Business.Accounting.Services;
@@ -349,8 +350,41 @@ public class JournalEntryService : IJournalEntryService
             if (entry == null)
                 return Result<JournalEntryDetailDto>.Failure("القيد المحاسبي غير موجود", ErrorCodes.NotFound);
 
-            entry.Cancel(userId);
-            await _uow.SaveChangesAsync(ct);
+            // Capture state before cancellation for audit trail
+            var statusBefore = entry.Status;
+            var totalDebitBefore = entry.TotalDebit;
+            var totalCreditBefore = entry.TotalCredit;
+            var entryDateBefore = entry.EntryDate;
+
+            // Wrap cancel + audit log in transaction for atomicity
+            await _uow.ExecuteTransactionAsync(async () =>
+            {
+                entry.Cancel(userId);
+
+                // Record audit row so cancellation is traceable even though the entry leaves the balances
+                var auditLog = AuditLog.Create(
+                    userId: userId,
+                    action: "CancelJournalEntry",
+                    entityType: "JournalEntry",
+                    entityId: entry.Id,
+                    oldValues: System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        Status = statusBefore.ToString(),
+                        TotalDebit = totalDebitBefore,
+                        TotalCredit = totalCreditBefore,
+                        EntryDate = entryDateBefore,
+                        EntryNumber = entry.EntryNumber
+                    }),
+                    newValues: System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        Status = entry.Status.ToString()
+                    }),
+                    changedColumns: "Status"
+                );
+
+                await _uow.AuditLogs.AddAsync(auditLog, ct);
+                await _uow.SaveChangesAsync(ct);
+            }, ct);
 
             _logger.LogInformation(
                 "Journal entry {EntryNumber} (ID={Id}) cancelled by User {UserId}",
