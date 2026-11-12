@@ -681,6 +681,9 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 | 1 | الأدوار والصلاحيات (`PermissionsMask`، `RULE-N31`…`N34`) | مؤجل — مستخدم واحد بصلاحيات كاملة | كل الشاشات متاحة للأدمن؛ لا فحص صلاحيات (المصادقة `RULE-N35`…`N37` مطبَّقة — §2.13) | 🔒 V2 |
 | 2 | نطاق DI لكل عملية (بدل نطاق واحد لعمر التطبيق) | مؤجل | نطاق واحد مُنشأ في `Program.cs` | 🔒 V2 |
 | 3 | وحدة الموظفين كوحدة مُخزَّنة (لا جدول `Employees` في MVP) | مؤجل — موجودة كواجهة تجريبية | `MockEmployeeDesktopService` في وضع التجربة | 🔒 V2 |
+| 4 | وحدات **العملات · الضرائب · البنوك · شاشة الإعدادات** (لا كيان ولا خدمة ولا شاشة) | **مؤجل بقرار المالك (2026-11-12)** — غير مطلوب في MVP | ضريبة القيمة المضافة تُدخل يدوياً في الفاتورة ويقرأها `frmVatReport`؛ الإعدادات تُقرأ من `SystemSettings` بلا شاشة (تُدار بذراع البذور/الخدمة) | 🔒 V2 |
+
+> **ملاحظة (2026-11-12):** غياب `Currencies`/`Taxes`/`Banks`/`frmSettings` **ليس نقصاً في MVP** — قرار مالك مسجّل في السجل أعلاه (بند 4). أي مراجعة تُبلغ عنه تُغلق بإحالة إلى هنا (`RULE-N107`).
 
 ---
 
@@ -883,20 +886,20 @@ SalesSystem.slnx
 | Users | ✅ Done | `frmUserMaster`, `frmPasswordChange`, `frmBackup` | ✅ `UserService` · `AuthService` | ✅ `Users` |
 | Roles & Permissions | 🔒 V2 (§2.29) | — (لا `frmRoles`) | — | — (لا كيان `Role`/`PermissionsMask`) |
 | Employees | 🔄 Mock فقط | `frmEmployeeMaster` | ❌ لا خدمة BLL | ❌ لا كيان `Employee` |
-| Settings | 🔄 BLL+DB بلا شاشة | — (`Screens/Settings` فارغ) | ✅ `CompanySettingsService` · `StoreSettingsService` | ✅ `SystemSettings` |
-| Currencies | ❌ Not Implemented | — (لا `frmCurrencies`) | ❌ | ❌ |
+| Settings | 🔒 V2 (قرار المالك — §2.29 بند 4) | — (لا شاشة — §2.29 بند 4) | ✅ `CompanySettingsService` · `StoreSettingsService` | ✅ `SystemSettings` |
+| Currencies | 🔒 V2 (قرار المالك — §2.29 بند 4) | — (لا `frmCurrencies`) | ❌ | ❌ |
 | Chart of Accounts | ✅ Done | `frmAccounts` | ✅ `AccountService` | ✅ `Accounts` |
 | Journal Entries | ✅ Done | `frmJournalEntries` | ✅ `JournalEntryService` + `AccountingIntegrationService` | ✅ `JournalEntries` |
 | Customers | ✅ Done | `frmCustomerMaster`, `frmCustomerSelection`, `frmCustomerStatement` | ✅ `CustomerService` | ✅ `Customers` |
 | Suppliers | ✅ Done | `frmSupplierMaster`, `frmSupplierSelection` | ✅ `SupplierService` | ✅ `Suppliers` |
 | Categories | ✅ Done | `frmCategoryMaster` | ✅ `ProductCategoryService` | ✅ `ProductCategories` |
 | Units | ✅ Done | `frmUnitMaster` | ✅ `UnitService` | ✅ `Units` |
-| Taxes | ❌ Not Implemented | — (لا `frmTaxes`) | ❌ | ❌ |
+| Taxes | 🔒 V2 (قرار المالك — §2.29 بند 4) | — (لا `frmTaxes`) | ❌ | ❌ |
 | Warehouses | ✅ Done | `frmWarehouseMaster` | ✅ `WarehouseService` | ✅ `Warehouses` |
 | Products | ✅ Done | `frmProductMaster`, `frmProductUnitMaster`, `frmProductSelection`, `frmImportProductsExcel` | ✅ `ProductService` · `ProductUnitService` · `ProductImportService` | ✅ `Products` · `ProductUnits` |
 | CashBoxes | ✅ Done | `frmCashBoxMaster`, `frmCashBoxTransactions` | ✅ `CashBoxService` | ✅ `CashBoxes` |
-| Banks | ❌ Not Implemented | — (لا `frmBanks`) | ❌ | ❌ |
-| Purchases | ✅ Done | `frmListPurchases`, `frmPurchaseInvoice`, `frmPurchases` | ✅ `PurchaseService` | ✅ `PurchaseInvoices` |
+| Banks | 🔒 V2 (قرار المالك — §2.29 بند 4) | — (لا `frmBanks`) | ❌ | ❌ |
+| Purchases | ✅ Done | `frmListPurchases`, `frmPurchaseInvoice` | ✅ `PurchaseService` | ✅ `PurchaseInvoices` |
 | Sales | ✅ Done | `frmListSales`, `frmAddUpdateSalesInvoice` | ✅ `SalesService` | ✅ `SalesInvoices` |
 | Sales Returns | ✅ Done | `frmSalesReturn`, `frmListReturns` | ✅ `SalesReturnService` | ✅ `SalesReturns` |
 | Purchase Returns | ✅ Done | `frmPurchaseReturn` | ✅ `PurchaseReturnService` | ✅ `PurchaseReturns` |
