@@ -443,6 +443,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 24 | الثيم الأخضر مطبَّق على الشاشة وكل شبكاتها | `RULE-N96` | `ApplyGrid` + آخر سطر `Apply(this)` |
 | 25 | زر «إعادة تنشيط» يعمل على السطر غير النشط فقط | `RULE-N90`…`N94` | تجربة يدوية: عطّل ثم أعد التنشيط |
 | 26 | كل التصفية داخل `gbFilter` بلا استثناء | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم |
+| 27 | النمط الصحيح للشاشة: بيانات أساسية ⇒ `frm*Master` مدمج · مستند ⇒ `frmList*` + `frmAddUpdate*` | `RULE-N100`…`N104` | لا يوجد `frmAddUpdate*`/`frmList*` لكيان له Master |
 
 **الهيكل المرجعي للمُنشئ وشريط المظهر:**
 
@@ -600,6 +601,31 @@ KeyboardHelper.WireArrowNavigation(this);                                  // RU
 KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);      // RULE-N43
 KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F5, () => _RefreshAsync())); // RULE-N47
 ```
+
+---
+
+### 2.28 نمط الشاشات: Master مدمج مقابل Add/List منفصل
+
+قاعدة تصميم إلزامية تمنع تكرار الشاشات وتوحّد تجربة المستخدم.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N100 | شاشات **البيانات الأساسية** (الأصناف · العملاء · الموردون · الفئات · الوحدات · المستودعات · الصناديق · المستخدمون · الموظفون · وحدات الأصناف) تُبنى **شاشة واحدة مدمجة** باسم `frm*Master` تجمع القائمة + المحرر + أدوات الإجراءات في شاشة واحدة — ولا يُنشأ لها `frmAddUpdate*` ولا `frmList*` منفصل |
+| RULE-N101 | شاشات **المستندات والحركات** (فاتورة بيع · فاتورة شراء · مرتجع بيع · مرتجع شراء · سند قبض · سند صرف · قيد محاسبي · تسوية مخزون · تحويل مخزني) تبقى **منفصلة**: `frmList*` للعرض والتصفية + `frmAddUpdate*` للإدخال والتحرير — ولا تُدمج الآن |
+| RULE-N102 | أي `frmAddUpdateXxx` أو `frmListXxx` قديم يخص كياناً له `frmXxxMaster` يُعدّ **كوداً ميتاً**: يُحذف من المشروع ومن تسجيلات DI — لا يُبقى للتوافق ولا يُذكر في القوائم |
+| RULE-N103 | لا يُنشأ `frm*Master` لكيان مستندي، ولا تُدمج شاشة مستند قبل قرار معماري صريح من المالك — القاعدة الافتراضية هي الفصل |
+| RULE-N104 | الشاشة المدمجة `frm*Master` تستوفي §2.21 كاملاً + `gbFilter` (§2.22) + الستة من `KeyboardHelper` (§2.27) + الثيم الأخضر (§2.19) — لا استثناء |
+
+**أمثلة مرجعية (إلزامية):**
+
+| الكيان | النمط | الشاشة المرجعية |
+|---|---|---|
+| الصنف | مدمج | `frmProductMaster` |
+| العميل | مدمج | `frmCustomerMaster` |
+| المورد | مدمج | `frmSupplierMaster` |
+| فاتورة البيع | منفصل | `frmListSales` + `frmAddUpdateSalesInvoice` |
+| فاتورة الشراء | منفصل | `frmListPurchases` + `frmPurchaseInvoice` |
+| القيد المحاسبي | منفصل | `frmJournalEntries` (قائمة + محرر داخلي) |
 
 ## 3. Enums
 
