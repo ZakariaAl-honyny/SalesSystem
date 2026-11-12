@@ -41,7 +41,7 @@
             // 
             txtPin.Location = new Point(257, 206);
             txtPin.Margin = new Padding(4, 5, 4, 5);
-            txtPin.MaxLength = 12;
+            txtPin.MaxLength = 128;
             txtPin.Name = "txtPin";
             txtPin.Size = new Size(284, 31);
             txtPin.TabIndex = 1;

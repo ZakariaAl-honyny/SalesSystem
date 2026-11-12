@@ -44,6 +44,7 @@ public partial class frmPOS : Form
     private bool _autoPaid = true;       // هل المدفوع مُزامَن تلقائياً مع الصافي (بيع نقدي)؟
     private bool _isBusy;                // حارس ضد الحفظ المزدوج
     private int _updateDepth;            // حارس إعادة الدخول (re-entrancy)
+    private int? _pendingInvoiceId;      // فاتورة أُنشئت ولم تُرحَّل بعد
 
     private bool IsUpdating => _updateDepth > 0;
 
@@ -1030,6 +1031,20 @@ public partial class frmPOS : Form
 
     private void btnNew_Click(object? sender, EventArgs e)
     {
+        // مسودة لم تُرحَّل: تحذير واضح قبل بدء بيع جديد — ولا يُحذف شيء من هذه الشاشة
+        if (_pendingInvoiceId is int pendingDraft)
+        {
+            if (MessageBox.Show(
+                    $"توجد فاتورة محفوظة كمسودة برقم {pendingDraft} لم تُرحَّل بعد. " +
+                    "هل تريد إبقاءها كمسودة وبدء بيع جديد؟",
+                    "جديد [F2]", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;   // «لا» — البقاء على الحالة الحالية
+            }
+
+            _pendingInvoiceId = null;   // تبقى مسودة في النظام (لا يوجد حذف من نقطة البيع)
+        }
+
         if (_cart.Count > 0 &&
             MessageBox.Show("سيتم إفراغ سلة البيع وبدء فاتورة جديدة. هل تريد المتابعة؟", "جديد [F2]",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
@@ -1063,6 +1078,35 @@ public partial class frmPOS : Form
 
         try
         {
+            // فاتورة أُنشئت ولم تُرحَّل بعد: لا نُنشئ ثانية — نُعيد الترحيل فقط (يمنع ازدواج المخزون/النقد/القيد)
+            if (_pendingInvoiceId is int pendingInvoiceId)
+            {
+                _isBusy = true;
+                Cursor = Cursors.WaitCursor;
+
+                lblInvoiceInfo.Text = $"جارٍ ترحيل الفاتورة المحفوظة كمسودة رقم {pendingInvoiceId}…";
+
+                var retryPost = await SalesApi.PostAsync(pendingInvoiceId);
+                if (!retryPost.IsSuccess)
+                {
+                    MessageBox.Show(
+                        $"الفاتورة رقم {pendingInvoiceId} محفوظة كمسودة ولم تُرحَّل بعد: {retryPost.Error}",
+                        "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    UpdateInvoiceInfoLabel();
+                    return;
+                }
+
+                _pendingInvoiceId = null;
+                EventBus.Publish(new SaleInvoiceChangedMessage(pendingInvoiceId)); // تحديث لوحة التحكم
+
+                MessageBox.Show($"تم ترحيل الفاتورة المحفوظة كمسودة رقم {pendingInvoiceId} بنجاح.", "نجاح",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                ClearCart();                                                   // RULE-N85 — الشاشة تبقى مفتوحة
+                UpdateInvoiceInfoLabel();
+                return;
+            }
+
             if (!ValidateBeforeSave(out var warehouseId, out var cashBoxId, out var customerId,
                     out var paymentType, out var error))
             {
@@ -1113,16 +1157,19 @@ public partial class frmPOS : Form
             }
 
             var created = createResult.Value;
+            _pendingInvoiceId = created.Id;                                // لم تُرحَّل بعد — نحمي من إعادة الإنشاء
 
             var postResult = await SalesApi.PostAsync(created.Id);
             if (!postResult.IsSuccess)
             {
-                // لا نُسقط نجاح الإنشاء: الفاتورة محفوظة كمسودة
+                // لا نُسقط نجاح الإنشاء: الفاتورة محفوظة كمسودة، ونحتفظ بمعرّفها لإعادة الترحيل فقط
                 MessageBox.Show(
                     $"تم إنشاء الفاتورة رقم {created.InvoiceNo} وحفظها كمسودة، لكن تعذر ترحيلها: {postResult.Error}",
                     "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            _pendingInvoiceId = null;                                      // تم الترحيل — لا مسودة معلّقة
 
             EventBus.Publish(new SaleInvoiceChangedMessage(created.Id));   // تحديث لوحة التحكم
 

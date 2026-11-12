@@ -326,11 +326,72 @@ public class AccountService : IAccountService
                     "لا يمكن حذف حساب رئيسي لديه حسابات فرعية",
                     ErrorCodes.ReferencedByOtherEntities);
 
-            var hasTransactions = await _uow.JournalEntryLines.AnyAsync(l => l.AccountId == id, ct);
-            if (hasTransactions)
+            // Guard: must be deactivated first
+            if (account.IsActive)
+            {
+                _logger.LogWarning(
+                    "Permanent delete refused for Account {Id}: الحساب نشط ويجب تعطيله أولاً",
+                    id);
                 return Result.Failure(
-                    "لا يمكن حذف حساب مسجل عليه حركات مالية نهائياً",
+                    "لا يمكن الحذف النهائي لحساب نشط. عطّل الحساب أولاً.",
+                    ErrorCodes.InvalidOperation);
+            }
+
+            // Explicit reference checks before deletion
+            var hasJournalEntries = await _uow.JournalEntryLines.AnyAsync(l => l.AccountId == id, ct);
+            if (hasJournalEntries)
+            {
+                _logger.LogWarning(
+                    "Permanent delete refused for Account {Id}: الحساب مرتبط بحركات يومية",
+                    id);
+                return Result.Failure(
+                    "لا يمكن الحذف النهائي: الحساب مرتبط بحركات يومية",
                     ErrorCodes.ReferencedByOtherEntities);
+            }
+
+            var hasCustomers = await _uow.Customers.AnyAsync(c => c.AccountId == id, ct);
+            if (hasCustomers)
+            {
+                _logger.LogWarning(
+                    "Permanent delete refused for Account {Id}: الحساب مرتبط بعملاء",
+                    id);
+                return Result.Failure(
+                    "لا يمكن الحذف النهائي: الحساب مرتبط بعملاء",
+                    ErrorCodes.ReferencedByOtherEntities);
+            }
+
+            var hasSuppliers = await _uow.Suppliers.AnyAsync(s => s.AccountId == id, ct);
+            if (hasSuppliers)
+            {
+                _logger.LogWarning(
+                    "Permanent delete refused for Account {Id}: الحساب مرتبط بموردين",
+                    id);
+                return Result.Failure(
+                    "لا يمكن الحذف النهائي: الحساب مرتبط بموردين",
+                    ErrorCodes.ReferencedByOtherEntities);
+            }
+
+            var hasCashBoxes = await _uow.CashBoxes.AnyAsync(cb => cb.AccountId == id, ct);
+            if (hasCashBoxes)
+            {
+                _logger.LogWarning(
+                    "Permanent delete refused for Account {Id}: الحساب مرتبط بصناديق نقدية",
+                    id);
+                return Result.Failure(
+                    "لا يمكن الحذف النهائي: الحساب مرتبط بصناديق نقدية",
+                    ErrorCodes.ReferencedByOtherEntities);
+            }
+
+            var hasSystemMappings = await _uow.SystemAccountMappings.AnyAsync(m => m.AccountId == id, ct);
+            if (hasSystemMappings)
+            {
+                _logger.LogWarning(
+                    "Permanent delete refused for Account {Id}: الحساب مرتبط بتعيينات النظام",
+                    id);
+                return Result.Failure(
+                    "لا يمكن الحذف النهائي: الحساب مرتبط بتعيينات النظام",
+                    ErrorCodes.ReferencedByOtherEntities);
+            }
 
             _uow.Accounts.DeleteRange(new[] { account });
             await _uow.SaveChangesAsync(ct);
