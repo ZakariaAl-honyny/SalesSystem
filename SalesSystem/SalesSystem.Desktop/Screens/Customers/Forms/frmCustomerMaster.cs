@@ -48,6 +48,53 @@ public partial class frmCustomerMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnReactivate);
+
+        // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc إلغاء/مسح التصفية.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, _GlobalDelete),
+            (Keys.Escape, _GlobalEscape));
+
+        // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: الاسم» افتراضياً.
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+    }
+
+    // ── Global Shortcuts ──────────────────────────────────────────────────────
+
+    /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
+    private void _GlobalDelete()
+    {
+        if (_IsTextInputFocused()) return;
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();
+    }
+
+    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
+    private bool _IsTextInputFocused()
+    {
+        foreach (Control input in new Control[]
+                 {
+                     txtSearch, cbFilterBy, cbStatus, txtName, txtPhone, txtEmail,
+                     txtTaxNumber, txtAddress, txtNotes, numCreditLimit
+                 })
+        {
+            if (input.Focused) return true;
+        }
+
+        return false;
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────
@@ -57,6 +104,7 @@ public partial class frmCustomerMaster : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvCustomers);
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53
 
         // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
         dgvCustomers.ReadOnly = true;
@@ -144,6 +192,7 @@ public partial class frmCustomerMaster : Form
         table.Columns.Add("Email", typeof(string));
         table.Columns.Add("TaxNumber", typeof(string));
         table.Columns.Add("CreditLimit", typeof(decimal));
+        table.Columns.Add("CurrentBalance", typeof(decimal));
         table.Columns.Add("IsActive", typeof(bool));
 
         try
@@ -164,6 +213,7 @@ public partial class frmCustomerMaster : Form
                         c.Email ?? "",
                         c.TaxNumber ?? "",
                         c.CreditLimit,
+                        c.CurrentBalance,
                         c.IsActive);
                 }
             }
@@ -211,10 +261,19 @@ public partial class frmCustomerMaster : Form
                 _ => column.HeaderText
             };
         }
+
+        // عمود الرصيد الحالي: يُستخدم في التصفية والملخص فقط ولا يُعرض في الشبكة (RULE-N60).
+        if (dgvCustomers.Columns["CurrentBalance"] is { } balanceColumn)
+        {
+            balanceColumn.HeaderText = "الرصيد الحالي";
+            balanceColumn.Visible = false;
+        }
     }
 
     private void _ApplyRowColoring()
     {
+        if (!dgvCustomers.Columns.Contains("IsActive")) return;
+
         foreach (DataGridViewRow row in dgvCustomers.Rows)
         {
             bool isActive = row.Cells["IsActive"].Value is bool b && b;
@@ -230,10 +289,30 @@ public partial class frmCustomerMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
-    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e)
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyWithBalance_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyOverLimit_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
+    private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
     {
-        _ApplyFilter();
-        _ApplyRowColoring();
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
     }
 
     /// <summary>
@@ -248,28 +327,108 @@ public partial class frmCustomerMaster : Form
         }
     }
 
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        txtSearch.Clear();
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+        chkShowInactive.Checked = false;
+        chkOnlyWithBalance.Checked = false;
+        chkOnlyOverLimit.Checked = false;
+
+        _ApplyFilter();
+    }
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59/N60): كل الحالات تُبنى من أسماء أعمدة معروفة،
+    /// والاختيار يُقرأ بالمؤشر لا بالنص العربي، والقيمة تُهرَّب قبل بنائها في RowFilter.
+    /// </summary>
     private void _ApplyFilter()
     {
-        if (_customersView is null) return;
+        if (_customersView is null || _customersView.Table is null) return;
+        if (txtSearch is null || cbFilterBy is null || cbStatus is null
+            || chkShowInactive is null || chkOnlyWithBalance is null || chkOnlyOverLimit is null)
+            return;
 
         string text = txtSearch.Text.Trim().Replace("'", "''");
 
         var conditions = new List<string>();
 
-        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
-
-        if (!string.IsNullOrEmpty(text))
+        // ── الحالة: الكل / نشط / معطّل (cbStatus بالمؤشر) ──
+        switch (cbStatus.SelectedIndex)
         {
-            conditions.Add(
-                $"(Name LIKE '%{text}%' OR Phone LIKE '%{text}%' OR Email LIKE '%{text}%' " +
-                $"OR TaxNumber LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+            case 1: // نشط
+                conditions.Add("IsActive = true");
+                break;
+
+            case 2: // معطّل — يُظهر المعطّل حتى لو لم يُفعَّل «عرض غير النشط»
+                conditions.Add("IsActive = false");
+                break;
+
+            default: // الكل — يبقى «عرض غير النشط» هو الحاكم كما كان
+                if (!chkShowInactive.Checked)
+                    conditions.Add("IsActive = true");
+                break;
         }
 
+        // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
+        if (text.Length > 0)
+            conditions.Add($"{_FilterColumn()} LIKE '%{text}%'");
+
+        // ── مربعات الاختيار المالية ──
+        if (chkOnlyWithBalance.Checked)
+            conditions.Add("CurrentBalance <> 0");
+
+        if (chkOnlyOverLimit.Checked)
+            conditions.Add("CurrentBalance > CreditLimit");
+
         _customersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _ApplyRowColoring();
+        _UpdateSummary();
     }
+
+    /// <summary>عمود البحث المقابل لاختيار «تصفية بـ» — أسماء أعمدة ثابتة داخل الكود (RULE-N60).</summary>
+    private string _FilterColumn() => cbFilterBy.SelectedIndex switch
+    {
+        1 => "Phone",
+        2 => "Email",
+        3 => "TaxNumber",
+        _ => "Name"
+    };
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل + إجمالي المديونية
+    /// + عدد المتجاوزين لحدّ الائتمان، ويُعاد حسابه بعد كل تصفية وكل تحميل.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        if (lblSummary is null || _customersView?.Table is null) return;
+
+        int total = _customersTable.Rows.Count;
+        int shown = _customersView.Count;
+
+        int active = 0, inactive = 0, overLimit = 0;
+        decimal balance = 0m;
+
+        foreach (DataRowView row in _customersView)
+        {
+            if (row["IsActive"] is bool isActive && isActive) active++;
+            else inactive++;
+
+            decimal current = _AsDecimal(row["CurrentBalance"]);
+            if (current != 0m) balance += current;
+
+            if (current > _AsDecimal(row["CreditLimit"])) overLimit++;
+        }
+
+        lblSummary.Text =
+            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive} · " +
+            $"المديونية: {balance:N2} · تجاوزوا الحد: {overLimit}";
+    }
+
+    private static decimal _AsDecimal(object? value) => value is decimal d ? d : 0m;
 
     // ── Grid Selection ────────────────────────────────────────────────────────
 
