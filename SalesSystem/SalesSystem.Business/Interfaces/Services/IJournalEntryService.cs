@@ -1,6 +1,7 @@
 ﻿using SalesSystem.DTO.Common;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Models.Accounting.Enums;
 
 namespace SalesSystem.Business.Interfaces.Services;
 
@@ -15,9 +16,23 @@ public interface IJournalEntryService
     Task<Result<int>> CreateJournalEntryAsync(CreateJournalEntryRequest request, int userId, CancellationToken ct = default);
 
     /// <summary>
-    /// Gets a paginated list of journal entries, ordered by TransactionDate descending.
+    /// Updates a Draft journal entry. Posted and Cancelled entries cannot be modified.
+    /// Replaces lines atomically inside a transaction.
     /// </summary>
-    Task<Result<List<JournalEntryListDto>>> GetAllAsync(int page = 1, int pageSize = 50, CancellationToken ct = default);
+    Task<Result<JournalEntryDetailDto>> UpdateAsync(int id, UpdateJournalEntryRequest request, int userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Gets a paginated list of journal entries with optional filters, ordered by EntryDate descending.
+    /// </summary>
+    Task<Result<List<JournalEntryListDto>>> GetAllAsync(
+        int page = 1, 
+        int pageSize = 50, 
+        CancellationToken ct = default,
+        JournalEntryType? entryType = null,
+        byte? status = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? search = null);
 
     /// <summary>
     /// Gets a single journal entry with all its lines by ID.

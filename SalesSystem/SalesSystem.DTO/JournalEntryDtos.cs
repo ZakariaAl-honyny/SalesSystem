@@ -1,3 +1,5 @@
+using SalesSystem.Models.Accounting.Enums;
+
 namespace SalesSystem.DTO;
 
 // ─── Journal Entry List/Detail DTOs ──────────────────
@@ -16,7 +18,8 @@ public record JournalEntryListDto(
     int Status,
     string? StatusDisplay,
     DateTime CreatedAt,
-    int? CreatedByUserId
+    int? CreatedByUserId,
+    JournalEntryType EntryTypeValue = JournalEntryType.Manual
 );
 
 public record JournalEntryDetailDto(
@@ -33,7 +36,8 @@ public record JournalEntryDetailDto(
     int? ReversedByEntryId,
     DateTime CreatedAt,
     int? CreatedByUserId,
-    List<JournalEntryLineDetailDto> Lines
+    List<JournalEntryLineDetailDto> Lines,
+    JournalEntryType EntryTypeValue = JournalEntryType.Manual
 );
 
 public record JournalEntryLineDetailDto(

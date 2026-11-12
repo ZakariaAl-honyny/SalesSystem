@@ -156,6 +156,32 @@ public class JournalEntry : DocumentEntity
         UpdateTimestamp();
     }
 
+    /// <summary>
+    /// Updates mutable header fields of the journal entry.
+    /// Only allowed in Draft status. Lines are managed separately.
+    /// </summary>
+    public void Update(
+        DateTime entryDate,
+        string description,
+        JournalEntryType entryType,
+        string? referenceType,
+        int? referenceId,
+        string? referenceNumber,
+        int updatedByUserId)
+    {
+        if (Status != JournalEntryStatus.Draft)
+            throw new DomainException("لا يمكن تعديل قيد محاسبي تم ترحيله أو إلغاؤه");
+
+        EntryDate = entryDate;
+        Description = description;
+        EntryType = entryType;
+        ReferenceType = referenceType;
+        ReferenceId = referenceId;
+        ReferenceNumber = referenceNumber;
+        SetUpdatedBy(updatedByUserId);
+        UpdateTimestamp();
+    }
+
     // ─── Balance & Lifecycle ─────────────────────────
 
     /// <summary>

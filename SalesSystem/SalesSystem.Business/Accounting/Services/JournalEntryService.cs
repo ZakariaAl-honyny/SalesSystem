@@ -120,12 +120,148 @@ public class JournalEntryService : IJournalEntryService
         }
     }
 
-    public async Task<Result<List<JournalEntryListDto>>> GetAllAsync(int page = 1, int pageSize = 50, CancellationToken ct = default)
+    public async Task<Result<JournalEntryDetailDto>> UpdateAsync(int id, UpdateJournalEntryRequest request, int userId, CancellationToken ct = default)
     {
         try
         {
+            // 1. Load entry with tracking
+            var entry = await _uow.JournalEntries.FirstOrDefaultAsync(
+                e => e.Id == id, ct, "Lines.Account");
+
+            if (entry == null)
+                return Result<JournalEntryDetailDto>.Failure("القيد غير موجود", ErrorCodes.NotFound);
+
+            // 2. Only Draft entries can be updated
+            if (entry.Status != JournalEntryStatus.Draft)
+                return Result<JournalEntryDetailDto>.Failure("لا يمكن تعديل قيد مُرحَّل أو ملغى");
+
+            // 3. Validate lines exist
+            if (request.Lines == null || request.Lines.Count == 0)
+                return Result<JournalEntryDetailDto>.Failure("يجب إضافة بند واحد على الأقل");
+
+            if (request.Lines.Count < 2)
+                return Result<JournalEntryDetailDto>.Failure("يجب إضافة بندين على الأقل لقيد محاسبي مزدوج");
+
+            // 4. Check balance (sum debit ≈ sum credit within 0.001m tolerance)
+            var totalDebit = request.Lines.Sum(l => l.Debit);
+            var totalCredit = request.Lines.Sum(l => l.Credit);
+            if (Math.Abs(totalDebit - totalCredit) > 0.001m)
+                return Result<JournalEntryDetailDto>.Failure(
+                    $"القيد غير متوازن — مجموع الخصوم ({totalDebit:N2}) لا يساوي مجموع الإيداعات ({totalCredit:N2})");
+
+            // 5. Validate individual line amounts
+            foreach (var line in request.Lines)
+            {
+                if (line.Debit < 0 || line.Credit < 0)
+                    return Result<JournalEntryDetailDto>.Failure("لا يمكن أن تكون قيم الخصم أو الإيداع سالبة");
+
+                if (line.Debit == 0 && line.Credit == 0)
+                    return Result<JournalEntryDetailDto>.Failure("يجب أن يكون للبند قيمة خصم أو إيداع");
+            }
+
+            // 6. Verify all accounts exist and are active
+            var accountIds = request.Lines.Select(l => l.AccountId).Distinct().ToList();
+            var accounts = await _uow.Accounts.ToListAsync(
+                a => accountIds.Contains(a.Id), ct: ct);
+            var accountMap = accounts.ToDictionary(a => a.Id);
+
+            foreach (var line in request.Lines)
+            {
+                if (!accountMap.TryGetValue(line.AccountId, out var account))
+                    return Result<JournalEntryDetailDto>.Failure($"الحساب برقم {line.AccountId} غير موجود");
+
+                if (!account.IsActive)
+                    return Result<JournalEntryDetailDto>.Failure($"الحساب \"{account.NameAr}\" غير نشط");
+            }
+
+            // 7. Update entry fields atomically
+            await _uow.ExecuteTransactionAsync(async () =>
+            {
+                // Update header fields
+                entry.Update(
+                    request.EntryDate,
+                    request.Description ?? string.Empty,
+                    request.EntryType,
+                    request.ReferenceType,
+                    request.ReferenceId,
+                    request.ReferenceNumber,
+                    userId);
+
+                // Remove old lines
+                foreach (var oldLine in entry.Lines.ToList())
+                {
+                    await _uow.JournalEntryLines.HardDeleteAsync(oldLine.Id, ct);
+                }
+
+                // Add new lines
+                foreach (var line in request.Lines)
+                {
+                    if (line.Debit > 0)
+                        entry.AddDebitLine(line.AccountId, line.Debit, line.Description);
+                    if (line.Credit > 0)
+                        entry.AddCreditLine(line.AccountId, line.Credit, line.Description);
+                }
+
+                await _uow.SaveChangesAsync(ct);
+            });
+
+            // 8. Reload and return updated detail
+            var updatedEntry = await _uow.JournalEntries.FirstOrDefaultAsync(
+                e => e.Id == id, ct, "Lines.Account");
+
+            _logger.LogInformation(
+                "Journal entry {EntryNumber} (ID={Id}) updated by User {UserId}",
+                updatedEntry.EntryNumber, updatedEntry.Id, userId);
+
+            return Result<JournalEntryDetailDto>.Success(MapToDetailDto(updatedEntry));
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain validation failed for journal entry update");
+            return Result<JournalEntryDetailDto>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating journal entry {Id}", id);
+            return Result<JournalEntryDetailDto>.Failure("حدث خطأ أثناء تعديل القيد المحاسبي");
+        }
+    }
+
+    public async Task<Result<List<JournalEntryListDto>>> GetAllAsync(
+        int page = 1, 
+        int pageSize = 50, 
+        CancellationToken ct = default,
+        JournalEntryType? entryType = null,
+        byte? status = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? search = null)
+    {
+        try
+        {
+            // Build filter predicate
+            System.Linq.Expressions.Expression<System.Func<SalesSystem.Models.Accounting.JournalEntry, bool>>? predicate = null;
+
+            if (entryType.HasValue)
+                predicate = Combine(predicate, e => e.EntryType == entryType.Value);
+
+            if (status.HasValue)
+                predicate = Combine(predicate, e => (byte)e.Status == status.Value);
+
+            if (fromDate.HasValue)
+                predicate = Combine(predicate, e => e.EntryDate >= fromDate.Value);
+
+            if (toDate.HasValue)
+                predicate = Combine(predicate, e => e.EntryDate <= toDate.Value);
+
+            if (!string.IsNullOrWhiteSpace(search))
+                predicate = Combine(predicate, e => 
+                    (e.EntryNumber != null && e.EntryNumber.Contains(search)) ||
+                    (e.Description != null && e.Description.Contains(search)) ||
+                    (e.ReferenceNumber != null && e.ReferenceNumber.Contains(search)));
+
             var (items, totalCount) = await _uow.JournalEntries.GetPagedAsync(
-                predicate: null,
+                predicate: predicate,
                 orderConfig: q => q.OrderByDescending(e => e.EntryDate).ThenByDescending(e => e.Id),
                 page: page,
                 pageSize: pageSize,
@@ -269,25 +405,26 @@ public class JournalEntryService : IJournalEntryService
 
     // ─── Private Mapping Helpers ──────────────────────
 
-    private static string GetEntryTypeDisplay(JournalEntryType entryType) => entryType switch
+    /// <summary>
+    /// AND-combines two predicates (returns <paramref name="right"/> when <paramref name="left"/> is null).
+    /// Mirrors the Combine&lt;T&gt; helper used by AuditLogService.
+    /// </summary>
+    private static System.Linq.Expressions.Expression<Func<T, bool>> Combine<T>(
+        System.Linq.Expressions.Expression<Func<T, bool>>? left,
+        System.Linq.Expressions.Expression<Func<T, bool>> right)
     {
-        JournalEntryType.Manual => "يدوي",
-        JournalEntryType.Sales => "مبيعات",
-        JournalEntryType.Purchase => "مشتريات",
-        JournalEntryType.Receipt => "سند قبض",
-        JournalEntryType.Payment => "سند صرف",
-        JournalEntryType.Inventory => "مخزون",
-        JournalEntryType.Adjustment => "تسوية",
-        JournalEntryType.SalesReturn => "مرتجع مبيعات",
-        JournalEntryType.PurchaseReturn => "مرتجع مشتريات",
-        JournalEntryType.Expense => "مصروف",
-        JournalEntryType.StockWriteOff => "إعدام مخزون",
-        JournalEntryType.Transfer => "تحويل",
-        JournalEntryType.OpeningBalance => "رصيد افتتاحي",
-        JournalEntryType.CustomerReceipt => "مقبوضات عميل",
-        JournalEntryType.SupplierPayment => "مدفوعات مورد",
-        _ => "غير معروف"
-    };
+        if (left == null)
+            return right;
+
+        var parameter = System.Linq.Expressions.Expression.Parameter(typeof(T));
+        var body = System.Linq.Expressions.Expression.AndAlso(
+            System.Linq.Expressions.Expression.Invoke(left, parameter),
+            System.Linq.Expressions.Expression.Invoke(right, parameter));
+        return System.Linq.Expressions.Expression.Lambda<Func<T, bool>>(body, parameter);
+    }
+
+    private static string GetEntryTypeDisplay(JournalEntryType entryType)
+        => JournalEntryTypeDisplay.GetArabicName(entryType);
 
     private static string GetStatusDisplay(JournalEntryStatus status) => status switch
     {
@@ -313,7 +450,8 @@ public class JournalEntryService : IJournalEntryService
             (int)entry.Status,
             GetStatusDisplay(entry.Status),
             entry.CreatedAt,
-            entry.CreatedByUserId
+            entry.CreatedByUserId,
+            entry.EntryType
         );
     }
 
@@ -343,7 +481,8 @@ public class JournalEntryService : IJournalEntryService
             entry.ReversedByEntryId,
             entry.CreatedAt,
             entry.CreatedByUserId,
-            lineDtos
+            lineDtos,
+            entry.EntryType
         );
     }
 
