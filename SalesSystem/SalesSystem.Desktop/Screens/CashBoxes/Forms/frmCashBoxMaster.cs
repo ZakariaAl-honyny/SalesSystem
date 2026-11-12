@@ -47,6 +47,52 @@ public partial class frmCashBoxMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnRefresh);
+
+        // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc إلغاء/مسح التصفية.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, _GlobalDelete),
+            (Keys.Escape, _GlobalEscape));
+
+        // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: الاسم» افتراضياً.
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+    }
+
+    // ── Global Shortcuts ──────────────────────────────────────────────────────
+
+    /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
+    private void _GlobalDelete()
+    {
+        if (_IsTextInputFocused()) return;
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();
+    }
+
+    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
+    private bool _IsTextInputFocused()
+    {
+        foreach (Control input in new Control[]
+                 {
+                     txtSearch, cbFilterBy, cbStatus, txtName, txtDescription
+                 })
+        {
+            if (input.Focused) return true;
+        }
+
+        return false;
     }
 
     /// <summary>هل الحقل المطلوب (اسم الصندوق) مكتمل؟</summary>
@@ -127,6 +173,8 @@ public partial class frmCashBoxMaster : Form
         dgvCashBoxes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvCashBoxes.MultiSelect = false;
 
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53
+
         GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
@@ -138,7 +186,9 @@ public partial class frmCashBoxMaster : Form
         table.Columns.Add("Id", typeof(int));
         table.Columns.Add("Name", typeof(string));
         table.Columns.Add("Description", typeof(string));
+        table.Columns.Add("AccountId", typeof(int));
         table.Columns.Add("AccountName", typeof(string));
+        table.Columns.Add("BranchName", typeof(string));
         table.Columns.Add("IsActive", typeof(bool));
 
         try
@@ -156,7 +206,9 @@ public partial class frmCashBoxMaster : Form
                         c.Id,
                         c.Name,
                         c.Description ?? "",
+                        c.AccountId,
                         c.AccountName ?? "",
+                        c.BranchName ?? "",
                         c.IsActive);
                 }
             }
@@ -223,6 +275,29 @@ public partial class frmCashBoxMaster : Form
 
     private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyWithAccount_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
+    private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+    }
+
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
     /// </summary>
@@ -235,26 +310,96 @@ public partial class frmCashBoxMaster : Form
         }
     }
 
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        txtSearch.Clear();
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+        chkShowInactive.Checked = false;
+        chkOnlyWithAccount.Checked = false;
+
+        _ApplyFilter();
+    }
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59/N60): كل الحالات تُبنى من أسماء أعمدة معروفة،
+    /// والاختيار يُقرأ بالمؤشر لا بالنص العربي، والقيمة تُهرَّب قبل بنائها في RowFilter.
+    /// </summary>
     private void _ApplyFilter()
     {
-        if (_cashBoxesView is null) return;
+        if (_cashBoxesView is null || _cashBoxesView.Table is null) return;
+        if (txtSearch is null || cbFilterBy is null || cbStatus is null
+            || chkShowInactive is null || chkOnlyWithAccount is null)
+            return;
 
-        string text = txtSearch.Text.Trim();
+        string text = txtSearch.Text.Trim().Replace("'", "''");
 
         var conditions = new List<string>();
 
-        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
-
-        if (!string.IsNullOrEmpty(text))
+        // ── الحالة: الكل / نشط / معطّل (cbStatus بالمؤشر) ──
+        switch (cbStatus.SelectedIndex)
         {
-            conditions.Add(
-                $"(Name LIKE '%{text}%' OR Description LIKE '%{text}%' OR AccountName LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+            case 1: // نشط
+                conditions.Add("IsActive = true");
+                break;
+
+            case 2: // معطّل — يُظهر المعطّل حتى لو لم يُفعَّل «عرض غير النشط»
+                conditions.Add("IsActive = false");
+                break;
+
+            default: // الكل — يبقى «عرض غير النشط» هو الحاكم كما كان
+                if (!chkShowInactive.Checked)
+                    conditions.Add("IsActive = true");
+                break;
         }
 
+        // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
+        if (text.Length > 0)
+            conditions.Add($"{_FilterColumn()} LIKE '%{text}%'");
+
+        // ── «المربوط بالحسابات فقط» ──
+        if (chkOnlyWithAccount.Checked)
+            conditions.Add("AccountId > 0");
+
         _cashBoxesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _ApplyRowColoring();
+        _UpdateSummary();
+    }
+
+    /// <summary>عمود البحث المقابل لاختيار «تصفية بـ» — أسماء أعمدة ثابتة داخل الكود (RULE-N60).</summary>
+    private string _FilterColumn() => cbFilterBy.SelectedIndex switch
+    {
+        1 => "AccountName",
+        2 => "BranchName",
+        3 => "CONVERT(Id, 'System.String')",
+        _ => "Name"
+    };
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل،
+    /// ويُعاد حسابه بعد كل تصفية وكل تحميل.
+    /// ملاحظة: `CashBoxDto` لا يحمل رصيداً (الرصيد على الحساب المرتبط فقط)،
+    /// لذا لا يُعرض «إجمالي الأرصدة» هنا.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        if (lblSummary is null || _cashBoxesView?.Table is null) return;
+
+        int total = _cashBoxesTable.Rows.Count;
+        int shown = _cashBoxesView.Count;
+
+        int active = 0, inactive = 0;
+
+        foreach (DataRowView row in _cashBoxesView)
+        {
+            if (row["IsActive"] is bool isActive && isActive) active++;
+            else inactive++;
+        }
+
+        lblSummary.Text =
+            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────

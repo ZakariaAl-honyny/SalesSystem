@@ -31,12 +31,22 @@ partial class frmWarehouseMaster
         txtNotes = new TextBox();
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
-        btnRefresh = new Button();
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
         btnSetDefault = new Button();
+        btnRefresh = new Button();
         btnClose = new Button();
+        pnlFilters = new Panel();
+        gbFilter = new GroupBox();
+        label1 = new Label();
+        cbStatus = new ComboBox();
+        label2 = new Label();
+        cbFilterBy = new ComboBox();
+        txtFilterValue = new TextBox();
+        chkShowInactive = new CheckBox();
+        pnlSummary = new Panel();
+        lblSummary = new Label();
         pnlGrid = new Panel();
         dgvWarehouses = new DataGridView();
         colId = new DataGridViewTextBoxColumn();
@@ -44,16 +54,14 @@ partial class frmWarehouseMaster
         colPhone = new DataGridViewTextBoxColumn();
         colAddress = new DataGridViewTextBoxColumn();
         colIsActive = new DataGridViewTextBoxColumn();
-        pnlFilter = new Panel();
-        txtSearch = new TextBox();
-        lblSearch = new Label();
-        chkShowInactive = new CheckBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
+        pnlFilters.SuspendLayout();
+        gbFilter.SuspendLayout();
+        pnlSummary.SuspendLayout();
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvWarehouses).BeginInit();
-        pnlFilter.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -188,6 +196,7 @@ partial class frmWarehouseMaster
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
         pnlButtons.Controls.Add(btnSetDefault);
+        pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 200);
@@ -266,31 +275,172 @@ partial class frmWarehouseMaster
         btnSetDefault.UseVisualStyleBackColor = false;
         btnSetDefault.Click += btnSetDefault_Click;
         // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
+        btnRefresh.Location = new Point(523, 13);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 35);
+        btnRefresh.TabIndex = 5;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
+        // 
         // btnClose
         // 
         btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(523, 13);
+        btnClose.Location = new Point(387, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
-        btnClose.TabIndex = 5;
+        btnClose.TabIndex = 6;
         btnClose.TabStop = false;
         btnClose.Text = "🚪 خروج";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
+        // pnlFilters
+        // 
+        pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Dock = DockStyle.Top;
+        pnlFilters.Location = new Point(0, 260);
+        pnlFilters.Margin = new Padding(0);
+        pnlFilters.Name = "pnlFilters";
+        pnlFilters.Padding = new Padding(6, 4, 6, 4);
+        pnlFilters.Size = new Size(1432, 112);
+        pnlFilters.TabIndex = 3;
+        // 
+        // gbFilter
+        // 
+        gbFilter.Controls.Add(label1);
+        gbFilter.Controls.Add(cbStatus);
+        gbFilter.Controls.Add(label2);
+        gbFilter.Controls.Add(cbFilterBy);
+        gbFilter.Controls.Add(txtFilterValue);
+        gbFilter.Controls.Add(chkShowInactive);
+        gbFilter.Dock = DockStyle.Fill;
+        gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        gbFilter.Location = new Point(6, 4);
+        gbFilter.Margin = new Padding(0);
+        gbFilter.Name = "gbFilter";
+        gbFilter.Padding = new Padding(8);
+        gbFilter.RightToLeft = RightToLeft.Yes;
+        gbFilter.Size = new Size(1420, 104);
+        gbFilter.TabIndex = 0;
+        gbFilter.TabStop = false;
+        gbFilter.Text = "بحث وتصفية";
+        // 
+        // label1
+        // 
+        label1.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        label1.Location = new Point(1290, 30);
+        label1.Margin = new Padding(0);
+        label1.Name = "label1";
+        label1.Size = new Size(90, 26);
+        label1.TabIndex = 0;
+        label1.Text = "الحالة:";
+        label1.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // cbStatus
+        // 
+        cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbStatus.FlatStyle = FlatStyle.Flat;
+        cbStatus.Font = new Font("Tahoma", 10F);
+        cbStatus.FormattingEnabled = true;
+        cbStatus.Items.AddRange(new object[] { "الكل", "نشط", "معطّل" });
+        cbStatus.Location = new Point(1152, 26);
+        cbStatus.Margin = new Padding(0);
+        cbStatus.Name = "cbStatus";
+        cbStatus.Size = new Size(130, 32);
+        cbStatus.TabIndex = 1;
+        cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
+        // 
+        // label2
+        // 
+        label2.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        label2.Location = new Point(1032, 30);
+        label2.Margin = new Padding(0);
+        label2.Name = "label2";
+        label2.Size = new Size(110, 26);
+        label2.TabIndex = 2;
+        label2.Text = "تصفية بـ:";
+        label2.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // cbFilterBy
+        // 
+        cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbFilterBy.FlatStyle = FlatStyle.Flat;
+        cbFilterBy.Font = new Font("Tahoma", 10F);
+        cbFilterBy.FormattingEnabled = true;
+        cbFilterBy.Items.AddRange(new object[] { "الكل", "الاسم", "العنوان", "الهاتف" });
+        cbFilterBy.Location = new Point(884, 26);
+        cbFilterBy.Margin = new Padding(0);
+        cbFilterBy.Name = "cbFilterBy";
+        cbFilterBy.Size = new Size(146, 32);
+        cbFilterBy.TabIndex = 3;
+        cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+        // 
+        // txtFilterValue
+        // 
+        txtFilterValue.Font = new Font("Tahoma", 10F);
+        txtFilterValue.Location = new Point(460, 26);
+        txtFilterValue.Margin = new Padding(0);
+        txtFilterValue.Name = "txtFilterValue";
+        txtFilterValue.PlaceholderText = "اكتب قيمة التصفية...";
+        txtFilterValue.Size = new Size(412, 32);
+        txtFilterValue.TabIndex = 4;
+        txtFilterValue.TextChanged += txtFilterValue_TextChanged;
+        txtFilterValue.KeyPress += txtFilterValue_KeyPress;
+        txtFilterValue.KeyDown += txtFilterValue_KeyDown;
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(1245, 64);
+        chkShowInactive.Margin = new Padding(0);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.TabIndex = 5;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.UseVisualStyleBackColor = true;
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
+        // 
+        // pnlSummary
+        // 
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 768);
+        pnlSummary.Margin = new Padding(0);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Size = new Size(1432, 32);
+        pnlSummary.TabIndex = 5;
+        // 
+        // lblSummary
+        // 
+        lblSummary.Dock = DockStyle.Fill;
+        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.Location = new Point(0, 0);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Size = new Size(1432, 32);
+        lblSummary.TabIndex = 0;
+        lblSummary.Text = "المعروض: 0 من 0";
+        lblSummary.TextAlign = ContentAlignment.MiddleRight;
+        // 
         // pnlGrid
         // 
         pnlGrid.Controls.Add(dgvWarehouses);
-        pnlGrid.Controls.Add(pnlFilter);
         pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 260);
+        pnlGrid.Location = new Point(0, 372);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(10);
-        pnlGrid.Size = new Size(1432, 410);
-        pnlGrid.TabIndex = 3;
+        pnlGrid.Size = new Size(1432, 396);
+        pnlGrid.TabIndex = 4;
         // 
         // dgvWarehouses
         // 
@@ -302,14 +452,14 @@ partial class frmWarehouseMaster
         dgvWarehouses.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvWarehouses.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colPhone, colAddress, colIsActive });
         dgvWarehouses.Dock = DockStyle.Fill;
-        dgvWarehouses.Location = new Point(10, 50);
+        dgvWarehouses.Location = new Point(10, 10);
         dgvWarehouses.MultiSelect = false;
         dgvWarehouses.Name = "dgvWarehouses";
         dgvWarehouses.ReadOnly = true;
         dgvWarehouses.RowHeadersVisible = false;
         dgvWarehouses.RowHeadersWidth = 62;
         dgvWarehouses.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvWarehouses.Size = new Size(1412, 350);
+        dgvWarehouses.Size = new Size(1412, 376);
         dgvWarehouses.TabIndex = 0;
         dgvWarehouses.CellClick += dgvWarehouses_CellClick;
         // 
@@ -358,62 +508,6 @@ partial class frmWarehouseMaster
         colIsActive.Name = "colIsActive";
         colIsActive.ReadOnly = true;
         // 
-        // pnlFilter
-        // 
-        pnlFilter.Controls.Add(btnRefresh);
-        pnlFilter.Controls.Add(txtSearch);
-        pnlFilter.Controls.Add(lblSearch);
-        pnlFilter.Controls.Add(chkShowInactive);
-        pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(10, 10);
-        pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1412, 40);
-        pnlFilter.TabIndex = 1;
-        // 
-        // txtSearch
-        // 
-        txtSearch.Location = new Point(690, 7);
-        txtSearch.Name = "txtSearch";
-        txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 99;
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
-        // 
-        // chkShowInactive
-        // 
-        chkShowInactive.AutoSize = true;
-        chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(368, 8);
-        chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(166, 28);
-        chkShowInactive.TabIndex = 97;
-        chkShowInactive.Text = "عرض غير النشط";
-        chkShowInactive.UseVisualStyleBackColor = true;
-        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = Color.White;
-        btnRefresh.Location = new Point(550, 4);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
-        btnRefresh.TabIndex = 98;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
-        btnRefresh.Click += btnRefresh_Click;
-        // 
-        // lblSearch
-        // 
-        lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(1000, 10);
-        lblSearch.Name = "lblSearch";
-        lblSearch.Size = new Size(56, 24);
-        lblSearch.TabIndex = 1;
-        lblSearch.Text = "بحث:";
-        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -424,12 +518,16 @@ partial class frmWarehouseMaster
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(170, 220, 170);
-        ClientSize = new Size(1432, 670);
+        ClientSize = new Size(1432, 800);
         Controls.Add(pnlGrid);
+        Controls.Add(pnlSummary);
+        Controls.Add(pnlFilters);
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
         Font = new Font("Tahoma", 10F);
+        KeyPreview = true;
+        MinimumSize = new Size(1200, 700);
         Name = "frmWarehouseMaster";
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
@@ -439,10 +537,12 @@ partial class frmWarehouseMaster
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         pnlButtons.ResumeLayout(false);
+        pnlFilters.ResumeLayout(false);
+        gbFilter.ResumeLayout(false);
+        gbFilter.PerformLayout();
+        pnlSummary.ResumeLayout(false);
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvWarehouses).EndInit();
-        pnlFilter.ResumeLayout(false);
-        pnlFilter.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -466,7 +566,18 @@ partial class frmWarehouseMaster
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Button btnSetDefault;
+    private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
+    private System.Windows.Forms.Panel pnlFilters;
+    private System.Windows.Forms.GroupBox gbFilter;
+    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.ComboBox cbStatus;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.ComboBox cbFilterBy;
+    private System.Windows.Forms.TextBox txtFilterValue;
+    private System.Windows.Forms.CheckBox chkShowInactive;
+    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvWarehouses;
     private System.Windows.Forms.DataGridViewTextBoxColumn colId;
@@ -474,10 +585,5 @@ partial class frmWarehouseMaster
     private System.Windows.Forms.DataGridViewTextBoxColumn colPhone;
     private System.Windows.Forms.DataGridViewTextBoxColumn colAddress;
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
-    private System.Windows.Forms.Panel pnlFilter;
-    private System.Windows.Forms.TextBox txtSearch;
-    private System.Windows.Forms.Button btnRefresh;
-    private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

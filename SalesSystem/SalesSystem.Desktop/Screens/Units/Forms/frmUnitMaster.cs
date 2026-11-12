@@ -47,6 +47,49 @@ public partial class frmUnitMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnRefresh, btnClose);
+
+        // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc مسح التصفية/إلغاء النموذج.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, _GlobalDelete),
+            (Keys.Escape, _GlobalEscape));
+
+        // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: الاسم» افتراضياً.
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+    }
+
+    // ── Global Shortcuts (RULE-N47) ───────────────────────────────────────────
+
+    /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
+    private void _GlobalDelete()
+    {
+        if (_IsTextInputFocused()) return;
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();
+    }
+
+    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
+    private bool _IsTextInputFocused()
+    {
+        foreach (Control input in new Control[] { txtSearch, cbFilterBy, cbStatus, txtName, txtSymbol })
+        {
+            if (input.Focused) return true;
+        }
+
+        return false;
     }
 
     // ── Validation helpers ────────────────────────────────────────────────────
@@ -118,6 +161,7 @@ public partial class frmUnitMaster : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvUnits);
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53
 
         // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
         dgvUnits.ReadOnly = true;
@@ -170,8 +214,7 @@ public partial class frmUnitMaster : Form
             _unitsView = new DataView(_unitsTable);
             dgvUnits.DataSource = _unitsView;
             _ApplyGridHeaders();
-            _ApplyFilter();
-            _ApplyRowColoring();
+            _ApplyFilter();   // يطبّق التصفية ويحدّث الملخص وألوان الأسطر
         }
     }
 
@@ -214,6 +257,26 @@ public partial class frmUnitMaster : Form
 
     private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
+    private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+    }
+
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
     /// </summary>
@@ -226,24 +289,86 @@ public partial class frmUnitMaster : Form
         }
     }
 
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        txtSearch.Clear();
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+        chkShowInactive.Checked = false;
+
+        _ApplyFilter();
+    }
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59/N60): تُبنى من أسماء أعمدة معروفة فقط،
+    /// والاختيار يُقرأ بالمؤشر لا بالنص العربي، والقيمة تُهرَّب قبل بنائها في RowFilter.
+    /// </summary>
     private void _ApplyFilter()
     {
-        if (_unitsView is null) return;
+        if (_unitsView is null || _unitsView.Table is null) return;
+        if (txtSearch is null || cbFilterBy is null || cbStatus is null || chkShowInactive is null)
+            return;
 
-        string text = txtSearch.Text.Trim();
+        string text = txtSearch.Text.Trim().Replace("'", "''");
 
         var conditions = new List<string>();
 
-        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
+        // ── الحالة: الكل / نشط / معطّل (cbStatus بالمؤشر) ──
+        switch (cbStatus.SelectedIndex)
+        {
+            case 1: // نشط
+                conditions.Add("IsActive = true");
+                break;
 
-        if (!string.IsNullOrEmpty(text))
-            conditions.Add(
-                $"(Name LIKE '%{text}%' OR Symbol LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+            case 2: // معطّل — يُظهر المعطّل حتى لو لم يُفعَّل «عرض غير النشط»
+                conditions.Add("IsActive = false");
+                break;
+
+            default: // الكل — يبقى «عرض غير النشط» هو الحاكم
+                if (!chkShowInactive.Checked)
+                    conditions.Add("IsActive = true");
+                break;
+        }
+
+        // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
+        if (text.Length > 0)
+            conditions.Add(_FilterExpression(text));
 
         _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _ApplyRowColoring();
+        _UpdateSummary();
+    }
+
+    /// <summary>تعبير البحث المقابل لاختيار «تصفية بـ» — أسماء أعمدة ثابتة داخل الكود (RULE-N60).</summary>
+    private string _FilterExpression(string escapedText) => cbFilterBy.SelectedIndex switch
+    {
+        1 => $"Symbol LIKE '%{escapedText}%'",
+        2 => $"CONVERT(Id, 'System.String') LIKE '%{escapedText}%'",
+        _ => $"Name LIKE '%{escapedText}%'"
+    };
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل،
+    /// ويُعاد حسابه بعد كل تصفية وكل تحميل.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        if (lblSummary is null || _unitsView?.Table is null) return;
+
+        int total = _unitsTable.Rows.Count;
+        int shown = _unitsView.Count;
+
+        int active = 0, inactive = 0;
+
+        foreach (DataRowView row in _unitsView)
+        {
+            if (row["IsActive"] is bool isActive && isActive) active++;
+            else inactive++;
+        }
+
+        lblSummary.Text = $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────

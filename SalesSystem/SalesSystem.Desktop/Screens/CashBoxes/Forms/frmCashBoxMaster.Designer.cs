@@ -32,6 +32,17 @@ partial class frmCashBoxMaster
         btnDelete = new Button();
         btnRefresh = new Button();
         btnClose = new Button();
+        pnlFilters = new Panel();
+        gbFilter = new GroupBox();
+        label2 = new Label();
+        cbFilterBy = new ComboBox();
+        txtSearch = new TextBox();
+        label1 = new Label();
+        cbStatus = new ComboBox();
+        chkShowInactive = new CheckBox();
+        chkOnlyWithAccount = new CheckBox();
+        pnlSummary = new Panel();
+        lblSummary = new Label();
         pnlGrid = new Panel();
         dgvCashBoxes = new DataGridView();
         colId = new DataGridViewTextBoxColumn();
@@ -39,18 +50,14 @@ partial class frmCashBoxMaster
         colDescription = new DataGridViewTextBoxColumn();
         colAccountName = new DataGridViewTextBoxColumn();
         colIsActive = new DataGridViewTextBoxColumn();
-        pnlFilter = new Panel();
-        groupBox1 = new GroupBox();
-        lblSearch = new Label();
-        chkShowInactive = new CheckBox();
-        txtSearch = new TextBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
+        pnlFilters.SuspendLayout();
+        gbFilter.SuspendLayout();
+        pnlSummary.SuspendLayout();
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvCashBoxes).BeginInit();
-        pnlFilter.SuspendLayout();
-        groupBox1.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -245,16 +252,157 @@ partial class frmCashBoxMaster
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
+        // pnlFilters
+        // 
+        pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Dock = DockStyle.Top;
+        pnlFilters.Location = new Point(0, 260);
+        pnlFilters.Margin = new Padding(0);
+        pnlFilters.Name = "pnlFilters";
+        pnlFilters.Padding = new Padding(6, 4, 6, 4);
+        pnlFilters.Size = new Size(1432, 112);
+        pnlFilters.TabIndex = 3;
+        // 
+        // gbFilter
+        // 
+        gbFilter.Controls.Add(label2);
+        gbFilter.Controls.Add(cbFilterBy);
+        gbFilter.Controls.Add(txtSearch);
+        gbFilter.Controls.Add(label1);
+        gbFilter.Controls.Add(cbStatus);
+        gbFilter.Controls.Add(chkShowInactive);
+        gbFilter.Controls.Add(chkOnlyWithAccount);
+        gbFilter.Dock = DockStyle.Fill;
+        gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbFilter.Location = new Point(6, 4);
+        gbFilter.Margin = new Padding(0);
+        gbFilter.Name = "gbFilter";
+        gbFilter.Padding = new Padding(8);
+        gbFilter.RightToLeft = RightToLeft.Yes;
+        gbFilter.Size = new Size(1420, 104);
+        gbFilter.TabIndex = 0;
+        gbFilter.TabStop = false;
+        gbFilter.Text = "بحث وتصفية";
+        // 
+        // label2
+        // 
+        label2.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        label2.Location = new Point(1032, 30);
+        label2.Margin = new Padding(0);
+        label2.Name = "label2";
+        label2.Size = new Size(110, 26);
+        label2.TabIndex = 2;
+        label2.Text = "تصفية بـ:";
+        label2.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // cbFilterBy
+        // 
+        cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbFilterBy.FlatStyle = FlatStyle.Flat;
+        cbFilterBy.Font = new Font("Tahoma", 10F);
+        cbFilterBy.FormattingEnabled = true;
+        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الحساب", "الفرع", "الرقم" });
+        cbFilterBy.Location = new Point(884, 26);
+        cbFilterBy.Margin = new Padding(0);
+        cbFilterBy.Name = "cbFilterBy";
+        cbFilterBy.Size = new Size(146, 32);
+        cbFilterBy.TabIndex = 3;
+        cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+        // 
+        // txtSearch
+        // 
+        txtSearch.Font = new Font("Tahoma", 10F);
+        txtSearch.Location = new Point(460, 26);
+        txtSearch.Margin = new Padding(0);
+        txtSearch.Name = "txtSearch";
+        txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
+        txtSearch.Size = new Size(412, 32);
+        txtSearch.TabIndex = 4;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
+        txtSearch.KeyDown += txtSearch_KeyDown;
+        // 
+        // label1
+        // 
+        label1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        label1.Location = new Point(1290, 30);
+        label1.Margin = new Padding(0);
+        label1.Name = "label1";
+        label1.Size = new Size(90, 26);
+        label1.TabIndex = 0;
+        label1.Text = "الحالة:";
+        label1.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // cbStatus
+        // 
+        cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbStatus.FlatStyle = FlatStyle.Flat;
+        cbStatus.Font = new Font("Tahoma", 10F);
+        cbStatus.FormattingEnabled = true;
+        cbStatus.Items.AddRange(new object[] { "الكل", "نشط", "معطّل" });
+        cbStatus.Location = new Point(1152, 26);
+        cbStatus.Margin = new Padding(0);
+        cbStatus.Name = "cbStatus";
+        cbStatus.Size = new Size(130, 32);
+        cbStatus.TabIndex = 1;
+        cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(1245, 64);
+        chkShowInactive.Margin = new Padding(0);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(170, 28);
+        chkShowInactive.TabIndex = 5;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.UseVisualStyleBackColor = true;
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
+        // 
+        // chkOnlyWithAccount
+        // 
+        chkOnlyWithAccount.AutoSize = true;
+        chkOnlyWithAccount.FlatStyle = FlatStyle.Flat;
+        chkOnlyWithAccount.Location = new Point(1020, 64);
+        chkOnlyWithAccount.Margin = new Padding(0);
+        chkOnlyWithAccount.Name = "chkOnlyWithAccount";
+        chkOnlyWithAccount.Size = new Size(212, 28);
+        chkOnlyWithAccount.TabIndex = 6;
+        chkOnlyWithAccount.Text = "المربوط بالحسابات فقط";
+        chkOnlyWithAccount.UseVisualStyleBackColor = true;
+        chkOnlyWithAccount.CheckedChanged += chkOnlyWithAccount_CheckedChanged;
+        // 
+        // pnlSummary
+        // 
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 788);
+        pnlSummary.Margin = new Padding(0);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Size = new Size(1432, 32);
+        pnlSummary.TabIndex = 5;
+        // 
+        // lblSummary
+        // 
+        lblSummary.Dock = DockStyle.Fill;
+        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.Location = new Point(0, 0);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Size = new Size(1432, 32);
+        lblSummary.TabIndex = 0;
+        lblSummary.Text = "المعروض: 0 من 0";
+        lblSummary.TextAlign = ContentAlignment.MiddleRight;
+        // 
         // pnlGrid
         // 
         pnlGrid.Controls.Add(dgvCashBoxes);
-        pnlGrid.Controls.Add(pnlFilter);
         pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 260);
+        pnlGrid.Location = new Point(0, 372);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(10);
-        pnlGrid.Size = new Size(1432, 410);
-        pnlGrid.TabIndex = 3;
+        pnlGrid.Size = new Size(1432, 416);
+        pnlGrid.TabIndex = 4;
         // 
         // dgvCashBoxes
         // 
@@ -266,14 +414,14 @@ partial class frmCashBoxMaster
         dgvCashBoxes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvCashBoxes.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colDescription, colAccountName, colIsActive });
         dgvCashBoxes.Dock = DockStyle.Fill;
-        dgvCashBoxes.Location = new Point(10, 78);
+        dgvCashBoxes.Location = new Point(10, 10);
         dgvCashBoxes.MultiSelect = false;
         dgvCashBoxes.Name = "dgvCashBoxes";
         dgvCashBoxes.ReadOnly = true;
         dgvCashBoxes.RowHeadersVisible = false;
         dgvCashBoxes.RowHeadersWidth = 62;
         dgvCashBoxes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvCashBoxes.Size = new Size(1412, 322);
+        dgvCashBoxes.Size = new Size(1412, 396);
         dgvCashBoxes.TabIndex = 0;
         dgvCashBoxes.CellClick += dgvCashBoxes_CellClick;
         // 
@@ -322,57 +470,6 @@ partial class frmCashBoxMaster
         colIsActive.Name = "colIsActive";
         colIsActive.ReadOnly = true;
         // 
-        // pnlFilter
-        // 
-        pnlFilter.Controls.Add(groupBox1);
-        pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(10, 10);
-        pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1412, 68);
-        pnlFilter.TabIndex = 1;
-        // 
-        // groupBox1
-        // 
-        groupBox1.Controls.Add(lblSearch);
-        groupBox1.Controls.Add(chkShowInactive);
-        groupBox1.Controls.Add(txtSearch);
-        groupBox1.Font = new Font("Tahoma", 10F);
-        groupBox1.Location = new Point(806, 3);
-        groupBox1.Name = "groupBox1";
-        groupBox1.Size = new Size(596, 62);
-        groupBox1.TabIndex = 16;
-        groupBox1.TabStop = false;
-        groupBox1.Text = "محرك البحث";
-        // 
-        // lblSearch
-        // 
-        lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(501, 32);
-        lblSearch.Name = "lblSearch";
-        lblSearch.Size = new Size(56, 24);
-        lblSearch.TabIndex = 0;
-        lblSearch.Text = "بحث:";
-        // 
-        // chkShowInactive
-        // 
-        chkShowInactive.AutoSize = true;
-        chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(13, 24);
-        chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(166, 28);
-        chkShowInactive.TabIndex = 2;
-        chkShowInactive.Text = "عرض غير النشط";
-        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
-        // 
-        // txtSearch
-        // 
-        txtSearch.Location = new Point(195, 24);
-        txtSearch.Name = "txtSearch";
-        txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 1;
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
-        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -383,12 +480,16 @@ partial class frmCashBoxMaster
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(170, 220, 170);
-        ClientSize = new Size(1432, 670);
+        ClientSize = new Size(1432, 820);
         Controls.Add(pnlGrid);
+        Controls.Add(pnlSummary);
+        Controls.Add(pnlFilters);
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
         Font = new Font("Tahoma", 10F);
+        KeyPreview = true;
+        MinimumSize = new Size(1200, 700);
         Name = "frmCashBoxMaster";
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
@@ -398,11 +499,12 @@ partial class frmCashBoxMaster
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         pnlButtons.ResumeLayout(false);
+        pnlFilters.ResumeLayout(false);
+        gbFilter.ResumeLayout(false);
+        gbFilter.PerformLayout();
+        pnlSummary.ResumeLayout(false);
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvCashBoxes).EndInit();
-        pnlFilter.ResumeLayout(false);
-        groupBox1.ResumeLayout(false);
-        groupBox1.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -430,10 +532,16 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.DataGridViewTextBoxColumn colDescription;
     private System.Windows.Forms.DataGridViewTextBoxColumn colAccountName;
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
-    private System.Windows.Forms.Panel pnlFilter;
-    private System.Windows.Forms.GroupBox groupBox1;
-    private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.CheckBox chkShowInactive;
+    private System.Windows.Forms.Panel pnlFilters;
+    private System.Windows.Forms.GroupBox gbFilter;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.ComboBox cbFilterBy;
     private System.Windows.Forms.TextBox txtSearch;
+    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.ComboBox cbStatus;
+    private System.Windows.Forms.CheckBox chkShowInactive;
+    private System.Windows.Forms.CheckBox chkOnlyWithAccount;
+    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

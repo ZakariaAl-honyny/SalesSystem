@@ -53,6 +53,52 @@ public partial class frmUserMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
+        // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc مسح التصفية/إلغاء.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, _GlobalDelete),
+            (Keys.Escape, _GlobalEscape));
+
+        // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: اسم المستخدم» افتراضياً.
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+    }
+
+    // ── Global Shortcuts ──────────────────────────────────────────────────────
+
+    /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
+    private void _GlobalDelete()
+    {
+        if (_IsTextInputFocused()) return;
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();
+    }
+
+    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
+    private bool _IsTextInputFocused()
+    {
+        foreach (Control input in new Control[]
+                 {
+                     txtSearch, cbFilterBy, cbStatus, txtCode, txtUserName, txtPassword, cmbBranch
+                 })
+        {
+            if (input.Focused) return true;
+        }
+
+        return false;
     }
 
     /// <summary>الفرع المحدد (0 = بدون فرع).</summary>
@@ -133,6 +179,7 @@ public partial class frmUserMaster : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvUsers);
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53
 
         // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
         dgvUsers.ReadOnly = true;
@@ -203,6 +250,7 @@ public partial class frmUserMaster : Form
         table.Columns.Add("UserName", typeof(string));
         table.Columns.Add("IsLocked", typeof(bool));
         table.Columns.Add("IsActive", typeof(bool));
+        table.Columns.Add("MustChangePassword", typeof(bool));   // عمود تصفية فقط (غير معروض في الشبكة)
 
         try
         {
@@ -219,7 +267,8 @@ public partial class frmUserMaster : Form
                         u.Id,
                         u.UserName,
                         u.IsLocked,
-                        u.IsActive);
+                        u.IsActive,
+                        u.MustChangePassword);
                 }
             }
             else
@@ -240,8 +289,7 @@ public partial class frmUserMaster : Form
             _usersView = new DataView(_usersTable);
             dgvUsers.DataSource = _usersView;
             _ApplyGridHeaders();
-            _ApplyFilter();
-            _ApplyRowColoring();
+            _ApplyFilter();   // يشمل تلوين الأسطر + شريط الملخص (RULE-N61)
         }
     }
 
@@ -293,6 +341,30 @@ public partial class frmUserMaster : Form
 
     private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkOnlyLocked_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyMustChangePassword_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
+    private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+    }
+
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
     /// </summary>
@@ -305,24 +377,95 @@ public partial class frmUserMaster : Form
         }
     }
 
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        txtSearch.Clear();
+        cbStatus.SelectedIndex = 0;
+        cbFilterBy.SelectedIndex = 0;
+        chkShowInactive.Checked = false;
+        chkOnlyLocked.Checked = false;
+        chkOnlyMustChangePassword.Checked = false;
+
+        _ApplyFilter();
+    }
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59/N60): كل الشروط تُبنى من أسماء أعمدة معروفة،
+    /// والاختيار يُقرأ بالمؤشر لا بالنص العربي، والقيمة تُهرَّب قبل بنائها في RowFilter.
+    /// </summary>
     private void _ApplyFilter()
     {
         if (_usersView is null || _usersView.Table is null) return;
+        if (txtSearch is null || cbFilterBy is null || cbStatus is null
+            || chkShowInactive is null || chkOnlyLocked is null || chkOnlyMustChangePassword is null)
+            return;
 
         string text = txtSearch.Text.Trim().Replace("'", "''");
 
         var conditions = new List<string>();
 
-        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
+        // ── الحالة: الكل / نشط / معطّل (cbStatus بالمؤشر) ──
+        switch (cbStatus.SelectedIndex)
+        {
+            case 1: // نشط
+                conditions.Add("IsActive = true");
+                break;
 
-        if (!string.IsNullOrEmpty(text))
-            conditions.Add(
-                $"(UserName LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+            case 2: // معطّل — يُظهر المعطّل حتى لو لم يُفعَّل «عرض غير النشط»
+                conditions.Add("IsActive = false");
+                break;
+
+            default: // الكل — يبقى «عرض غير النشط» هو الحاكم كما كان
+                if (!chkShowInactive.Checked)
+                    conditions.Add("IsActive = true");
+                break;
+        }
+
+        // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy (RULE-N60) ──
+        if (text.Length > 0)
+        {
+            conditions.Add(cbFilterBy.SelectedIndex == 1
+                ? $"CONVERT(Id, 'System.String') LIKE '{text}%'"   // رقم المستخدم
+                : $"UserName LIKE '%{text}%'");                     // اسم المستخدم (الافتراضي)
+        }
+
+        // ── مربعات الاختيار: المقفلون / الملزمون بتغيير كلمة المرور ──
+        if (chkOnlyLocked.Checked)
+            conditions.Add("IsLocked = true");
+
+        if (chkOnlyMustChangePassword.Checked)
+            conditions.Add("MustChangePassword = true");
 
         _usersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _ApplyRowColoring();
+        _UpdateSummary();
+    }
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل/المقفلون،
+    /// ويُعاد حسابه بعد كل تصفية وكل تحميل.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        if (lblSummary is null || _usersView?.Table is null) return;
+
+        int total = _usersTable.Rows.Count;
+        int shown = _usersView.Count;
+
+        int active = 0, inactive = 0, locked = 0;
+
+        foreach (DataRowView row in _usersView)
+        {
+            if (row["IsActive"] is bool isActive && isActive) active++;
+            else inactive++;
+
+            if (row["IsLocked"] is bool isLocked && isLocked) locked++;
+        }
+
+        lblSummary.Text =
+            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive} · مقفلون: {locked}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────

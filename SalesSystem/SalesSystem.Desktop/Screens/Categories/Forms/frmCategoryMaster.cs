@@ -48,6 +48,17 @@ public partial class frmCategoryMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
+        // القيم الافتراضية لأدوات التصفية (RULE-N57/N60) — الاختيار بالمؤشر لا بالنص العربي.
+        cbFilterBy.SelectedIndex = 0; // الاسم
+        cbStatus.SelectedIndex = 0;   // الكل
+
+        // RULE-N47 — اختصارات موحّدة: F2 جديد · F5 تحديث · Delete حذف · Esc مسح التصفية.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, () => btnDelete.PerformClick()),
+            (Keys.Escape, () => _ClearAllFilters()));
     }
 
     /// <summary>
@@ -211,6 +222,26 @@ public partial class frmCategoryMaster : Form
 
     private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
+    private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+    }
+
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
     /// </summary>
@@ -223,24 +254,89 @@ public partial class frmCategoryMaster : Form
         }
     }
 
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        if (txtSearch is null) return;
+
+        txtSearch.Clear();
+        if (cbFilterBy is not null) cbFilterBy.SelectedIndex = 0;
+        if (cbStatus is not null) cbStatus.SelectedIndex = 0;
+        if (chkShowInactive is not null) chkShowInactive.Checked = false;
+
+        _ApplyFilter();
+    }
+
+    /// <summary>
+    /// عمود البحث المقابل لاختيار «تصفية بـ» — أسماء أعمدة ثابتة داخل الكود لا تُبنى من إدخال المستخدم (RULE-N60).
+    /// </summary>
+    private string _FilterColumn() => cbFilterBy.SelectedIndex switch
+    {
+        1 => "Description",
+        2 => "CONVERT(Id, 'System.String')",
+        _ => "Name"
+    };
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59/N60): كل الشروط من أسماء أعمدة معروفة،
+    /// والاختيار يُقرأ بالمؤشر لا بالنص العربي، والقيمة تُهرَّب قبل بنائها في RowFilter.
+    /// </summary>
     private void _ApplyFilter()
     {
-        if (_categoriesView is null) return;
+        if (_categoriesView?.Table is null) return;
+        if (txtSearch is null || cbFilterBy is null || cbStatus is null || chkShowInactive is null) return;
 
-        string text = txtSearch.Text.Trim();
+        string text = txtSearch.Text.Trim().Replace("'", "''");
 
         var conditions = new List<string>();
 
-        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
+        // ── الحالة: الكل / نشط / معطّل (cbStatus بالمؤشر) ──
+        switch (cbStatus.SelectedIndex)
+        {
+            case 1: // نشط
+                conditions.Add("IsActive = true");
+                break;
 
-        if (!string.IsNullOrEmpty(text))
-            conditions.Add(
-                $"(Name LIKE '%{text}%' OR Description LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+            case 2: // معطّل — يُظهر المعطّل حتى لو لم يُفعَّل «عرض غير النشط»
+                conditions.Add("IsActive = false");
+                break;
+
+            default: // الكل — يبقى «عرض غير النشط» هو الحاكم كما كان
+                if (!chkShowInactive.Checked)
+                    conditions.Add("IsActive = true");
+                break;
+        }
+
+        // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
+        if (text.Length > 0)
+            conditions.Add($"{_FilterColumn()} LIKE '%{text}%'");
 
         _categoriesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _ApplyRowColoring();
+        _UpdateSummary();
+    }
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل،
+    /// ويُعاد حسابه بعد كل تصفية وكل تحميل.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        if (lblSummary is null || _categoriesView?.Table is null) return;
+
+        int total = _categoriesTable.Rows.Count;
+        int shown = _categoriesView.Count;
+
+        int active = 0, inactive = 0;
+
+        foreach (DataRowView row in _categoriesView)
+        {
+            if (row["IsActive"] is bool isActive && isActive) active++;
+            else inactive++;
+        }
+
+        lblSummary.Text = $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
