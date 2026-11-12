@@ -93,7 +93,6 @@ static class Program
                     services.AddTransient<IBackupApiService, DirectBackupService>();
                     services.AddTransient<IBranchApiService, DirectBranchApiService>();
                     services.AddTransient<ICashBoxReportApiService, DirectCashBoxReportService>();
-                                        services.AddTransient<IDashboardApiService, DirectDashboardService>();
                     services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
                     services.AddTransient<IPersonApiService, DirectPersonService>();
                     services.AddTransient<IPurchaseReportApiService, DirectPurchaseReportService>();
@@ -108,6 +107,7 @@ static class Program
                         services.AddTransient<ICategoryApiService, MockCategoryApiService>();
                         services.AddTransient<ICustomerApiService, MockCustomerApiService>();
                         services.AddTransient<ICustomerReceiptApiService, MockCustomerReceiptApiService>();
+                        services.AddTransient<IDashboardApiService, MockDashboardApiService>();
                         services.AddTransient<IExpenseApiService, MockExpenseApiService>();
                         services.AddTransient<IInventoryAdjustmentApiService, MockInventoryAdjustmentApiService>();
                         services.AddTransient<IInventoryApiService, MockInventoryApiService>();
@@ -133,6 +133,7 @@ static class Program
                         services.AddTransient<ICategoryApiService, DirectCategoryService>();
                         services.AddTransient<ICustomerApiService, DirectCustomerService>();
                         services.AddTransient<ICustomerReceiptApiService, DirectCustomerReceiptService>();
+                        services.AddTransient<IDashboardApiService, DirectDashboardService>();
                         services.AddTransient<IExpenseApiService, DirectExpenseService>();
                         services.AddTransient<IInventoryAdjustmentApiService, DirectInventoryAdjustmentService>();
                         services.AddTransient<IInventoryApiService, DirectInventoryService>();
@@ -255,7 +256,8 @@ static class Program
                     services.AddTransient<frmListPurchases>();
                     
                     // Module Controls — NEW Forms
-                    // services.AddTransient<frmDashboard>(); // MVP: hidden (V2)
+                    services.AddTransient<frmDashboard>();
+                    services.AddTransient<SalesSystem.Desktop.Screens.Dashboard.Controls.ctrlDashboard>(); // RULE-N67
                     services.AddTransient<frmProductMaster>();
                     // Master forms (navigation targets from frmMain)
                     services.AddTransient<frmCategoryMaster>();

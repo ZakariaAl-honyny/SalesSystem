@@ -27,6 +27,7 @@
         {
             components = new System.ComponentModel.Container();
             msMainMenu = new MenuStrip();
+            msbtnDashboard = new ToolStripMenuItem();
             // ── المنتجات ────────────────────────────────────────────────────────────────────────────────
             msBasis = new ToolStripMenuItem();
             msbtnManageProducts = new ToolStripMenuItem();
@@ -105,7 +106,7 @@
             msMainMenu.GripStyle = ToolStripGripStyle.Visible;
             msMainMenu.ImageScalingSize = new Size(24, 24);
             msMainMenu.Items.AddRange(new ToolStripItem[] {
-                msFile, msSale, msBuy, msBasis, msStore, msRevenue,
+                msbtnDashboard, msFile, msSale, msBuy, msBasis, msStore, msRevenue,
                 msAccounting, msData, msReport, msSettings, msAccoutSettings
             });
             msMainMenu.Location = new Point(0, 0);
@@ -113,6 +114,13 @@
             msMainMenu.Size = new Size(1378, 37);
             msMainMenu.TabIndex = 0;
             msMainMenu.Text = "Main Menu";
+            // 
+            // msbtnDashboard
+            // 
+            msbtnDashboard.Name = "msbtnDashboard";
+            msbtnDashboard.Size = new Size(140, 33);
+            msbtnDashboard.Text = "لوحة التحكم";
+            msbtnDashboard.Click += msbtnDashboard_Click;
             // 
             // msFile
             // 
@@ -554,6 +562,7 @@
         #endregion
 
         private MenuStrip msMainMenu;
+        private ToolStripMenuItem msbtnDashboard;
         private ToolStripMenuItem msFile;
         private ToolStripMenuItem msbtnChangePassword;
         private ToolStripMenuItem msbtnExit;

@@ -23,6 +23,7 @@ using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
+using SalesSystem.Desktop.Screens.Dashboard.Forms;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Configuration;
  
@@ -97,6 +98,11 @@ public partial class frmMain : Form
             this.Text += "  — وضع التجربة (Mock)";
         }
     }
+
+    // ── لوحة التحكم (Dashboard) ───────────────────────────────────────────────
+
+    private void msbtnDashboard_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDashboard>());
 
     // ── المنتجات (Products) ───────────────────────────────────────────────────
 

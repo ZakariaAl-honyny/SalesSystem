@@ -86,19 +86,31 @@ public static class GreenThemeHelper
     public static void Apply(Form form)
     {
         if (form == null) return;
+        Apply((Control)form);   // نفس السلوك تماماً — القيم أدناه تُطبَّق مرة واحدة
+    }
+
+    /// <summary>
+    /// نسخة الحاويات غير النموذجية (UserControl / Panel): تُطبّق نفس قواعد
+    /// <see cref="Apply(Form)"/> على أي <see cref="Control"/> حاضن — تُستهلك من
+    /// المكوّنات القابلة للتضمين مثل <c>ctrlDashboard</c> (RULE-N69).
+    /// آمنة للاستدعاء المتكرر (idempotent).
+    /// </summary>
+    public static void Apply(Control container)
+    {
+        if (container == null) return;
 
         try
         {
-            form.BackColor = FormBackground;
+            container.BackColor = FormBackground;
 
             // RULE-N21: خط Tahoma — نغيّره فقط إن كان ThemeHelper قد فرض Segoe UI.
-            if (form.Font != null
-                && string.Equals(form.Font.FontFamily.Name, "Segoe UI", StringComparison.OrdinalIgnoreCase))
+            if (container.Font != null
+                && string.Equals(container.Font.FontFamily.Name, "Segoe UI", StringComparison.OrdinalIgnoreCase))
             {
-                form.Font = new Font("Tahoma", form.Font.Size);
+                container.Font = new Font("Tahoma", container.Font.Size);
             }
 
-            Walk(form);
+            Walk(container);
         }
         catch (Exception ex)
         {
