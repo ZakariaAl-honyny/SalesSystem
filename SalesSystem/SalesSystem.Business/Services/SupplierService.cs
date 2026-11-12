@@ -28,7 +28,7 @@ public class SupplierService : ISupplierService
 
     public async Task<Result<SupplierDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var supplier = await _uow.Suppliers.FirstOrDefaultAsync(
+        var supplier = await _uow.Suppliers.FirstOrDefaultIgnoreFiltersAsync(
             s => s.Id == id, ct, includePaths: "Account");
         if (supplier == null)
             return Result<SupplierDto>.Failure("المورد غير موجود", ErrorCodes.NotFound);
@@ -161,7 +161,7 @@ public class SupplierService : ISupplierService
 
     public async Task<Result> DeleteAsync(int id, int userId, CancellationToken ct)
     {
-        var supplier = await _uow.Suppliers.GetByIdAsync(id, ct);
+        var supplier = await _uow.Suppliers.FirstOrDefaultIgnoreFiltersAsync(s => s.Id == id, ct);
         if (supplier == null)
             return Result.Failure("المورد غير موجود", ErrorCodes.NotFound);
 

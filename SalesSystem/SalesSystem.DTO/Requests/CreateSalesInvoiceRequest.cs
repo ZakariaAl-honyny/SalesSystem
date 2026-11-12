@@ -26,4 +26,5 @@ public record CreateSalesInvoiceLineRequest(
     decimal UnitPrice,
     int ProductUnitId,
     DiscountType DiscountType = DiscountType.Amount,
-    decimal? DiscountRate = null);
+    decimal? DiscountRate = null,
+    DateTime? ExpiryDate = null);

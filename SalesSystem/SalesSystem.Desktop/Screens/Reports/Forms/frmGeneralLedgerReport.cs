@@ -5,7 +5,7 @@ using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
@@ -50,17 +50,17 @@ public partial class frmGeneralLedgerReport : Form, IExportableReport
             ShowLoading(true);
             var accountId = (int)nudAccountId.Value;
             if (accountId <= 0) { lblSummary.Text = "أدخل رقم الحساب أولاً"; return; }
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportService>().GetGeneralLedgerAsync(accountId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetGeneralLedgerAsync(accountId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
             if (result.IsSuccess && result.Value != null)
             {
                 var ledger = result.Value;
                 var allItems = new List<object>();
-                allItems.Add(new { Date = dtpFrom.Value.Date, EntryNumber = "", Description = $"الرصيد الافتتاحي: {ledger.AccountName}", Debit = ledger.OpeningBalance, Credit = 0m, RunningBalance = ledger.OpeningBalance });
+                allItems.Add(new { Date = dtpFrom.Value.Date, EntryNumber = "", Description = $"الرصيد الافتتاحي: {ledger.AccountNameAr}", Debit = ledger.OpeningBalance, Credit = 0m, RunningBalance = ledger.OpeningBalance });
                 foreach (var line in ledger.Lines)
                     allItems.Add(new { Date = line.Date, line.EntryNumber, line.Description, line.Debit, line.Credit, line.RunningBalance });
                 allItems.Add(new { Date = dtpTo.Value.Date, EntryNumber = "", Description = "الإجمالي", Debit = ledger.TotalDebit, Credit = ledger.TotalCredit, RunningBalance = ledger.ClosingBalance });
                 _bindingSource.DataSource = allItems;
-                lblSummary.Text = $"الحساب: {ledger.AccountCode} - {ledger.AccountName} | رصيد افتتاحي: {ledger.OpeningBalance:N2} | رصيد ختامي: {ledger.ClosingBalance:N2}";
+                lblSummary.Text = $"الحساب: {ledger.AccountCode} - {ledger.AccountNameAr} | رصيد افتتاحي: {ledger.OpeningBalance:N2} | رصيد ختامي: {ledger.ClosingBalance:N2}";
                 FormatGrid();
             }
             else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }

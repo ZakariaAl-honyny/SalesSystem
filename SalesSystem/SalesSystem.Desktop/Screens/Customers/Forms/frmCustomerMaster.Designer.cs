@@ -37,20 +37,17 @@ partial class frmCustomerMaster
         txtNotes = new TextBox();
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
-        btnRefresh = new Button();
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnRefresh = new Button();
+        btnClose = new Button();
         pnlGrid = new Panel();
         dgvCustomers = new DataGridView();
-        colId = new DataGridViewTextBoxColumn();
-        colName = new DataGridViewTextBoxColumn();
-        colPhone = new DataGridViewTextBoxColumn();
-        colCreditLimit = new DataGridViewTextBoxColumn();
-        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
+        chkShowInactive = new CheckBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numCreditLimit).BeginInit();
@@ -113,8 +110,9 @@ partial class frmCustomerMaster
         txtId.Location = new Point(1140, 36);
         txtId.Name = "txtId";
         txtId.ReadOnly = true;
-        txtId.Size = new Size(250, 30);
+        txtId.Size = new Size(250, 32);
         txtId.TabIndex = 0;
+        txtId.TabStop = false;
         // 
         // lblName
         // 
@@ -132,13 +130,15 @@ partial class frmCustomerMaster
         lblNameReq.ForeColor = Color.Red;
         lblNameReq.Location = new Point(842, 10);
         lblNameReq.Name = "lblNameReq";
+        lblNameReq.Size = new Size(23, 24);
+        lblNameReq.TabIndex = 3;
         lblNameReq.Text = "*";
         // 
         // txtName
         // 
         txtName.Location = new Point(860, 36);
         txtName.Name = "txtName";
-        txtName.Size = new Size(250, 30);
+        txtName.Size = new Size(250, 32);
         txtName.TabIndex = 1;
         // 
         // lblPhone
@@ -154,7 +154,7 @@ partial class frmCustomerMaster
         // 
         txtPhone.Location = new Point(580, 36);
         txtPhone.Name = "txtPhone";
-        txtPhone.Size = new Size(250, 30);
+        txtPhone.Size = new Size(250, 32);
         txtPhone.TabIndex = 2;
         // 
         // lblTaxNumber
@@ -170,7 +170,7 @@ partial class frmCustomerMaster
         // 
         txtTaxNumber.Location = new Point(300, 36);
         txtTaxNumber.Name = "txtTaxNumber";
-        txtTaxNumber.Size = new Size(250, 30);
+        txtTaxNumber.Size = new Size(250, 32);
         txtTaxNumber.TabIndex = 3;
         // 
         // lblEmail
@@ -186,7 +186,7 @@ partial class frmCustomerMaster
         // 
         txtEmail.Location = new Point(1140, 106);
         txtEmail.Name = "txtEmail";
-        txtEmail.Size = new Size(250, 30);
+        txtEmail.Size = new Size(250, 32);
         txtEmail.TabIndex = 4;
         // 
         // lblCreditLimit
@@ -204,7 +204,7 @@ partial class frmCustomerMaster
         numCreditLimit.Location = new Point(860, 106);
         numCreditLimit.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numCreditLimit.Name = "numCreditLimit";
-        numCreditLimit.Size = new Size(250, 30);
+        numCreditLimit.Size = new Size(250, 32);
         numCreditLimit.TabIndex = 5;
         numCreditLimit.ThousandsSeparator = true;
         // 
@@ -221,7 +221,7 @@ partial class frmCustomerMaster
         // 
         txtAddress.Location = new Point(300, 106);
         txtAddress.Name = "txtAddress";
-        txtAddress.Size = new Size(530, 30);
+        txtAddress.Size = new Size(530, 32);
         txtAddress.TabIndex = 6;
         // 
         // lblNotes
@@ -249,6 +249,8 @@ partial class frmCustomerMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnRefresh);
+        pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 270);
         pnlButtons.Name = "pnlButtons";
@@ -258,47 +260,88 @@ partial class frmCustomerMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.White;
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
+        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
         btnNew.TabIndex = 0;
-        btnNew.Text = "🆕 إضافة";
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.White;
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
         btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.White;
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
         btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
         btnEdit.TabIndex = 3;
         btnEdit.Text = "✏️ تعديل";
         btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.White;
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
+        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDelete.ForeColor = Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 2;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
+        btnRefresh.Location = new Point(719, 13);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 35);
+        btnRefresh.TabIndex = 4;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(583, 13);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(130, 35);
+        btnClose.TabIndex = 5;
+        btnClose.TabStop = false;
+        btnClose.Text = "🚪 خروج";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // pnlGrid
         // 
@@ -315,11 +358,9 @@ partial class frmCustomerMaster
         // 
         dgvCustomers.AllowUserToAddRows = false;
         dgvCustomers.AllowUserToDeleteRows = false;
-        dgvCustomers.AutoGenerateColumns = false;
         dgvCustomers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvCustomers.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvCustomers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvCustomers.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colPhone, colCreditLimit, colIsActive });
         dgvCustomers.Dock = DockStyle.Fill;
         dgvCustomers.Location = new Point(10, 50);
         dgvCustomers.MultiSelect = false;
@@ -330,57 +371,13 @@ partial class frmCustomerMaster
         dgvCustomers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvCustomers.Size = new Size(1412, 280);
         dgvCustomers.TabIndex = 0;
-        // 
-        // colId
-        // 
-        colId.DataPropertyName = "Id";
-        colId.FillWeight = 8F;
-        colId.HeaderText = "رقم العميل";
-        colId.MinimumWidth = 90;
-        colId.Name = "colId";
-        colId.ReadOnly = true;
-        // 
-        // colName
-        // 
-        colName.DataPropertyName = "Name";
-        colName.FillWeight = 40F;
-        colName.HeaderText = "اسم العميل";
-        colName.MinimumWidth = 220;
-        colName.Name = "colName";
-        colName.ReadOnly = true;
-        // 
-        // colPhone
-        // 
-        colPhone.DataPropertyName = "Phone";
-        colPhone.FillWeight = 20F;
-        colPhone.HeaderText = "الهاتف";
-        colPhone.MinimumWidth = 130;
-        colPhone.Name = "colPhone";
-        colPhone.ReadOnly = true;
-        // 
-        // colCreditLimit
-        // 
-        colCreditLimit.DataPropertyName = "CreditLimit";
-        colCreditLimit.FillWeight = 20F;
-        colCreditLimit.HeaderText = "حد الائتمان";
-        colCreditLimit.MinimumWidth = 130;
-        colCreditLimit.Name = "colCreditLimit";
-        colCreditLimit.ReadOnly = true;
-        // 
-        // colIsActive
-        // 
-        colIsActive.DataPropertyName = "IsActive";
-        colIsActive.FillWeight = 8F;
-        colIsActive.HeaderText = "نشط";
-        colIsActive.MinimumWidth = 60;
-        colIsActive.Name = "colIsActive";
-        colIsActive.ReadOnly = true;
+        dgvCustomers.CellClick += dgvCustomers_CellClick;
         // 
         // pnlFilter
         // 
-        pnlFilter.Controls.Add(btnRefresh);
-        pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
+        pnlFilter.Controls.Add(chkShowInactive);
+        pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Dock = DockStyle.Top;
         pnlFilter.Location = new Point(10, 10);
         pnlFilter.Name = "pnlFilter";
@@ -392,19 +389,10 @@ partial class frmCustomerMaster
         txtSearch.Location = new Point(690, 7);
         txtSearch.Name = "txtSearch";
         txtSearch.PlaceholderText = "بحث بالاسم أو الهاتف أو البريد أو الرقم الضريبي...";
-        txtSearch.Size = new Size(400, 30);
-        txtSearch.TabIndex = 99;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = Color.White;
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(550, 4);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
-        btnRefresh.TabIndex = 98;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
+        txtSearch.Size = new Size(400, 32);
+        txtSearch.TabIndex = 1;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // lblSearch
         // 
@@ -412,8 +400,19 @@ partial class frmCustomerMaster
         lblSearch.Location = new Point(1100, 10);
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(56, 24);
-        lblSearch.TabIndex = 1;
+        lblSearch.TabIndex = 0;
         lblSearch.Text = "بحث:";
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(500, 6);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.TabIndex = 2;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
         // 
         // errorProvider
         // 
@@ -436,6 +435,7 @@ partial class frmCustomerMaster
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
         Text = "دليل العملاء";
+        Load += frmCustomerMaster_Load;
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numCreditLimit).EndInit();
@@ -472,16 +472,13 @@ partial class frmCustomerMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvCustomers;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colPhone;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colCreditLimit;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
     private System.Windows.Forms.TextBox txtSearch;
-    private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
+    private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

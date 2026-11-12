@@ -15,11 +15,13 @@ public class UnitConfiguration : IEntityTypeConfiguration<Unit>
         builder.Property(u => u.Name).IsRequired().HasMaxLength(50);
         builder.Property(u => u.Symbol).HasMaxLength(20);
         builder.Property(u => u.IsSystem).HasDefaultValue(false);
+        builder.Property(u => u.IsActive).HasDefaultValue(true);
 
         builder.HasIndex(u => u.Name)
             .IsUnique()
             .HasFilter("[IsActive] = 1");
 
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(u => u.IsActive);
     }
 }

@@ -219,6 +219,7 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 | RULE-N20 | ALL forms use `RightToLeft = Yes` and `RightToLeftLayout = true` for Arabic UI |
 | RULE-N21 | ALL forms use `Tahoma` font family |
 | RULE-N22 | DataGridView with `AllowUserToAddRows = false`, `ReadOnly = true`, `SelectionMode = FullRowSelect` |
+| RULE-N22a | استثناء موثّق ومقصود: شبكة إدخال سطور الفاتورة `dgvItems` في `frmAddUpdateSalesInvoice` تستخدم `AllowUserToAddRows = true` و `SelectionMode = CellSelect` وتحريراً داخل الخلية (إدخال مباشر بالباركود/التحرير السريع) | `RULE-N22` تبقى إلزامية لكل شبكات العرض والقوائم والتقارير؛ الاستثناء لا يُعمَّم على أي شبكة أخرى |
 | RULE-N23 | ContextMenuStrip on DataGridView for row operations |
 | RULE-N24 | Filter pattern: `ComboBox` (cbFilterBy) + `TextBox` (txtFilterValue) with `DataView.RowFilter` |
 | RULE-N25 | Loading data: `async void` handlers with try/catch and `MessageBox.Show` on error |
@@ -227,6 +228,8 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 | RULE-N28 | All user-facing messages in Arabic |
 | RULE-N29 | Error messages log via Serilog, show `MessageBox.Show` to user |
 | RULE-N30 | Forms handle dispose pattern: `components?.Dispose()` in `Dispose(bool)` |
+
+> **إلزامي:** أي نموذج جديد (أو نموذج يُعاد بناؤه) يجب أن يجتاز قائمة الإلزام في §2.21 قبل اعتباره مكتملاً.
 
 ### 2.13 Users & Permissions (2-Tier)
 
@@ -318,6 +321,187 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | Login | In mock mode, login accepts any credentials (no database required) |
 
 **Workflow rule:** Test UI/UX with mock data **before** wiring the real BLL (UI-first). Mock mode requires no database and no server running.
+
+### 2.17 مراحل التنفيذ (Phases)
+
+خطة تطوير الواجهة تُنفَّذ على ثلاث مراحل، ولكل مرحلة معيار إغلاق قابل للتحقق:
+
+| المرحلة | النطاق | معيار الإغلاق |
+|---|---|---|
+| أ — الدين المعماري | إغلاق `RULE-N05`/`RULE-N06` بالكامل: كل شاشة في `Desktop/Screens/**` تتحدث مع BLL **فقط** عبر `I*ApiService` → `Direct*Service` | `grep -r "SalesSystem.Business" SalesSystem/SalesSystem.Desktop/Screens` = **0 نتائج**، و`HttpClient` = 0، و`dotnet build` = 0 أخطاء |
+| ب — UX دليل الأصناف | `frmProductMaster` + `frmProductUnitMaster`: مؤشر وضع، آلة حالة الأزرار، تنقل لوحة المفاتيح، شبكة أغنى، تحقق دقيق | البنود B1–B11 من خطة التحسين منفَّذة ومُختبرة يدوياً |
+| ج — شاشة فاتورة البيع | تثبيت استثناء `RULE-N22a` + تحسينات متقدمة (تفقيط حيّ داخل تحرير الخلية عبر `EditingControlShowing`) | الاستثناء موثّق هنا + الشاشة تعمل بوضعي Mock/Real |
+
+> **قاعدة:** لا تُفتح مرحلة جديدة قبل إغلاق سابقتها، ولا يُعاد فتح مرحلة مغلقة إلا بقرار صريح من المالك.
+
+### 2.18 معيار لوحة المفاتيح والتركيز (Keyboard & Focus Standard)
+
+كل شاشة إدخال/دليل (Master) يجب أن تلتزم بهذه القواعد، وتُستدعى الأدوات من `KeyboardHelper` وليس بكود مكرر داخل الشاشة:
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N40 | كل شاشة إدخال تستدعي الأربعة معاً في المُنشئ: `WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` — الاستثناء الوحيد: شاشات العرض للقراءة فقط |
+| RULE-N41 | **تحديد القيمة الحالية:** عند دخول المؤشر إلى أي حقل نصي/رقمي تُحدَّد قيمته بالكامل، ويجب أن يعمل ذلك **بالفأرة وبلوحة المفاتيح معاً** (النقر بالفأرة يجب أن يحدد القيمة أيضاً، دون إلغاء إمكانية وضع المؤشر أو تحديد جزء بالسحب) |
+| RULE-N42 | `Enter` في حقل الباركود = بحث فوري: إن كان الباركود مسجّلاً يُحمَّل السجل للتعديل ويُحدَّد سطره في الشبكة؛ وإن كان جديداً يبقى الكود في الحقل وينتقل المؤشر إلى حقل الاسم (إدخال سريع بالسكانر) |
+| RULE-N43 | آلة حالة الأزرار: «جديد/حفظ» مفعّلان في وضع الإضافة، و«تعديل/حذف» مفعّلان فقط عند وجود سجل محدد؛ ومعطّلة = رمادية بنص باهت (`WireButtonDisabledVisual`) وليس فقط `Enabled = false` |
+| RULE-N44 | مؤشر الوضع إلزامي: `lblMode` أعلى الشاشة يوضّح «إضافة … جديد» أو «تعديل …: <الاسم>»، ويتحدث مع كل تغيير للحالة |
+| RULE-N45 | أسهم RTL بين الحقول: يمين/أعلى = الحقل السابق، يسار/أسفل = الحقل التالي؛ ولا تُطبَّق على `ComboBox` ولا `DataGridView` حتى تحتفظ بسلوكها الأصلي |
+| RULE-N46 | لون الحقل النشط موحّد: `Color.FromArgb(0xD6, 0xE4, 0xF0)`، ويُعاد اللون الأصلي عند `Leave` |
+| RULE-N47 | اختصارات موحّدة للشاشات: `F2` = جديد، `F5` = تحديث، `Esc` = إلغاء الحقل/مسحه — وتظهر في `ToolTip` لكل زر |
+
+---
+
+### 2.19 الثيم الأخضر الموحّد (Green Theme) — إلزامي لكل الشاشات
+
+الثيم الأخضر هو الثيم الرسمي للنظام. مصدر القيم الوحيد هو `GreenThemeHelper` (في `SalesSystem.Desktop/Helpers/`)، وممنوع تكرار قيم الألوان داخل أي شاشة.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N50 | كل شاشة تستدعي `GreenThemeHelper.Apply(this)` **كآخر خطوة** في تهيئة المظهر (بعد `ThemeHelper.ApplyMainFormStyle`/`ApplyButtonStyle`)، لأن `ThemeHelper` يفرض خلفية بيضاء وخط `Segoe UI` فيمحو الأخضر |
+| RULE-N51 | كل `DataGridView` تُطبَّق عليها `GreenThemeHelper.ApplyGrid(dgv)` (رؤوس خضراء `(14,165,103)` بنص أبيض، خلفية `(220,240,220)`، أسطر متبادلة `(245,252,245)`). `ThemeHelper.ApplyDataGridViewStyle` **ممنوعة** بعدها |
+| RULE-N52 | `ApplyGrid` لا تلمس `ReadOnly` ولا `SelectionMode` ولا `AllowUserToAddRows` ولا `DataSource` — كل شبكة تعلن سلوكها بنفسها حسب `RULE-N22`/`RULE-N22a` |
+| RULE-N53 | لون شريط العنوان (`lblMode`/`lblTitle`) يُطبَّق بـ `GreenThemeHelper.ApplyHeader(label)`، والنص الأخضر الداكن للنصوص المهمة هو `GreenThemeHelper.TextStrong` |
+| RULE-N54 | ممنوع كتابة قيم ألوان الثيم الأخضر كأرقام داخل الشاشات — تُستهلك من ثوابت `GreenThemeHelper` فقط؛ وأي لون جديد يُضاف هناك لا في الشاشة |
+
+**قيم الثيم الأخضر:**
+
+| العنصر | القيمة |
+|---|---|
+| خلفية النموذج | `Color.FromArgb(170, 220, 170)` |
+| شريط العنوان | `Color.FromArgb(14, 165, 103)` + نص أبيض |
+| صناديق المجموعات | `Color.FromArgb(235, 245, 235)` |
+| أشرطة الأدوات/الإجراءات | `Color.FromArgb(235, 240, 235)` |
+| خلفية الشبكة | `Color.FromArgb(220, 240, 220)` · خطوط `(205, 225, 205)` |
+| رؤوس الأعمدة | `(14, 165, 103)` + نص أبيض، Tahoma 10 Bold |
+| التحديد | `Color.FromArgb(255, 255, 180)` |
+| نص مميّز | `Color.FromArgb(14, 82, 52)` |
+
+---
+
+### 2.20 مصفوفة تعميم الميزات (Feature Rollout Matrix)
+
+الميزات التالية إلزامية في كل شاشة، وتُعمَّم على المراحل التالية. أي شاشة تُنشأ أو تُعدَّل يجب أن تخرج وقد التزمت بكل الميزات المعلّمة «إلزامي».
+
+| # | الميزة | المرجع | الحالة | ملاحظات |
+|---|---|---|---|---|
+| 1 | تنقل لوحة المفاتيح (Enter/Tab + أسهم RTL + تحديد القيمة + تظليل الحقل) | `RULE-N40`…`RULE-N47` + `KeyboardHelper` | 🔄 تعميم جارٍ | 10 شاشات فقط تستدعي الأربعة حتى الآن |
+| 2 | الثيم الأخضر في وقت التشغيل | `RULE-N50`…`RULE-N54` + `GreenThemeHelper` | 🔄 تعميم جارٍ | `frmAddUpdateSalesInvoice` هي الشاشة المرجعية |
+| 3 | التفقيط الحيّ كتلميح (ToolTip) على الحقول الرقمية | `LiveTafqeetHelper` | 🔄 شاشة واحدة | `frmAddUpdateSalesInvoice`؛ يُعمَّم على الحقول المالية في باقي الشاشات |
+| 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` |
+| 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | — |
+| 6 | صندوق التصفية الموحّد `gbFilter` + تصفية فورية + مربعات اختيار + شريط ملخص | `RULE-N56`…`N63` | 🔄 تعميم جارٍ | النمطان المرجعيان: `frmListSales` و`frmProductMaster` |
+
+**مراحل التعميم:**
+
+| المرحلة | الشاشات | معيار الإغلاق |
+|---|---|---|
+| P1 — الشاشات اليومية | `frmListSales`, `frmAddUpdateSalesInvoice`, `frmProductMaster`, `frmProductUnitMaster`, `frmProductSelection`, `frmListPurchases`, `frmPurchaseInvoice`, `frmListReturns`, `frmSalesReturn`, `frmPurchaseReturn` | كل شاشة: ثيم أخضر + تنقل كامل + شبكة خضراء + تجربة يدوية |
+| P2 — البيانات الأساسية | Categories, Units, Customers, Suppliers, Warehouses, CashBoxes, Employees, Users, Expenses, Payments, CustomerReceipts | كما أعلاه |
+| P3 — التقارير والمخزون والباقي | `Screens/Reports/**` (33), `Screens/Inventory/**` (16), Dashboard, POS, Tools, Login | كما أعلاه، مع مراعاة أن شاشات الطباعة/المعاينة تُعفى من تعبئة النماذج |
+
+> **قاعدة:** تُنفَّذ المراحل بالترتيب P1 → P2 → P3، ولا تُعتبر الشاشة «مكتملة» حتى تلتزم بالميزات 1 و2 أعلاه.
+
+---
+
+### 2.21 قائمة الإلزام لكل نموذج جديد (New Form Definition of Done)
+
+أي نموذج جديد `frm*` — أو نموذج يُعاد بناؤه بالكامل — **لا يُعتبر مكتملاً** حتى يجتاز هذه القائمة بالكامل. تُراجَع قبل تسليم أي مهمة تُنشئ أو تعيد بناء شاشة، وتُذكر نتائجها في تقرير التسليم.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N55 | إنشاء نموذج بدون استيفاء بنود §2.21 يُعدّ عملاً غير مكتمل ويُرفض في المراجعة — بلا استثناء إلا شاشات المعاينة/الطباعة للقراءة فقط |
+
+| # | البند | المرجع | كيف يُتحقق |
+|---|------|--------|-------------|
+| 1 | الاسم `frm*` والوراثة من `Form` | RULE-N01 | اسم الملف والصنف |
+| 2 | حقن `IServiceProvider` في المُنشئ وعدم استخدام `new frmXxx()` | RULE-N02/N03 | المُنشئ + `Program.cs` |
+| 3 | تسجيل النموذج في حاوية DI داخل `Program.cs` | RULE-N10 | `services.AddTransient<frmXxx>();` |
+| 4 | كل الخدمات عبر `I*ApiService` فقط — لا `DbContext` ولا `SalesSystem.Business` ولا `HttpClient` | RULE-N05/N06 | `grep "SalesSystem.Business\|HttpClient"` = 0 |
+| 5 | `RightToLeft = Yes` + `RightToLeftLayout = true` + خط `Tahoma` | RULE-N20/N21 | المصمّم + `ApplyUiTheme` |
+| 6 | هيكل الأشرطة: `pnlHeader` (Dock=Top, 56) + `lblMode` + `pnlToolbar` + `pnlFilters` + `pnlSummary` + `pnlGrid` + `pnlFooter` | RULE-N27 | جدول العناصر في تقرير التسليم |
+| 7 | استدعاء الأربعة في المُنشئ: `WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` | RULE-N40 | نص الاستدعاء |
+| 8 | تحديد القيمة الحالية يعمل بالفأرة وبلوحة المفاتيح | RULE-N41 | سلوك `KeyboardHelper` (تلقائي عند استدعاء البند 7) |
+| 9 | أسهم RTL: يمين/أعلى = السابق، يسار/أسفل = التالي | RULE-N45 | سلوك `KeyboardHelper` |
+| 10 | تظليل الحقل النشط `(0xD6,0xE4,0xF0)` | RULE-N46 | معامل `WireFocusHighlight` |
+| 11 | مؤشر الوضع `lblMode` يتحدث مع كل تغيير حالة (إضافة/تعديل) | RULE-N44 | `_UpdateModeHeader()` |
+| 12 | آلة حالة الأزرار + `WireButtonDisabledVisual` | RULE-N43 | `_UpdateButtonsState()` |
+| 13 | **الثيم الأخضر**: `GreenThemeHelper.ApplyHeader(lblMode)` + `GreenThemeHelper.ApplyGrid(dgv)` لكل شبكة + `GreenThemeHelper.Apply(this)` **كآخر سطر** في `ApplyUiTheme()` | RULE-N50…N54 | نهاية `ApplyUiTheme` |
+| 14 | الشبكة: `ReadOnly = true` + `AllowUserToAddRows = false` + `SelectionMode = FullRowSelect` + `ContextMenuStrip` + بحث فوري + نقر مزدوج + سطر «لا توجد بيانات» | RULE-N22/N23/N24 | خصائص الشبكة + الأحداث |
+| 15 | التفقيط الحيّ على الحقول الرقمية/المالية عبر `LiveTafqeetHelper.Attach(liveTip, …)` | §2.20 بند 3 | نص `Attach` |
+| 16 | `ToolTip` لكل زر يتضمن اختصاره، واختصارات `F2` جديد · `F3` عرض/تعديل · `F4` ترحيل · `F5` تحديث · `Delete` إلغاء · `Esc` خروج | RULE-N47 | `WireGlobalShortcuts` |
+| 17 | تحقق بـ `errorProvider` + رسائل عربية + **لا** `ex.Message` للمستخدم (Serilog فقط) | RULE-N28/N29 + FORBIDDEN | `grep "ex.Message"` = 0 |
+| 18 | `async void` مع `try/catch` + `Cursor.WaitCursor` واستعادته في `finally` + `CancellationToken` | RULE-N25/N26 | مراجعة المعالجات |
+| 19 | المال `decimal` وعرضه `N2`، الكميات `decimal(18,3)` | RULE-001/RULE-002 | أنواع الخصائص |
+| 20 | عدم كسر أي سلوك قائم: تُحفظ أسماء العناصر والأحداث المُستدعاة من خارج الشاشة | — | `git diff` محدود |
+| 21 | صندوق تصفية موحّد `gbFilter` بأدوات التصفية القياسية والتصفية الفورية | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم |
+| 22 | شريط ملخص (`pnlSummary`) يعدّ النتائج والإجماليات `N2` بعد كل تصفية | `RULE-N61` | `_UpdateSummary()` |
+
+**الهيكل المرجعي للمُنشئ وشريط المظهر:**
+
+```csharp
+public frmNewScreen(IServiceProvider serviceProvider)
+{
+    _serviceProvider = serviceProvider;
+    InitializeComponent();
+
+    // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط
+    KeyboardHelper.WireEnterAsTab(this);
+    KeyboardHelper.WireSelectAllOnFocus(this);
+    KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+    KeyboardHelper.WireArrowNavigation(this);
+    KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);   // RULE-N43
+    KeyboardHelper.WireGlobalShortcuts(this,                                 // RULE-N47
+        (Keys.F2, btnNew.PerformClick),
+        (Keys.F5, () => _RefreshAsync()));
+
+    ApplyUiTheme();   // RULE-N50 — ينتهي بالثيم الأخضر
+}
+
+private void ApplyUiTheme()
+{
+    ThemeHelper.ApplyMainFormStyle(this);
+    ThemeHelper.ApplyButtonStyle(btnSave, ThemeHelper.ButtonType.Primary);
+    ThemeHelper.ApplyButtonStyle(btnDelete, ThemeHelper.ButtonType.Danger);
+    // … بقية الأزرار
+
+    GreenThemeHelper.ApplyHeader(lblMode);
+    GreenThemeHelper.ApplyGrid(dgvMain);          // RULE-N51/N52 — لا يلمس ReadOnly/SelectionMode
+    GreenThemeHelper.Apply(this);                 // ← الأخير دائماً (RULE-N50)
+}
+```
+
+> **تذكير:** `ThemeHelper` يفرض خلفية بيضاء وخط `Segoe UI`؛ لذلك أي استدعاء للثيم الأخضر قبله سيُمحى. الثيم الأخضر آخر سطر — بلا استثناء.
+
+---
+
+### 2.22 معيار التصفية الموحّد (Filter Group Standard)
+
+كل شاشة قائمة أو دليل تعرض بيانات تُصفّى داخل صندوق مجموعة واحد اسمه `gbFilter`، ولا يُسمح بأدوات تصفية متناثرة في الشاشة. النمطان المرجعيان: `frmListSales` و `frmProductMaster`.
+
+| RULE | DIRECTIVE |
+|---|---|
+| RULE-N56 | كل شاشة قائمة/دليل تحتوي `pnlFilters` (`Dock = Top`، ارتفاع 96–120) وبداخلها `gbFilter` (`GroupBox`، النص «بحث وتصفية»، `Dock = Fill`، `Padding = 8`) |
+| RULE-N57 | ترتيب عناصر `gbFilter` من اليمين إلى اليسار ثابت: (1) `cbFilterBy` + `txtFilterValue` (2) `cbStatus` (3) `dtpFrom` + `dtpTo` + أزرار النطاقات السريعة (4) صفّ ثانٍ لمربعات الاختيار |
+| RULE-N58 | مربعات الاختيار القياسية بأسماء ثابتة: `chkShowInactive` (إظهار غير النشط) · `chkOnlyDue` (غير المسددة فقط — الشاشات المالية) · `chkOnlyCancelled` (الملغاة فقط) · `chkOnlyOutOfStock` (النافد فقط — المخزون) |
+| RULE-N59 | التصفية **فورية**: تُطبَّق عند `TextChanged` و`CheckedChanged` و`SelectedIndexChanged` — لا يوجد زر «بحث»؛ `Enter` يطبّق فوراً، `Esc` يمسح كل أدوات التصفية، `F5` يحدّث |
+| RULE-N60 | التصفية بـ`SelectedIndex` لا بمقارنة نص عربي، والبحث النصي على أعمدة معروفة (`Name`/`Barcode`/`Phone`…) لا على `DataView.RowFilter` المبني من إدخال المستخدم مباشرة |
+| RULE-N61 | شريط `pnlSummary` يعرض عدد النتائج والإجماليات (`N2`) ويُعاد حسابه بعد كل تصفية |
+| RULE-N62 | أي فلتر جديد يُضاف داخل `gbFilter` فقط — ممنوع أزرار/حقول تصفية خارجها |
+| RULE-N63 | زر اختياري `btnToggleFilters` («إخفاء/إظهار التصفية») يطوي `pnlFilters` إلى ارتفاع 34 للحصول على مساحة أكبر للشبكة، ويُحفظ حالته في `SystemSettings` بمفتاح `UI.FiltersCollapsed` |
+
+**مخطط عناصر `gbFilter`:**
+
+| العنصر | النوع | الموضع داخل `gbFilter` |
+|---|---|---|
+| `label2` «تصفية بـ:» + `cbFilterBy` | ComboBox | الصف الأول — أقصى اليمين |
+| `txtFilterValue` | TextBox | الصف الأول — يسار `cbFilterBy` |
+| `label1` «الحالة:» + `cbStatus` | ComboBox | الصف الأول |
+| `label3` «من:» + `dtpFrom` · `label4` «إلى:» + `dtpTo` | DateTimePicker | الصف الأول |
+| `btnRangeToday` «اليوم» · `btnRangeMonth` «هذا الشهر» · `btnRange30` «آخر 30 يوماً» | Button (Tahoma 9 Bold) | الصف الثاني — يمين |
+| `chkShowInactive` · `chkOnlyDue` · `chkOnlyCancelled` · `chkOnlyOutOfStock` | CheckBox | الصف الثاني — يسار |
+| `btnToggleFilters` | Button | الصف الثاني — أقصى اليسار |
+
+> **تعميم:** يُطبّق المعيار على المراحل P1 → P2 → P3 المذكورة في §2.20، وتُعدّ الشاشة غير مكتملة إن كانت أدوات تصفيتها خارج `gbFilter`.
 
 ---
 
@@ -483,7 +667,7 @@ SalesSystem.slnx
 | Units | ✅ Done | frmUnits | ✅ | ✅ |
 | Taxes | ✅ Done | frmTaxes | ✅ | ✅ |
 | Warehouses | ✅ Done | frmWarehouses | ✅ | ✅ |
-| Products | 🔄 In Progress | frmProducts | ✅ | ✅ |
+| Products | ✅ Done | frmProducts | ✅ | ✅ |
 | CashBoxes | ✅ Done | frmCashBoxes | ✅ | ✅ |
 | Banks | ✅ Done | frmBanks | ✅ | ✅ |
 | Purchases | 🔄 In Progress | frmPurchases | ✅ | ✅ |

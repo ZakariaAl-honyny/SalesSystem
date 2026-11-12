@@ -39,6 +39,9 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
             .HasPrecision(18, 2)
             .HasDefaultValue(0m);
 
+        builder.Property(s => s.IsActive)
+            .HasDefaultValue(true);
+
         // FK to Account
         builder.HasOne(s => s.Account)
             .WithMany()
@@ -68,7 +71,7 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.HasIndex(s => s.Phone)
             .HasDatabaseName("IX_Suppliers_Phone");
 
-        // Global query filter — soft delete
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(s => s.IsActive);
     }
 }

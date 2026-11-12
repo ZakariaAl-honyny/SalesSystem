@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -48,40 +49,43 @@ public partial class frmSupplierMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-
-        _WireEvents();
     }
 
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
+    // ── Theme ─────────────────────────────────────────────────────────────────
 
-    private void _WireEvents()
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
     {
-        Load += frmSupplierMaster_Load;
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvSuppliers);
 
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
+        // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
+        dgvSuppliers.ReadOnly = true;
+        dgvSuppliers.AllowUserToAddRows = false;
+        dgvSuppliers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvSuppliers.MultiSelect = false;
 
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvSuppliers.CellClick += dgvSuppliers_CellClick;
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
-
-    /// <summary>هل الحقل المطلوب (اسم المورد) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtName.Text);
 
     /// <summary>
     /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
+    /// يعيد <c>false</c> إذا كان هناك حقل مطلوب ناقص.
     /// </summary>
-    private void _FocusFirstMissingField()
+    private bool _FocusFirstMissingField(bool edit)
     {
+        _ = edit; // الحقول المطلوبة متطابقة في وضعي الإضافة والتعديل.
+
+        errorProvider.SetError(txtName, "");
+
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
             errorProvider.SetError(txtName, "اسم المورد مطلوب");
             txtName.Focus();
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>تحديث يدوي لقائمة الموردين مع الإبقاء على نص البحث الحالي.</summary>
@@ -113,6 +117,7 @@ public partial class frmSupplierMaster : Form
         {
             await _LoadSuppliersAsync();
             _ResetForm();
+            ApplyGreenTheme();
         }
         catch (Exception ex)
         {
@@ -177,8 +182,32 @@ public partial class frmSupplierMaster : Form
             _suppliersTable = table;
             _suppliersView = new DataView(_suppliersTable);
             dgvSuppliers.DataSource = _suppliersView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يستخدم DataGridView عنوان <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvSuppliers.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "رقم المورد",
+                "Name" => "اسم المورد",
+                "Phone" => "الهاتف",
+                "Email" => "البريد الإلكتروني",
+                "TaxNumber" => "الرقم الضريبي",
+                "CreditLimit" => "حد الائتمان",
+                "IsActive" => "نشط",
+                _ => column.HeaderText
+            };
         }
     }
 
@@ -186,12 +215,10 @@ public partial class frmSupplierMaster : Form
     {
         foreach (DataGridViewRow row in dgvSuppliers.Rows)
         {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
+            if (row.Cells["IsActive"].Value is bool isActive && isActive) continue;
+
+            row.DefaultCellStyle.BackColor = Color.MistyRose;
+            row.DefaultCellStyle.ForeColor = Color.DarkRed;
         }
     }
 
@@ -199,22 +226,41 @@ public partial class frmSupplierMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
         if (_suppliersView is null) return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
-        if (string.IsNullOrEmpty(text))
+        var conditions = new List<string>();
+
+        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
+        if (!chkShowInactive.Checked)
+            conditions.Add("IsActive = true");
+
+        if (!string.IsNullOrEmpty(text))
         {
-            _suppliersView.RowFilter = "";
-            return;
+            conditions.Add(
+                $"(Name LIKE '%{text}%' OR Phone LIKE '%{text}%' OR Email LIKE '%{text}%' " +
+                $"OR TaxNumber LIKE '%{text}%' " +
+                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
         }
 
-        _suppliersView.RowFilter =
-            $"Name LIKE '%{text}%' OR Phone LIKE '%{text}%' OR Email LIKE '%{text}%' " +
-            $"OR TaxNumber LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        _suppliersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -343,6 +389,9 @@ public partial class frmSupplierMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
+    /// <summary>زر الخروج: إغلاق شاشة دليل الموردين.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
+
     /// <summary>زر الإضافة: يُضيف مورداً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
     private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: false);
 
@@ -358,11 +407,7 @@ public partial class frmSupplierMaster : Form
         if (edit && _editId is null) return;
 
         // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
-        {
-            _FocusFirstMissingField();
-            return;
-        }
+        if (!_FocusFirstMissingField(edit)) return;
 
         if (!_ValidateForm()) return;
 

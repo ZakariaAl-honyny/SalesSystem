@@ -5,7 +5,7 @@ using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
@@ -53,13 +53,13 @@ public partial class frmAccountStatementReport : Form, IExportableReport
             IReadOnlyList<AccountStatementDto>? list = null;
             if (cmbPartyType.SelectedIndex == 0)
             {
-                var result = await _serviceProvider.GetRequiredService<IFinancialReportService>().GetAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+                var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
                 if (result.IsSuccess) list = result.Value;
                 else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
             }
             else
             {
-                var result = await _serviceProvider.GetRequiredService<IFinancialReportService>().GetSupplierStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+                var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetSupplierStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
                 if (result.IsSuccess) list = result.Value;
                 else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
             }

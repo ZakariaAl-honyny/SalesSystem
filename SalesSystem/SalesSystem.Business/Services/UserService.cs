@@ -32,7 +32,7 @@ public class UserService : IUserService
 
     public async Task<Result<UserDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var user = await _uow.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
+        var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
         if (user == null)
             return Result<UserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
@@ -170,7 +170,7 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await _uow.Users.GetByIdAsync(id, ct);
+            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
             if (user == null)
                 return Result.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
@@ -198,7 +198,7 @@ public class UserService : IUserService
     {
         try
         {
-            var user = await _uow.Users.GetByIdAsync(id, ct);
+            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
             if (user == null)
                 return Result<ResetPasswordResponse>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 

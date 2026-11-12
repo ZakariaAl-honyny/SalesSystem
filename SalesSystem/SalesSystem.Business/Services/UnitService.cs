@@ -21,7 +21,7 @@ public class UnitService : IUnitService
 
     public async Task<Result<UnitDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var unit = await _uow.Units.GetByIdAsync(id, ct);
+        var unit = await _uow.Units.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
         if (unit == null)
             return Result<UnitDto>.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
 
@@ -110,7 +110,7 @@ public class UnitService : IUnitService
 
     public async Task<Result> DeleteAsync(int id, CancellationToken ct)
     {
-        var unit = await _uow.Units.GetByIdAsync(id, ct);
+        var unit = await _uow.Units.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
         if (unit == null)
             return Result.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
 

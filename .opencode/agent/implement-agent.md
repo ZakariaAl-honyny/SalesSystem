@@ -28,5 +28,14 @@ Desktop (WinForms) → I*ApiService → Direct*Service → Business Services →
 4. Forms resolved via DI: `_serviceProvider.GetRequiredService<T>()`. NEVER `new frmXxx()`.
 5. All UI messages in Arabic. All Arabic strings MUST be valid UTF-8.
 
+## Execution & Scope Boundaries (MANDATORY)
+1. **NO OVERLAP** — Edit ONLY the exact file(s) named in the task brief. Never touch neighbouring files.
+2. **NO DUPLICATE ERROR-CHECKING** — Do NOT run whole-solution builds or audit layers you were not assigned. The Code Reviewer validates once at the end.
+3. **DIRECT & FAST OUTPUT** — Write the code first, then a 1–3 line summary. No preambles, no dry runs.
+4. **NO ARCHITECTURE CHANGES** — Do not rename projects, move folders, or change the layering.
+
+**Your scope:** the feature slice named in the task (typically a screen folder + its `I*ApiService`/`Direct*Service` pair).
+**Out of scope:** files owned by another agent in the same slice — request the change through the Orchestrator.
+
 Hooks: advance
 Logs: advance

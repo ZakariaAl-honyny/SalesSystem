@@ -1,7 +1,7 @@
 # Database Schema Design
 # Sales Management System — v5.0.0 (WinForms N-Layer)
 # Platform: SQL Server 2019+
-# MVP (V1): ~35 Active Tables | V2 Deferred: ~19 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
+# MVP (V1): 41 Active Tables | V2 Deferred: 18 Tables | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
 
 > **MVP Scope**: Single shop, single user (Admin), single branch, single warehouse, single cash box.
 > Tables marked `⛔ V2 DEFERRED` were **removed from the MVP codebase** (their entities, migrations, services, and UI are deleted and archived in git history for a future V2). The schema below documents the full design; only the MVP Active tables are implemented.
@@ -46,7 +46,7 @@ Includes: `Accounts`, `Currencies`, `JournalEntries`, `JournalEntryLines`, `Cash
 # Database Schema Design
 # Sales Management System — MVP V1 (Single-Shop Edition)
 # Platform: SQL Server 2019+
-# ~35 Active Tables (MVP) + ~18 V2 Deferred | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
+# 41 Active Tables (MVP) + 18 V2 Deferred | decimal-only financials | nvarchar text | Soft delete | All FK Restrict
 
 ---
 
@@ -445,6 +445,10 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
+> **ملاحظة Barcode:** عمود `Products.Barcode` هو عمود **مكرر للبحث السريع** (denormalized search column) — المصدر الرسمي للباركود هو `ProductUnits.Barcode` (الوحدة الأساسية). يُحتفظ به في الجدول لتسريع البحث فقط.
+
+> **ملاحظة BranchId:** عمود `Products.BranchId` و`ProductCategories.BranchId` موجودان لإدارة فرع واحد في MVP (مثبتان على 1) — ليسا للتوجيه متعدد الفروع.
+
 ### 3.3 Units
 | Column | Type | Notes |
 |--------|------|-------|
@@ -464,7 +468,7 @@ Default schema: **`dbo`**
 | `Id` | int PK | |
 | `ProductId` | int not null FK → Products(Id) | |
 | `UnitId` | smallint not null FK → Units(Id) | |
-| `Barcode` | nvarchar(50) null | unique filtered `Barcode IS NOT NULL AND IsActive=1` |
+| `Barcode` | varchar(50) null | unique filtered `WHERE [Barcode] IS NOT NULL` |
 | `Factor` | decimal(18,3) not null | معامل التحويل: الوحدة الأساسية=1، كرتون=24 |
 | `IsBaseUnit` | bit not null default 0 | وحدة أساسية واحدة فقط لكل منتج |
 | `SalePrice` | decimal(18,2) not null default 0 | سعر التجزئة (Retail Price) |
@@ -476,9 +480,27 @@ Default schema: **`dbo`**
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
+> ⚠️ **Barcode Index Note**: الجدول يرث من `AuditableEntity` الذي لا يحتوي على عمود `IsActive`، لذلك الفهرس الفريد هو `WHERE [Barcode] IS NOT NULL` فقط — بدون شرط `AND IsActive = 1`.
+
 > ⚠️ **Cost Price Note**: The `CostPrice` here is a reference/standard cost. Actual purchase prices (which vary per batch) are stored in the `PurchaseInvoiceLines` and tracked via costing methods in the `InventoryBatches` and transactions.
 > ⚠️ **Discount Rule**: `MaxDiscountAmount` is a **fixed amount only** — percentage discounts are NOT supported in V1.
 > ⚠️ **NO CurrencyId in V1** — pricing is per ProductUnit only.
+
+### 3.5 ProductPrices
+| Column | Type | Notes |
+|--------|------|-------|
+| `Id` | int PK | |
+| `ProductUnitId` | int not null FK → ProductUnits(Id) | |
+| `Price` | decimal(18,2) not null | السعر |
+| `EffectiveFrom` | date not null | تاريخ بدء السريان |
+| `EffectiveTo` | date null | تاريخ انتهاء السريان (اختياري) |
+| `CreatedByUserId` | int null FK | |
+| `UpdatedByUserId` | int null FK | |
+| `CreatedAt` | datetime2 not null | |
+| `UpdatedAt` | datetime2 null | |
+| **Indexes** | unique `(ProductUnitId, EffectiveFrom)` | |
+
+> يُستخدم لتعدّد مستويات الأسعار (تجزئة/جملة/VIP/موزّع) عبر PriceLevel enum.
 
 
 
@@ -626,6 +648,8 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `UpdatedAt` | datetime2 null | |
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
+| `PaymentVoucherId` | int null FK → PaymentVouchers(Id) | ⚠️ legacy column — no business usage in MVP, retained for V2 voucher linkage |
+| `ReceiptVoucherId` | int null FK → ReceiptVouchers(Id) | ⚠️ legacy column — no business usage in MVP, retained for V2 voucher linkage |
 | **Indexes** | unique `EntryNumber`, unique `EntryNo`, `EntryDate`, filtered `(ReferenceType, ReferenceId)` | |
 | **Notes** | query filter hides `Status = 3 (Cancelled)` from default LINQ queries | |
 | **Per analysis** | planned: `SourceModule` nvarchar(30) null — originating module tag (`createdBy`/`sourceModule` in `JournalEntry`) | |
@@ -1104,13 +1128,16 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `Quantity` | decimal(18,3) not null | |
 | `UnitPrice` | decimal(18,2) not null | |
 | `DiscountType` | tinyint not null default 0 | 0=Amount, 1=Percentage per line |
-| `DiscountRate` | decimal(5,2) null | percentage rate when line DiscountType=1 |
+| `DiscountRate` | decimal(18,2) null | ⚠️ يحمل مبلغ الخصم عند DiscountType=Amount (RULE-001) |
 | `DiscountAmount` | decimal(18,2) not null default 0 | line-level discount |
+| `ExpiryDate` | date null | for tracked expiry products |
 | `UnitCost` | decimal(18,2) not null default 0 | average cost at time of sale |
 | `CostInBaseCurrency` | decimal(18,2) null | cost converted to base currency |
 | `ProfitAmount` | decimal(18,2) not null default 0 | LineTotal - (CostInBaseCurrency × Quantity) |
 | `LineTotal` | decimal(18,2) not null | (Quantity × UnitPrice) - DiscountAmount |
 | **Notes** | Line-level DiscountType/DiscountAmount supported. CostInBaseCurrency populated at posting from FIFO batches. | |
+
+> ⚠️ **DiscountRate Warning**: عمود `DiscountRate` هو `decimal(18,2)` وليس `(5,2)` لأنه يحمل **مبلغ الخصم** عندما يكون `DiscountType=Amount` (RULE-001) — لا تُضيّقه إلى `(5,2)`.
 
 ### 6.3 SalesReturns
 | Column | Type | Notes |
@@ -1223,7 +1250,12 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | `ProductUnitId` | int not null FK → ProductUnits(Id) | |
 | `Quantity` | decimal(18,3) not null | |
 | `UnitPrice` | decimal(18,2) not null | purchase unit cost |
-| `LineTotal` | decimal(18,2) not null | Quantity x UnitPrice |
+| `DiscountType` | tinyint not null default 0 | 0=Amount, 1=Percentage per line |
+| `DiscountRate` | decimal(18,2) null | ⚠️ يحمل مبلغ الخصم عند DiscountType=Amount (RULE-001) |
+| `DiscountAmount` | decimal(18,2) not null default 0 | line-level discount |
+| `LineTotal` | decimal(18,2) not null | (Quantity × UnitPrice) − DiscountAmount |
+
+> ⚠️ **DiscountRate Warning**: عمود `DiscountRate` هو `decimal(18,2)` وليس `(5,2)` لأنه يحمل **مبلغ الخصم** عندما يكون `DiscountType=Amount` (RULE-001) — لا تُضيّقه إلى `(5,2)`.
 
 ### 7.3 PurchaseReturns
 | Column | Type | Notes |
@@ -1329,12 +1361,13 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 |------|--------|
 | `InvoiceStatus` | Draft=1, Posted=2, Cancelled=3 |
 | `PaymentType` | Cash=1, Credit=2, Mixed=3 |
-| `AccountNature` | Asset=1, Liability=2, Equity=3, Revenue=4, Expense=5 |
+| `AccountType` | Asset=1, Liability=2, Equity=3, Revenue=4, Expense=5 (implemented as `AccountType` enum, functionally equivalent to `AccountNature`) |
 | `TaxType` | Standard=1, ZeroRated=2, Exempt=3 |
 | `JournalEntryType` | Manual=1, Sales=2, Purchase=3, Receipt=4, Payment=5, Inventory=6, Adjustment=7 |
+| `JournalEntryType (extended)` | SalesReturn=8, PurchaseReturn=9, Expense=10, StockWriteOff=11, Transfer=12, OpeningBalance=13, CustomerReceipt=14, SupplierPayment=15 |
 | `InventoryTransactionType` | Purchase=1, PurchaseReturn=2, Sale=3, SaleReturn=4, TransferOut=5, TransferIn=6, Count=7, Adjustment=8, Damage=9, OpeningBalance=10, InternalIssue=11, InternalReceipt=12 |
 | `InventoryReferenceType` | PurchaseInvoice=1, SalesInvoice=2, PurchaseReturn=3, SalesReturn=4, Transfer=5, Count=6, Adjustment=7 |
-| `AdjustmentType` | Opening=1, Increase=2, Shortage=3, Damage=4 |
+| `InventoryAdjustmentType` | Addition=1, Deduction=2, Correction=3 (replaces deprecated `AdjustmentType`) |
 
 | `PaymentMethod` | Cash=1, Cheque=2, BankTransfer=3, CreditCard=4 |
 | `SettingType` | String=1, Integer=2, Decimal=3, Boolean=4 |
@@ -1345,19 +1378,21 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 
 # 5) Table Count Summary
 
-## ✅ MVP Active Tables (~35)
+## ✅ MVP Active Tables (41)
 
 | Module | Count | Tables (Active in MVP) |
 |--------|-------|------------------------|
 | 1. Core & Security | 3 | Customers, Suppliers, Users |
-| 2. Organization & Settings | 4 | Warehouses🔒, CompanySettings, SystemSettings, DocumentSequences, Branches🔒 |
-| 3. Products | 4 | ProductCategories, Products, Units, ProductUnits |
+| 2. Organization & Settings | 5 | Warehouses🔒, CompanySettings, SystemSettings, DocumentSequences, Branches🔒 |
+| 3. Products | 5 | ProductCategories, Products, Units, ProductUnits, ProductPrices |
 | 4. Accounting | 8 | Accounts, CashBoxes🔒, JournalEntries, JournalEntryLines, ReceiptVouchers, PaymentVouchers, Expenses, SystemAccountMappings |
 | 5. Inventory | 6 | WarehouseStocks, InventoryBatches, InventoryTransactions, InventoryTransactionLines, InventoryAdjustments, InventoryAdjustmentLines |
 | 6. Sales | 6 | SalesInvoices, SalesInvoiceLines, SalesReturns, SalesReturnLines, CustomerReceipts, CustomerReceiptApplications |
 | 7. Purchases | 6 | PurchaseInvoices, PurchaseInvoiceLines, PurchaseReturns, PurchaseReturnLines, SupplierPayments, SupplierPaymentApplications |
 | 8. Infrastructure | 2 | AuditLogs, SystemLogs |
-| **MVP Total** | **~35** | 🔒 = hardcoded single instance in MVP |
+| **MVP Total** | **41** | 🔒 = hardcoded single instance in MVP |
+
+> **ملاحظة:** كان الجدول يُشير سابقاً إلى 4 جداول في Module 2 و 4 في Module 3، لكن العدد الفعلي هو 5 في كل منهما بعد إضافة `ProductPrices` (الذي كان غير موثّق سابقاً).
 
 ## ⛔ V2 Deferred Tables (~18)
 
@@ -1385,7 +1420,7 @@ This eliminates the need for a separate `BranchFinancialSettings` table — one 
 | CurrencyRates | V2 | Multi-currency not needed |
 | SalesQuotations | V2 | Quotations deferred |
 | SalesQuotationItems | V2 | Deferred with SalesQuotations |
-| **V2 Total** | **~19** | |
+| **V2 Total** | **20** | |
 
 ---
 
@@ -1402,12 +1437,13 @@ Constraint: PaidAmount <= NetTotal
 
 ## Purchase Invoice
 ```
-LineTotal = Quantity x UnitPrice
+LineTotal = (Quantity × UnitPrice) − DiscountAmount
 SubTotal  = SUM(LineTotal)
 NetTotal  = SubTotal - DiscountAmount + TaxAmount + OtherCharges
 RemainingAmount = NetTotal - PaidAmount
 Constraint: PaidAmount <= NetTotal
 ```
+> **ملاحظة دستورية:** تسمح `AGENTS.md §2.2` بخصم السطر في المشتريات؛ الخصم على مستوى الفاتورة يبقى مجموعاً مستقلاً.
 
 ## FIFO Costing (Default Method)
 ```
@@ -1427,7 +1463,8 @@ Per Entry: SUM(Debit) = SUM(Credit)
 # 7) Soft Delete Strategy
 
 - **Soft delete**: `IsActive = false` on all ActivatableEntity inheritors
-- **Filter**: Global EF Core query filter `.HasQueryFilter(x => x.IsActive)`
+- **Filter**: Global EF Core query filter `.HasQueryFilter(x => x.IsActive)` — **IMPLEMENTED** in all EF configurations for `ActivatableEntity` inheritors
+- **Admin screens**: must use `.IgnoreQueryFilters()` to display disabled records (e.g., customer/supplier lists with "include inactive" option)
 - **Live balances**: WarehouseStocks has NO IsActive (auditable entity only)
 - **Invoices**: `Status = Cancelled` — NEVER hard delete invoiced transactions
 - **Users**: NEVER hard-delete — soft delete via `IsActive = false`
@@ -1615,5 +1652,24 @@ The following entities are **NOT in V1**. They are deferred to V2 for scope mana
 | SalesQuotations | Quotation → Invoice conversion | Deferred to V2 |
 | SalesQuotationItems | Quotation line items | Deferred to V2 |
 
-**Total V1 Tables: 53 | Total V2 Tables: 8 | Combined: 61**
+**إجمالي جداول MVP النشطة: 41 | جداول V2 المؤجلة: 18**
+
+---
+
+# 10) انحرافات معروفة بين الكود والمواصفة (Known Deviations)
+
+| # | العنصر | المواصفة تقول | الكود الحالي | القرار/الخطوة التالية |
+|---|--------|---------------|--------------|------------------------|
+| 1 | `InventoryTransactions` | `TransactionDate` date not null, `BranchId` smallint not null, `Status` tinyint not null, `TransactionNo` int not null | لا توجد `TransactionDate`/`BranchId`/`Status`؛ `TransactionNo` هو `nvarchar(50)` | ⏳ مؤجل — Module 5 alignment phase |
+| 2 | `InventoryTransactionLines` | `ProductId` int not null FK, `BatchId` int null FK, `TotalCost` decimal(18,2) not null | لا توجد `ProductId`/`BatchId`/`TotalCost`؛ الدفعة يُشار إليها بـ `BatchNo` نصي | ⏳ مؤجل — Module 5 alignment phase |
+| 3 | `InventoryAdjustments` | `AdjustmentDate` date not null, `AdjustmentNo` int not null, `UpdatedAt`/`UpdatedByUserId` موجودان | لا توجد `AdjustmentDate`؛ `AdjustmentNo` هو `nvarchar(50)`؛ لا يوجد `UpdatedAt`/`UpdatedByUserId` | ⏳ مؤجل — Module 5 alignment phase |
+| 4 | `InventoryAdjustmentLines` | `Quantity` decimal(18,3) not null, `TotalCost` decimal(18,2) not null | يستخدم `ActualQuantity`/`ExpectedQuantity` بدلاً من `Quantity`/`TotalCost` | ⏳ مؤجل — Module 5 alignment phase |
+| 5 | `Warehouses.BranchId` | smallint not null FK (default=1) | `short?` (nullable) — مُبقاة nullable للأمان عبر الطبقات | ✅ مغلق — مقبول عمداً |
+| 6 | `Customers.CategoryId`, `Suppliers.CategoryId` | FK → AccountCategories(Id) | أعمدة عادية بدون جدول هدف في MVP (AccountCategories مؤجل لـ V2) | ⏳ مؤجل — V2 when AccountCategories is activated |
+| 7 | `Users.EmployeeId` | FK → Employees(Id) | عمود عادي بدون جدول هدف في MVP (Employees مؤجل لـ V2) | ⏳ مؤجل — V2 when Employees is activated |
+| 8 | `AuditLogs` | `EntityName` nvarchar(100), `EntityId` nvarchar(50), `Details` nvarchar(max) | `EntityType` nvarchar(100), `EntityId` int?, `OldValues`/`NewValues`/`ChangedColumns` (ثلاثة أعمدة منفصلة) | ✅ مغلق — الكود أصح (JSON split) |
+| 9 | Multi-currency leftovers | `Currencies` V2 only | `BaseNetTotal`, `CostInBaseCurrency` موجودة على الفواتير/المرتجعات/السندات مع أن `Currencies` مؤجل لـ V2 | ⏳ مؤجل — V2 when Currencies is activated |
+| 10 | `Accounts.CategoryId` | FK → AccountCategories(Id) | غير موجود في الكود (AccountCategories مؤجل لـ V2) | ⏳ مؤجل — V2 when AccountCategories is activated |
+| 11 | `JournalEntries.FiscalYearId` | FK → FiscalYears(Id) | غير موجود في الكود (FiscalYears مؤجل لـ V2) | ⏳ مؤجل — V2 when FiscalYears is activated |
+| 12 | `SupplierPayments.CashBoxId` | int not null FK | `int?` (nullable) — مسموح بسند صرف بدون صندوق نقدية | ✅ مغلق — مقبول عمداً |
 

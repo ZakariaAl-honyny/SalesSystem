@@ -12,12 +12,12 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
         builder.HasKey(si => si.Id);
         builder.HasIndex(si => si.InvoiceNo).IsUnique();
         builder.Property(si => si.SubTotal).HasPrecision(18, 2);
-        builder.Property(si => si.DiscountAmount).HasPrecision(18, 2);
-        builder.Property(si => si.TaxAmount).HasPrecision(18, 2);
-        builder.Property(si => si.OtherCharges).HasPrecision(18, 2);
+        builder.Property(si => si.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(si => si.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(si => si.OtherCharges).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(si => si.NetTotal).HasPrecision(18, 2);
-        builder.Property(si => si.PaidAmount).HasPrecision(18, 2);
-        builder.Property(si => si.RemainingAmount).HasPrecision(18, 2);
+        builder.Property(si => si.PaidAmount).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(si => si.RemainingAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(si => si.Notes).HasMaxLength(500);
         builder.Property(si => si.InvoiceDate).HasColumnType("date");
         builder.Property(si => si.PaymentType).HasConversion<byte>();
@@ -69,12 +69,14 @@ public class SalesInvoiceLineConfiguration : IEntityTypeConfiguration<SalesInvoi
         builder.Property(sii => sii.UnitPrice).HasPrecision(18, 2);
         builder.Property(sii => sii.LineTotal).HasPrecision(18, 2);
         builder.Property(sii => sii.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);
+        // ⚠️ decimal(18,2) وليس (5,2): العمود يحمل مبلغ الخصم عند DiscountType=Amount (RULE-001) — لا تُضيّقه.
         builder.Property(sii => sii.DiscountRate).HasPrecision(18, 2).IsRequired(false);
         builder.Property(sii => sii.DiscountAmount).HasPrecision(18, 2);
         builder.Property(sii => sii.CostInBaseCurrency).HasPrecision(18, 2).IsRequired(false);
         builder.Property(sii => sii.UnitCost).HasPrecision(18, 2);
         builder.Property(sii => sii.ProfitAmount).HasPrecision(18, 2);
         builder.Property(sii => sii.ProductUnitId).IsRequired();
+        builder.Property(sii => sii.ExpiryDate).HasColumnType("date");
 
         builder.HasOne(sii => sii.Product)
             .WithMany()

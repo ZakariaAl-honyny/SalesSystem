@@ -61,7 +61,7 @@ public class SalesService : ISalesService
     public async Task<Result<SalesInvoiceDto>> GetByIdAsync(int id, CancellationToken ct)
     {
         var invoice = await _uow.SalesInvoices.FirstOrDefaultAsync(
-            i => i.Id == id, ct, "Customer", "Warehouse", "Items.Product");
+            i => i.Id == id, ct, "Customer", "Warehouse", "Items.Product", "Items.ProductUnit.Unit");
 
         if (invoice == null)
             return Result<SalesInvoiceDto>.Failure("فاتورة المبيعات غير موجودة", ErrorCodes.NotFound);
@@ -100,7 +100,7 @@ public class SalesService : ISalesService
                  item.Product != null &&
                  item.Product.Name.ToLower().Contains(searchLower)));
 
-        var includes = new[] { "Customer", "Warehouse", "Items.Product" };
+        var includes = new[] { "Customer", "Warehouse", "Items.Product", "Items.ProductUnit.Unit" };
 
         var (items, total) = await _uow.SalesInvoices.GetPagedAsync(
             predicate, q => q.OrderByDescending(i => i.InvoiceDate), page, pageSize, ct, includeInactive, includes);
@@ -181,7 +181,8 @@ public class SalesService : ISalesService
                         item.Quantity,
                         item.UnitPrice,
                         (DiscountType)item.DiscountType,
-                        item.DiscountRate
+                        item.DiscountRate,
+                        item.ExpiryDate
                     );
                     invoice.AddItem(invoiceItem);
                 }
@@ -293,7 +294,7 @@ public class SalesService : ISalesService
             {
                 var invoiceItem = SalesInvoiceLine.Create(
                     item.ProductId, item.ProductUnitId, item.Quantity, item.UnitPrice,
-                    (DiscountType)item.DiscountType, item.DiscountRate);
+                    (DiscountType)item.DiscountType, item.DiscountRate, item.ExpiryDate);
                 invoice.AddItem(invoiceItem);
             }
 
@@ -367,7 +368,8 @@ public class SalesService : ISalesService
                     item.Quantity,
                     item.UnitPrice,
                     (DiscountType)item.DiscountType,
-                    item.DiscountRate
+                    item.DiscountRate,
+                    item.ExpiryDate
                 );
                 invoice.AddItem(invoiceItem);
             }
@@ -896,7 +898,10 @@ public class SalesService : ISalesService
                 it.DiscountAmount,
                 it.CostInBaseCurrency,
                 it.UnitCost,
-                it.ProfitAmount
+                it.ProfitAmount,
+                it.ExpiryDate,
+                it.ProductUnit?.Unit?.Name,
+                it.Product?.Barcode
             )).ToList(),
             BranchId: i.BranchId
         );

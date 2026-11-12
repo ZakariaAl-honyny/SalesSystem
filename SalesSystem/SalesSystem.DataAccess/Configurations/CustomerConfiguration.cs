@@ -37,7 +37,11 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         // Properties
         builder.Property(c => c.CreditLimit)
-            .HasPrecision(18, 2);
+            .HasPrecision(18, 2)
+            .HasDefaultValue(0m);
+
+        builder.Property(c => c.IsActive)
+            .HasDefaultValue(true);
 
         // FK to Account
         builder.HasOne(c => c.Account)
@@ -68,7 +72,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasIndex(c => c.Phone)
             .HasDatabaseName("IX_Customers_Phone");
 
-        // Global query filter — soft delete
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(c => c.IsActive);
     }
 }

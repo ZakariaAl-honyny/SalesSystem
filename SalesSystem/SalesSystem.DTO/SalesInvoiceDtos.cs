@@ -59,8 +59,9 @@ public record SalesInvoiceLineDto(int Id, int ProductId, string ProductName,
     decimal DiscountAmount = 0,
     decimal? CostInBaseCurrency = null,
     decimal UnitCost = 0,
-    decimal ProfitAmount = 0)
+    decimal ProfitAmount = 0,
+    DateTime? ExpiryDate = null,
+    string? UnitName = null,
+    string? ProductCode = null)
 {
-    // Backward-compatible properties
-    public string? ProductCode => null;
 }

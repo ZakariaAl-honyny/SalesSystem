@@ -38,7 +38,7 @@ public class ProductService : IProductService
 
     public async Task<Result<ProductDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var product = await _uow.Products.FirstOrDefaultAsync(
+        var product = await _uow.Products.FirstOrDefaultIgnoreFiltersAsync(
             p => p.Id == id, ct, "ProductCategory");
 
         if (product == null)
@@ -182,7 +182,7 @@ public class ProductService : IProductService
 
     public async Task<Result> DeleteAsync(int id, CancellationToken ct)
     {
-        var product = await _uow.Products.GetByIdAsync(id, ct);
+        var product = await _uow.Products.FirstOrDefaultIgnoreFiltersAsync(p => p.Id == id, ct);
         if (product == null)
             return Result.Failure("المنتج غير موجود", ErrorCodes.NotFound);
 

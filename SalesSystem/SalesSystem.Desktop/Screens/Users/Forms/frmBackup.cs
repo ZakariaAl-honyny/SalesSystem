@@ -15,6 +15,9 @@ public partial class frmBackup : Form
             _serviceProvider = serviceProvider;
             InitializeComponent();
             KeyboardHelper.WireEnterAsTab(this);
+            KeyboardHelper.WireSelectAllOnFocus(this);
+            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+            KeyboardHelper.WireArrowNavigation(this); // RULE-N45 — أسهم RTL: يمين=رجوع، يسار=تالي
         }
 
         private void _SetupGridColumns()
@@ -61,7 +64,9 @@ public partial class frmBackup : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("خطأ في تحميل قائمة النسخ الاحتياطية: " + ex.Message, "خطأ",
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "خطأ في تحميل قائمة النسخ الاحتياطية");
+            MessageBox.Show("خطأ في تحميل قائمة النسخ الاحتياطية", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -116,6 +121,22 @@ public partial class frmBackup : Form
     private void frmBackup_Load(object sender, EventArgs e)
     {
         _ReloadForm();
+        ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvBackups);
+
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        dgvBackups.ReadOnly = true;
+        dgvBackups.AllowUserToAddRows = false;
+        dgvBackups.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvBackups.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     private async void btnCreateBackup_Click(object sender, EventArgs e)
@@ -141,7 +162,9 @@ public partial class frmBackup : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("خطأ: " + ex.Message, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "خطأ");
+            MessageBox.Show("خطأ", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -190,7 +213,9 @@ public partial class frmBackup : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("خطأ: " + ex.Message, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "خطأ");
+            MessageBox.Show("خطأ", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {

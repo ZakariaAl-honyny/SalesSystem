@@ -1,9 +1,9 @@
 using System.Data;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
@@ -53,24 +53,6 @@ public partial class frmUserMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-
-        _WireEvents();
-    }
-
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
-
-    private void _WireEvents()
-    {
-        Load += frmUserMaster_Load;
-
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvUsers.CellClick += dgvUsers_CellClick;
     }
 
     /// <summary>الفرع المحدد (0 = بدون فرع).</summary>
@@ -78,21 +60,24 @@ public partial class frmUserMaster : Form
         => cmbBranch.SelectedValue is short branchId && branchId > 0 ? branchId : null;
 
     /// <summary>
-    /// هل الحقول المطلوبة مكتملة؟ (اسم المستخدم).
+    /// يتحقق من الحقول المطلوبة (اسم المستخدم). عند نقص أي حقل ينقل المؤشر إليه
+    /// ويعرض أيقونة الخطأ عليه ثم يعيد <c>false</c> — دون تعطيل أي زر.
     /// </summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtUserName.Text);
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// </summary>
-    private void _FocusFirstMissingField()
+    /// <remarks>
+    /// اسم المستخدم مطلوب في وضعي الإضافة والتعديل، لذا لا يغيّر <paramref name="edit"/>
+    /// قاعدة التحقق (أُبقي في التوقيع لتوحيد شاشات الإدخال).
+    /// </remarks>
+    private bool _FocusFirstMissingField(bool edit)
     {
         if (string.IsNullOrWhiteSpace(txtUserName.Text))
         {
             errorProvider.SetError(txtUserName, "اسم المستخدم مطلوب");
             txtUserName.Focus();
+            return false;
         }
+
+        errorProvider.SetError(txtUserName, "");
+        return true;
     }
 
     /// <summary>تحديث يدوي لقائمة المستخدمين مع الإبقاء على نص البحث الحالي.</summary>
@@ -116,6 +101,9 @@ public partial class frmUserMaster : Form
         }
     }
 
+    /// <summary>زر الخروج: إغلاق شاشة إدارة المستخدمين.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
+
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmUserMaster_Load(object? sender, EventArgs e)
@@ -126,6 +114,7 @@ public partial class frmUserMaster : Form
             await _LoadBranchesAsync();
             await _LoadUsersAsync();
             _ResetForm();
+            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
@@ -137,6 +126,21 @@ public partial class frmUserMaster : Form
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvUsers);
+
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        dgvUsers.ReadOnly = true;
+        dgvUsers.AllowUserToAddRows = false;
+        dgvUsers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvUsers.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ── Lookups ───────────────────────────────────────────────────────────────
@@ -235,8 +239,29 @@ public partial class frmUserMaster : Form
             _usersTable = table;
             _usersView = new DataView(_usersTable);
             dgvUsers.DataSource = _usersView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يعتمد على <c>DataColumn.Caption</c>، بل تُضبط <c>HeaderText</c> صراحةً
+    /// لكل عمود ظاهر بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvUsers.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "رقم المستخدم",
+                "UserName" => "اسم المستخدم",
+                "IsLocked" => "مقفل",
+                "IsActive" => "نشط",
+                _ => column.HeaderText
+            };
         }
     }
 
@@ -244,8 +269,10 @@ public partial class frmUserMaster : Form
     {
         foreach (DataGridViewRow row in dgvUsers.Rows)
         {
-            bool isActive = row.Cells["IsActive"].Value is bool active && active;
-            bool isLocked = row.Cells["IsLocked"].Value is bool locked && locked;
+            if (row.DataBoundItem is not DataRowView dataRow) continue;
+
+            bool isActive = dataRow["IsActive"] is bool active && active;
+            bool isLocked = dataRow["IsLocked"] is bool locked && locked;
 
             if (!isActive)
             {
@@ -264,21 +291,38 @@ public partial class frmUserMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
-        if (_usersView is null) return;
+        if (_usersView is null || _usersView.Table is null) return;
 
         string text = txtSearch.Text.Trim().Replace("'", "''");
 
-        if (string.IsNullOrEmpty(text))
-        {
-            _usersView.RowFilter = "";
-            return;
-        }
+        var conditions = new List<string>();
 
-        _usersView.RowFilter =
-            $"UserName LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
+        if (!chkShowInactive.Checked)
+            conditions.Add("IsActive = true");
+
+        if (!string.IsNullOrEmpty(text))
+            conditions.Add(
+                $"(UserName LIKE '%{text}%' " +
+                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+
+        _usersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -413,25 +457,21 @@ public partial class frmUserMaster : Form
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
     /// <summary>زر الإضافة: يُضيف مستخدماً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
-    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveUserAsync(edit: false);
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: false);
 
     /// <summary>زر التعديل: يُحدّث المستخدم المحدد فقط.</summary>
-    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveUserAsync(edit: true);
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: true);
 
     /// <summary>
     /// حفظ المستخدم: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
     /// </summary>
-    private async Task _SaveUserAsync(bool edit)
+    private async Task _SaveAsync(bool edit)
     {
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
         // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
-        {
-            _FocusFirstMissingField();
-            return;
-        }
+        if (!_FocusFirstMissingField(edit)) return;
 
         if (!_ValidateForm()) return;
 
@@ -592,10 +632,12 @@ public partial class frmUserMaster : Form
     {
         foreach (DataGridViewRow row in dgvUsers.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == userId)
+            if (row.DataBoundItem is not DataRowView dataRow) continue;
+
+            if (dataRow["Id"] is int id && id == userId)
             {
                 row.Selected = true;
-                dgvUsers.CurrentCell = row.Cells["UserName"];
+                dgvUsers.CurrentCell = row.Cells[0];
                 break;
             }
         }

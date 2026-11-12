@@ -5,6 +5,7 @@ using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
 using SalesSystem.DTO.Responses;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
@@ -38,9 +39,6 @@ public partial class frmProductUnitMaster : Form
     /// <summary>يمنع معالجات الأحداث من إعادة تعبئة النموذج أثناء الربط البرمجي.</summary>
     private bool _isBinding;
 
-    /// <summary>يُفعَّل عند محاولة حفظ ناقصة — يُعطّل زر الحفظ حتى تكتمل الحقول المطلوبة.</summary>
-    private bool _validationFailed;
-
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmProductUnitMaster()
     {
@@ -50,9 +48,15 @@ public partial class frmProductUnitMaster : Form
     public frmProductUnitMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
+
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        _WireEvents();
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireArrowNavigation(this);                                  // RTL: يمين/أعلى = السابق، يسار/أسفل = التالي
+
+        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
     }
 
     // ── Public API (يستدعيه frmProductMaster) ─────────────────────────────────
@@ -69,76 +73,39 @@ public partial class frmProductUnitMaster : Form
         _ResetForm();
     }
 
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
+    // ── Required fields / focus ───────────────────────────────────────────────
 
-    private void _WireEvents()
+    /// <summary>هل حقول الإدخال المطلوبة مكتملة؟ (الوحدة، ومعامل التحويل عند الإضافة).</summary>
+    private bool _RequiredFieldsValid(bool edit)
     {
-        Load += frmProductUnitMaster_Load;
+        bool unitOk = cmbUnit.SelectedValue is int unitId && unitId > 0;
 
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-        btnClose.Click += btnClose_Click;
+        // معامل التحويل مطلوب فقط عند الإضافة (لا يتغير بعد الإضافة).
+        bool factorOk = edit || numFactor.Value > 1m;
 
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvUnits.CellClick += dgvUnits_CellClick;
-        dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
-
-        // التحقق الحيّ: يُفعَّل زر الحفظ افتراضياً، ويُعطَّل فقط بعد محاولة حفظ ناقصة
-        // ثم يُعاد تفعيله تلقائياً عند اختيار الوحدة المطلوبة.
-        cmbUnit.SelectedIndexChanged += (s, e) => _UpdateSaveEnabled();
-    }
-
-    /// <summary>هل الحقل المطلوب (الوحدة) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => cmbUnit.SelectedValue is int unitId && unitId > 0;
-
-    /// <summary>أسماء الحقول المطلوبة الناقصة (الوحدة).</summary>
-    private List<string> _MissingRequiredNames()
-    {
-        var missing = new List<string>();
-
-        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
-            missing.Add("الوحدة");
-
-        return missing;
+        return unitOk && factorOk;
     }
 
     /// <summary>
-    /// تحديث حالة زر الحفظ: يبدأ مفعّلاً، ويُعطَّل فقط بعد محاولة حفظ ناقصة،
-    /// ثم يُعاد تفعيله تلقائياً عند إكمال الحقول المطلوبة.
+    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _UpdateSaveEnabled()
+    private bool _FocusFirstMissingField(bool edit)
     {
-        if (_validationFailed)
+        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
         {
-            // re-enable once the user has filled all required fields
-            if (_RequiredFieldsValid())
-                _validationFailed = false;
+            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
+            cmbUnit.Focus();
+            return false;
         }
 
-        btnSave.Enabled = !_validationFailed;
-    }
+        if (!edit && numFactor.Value <= 1m)
+        {
+            errorProvider.SetError(numFactor, "معامل التحويل يجب أن يكون أكبر من 1 للوحدات الفرعية");
+            numFactor.Focus();
+            return false;
+        }
 
-    /// <summary>تحديث يدوي لقائمة وحدات الصنف مع الإبقاء على نص البحث الحالي.</summary>
-    private async void btnRefresh_Click(object? sender, EventArgs e)
-    {
-        Cursor = Cursors.WaitCursor;
-        try
-        {
-            await _LoadUnitsAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تحديث البيانات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        finally
-        {
-            Cursor = Cursors.Default;
-        }
+        return true;
     }
 
     // ── Form Load ─────────────────────────────────────────────────────────────
@@ -151,6 +118,8 @@ public partial class frmProductUnitMaster : Form
             await _LoadUnitLookupAsync();
             await _LoadUnitsAsync();
             _ResetForm();
+
+            ApplyGreenTheme(); // الثيم الأخضر آخر خطوة في مسار التحميل (RULE-N50)
         }
         catch (Exception ex)
         {
@@ -165,6 +134,16 @@ public partial class frmProductUnitMaster : Form
     }
 
     // ── Lookups ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.
+    /// </summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvUnits);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً
+    }
 
     private async Task _LoadUnitLookupAsync()
     {
@@ -211,7 +190,9 @@ public partial class frmProductUnitMaster : Form
         table.Columns.Add("Barcode", typeof(string));
         table.Columns.Add("ConversionFactor", typeof(decimal));
         table.Columns.Add("SalePrice", typeof(decimal));
+        table.Columns.Add("WholesalePrice", typeof(decimal));
         table.Columns.Add("CostPrice", typeof(decimal));
+        table.Columns.Add("MaxDiscountAmount", typeof(decimal));
         table.Columns.Add("IsBaseUnit", typeof(bool));
 
         try
@@ -231,7 +212,9 @@ public partial class frmProductUnitMaster : Form
                         unit.Barcode ?? "",
                         unit.ConversionFactor,
                         unit.SalePrice,
+                        unit.WholesalePrice ?? 0m,
                         unit.CostPrice,
+                        unit.MaxDiscountAmount ?? 0m,
                         unit.IsBaseUnit);
                 }
             }
@@ -263,6 +246,7 @@ public partial class frmProductUnitMaster : Form
                 _isBinding = false;
             }
 
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
 
@@ -272,8 +256,35 @@ public partial class frmProductUnitMaster : Form
         }
     }
 
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يستخدم DataGridView عنوان <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvUnits.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "رقم الوحدة",
+                "UnitName" => "الوحدة",
+                "Barcode" => "الباركود",
+                "ConversionFactor" => "معامل التحويل",
+                "SalePrice" => "سعر البيع",
+                "WholesalePrice" => "سعر الجملة",
+                "CostPrice" => "سعر التكلفة",
+                "MaxDiscountAmount" => "أقصى خصم",
+                "IsBaseUnit" => "الوحدة الأساسية",
+                _ => column.HeaderText
+            };
+        }
+    }
+
     private void _ApplyRowColoring()
     {
+        if (!dgvUnits.Columns.Contains("IsBaseUnit")) return;
+
         foreach (DataGridViewRow row in dgvUnits.Rows)
         {
             bool isBase = row.Cells["IsBaseUnit"].Value is bool b && b;
@@ -289,21 +300,28 @@ public partial class frmProductUnitMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
         if (_unitsView is null) return;
 
         string text = txtSearch.Text.Trim().Replace("'", "''");
 
-        if (string.IsNullOrEmpty(text))
-        {
-            _unitsView.RowFilter = "";
-            return;
-        }
-
-        _unitsView.RowFilter =
-            $"UnitName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        _unitsView.RowFilter = string.IsNullOrEmpty(text)
+            ? ""
+            : $"(UnitName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
+              $"OR CONVERT(Id, 'System.String') LIKE '{text}%')";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -353,8 +371,9 @@ public partial class frmProductUnitMaster : Form
 
         _editId = unit.Id;
 
-        // وضع التعديل: زر الحفظ يُحدّث السجل المحدد، وزر الحذف متاح.
-        btnSave.Text = "💾 تعديل";
+        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        btnSave.Enabled = false;
+        btnEdit.Enabled = true;
         btnDelete.Enabled = true;
 
         _isBinding = true;
@@ -380,13 +399,10 @@ public partial class frmProductUnitMaster : Form
 
         errorProvider.Clear();
         _UpdateModeHeader();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
         return Task.CompletedTask;
     }
 
-    // ── Mode / Reset ──────────────────────────────────────────────────────────
+    // ── Mode header / Reset ───────────────────────────────────────────────────
 
     private void _UpdateModeHeader()
         => lblMode.Text = _editId.HasValue
@@ -397,8 +413,10 @@ public partial class frmProductUnitMaster : Form
     {
         _editId = null;
 
-        // وضع الإضافة: زر الحفظ يُضيف سجلاً جديداً، وزر الحذف معطّل لعدم وجود سجل محدد.
-        btnSave.Text = "💾 إضافة";
+        // وضع الإضافة: زر الإضافة متاح، وزرّا التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        // نصوص الأزرار ثابتة في المصمم — لا تُبدَّل حسب الوضع.
+        btnSave.Enabled = true;
+        btnEdit.Enabled = false;
         btnDelete.Enabled = false;
 
         errorProvider.Clear();
@@ -421,12 +439,18 @@ public partial class frmProductUnitMaster : Form
             _isBinding = false;
         }
 
-        dgvUnits.ClearSelection();
+        _isBinding = true;
+        try
+        {
+            dgvUnits.ClearSelection();
+        }
+        finally
+        {
+            _isBinding = false;
+        }
+
         _UpdateModeHeader();
         cmbUnit.Focus();
-
-        _validationFailed = false;
-        _UpdateSaveEnabled();
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -506,28 +530,77 @@ public partial class frmProductUnitMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
-    private async void btnSave_Click(object? sender, EventArgs e)
+    /// <summary>زر الخروج: إغلاق شاشة وحدات الصنف.</summary>
+    private void btnClose_Click(object? sender, EventArgs e)
     {
-        // الحقل المطلوب الناقص: رسالة عربية محددة + تعطيل زر الحفظ حتى تعبئته.
-        if (!_RequiredFieldsValid())
+        DialogResult = DialogResult.OK;
+        Close();
+    }
+
+    /// <summary>زر الإضافة: يُضيف وحدة جديدة دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: false);
+
+    /// <summary>زر التعديل: يُحدّث الوحدة المحددة فقط.</summary>
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: true);
+
+    /// <summary>تحديث يدوي لقائمة وحدات الصنف مع الإبقاء على نص البحث الحالي.</summary>
+    private async void btnRefresh_Click(object? sender, EventArgs e)
+    {
+        Cursor = Cursors.WaitCursor;
+        try
         {
-            _validationFailed = true;
-            _UpdateSaveEnabled();
+            await _LoadUnitsAsync();
+            _ResetForm(); // تفريغ الحقول + وضع الاستعداد بعد التحديث
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحديث البيانات");
+            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
 
-            var missing = string.Join("، ", _MissingRequiredNames());
-            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+    /// <summary>اسم الوحدة الحالية لعرضه في رسالة التأكيد.</summary>
+    private string _CurrentUnitName()
+        => _editId is int id && _unitsById.TryGetValue(id, out var unit)
+            ? unit.UnitName ?? ""
+            : cmbUnit.Text ?? "";
 
-            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
+    /// <summary>
+    /// حفظ وحدة الصنف: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
+    /// </summary>
+    private async Task _SaveAsync(bool edit)
+    {
+        // التعديل بدون سجل محدد لا معنى له.
+        if (edit && _editId is null) return;
+
+        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
+        if (!_RequiredFieldsValid(edit))
+        {
+            _FocusFirstMissingField(edit);
             return;
         }
 
         if (!_ValidateForm()) return;
         if (cmbUnit.SelectedValue is not int unitId || unitId <= 0) return;
 
-        bool wasEditing = _editId.HasValue;
+        // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
+        if (edit)
+        {
+            string editName = _CurrentUnitName();
+            if (MessageBox.Show($"هل أنت متأكد من تعديل وحدة المنتج \"{editName}\"؟",
+                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+                return;
+        }
+
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
+        btnEdit.Enabled = false;
 
         try
         {
@@ -546,7 +619,7 @@ public partial class frmProductUnitMaster : Form
 
             Result<ProductUnitDto> result;
 
-            if (_editId is int productUnitId)
+            if (edit)
             {
                 // التعديل يشمل الوحدة والباركود والأسعار فقط
                 // (معامل التحويل والوحدة الأساسية لا يتغيران بعد الإضافة).
@@ -558,7 +631,7 @@ public partial class frmProductUnitMaster : Form
                     CostPrice: costPrice,
                     MaxDiscountAmount: maxDiscount);
 
-                result = await ProductService.UpdateProductUnitAsync(_productId, productUnitId, request);
+                result = await ProductService.UpdateProductUnitAsync(_productId, _editId!.Value, request);
             }
             else
             {
@@ -579,13 +652,14 @@ public partial class frmProductUnitMaster : Form
 
             if (result.IsSuccess && result.Value != null)
             {
-                MessageBox.Show(wasEditing ? "تم تعديل وحدة الصنف بنجاح." : "تمت إضافة وحدة الصنف بنجاح.",
+                MessageBox.Show(edit ? "تم تعديل وحدة الصنف بنجاح." : "تمت إضافة وحدة الصنف بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
+                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
                 _editId = result.Value.Id;
-
-                // بعد الحفظ ينتقل النموذج إلى وضع التعديل (السجل محدد).
-                btnSave.Text = "💾 تعديل";
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
 
                 await _LoadUnitsAsync();
@@ -606,7 +680,20 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            btnSave.Enabled = true;
+            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
+            if (_editId is null)
+            {
+                btnSave.Enabled = true;
+                btnEdit.Enabled = false;
+                btnDelete.Enabled = false;
+            }
+            else
+            {
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
+                btnDelete.Enabled = true;
+            }
+
             Cursor = Cursors.Default;
         }
     }
@@ -627,11 +714,9 @@ public partial class frmProductUnitMaster : Form
             return;
         }
 
-        string unitName = _unitsById.TryGetValue(productUnitId, out var unit)
-            ? unit.UnitName ?? ""
-            : "";
+        string unitName = _CurrentUnitName();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف الوحدة \"{unitName}\" من هذا الصنف؟",
+        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) وحدة المنتج \"{unitName}\"؟",
                 "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             return;
@@ -666,22 +751,19 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زر الحذف معطّلاً.
+            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا الحذف والتعديل معطّلين.
             btnDelete.Enabled = _editId.HasValue;
+            btnEdit.Enabled = _editId.HasValue;
             Cursor = Cursors.Default;
         }
-    }
-
-    private void btnClose_Click(object? sender, EventArgs e)
-    {
-        DialogResult = DialogResult.OK;
-        Close();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void _SelectGridRow(int productUnitId)
     {
+        if (!dgvUnits.Columns.Contains("UnitName")) return;
+
         foreach (DataGridViewRow row in dgvUnits.Rows)
         {
             if (row.Cells["Id"].Value is int id && id == productUnitId)

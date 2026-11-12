@@ -39,6 +39,9 @@ public partial class frmPurchaseInvoice : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
         ApplyStyles();
@@ -77,6 +80,7 @@ public partial class frmPurchaseInvoice : Form
             UpdateUIState();
             CalculateTotals();
             SetupPrintingButtons();
+            ApplyGreenTheme();
         }
         catch (Exception ex)
         {
@@ -192,6 +196,21 @@ public partial class frmPurchaseInvoice : Form
 
         dgvItems.DataSource = _lines;
         dgvItems.CellEndEdit += DgvItems_CellEndEdit;
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
+    private void ApplyGreenTheme()
+    {
+        // لا يوجد شريط عنوان (lblMode/lblTitle) في هذه الشاشة — العنوان في شريط النافذة (this.Text).
+        // شبكة الأصناف شبكة إدخال (RULE-N22a): التحرير داخل الخلية بالباركود، فسلوكها مملوك للشاشة.
+        GreenThemeHelper.ApplyGrid(dgvItems);
+
+        // إعادة تأكيد سلوك الإدخال بعد ثيم الشبكة (المساعد لا يلمس هذه الخصائص).
+        dgvItems.AllowUserToAddRows = true;
+        dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
+        // ReadOnly لا يُعاد ضبطه هنا — يتحكم به UpdateUIState() حسب حالة الفاتورة (مسودة/مرحّل).
+
+        GreenThemeHelper.Apply(this);   // ← الأخير
     }
 
     private void DgvItems_CellEndEdit(object? sender, DataGridViewCellEventArgs e)

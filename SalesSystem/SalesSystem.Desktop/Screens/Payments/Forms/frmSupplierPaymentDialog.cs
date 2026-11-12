@@ -26,16 +26,27 @@ public partial class frmSupplierPaymentDialog : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
-        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         
         btnSave.Click += btnSave_Click;
         btnCancel.Click += (s, e) => this.Close();
         cmbSupplier.SelectedIndexChanged += cmbSupplier_SelectedIndexChanged;
     }
 
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        // لا يوجد شريط عنوان (lblMode/lblTitle) في هذا النموذج — لا استدعاء لـ ApplyHeader.
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
+    }
+
     protected override async void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
+        ApplyGreenTheme();   // RULE-N50 — الأخير في مسار التحميل
         try
         {
             var res = await SupplierApi.GetAllAsync();

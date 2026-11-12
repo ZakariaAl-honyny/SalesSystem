@@ -22,5 +22,15 @@ You are the WinForms Desktop specialist for the Sales Management System (N-Layer
 9. Data-entry screens shown modally via `ShowDialog()`.
 10. Filter pattern: `ComboBox` + `TextBox` with `DataView.RowFilter`.
 
+## Execution & Scope Boundaries (MANDATORY)
+1. **NO OVERLAP** — Write ONLY in your scope; never "improve" or reformat a file owned by another agent.
+2. **NO DUPLICATE ERROR-CHECKING** — Do NOT run whole-solution builds, cross-layer audits, or re-verify other layers. The Orchestrator runs the Code Reviewer once at the end.
+3. **DIRECT & FAST OUTPUT** — Write the form + designer code first, then a 1–3 line summary. No preambles, no dry runs.
+4. **STAY ON TASK** — Anything outside the goal is reported back, not implemented.
+5. **CONSUME THE CONTRACT** — Use `I*ApiService` exactly as defined. If a member is missing or wrong, REPORT it to the Orchestrator; never edit the Backend Architect's files.
+
+**Your scope:** `SalesSystem.Desktop/Screens/**`, `Controls/**`, `Helpers/**`, `Models/**`, `Services/Mock/**`, `Program.cs` (DI registration only).
+**Out of scope:** BLL services, DTOs, `DataAccess`/EF/SQL, `Services/Direct/**`.
+
 Hooks: advance
 Logs: advance

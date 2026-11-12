@@ -93,10 +93,10 @@ partial class frmInventoryFifo
         // 
         lblProduct.Dock = DockStyle.Fill;
         lblProduct.Font = new Font("Tahoma", 11F, FontStyle.Bold);
-        lblProduct.Location = new Point(3, 0);
+        lblProduct.Location = new Point(456, 0);
         lblProduct.Margin = new Padding(3, 0, 16, 0);
         lblProduct.Name = "lblProduct";
-        lblProduct.Size = new Size(218, 48);
+        lblProduct.Size = new Size(217, 48);
         lblProduct.TabIndex = 0;
         lblProduct.Text = "الصنف: زيت نباتي 1 لتر";
         lblProduct.TextAlign = ContentAlignment.MiddleLeft;
@@ -105,10 +105,10 @@ partial class frmInventoryFifo
         // 
         lblWarehouse.Dock = DockStyle.Fill;
         lblWarehouse.Font = new Font("Tahoma", 11F);
-        lblWarehouse.Location = new Point(244, 0);
+        lblWarehouse.Location = new Point(220, 0);
         lblWarehouse.Margin = new Padding(3, 0, 16, 0);
         lblWarehouse.Name = "lblWarehouse";
-        lblWarehouse.Size = new Size(218, 48);
+        lblWarehouse.Size = new Size(217, 48);
         lblWarehouse.TabIndex = 1;
         lblWarehouse.Text = "المستودع: المستودع الرئيسي";
         lblWarehouse.TextAlign = ContentAlignment.MiddleLeft;
@@ -119,11 +119,11 @@ partial class frmInventoryFifo
         lblMethodBadge.Dock = DockStyle.Fill;
         lblMethodBadge.Font = new Font("Tahoma", 11F, FontStyle.Bold);
         lblMethodBadge.ForeColor = Color.White;
-        lblMethodBadge.Location = new Point(485, 0);
+        lblMethodBadge.Location = new Point(0, 8);
         lblMethodBadge.Margin = new Padding(16, 8, 0, 8);
         lblMethodBadge.Name = "lblMethodBadge";
         lblMethodBadge.Padding = new Padding(8, 2, 8, 2);
-        lblMethodBadge.Size = new Size(191, 48);
+        lblMethodBadge.Size = new Size(188, 32);
         lblMethodBadge.TabIndex = 2;
         lblMethodBadge.Text = "FIFO / FEFO";
         lblMethodBadge.TextAlign = ContentAlignment.MiddleCenter;
@@ -132,8 +132,6 @@ partial class frmInventoryFifo
         // 
         dgvLayers.AllowUserToAddRows = false;
         dgvLayers.AllowUserToDeleteRows = false;
-        dgvLayers.AllowUserToOrderColumns = false;
-        dgvLayers.AutoGenerateColumns = false;
         dgvLayers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvLayers.BackgroundColor = SystemColors.Window;
         dgvLayers.BorderStyle = BorderStyle.Fixed3D;
@@ -187,16 +185,15 @@ partial class frmInventoryFifo
         tlpFooter.RowStyles.Add(new RowStyle(SizeType.Percent, 45F));
         tlpFooter.Size = new Size(676, 92);
         tlpFooter.TabIndex = 0;
-        tlpFooter.SetColumnSpan(lblNote, 5);
         // 
         // lblTotalQtyCaption
         // 
         lblTotalQtyCaption.Dock = DockStyle.Fill;
         lblTotalQtyCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotalQtyCaption.Location = new Point(3, 0);
+        lblTotalQtyCaption.Location = new Point(515, 0);
         lblTotalQtyCaption.Margin = new Padding(3, 0, 8, 0);
         lblTotalQtyCaption.Name = "lblTotalQtyCaption";
-        lblTotalQtyCaption.Size = new Size(163, 50);
+        lblTotalQtyCaption.Size = new Size(158, 50);
         lblTotalQtyCaption.TabIndex = 0;
         lblTotalQtyCaption.Text = "إجمالي الكمية المتبقية:";
         lblTotalQtyCaption.TextAlign = ContentAlignment.MiddleLeft;
@@ -206,10 +203,10 @@ partial class frmInventoryFifo
         lblTotalQtyValue.Dock = DockStyle.Fill;
         lblTotalQtyValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
         lblTotalQtyValue.ForeColor = Color.SeaGreen;
-        lblTotalQtyValue.Location = new Point(177, 0);
+        lblTotalQtyValue.Location = new Point(422, 0);
         lblTotalQtyValue.Margin = new Padding(3, 0, 16, 0);
         lblTotalQtyValue.Name = "lblTotalQtyValue";
-        lblTotalQtyValue.Size = new Size(85, 50);
+        lblTotalQtyValue.Size = new Size(82, 50);
         lblTotalQtyValue.TabIndex = 1;
         lblTotalQtyValue.Text = "325.000";
         lblTotalQtyValue.TextAlign = ContentAlignment.MiddleLeft;
@@ -218,10 +215,10 @@ partial class frmInventoryFifo
         // 
         lblTotalCostCaption.Dock = DockStyle.Fill;
         lblTotalCostCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotalCostCaption.Location = new Point(283, 0);
+        lblTotalCostCaption.Location = new Point(245, 0);
         lblTotalCostCaption.Margin = new Padding(3, 0, 8, 0);
         lblTotalCostCaption.Name = "lblTotalCostCaption";
-        lblTotalCostCaption.Size = new Size(163, 50);
+        lblTotalCostCaption.Size = new Size(158, 50);
         lblTotalCostCaption.TabIndex = 2;
         lblTotalCostCaption.Text = "إجمالي التكلفة:";
         lblTotalCostCaption.TextAlign = ContentAlignment.MiddleLeft;
@@ -231,10 +228,10 @@ partial class frmInventoryFifo
         lblTotalCostValue.Dock = DockStyle.Fill;
         lblTotalCostValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
         lblTotalCostValue.ForeColor = Color.SeaGreen;
-        lblTotalCostValue.Location = new Point(457, 0);
+        lblTotalCostValue.Location = new Point(152, 0);
         lblTotalCostValue.Margin = new Padding(3, 0, 16, 0);
         lblTotalCostValue.Name = "lblTotalCostValue";
-        lblTotalCostValue.Size = new Size(85, 50);
+        lblTotalCostValue.Size = new Size(82, 50);
         lblTotalCostValue.TabIndex = 3;
         lblTotalCostValue.Text = "1,527.25";
         lblTotalCostValue.TextAlign = ContentAlignment.MiddleLeft;
@@ -248,10 +245,10 @@ partial class frmInventoryFifo
         btnClose.FlatAppearance.BorderSize = 2;
         btnClose.FlatStyle = FlatStyle.Popup;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.Location = new Point(565, 3);
+        btnClose.Location = new Point(0, 0);
         btnClose.Margin = new Padding(16, 0, 0, 0);
         btnClose.Name = "btnClose";
-        btnClose.Size = new Size(108, 44);
+        btnClose.Size = new Size(120, 50);
         btnClose.TabIndex = 4;
         btnClose.Text = "إغلاق";
         btnClose.UseVisualStyleBackColor = false;
@@ -259,12 +256,13 @@ partial class frmInventoryFifo
         // 
         // lblNote
         // 
+        tlpFooter.SetColumnSpan(lblNote, 5);
         lblNote.Dock = DockStyle.Fill;
         lblNote.Font = new Font("Tahoma", 9F, FontStyle.Italic);
         lblNote.ForeColor = Color.FromArgb(96, 96, 96);
-        lblNote.Location = new Point(3, 55);
+        lblNote.Location = new Point(3, 50);
         lblNote.Name = "lblNote";
-        lblNote.Size = new Size(670, 37);
+        lblNote.Size = new Size(670, 42);
         lblNote.TabIndex = 5;
         lblNote.Text = "ملاحظة: يُصرف الأقدم أولاً (أو الأقرب صلاحية عند تفعيل FEFO) — التشغيلة التالية للصرف: B-2026-001";
         lblNote.TextAlign = ContentAlignment.MiddleLeft;
@@ -296,7 +294,6 @@ partial class frmInventoryFifo
         pnlFooter.ResumeLayout(false);
         tlpFooter.ResumeLayout(false);
         ResumeLayout(false);
-        PerformLayout();
     }
 
     private Panel pnlTitle;

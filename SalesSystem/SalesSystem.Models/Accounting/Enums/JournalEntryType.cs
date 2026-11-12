@@ -2,15 +2,19 @@
 
 public enum JournalEntryType : byte
 {
-    Sales = 1,
-    SalesReturn = 2,
+    Manual = 1,
+    Sales = 2,
     Purchase = 3,
-    PurchaseReturn = 4,
-    Expense = 5,
-    StockWriteOff = 6,
-    Transfer = 7,
-    Manual = 8,
-    OpeningBalance = 9,
-    CustomerReceipt = 10,
-    SupplierPayment = 11
+    Receipt = 4,
+    Payment = 5,
+    Inventory = 6,
+    Adjustment = 7,
+    SalesReturn = 8,
+    PurchaseReturn = 9,
+    Expense = 10,
+    StockWriteOff = 11,
+    Transfer = 12,
+    OpeningBalance = 13,
+    CustomerReceipt = 14,
+    SupplierPayment = 15
 }

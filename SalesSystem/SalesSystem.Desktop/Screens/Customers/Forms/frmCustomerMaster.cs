@@ -1,9 +1,9 @@
 using System.Data;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -48,25 +48,26 @@ public partial class frmCustomerMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-
-        _WireEvents();
     }
 
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
+    // ── Theme ─────────────────────────────────────────────────────────────────
 
-    private void _WireEvents()
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
     {
-        Load += frmCustomerMaster_Load;
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvCustomers);
 
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
+        // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
+        dgvCustomers.ReadOnly = true;
+        dgvCustomers.AllowUserToAddRows = false;
+        dgvCustomers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvCustomers.MultiSelect = false;
 
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvCustomers.CellClick += dgvCustomers_CellClick;
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
+
+    // ── Validation ────────────────────────────────────────────────────────────
 
     /// <summary>هل الحقل المطلوب (اسم العميل) مكتمل؟</summary>
     private bool _RequiredFieldsValid()
@@ -75,13 +76,18 @@ public partial class frmCustomerMaster : Form
     /// <summary>
     /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _FocusFirstMissingField()
+    /// <param name="edit">false = إضافة عميل جديد، true = تعديل عميل قائم.</param>
+    /// <returns>false إذا كان هناك حقل مطلوب ناقص، و true إذا كانت الحقول مكتملة.</returns>
+    private bool _FocusFirstMissingField(bool edit)
     {
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
             errorProvider.SetError(txtName, "اسم العميل مطلوب");
             txtName.Focus();
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>تحديث يدوي لقائمة العملاء مع الإبقاء على نص البحث الحالي.</summary>
@@ -113,6 +119,7 @@ public partial class frmCustomerMaster : Form
         {
             await _LoadCustomersAsync();
             _ResetForm();
+            ApplyGreenTheme();
         }
         catch (Exception ex)
         {
@@ -177,8 +184,32 @@ public partial class frmCustomerMaster : Form
             _customersTable = table;
             _customersView = new DataView(_customersTable);
             dgvCustomers.DataSource = _customersView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا تُعرض <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً لكل عمود ظاهر بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvCustomers.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "رقم العميل",
+                "Name" => "اسم العميل",
+                "Phone" => "الهاتف",
+                "Email" => "البريد",
+                "TaxNumber" => "الرقم الضريبي",
+                "CreditLimit" => "حد الائتمان",
+                "IsActive" => "نشط",
+                _ => column.HeaderText
+            };
         }
     }
 
@@ -199,22 +230,45 @@ public partial class frmCustomerMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e)
+    {
+        _ApplyFilter();
+        _ApplyRowColoring();
+    }
+
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
         if (_customersView is null) return;
 
         string text = txtSearch.Text.Trim().Replace("'", "''");
 
-        if (string.IsNullOrEmpty(text))
+        var conditions = new List<string>();
+
+        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
+        if (!chkShowInactive.Checked)
+            conditions.Add("IsActive = true");
+
+        if (!string.IsNullOrEmpty(text))
         {
-            _customersView.RowFilter = "";
-            return;
+            conditions.Add(
+                $"(Name LIKE '%{text}%' OR Phone LIKE '%{text}%' OR Email LIKE '%{text}%' " +
+                $"OR TaxNumber LIKE '%{text}%' " +
+                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
         }
 
-        _customersView.RowFilter =
-            $"Name LIKE '%{text}%' OR Phone LIKE '%{text}%' OR Email LIKE '%{text}%' " +
-            $"OR TaxNumber LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        _customersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -304,7 +358,7 @@ public partial class frmCustomerMaster : Form
         txtName.Focus();
     }
 
-    // ── Validation ────────────────────────────────────────────────────────────
+    // ── Validation (الرسائل) ─────────────────────────────────────────────────
 
     private bool _ValidateForm()
     {
@@ -343,6 +397,9 @@ public partial class frmCustomerMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
+    /// <summary>زر الخروج: إغلاق شاشة دليل العملاء.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
+
     /// <summary>زر الإضافة: يُضيف عميلاً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
     private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: false);
 
@@ -360,7 +417,7 @@ public partial class frmCustomerMaster : Form
         // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
         if (!_RequiredFieldsValid())
         {
-            _FocusFirstMissingField();
+            _FocusFirstMissingField(edit);
             return;
         }
 

@@ -18,7 +18,27 @@ public partial class frmListCustomerReceipts : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40: الأربعة معاً — Enter/Tab + تحديد القيمة + تظليل الحقل + أسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvReceipts);
+
+        // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
+        dgvReceipts.ReadOnly = true;
+        dgvReceipts.AllowUserToAddRows = false;
+        dgvReceipts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvReceipts.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     private void _SetupGridColumns()
@@ -73,7 +93,9 @@ public partial class frmListCustomerReceipts : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء تحميل سندات القبض: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء تحميل سندات القبض");
+            MessageBox.Show("حدث خطأ أثناء تحميل سندات القبض",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -139,6 +161,7 @@ public partial class frmListCustomerReceipts : Form
     private void frmListCustomerReceipts_Load(object sender, EventArgs e)
     {
         _ReloadForm();
+        ApplyGreenTheme();   // RULE-N50 — آخر خطوة في مسار التحميل
     }
 
     private void btnClose_Click(object sender, EventArgs e)
@@ -215,7 +238,9 @@ public partial class frmListCustomerReceipts : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء الترحيل: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء ترحيل سند القبض");
+            MessageBox.Show("حدث خطأ أثناء الترحيل",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -261,7 +286,9 @@ public partial class frmListCustomerReceipts : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء الإلغاء: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء إلغاء سند القبض");
+            MessageBox.Show("حدث خطأ أثناء الإلغاء",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally

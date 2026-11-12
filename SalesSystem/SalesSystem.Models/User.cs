@@ -22,6 +22,9 @@ public class User : ActivatableEntity
     public DateTime? LastLoginAt { get; private set; }
     public short LoginAttempts { get; private set; }
 
+    // Navigation properties
+    public virtual Branch? Branch { get; private set; }
+
     protected User() { }
 
     /// <summary>

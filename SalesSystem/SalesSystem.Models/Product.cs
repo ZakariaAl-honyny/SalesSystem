@@ -41,6 +41,7 @@ public class Product : ActivatableEntity
 
     /// <summary>
     /// Branch identifier for multi-branch support (smallint FK).
+    /// عمود أحادي الفرع للنسخة التجريبية (MVP) — يُثبّت على 1 في الوضع الراهن.
     /// </summary>
     public short BranchId { get; private set; }
 
@@ -54,6 +55,7 @@ public class Product : ActivatableEntity
     /// Primary barcode for quick lookup — varchar(50), ASCII-only.
     /// Each product has exactly one barcode; additional barcodes per unit stored in UnitBarcode table.
     /// Not a unique identifier (nullable), but indexed for fast search.
+    /// عمود مكرّر للبحث السريع؛ المصدر الرسمي هو ProductUnits.Barcode (وحدة أساسية واحدة).
     /// </summary>
     public string? Barcode { get; private set; }
 
@@ -71,6 +73,12 @@ public class Product : ActivatableEntity
     /// Expiry alert threshold in days (نقطة التنبيه بالانتهاء).
     /// </summary>
     public short? ExpiryAlertDays { get; private set; }
+
+    /// <summary>
+    /// أدنى سعر بيع مسموح به — لا يمكن بيع الصنف بأقل من هذا السعر.
+    /// decimal(18,2) not null default 0.
+    /// </summary>
+    public decimal MinSalePrice { get; private set; }
 
    // ─── Navigation Properties ────────────────────────────
 
@@ -217,6 +225,7 @@ public class Product : ActivatableEntity
         string? foreignName = null,
         string? locationInStore = null,
         short? expiryAlertDays = null,
+        decimal minSalePrice = 0,
         int? createdByUserId = null)
     {
         if (branchId <= 0)
@@ -227,6 +236,8 @@ public class Product : ActivatableEntity
             throw new DomainException("التصنيف مطلوب.");
         if (reorderLevel < 0)
             throw new DomainException("مستوى إعادة الطلب لا يمكن أن يكون سالباً.");
+        if (minSalePrice < 0)
+            throw new DomainException("أدنى سعر بيع لا يمكن أن يكون سالباً.");
 
         var product = new Product
         {
@@ -241,6 +252,7 @@ public class Product : ActivatableEntity
             ForeignName = foreignName?.Trim(),
             LocationInStore = locationInStore?.Trim(),
             ExpiryAlertDays = expiryAlertDays,
+            MinSalePrice = minSalePrice,
             IsActive = true
         };
         product.SetCreatedBy(createdByUserId);
@@ -261,6 +273,7 @@ public class Product : ActivatableEntity
         string? foreignName = null,
         string? locationInStore = null,
         short? expiryAlertDays = null,
+        decimal minSalePrice = 0,
         int? updatedByUserId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -269,6 +282,8 @@ public class Product : ActivatableEntity
             throw new DomainException("التصنيف مطلوب.");
         if (reorderLevel < 0)
             throw new DomainException("مستوى إعادة الطلب لا يمكن أن يكون سالباً.");
+        if (minSalePrice < 0)
+            throw new DomainException("أدنى سعر بيع لا يمكن أن يكون سالباً.");
 
         Name = name;
         Description = description?.Trim();
@@ -280,6 +295,7 @@ public class Product : ActivatableEntity
         ForeignName = foreignName?.Trim();
         LocationInStore = locationInStore?.Trim();
         ExpiryAlertDays = expiryAlertDays;
+        MinSalePrice = minSalePrice;
 
         SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();

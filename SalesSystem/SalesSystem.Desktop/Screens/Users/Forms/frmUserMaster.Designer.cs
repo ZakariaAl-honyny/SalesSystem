@@ -35,6 +35,8 @@ partial class frmUserMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnRefresh = new Button();
+        btnClose = new Button();
         pnlGrid = new Panel();
         dgvUsers = new DataGridView();
         colId = new DataGridViewTextBoxColumn();
@@ -42,9 +44,9 @@ partial class frmUserMaster
         colIsLocked = new DataGridViewTextBoxColumn();
         colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
+        chkShowInactive = new CheckBox();
         txtSearch = new TextBox();
         lblSearch = new Label();
-        btnRefresh = new Button();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -103,6 +105,7 @@ partial class frmUserMaster
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
+        txtCode.TabStop = false;
         // 
         // lblUserName
         // 
@@ -140,7 +143,9 @@ partial class frmUserMaster
         // 
         // cmbBranch
         // 
+        cmbBranch.BackColor = Color.White;
         cmbBranch.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbBranch.FlatStyle = FlatStyle.Flat;
         cmbBranch.Location = new Point(1157, 122);
         cmbBranch.Name = "cmbBranch";
         cmbBranch.Size = new Size(220, 32);
@@ -198,6 +203,8 @@ partial class frmUserMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnRefresh);
+        pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 250);
         pnlButtons.Name = "pnlButtons";
@@ -207,47 +214,88 @@ partial class frmUserMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.White;
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
+        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
         btnNew.TabIndex = 0;
-        btnNew.Text = "🆕 إضافة";
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.White;
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
         btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.White;
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
         btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
         btnEdit.TabIndex = 2;
         btnEdit.Text = "✏️ تعديل";
         btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.White;
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
+        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDelete.ForeColor = Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 3;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
+        btnRefresh.Location = new Point(719, 13);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 35);
+        btnRefresh.TabIndex = 4;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(583, 13);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(130, 35);
+        btnClose.TabIndex = 5;
+        btnClose.TabStop = false;
+        btnClose.Text = "🚪 خروج";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // pnlGrid
         // 
@@ -279,6 +327,7 @@ partial class frmUserMaster
         dgvUsers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvUsers.Size = new Size(1412, 300);
         dgvUsers.TabIndex = 0;
+        dgvUsers.CellClick += dgvUsers_CellClick;
         // 
         // colId
         // 
@@ -318,7 +367,7 @@ partial class frmUserMaster
         // 
         // pnlFilter
         // 
-        pnlFilter.Controls.Add(btnRefresh);
+        pnlFilter.Controls.Add(chkShowInactive);
         pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
         pnlFilter.Dock = DockStyle.Top;
@@ -327,23 +376,25 @@ partial class frmUserMaster
         pnlFilter.Size = new Size(1412, 40);
         pnlFilter.TabIndex = 1;
         // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(480, 9);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.TabIndex = 3;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
+        // 
         // txtSearch
         // 
         txtSearch.Location = new Point(690, 7);
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 99;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = Color.White;
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(550, 4);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
-        btnRefresh.TabIndex = 98;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
+        txtSearch.TabIndex = 2;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // lblSearch
         // 
@@ -375,6 +426,7 @@ partial class frmUserMaster
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
         Text = "إدارة المستخدمين";
+        Load += frmUserMaster_Load;
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         pnlButtons.ResumeLayout(false);
@@ -405,6 +457,8 @@ partial class frmUserMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvUsers;
     private System.Windows.Forms.DataGridViewTextBoxColumn colId;
@@ -412,8 +466,8 @@ partial class frmUserMaster
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsLocked;
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
+    private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.TextBox txtSearch;
-    private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

@@ -44,7 +44,8 @@ public static class PrintDtoExtensions
         }).ToList();
     }
 
-    public static List<InvoiceItemPrintDto> ToPrintDtos(this IEnumerable<SalesInvoiceLineDto> items)
+    public static List<InvoiceItemPrintDto> ToPrintDtos(this IEnumerable<SalesInvoiceLineDto> items,
+        IReadOnlyDictionary<int, string>? unitNames = null)
     {
         return items.Select(i => new InvoiceItemPrintDto
         {
@@ -53,7 +54,14 @@ public static class PrintDtoExtensions
             Quantity = i.Quantity,
             UnitPrice = i.UnitPrice,
             Discount = i.DiscountAmount,
-            LineTotal = i.LineTotal
+            LineTotal = i.LineTotal,
+            // Prefer the unit name the DTO already carries; otherwise fall back to a
+            // caller-supplied lookup, and finally leave null so the summary prints "—".
+            UnitName = !string.IsNullOrWhiteSpace(i.UnitName)
+                ? i.UnitName
+                : unitNames != null && unitNames.TryGetValue(i.ProductUnitId, out var unitName)
+                    ? unitName
+                    : null
         }).ToList();
     }
 
@@ -66,8 +74,22 @@ public static class PrintDtoExtensions
             Discount = invoice.DiscountAmount,
             TotalAmount = invoice.TotalAmount,
             PaidAmount = invoice.PaidAmount,
-            DueAmount = invoice.DueAmount
+            DueAmount = invoice.DueAmount,
+            Tafqit = TryTafqit(invoice.TotalAmount)
         };
+    }
+
+    /// <summary>التفقيط — لا يُسمح أبداً برمي استثناء من مساعد التحويل إلى كلمات أثناء الطباعة.</summary>
+    private static string? TryTafqit(decimal amount)
+    {
+        try
+        {
+            return global::SalesSystem.Desktop.Helpers.ArabicNumberToWords.ToWords(amount);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public static InvoicePrintDto ToPrintDto(this PurchaseInvoiceDto invoice)
@@ -118,7 +140,8 @@ public static class PrintDtoExtensions
             Discount = invoice.DiscountAmount,
             TotalAmount = invoice.TotalAmount,
             PaidAmount = invoice.PaidAmount,
-            DueAmount = invoice.DueAmount
+            DueAmount = invoice.DueAmount,
+            Tafqit = TryTafqit(invoice.TotalAmount)
         };
     }
 

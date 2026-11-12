@@ -4,7 +4,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
 
@@ -36,7 +36,7 @@ public partial class frmStockBalanceReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportService>().GetStockBalanceReportAsync(null, default);
+            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetStockBalanceAsync(null, default);
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();

@@ -17,7 +17,7 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
         builder.Property(x => x.EntryNo).IsRequired();
         builder.HasIndex(x => x.EntryNo).IsUnique();
         builder.Property(x => x.EntryDate).IsRequired().HasColumnType("date");
-        builder.Property(x => x.Description).HasMaxLength(500);
+        builder.Property(x => x.Description).HasMaxLength(500).IsRequired(false);
         builder.Property(x => x.EntryType).HasColumnType("tinyint").HasConversion<byte>().IsRequired();
 
         // ─── FK to Branch ───────────────────────────────────────────────
@@ -39,10 +39,16 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
         builder.Property(x => x.ReferenceType).HasMaxLength(50);
         builder.Property(x => x.ReferenceNumber).HasMaxLength(50);
         builder.Property(x => x.ReferenceId);
+        builder.Property(x => x.IsReversed)
+            .HasDefaultValue(false);
         builder.HasIndex(x => new { x.ReferenceType, x.ReferenceId })
             .HasFilter("[ReferenceType] IS NOT NULL AND [ReferenceId] IS NOT NULL");
 
         builder.Property(x => x.ReviewedByUserId).IsRequired(false);
+        builder.HasOne(x => x.ReviewedByUser)
+            .WithMany()
+            .HasForeignKey(x => x.ReviewedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.Property(x => x.ReviewedAt).IsRequired(false);
 
         builder.HasIndex(x => x.EntryDate);

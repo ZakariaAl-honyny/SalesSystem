@@ -22,7 +22,31 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         {
             _serviceProvider = serviceProvider;
             InitializeComponent();
-            KeyboardHelper.WireEnterAsTab(this);
+            KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+            KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
+            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+            KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
+        }
+
+        /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+        private void ApplyGreenTheme()
+        {
+            GreenThemeHelper.ApplyHeader(lblMode);
+            GreenThemeHelper.ApplyGrid(dgvCustomerPayments);
+            GreenThemeHelper.ApplyGrid(dgvSupplierPayments);
+
+            // RULE-N22: سلوك شبكتي العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه (RULE-N52).
+            dgvCustomerPayments.ReadOnly = true;
+            dgvCustomerPayments.AllowUserToAddRows = false;
+            dgvCustomerPayments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvCustomerPayments.MultiSelect = false;
+
+            dgvSupplierPayments.ReadOnly = true;
+            dgvSupplierPayments.AllowUserToAddRows = false;
+            dgvSupplierPayments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvSupplierPayments.MultiSelect = false;
+
+            GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
         }
 
         private void _SetupCustomerGrid()
@@ -110,7 +134,9 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("حدث خطأ أثناء تحميل سندات القبض: " + ex.Message,
+                // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+                Serilog.Log.Error(ex, "فشل تحميل سندات القبض في شاشة المدفوعات");
+                MessageBox.Show("حدث خطأ أثناء تحميل سندات القبض.",
                     "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -155,7 +181,9 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("حدث خطأ أثناء تحميل سندات الصرف: " + ex.Message,
+                // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+                Serilog.Log.Error(ex, "فشل تحميل سندات الصرف في شاشة المدفوعات");
+                MessageBox.Show("حدث خطأ أثناء تحميل سندات الصرف.",
                     "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -178,6 +206,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         private void frmListPayments_Load(object sender, EventArgs e)
         {
             _RefreshAll();
+            ApplyGreenTheme();   // RULE-N50 — الأخير في مسار التحميل
         }
 
         private void btnClose_Click(object sender, EventArgs e)

@@ -29,7 +29,7 @@ public class CustomerService : ICustomerService
 
     public async Task<Result<CustomerDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var customer = await _uow.Customers.FirstOrDefaultAsync(
+        var customer = await _uow.Customers.FirstOrDefaultIgnoreFiltersAsync(
             c => c.Id == id, ct);
         if (customer == null)
             return Result<CustomerDto>.Failure("العميل غير موجود", ErrorCodes.NotFound);
@@ -156,7 +156,7 @@ public class CustomerService : ICustomerService
 
     public async Task<Result> DeleteAsync(int id, int userId, CancellationToken ct)
     {
-        var customer = await _uow.Customers.GetByIdAsync(id, ct);
+        var customer = await _uow.Customers.FirstOrDefaultIgnoreFiltersAsync(c => c.Id == id, ct);
         if (customer == null)
             return Result.Failure("العميل غير موجود", ErrorCodes.NotFound);
 

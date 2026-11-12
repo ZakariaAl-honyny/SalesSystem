@@ -3,7 +3,6 @@ using SalesSystem.Common;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
 using SalesSystem.Common.Enums;
-using SalesSystem.Business.Interfaces.Services;
 using SalesSystem.Desktop.Controls.Common;
 using SalesSystem.Desktop.Models;
 
@@ -12,7 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Products.Forms;
+using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.DTO.Responses;
 using SalesSystem.Models.Accounting.Enums;
 
@@ -29,21 +30,34 @@ public partial class frmAddUpdateSalesInvoice : Form
     private List<ProductDto> _allProducts = new();
     private Dictionary<int, List<ProductUnitDto>> _productUnitsCache = new();
     private List<AccountDto> _bankAccounts = new();
+    private List<CashBoxDto> _cashBoxes = new();
     private bool _isUpdating;
     private Guid? _editingLineKey = null;
     private InvoiceLineItemViewModel? _editingOriginalItem = null;
 
+    // ── رصيد المستودع الحالي بالوحدات الأساسية (productId → qty) ──
+    private readonly Dictionary<int, decimal> _warehouseStockBase = new();
+    private int _warehouseStockForWarehouseId = -1;   // -1 = غير محمّل
+    private bool _warehouseStockAvailable;            // false = تعذّر التحقق ⇒ اسمح
+
+    // ── Task 1/2/3/4 state ───────────────────────────────────────────
+    private decimal _discountBeforeEdit;          // قيمة الخصم قبل التحرير (لاسترجاعها عند إدخال غير صالح)
+    private int _stockLookupToken;                // حارس التسابق (race guard) لاستعلام المخزون
+
+    /// <summary>الفاتورة المرحّلة أو الملغاة مقفلة تلقائياً — لا تعديل ولا إضافة سطور.</summary>
+    private bool IsLocked => _invoice != null && _invoice.Status is 2 or 3;
+
     // ── Lazy Service Accessors ──────────────────────────────────────
-    private ISalesService _salesService => _serviceProvider.GetRequiredService<ISalesService>();
-    private ICustomerService _customerApi => _serviceProvider.GetRequiredService<ICustomerService>();
-    private IProductService _productApi => _serviceProvider.GetRequiredService<IProductService>();
-    private IWarehouseService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseService>();
-    private IProductUnitService _productUnitApi => _serviceProvider.GetRequiredService<IProductUnitService>();
+    private ISalesInvoiceApiService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceApiService>();
+    private ICustomerApiService _customerApi => _serviceProvider.GetRequiredService<ICustomerApiService>();
+    private IProductApiService _productApi => _serviceProvider.GetRequiredService<IProductApiService>();
+    private IWarehouseApiService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseApiService>();
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
     private IReceiptPrinter _receiptPrinter => _serviceProvider.GetRequiredService<IReceiptPrinter>();
-    private IStoreSettingsService _settingsApi => _serviceProvider.GetRequiredService<IStoreSettingsService>();
-    private IAccountService _accountApi => _serviceProvider.GetRequiredService<IAccountService>();
-    private IInventoryService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryService>();
+    private ISettingsApiService _settingsApi => _serviceProvider.GetRequiredService<ISettingsApiService>();
+    private IAccountApiService _accountApi => _serviceProvider.GetRequiredService<IAccountApiService>();
+    private IInventoryApiService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryApiService>();
+    private ICashBoxApiService _cashBoxApi => _serviceProvider.GetRequiredService<ICashBoxApiService>();
 
     // ═════════════════════════════════════════════════════════════════
     //  CONSTRUCTOR
@@ -56,12 +70,26 @@ public partial class frmAddUpdateSalesInvoice : Form
         AutoValidate = AutoValidate.EnableAllowFocusChange;
         KeyPreview = true;
         KeyDown += frmAddUpdateSalesInvoice_KeyDown;
+
+        // Unified keyboard behaviour (Enter = Tab, select-all on focus, focus highlight).
+        // NOTE: no arrow navigation — the grid owns the arrow keys.
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45 — أسهم RTL: يمين/أعلى = السابق، يسار/أسفل = التالي
+
         ApplyStyles();
-        ThemeHelper.ApplyDataGridViewStyle(dgvItems);
+        ApplyGreenGridStyle();
         dgvItems.AutoGenerateColumns = false;
         dgvItems.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         dgvItems.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         dgvItems.DataSource = _lines;
+
+        // ترتيب أعمدة التحرير داخل الشبكة (#, باركود, وحدة, كمية, سعر, خصم, تاريخ الانتهاء)
+        EditableDgvColumns = new[]
+        {
+            colBarcode.Index, colUnit.Index, colQuantity.Index, colUnitPrice.Index, colDiscount.Index, colExpiry.Index
+        };
 
         // Enable DoubleBuffered for flicker-free rendering
         typeof(DataGridView).GetProperty("DoubleBuffered",
@@ -83,6 +111,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtQuantity.KeyDown += txtQuantity_KeyDown;
         txtUnitPrice.KeyDown += txtUnitPrice_KeyDown;
         txtLineDiscount.KeyDown += txtLineDiscount_KeyDown;
+        dtpLineExpiry.KeyDown += dtpLineExpiry_KeyDown;
 
         // Live recalc
         txtQuantity.TextChanged += RecalculateLineTotal;
@@ -98,7 +127,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtUnitPrice.Enter += NumericTextBox_Enter;
         txtLineDiscount.Enter += NumericTextBox_Enter;
         txtPaid.Enter += NumericTextBox_Enter;
-        txtBankAmount.Enter += NumericTextBox_Enter;
+        //txtBankAmount.Enter += NumericTextBox_Enter;
         txtExpenses.Enter += NumericTextBox_Enter;
         txtNotes.Enter += NumericTextBox_Enter;
         numInvoiceDiscount.Enter += NumericTextBox_Enter;
@@ -106,11 +135,13 @@ public partial class frmAddUpdateSalesInvoice : Form
         // Header/Footer combos — Enter moves to next field
         cmbCustomer.KeyDown += FieldEnter_KeyDown;
         cmbWarehouse.KeyDown += FieldEnter_KeyDown;
-        cmbPaymentType.KeyDown += FieldEnter_KeyDown;
-        cmbBank.KeyDown += FieldEnter_KeyDown;
-        cmbTax.KeyDown += FieldEnter_KeyDown;
-        cmbAccount.KeyDown += FieldEnter_KeyDown;
+        cmbCashBox.KeyDown += FieldEnter_KeyDown;
         cmbDiscountType.KeyDown += FieldEnter_KeyDown;
+        //cmbPaymentType.KeyDown += FieldEnter_KeyDown;
+        //cmbBank.KeyDown += FieldEnter_KeyDown;
+        //cmbTax.KeyDown += FieldEnter_KeyDown;
+        cmbAccount.KeyDown += FieldEnter_KeyDown;
+        //cmbDiscountType.KeyDown += FieldEnter_KeyDown;
         numInvoiceDiscount.KeyDown += FieldEnter_KeyDown;
 
         // DGV events (Inline Editing)
@@ -125,24 +156,27 @@ public partial class frmAddUpdateSalesInvoice : Form
         dgvItems.CellFormatting += dgvItems_CellFormatting;
         dgvItems.CellClick += dgvItems_CellClick;
         dgvItems.CellDoubleClick += dgvItems_CellDoubleClick;
+        dgvItems.Scroll += (s, e) => HideCellExpiryPicker();
+        dgvItems.Leave += (s, e) => HideCellExpiryPicker();
 
         // Context Menu
         tsmiEditRow.Click += (s, e) => { if (dgvItems.CurrentRow?.Index >= 0 && dgvItems.CurrentRow.Index < _lines.Count) LoadRowForEditing(dgvItems.CurrentRow.Index); };
         tsmiCancelEdit.Click += (s, e) => CancelEdit();
         tsmiDeleteRow.Click += (s, e) => { if (dgvItems.CurrentRow?.Index >= 0) DeleteSelectedRow(); };
 
-        // Discount type changed
-        cmbDiscountType.SelectedIndexChanged += OnCalculateTotals;
+        // Discount type changed — مبلغ / نسبة
+        cmbDiscountType.SelectedIndexChanged += cmbDiscountType_SelectedIndexChanged;
+        if (cmbDiscountType.SelectedIndex < 0) cmbDiscountType.SelectedIndex = 0; // "مبلغ" (default)
 
         // Tax checkbox — when checked (شاملة/inclusive), disable cmbTax since values don't change
-        chkApplyTax.CheckedChanged += chkApplyTax_CheckedChanged;
+        //chkApplyTax.CheckedChanged += chkApplyTax_CheckedChanged;
 
         // Expenses numeric validation
         txtExpenses.KeyPress += NumericTextBox_KeyPress;
 
         // Payment area — Enter triggers next field
         txtPaid.KeyDown += FieldEnter_KeyDown;
-        txtBankAmount.KeyDown += FieldEnter_KeyDown;
+        //txtBankAmount.KeyDown += FieldEnter_KeyDown;
 
         // Notes / date — Enter triggers next field
         txtNotes.KeyDown += FieldEnter_KeyDown;
@@ -150,12 +184,26 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         // Unified focus indicator for all input controls
         ThemeHelper.WireFocusIndicator(
-            txtBarcode, cmbUnit, txtQuantity, txtUnitPrice, txtLineDiscount,  // Entry panel
-            txtPaid, txtBankAmount, txtExpenses, txtNotes,                     // Payment / notes
-            cmbCustomer, cmbWarehouse, cmbPaymentType,                         // Header combos
-            cmbBank, cmbTax, cmbAccount, cmbDiscountType,                      // Footer combos
+            txtBarcode, cmbUnit, txtQuantity, txtUnitPrice, txtLineDiscount, dtpLineExpiry,  // Entry panel
+            txtPaid, txtExpenses, txtNotes,                     // Payment / notes
+            cmbCustomer, cmbWarehouse, cmbCashBox,              // Header combos
+            cmbAccount, cmbDiscountType,                        // Footer combos
             numInvoiceDiscount, dtpDate                                        // Numeric / date
         );
+
+        // ── المتاح في المخزون (لكل وحدة) — عند تغيير الوحدة أو المستودع ──
+        cmbUnit.SelectedIndexChanged += cmbUnit_SelectedIndexChanged;
+        cmbWarehouse.SelectedIndexChanged += cmbWarehouse_SelectedIndexChanged_RefreshAvailable;
+
+        // تفقيط حيّ: تلميح يظهر بجوار الحقل عند كل تغيير، فيقرأ المستخدم الرقم وعدد الأصفار
+        LiveTafqeetHelper.Attach(
+            liveTip,
+            (txtQuantity, "الكمية", LiveTafqeetHelper.ReadMode.Quantity),
+            (txtUnitPrice, "السعر", LiveTafqeetHelper.ReadMode.Money),
+            (txtLineDiscount, "خصم السطر", LiveTafqeetHelper.ReadMode.Money),
+            (txtPaid, "المدفوع", LiveTafqeetHelper.ReadMode.Money),
+            (txtExpenses, "المصاريف", LiveTafqeetHelper.ReadMode.Money),
+            (numInvoiceDiscount, "الخصم", LiveTafqeetHelper.ReadMode.Money));
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -177,11 +225,11 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             await LoadLookups();
 
-            cmbDiscountType.SelectedIndex = 0;
-
             if (_invoice != null)
             {
                 BindInvoice();
+                // انتظار حلّ الوحدات ومعاملات التحويل قبل تمكين التحرير (يمنع حفظ كمية بمعامل 1 خطأً)
+                await LoadAllUnitsForLinesAsync();
             }
             else
             {
@@ -234,21 +282,33 @@ public partial class frmAddUpdateSalesInvoice : Form
         ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
 
         ApplyUiPolish();
+        ApplyGreenTheme();
     }
 
     /// <summary>
     /// Visual polish applied on top of the base theme — totals emphasis,
-    /// entry-panel buttons, quick-info bar and group headers.
+    /// the two action bars (أوامر الفاتورة + أوامر الأصناف), quick-info bar and group headers.
     /// </summary>
     private void ApplyUiPolish()
     {
-        // ── Entry panel buttons ──
+        // ── أوامر الأصناف (الشريط أعلى شبكة الأصناف) ──
         ThemeHelper.ApplyButtonStyle(btnAddLine, ThemeHelper.ButtonType.Success);
         btnAddLine.Text = "➕ إضافة";
         btnAddLine.BackColor = Color.FromArgb(25, 135, 84);
+
+        ThemeHelper.ApplyButtonStyle(btnEditRow, ThemeHelper.ButtonType.Warning);
+        btnEditRow.BackColor = Color.FromArgb(255, 193, 7);              // أمبر — مثل btnCancelLine
+        btnEditRow.ForeColor = Color.FromArgb(60, 45, 5);                // نص داكن مقروء على الأمبر
+
+        ThemeHelper.ApplyButtonStyle(btnDeleteRow, ThemeHelper.ButtonType.Danger);
+
         ThemeHelper.ApplyButtonStyle(btnCancelLine, ThemeHelper.ButtonType.Warning);
         btnCancelLine.ForeColor = Color.FromArgb(60, 45, 5); // readable text on amber
         btnCancelLine.Enabled = false;
+
+        // ── شريط أوامر الفاتورة ──
+        ThemeHelper.ApplyButtonStyle(btnRefreshCatalog, ThemeHelper.ButtonType.Secondary);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Secondary);
 
         // ── Print / cancel invoice buttons ──
         ThemeHelper.ApplyButtonStyle(btnPrintA4, ThemeHelper.ButtonType.Secondary);
@@ -256,34 +316,118 @@ public partial class frmAddUpdateSalesInvoice : Form
         ThemeHelper.ApplyButtonStyle(btnPrintReceipt, ThemeHelper.ButtonType.Secondary);
         btnPrintReceipt.ForeColor = ThemeHelper.TextPrimary;
 
+        // ── خيار "طباعة فاتورة إجمالية" ──
+        chkPrintSummary.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
+        chkPrintSummary.ForeColor = ThemeHelper.TextPrimary;
+        chkPrintSummary.BackColor = Color.Transparent;
+
         // ── Group headers ──
         foreach (var gb in new[] { gbInvoiceInfo, gbEntry, gbItems, gbTotals })
         {
-            gb.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            gb.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             gb.ForeColor = ThemeHelper.TextPrimary;
         }
 
         // ── Totals area emphasis ──
-        lblTotalVal.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
-        lblTotalVal.ForeColor = ThemeHelper.Primary;
-        lblDueVal.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
-        lblSubTotalVal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblDiscountAmountVal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblLineTotal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        //lblTotalVal.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+        //lblTotalVal.ForeColor = ThemeHelper.Primary;
+        //lblDueVal.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+        //lblSubTotalVal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        //lblDiscountAmountVal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+        lblLineTotal.Font = new Font("Tahoma", 11F, FontStyle.Bold);
         lblLineTotal.ForeColor = ThemeHelper.Primary;
 
         // ── Quick info bar ──
-        lblQuickInfo.BackColor = Color.FromArgb(248, 249, 250);
-        lblQuickInfo.ForeColor = ThemeHelper.TextDarkGray;
-        lblQuickInfo.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        lblQuickInfo.BackColor = Color.FromArgb(235, 245, 235);
+        lblQuickInfo.ForeColor = Color.FromArgb(14, 82, 52);
+        lblQuickInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         lblQuickInfo.Padding = new Padding(8, 6, 8, 6);
 
         // ── Status badge ──
-        lblStatus.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        lblStatus.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         lblStatus.ForeColor = Color.White;
         lblStatus.Padding = new Padding(10, 4, 10, 4);
         lblStatus.TextAlign = ContentAlignment.MiddleCenter;
         lblStatus.AutoSize = true;
+
+        // ── Action buttons — bold Tahoma 10, white text, distinct colours ──
+        StyleActionButton(btnNew, Color.FromArgb(40, 167, 69));            // أخضر
+        StyleActionButton(btnSaveDraft, Color.FromArgb(0, 123, 255));      // أزرق
+        StyleActionButton(btnPost, Color.FromArgb(25, 135, 84));           // أخضر داكن
+        StyleActionButton(btnCancelInvoice, Color.FromArgb(220, 53, 69));  // أحمر
+        StyleActionButton(btnPrintA4, Color.FromArgb(255, 152, 0));        // برتقالي
+        StyleActionButton(btnPrintReceipt, Color.FromArgb(23, 162, 184));  // تركوازي
+        StyleActionButton(btnSalesReturn, Color.FromArgb(111, 66, 193));   // بنفسجي
+        StyleActionButton(btnClose, Color.FromArgb(108, 117, 125));        // رمادي
+        StyleActionButton(btnDeleteRow, Color.FromArgb(220, 53, 69));      // أحمر
+
+        // ── توحيد مقاسات أزرار شريطي الأوامر (AutoSize=false كما في المصمّم) ──
+        // ApplyButtonStyle يفرض AutoSize=true وFont=Segoe UI — نُعيد Tahoma (العرض من المصمّم).
+        foreach (var btn in new[]
+                 {
+                     btnNew, btnSaveDraft, btnPost, btnPrintA4, btnPrintReceipt,
+                     btnAddLine, btnEditRow, btnDeleteRow, btnCancelLine,
+                     btnClose, btnSalesReturn, btnCancelInvoice, btnRefreshCatalog
+                 })
+        {
+            btn.AutoSize = false;
+            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btn.Height = 36;
+            btn.Padding = Padding.Empty;
+        }
+
+        // ── توحيد خط عناوين الشريطين ──
+        gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbToolbar.ForeColor = ThemeHelper.TextPrimary;
+        gbItemActions.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbItemActions.ForeColor = ThemeHelper.TextPrimary;
+    }
+
+    /// <summary>
+    /// الثيم الأخضر — يُطبَّق أخيراً لأن <see cref="ThemeHelper"/> يفرض خلفية بيضاء ويُلغي ألوان المصمّم.
+    /// القيم والألوان كلها من <see cref="GreenThemeHelper"/> (RULE-N50 / RULE-N54).
+    /// </summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.Apply(this);
+
+        // ── فروق هذه الشاشة عن المساعد العام (نفس قيم المصمّم الأصلية حرفياً) ──
+        // المساعد يجعل كل GroupBox بلون صناديق المجموعات وكل Panel بلون الأشرطة؛
+        // وهذه الشاشة تميّز: شريطا الأدوات أفتح (235,240,235)، ولوحة الإدخال أغمق (235,245,235).
+        gbToolbar.BackColor = GreenThemeHelper.BarBackground;
+        gbItemActions.BackColor = GreenThemeHelper.BarBackground;
+        pnlEntry.BackColor = GreenThemeHelper.GroupBackground;
+
+        // شريط المعلومات السريعة ليس شريط عنوان (اسمه ليس في قائمة المساعد) ⇒ يُلوَّن هنا.
+        lblQuickInfo.BackColor = GreenThemeHelper.GroupBackground;
+        lblQuickInfo.ForeColor = GreenThemeHelper.TextStrong;
+    }
+
+    /// <summary>
+    /// نمط شبكة الأصناف — يُفوَّض إلى <see cref="GreenThemeHelper.ApplyGrid"/>
+    /// (بديل <see cref="ThemeHelper.ApplyDataGridViewStyle"/>)، مع الإبقاء على
+    /// التحرير داخل الخلية (CellSelect) الذي تتطلبه شاشة الإدخال (RULE-N22a / RULE-N52).
+    /// </summary>
+    private void ApplyGreenGridStyle()
+    {
+        GreenThemeHelper.ApplyGrid(dgvItems);
+
+        // سلوك الشبكة مملوك للشاشة — المساعد لا يلمس SelectionMode ولا MultiSelect.
+        dgvItems.MultiSelect = false;
+        dgvItems.SelectionMode = DataGridViewSelectionMode.CellSelect;   // تحرير داخل الخلية
+    }
+
+    /// <summary>
+    /// Unified look for the footer action buttons (bold Tahoma 10, white text).
+    /// </summary>
+    private static void StyleActionButton(Button btn, Color backColor)
+    {
+        btn.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btn.ForeColor = Color.White;
+        btn.BackColor = backColor;
+        btn.FlatStyle = FlatStyle.Flat;
+        btn.FlatAppearance.BorderSize = 0;
+        btn.UseVisualStyleBackColor = false;
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -295,59 +439,77 @@ public partial class frmAddUpdateSalesInvoice : Form
         try
         {
             // Customers — must be selected, no default
-            var customersRes = await _customerApi.GetAllAsync(null, 1, int.MaxValue);
+            var customersRes = await _customerApi.GetAllAsync(null, includeInactive: true);
             if (!customersRes.IsSuccess || customersRes.Value == null)
                 throw new InvalidOperationException(customersRes.Error ?? "فشل تحميل قائمة العملاء");
-            var list = customersRes.Value.Items.ToList();
+            var list = customersRes.Value.ToList();
             list.Insert(0, new CustomerDto(0, "--- اختر عميل ---", null, null, null, null, 0, true, 0));
             cmbCustomer.DataSource = list;
             cmbCustomer.DisplayMember = "Name";
             cmbCustomer.ValueMember = "Id";
             cmbCustomer.SelectedIndex = 0; // "--- اختر عميل ---"
 
+            // فاتورة جديدة → العميل الافتراضي "عميل نقدي" (إن وُجد)، وإلا يبقى العنصر الأول.
+            if (_invoice == null) SelectDefaultCashCustomer();
+
             // Warehouses
-            var warehouseRes = await _warehouseApi.GetAllAsync(null, 1, int.MaxValue);
+            var warehouseRes = await _warehouseApi.GetAllAsync(includeInactive: true);
             if (!warehouseRes.IsSuccess || warehouseRes.Value == null)
                 throw new InvalidOperationException(warehouseRes.Error ?? "فشل تحميل قائمة المستودعات");
-            cmbWarehouse.DataSource = warehouseRes.Value.Items;
+            cmbWarehouse.DataSource = warehouseRes.Value.ToList();
             cmbWarehouse.DisplayMember = "Name";
             cmbWarehouse.ValueMember = "Id";
 
             if (_invoice == null)
             {
-                var def = warehouseRes.Value.Items.FirstOrDefault(w => w.IsDefault);
+                var def = warehouseRes.Value.FirstOrDefault(w => w.IsDefault);
                 if (def != null) cmbWarehouse.SelectedValue = def.Id;
             }
 
+            // الصناديق (نشطة فقط) — تُستخدم لتحديد صندوق قبض الفاتورة
+            var cashBoxRes = await _cashBoxApi.GetAllAsync(default);
+            if (cashBoxRes.IsSuccess && cashBoxRes.Value != null)
+            {
+                _cashBoxes = cashBoxRes.Value.Where(c => c.IsActive).ToList();
+                cmbCashBox.DataSource = _cashBoxes.ToList();
+                cmbCashBox.DisplayMember = "Name";
+                cmbCashBox.ValueMember = "Id";
+                if (_invoice == null && _cashBoxes.Count > 0) cmbCashBox.SelectedIndex = 0;
+            }
+            else
+            {
+                Log.Warning("تعذر تحميل قائمة الصناديق: {Error}", cashBoxRes.Error);
+            }
+
             // Products (for barcode lookup)
-            var productRes = await _productApi.GetAllAsync(null, null, 1, int.MaxValue);
+            var productRes = await _productApi.GetAllAsync(null, null, includeInactive: false);
             if (productRes.IsSuccess && productRes.Value != null)
             {
-                _allProducts = productRes.Value.Items.ToList();
+                _allProducts = productRes.Value.ToList();
             }
 
             // الضرائب: أُزيلت وحدة الضرائب (V2) — لا قائمة ضرائب مرجعية، فالنسبة = 0
             // (يبقى الحقل معطلاً؛ قيمة TaxAmount في الطلب = 0 و TaxId = null).
-            cmbTax.Enabled = false;
-
-            // Payment type default
-            cmbPaymentType.SelectedIndex = 0;
+            //cmbTax.Enabled = false;
 
             // Banks from ChartOfAccounts — only accounts under "1102" (البنوك)
-            var assetAccounts = await _accountApi.GetByTypeAsync(AccountType.Asset, default);
+            // (تصفية النوع "أصل" تتم هنا لأن GetAllAsync لا يفلتر بالنوع)
+            var assetAccounts = await _accountApi.GetAllAsync(includeInactive: false);
             _bankAccounts = assetAccounts.IsSuccess
                 ? assetAccounts.Value.Where(a => a.IsLeaf && !a.IsSystem
+                    && a.Nature == (byte)SalesSystem.Models.Accounting.Enums.AccountType.Asset
                     && a.AccountCode.StartsWith("1102")).ToList()
                 : new List<AccountDto>();
 
-            cmbBank.DataSource = _bankAccounts;
-            cmbBank.DisplayMember = "NameAr";
-            cmbBank.ValueMember = "Id";
-            if (_bankAccounts.Count > 0) cmbBank.SelectedIndex = 0;
+            //cmbBank.DataSource = _bankAccounts;
+            //cmbBank.DisplayMember = "NameAr";
+            //cmbBank.ValueMember = "Id";
+            //if (_bankAccounts.Count > 0) cmbBank.SelectedIndex = 0;
 
             // Store/Inventory accounts for cmbAccount (المخزون = 1104 prefix)
             var storeAccounts = assetAccounts.IsSuccess
                 ? assetAccounts.Value.Where(a => a.IsLeaf && !a.IsSystem
+                    && a.Nature == (byte)SalesSystem.Models.Accounting.Enums.AccountType.Asset
                     && a.AccountCode.StartsWith("1104")).ToList()
                 : new List<AccountDto>();
             cmbAccount.DataSource = storeAccounts;
@@ -356,6 +518,8 @@ public partial class frmAddUpdateSalesInvoice : Form
             if (storeAccounts.Count > 0) cmbAccount.SelectedIndex = 0;
 
             // Auto-select store account when warehouse changes
+            // (إلغاء الاشتراك أولاً حتى لا يتكرر عند إعادة تحميل القوائم من زر "تحديث بيانات الأصناف")
+            cmbWarehouse.SelectedIndexChanged -= cmbWarehouse_SelectedIndexChanged;
             cmbWarehouse.SelectedIndexChanged += cmbWarehouse_SelectedIndexChanged;
         }
         catch (Exception ex)
@@ -373,17 +537,22 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         try
         {
-            var unitsResult = await _productUnitApi.GetByProductIdAsync(productId, default);
+            // وحدات المنتج عبر واجهة Desktop (IProductApiService) — تعمل في الوضع الحقيقي ووضع التجربة
+            var unitsResult = await _productApi.GetProductUnitsAsync(productId, default);
             if (unitsResult.IsSuccess && unitsResult.Value != null)
             {
-                _productUnitsCache[productId] = unitsResult.Value;
-                return unitsResult.Value;
+                var units = unitsResult.Value.ToList();
+                _productUnitsCache[productId] = units;
+                return units;
             }
+
+            // قائمة وحدات فارغة = حالة بيانات حقيقية (منتج بلا وحدات) — ليست خطأ
+            Log.Warning("لا توجد وحدات للمنتج {ProductId}: {Error}", productId, unitsResult.Error);
             return [];
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ في تحميل وحدات المنتج {ProductId}", productId);
+            Log.Warning(ex, "خطأ في تحميل وحدات المنتج {ProductId}", productId);
             return [];
         }
     }
@@ -412,31 +581,82 @@ public partial class frmAddUpdateSalesInvoice : Form
             MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
     /// <summary>
-    /// Quantity of a product already on the invoice, excluding the row currently being edited.
+    /// معامل تحويل الوحدة المختارة في لوحة الإدخال إلى الوحدة الأساسية (1 عند عدم التحديد).
     /// </summary>
-    private decimal GetExistingQtyForProduct(int productId)
-        => _lines.Where(l => l.ProductId == productId
-            && (_editingLineKey == null || l.LineKey != _editingLineKey.Value))
-            .Sum(l => l.Quantity);
+    private decimal GetSelectedConversionFactor()
+        => cmbUnit.SelectedItem is ProductUnitDto dto && dto.ConversionFactor > 0m
+            ? dto.ConversionFactor
+            : 1m;
 
     /// <summary>
-    /// Early stock validation — blocks the line before it is added if the
-    /// requested quantity exceeds available stock in the selected warehouse.
-    /// Returns true (allow) when stock cannot be verified — server validates at post time.
+    /// يضمن تحميل أرصدة المستودع المختار مرة واحدة ويعيد false عند تعذّر التحقق.
     /// </summary>
-    private async Task<bool> IsStockSufficientAsync(int productId, decimal totalRequestedQty)
+    private async Task<bool> EnsureWarehouseStockAsync(int warehouseId, CancellationToken ct = default)
     {
-        if (totalRequestedQty <= 0) return true;
+        if (warehouseId <= 0) return false;
+        if (_warehouseStockForWarehouseId == warehouseId) return _warehouseStockAvailable;
+
+        try
+        {
+            var res = await _inventoryApi.GetStockByWarehouseAsync(warehouseId, ct);
+            _warehouseStockBase.Clear();
+
+            if (res.IsSuccess && res.Value != null)
+            {
+                foreach (var dto in res.Value)
+                    _warehouseStockBase[dto.ProductId] = dto.Quantity;
+
+                _warehouseStockForWarehouseId = warehouseId;
+                _warehouseStockAvailable = true;
+                return true;
+            }
+
+            Log.Warning("تعذر تحميل أرصدة المستودع {WarehouseId}: {Error}", warehouseId, res.Error);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "تعذر تحميل أرصدة المستودع {WarehouseId}", warehouseId);
+            _warehouseStockBase.Clear();
+        }
+
+        _warehouseStockForWarehouseId = warehouseId;
+        _warehouseStockAvailable = false;
+        return false;
+    }
+
+    /// <summary>
+    /// التحقق من كفاية المخزون بوحدات أساسية:
+    ///   neededBase = Σ(كميات السطور الأخرى لنفس المنتج × معامل تحويلها) + (الكمية الجديدة × معامل تحويلها)
+    /// ويُقارن بالرصيد المخزني الأساسي للمستودع (من أرصدة IInventoryApiService.GetStockByWarehouseAsync).
+    /// يُرجع true (السماح) عند تعذّر التحقق — الخادم يحكم عند الترحيل.
+    /// </summary>
+    private async Task<bool> IsStockSufficientAsync(
+        int productId, decimal newQty, decimal newConversionFactor, Guid? excludeLineKey = null)
+    {
+        if (newQty <= 0) return true;
+        if (newConversionFactor <= 0m) newConversionFactor = 1m;
         if (cmbWarehouse.SelectedValue is not short wid || wid <= 0) return true;
 
-        var stockRes = await _inventoryApi.GetStockAsync(productId, wid, default);
-        if (!stockRes.IsSuccess) return true; // can't verify here — server decides at posting
+        // Σ الكميات الأخرى القائمة لنفس المنتج بالوحدات الأساسية
+        decimal otherBase = _lines
+            .Where(l => l.ProductId == productId
+                && (excludeLineKey == null || l.LineKey != excludeLineKey.Value))
+            .Sum(l => l.Quantity * (l.ConversionFactor > 0m ? l.ConversionFactor : 1m));
 
-        decimal available = stockRes.Value;
-        if (totalRequestedQty <= available) return true;
+        decimal neededBase = otherBase + (newQty * newConversionFactor);
+
+        // رصيد المستودع بالوحدات الأساسية (من كاش أرصدة المستودع المختار)
+        if (!await EnsureWarehouseStockAsync(wid)) return true; // can't verify here — server decides at posting
+        if (!_warehouseStockBase.TryGetValue(productId, out decimal availableBase)) return true;
+
+        if (neededBase <= availableBase) return true;
+
+        decimal availableInUnit = availableBase / newConversionFactor;
 
         MessageBox.Show(
-            $"الكمية غير كافية في المخزون.\nالمتوفرة: {available:G} — المطلوبة: {totalRequestedQty:G}",
+            "الكمية غير كافية في المخزون." +
+            $"\nالمتاح بالوحدة المختارة: {availableInUnit:G} — المطلوب: {newQty:G}" +
+            $"\nالمتاح بالوحدة الأساسية: {availableBase:G} — المطلوب: {neededBase:G}",
             "المخزون غير كافٍ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         return false;
     }
@@ -454,35 +674,31 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (_invoice.CustomerId > 0)
             cmbCustomer.SelectedValue = _invoice.CustomerId;
         cmbWarehouse.SelectedValue = Convert.ToInt16(_invoice.WarehouseId);
-        cmbPaymentType.SelectedIndex = _invoice.PaymentType - 1;
+        if (_invoice.CashBoxId is int cashBoxId && cashBoxId > 0)
+            cmbCashBox.SelectedValue = cashBoxId;
+        //cmbPaymentType.SelectedIndex = _invoice.PaymentType - 1;
 
-        // Restore discount type and value
+        // Restore discount type (مبلغ / نسبة) then its value
         var discType = (SalesSystem.DTO.Enums.DiscountType)_invoice.DiscountType;
-        cmbDiscountType.SelectedIndex = discType == SalesSystem.DTO.Enums.DiscountType.Percentage ? 1 : 0;
-        numInvoiceDiscount.Value = discType == SalesSystem.DTO.Enums.DiscountType.Percentage
-            ? (_invoice.DiscountRate ?? 0m)
-            : _invoice.DiscountAmount;
-
-        // Restore tax — أُزيلت وحدة الضرائب (V2): لا قائمة مرجعية ولا TaxId
-        chkApplyTax.Checked = false;
-        cmbTax.Enabled = false;
+        bool isPercentage = discType == SalesSystem.DTO.Enums.DiscountType.Percentage;
+        cmbDiscountType.SelectedIndex = isPercentage ? 1 : 0;
+        numInvoiceDiscount.Value = Math.Clamp(
+            isPercentage ? (_invoice.DiscountRate ?? 0m) : _invoice.DiscountAmount,
+            numInvoiceDiscount.Minimum, numInvoiceDiscount.Maximum);
 
         // Restore payment amounts — split PaidAmount into cash vs bank
         decimal totalPaid = _invoice.PaidAmount;
         if (_invoice.PaymentType == 3) // Mixed — keep paid amount as-is, bank is separate
         {
             txtPaid.Text = totalPaid.ToString("N2");
-            txtBankAmount.Text = "0";
         }
         else if (_invoice.PaymentType == 2) // Credit — paid should be 0
         {
             txtPaid.Text = "0";
-            txtBankAmount.Text = "0";
         }
         else // Cash
         {
             txtPaid.Text = totalPaid.ToString("N2");
-            txtBankAmount.Text = "0";
         }
 
         txtExpenses.Text = _invoice.OtherCharges.ToString("N2");
@@ -501,14 +717,17 @@ public partial class frmAddUpdateSalesInvoice : Form
                 UnitPrice = item.UnitPrice,
                 UnitName = "", // will be loaded async
                 ProductUnitId = item.ProductUnitId,
-                Barcode = item.ProductCode ?? ""
+                ConversionFactor = 1m, // يُصحَّح عند تحميل الوحدات (LoadAllUnitsForLinesAsync)
+                Barcode = item.ProductCode ?? "",
+                DiscountAmount = item.DiscountAmount, // خصم السطر (مبلغ) — يعيد إجمالي السطر كما حُفظ
+                ExpiryDate = item.ExpiryDate          // تاريخ انتهاء السطر (اختياري)
             });
         }
         UpdatePaymentTypeUI();
         CalculateTotals();
 
-        // Load units async AFTER _isUpdating is still true (prevents premature events)
-        _ = LoadAllUnitsForLinesAsync();
+        // تحميل الوحدات ومعاملات التحويل لا يتم هنا — يستدعيه المستدعي وينتظره
+        // (LoadAllUnitsForLinesAsync) قبل تمكين التحرير، حتى لا يُحفظ سطر بمعامل 1 خطأً.
         _isUpdating = false;
     }
 
@@ -516,33 +735,69 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         foreach (var line in _lines.Where(l => l.ProductId > 0))
         {
+            // حلّ الوحدة المحفوظة (by id ثم by name ثم الأساسية) وتثبيت معامل التحويل
+            var (_, savedUnit) = await GetUnitsWithDefaultAsync(line.ProductId, line.ProductUnitId, line.UnitName);
+            if (savedUnit == null) continue;
+
             if (string.IsNullOrEmpty(line.UnitName))
-            {
-                var (_, savedUnit) = await GetUnitsWithDefaultAsync(line.ProductId, line.ProductUnitId);
-                line.UnitName = savedUnit?.UnitName ?? "";
-            }
+                line.UnitName = savedUnit.UnitName ?? "";
+            if (line.ProductUnitId <= 0)
+                line.ProductUnitId = savedUnit.Id;
+
+            line.ConversionFactor = savedUnit.ConversionFactor > 0m ? savedUnit.ConversionFactor : 1m;
         }
         dgvItems.Refresh();
     }
 
     private void ResetForm()
     {
+        // إعادة قراءة أرصدة المستودع عند إعادة تحميل البيانات
+        _warehouseStockForWarehouseId = -1;
+        _warehouseStockBase.Clear();
+
         lblMode.Text = "فاتورة بيع جديدة";
         lblInvoiceNo.Text = "جديد";
         dtpDate.Value = DateTime.Now;
-        cmbCustomer.SelectedIndex = 0; // "--- اختر عميل ---"
-        cmbPaymentType.SelectedIndex = 0;
+        SelectDefaultCashCustomer(); // "عميل نقدي" إن وُجد، وإلا "--- اختر عميل ---"
+        //cmbPaymentType.SelectedIndex = 0;
+
+        // الصندوق الافتراضي = أول صندوق نشط
+        if (cmbCashBox.Items.Count > 0) cmbCashBox.SelectedIndex = 0;
+
         _lines.Clear();
+
+        // الخصم: النوع الافتراضي "مبلغ" ثم تصفير القيمة
         cmbDiscountType.SelectedIndex = 0;
         numInvoiceDiscount.Value = 0;
+
         txtPaid.Text = "0";
         txtNotes.Clear();
-        txtBankAmount.Text = "0";
         txtExpenses.Text = "0";
-        chkApplyTax.Checked = false;
-        cmbTax.Enabled = false;
         lblLineTotal.Text = "0.00";
+        lblTafqitValue.Text = string.Empty;
         ClearEntryPanel();
+    }
+
+    /// <summary>
+    /// يختار العميل الافتراضي "عميل نقدي" في قائمة العملاء، وإن لم يوجد يُبقي العنصر الأول
+    /// ("--- اختر عميل ---"). يُستخدم عند فتح فاتورة جديدة فقط.
+    /// </summary>
+    private void SelectDefaultCashCustomer()
+    {
+        if (cmbCustomer.Items.Count == 0) return;
+
+        for (int i = 0; i < cmbCustomer.Items.Count; i++)
+        {
+            if (cmbCustomer.Items[i] is CustomerDto customer
+                && !string.IsNullOrWhiteSpace(customer.Name)
+                && customer.Name.Contains("عميل نقدي", StringComparison.Ordinal))
+            {
+                cmbCustomer.SelectedIndex = i;
+                return;
+            }
+        }
+
+        cmbCustomer.SelectedIndex = 0;
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -551,28 +806,38 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private async void txtBarcode_KeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.KeyCode == Keys.Enter)
+        try
         {
-            e.SuppressKeyPress = true;
-            string barcode = txtBarcode.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(barcode))
+            if (e.KeyCode == Keys.Enter)
             {
-                await OpenProductSelectionPopupAsync();
-                return;
-            }
+                e.SuppressKeyPress = true;
+                string barcode = txtBarcode.Text.Trim();
 
-            await LookupBarcodeAsync(barcode);
+                if (string.IsNullOrWhiteSpace(barcode))
+                {
+                    await OpenProductSelectionPopupAsync();
+                    return;
+                }
+
+                await LookupBarcodeAsync(barcode);
+            }
+            else if (e.KeyCode == Keys.F4)
+            {
+                e.SuppressKeyPress = true;
+                await OpenProductSelectionPopupAsync();
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.SuppressKeyPress = true;
+                CancelEdit();
+            }
         }
-        else if (e.KeyCode == Keys.F4)
+        catch (Exception ex)
         {
-            e.SuppressKeyPress = true;
-            await OpenProductSelectionPopupAsync();
-        }
-        else if (e.KeyCode == Keys.Escape)
-        {
-            e.SuppressKeyPress = true;
-            CancelEdit();
+            Log.Error(ex, "خطأ غير متوقع في معالجة مفتاح الباركود");
+            Cursor = Cursors.Default;
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -615,41 +880,57 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    private async void FillProductDetails(ProductDto product)
+    private async void FillProductDetails(ProductDto product, ProductUnitDto? preferredUnit = null)
     {
-        if (!_editingLineKey.HasValue && IsDuplicateProduct(product.Id))
+        try
         {
-            WarnDuplicateProduct();
-            txtBarcode.Clear();
-            txtBarcode.Focus();
-            return;
+            if (!_editingLineKey.HasValue && IsDuplicateProduct(product.Id))
+            {
+                WarnDuplicateProduct();
+                txtBarcode.Clear();
+                txtBarcode.Focus();
+                return;
+            }
+
+            // Load units (الوحدة المختارة في نافذة البحث أولاً، ثم الوحدة الأساسية)
+            var (units, baseUnit) = await GetUnitsWithDefaultAsync(product.Id);
+            var unitToSelect =
+                (preferredUnit != null ? units.FirstOrDefault(u => u.Id == preferredUnit.Id) : null)
+                ?? baseUnit;
+
+            // Display product name
+            lblProductName.Text = product.Name;
+            txtItemCode.Text = product.Id.ToString();
+
+            // Store product ID in tag (before DataSource → avoids stale availability lookups)
+            cmbUnit.Tag = product.Id;
+
+            // Populate unit combo
+            cmbUnit.DisplayMember = "UnitName";
+            cmbUnit.ValueMember = "Id";
+            cmbUnit.DataSource = new List<ProductUnitDto>(units);
+            if (unitToSelect != null)
+                cmbUnit.SelectedValue = unitToSelect.Id; // يحرّك معالج تغيير الوحدة ⇒ تحديث المتاح/السعر
+
+            // Pre-fill defaults for new rows
+            if (!_editingLineKey.HasValue)
+            {
+                txtUnitPrice.Clear();
+                txtQuantity.Text = "1";
+            }
+
+            // عرض المتاح في المخزون للوحدة المختارة
+            _ = RefreshAvailableStockAsync();
+
+            // Focus unit combo
+            cmbUnit.Focus();
         }
-
-        // Load units
-        var (units, baseUnit) = await GetUnitsWithDefaultAsync(product.Id);
-
-        // Display product name
-        lblProductName.Text = product.Name;
-
-        // Populate unit combo
-        cmbUnit.DisplayMember = "UnitName";
-        cmbUnit.ValueMember = "Id";
-        cmbUnit.DataSource = new List<ProductUnitDto>(units);
-        if (baseUnit != null)
-            cmbUnit.SelectedValue = baseUnit.Id;
-
-        // Store product ID in tag
-        cmbUnit.Tag = product.Id;
-
-        // Pre-fill defaults for new rows
-        if (!_editingLineKey.HasValue)
+        catch (Exception ex)
         {
-            txtUnitPrice.Clear();
-            txtQuantity.Text = "1";
+            Log.Error(ex, "خطأ في تحميل بيانات المنتج");
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
-        // Focus unit combo
-        cmbUnit.Focus();
     }
 
     private async Task OpenProductSelectionPopupAsync()
@@ -665,11 +946,12 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
 
         var product = dialog.SelectedProduct;
+        var pickedUnit = dialog.SelectedUnit; // الوحدة المختارة في نافذة البحث (قد تكون null)
 
         // If invoked from DGV (F3 while on a DGV cell), apply product to that DGV row
         if (_dgvSearchReturnRow >= 0 && _dgvSearchReturnRow < dgvItems.Rows.Count)
         {
-            await ApplyProductToDgvRowAsync(_dgvSearchReturnRow, product);
+            await ApplyProductToDgvRowAsync(_dgvSearchReturnRow, product, pickedUnit);
             _dgvSearchReturnCol = -1;
             _dgvSearchReturnRow = -1;
             return;
@@ -682,7 +964,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             return;
         }
 
-        FillProductDetails(product);
+        FillProductDetails(product, pickedUnit);
     }
 
     private void ReturnFocusToDgvIfPending()
@@ -779,17 +1061,44 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    private async void txtLineDiscount_KeyDown(object? sender, KeyEventArgs e)
+    private void txtLineDiscount_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode == Keys.Enter)
         {
             e.SuppressKeyPress = true;
-            await AddOrUpdateRowAsync();
+            dtpLineExpiry.Focus();
         }
         else if (e.KeyCode == Keys.Escape)
         {
             e.SuppressKeyPress = true;
             CancelEdit();
+        }
+    }
+
+    /// <summary>
+    /// Enter على تاريخ الانتهاء ⇒ إضافة/تعديل السطر، و Escape ⇒ إلغاء التحرير.
+    /// </summary>
+    private async void dtpLineExpiry_KeyDown(object? sender, KeyEventArgs e)
+    {
+        try
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                await AddOrUpdateRowAsync();
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.SuppressKeyPress = true;
+                CancelEdit();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ غير متوقع في معالجة مفتاح تاريخ الانتهاء");
+            Cursor = Cursors.Default;
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -805,11 +1114,14 @@ public partial class frmAddUpdateSalesInvoice : Form
         _editingLineKey = null;
         _editingOriginalItem = null;
         tsmiCancelEdit.Enabled = false;
+        HideCellExpiryPicker();
         ClearEntryPanel();
+        dgvItems.Refresh(); // تحديث عرض تاريخ الانتهاء/الخصم بعد التعديل (الخصائص لا تُطلق إشعارًا)
         foreach (DataGridViewRow r in dgvItems.Rows)
             r.DefaultCellStyle.BackColor = Color.White;
         btnAddLine.Text = "➕ إضافة";
         btnAddLine.BackColor = Color.FromArgb(25, 135, 84);
+        btnCancelLine.Enabled = false;
         gbEntry.Text = "إدخال الأصناف";
     }
 
@@ -825,7 +1137,16 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private async void btnAddLine_Click(object? sender, EventArgs? e)
     {
-        await AddOrUpdateRowAsync();
+        try
+        {
+            await AddOrUpdateRowAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ في إضافة/تعديل السطر");
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnCancelLine_Click(object? sender, EventArgs? e)
@@ -833,8 +1154,129 @@ public partial class frmAddUpdateSalesInvoice : Form
         CancelEdit();
     }
 
+    /// <summary>
+    /// "تعديل" — يحمّل السطر المحدد في شبكة الأصناف إلى لوحة الإدخال للتحرير.
+    /// </summary>
+    private void btnEditRow_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (IsLocked)
+            {
+                MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.", "الفاتورة مقفلة",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            int rowIndex = dgvItems.CurrentRow?.Index ?? -1;
+            if (rowIndex < 0 || rowIndex >= _lines.Count)
+            {
+                MessageBox.Show("اختر سطراً من الجدول أولاً.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            LoadRowForEditing(rowIndex);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ في تعديل السطر المحدد");
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// "حذف" — يحذف السطر المحدد من قائمة أصناف الفاتورة بعد تأكيد.
+    /// </summary>
+    private void btnDeleteRow_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (IsLocked)
+            {
+                MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.", "الفاتورة مقفلة",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (dgvItems.CurrentRow is null || _lines.Count == 0)
+            {
+                MessageBox.Show("اختر سطراً من الجدول أولاً.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            DeleteSelectedRow();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ في حذف السطر المحدد");
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// "تحديث بيانات الأصناف" — يعيد تحميل القوائم والأسعار وأرصدة المستودع (مسح الكاش).
+    /// </summary>
+    private async void btnRefreshCatalog_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (IsLocked) return;
+
+            Cursor = Cursors.WaitCursor;
+
+            _productUnitsCache.Clear();
+            _warehouseStockForWarehouseId = -1;
+            _warehouseStockBase.Clear();
+
+            await LoadLookups();                 // إعادة تحميل العملاء/المستودعات/الصناديق/الأصناف/الحسابات
+
+            // إعادة تطبيق اختيارات الفاتورة المفتوحة بعد إعادة تحميل القوائم (مسودة قيد التعديل)
+            if (_invoice != null)
+            {
+                try
+                {
+                    if (cmbCustomer.DataSource != null && _invoice.CustomerId > 0)
+                        cmbCustomer.SelectedValue = _invoice.CustomerId;
+                    if (cmbWarehouse.DataSource != null && _invoice.WarehouseId > 0)
+                        cmbWarehouse.SelectedValue = Convert.ToInt16(_invoice.WarehouseId);
+                    if (cmbCashBox.DataSource != null && _invoice.CashBoxId is int cbId && cbId > 0)
+                        cmbCashBox.SelectedValue = cbId;
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "تعذر إعادة تطبيق اختيارات الفاتورة بعد تحديث القوائم");
+                }
+            }
+
+            await RefreshAvailableStockAsync();  // إعادة قراءة رصيد المستودع الحالي
+
+            dgvItems.Refresh();
+            MessageBox.Show("تم تحديث بيانات الأصناف والأرصدة.", "تم",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ في تحديث بيانات الأصناف");
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
     private async Task AddOrUpdateRowAsync()
     {
+        if (IsLocked)
+        {
+            MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.", "الفاتورة مقفلة",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
         if (!ValidateEntryFields()) return;
 
         int productId = Convert.ToInt32(cmbUnit.Tag!);
@@ -842,9 +1284,11 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal quantity = decimal.Parse(txtQuantity.Text);
         decimal unitPrice = decimal.TryParse(txtUnitPrice.Text, out decimal up) ? up : 0m;
         decimal lineDiscount = decimal.TryParse(txtLineDiscount.Text, out decimal ld) ? ld : 0m;
+        decimal conversionFactor = GetSelectedConversionFactor();
         string barcode = txtBarcode.Text.Trim();
         string productName = lblProductName.Text;
         string unitName = cmbUnit.Text;
+        DateTime? lineExpiry = dtpLineExpiry.Checked ? dtpLineExpiry.Value.Date : (DateTime?)null;
 
         // ── MERGE QUANTITY: if product already exists, add qty to existing row ──
         if (!_editingLineKey.HasValue)
@@ -853,8 +1297,8 @@ public partial class frmAddUpdateSalesInvoice : Form
             if (existingRow != null)
             {
                 decimal newQty = existingRow.Quantity + quantity;
-                decimal totalRequested = GetExistingQtyForProduct(productId) - existingRow.Quantity + newQty;
-                if (!await IsStockSufficientAsync(productId, totalRequested))
+                existingRow.ConversionFactor = conversionFactor;
+                if (!await IsStockSufficientAsync(productId, newQty, conversionFactor, existingRow.LineKey))
                 {
                     txtQuantity.Focus();
                     txtQuantity.SelectAll();
@@ -863,6 +1307,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 existingRow.Quantity = newQty;
                 // Update discount only if non-zero entered
                 if (lineDiscount > 0m) existingRow.DiscountAmount = lineDiscount;
+                existingRow.ExpiryDate = lineExpiry;
                 ResetEntryState();
                 CalculateTotals();
                 txtBarcode.Focus();
@@ -870,9 +1315,8 @@ public partial class frmAddUpdateSalesInvoice : Form
             }
         }
 
-        // ── Early stock validation ──
-        decimal totalReq = GetExistingQtyForProduct(productId) + quantity;
-        if (!await IsStockSufficientAsync(productId, totalReq))
+        // ── Early stock validation (وحدات أساسية) ──
+        if (!await IsStockSufficientAsync(productId, quantity, conversionFactor, _editingLineKey))
         {
             txtQuantity.Focus();
             txtQuantity.SelectAll();
@@ -891,9 +1335,11 @@ public partial class frmAddUpdateSalesInvoice : Form
                 row.ProductName = productName;
                 row.UnitName = unitName;
                 row.ProductUnitId = productUnitId;
+                row.ConversionFactor = conversionFactor;
                 row.Quantity = quantity;
                 row.UnitPrice = unitPrice;
                 row.DiscountAmount = lineDiscount;
+                row.ExpiryDate = lineExpiry;
             }
         }
         else
@@ -907,9 +1353,11 @@ public partial class frmAddUpdateSalesInvoice : Form
                 ProductName = productName,
                 UnitName = unitName,
                 ProductUnitId = productUnitId,
+                ConversionFactor = conversionFactor,
                 Quantity = quantity,
                 UnitPrice = unitPrice,
-                DiscountAmount = lineDiscount
+                DiscountAmount = lineDiscount,
+                ExpiryDate = lineExpiry
             });
         }
 
@@ -931,8 +1379,12 @@ public partial class frmAddUpdateSalesInvoice : Form
                 row.Barcode = _editingOriginalItem.Barcode;
                 row.ProductName = _editingOriginalItem.ProductName;
                 row.UnitName = _editingOriginalItem.UnitName;
+                row.ProductUnitId = _editingOriginalItem.ProductUnitId;
+                row.ConversionFactor = _editingOriginalItem.ConversionFactor;
                 row.Quantity = _editingOriginalItem.Quantity;
                 row.UnitPrice = _editingOriginalItem.UnitPrice;
+                row.DiscountAmount = _editingOriginalItem.DiscountAmount;
+                row.ExpiryDate = _editingOriginalItem.ExpiryDate;
             }
         }
 
@@ -943,6 +1395,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     private void ClearEntryPanel()
     {
         txtBarcode.Clear();
+        txtItemCode.Text = string.Empty;
         lblProductName.Text = "";
         cmbUnit.DataSource = null;
         cmbUnit.Tag = null;
@@ -950,6 +1403,17 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtUnitPrice.Clear();
         txtLineDiscount.Text = "0";
         lblLineTotal.Text = "0.00";
+
+        // تاريخ الانتهاء: غير محدد افتراضياً (بدون تاريخ انتهاء)
+        dtpLineExpiry.Checked = false;
+        dtpLineExpiry.Value = DateTime.Today;
+
+        // إلغاء أي استعلام مخزون جارٍ + إعادة ضبط نص المتاح
+        _stockLookupToken++;
+        if (lblAvailable != null) lblAvailable.Text = "المتوفر في المخزن: —";
+
+        // تفقيط حيّ — إخفاء التلميح عند بدء سطر جديد
+        liveTip?.Hide(pnlEntry);
     }
 
     private bool ValidateEntryFields()
@@ -1018,30 +1482,54 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void dgvItems_DefaultValuesNeeded(object? sender, DataGridViewRowEventArgs e)
     {
+        if (IsLocked) return; // الفاتورة مقفلة — لا إضافة سطور
+
         e.Row.Cells[colQuantity.Index].Value = 1m;
         e.Row.Cells[colUnitPrice.Index].Value = 0m;
+        e.Row.Cells[colDiscount.Index].Value = 0m;
         e.Row.Cells[colLineTotal.Index].Value = 0m;
     }
 
     private async void dgvItems_CellBeginEdit(object? sender, DataGridViewCellCancelEventArgs e)
     {
-        if (e.RowIndex < 0 || e.RowIndex >= dgvItems.Rows.Count) return;
-
-        // If editing unit combo column — load units and set selected value
-        if (e.ColumnIndex == colUnit.Index && e.RowIndex < _lines.Count)
+        try
         {
-            var line = _lines[e.RowIndex];
-            if (line.ProductId > 0)
-            {
-                var units = await LoadProductUnitsAsync(line.ProductId);
-                var unitNames = units.Select(u => u.UnitName).ToList();
-                var comboCell = (DataGridViewComboBoxCell)dgvItems.Rows[e.RowIndex].Cells[colUnit.Index];
-                comboCell.DataSource = unitNames;
+            if (e.RowIndex < 0 || e.RowIndex >= dgvItems.Rows.Count) return;
 
-                // Set value after DataSource is applied
-                if (!string.IsNullOrEmpty(line.UnitName) && unitNames.Contains(line.UnitName))
-                    BeginInvoke(() => comboCell.Value = line.UnitName);
+            // الفاتورة مقفلة (مرحّلة/ملغاة) — منع أي تحرير
+            if (IsLocked)
+            {
+                e.Cancel = true;
+                return;
             }
+
+            // حفظ قيمة الخصم السابقة (لاسترجاعها عند إدخال غير صالح)
+            if (e.ColumnIndex == colDiscount.Index && e.RowIndex < _lines.Count)
+                _discountBeforeEdit = _lines[e.RowIndex].DiscountAmount;
+
+            // If editing unit combo column — load units and set selected value
+            if (e.ColumnIndex == colUnit.Index && e.RowIndex < _lines.Count)
+            {
+                var line = _lines[e.RowIndex];
+                if (line.ProductId > 0)
+                {
+                    var units = await LoadProductUnitsAsync(line.ProductId);
+                    var unitNames = units.Select(u => u.UnitName).ToList();
+                    var comboCell = (DataGridViewComboBoxCell)dgvItems.Rows[e.RowIndex].Cells[colUnit.Index];
+                    comboCell.DataSource = unitNames;
+
+                    // Set value after DataSource is applied
+                    if (!string.IsNullOrEmpty(line.UnitName) && unitNames.Contains(line.UnitName))
+                        BeginInvoke(() => comboCell.Value = line.UnitName);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ غير متوقع أثناء بدء تحرير خلية في شبكة الأصناف");
+            Cursor = Cursors.Default;
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -1066,7 +1554,9 @@ public partial class frmAddUpdateSalesInvoice : Form
                 cmb.BackColor = Color.FromArgb(255, 255, 180); // Visible yellow focus
             }
         }
-        else if (dgvItems.CurrentCell.ColumnIndex == colQuantity.Index || dgvItems.CurrentCell.ColumnIndex == colUnitPrice.Index)
+        else if (dgvItems.CurrentCell.ColumnIndex == colQuantity.Index
+              || dgvItems.CurrentCell.ColumnIndex == colUnitPrice.Index
+              || dgvItems.CurrentCell.ColumnIndex == colDiscount.Index)
         {
             if (e.Control is TextBox txt)
             {
@@ -1074,36 +1564,157 @@ public partial class frmAddUpdateSalesInvoice : Form
                 txt.KeyPress += NumericTextBox_KeyPress;
             }
         }
+        else if (dgvItems.CurrentCell.ColumnIndex == colExpiry.Index)
+        {
+            // محرر تاريخ الانتهاء: DateTimePicker (تنسيق yyyy/MM/dd) كعنصر تحرير عائم فوق الخلية
+            ShowCellExpiryPicker(dgvItems.CurrentCell.RowIndex);
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  محرر تاريخ الانتهاء داخل الشبكة (DateTimePicker فوق الخلية)
+    // ═════════════════════════════════════════════════════════════════
+
+    private DateTimePicker? _cellExpiryPicker;
+    private bool _suspendCellExpiryCommit;
+
+    private const string ExpiryDateFormat = "yyyy/MM/dd";
+
+    private void EnsureCellExpiryPicker()
+    {
+        if (_cellExpiryPicker != null && !_cellExpiryPicker.IsDisposed) return;
+
+        _cellExpiryPicker = new DateTimePicker
+        {
+            Name = "dtpCellExpiry",
+            Format = DateTimePickerFormat.Custom,
+            CustomFormat = ExpiryDateFormat,
+            ShowCheckBox = true,
+            Visible = false,
+            Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+            RightToLeft = RightToLeft.Yes
+        };
+        _cellExpiryPicker.ValueChanged += CellExpiryPicker_ValueChanged;
+        dgvItems.Controls.Add(_cellExpiryPicker);
+    }
+
+    /// <summary>يُظهر منتقي التاريخ فوق خلية تاريخ الانتهاء ويحمّل قيمتها الحالية.</summary>
+    private void ShowCellExpiryPicker(int rowIndex)
+    {
+        if (rowIndex < 0 || IsLocked) return;
+
+        EnsureCellExpiryPicker();
+        var picker = _cellExpiryPicker!;
+
+        DateTime? current = rowIndex < _lines.Count ? _lines[rowIndex].ExpiryDate : null;
+
+        _suspendCellExpiryCommit = true;
+        picker.Checked = current.HasValue;
+        picker.Value = current ?? DateTime.Today;
+        _suspendCellExpiryCommit = false;
+
+        var cellRect = dgvItems.GetCellDisplayRectangle(colExpiry.Index, rowIndex, true);
+        if (cellRect.Width <= 0 || cellRect.Height <= 0) return;
+
+        picker.Bounds = new Rectangle(cellRect.X, cellRect.Y, Math.Max(cellRect.Width, 118), cellRect.Height);
+        picker.Visible = true;
+        picker.BringToFront();
+
+        // بعد عرض محرر الشبكة الافتراضي — أعِد تقديم المنتقي وامنحه التركيز
+        BeginInvoke(() =>
+        {
+            if (_cellExpiryPicker is { Visible: true, IsDisposed: false })
+            {
+                _cellExpiryPicker.BringToFront();
+                _cellExpiryPicker.Focus();
+            }
+        });
+    }
+
+    private void HideCellExpiryPicker()
+    {
+        if (_cellExpiryPicker == null || _cellExpiryPicker.IsDisposed) return;
+        _cellExpiryPicker.Visible = false;
+    }
+
+    private void CellExpiryPicker_ValueChanged(object? sender, EventArgs e)
+    {
+        if (_suspendCellExpiryCommit || _cellExpiryPicker == null) return;
+
+        // غير محدد ⇒ بدون تاريخ انتهاء (null)
+        CommitCellExpiry(_cellExpiryPicker.Checked ? _cellExpiryPicker.Value.Date : (DateTime?)null);
+    }
+
+    /// <summary>يكتب تاريخ الانتهاء في نموذج السطر وفي الخلية معاً.</summary>
+    private void CommitCellExpiry(DateTime? expiry)
+    {
+        if (IsLocked) return;   // الفاتورة مقفلة — لا تعديل
+        int rowIndex = dgvItems.CurrentCell?.RowIndex ?? -1;
+        if (rowIndex < 0 || rowIndex >= _lines.Count) return;
+
+        _lines[rowIndex].ExpiryDate = expiry;
+
+        var cell = dgvItems.Rows[rowIndex].Cells[colExpiry.Index];
+        var current = cell.Value is DateTime dt ? dt.Date : (DateTime?)null;
+        if (current != expiry) cell.Value = expiry;
+        dgvItems.InvalidateCell(cell);
+    }
+
+    /// <summary>تحليل نص تاريخ الانتهاء المكتوب يدوياً — الفراغ يعني "بدون تاريخ".</summary>
+    private static DateTime? ParseExpiryText(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text.Trim() == "—") return null;
+
+        string raw = text.Trim();
+        string[] formats =
+        {
+            "yyyy/MM/dd", "yyyy-MM-dd", "dd/MM/yyyy", "d/M/yyyy", "MM/dd/yyyy"
+        };
+
+        if (DateTime.TryParseExact(raw, formats, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var exact))
+            return exact.Date;
+
+        return DateTime.TryParse(raw, out var parsed) ? parsed.Date : null;
     }
 
     private async void BarcodeCell_KeyDown(object? sender, KeyEventArgs e)
     {
-        if (sender is not TextBox txt) return;
-
-        if (e.KeyCode == Keys.Enter)
+        try
         {
-            e.SuppressKeyPress = true;
-            string barcode = txt.Text.Trim();
-            int rowIndex = dgvItems.CurrentCell?.RowIndex ?? -1;
-            if (rowIndex < 0) return;
+            if (sender is not TextBox txt) return;
 
-            if (string.IsNullOrWhiteSpace(barcode))
+            if (e.KeyCode == Keys.Enter)
             {
-                await SelectProductForDgvRowAsync(rowIndex);
+                e.SuppressKeyPress = true;
+                string barcode = txt.Text.Trim();
+                int rowIndex = dgvItems.CurrentCell?.RowIndex ?? -1;
+                if (rowIndex < 0) return;
+
+                if (string.IsNullOrWhiteSpace(barcode))
+                {
+                    await SelectProductForDgvRowAsync(rowIndex);
+                }
+                else
+                {
+                    await LookupBarcodeForDgvRowAsync(rowIndex, barcode);
+                }
             }
-            else
+            else if (e.KeyCode == Keys.F4)
             {
-                await LookupBarcodeForDgvRowAsync(rowIndex, barcode);
+                e.SuppressKeyPress = true;
+                int rowIndex = dgvItems.CurrentCell?.RowIndex ?? -1;
+                if (rowIndex >= 0)
+                {
+                    await SelectProductForDgvRowAsync(rowIndex);
+                }
             }
         }
-        else if (e.KeyCode == Keys.F4)
+        catch (Exception ex)
         {
-            e.SuppressKeyPress = true;
-            int rowIndex = dgvItems.CurrentCell?.RowIndex ?? -1;
-            if (rowIndex >= 0)
-            {
-                await SelectProductForDgvRowAsync(rowIndex);
-            }
+            Log.Error(ex, "خطأ في إدخال الباركود داخل الشبكة");
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -1142,11 +1753,11 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (dialog.ShowDialog(this) == DialogResult.OK && dialog.SelectedProduct != null)
         {
-            await ApplyProductToDgvRowAsync(rowIndex, dialog.SelectedProduct);
+            await ApplyProductToDgvRowAsync(rowIndex, dialog.SelectedProduct, dialog.SelectedUnit);
         }
     }
 
-    private async Task ApplyProductToDgvRowAsync(int rowIndex, ProductDto product)
+    private async Task ApplyProductToDgvRowAsync(int rowIndex, ProductDto product, ProductUnitDto? preferredUnit = null)
     {
         // Check duplicate: skip if editing the same row that already has this product
         if (rowIndex >= _lines.Count || _lines[rowIndex].ProductId != product.Id)
@@ -1160,13 +1771,17 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         var (units, baseUnit) = await GetUnitsWithDefaultAsync(product.Id);
 
-        // ── Early stock validation — includes the row's CURRENT quantity ──
+        // ── الوحدة المختارة في نافذة البحث (إن وُجدت) وإلا الوحدة الأساسية ──
+        var preferred = preferredUnit != null ? units.FirstOrDefault(u => u.Id == preferredUnit.Id) : null;
+        var chosenUnit = preferred ?? baseUnit;
+
+        // ── Early stock validation (وحدات أساسية) — includes the row's CURRENT quantity ──
         decimal existingQty = rowIndex < _lines.Count ? _lines[rowIndex].Quantity : 0m;
         decimal requestedQty = existingQty > 0 ? existingQty : 1m;
-        decimal otherRowsQty = _lines.Where(l => l.ProductId == product.Id
-            && !(rowIndex < _lines.Count && l.LineKey == _lines[rowIndex].LineKey))
-            .Sum(l => l.Quantity);
-        if (!await IsStockSufficientAsync(product.Id, otherRowsQty + requestedQty))
+        Guid? excludeKey = rowIndex < _lines.Count ? _lines[rowIndex].LineKey : null;
+        decimal conversionFactor = chosenUnit != null && chosenUnit.ConversionFactor > 0m ? chosenUnit.ConversionFactor : 1m;
+
+        if (!await IsStockSufficientAsync(product.Id, requestedQty, conversionFactor, excludeKey))
             return;
 
         InvoiceLineItemViewModel line;
@@ -1184,8 +1799,9 @@ public partial class frmAddUpdateSalesInvoice : Form
         line.ProductCode = product.Barcode ?? "";
         line.Barcode = product.Barcode ?? "";
         line.ProductName = product.Name;
-        line.UnitName = baseUnit?.UnitName ?? product.UnitName ?? "";
-        line.ProductUnitId = baseUnit?.Id ?? 0;
+        line.UnitName = chosenUnit?.UnitName ?? product.UnitName ?? "";
+        line.ProductUnitId = chosenUnit?.Id ?? 0;
+        line.ConversionFactor = conversionFactor;
         if (line.UnitPrice <= 0m) line.UnitPrice = product.SalePrice > 0m ? product.SalePrice : 0m;
         if (line.Quantity <= 0) line.Quantity = 1m;
 
@@ -1206,78 +1822,138 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         try
         {
-        if (e.RowIndex < 0) return;
+            if (e.RowIndex < 0) return;
+            if (IsLocked) return; // الفاتورة مقفلة — لا تحرير
 
-        // Handle new row added by AllowUserToAddRows
-        if (e.RowIndex >= _lines.Count)
-        {
-            var barcode = dgvItems.Rows[e.RowIndex].Cells[colBarcode.Index].Value?.ToString();
-            if (string.IsNullOrWhiteSpace(barcode)) return;
-
-            var product = _allProducts.FirstOrDefault(p =>
-                p.Barcode != null && p.Barcode.Equals(barcode, StringComparison.OrdinalIgnoreCase));
-            if (product == null) return;
-
-            if (IsDuplicateProduct(product.Id))
+            // ── خانة الخصم: تحقق/تقييد + إعادة حساب ──
+            if (e.ColumnIndex == colDiscount.Index && e.RowIndex < _lines.Count)
             {
-                WarnDuplicateProduct();
+                ApplyDiscountCellEdit(e.RowIndex);
                 return;
             }
 
-            var line = new InvoiceLineItemViewModel
+            // ── خانة تاريخ الانتهاء: تثبيت القيمة في نموذج السطر (الفراغ ⇒ null) ──
+            if (e.ColumnIndex == colExpiry.Index)
             {
-                ProductId = product.Id,
-                ProductCode = product.Barcode ?? "",
-                Barcode = product.Barcode ?? "",
-                ProductName = product.Name,
-                Quantity = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value ?? 1m),
-                UnitPrice = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value ?? 0m),
-                UnitName = dgvItems.Rows[e.RowIndex].Cells[colUnit.Index].Value?.ToString() ?? ""
-            };
+                if (e.RowIndex >= 0 && e.RowIndex < _lines.Count)
+                {
+                    DateTime? expiry = _cellExpiryPicker is { Visible: true }
+                        ? (_cellExpiryPicker.Checked ? _cellExpiryPicker.Value.Date : (DateTime?)null)
+                        : ParseExpiryText(dgvItems.Rows[e.RowIndex].Cells[colExpiry.Index].Value?.ToString());
 
-            // ── Early stock validation for new inline row ──
-            if (!await IsStockSufficientAsync(product.Id, GetExistingQtyForProduct(product.Id) + line.Quantity))
+                    _lines[e.RowIndex].ExpiryDate = expiry;
+
+                    var expiryCell = dgvItems.Rows[e.RowIndex].Cells[colExpiry.Index];
+                    var expiryCurrent = expiryCell.Value is DateTime dt ? dt.Date : (DateTime?)null;
+                    if (expiryCurrent != expiry) expiryCell.Value = expiry;
+                    dgvItems.InvalidateCell(expiryCell);
+                }
+
+                HideCellExpiryPicker();
                 return;
+            }
 
-            _lines.Add(line);
-            dgvItems.Rows[e.RowIndex].Cells[colLineTotal.Index].Value = line.LineTotal;
-            CalculateTotals();
-            return;
-        }
-
-        var existingLine = _lines[e.RowIndex];
-
-        // Always sync ALL editable values from DGV back to _lines
-        decimal previousQty = existingLine.Quantity;
-        if (dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value != null)
-            existingLine.Quantity = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value);
-
-        // ── Early stock validation on direct quantity edit ──
-        if (existingLine.Quantity != previousQty)
-        {
-            decimal otherRowsQty = GetExistingQtyForProduct(existingLine.ProductId);
-            bool sufficient = await IsStockSufficientAsync(existingLine.ProductId, otherRowsQty + existingLine.Quantity);
-            if (!sufficient)
+            // Handle new row added by AllowUserToAddRows
+            if (e.RowIndex >= _lines.Count)
             {
-                existingLine.Quantity = previousQty; // revert to previous quantity
-                dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value = previousQty;
+                var barcode = dgvItems.Rows[e.RowIndex].Cells[colBarcode.Index].Value?.ToString();
+                if (string.IsNullOrWhiteSpace(barcode)) return;
+
+                var product = _allProducts.FirstOrDefault(p =>
+                    p.Barcode != null && p.Barcode.Equals(barcode, StringComparison.OrdinalIgnoreCase));
+                if (product == null) return;
+
+                if (IsDuplicateProduct(product.Id))
+                {
+                    WarnDuplicateProduct();
+                    return;
+                }
+
+                // حلّ الوحدة ومعامل التحويل للسطر الجديد
+                var lineUnits = await LoadProductUnitsAsync(product.Id);
+                string lineUnitName = dgvItems.Rows[e.RowIndex].Cells[colUnit.Index].Value?.ToString() ?? "";
+                var matchedUnit = lineUnits.FirstOrDefault(u => string.Equals(u.UnitName, lineUnitName, StringComparison.Ordinal))
+                               ?? lineUnits.FirstOrDefault(u => u.IsBaseUnit)
+                               ?? lineUnits.FirstOrDefault();
+
+                var line = new InvoiceLineItemViewModel
+                {
+                    ProductId = product.Id,
+                    ProductCode = product.Barcode ?? "",
+                    Barcode = product.Barcode ?? "",
+                    ProductName = product.Name,
+                    Quantity = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value ?? 1m),
+                    UnitPrice = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value ?? 0m),
+                    UnitName = matchedUnit?.UnitName ?? lineUnitName,
+                    ProductUnitId = matchedUnit?.Id ?? 0,
+                    ConversionFactor = matchedUnit != null && matchedUnit.ConversionFactor > 0m ? matchedUnit.ConversionFactor : 1m,
+                    DiscountAmount = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colDiscount.Index].Value),
+                    ExpiryDate = ParseExpiryText(dgvItems.Rows[e.RowIndex].Cells[colExpiry.Index].Value?.ToString())
+                };
+
+                // ── Early stock validation for new inline row (وحدات أساسية) ──
+                if (!await IsStockSufficientAsync(product.Id, line.Quantity, line.ConversionFactor))
+                    return;
+
+                _lines.Add(line);
+                dgvItems.Rows[e.RowIndex].Cells[colLineTotal.Index].Value = line.LineTotal;
                 CalculateTotals();
                 return;
             }
-        }
 
-        if (dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value != null)
-            existingLine.UnitPrice = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value);
+            var existingLine = _lines[e.RowIndex];
 
-        // Always sync UnitName — ComboBox value might have changed regardless of which column was edited
-        var unitVal = dgvItems.Rows[e.RowIndex].Cells[colUnit.Index].Value?.ToString();
-        if (!string.IsNullOrEmpty(unitVal))
-            existingLine.UnitName = unitVal;
+            // 1) الوحدة (قد تكون تغيّرت) → مزامنة UnitName + ProductUnitId + معامل التحويل
+            var unitVal = dgvItems.Rows[e.RowIndex].Cells[colUnit.Index].Value?.ToString();
+            if (!string.IsNullOrEmpty(unitVal))
+            {
+                existingLine.UnitName = unitVal;
+                if (_productUnitsCache.TryGetValue(existingLine.ProductId, out var cachedUnits))
+                {
+                    var matched = cachedUnits.FirstOrDefault(u => string.Equals(u.UnitName, unitVal, StringComparison.Ordinal));
+                    if (matched != null)
+                    {
+                        existingLine.ProductUnitId = matched.Id;
+                        existingLine.ConversionFactor = matched.ConversionFactor > 0m ? matched.ConversionFactor : 1m;
+                    }
+                }
+            }
 
-        // Update displayed LineTotal
-        dgvItems.Rows[e.RowIndex].Cells[colLineTotal.Index].Value = existingLine.LineTotal;
+            // 2) الكمية + التحقق من المخزون بالوحدات الأساسية
+            decimal previousQty = existingLine.Quantity;
+            if (dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value != null)
+                existingLine.Quantity = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value);
 
-        CalculateTotals();
+            // ── Early stock validation on direct quantity edit ──
+            if (existingLine.Quantity != previousQty)
+            {
+                bool sufficient = await IsStockSufficientAsync(
+                    existingLine.ProductId, existingLine.Quantity, existingLine.ConversionFactor, existingLine.LineKey);
+                if (!sufficient)
+                {
+                    existingLine.Quantity = previousQty; // revert to previous quantity
+                    dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value = previousQty;
+                    CalculateTotals();
+                    return;
+                }
+            }
+
+            // 3) السعر
+            if (dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value != null)
+                existingLine.UnitPrice = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value);
+
+            // 4) تقييد الخصم داخل (الكمية × السعر) بعد أي تغيير
+            decimal maxDiscount = Math.Max(0m, existingLine.Quantity * existingLine.UnitPrice);
+            if (existingLine.DiscountAmount > maxDiscount)
+            {
+                existingLine.DiscountAmount = maxDiscount;
+                dgvItems.Rows[e.RowIndex].Cells[colDiscount.Index].Value = maxDiscount;
+            }
+
+            // Update displayed LineTotal
+            dgvItems.Rows[e.RowIndex].Cells[colLineTotal.Index].Value = existingLine.LineTotal;
+
+            CalculateTotals();
         }
         catch (Exception ex)
         {
@@ -1285,8 +1961,75 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
+    /// <summary>
+    /// تحرير مباشر لخلية الخصم: قبول قيمة عشرية ≥ 0، تقييدها إلى (الكمية × السعر)،
+    /// وإعادة الحساب وتنسيق الخلية N2 — مع استرجاع القيمة السابقة عند إدخال غير صالح.
+    /// </summary>
+    private void ApplyDiscountCellEdit(int rowIndex)
+    {
+        if (rowIndex < 0 || rowIndex >= _lines.Count) return;
+
+        var line = _lines[rowIndex];
+        var cell = dgvItems.Rows[rowIndex].Cells[colDiscount.Index];
+        decimal maxDiscount = Math.Max(0m, line.Quantity * line.UnitPrice);
+
+        string raw = (cell.Value?.ToString() ?? string.Empty).Trim();
+        if (!TryParseDecimal(raw, out decimal value) || value < 0m)
+        {
+            line.DiscountAmount = Math.Max(0m, _discountBeforeEdit);
+            cell.Value = line.DiscountAmount;
+            cell.ToolTipText = "قيمة الخصم غير صحيحة — تم استرجاع القيمة السابقة";
+            MessageBox.Show("قيمة الخصم غير صحيحة. يجب أن تكون رقماً أكبر من أو يساوي صفر.",
+                "بيانات غير صحيحة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            CalculateTotals();
+            return;
+        }
+
+        bool clamped = false;
+        if (value > maxDiscount)
+        {
+            value = maxDiscount;
+            clamped = true;
+        }
+
+        line.DiscountAmount = value;
+        cell.Value = value; // التنسيق N2 يُطبَّق من نمط العمود
+        cell.ToolTipText = clamped
+            ? $"تم تقييد الخصم إلى {maxDiscount:N2} (الكمية × السعر)"
+            : string.Empty;
+
+        if (clamped)
+        {
+            MessageBox.Show($"لا يمكن أن يتجاوز الخصم قيمة السطر ({maxDiscount:N2}).\nتم تقييد الخصم إلى {maxDiscount:N2}.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        CalculateTotals();
+    }
+
+    /// <summary>قراءة رقم من قيمة خلية (تقبل الأرقام مع الفواصل).</summary>
+    private static decimal TryParseCellDecimal(object? value)
+        => value == null || value == DBNull.Value ? 0m
+            : TryParseDecimal(value.ToString(), out decimal parsed) ? parsed : 0m;
+
+    /// <summary>تحليل رقم عشري بلغتين (الحالية ثم الثابتة) مع إزالة الفواصل.</summary>
+    private static bool TryParseDecimal(string? text, out decimal value)
+    {
+        value = 0m;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        string cleaned = text.Trim();
+        if (decimal.TryParse(cleaned, out value)) return true;
+
+        cleaned = cleaned.Replace(",", "").Replace("٬", "").Replace("٫", ".");
+        return decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out value);
+    }
+
     private void dgvItems_KeyDown(object? sender, KeyEventArgs e)
     {
+        if (IsLocked) return;
+
         if (e.KeyCode == Keys.Delete && dgvItems.CurrentRow != null && !dgvItems.IsCurrentCellInEditMode && dgvItems.CurrentRow.Index >= 0 && dgvItems.CurrentRow.Index < _lines.Count)
         {
             e.SuppressKeyPress = true;
@@ -1310,6 +2053,16 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             // Display UnitName from model since we removed DataPropertyName
             e.Value = _lines[e.RowIndex].UnitName ?? "";
+            e.FormattingApplied = true;
+        }
+        else if (e.ColumnIndex == colExpiry.Index && e.RowIndex >= 0)
+        {
+            // تاريخ الانتهاء: yyyy/MM/dd — و"‏—" عند عدم تحديد تاريخ
+            var expiry = e.RowIndex < _lines.Count
+                ? _lines[e.RowIndex].ExpiryDate
+                : ParseExpiryText(e.Value?.ToString());
+
+            e.Value = expiry.HasValue ? expiry.Value.ToString(ExpiryDateFormat) : "—";
             e.FormattingApplied = true;
         }
     }
@@ -1339,6 +2092,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void dgvItems_CellClick(object? sender, DataGridViewCellEventArgs e)
     {
+        if (IsLocked) return; // الفاتورة مقفلة — لا حذف
         if (e.RowIndex < 0 || e.ColumnIndex != colDelete.Index) return;
         if (e.RowIndex >= _lines.Count) return;
         if (dgvItems.IsCurrentCellInEditMode) return;
@@ -1349,6 +2103,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void dgvItems_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
     {
+        if (IsLocked) return; // الفاتورة مقفلة
         if (e.RowIndex < 0 || e.RowIndex >= _lines.Count) return;
         if (dgvItems.IsCurrentCellInEditMode) return;
 
@@ -1371,10 +2126,11 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     // ═════════════════════════════════════════════════════════════════
     //  DGV KEYBOARD NAVIGATION ENGINE
-    //  Editable order: Barcode(1) → Unit(3) → Quantity(4) → Price(5) → Quick Input Barcode
+    //  Editable order: Barcode → Unit → Quantity → Price → Discount → Quick Input Barcode
+    //  (يُبنى في المُنشئ من فهارس الأعمدة الفعلية — لا فهارس ثابتة)
     // ═════════════════════════════════════════════════════════════════
 
-    private static readonly int[] EditableDgvColumns = { 1, 3, 4, 5 }; // Barcode, Unit, Quantity, Price
+    private int[] EditableDgvColumns = Array.Empty<int>();
     private int _dgvSearchReturnCol = -1;
     private int _dgvSearchReturnRow = -1;
 
@@ -1432,9 +2188,10 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
 
         // ── Esc: Cancel DGV inline edit ──
-        if (keyData == Keys.Escape && dgvItems.Focused && dgvItems.IsCurrentCellInEditMode)
+        if (keyData == Keys.Escape && (dgvItems.Focused || _cellExpiryPicker?.Visible == true) && dgvItems.IsCurrentCellInEditMode)
         {
             dgvItems.CancelEdit();
+            HideCellExpiryPicker();
             return true;
         }
 
@@ -1446,7 +2203,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
 
         // ── Enter: DGV keyboard navigation engine ──
-        if (keyData == Keys.Enter && dgvItems.Focused && dgvItems.CurrentCell != null)
+        if (keyData == Keys.Enter && (dgvItems.Focused || _cellExpiryPicker?.Visible == true) && dgvItems.CurrentCell != null)
         {
             int col = dgvItems.CurrentCell.ColumnIndex;
             int row = dgvItems.CurrentCell.RowIndex;
@@ -1483,57 +2240,120 @@ public partial class frmAddUpdateSalesInvoice : Form
         return base.ProcessCmdKey(ref msg, keyData);
     }
 
+    /// <summary>
+    /// تمرير شبكة الأصناف بعجلة الماوس حتى لو لم تكن الشبكة هي العنصر النشط.
+    /// (عندما تكون الشبكة نشطة تصل الرسالة إليها مباشرةً فلا تحدث مضاعفة.)
+    /// </summary>
+    protected override void OnMouseWheel(MouseEventArgs e)
+    {
+        try
+        {
+            if (dgvItems is { IsDisposed: false, Visible: true } grid
+                && grid.RowCount > 1
+                && grid.ClientRectangle.Contains(grid.PointToClient(Cursor.Position)))
+            {
+                int lines = SystemInformation.MouseWheelScrollLines;
+                if (lines <= 0) lines = 3;
+
+                int notches = e.Delta / SystemInformation.MouseWheelScrollDelta;
+                if (notches == 0) notches = e.Delta > 0 ? 1 : -1;
+
+                int current = grid.FirstDisplayedScrollingRowIndex;
+                if (current < 0) current = 0;
+
+                int target = Math.Clamp(current - (notches * lines), 0, grid.RowCount - 1);
+                if (target != grid.FirstDisplayedScrollingRowIndex)
+                    grid.FirstDisplayedScrollingRowIndex = target;
+
+                return; // تم التعامل مع العجلة داخل الشبكة
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "تعذر تمرير شبكة الأصناف بعجلة الماوس");
+        }
+
+        base.OnMouseWheel(e);
+    }
+
     private async void LoadRowForEditing(int rowIndex)
     {
-        if (rowIndex < 0 || rowIndex >= _lines.Count) return;
-
-        var row = _lines[rowIndex];
-        int productId = row.ProductId;
-        string productName = row.ProductName ?? "";
-        string barcode = row.Barcode ?? row.ProductCode ?? "";
-
-        _editingOriginalItem = row.Clone();
-        _editingLineKey = row.LineKey;
-
-        // Load units (prefer saved unit id, then saved unit name)
-        var (units, selectedUnit) = await GetUnitsWithDefaultAsync(productId, row.ProductUnitId, row.UnitName);
-
-        // Fill entry panel
-        txtBarcode.Text = barcode;
-        lblProductName.Text = productName;
-
-        cmbUnit.DisplayMember = "UnitName";
-        cmbUnit.ValueMember = "Id";
-        cmbUnit.DataSource = new List<ProductUnitDto>(units);
-        if (selectedUnit != null)
-            cmbUnit.SelectedValue = selectedUnit.Id;
-        else if (units.Count > 0)
-            cmbUnit.SelectedIndex = 0;
-        cmbUnit.Tag = productId;
-
-        txtQuantity.Text = row.Quantity.ToString("G");
-        txtUnitPrice.Text = row.UnitPrice.ToString("G");
-        RecalculateLineTotal(null, null);
-
-        // Set editing mode
-        btnAddLine.Text = "✏️ تعديل";
-        btnAddLine.BackColor = Color.FromArgb(255, 193, 7);
-        btnCancelLine.Enabled = true;
-        tsmiCancelEdit.Enabled = true;
-        gbEntry.Text = $"تعديل السطر #{rowIndex + 1} — {productName}";
-
-        foreach (DataGridViewRow r in dgvItems.Rows)
+        try
         {
-            r.DefaultCellStyle.BackColor = Color.White;
-        }
-        dgvItems.Rows[rowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 180);
+            if (IsLocked) return; // الفاتورة مقفلة — لا تعديل
+            if (rowIndex < 0 || rowIndex >= _lines.Count) return;
 
-        txtBarcode.Focus();
-        txtBarcode.SelectAll();
+            Cursor = Cursors.WaitCursor;
+
+            var row = _lines[rowIndex];
+            int productId = row.ProductId;
+            string productName = row.ProductName ?? "";
+            string barcode = row.Barcode ?? row.ProductCode ?? "";
+
+            _editingOriginalItem = row.Clone();
+            _editingLineKey = row.LineKey;
+
+            // Load units (prefer saved unit id, then saved unit name)
+            var (units, selectedUnit) = await GetUnitsWithDefaultAsync(productId, row.ProductUnitId, row.UnitName);
+
+            // Fill entry panel
+            txtBarcode.Text = barcode;
+            lblProductName.Text = productName;
+            txtItemCode.Text = productId.ToString();
+            cmbUnit.Tag = productId; // قبل DataSource — يمنع استعلام مخزون قديم
+
+            cmbUnit.DisplayMember = "UnitName";
+            cmbUnit.ValueMember = "Id";
+            cmbUnit.DataSource = new List<ProductUnitDto>(units);
+            if (selectedUnit != null)
+                cmbUnit.SelectedValue = selectedUnit.Id;
+            else if (units.Count > 0)
+                cmbUnit.SelectedIndex = 0;
+
+            txtQuantity.Text = row.Quantity.ToString("G");
+            txtUnitPrice.Text = row.UnitPrice.ToString("G");
+            txtLineDiscount.Text = row.DiscountAmount.ToString("G");
+
+            // تاريخ انتهاء السطر — يُعرض في لوحة الإدخال كما هو محفوظ
+            dtpLineExpiry.Checked = row.ExpiryDate.HasValue;
+            dtpLineExpiry.Value = row.ExpiryDate ?? DateTime.Today;
+
+            RecalculateLineTotal(null, null);
+
+            // تحديث المتاح في المخزون للوحدة المحفوظة
+            _ = RefreshAvailableStockAsync();
+
+            // Set editing mode
+            btnAddLine.Text = "✏️ تعديل";
+            btnAddLine.BackColor = Color.FromArgb(255, 193, 7);
+            btnCancelLine.Enabled = true;
+            tsmiCancelEdit.Enabled = true;
+            gbEntry.Text = $"تعديل السطر #{rowIndex + 1} — {productName}";
+
+            foreach (DataGridViewRow r in dgvItems.Rows)
+            {
+                r.DefaultCellStyle.BackColor = Color.White;
+            }
+            dgvItems.Rows[rowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 180);
+
+            txtBarcode.Focus();
+            txtBarcode.SelectAll();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ غير متوقع أثناء تحميل السطر رقم {RowIndex} للتحرير", rowIndex);
+            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
     }
 
     private void DeleteSelectedRow()
     {
+        if (IsLocked) return; // الفاتورة مقفلة — لا حذف
         if (dgvItems.CurrentRow?.DataBoundItem is not InvoiceLineItemViewModel line)
             return;
 
@@ -1569,7 +2389,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         try
         {
             Cursor = Cursors.WaitCursor;
-            await _salesService.CancelAsync(_invoice.Id, SessionManager.UserId, default);
+            await _salesApi.CancelAsync(_invoice.Id, default);
             MessageBox.Show("تم إلغاء الفاتورة", "نجاح",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.DialogResult = DialogResult.OK;
@@ -1588,12 +2408,16 @@ public partial class frmAddUpdateSalesInvoice : Form
     }
 
     private async void btnPrintA4_Click(object? sender, EventArgs e)
-        => await PrintInvoiceAsync(_invoicePrinter, "A4");
+        => await PrintInvoiceAsync(_invoicePrinter, "A4", summary: chkPrintSummary.Checked);
 
     private async void btnPrintReceipt_Click(object? sender, EventArgs e)
         => await PrintInvoiceAsync(_receiptPrinter, "القصيرة");
 
-    private async Task PrintInvoiceAsync(IPrinterService printer, string label)
+    /// <summary>
+    /// طباعة الفاتورة. عندما يكون الطابعة A4 (IInvoicePrinter) وخيار "طباعة فاتورة إجمالية" مفعّلاً
+    /// تُطبع نسخة إجمالية مختصرة، وإلا تُطبع المعاينة العادية. الإيصال القصير لا يدعم النسخة الإجمالية.
+    /// </summary>
+    private async Task PrintInvoiceAsync(IPrinterService printer, string label, bool summary = false)
     {
         if (_invoice == null) return;
 
@@ -1608,10 +2432,22 @@ public partial class frmAddUpdateSalesInvoice : Form
                 return;
             }
 
-            var storeInfo = SalesSystem.Desktop.Printing.Extensions.PrintDtoExtensions.ToPrintDto(settingsRes.Value);
+            // إعدادات المتجر تأتي dynamic من واجهة Desktop (StoreSettingsDto في الوضع الحقيقي،
+            // ExpandoObject في وضع التجربة) — تُوحَّد إلى StoreSettingsDto قبل الطباعة.
+            object? settingsValue = settingsRes.Value;
+            var storeSettings = settingsValue as StoreSettingsDto ?? ToStoreSettings(settingsValue);
+
+            var storeInfo = SalesSystem.Desktop.Printing.Extensions.PrintDtoExtensions.ToPrintDto(storeSettings);
             var printInvoice = SalesSystem.Desktop.Printing.Extensions.PrintDtoExtensions.ToPrintDto(_invoice);
             var printItems = SalesSystem.Desktop.Printing.Extensions.PrintDtoExtensions.ToPrintDtos(_invoice.Items);
             var printTotals = SalesSystem.Desktop.Printing.Extensions.PrintDtoExtensions.ToTotalsPrintDto(_invoice);
+
+            if (summary && printer is IInvoicePrinter invoicePrinter)
+            {
+                // نسخة إجمالية مختصرة (بدون تفاصيل السطور)
+                invoicePrinter.PrintSummaryPreview(printInvoice, printItems, printTotals, storeInfo);
+                return;
+            }
 
             printer.PrintPreview(printInvoice, printItems, printTotals, storeInfo);
         }
@@ -1627,7 +2463,182 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
+    /// <summary>
+    /// يوحّد إعدادات المتجر القادمة من واجهة Desktop إلى <see cref="StoreSettingsDto"/>
+    /// (الوضع الحقيقي يعيد StoreSettingsDto، ووضع التجربة يعيد كائنًا ديناميكيًا).
+    /// </summary>
+    private static StoreSettingsDto ToStoreSettings(object? value)
+    {
+        if (value is StoreSettingsDto dto) return dto;
+
+        if (value is IDictionary<string, object?> map)
+        {
+            object? Raw(string key) => map.TryGetValue(key, out var v) ? v : null;
+            string? Text(string key) => Raw(key) as string;
+            bool Flag(string key) => Raw(key) is bool b && b;
+            decimal Number(string key) => Raw(key) is decimal d ? d : 0m;
+            int Count(string key, int fallback) => Raw(key) is int i ? i : fallback;
+
+            return new StoreSettingsDto(
+                Id: 0,
+                StoreName: Text("storeName") ?? string.Empty,
+                Phone: Text("phone"),
+                Address: Text("address"),
+                LogoPath: Text("logoPath"),
+                Email: Text("email"),
+                DefaultTaxRate: Number("defaultTaxRate"),
+                IsTaxEnabled: Flag("isTaxEnabled"),
+                TaxNumber: Text("taxNumber"),
+                EnableStockAlerts: Flag("enableStockAlerts"),
+                AllowNegativeStock: Flag("allowNegativeStock"),
+                InvoicePrefix: Text("invoicePrefix") ?? string.Empty,
+                BackupPath: Text("backupPath"),
+                BackupScheduleTime: Text("backupScheduleTime"),
+                BackupRetentionDays: Count("backupRetentionDays", 30),
+                UpdateServerUrl: Text("updateServerUrl"),
+                SignaturePath: Text("signaturePath"));
+        }
+
+        return new StoreSettingsDto(0, string.Empty, null, null, null, null, 0m, false, null,
+            false, false, string.Empty);
+    }
+
     private void btnClose_Click(object? sender, EventArgs e) => this.Close();
+
+    // ═════════════════════════════════════════════════════════════════
+    //  NEW INVOICE / SALES RETURN
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// "فاتورة جديدة" — يتأكد من عدم فقدان سطور غير محفوظة ثم يبدأ فاتورة فارغة.
+    /// </summary>
+    private void btnNew_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (!ConfirmDiscardUnsavedLines()) return;
+
+            _invoice = null;
+            ResetForm();
+            UpdateUIState();
+            CalculateTotals();
+
+            txtBarcode.Focus();
+            txtBarcode.SelectAll();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء بدء فاتورة بيع جديدة");
+            MessageBox.Show("حدث خطأ أثناء بدء فاتورة جديدة. يرجى المحاولة مرة أخرى.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// تأكيد بدء فاتورة جديدة عند وجود سطور غير محفوظة.
+    /// </summary>
+    private bool ConfirmDiscardUnsavedLines()
+    {
+        if (!_lines.Any(l => l.ProductId > 0)) return true;
+
+        return MessageBox.Show(
+            "هل تريد بدء فاتورة جديدة؟ سيتم فقدان البيانات غير المحفوظة.",
+            "تأكيد", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  المتاح في المخزون (لكل وحدة) — TASK 2
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// يحدّث lblAvailable من رصيد المستودع (وحدات أساسية) بعد قسمته على معامل تحويل الوحدة المختارة.
+    /// مثال: "المتوفر في المخزن: 12 كرتون (144 حبة)". يتجاهل النتائج القديمة (race guard).
+    /// </summary>
+    private async Task RefreshAvailableStockAsync()
+    {
+        if (lblAvailable == null || IsDisposed) return;
+
+        int productId = cmbUnit.Tag != null ? Convert.ToInt32(cmbUnit.Tag) : 0;
+        if (productId <= 0 || cmbWarehouse.SelectedValue is not short wid || wid <= 0)
+        {
+            lblAvailable.Text = "المتوفر في المخزن: —";
+            return;
+        }
+
+        decimal factor = GetSelectedConversionFactor();
+        string unitName = (cmbUnit.SelectedItem as ProductUnitDto)?.UnitName ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(unitName)) unitName = cmbUnit.Text;
+
+        string baseUnitName = "الوحدة الأساسية";
+        if (_productUnitsCache.TryGetValue(productId, out var units))
+            baseUnitName = units.FirstOrDefault(u => u.IsBaseUnit)?.UnitName ?? baseUnitName;
+
+        int token = ++_stockLookupToken;
+
+        // رصيد المستودع بالوحدات الأساسية — يُحمَّل مرة واحدة لكل مستودع
+        if (!await EnsureWarehouseStockAsync(wid))
+        {
+            if (token == _stockLookupToken) lblAvailable.Text = "المتوفر في المخزن: —";
+            return;
+        }
+        if (!_warehouseStockBase.TryGetValue(productId, out decimal baseQty))
+        {
+            if (token == _stockLookupToken) lblAvailable.Text = "المتوفر في المخزن: —";
+            return;
+        }
+
+        // ── تجاهل نتيجة قديمة (تغيّر المنتج/المستودع أثناء الاستعلام) ──
+        if (token != _stockLookupToken) return;
+        if (cmbUnit.Tag == null || Convert.ToInt32(cmbUnit.Tag) != productId) return;
+
+        decimal inUnit = factor > 0m ? baseQty / factor : baseQty;
+        string unitLabel = string.IsNullOrWhiteSpace(unitName) ? baseUnitName : unitName.Trim();
+        lblAvailable.Text = $"المتوفر في المخزن: {inUnit:G} {unitLabel} ({baseQty:G} {baseUnitName})";
+    }
+
+    private async void cmbUnit_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (_isUpdating || IsDisposed) return;
+            await RefreshAvailableStockAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحديث المتاح في المخزون بعد تغيير الوحدة");
+        }
+    }
+
+    private async void cmbWarehouse_SelectedIndexChanged_RefreshAvailable(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (_isUpdating || IsDisposed) return;
+            await RefreshAvailableStockAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحديث المتاح في المخزون بعد تغيير المستودع");
+        }
+    }
+
+    /// <summary>
+    /// "مردود بيع" — يفتح شاشة مردود المبيعات من الحاوية (DI).
+    /// </summary>
+    private void btnSalesReturn_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            var form = _serviceProvider.GetRequiredService<frmSalesReturn>();
+            form.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء فتح شاشة مردود المبيعات");
+            MessageBox.Show("حدث خطأ أثناء فتح شاشة مردود المبيعات.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
 
     // ═════════════════════════════════════════════════════════════════
     //  SAVE LOGIC (PRESERVED)
@@ -1679,30 +2690,25 @@ public partial class frmAddUpdateSalesInvoice : Form
                 errors.Add($"لم يتم اختيار وحدة ({line.ProductName})");
         }
 
-        // Discount validation
+        // Discount validation — يُحوَّل الخصم إلى مبلغ قبل المقارنة (يحترم مبلغ/نسبة)
         decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(l => l.LineTotal);
-        decimal discountVal = numInvoiceDiscount.Value;
-        if (cmbDiscountType.SelectedIndex == 1 && discountVal > 100)
-            errors.Add("نسبة الخصم لا يمكن أن تتجاوز 100%");
-        if (cmbDiscountType.SelectedIndex == 0 && discountVal > subTotal && subTotal > 0)
+        decimal discountVal = ResolveInvoiceDiscount(subTotal).Amount;
+        if (discountVal > subTotal && subTotal > 0)
             errors.Add("مبلغ الخصم لا يمكن أن يتجاوز إجمالي الفاتورة");
 
         // ── Payment validation ──
-        int paymentIdx = cmbPaymentType.SelectedIndex;
-        bool isCash = paymentIdx == 0;     // نقدي
-        bool isCredit = paymentIdx == 1;   // آجل
-        bool isMixed = paymentIdx == 2;    // مختلط
+        bool isCash = rbtnPaymentTypeCash.Checked;     // نقدي
+        bool isCredit = rbtnPaymentTypeCredit.Checked;   // آجل
 
         decimal paidCash = txtPaid.DecimalValue;
-        decimal paidBank = txtBankAmount.DecimalValue;
-        decimal totalPaid = paidCash + paidBank;
+        decimal totalPaid = paidCash;
 
         // Real invoice total (tax + expenses) — shared threshold with server guard
         decimal totalAmount = ComputeTotalAmount();
 
         // Negative amounts
         if (paidCash < 0) { txtPaid.Focus(); errors.Add("المبلغ النقدي لا يمكن أن يكون سالباً"); }
-        if (paidBank < 0) { txtBankAmount.Focus(); errors.Add("المبلغ البنكي لا يمكن أن يكون سالباً"); }
+        //if (paidBank < 0) { txtBankAmount.Focus(); errors.Add("المبلغ البنكي لا يمكن أن يكون سالباً"); }
 
         // ── Cash (نقدي): must be fully paid — no partial cash sales ──
         if (isCash)
@@ -1715,35 +2721,27 @@ public partial class frmAddUpdateSalesInvoice : Form
                     "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
-            // Cash + bank fields shouldn't mix — bank is disabled in cash mode anyway
+            // Cash 
         }
 
-        // ── Credit (آجل): paid must be 0 ──
-        if (isCredit && totalPaid > 0)
+        // ── Credit (آجل): العميل إلزامي لأن الباقي يُرحَّل إلى حسابه — الدفع الجزئي أو الصفر مسموح ──
+        if (isCredit)
         {
-            errors.Add("البيع الآجل — لا يُسمح بأي مبلغ مدفوع");
-            txtPaid.Focus();
-        }
+            int creditCustomerId = cmbCustomer.SelectedValue == null ? 0 : Convert.ToInt32(cmbCustomer.SelectedValue);
 
-        // ── Mixed (مختلط): needs at least one payment; bank requires account; cannot overpay silently ──
-        if (isMixed)
-        {
-            if (paidBank <= 0 && paidCash <= 0)
+            if (creditCustomerId <= 0 || cmbCustomer.SelectedIndex <= 0)
             {
-                errors.Add("البيع المختلط — أدخل مبلغ نقدي أو بنكي");
+                errorProvider.SetError(cmbCustomer, "البيع الآجل يتطلب اختيار عميل");
+                cmbCustomer.Focus();
+                errors.Add("البيع الآجل يتطلب اختيار عميل.");
+            }
+            else if (totalPaid > totalAmount)
+            {
+                errorProvider.SetError(txtPaid, "المبلغ المدفوع يتجاوز إجمالي الفاتورة");
                 txtPaid.Focus();
+                errors.Add("المبلغ المدفوع لا يمكن أن يتجاوز إجمالي الفاتورة في البيع الآجل.");
             }
-            if (paidBank > 0 && (cmbBank.SelectedValue == null || Convert.ToInt32(cmbBank.SelectedValue) <= 0))
-            {
-                errorProvider.SetError(cmbBank, "يجب اختيار الحساب البنكي");
-                cmbBank.Focus();
-                errors.Add("يجب اختيار الحساب البنكي عند الدفع البنكي");
-            }
-            if (totalPaid >= totalAmount)
-            {
-                errors.Add("البيع المختلط — المدفوع يغطي كامل المبلغ، استخدم البيع النقدي بدلاً من ذلك");
-                txtPaid.Focus();
-            }
+            // المدفوع قد يكون صفراً (آجل كامل) أو جزئياً — لا يُمنع الحفظ عندما totalPaid < totalAmount
         }
 
         // Paid amount > total → warn (overpayment, allowed only on confirmation for cash/mixed edge cases)
@@ -1771,6 +2769,14 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         errorProvider.Clear();
 
+        // الفاتورة مقفلة (مرحّلة/ملغاة) — لا حفظ ولا ترحيل
+        if (IsLocked)
+        {
+            MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديلها أو ترحيلها مرة أخرى.", "الفاتورة مقفلة",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
         if (!_ValidateForm()) return;
 
         if (post && MessageBox.Show("هل أنت متأكد من ترحيل الفاتورة؟ لا يمكن تعديلها بعد الترحيل.", "تأكيد الترحيل",
@@ -1796,13 +2802,15 @@ public partial class frmAddUpdateSalesInvoice : Form
                     if (match != null) productUnitId = match.Id;
                 }
 
+                // خصم السطر: النوع مبلغ ⇒ DiscountRate يحمل قيمة الخصم (كما في SalesInvoiceLine)
                 return new CreateSalesInvoiceLineRequest(
                     l.ProductId,
                     l.Quantity,
                     l.UnitPrice,
                     productUnitId,
                     SalesSystem.DTO.Enums.DiscountType.Amount,
-                    null);
+                    l.DiscountAmount > 0m ? l.DiscountAmount : (decimal?)null,
+                    l.ExpiryDate);
             }).ToList();
 
             if (items.Count == 0)
@@ -1812,15 +2820,13 @@ public partial class frmAddUpdateSalesInvoice : Form
                 return;
             }
 
-            decimal subTotal = _lines.Sum(x => x.LineTotal);
-            var discountType = cmbDiscountType.SelectedIndex == 1
-                ? SalesSystem.DTO.Enums.DiscountType.Percentage
-                : SalesSystem.DTO.Enums.DiscountType.Amount;
+            decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(x => x.LineTotal);
 
-            decimal discountValue = numInvoiceDiscount.Value;
-            decimal calculatedDiscountAmt = discountType == SalesSystem.DTO.Enums.DiscountType.Amount
-                ? discountValue
-                : Math.Min(subTotal * (discountValue / 100m), subTotal);
+            // الخصم: مبلغ ثابت أو نسبة من الإجمالي — يُرسَل كنوع + قيمة + مبلغ محسوب
+            var discount = ResolveInvoiceDiscount(subTotal);
+            var discountType = discount.Type;
+            decimal discountValue = discount.Rate;
+            decimal calculatedDiscountAmt = discount.Amount;
 
             decimal taxableAmount = subTotal - calculatedDiscountAmt;
             decimal reqTaxAmount = CalculateTaxAmount(taxableAmount);
@@ -1828,8 +2834,13 @@ public partial class frmAddUpdateSalesInvoice : Form
             // ── Shared header values (used by both create & update) ──
             int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
             int customerId = Convert.ToInt32(cmbCustomer.SelectedValue ?? 0);
-            var paymentType = (SalesSystem.DTO.Enums.PaymentType)(cmbPaymentType.SelectedIndex + 1);
-            decimal paidAmount = txtPaid.DecimalValue + txtBankAmount.DecimalValue;
+            int? cashBoxId = cmbCashBox.SelectedIndex >= 0
+                && cmbCashBox.SelectedValue is int selectedCashBoxId
+                && selectedCashBoxId > 0
+                    ? (int?)selectedCashBoxId
+                    : null;
+            var paymentType = (SalesSystem.DTO.Enums.PaymentType)(rbtnPaymentTypeCash.Checked == true ? SalesSystem.DTO.Enums.PaymentType.Cash : SalesSystem.DTO.Enums.PaymentType.Credit);
+            decimal paidAmount = txtPaid.DecimalValue;
             decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp2) ? exp2 : 0m;
             string notes = txtNotes.Text;
             int? taxId = null; // أُزيلت وحدة الضرائب (V2)
@@ -1838,25 +2849,27 @@ public partial class frmAddUpdateSalesInvoice : Form
             int invoiceId;
             bool isUpdate = _invoice != null && _invoice.Id > 0;
 
+            // طلب واحد للإنشاء والتعديل — واجهة Desktop تستخدم CreateSalesInvoiceRequest في الحالتين
+            var createRequest = new CreateSalesInvoiceRequest(
+                WarehouseId: warehouseId,
+                InvoiceNo: null,
+                CustomerId: customerId,
+                CashBoxId: cashBoxId,
+                InvoiceDate: dtpDate.Value,
+                PaymentType: paymentType,
+                DiscountAmount: calculatedDiscountAmt,
+                TaxAmount: reqTaxAmount,
+                OtherCharges: expenses,
+                PaidAmount: paidAmount,
+                Notes: notes,
+                TaxId: taxId,
+                Items: items,
+                DiscountType: discountType,
+                DiscountRate: discountValue);
+
             if (isUpdate)
             {
-                var updateRequest = new UpdateSalesInvoiceRequest(
-                    WarehouseId: warehouseId,
-                    CustomerId: customerId,
-                    InvoiceDate: dtpDate.Value,
-                    PaymentType: paymentType,
-                    DiscountAmount: calculatedDiscountAmt,
-                    TaxAmount: reqTaxAmount,
-                    OtherCharges: expenses,
-                    PaidAmount: paidAmount,
-                    CashBoxId: null,
-                    Notes: notes,
-                    TaxId: taxId,
-                    Items: items,
-                    DiscountType: discountType,
-                    DiscountRate: discountValue);
-
-                var updateResult = await _salesService.UpdateAsync(_invoice.Id, updateRequest, SessionManager.UserId, default);
+                var updateResult = await _salesApi.UpdateAsync(_invoice!.Id, createRequest, default);
                 if (!updateResult.IsSuccess)
                 {
                     MessageBox.Show(updateResult.Error ?? "فشل تعديل الفاتورة", "خطأ",
@@ -1868,24 +2881,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             }
             else
             {
-                var createRequest = new CreateSalesInvoiceRequest(
-                    WarehouseId: warehouseId,
-                    InvoiceNo: null,
-                    CustomerId: customerId,
-                    CashBoxId: null,
-                    InvoiceDate: dtpDate.Value,
-                    PaymentType: paymentType,
-                    DiscountAmount: calculatedDiscountAmt,
-                    TaxAmount: reqTaxAmount,
-                    OtherCharges: expenses,
-                    PaidAmount: paidAmount,
-                    Notes: notes,
-                    TaxId: taxId,
-                    Items: items,
-                    DiscountType: discountType,
-                    DiscountRate: discountValue);
-
-                var createResult = await _salesService.CreateAsync(createRequest, SessionManager.UserId, default);
+                var createResult = await _salesApi.CreateAsync(createRequest, default);
                 if (!createResult.IsSuccess)
                 {
                     MessageBox.Show(createResult.Error ?? "فشل إنشاء الفاتورة", "خطأ",
@@ -1910,18 +2906,31 @@ public partial class frmAddUpdateSalesInvoice : Form
                 }
                 else
                 {
-                    var postResult = await _salesService.PostAsync(invoiceId, SessionManager.UserId, default);
+                    var postResult = await _salesApi.PostAsync(invoiceId, default);
                     if (!postResult.IsSuccess)
                     {
                         MessageBox.Show($"تم الحفظ كمسودة ولكن فشل الترحيل: {postResult.Error}", "تنبيه",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         // Refresh state from server — the invoice may still be a draft
-                        var fresh = await _salesService.GetByIdAsync(invoiceId, default);
+                        var fresh = await _salesApi.GetByIdAsync(invoiceId, default);
                         if (fresh.IsSuccess) _invoice = fresh.Value;
                     }
                     else
                     {
-                        _invoice = postResult.Value ?? _invoice;
+                        // PostAsync يعيد Result (بلا قيمة) — نعيد تحميل الفاتورة لتحديث الحالة
+                        // (المرحّل ⇒ IsLocked = true فيُقفل التعديل تلقائياً)
+                        var posted = await _salesApi.GetByIdAsync(invoiceId, default);
+                        if (posted.IsSuccess && posted.Value != null)
+                        {
+                            _invoice = posted.Value;
+                        }
+                        else
+                        {
+                            // الترحيل نجح على الخادم لكن تعذّر تحديث الحالة محلياً — لا نقفل الشاشة بشكل خاطئ
+                            MessageBox.Show("تم ترحيل الفاتورة، لكن تعذر تحديث حالتها. أعد فتح الفاتورة من قائمة السجلات.",
+                                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+
                         MessageBox.Show(isUpdate ? "تم تعديل وترحيل الفاتورة بنجاح" : "تم إنشاء وترحيل الفاتورة بنجاح", "نجاح",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -1935,7 +2944,6 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             // Update UI — stay open for further editing
             lblInvoiceNo.Text = _invoice.InvoiceNo.ToString();
-            lblMode.Text = $"فاتورة بيع - {_invoice.InvoiceNo}";
             UpdateUIState();
         }
         catch (Exception ex)
@@ -1961,67 +2969,101 @@ public partial class frmAddUpdateSalesInvoice : Form
     }
 
     /// <summary>
-    /// Computes the invoice total the same way as CalculateTotals —
-    /// shared by totals display and validation so thresholds always match.
+    /// تغيير نوع الخصم (مبلغ / نسبة): يضبط الحد الأقصى للحقل (100 للنسبة) ثم يعيد الحساب.
+    /// </summary>
+    private void cmbDiscountType_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        bool isPercentage = cmbDiscountType.SelectedIndex == 1;
+
+        numInvoiceDiscount.Maximum = isPercentage ? 100m : 1_000_000m;
+        if (numInvoiceDiscount.Value > numInvoiceDiscount.Maximum)
+            numInvoiceDiscount.Value = numInvoiceDiscount.Maximum; // تقييد وليس خطأ
+
+        CalculateTotals();
+    }
+
+    /// <summary>
+    /// يحوّل قيمة حقل الخصم (مبلغ أو نسبة) إلى مبلغ خصم فعلي مع نوعه وقيمته،
+    /// مقيَّداً داخل الحدود: (0..الإجمالي) للمبلغ و(0..100) للنسبة.
+    /// </summary>
+    private (decimal Amount, SalesSystem.DTO.Enums.DiscountType Type, decimal Rate) ResolveInvoiceDiscount(decimal subTotal)
+    {
+        if (subTotal < 0m) subTotal = 0m;
+
+        decimal value = numInvoiceDiscount.Value;
+
+        // نسبة → مبلغ من الإجمالي
+        if (cmbDiscountType.SelectedIndex == 1)
+        {
+            value = Math.Clamp(value, 0m, 100m);
+            decimal percentAmount = Math.Round(subTotal * value / 100m, 2, MidpointRounding.AwayFromZero);
+            if (percentAmount > subTotal) percentAmount = subTotal;
+            return (percentAmount, SalesSystem.DTO.Enums.DiscountType.Percentage, value);
+        }
+
+        // مبلغ ثابت
+        value = Math.Clamp(value, 0m, subTotal);
+        return (value, SalesSystem.DTO.Enums.DiscountType.Amount, value);
+    }
+
+    /// <summary>
+    /// إجمالي الفاتورة الصافي المستخدم في التحقق من السداد (بوابة الدفع النقدي الكامل).
+    /// يتبع دستور الحسابات نفسه المستخدم في <see cref="CalculateTotals"/>:
+    ///   NetTotal = SubTotal - InvoiceDiscount + TaxAmount + OtherCharges
+    /// والخصم يُحسب عبر <see cref="ResolveInvoiceDiscount"/> ليحترم النوع (مبلغ / نسبة).
     /// </summary>
     private decimal ComputeTotalAmount()
     {
         decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(x => x.LineTotal);
-        decimal invoiceDiscount = cmbDiscountType.SelectedIndex == 1
-            ? subTotal * (numInvoiceDiscount.Value / 100m)
-            : numInvoiceDiscount.Value;
-        invoiceDiscount = Math.Min(invoiceDiscount, subTotal);
+
+        // الخصم: مبلغ ثابت أو نسبة من الإجمالي — لا يُستخدم numInvoiceDiscount.Value مباشرة
+        decimal invoiceDiscount = ResolveInvoiceDiscount(subTotal).Amount;
 
         decimal taxableAmount = subTotal - invoiceDiscount;
         decimal taxAmount = CalculateTaxAmount(taxableAmount);
-        bool isExclusive = !chkApplyTax.Checked; // مضافة = tax added on top
+
         decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp) ? exp : 0m;
 
-        return taxableAmount + (isExclusive ? taxAmount : 0m) + expenses;
+        return taxableAmount + taxAmount + expenses;
     }
 
     private void CalculateTotals()
     {
         if (_isUpdating) return;
 
-        decimal subTotal = _lines.Sum(x => x.LineTotal);
-        decimal invoiceDiscount = 0m;
+        decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(x => x.LineTotal);
 
-        if (cmbDiscountType.SelectedIndex == 0) // Amount
-        {
-            invoiceDiscount = numInvoiceDiscount.Value;
-        }
-        else if (cmbDiscountType.SelectedIndex == 1) // Percentage
-        {
-            invoiceDiscount = subTotal * (numInvoiceDiscount.Value / 100m);
-        }
+        // الخصم: مبلغ ثابت أو نسبة — يُحوَّل دائماً إلى مبلغ قبل الحساب
+        var discount = ResolveInvoiceDiscount(subTotal);
+        decimal invoiceDiscount = discount.Amount;
 
-        invoiceDiscount = Math.Min(invoiceDiscount, subTotal);
-
-        decimal paidAmountCash = txtPaid.DecimalValue;
-        decimal paidAmountBank = txtBankAmount.DecimalValue;
-        decimal totalPaid = paidAmountCash + paidAmountBank;
-
-        // Get tax rate from selected tax
         decimal taxableAmount = subTotal - invoiceDiscount;
         decimal taxAmount = CalculateTaxAmount(taxableAmount);
-        bool isInclusive = chkApplyTax.Checked;  // شاملة = tax embedded, cmbTax disabled
-        bool isExclusive = !chkApplyTax.Checked; // مضافة = tax added on top, cmbTax enabled
-
         decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp) ? exp : 0m;
-        decimal totalAmount = taxableAmount + (isExclusive ? taxAmount : 0m) + expenses;
-        decimal dueAmount = totalAmount - totalPaid;
 
-        lblSubTotalVal.Text = subTotal.ToString("N2");
-        lblDiscountAmountVal.Text = invoiceDiscount.ToString("N2");
-        lblTotalVal.Text = totalAmount.ToString("N2");
-        lblDueVal.Text = dueAmount.ToString("N2");
+        // دستور الحسابات: NetTotal = SubTotal - InvoiceDiscount + Tax + OtherCharges
+        decimal netTotal = subTotal - invoiceDiscount + taxAmount + expenses;
 
-        lblDueVal.ForeColor = dueAmount > 0 ? Color.Red : Color.Green;
+        decimal totalPaid = txtPaid.DecimalValue;
+        decimal dueAmount = netTotal - totalPaid;
 
-        // Update quick info bar
+        // Update quick info bar (إجمالي الكمية يعرض بثلاث خانات عشرية كحد أقصى)
         int itemCount = _lines.Count(l => l.ProductId > 0);
-        lblQuickInfo.Text = $"عدد الأصناف: {itemCount} | الإجمالي: {totalAmount:N2} | المدفوع: {totalPaid:N2} | المتبقي: {dueAmount:N2}";
+        decimal totalQuantity = _lines.Where(l => l.ProductId > 0).Sum(l => l.Quantity);
+
+        lblQuickInfo.Text =
+            $"عدد الأصناف: {itemCount} | إجمالي الكمية: {totalQuantity:G} | الإجمالي: {netTotal:N2} | المدفوع: {totalPaid:N2} | المتبقي: {dueAmount:N2}";
+
+        // ── التفقيط: المبلغ الصافي كتابةً ──
+        try
+        {
+            lblTafqitValue.Text = ArabicNumberToWords.ToWords(netTotal);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "تعذر توليد نص التفقيط للمبلغ {Amount}", netTotal);
+            lblTafqitValue.Text = string.Empty;
+        }
     }
 
     private decimal CalculateTaxAmount(decimal subTotal)
@@ -2037,20 +3079,42 @@ public partial class frmAddUpdateSalesInvoice : Form
     private void UpdateUIState()
     {
         bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+        bool locked = IsLocked; // Posted / Cancelled → قفل تلقائي كامل
 
         gbInvoiceInfo.Enabled = editable;
         pnlEntry.Enabled = editable;
         gbTotals.Enabled = editable;
 
+        // ── الشبكة: قراءة فقط عند القفل، ولا إضافة سطور ──
+        dgvItems.ReadOnly = locked;
+        dgvItems.AllowUserToAddRows = !locked;
+
+        // ── أوامر الأصناف: تتعطل عند القفل ──
+        btnAddLine.Enabled = editable;
+        btnEditRow.Enabled = editable;
+        btnDeleteRow.Enabled = editable;
+        btnCancelLine.Enabled = editable && _editingLineKey.HasValue;
+        btnRefreshCatalog.Enabled = editable;
+
+        // ── مؤشر القفل (القفل تلقائي — لا زر) ──
+        lblLockIndicator.Text = locked ? "🔒 مقفلة" : "✏ قابلة للتعديل";
+        lblLockIndicator.BackColor = locked ? Color.MistyRose : Color.Honeydew;
+        lblLockIndicator.ForeColor = locked ? Color.Firebrick : Color.DarkGreen;
+
         btnSaveDraft.Visible = editable;
         btnPost.Visible = editable;
         btnCancelInvoice.Visible = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
 
+        // ── قائمة السياق: تعطيل التعديل/الحذف عند القفل ──
+        tsmiEditRow.Enabled = !locked;
+        tsmiDeleteRow.Enabled = !locked;
+        tsmiCancelEdit.Enabled = !locked && _editingLineKey.HasValue;
+
         lblStatus.Text = _invoice?.Status switch
         {
             (byte)InvoiceStatus.Draft => "مسودة",
-            (byte)InvoiceStatus.Posted => "تم الترحيل",
-            (byte)InvoiceStatus.Cancelled => "ملغي",
+            (byte)InvoiceStatus.Posted => "تم الترحيل — مقفلة",
+            (byte)InvoiceStatus.Cancelled => "ملغاة",
             _ => "جديد"
         };
 
@@ -2064,6 +3128,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (btnPrintA4 != null) btnPrintA4.Visible = _invoice != null;
         if (btnPrintReceipt != null) btnPrintReceipt.Visible = _invoice != null;
+        if (chkPrintSummary != null) chkPrintSummary.Visible = _invoice != null;
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -2124,6 +3189,9 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// </summary>
     private void cmbWarehouse_SelectedIndexChanged(object? sender, EventArgs e)
     {
+        // تغيير المستودع ⇒ إعادة قراءة أرصدة المستودع الجديد
+        _warehouseStockForWarehouseId = -1;
+
         if (_isUpdating) return;
         if (cmbAccount.DataSource is not List<AccountDto> accounts || accounts.Count == 0) return;
 
@@ -2163,39 +3231,40 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void UpdatePaymentTypeUI()
     {
-        int idx = cmbPaymentType.SelectedIndex;
-        bool isCredit = idx == 1;   // آجل
-        bool isCash = idx == 0;     // نقدي
-        bool isMixed = idx == 2;    // مختلط
-
-        txtPaid.Enabled = !isCredit;
-        txtBankAmount.Enabled = isMixed;
-        cmbBank.Enabled = isMixed;
+        bool isCredit = rbtnPaymentTypeCredit.Checked;   // آجل
+        bool isCash = rbtnPaymentTypeCash.Checked;     // نقدي
 
         if (isCredit)
         {
-            txtPaid.Text = "0";
-            txtBankAmount.Text = "0";
         }
         else if (isCash)
         {
-            txtBankAmount.Text = "0";
         }
-    }
-
-    private void pnlButtons_Paint(object sender, PaintEventArgs e)
-    {
-
     }
 
     private void chkApplyTax_CheckedChanged(object? sender, EventArgs e)
     {
         // أُزيلت وحدة الضرائب (V2) — يبقى اختيار الضريبة معطلاً دائماً.
-        cmbTax.Enabled = false;
+        //cmbTax.Enabled = false;
         CalculateTotals();
     }
 
     private void lblDueVal_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void pnlEntry_Paint(object sender, PaintEventArgs e)
+    {
+
+    }
+
+    private void lblLockIndicator_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void gbTotals_Enter(object sender, EventArgs e)
     {
 
     }

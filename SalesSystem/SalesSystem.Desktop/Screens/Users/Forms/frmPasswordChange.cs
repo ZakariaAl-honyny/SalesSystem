@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
 using SalesSystem.Desktop.Screens.Users;
@@ -18,6 +18,9 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
             _serviceProvider = serviceProvider;
             InitializeComponent();
             KeyboardHelper.WireEnterAsTab(this);
+            KeyboardHelper.WireSelectAllOnFocus(this);
+            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+            KeyboardHelper.WireArrowNavigation(this); // RULE-N45 — أسهم RTL: يمين=رجوع، يسار=تالي
         }
 
     private bool _ValidateForm()
@@ -83,7 +86,7 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
         try
         {
             // Use the auth service to change password via API
-            var authService = _serviceProvider.GetRequiredService<IAuthService>();
+            var authService = _serviceProvider.GetRequiredService<IAuthApiService>();
             var request = new ChangePasswordRequest(
                 txtCurrentPassword.Text,
                 txtNewPassword.Text,
@@ -157,11 +160,23 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
             {
                 // Called from list — admin reset mode
             }
+
+            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
-            MessageBox.Show("خطأ: " + ex.Message, "خطأ",
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "خطأ");
+            MessageBox.Show("خطأ", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 }

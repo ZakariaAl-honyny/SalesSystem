@@ -16,4 +16,7 @@ public interface IFinancialReportApiService
     Task<Result<IReadOnlyList<AccountBalanceReportDto>>> GetAccountBalancesAsync(byte? accountType = null, string? search = null, CancellationToken ct = default);
     Task<Result<IReadOnlyList<AccountStatementDto>>> GetCustomerAccountStatementAsync(int customerId, DateTime from, DateTime to, CancellationToken ct = default);
     Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierAccountStatementAsync(int supplierId, DateTime from, DateTime to, CancellationToken ct = default);
+    // ─── Aliases matching BLL IFinancialReportService method names (for frmAccountStatementReport migration) ───
+    Task<Result<IReadOnlyList<AccountStatementDto>>> GetAccountStatementAsync(int customerId, DateTime from, DateTime to, CancellationToken ct = default);
+    Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierStatementAsync(int supplierId, DateTime from, DateTime to, CancellationToken ct = default);
 }

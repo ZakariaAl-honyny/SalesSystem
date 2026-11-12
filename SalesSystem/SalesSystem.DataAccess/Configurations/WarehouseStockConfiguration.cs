@@ -17,7 +17,8 @@ public class WarehouseStockConfiguration : IEntityTypeConfiguration<WarehouseSto
 
         builder.Property(ws => ws.Quantity)
             .IsRequired()
-            .HasPrecision(18, 3);
+            .HasPrecision(18, 3)
+            .HasDefaultValue(0m);
 
         builder.HasIndex(ws => new { ws.WarehouseId, ws.ProductId })
             .IsUnique()

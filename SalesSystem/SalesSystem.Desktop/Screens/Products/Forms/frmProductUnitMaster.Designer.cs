@@ -18,7 +18,7 @@ partial class frmProductUnitMaster
         components = new System.ComponentModel.Container();
         lblMode = new Label();
         pnlFields = new Panel();
-        pnlFieldsRow1 = new FlowLayoutPanel();
+        lblProduct = new Label();
         lblUnit = new Label();
         lblUnitReq = new Label();
         cmbUnit = new ComboBox();
@@ -28,38 +28,29 @@ partial class frmProductUnitMaster
         numFactor = new NumericUpDown();
         lblSalePrice = new Label();
         numSalePrice = new NumericUpDown();
-        pnlFieldsRow2 = new FlowLayoutPanel();
         lblWholesalePrice = new Label();
         numWholesalePrice = new NumericUpDown();
         lblCostPrice = new Label();
         numCostPrice = new NumericUpDown();
         lblMaxDiscount = new Label();
         numMaxDiscount = new NumericUpDown();
-        lblProduct = new Label();
         pnlButtons = new FlowLayoutPanel();
         btnNew = new Button();
-        btnRefresh = new Button();
         btnSave = new Button();
+        btnEdit = new Button();
         btnDelete = new Button();
+        btnRefresh = new Button();
         btnClose = new Button();
         pnlGrid = new Panel();
         dgvUnits = new DataGridView();
-        colId = new DataGridViewTextBoxColumn();
-        colUnitName = new DataGridViewTextBoxColumn();
-        colBarcode = new DataGridViewTextBoxColumn();
-        colConversionFactor = new DataGridViewTextBoxColumn();
-        colSalePrice = new DataGridViewTextBoxColumn();
-        colCostPrice = new DataGridViewTextBoxColumn();
-        colIsBaseUnit = new DataGridViewCheckBoxColumn();
         pnlFilter = new Panel();
-        txtSearch = new TextBox();
+        groupBox1 = new GroupBox();
         lblSearch = new Label();
+        txtSearch = new TextBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
-        pnlFieldsRow1.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numFactor).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numSalePrice).BeginInit();
-        pnlFieldsRow2.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numWholesalePrice).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numCostPrice).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numMaxDiscount).BeginInit();
@@ -67,6 +58,7 @@ partial class frmProductUnitMaster
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvUnits).BeginInit();
         pnlFilter.SuspendLayout();
+        groupBox1.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -86,42 +78,47 @@ partial class frmProductUnitMaster
         // pnlFields
         // 
         pnlFields.BackColor = Color.FromArgb(235, 245, 235);
-        pnlFields.Controls.Add(pnlFieldsRow2);
-        pnlFields.Controls.Add(pnlFieldsRow1);
         pnlFields.Controls.Add(lblProduct);
+        pnlFields.Controls.Add(lblUnit);
+        pnlFields.Controls.Add(lblUnitReq);
+        pnlFields.Controls.Add(cmbUnit);
+        pnlFields.Controls.Add(lblBarcode);
+        pnlFields.Controls.Add(txtBarcode);
+        pnlFields.Controls.Add(lblFactor);
+        pnlFields.Controls.Add(numFactor);
+        pnlFields.Controls.Add(lblSalePrice);
+        pnlFields.Controls.Add(numSalePrice);
+        pnlFields.Controls.Add(lblWholesalePrice);
+        pnlFields.Controls.Add(numWholesalePrice);
+        pnlFields.Controls.Add(lblCostPrice);
+        pnlFields.Controls.Add(numCostPrice);
+        pnlFields.Controls.Add(lblMaxDiscount);
+        pnlFields.Controls.Add(numMaxDiscount);
         pnlFields.Dock = DockStyle.Top;
         pnlFields.Location = new Point(0, 50);
         pnlFields.Name = "pnlFields";
-        pnlFields.Size = new Size(1200, 132);
+        pnlFields.Size = new Size(1200, 180);
         pnlFields.TabIndex = 1;
         // 
-        // pnlFieldsRow1
+        // lblProduct
         // 
-        pnlFieldsRow1.Controls.Add(lblUnit);
-        pnlFieldsRow1.Controls.Add(lblUnitReq);
-        pnlFieldsRow1.Controls.Add(cmbUnit);
-        pnlFieldsRow1.Controls.Add(lblBarcode);
-        pnlFieldsRow1.Controls.Add(txtBarcode);
-        pnlFieldsRow1.Controls.Add(lblFactor);
-        pnlFieldsRow1.Controls.Add(numFactor);
-        pnlFieldsRow1.Controls.Add(lblSalePrice);
-        pnlFieldsRow1.Controls.Add(numSalePrice);
-        pnlFieldsRow1.Dock = DockStyle.Top;
-        pnlFieldsRow1.Location = new Point(0, 30);
-        pnlFieldsRow1.Name = "pnlFieldsRow1";
-        pnlFieldsRow1.Padding = new Padding(10, 4, 10, 4);
-        pnlFieldsRow1.Size = new Size(1200, 50);
-        pnlFieldsRow1.TabIndex = 0;
-        pnlFieldsRow1.WrapContents = false;
+        lblProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblProduct.ForeColor = Color.FromArgb(30, 86, 160);
+        lblProduct.Location = new Point(20, 6);
+        lblProduct.Name = "lblProduct";
+        lblProduct.Size = new Size(1160, 26);
+        lblProduct.TabIndex = 0;
+        lblProduct.Text = "الصنف:";
+        lblProduct.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblUnit
         // 
         lblUnit.AutoSize = true;
         lblUnit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblUnit.Margin = new Padding(10, 12, 3, 0);
+        lblUnit.Location = new Point(996, 38);
         lblUnit.Name = "lblUnit";
-        lblUnit.Size = new Size(66, 24);
-        lblUnit.TabIndex = 0;
+        lblUnit.Size = new Size(79, 24);
+        lblUnit.TabIndex = 1;
         lblUnit.Text = "الوحدة:";
         // 
         // lblUnitReq
@@ -129,45 +126,48 @@ partial class frmProductUnitMaster
         lblUnitReq.AutoSize = true;
         lblUnitReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         lblUnitReq.ForeColor = Color.Red;
-        lblUnitReq.Margin = new Padding(0, 12, 6, 0);
+        lblUnitReq.Location = new Point(1024, 38);
         lblUnitReq.Name = "lblUnitReq";
+        lblUnitReq.Size = new Size(23, 24);
+        lblUnitReq.TabIndex = 2;
         lblUnitReq.Text = "*";
         // 
         // cmbUnit
         // 
+        cmbUnit.BackColor = Color.White;
         cmbUnit.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbUnit.FlatStyle = FlatStyle.Flat;
         cmbUnit.Font = new Font("Tahoma", 10F);
-        cmbUnit.FormattingEnabled = true;
-        cmbUnit.Margin = new Padding(3, 6, 20, 0);
+        cmbUnit.Location = new Point(910, 65);
         cmbUnit.Name = "cmbUnit";
-        cmbUnit.Size = new Size(200, 32);
+        cmbUnit.Size = new Size(250, 32);
         cmbUnit.TabIndex = 0;
         // 
         // lblBarcode
         // 
         lblBarcode.AutoSize = true;
         lblBarcode.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblBarcode.Margin = new Padding(10, 12, 3, 0);
+        lblBarcode.Location = new Point(732, 38);
         lblBarcode.Name = "lblBarcode";
-        lblBarcode.Size = new Size(90, 24);
-        lblBarcode.TabIndex = 2;
+        lblBarcode.Size = new Size(87, 24);
+        lblBarcode.TabIndex = 3;
         lblBarcode.Text = "الباركود:";
         // 
         // txtBarcode
         // 
         txtBarcode.Font = new Font("Tahoma", 10F);
-        txtBarcode.Margin = new Padding(3, 6, 20, 0);
+        txtBarcode.Location = new Point(650, 65);
         txtBarcode.Name = "txtBarcode";
-        txtBarcode.Size = new Size(180, 32);
+        txtBarcode.Size = new Size(250, 32);
         txtBarcode.TabIndex = 1;
         // 
         // lblFactor
         // 
         lblFactor.AutoSize = true;
         lblFactor.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblFactor.Margin = new Padding(10, 12, 3, 0);
+        lblFactor.Location = new Point(439, 38);
         lblFactor.Name = "lblFactor";
-        lblFactor.Size = new Size(130, 24);
+        lblFactor.Size = new Size(152, 24);
         lblFactor.TabIndex = 4;
         lblFactor.Text = "معامل التحويل:";
         // 
@@ -175,12 +175,11 @@ partial class frmProductUnitMaster
         // 
         numFactor.DecimalPlaces = 3;
         numFactor.Font = new Font("Tahoma", 10F);
-        numFactor.Location = new Point(0, 0);
-        numFactor.Margin = new Padding(3, 6, 20, 0);
+        numFactor.Location = new Point(390, 65);
         numFactor.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numFactor.Minimum = new decimal(new int[] { 1, 0, 0, 196608 });
         numFactor.Name = "numFactor";
-        numFactor.Size = new Size(110, 32);
+        numFactor.Size = new Size(250, 32);
         numFactor.TabIndex = 2;
         numFactor.Value = new decimal(new int[] { 1, 0, 0, 0 });
         // 
@@ -188,127 +187,98 @@ partial class frmProductUnitMaster
         // 
         lblSalePrice.AutoSize = true;
         lblSalePrice.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSalePrice.Margin = new Padding(10, 12, 3, 0);
+        lblSalePrice.Location = new Point(189, 38);
         lblSalePrice.Name = "lblSalePrice";
-        lblSalePrice.Size = new Size(110, 24);
-        lblSalePrice.TabIndex = 6;
+        lblSalePrice.Size = new Size(133, 24);
+        lblSalePrice.TabIndex = 5;
         lblSalePrice.Text = "سعر التجزئة:";
         // 
         // numSalePrice
         // 
         numSalePrice.DecimalPlaces = 2;
         numSalePrice.Font = new Font("Tahoma", 10F);
-        numSalePrice.Location = new Point(0, 0);
-        numSalePrice.Margin = new Padding(3, 6, 20, 0);
+        numSalePrice.Location = new Point(130, 65);
         numSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numSalePrice.Name = "numSalePrice";
-        numSalePrice.Size = new Size(130, 32);
+        numSalePrice.Size = new Size(250, 32);
         numSalePrice.TabIndex = 3;
         numSalePrice.ThousandsSeparator = true;
-        // 
-        // pnlFieldsRow2
-        // 
-        pnlFieldsRow2.Controls.Add(lblWholesalePrice);
-        pnlFieldsRow2.Controls.Add(numWholesalePrice);
-        pnlFieldsRow2.Controls.Add(lblCostPrice);
-        pnlFieldsRow2.Controls.Add(numCostPrice);
-        pnlFieldsRow2.Controls.Add(lblMaxDiscount);
-        pnlFieldsRow2.Controls.Add(numMaxDiscount);
-        pnlFieldsRow2.Dock = DockStyle.Top;
-        pnlFieldsRow2.Location = new Point(0, 80);
-        pnlFieldsRow2.Name = "pnlFieldsRow2";
-        pnlFieldsRow2.Padding = new Padding(10, 4, 10, 4);
-        pnlFieldsRow2.Size = new Size(1200, 50);
-        pnlFieldsRow2.TabIndex = 1;
-        pnlFieldsRow2.WrapContents = false;
         // 
         // lblWholesalePrice
         // 
         lblWholesalePrice.AutoSize = true;
         lblWholesalePrice.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblWholesalePrice.Margin = new Padding(10, 12, 3, 0);
+        lblWholesalePrice.Location = new Point(971, 105);
         lblWholesalePrice.Name = "lblWholesalePrice";
-        lblWholesalePrice.Size = new Size(100, 24);
-        lblWholesalePrice.TabIndex = 0;
+        lblWholesalePrice.Size = new Size(129, 24);
+        lblWholesalePrice.TabIndex = 6;
         lblWholesalePrice.Text = "سعر الجملة:";
         // 
         // numWholesalePrice
         // 
         numWholesalePrice.DecimalPlaces = 2;
         numWholesalePrice.Font = new Font("Tahoma", 10F);
-        numWholesalePrice.Location = new Point(0, 0);
-        numWholesalePrice.Margin = new Padding(3, 6, 20, 0);
+        numWholesalePrice.Location = new Point(910, 132);
         numWholesalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numWholesalePrice.Name = "numWholesalePrice";
-        numWholesalePrice.Size = new Size(130, 32);
-        numWholesalePrice.TabIndex = 0;
+        numWholesalePrice.Size = new Size(250, 32);
+        numWholesalePrice.TabIndex = 4;
         numWholesalePrice.ThousandsSeparator = true;
         // 
         // lblCostPrice
         // 
         lblCostPrice.AutoSize = true;
         lblCostPrice.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCostPrice.Margin = new Padding(10, 12, 3, 0);
+        lblCostPrice.Location = new Point(709, 105);
         lblCostPrice.Name = "lblCostPrice";
-        lblCostPrice.Size = new Size(100, 24);
-        lblCostPrice.TabIndex = 2;
+        lblCostPrice.Size = new Size(132, 24);
+        lblCostPrice.TabIndex = 7;
         lblCostPrice.Text = "سعر التكلفة:";
         // 
         // numCostPrice
         // 
         numCostPrice.DecimalPlaces = 2;
         numCostPrice.Font = new Font("Tahoma", 10F);
-        numCostPrice.Location = new Point(0, 0);
-        numCostPrice.Margin = new Padding(3, 6, 20, 0);
+        numCostPrice.Location = new Point(650, 132);
         numCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numCostPrice.Name = "numCostPrice";
-        numCostPrice.Size = new Size(130, 32);
-        numCostPrice.TabIndex = 1;
+        numCostPrice.Size = new Size(250, 32);
+        numCostPrice.TabIndex = 5;
         numCostPrice.ThousandsSeparator = true;
         // 
         // lblMaxDiscount
         // 
         lblMaxDiscount.AutoSize = true;
         lblMaxDiscount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblMaxDiscount.Margin = new Padding(10, 12, 3, 0);
+        lblMaxDiscount.Location = new Point(449, 105);
         lblMaxDiscount.Name = "lblMaxDiscount";
-        lblMaxDiscount.Size = new Size(100, 24);
-        lblMaxDiscount.TabIndex = 4;
+        lblMaxDiscount.Size = new Size(132, 24);
+        lblMaxDiscount.TabIndex = 8;
         lblMaxDiscount.Text = "أقصى خصم:";
         // 
         // numMaxDiscount
         // 
         numMaxDiscount.DecimalPlaces = 2;
         numMaxDiscount.Font = new Font("Tahoma", 10F);
-        numMaxDiscount.Location = new Point(0, 0);
-        numMaxDiscount.Margin = new Padding(3, 6, 20, 0);
+        numMaxDiscount.Location = new Point(390, 132);
         numMaxDiscount.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMaxDiscount.Name = "numMaxDiscount";
-        numMaxDiscount.Size = new Size(130, 32);
-        numMaxDiscount.TabIndex = 2;
+        numMaxDiscount.Size = new Size(250, 32);
+        numMaxDiscount.TabIndex = 6;
         numMaxDiscount.ThousandsSeparator = true;
-        // 
-        // lblProduct
-        // 
-        lblProduct.Dock = DockStyle.Top;
-        lblProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblProduct.ForeColor = Color.FromArgb(30, 86, 160);
-        lblProduct.Location = new Point(0, 0);
-        lblProduct.Name = "lblProduct";
-        lblProduct.Padding = new Padding(10, 6, 0, 0);
-        lblProduct.Size = new Size(1200, 30);
-        lblProduct.TabIndex = 2;
-        lblProduct.Text = "الصنف:";
         // 
         // pnlButtons
         // 
         pnlButtons.BackColor = Color.FromArgb(235, 240, 235);
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
+        pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
-        pnlButtons.Location = new Point(0, 182);
+        pnlButtons.FlowDirection = FlowDirection.TopDown;
+        pnlButtons.Location = new Point(0, 230);
         pnlButtons.Name = "pnlButtons";
         pnlButtons.Padding = new Padding(10);
         pnlButtons.Size = new Size(1200, 60);
@@ -316,193 +286,165 @@ partial class frmProductUnitMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.White;
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = Color.White;
+        btnNew.Location = new Point(1057, 13);
         btnNew.Margin = new Padding(3, 3, 8, 3);
         btnNew.Name = "btnNew";
-        btnNew.Size = new Size(150, 36);
+        btnNew.Size = new Size(120, 35);
         btnNew.TabIndex = 0;
-        btnNew.Text = "🆕 إضافة";
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.White;
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
+        btnSave.Location = new Point(918, 13);
         btnSave.Margin = new Padding(3, 3, 8, 3);
         btnSave.Name = "btnSave";
-        btnSave.Size = new Size(150, 36);
+        btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
-        btnSave.Text = "💾 حفظ";
+        btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
+        // 
+        // btnEdit
+        // 
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
+        btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = Color.White;
+        btnEdit.Location = new Point(787, 13);
+        btnEdit.Margin = new Padding(3, 3, 8, 3);
+        btnEdit.Name = "btnEdit";
+        btnEdit.Size = new Size(120, 35);
+        btnEdit.TabIndex = 2;
+        btnEdit.Text = "✏️ تعديل";
+        btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.White;
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.Margin = new Padding(3, 3, 24, 3);
+        btnDelete.ForeColor = Color.White;
+        btnDelete.Location = new Point(656, 13);
+        btnDelete.Margin = new Padding(3, 3, 8, 3);
         btnDelete.Name = "btnDelete";
-        btnDelete.Size = new Size(150, 36);
-        btnDelete.TabIndex = 2;
+        btnDelete.Size = new Size(120, 35);
+        btnDelete.TabIndex = 3;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
+        btnRefresh.Location = new Point(515, 13);
+        btnRefresh.Margin = new Padding(3, 3, 8, 3);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 35);
+        btnRefresh.TabIndex = 4;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(30, 86, 160);
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(384, 13);
         btnClose.Margin = new Padding(3, 3, 8, 3);
         btnClose.Name = "btnClose";
-        btnClose.Size = new Size(140, 36);
-        btnClose.TabIndex = 3;
-        btnClose.Text = "إغلاق";
+        btnClose.Size = new Size(120, 35);
+        btnClose.TabIndex = 5;
+        btnClose.TabStop = false;
+        btnClose.Text = "🚪 خروج";
         btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // pnlGrid
         // 
         pnlGrid.Controls.Add(dgvUnits);
         pnlGrid.Controls.Add(pnlFilter);
         pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 242);
+        pnlGrid.Location = new Point(0, 290);
         pnlGrid.Name = "pnlGrid";
-        pnlGrid.Padding = new Padding(10);
-        pnlGrid.Size = new Size(1200, 458);
+        pnlGrid.Padding = new Padding(0, 10, 0, 0);
+        pnlGrid.Size = new Size(1200, 410);
         pnlGrid.TabIndex = 3;
         // 
         // dgvUnits
         // 
         dgvUnits.AllowUserToAddRows = false;
         dgvUnits.AllowUserToDeleteRows = false;
-        dgvUnits.AutoGenerateColumns = false;
         dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvUnits.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colId, colUnitName, colBarcode, colConversionFactor, colSalePrice, colCostPrice, colIsBaseUnit });
         dgvUnits.Dock = DockStyle.Fill;
         dgvUnits.Font = new Font("Tahoma", 10F);
-        dgvUnits.Location = new Point(10, 50);
+        dgvUnits.Location = new Point(0, 78);
         dgvUnits.MultiSelect = false;
         dgvUnits.Name = "dgvUnits";
         dgvUnits.ReadOnly = true;
         dgvUnits.RowHeadersVisible = false;
         dgvUnits.RowHeadersWidth = 62;
         dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvUnits.Size = new Size(1180, 398);
+        dgvUnits.Size = new Size(1200, 332);
         dgvUnits.TabIndex = 0;
-        // 
-        // colId
-        // 
-        colId.DataPropertyName = "Id";
-        colId.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
-        colId.FillWeight = 8F;
-        colId.HeaderText = "رقم الوحدة";
-        colId.MinimumWidth = 90;
-        colId.Name = "colId";
-        colId.ReadOnly = true;
-        // 
-        // colUnitName
-        // 
-        colUnitName.DataPropertyName = "UnitName";
-        colUnitName.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
-        colUnitName.FillWeight = 18F;
-        colUnitName.HeaderText = "الوحدة";
-        colUnitName.MinimumWidth = 130;
-        colUnitName.Name = "colUnitName";
-        colUnitName.ReadOnly = true;
-        // 
-        // colBarcode
-        // 
-        colBarcode.DataPropertyName = "Barcode";
-        colBarcode.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter };
-        colBarcode.FillWeight = 16F;
-        colBarcode.HeaderText = "الباركود";
-        colBarcode.MinimumWidth = 130;
-        colBarcode.Name = "colBarcode";
-        colBarcode.ReadOnly = true;
-        // 
-        // colConversionFactor
-        // 
-        colConversionFactor.DataPropertyName = "ConversionFactor";
-        colConversionFactor.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "N3" };
-        colConversionFactor.FillWeight = 12F;
-        colConversionFactor.HeaderText = "معامل التحويل";
-        colConversionFactor.MinimumWidth = 110;
-        colConversionFactor.Name = "colConversionFactor";
-        colConversionFactor.ReadOnly = true;
-        // 
-        // colSalePrice
-        // 
-        colSalePrice.DataPropertyName = "SalePrice";
-        colSalePrice.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "N2" };
-        colSalePrice.FillWeight = 13F;
-        colSalePrice.HeaderText = "سعر البيع";
-        colSalePrice.MinimumWidth = 110;
-        colSalePrice.Name = "colSalePrice";
-        colSalePrice.ReadOnly = true;
-        // 
-        // colCostPrice
-        // 
-        colCostPrice.DataPropertyName = "CostPrice";
-        colCostPrice.DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter, Format = "N2" };
-        colCostPrice.FillWeight = 13F;
-        colCostPrice.HeaderText = "سعر التكلفة";
-        colCostPrice.MinimumWidth = 110;
-        colCostPrice.Name = "colCostPrice";
-        colCostPrice.ReadOnly = true;
-        // 
-        // colIsBaseUnit
-        // 
-        colIsBaseUnit.DataPropertyName = "IsBaseUnit";
-        colIsBaseUnit.FillWeight = 10F;
-        colIsBaseUnit.HeaderText = "الوحدة الأساسية";
-        colIsBaseUnit.MinimumWidth = 110;
-        colIsBaseUnit.Name = "colIsBaseUnit";
-        colIsBaseUnit.ReadOnly = true;
+        dgvUnits.CellClick += dgvUnits_CellClick;
+        dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
         // 
         // pnlFilter
         // 
-        pnlFilter.Controls.Add(btnRefresh);
-        pnlFilter.Controls.Add(txtSearch);
-        pnlFilter.Controls.Add(lblSearch);
+        pnlFilter.Controls.Add(groupBox1);
         pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(10, 10);
+        pnlFilter.Location = new Point(0, 10);
         pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1180, 40);
+        pnlFilter.Size = new Size(1200, 68);
         pnlFilter.TabIndex = 1;
         // 
-        // txtSearch
+        // groupBox1
         // 
-        txtSearch.Font = new Font("Tahoma", 10F);
-        txtSearch.Location = new Point(690, 4);
-        txtSearch.Name = "txtSearch";
-        txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 99;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = Color.White;
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(550, 4);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
-        btnRefresh.TabIndex = 98;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
+        groupBox1.Controls.Add(lblSearch);
+        groupBox1.Controls.Add(txtSearch);
+        groupBox1.Font = new Font("Tahoma", 10F);
+        groupBox1.Location = new Point(570, 3);
+        groupBox1.Name = "groupBox1";
+        groupBox1.Size = new Size(620, 62);
+        groupBox1.TabIndex = 0;
+        groupBox1.TabStop = false;
+        groupBox1.Text = "محرك البحث";
         // 
         // lblSearch
         // 
         lblSearch.AutoSize = true;
-        lblSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSearch.Location = new Point(1000, 8);
+        lblSearch.Location = new Point(520, 32);
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(56, 24);
         lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
+        // 
+        // txtSearch
+        // 
+        txtSearch.Location = new Point(160, 24);
+        txtSearch.Name = "txtSearch";
+        txtSearch.Size = new Size(340, 32);
+        txtSearch.TabIndex = 0;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // errorProvider
         // 
@@ -528,13 +470,11 @@ partial class frmProductUnitMaster
         ShowIcon = false;
         StartPosition = FormStartPosition.CenterParent;
         Text = "وحدات الصنف";
+        Load += frmProductUnitMaster_Load;
         pnlFields.ResumeLayout(false);
-        pnlFieldsRow1.ResumeLayout(false);
-        pnlFieldsRow1.PerformLayout();
+        pnlFields.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numFactor).EndInit();
         ((System.ComponentModel.ISupportInitialize)numSalePrice).EndInit();
-        pnlFieldsRow2.ResumeLayout(false);
-        pnlFieldsRow2.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numWholesalePrice).EndInit();
         ((System.ComponentModel.ISupportInitialize)numCostPrice).EndInit();
         ((System.ComponentModel.ISupportInitialize)numMaxDiscount).EndInit();
@@ -542,7 +482,8 @@ partial class frmProductUnitMaster
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvUnits).EndInit();
         pnlFilter.ResumeLayout(false);
-        pnlFilter.PerformLayout();
+        groupBox1.ResumeLayout(false);
+        groupBox1.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -550,7 +491,6 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.Label lblMode;
     private System.Windows.Forms.Panel pnlFields;
     private System.Windows.Forms.Label lblProduct;
-    private System.Windows.Forms.FlowLayoutPanel pnlFieldsRow1;
     private System.Windows.Forms.Label lblUnit;
     private System.Windows.Forms.Label lblUnitReq;
     private System.Windows.Forms.ComboBox cmbUnit;
@@ -560,7 +500,6 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.NumericUpDown numFactor;
     private System.Windows.Forms.Label lblSalePrice;
     private System.Windows.Forms.NumericUpDown numSalePrice;
-    private System.Windows.Forms.FlowLayoutPanel pnlFieldsRow2;
     private System.Windows.Forms.Label lblWholesalePrice;
     private System.Windows.Forms.NumericUpDown numWholesalePrice;
     private System.Windows.Forms.Label lblCostPrice;
@@ -570,20 +509,15 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.FlowLayoutPanel pnlButtons;
     private System.Windows.Forms.Button btnNew;
     private System.Windows.Forms.Button btnSave;
+    private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvUnits;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colUnitName;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colBarcode;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colConversionFactor;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colSalePrice;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colCostPrice;
-    private System.Windows.Forms.DataGridViewCheckBoxColumn colIsBaseUnit;
     private System.Windows.Forms.Panel pnlFilter;
-    private System.Windows.Forms.TextBox txtSearch;
-    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.GroupBox groupBox1;
     private System.Windows.Forms.Label lblSearch;
+    private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

@@ -49,17 +49,28 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     // الصناديق النقدية — Cash Boxes
     // ═══════════════════════════════════════════════
-    public static List<CashBoxDto> CashBoxes { get; } = new();
+    public static List<CashBoxDto> CashBoxes { get; } = new()
+    {
+        // Id, Name, AccountId, AccountName, AccountCode, Description, IsActive, BranchId, BranchName
+        new CashBoxDto(
+            1, "الصندوق الرئيسي", 4,
+            "الصندوق الرئيسي (الخزينة المركزية)", "1111",
+            "الصندوق النقدي الرئيسي للمحل", true, 1, null),
+        new CashBoxDto(
+            2, "صندوق المعرض", 5,
+            "صندوق نقطة بيع POS كاشير 1", "1112",
+            "صندوق نقطة البيع في المعرض", true, 1, null)
+    };
 
     // ═══════════════════════════════════════════════
     // المنتجات — Products
     // ═══════════════════════════════════════════════
     public static List<ProductDto> Products { get; } = new()
     {
-        new ProductDto(1,  "شاي ليبتون 250غ",          1, "مشروبات", null,  10m, false, null, true, "102030", 150m),
+        new ProductDto(1,  "شاي ليبتون 250غ",          1, "مشروبات", null,  10m, false, null, true, "102030", 240m),
         new ProductDto(2,  "زيت نباتي 1 لتر",          2, "زيوت",    null,  20m, false, null, true, "102031",  80m),
         new ProductDto(3,  "أرز بسمتي 5 كغ",           3, "حبوب",    null,  15m, false, null, true, "102032",  60m),
-        new ProductDto(4,  "سكر أبيض 1 كغ",            3, "حبوب",    null,  25m, false, null, true, "102033", 200m),
+        new ProductDto(4,  "سكر أبيض 1 كغ",            3, "حبوب",    null,  25m, false, null, true, "102033", 480m),
         new ProductDto(5,  "دقيق فاخر 2 كغ",           3, "حبوب",    null,  10m, false, null, true, "102034", 120m),
         new ProductDto(6,  "معجون طماطم 400غ",         4, "معلبات",  null,  30m, true,  null, true, "102035",  90m),
         new ProductDto(7,  "تونا معلبة 185غ",           4, "معلبات",  null,  20m, true,  null, true, "102036",  45m),
@@ -94,7 +105,15 @@ internal static class MockData
         new ProductUnitDto(9,  9,  1, "علبة",  1m, true,
             null,            200m, null, 170m, null),
         new ProductUnitDto(10, 10, 1, "كيس",   1m, true,
-            null,             75m, null,  62m, null)
+            null,             75m, null,  62m, null),
+
+        // ── وحدات الكرتون — لاختبار الأحجام المتعددة والتحقق من المتاح لكل وحدة ──
+        new ProductUnitDto(11, 1,  2, "كرتون", 12m, false,
+            "6200000001111", 1700m, 1650m, 1400m, 50m),
+        new ProductUnitDto(12, 4,  2, "كرتون", 24m, false,
+            "6200000004411", 4500m, 4400m, 4000m, 100m),
+        new ProductUnitDto(13, 9,  2, "كرتون", 10m, false,
+            "6200000009911", 1800m, 1750m, 1600m, 40m)
     };
 
     // ═══════════════════════════════════════════════

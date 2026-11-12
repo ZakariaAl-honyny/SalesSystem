@@ -44,7 +44,21 @@ public class MockProductApiService : IProductApiService
 
     public Task<Result<ProductDto>> GetByBarcodeAsync(string barcode, CancellationToken ct = default)
     {
-        var product = MockData.Products.FirstOrDefault(p => p.Barcode == barcode);
+        if (string.IsNullOrWhiteSpace(barcode))
+            return Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود بالباركود"));
+
+        var code = barcode.Trim();
+
+        var product = MockData.Products.FirstOrDefault(p => p.Barcode == code);
+
+        // البحث في باركودات وحدات المنتجات (كرتون، باكت، ...)
+        if (product is null)
+        {
+            var unit = MockData.ProductUnits.FirstOrDefault(u => u.Barcode == code);
+            if (unit is not null)
+                product = MockData.Products.FirstOrDefault(p => p.Id == unit.ProductId);
+        }
+
         return product is null
             ? Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود بالباركود"))
             : Task.FromResult(Result<ProductDto>.Success(product));

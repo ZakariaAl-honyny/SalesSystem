@@ -54,20 +54,38 @@ public class MockSalesInvoiceApiService : ISalesInvoiceApiService
         var customerName = MockData.Customers.FirstOrDefault(c => c.Id == r.CustomerId)?.Name
             ?? (r.CustomerId == 0 ? "عميل نقدي" : null);
         var warehouse = MockData.Warehouses.FirstOrDefault(w => w.Id == (short)r.WarehouseId);
+        var cashBoxName = r.CashBoxId.HasValue
+            ? MockData.CashBoxes.FirstOrDefault(c => c.Id == r.CashBoxId.Value)?.Name
+            : null;
 
         var items = r.Items.Select((line, idx) =>
         {
-            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "منتج غير معروف";
-            decimal lineDiscount = line.DiscountType == DiscountType.Percentage && line.DiscountRate.HasValue
-                ? line.Quantity * line.UnitPrice * line.DiscountRate.Value / 100m
-                : 0m;
-            decimal lineTotal = (line.Quantity * line.UnitPrice) - lineDiscount;
+            var product = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId);
+            var productName = product?.Name ?? "منتج غير معروف";
+            var productUnit = MockData.ProductUnits.FirstOrDefault(u => u.Id == line.ProductUnitId);
+
+            decimal gross = line.Quantity * line.UnitPrice;
+
+            // الخصم: مبلغ ثابت أو نسبة مئوية من إجمالي السطر — كلاهما مدعوم
+            decimal disc = line.DiscountType == DiscountType.Percentage
+                ? gross * (line.DiscountRate ?? 0) / 100m
+                : line.DiscountRate ?? 0m;
+
+            // حصر الخصم بين صفر وإجمالي السطر (بدون استثناءات)
+            decimal maxDiscount = gross > 0m ? gross : 0m;
+            disc = disc < 0m ? 0m : (disc > maxDiscount ? maxDiscount : disc);
+
+            decimal lineTotal = gross - disc;
+
             return new SalesInvoiceLineDto(
                 Id: idx + 1, ProductId: line.ProductId, ProductName: productName,
                 Quantity: line.Quantity, UnitPrice: line.UnitPrice, LineTotal: lineTotal,
                 ProductUnitId: line.ProductUnitId,
                 DiscountType: (byte)line.DiscountType, DiscountRate: line.DiscountRate,
-                DiscountAmount: lineDiscount);
+                DiscountAmount: disc,
+                ExpiryDate: line.ExpiryDate,
+                UnitName: productUnit?.UnitName,
+                ProductCode: product?.Barcode);
         }).ToList();
 
         decimal subTotal = items.Sum(i => i.LineTotal);
@@ -86,7 +104,7 @@ public class MockSalesInvoiceApiService : ISalesInvoiceApiService
             PaidAmount: r.PaidAmount, RemainingAmount: remaining,
             CostInBaseCurrency: null, Notes: r.Notes, Status: 1,
             TaxId: r.TaxId, TaxName: null, TaxRate: null,
-            CashBoxId: r.CashBoxId, CashBoxName: null, Items: items,
+            CashBoxId: r.CashBoxId, CashBoxName: cashBoxName, Items: items,
             BranchId: r.BranchId ?? 0);
 
         MockData.Invoices.Add(invoice);
@@ -107,20 +125,38 @@ public class MockSalesInvoiceApiService : ISalesInvoiceApiService
         var customerName = MockData.Customers.FirstOrDefault(c => c.Id == r.CustomerId)?.Name
             ?? (r.CustomerId == 0 ? "عميل نقدي" : null);
         var warehouse = MockData.Warehouses.FirstOrDefault(w => w.Id == (short)r.WarehouseId);
+        var cashBoxName = r.CashBoxId.HasValue
+            ? MockData.CashBoxes.FirstOrDefault(c => c.Id == r.CashBoxId.Value)?.Name
+            : null;
 
         var items = r.Items.Select((line, idx) =>
         {
-            var productName = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId)?.Name ?? "منتج غير معروف";
-            decimal lineDiscount = line.DiscountType == DiscountType.Percentage && line.DiscountRate.HasValue
-                ? line.Quantity * line.UnitPrice * line.DiscountRate.Value / 100m
-                : 0m;
-            decimal lineTotal = (line.Quantity * line.UnitPrice) - lineDiscount;
+            var product = MockData.Products.FirstOrDefault(p => p.Id == line.ProductId);
+            var productName = product?.Name ?? "منتج غير معروف";
+            var productUnit = MockData.ProductUnits.FirstOrDefault(u => u.Id == line.ProductUnitId);
+
+            decimal gross = line.Quantity * line.UnitPrice;
+
+            // الخصم: مبلغ ثابت أو نسبة مئوية من إجمالي السطر — كلاهما مدعوم
+            decimal disc = line.DiscountType == DiscountType.Percentage
+                ? gross * (line.DiscountRate ?? 0) / 100m
+                : line.DiscountRate ?? 0m;
+
+            // حصر الخصم بين صفر وإجمالي السطر (بدون استثناءات)
+            decimal maxDiscount = gross > 0m ? gross : 0m;
+            disc = disc < 0m ? 0m : (disc > maxDiscount ? maxDiscount : disc);
+
+            decimal lineTotal = gross - disc;
+
             return new SalesInvoiceLineDto(
                 Id: idx + 1, ProductId: line.ProductId, ProductName: productName,
                 Quantity: line.Quantity, UnitPrice: line.UnitPrice, LineTotal: lineTotal,
                 ProductUnitId: line.ProductUnitId,
                 DiscountType: (byte)line.DiscountType, DiscountRate: line.DiscountRate,
-                DiscountAmount: lineDiscount);
+                DiscountAmount: disc,
+                ExpiryDate: line.ExpiryDate,
+                UnitName: productUnit?.UnitName,
+                ProductCode: product?.Barcode);
         }).ToList();
 
         decimal subTotal = items.Sum(i => i.LineTotal);
@@ -147,6 +183,7 @@ public class MockSalesInvoiceApiService : ISalesInvoiceApiService
             Notes = r.Notes,
             TaxId = r.TaxId,
             CashBoxId = r.CashBoxId,
+            CashBoxName = cashBoxName,
             Items = items,
             BranchId = r.BranchId ?? existing.BranchId
         };

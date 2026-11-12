@@ -1,4 +1,6 @@
-﻿namespace SalesSystem.Desktop.Screens.Sales.Forms
+﻿using SalesSystem.Desktop.Helpers;
+
+namespace SalesSystem.Desktop.Screens.Sales.Forms
 {
     partial class frmListSales
     {
@@ -15,339 +17,788 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            pnlHeader = new Panel();
             lblMode = new Label();
-            dgvSales = new DataGridView();
+            pnlToolbar = new Panel();
+            flpToolbar = new FlowLayoutPanel();
             btnAdd = new Button();
             btnView = new Button();
             btnPost = new Button();
             btnCancel = new Button();
+            btnRefresh = new Button();
             btnClose = new Button();
+            pnlFilters = new Panel();
+            gbFilter = new GroupBox();
             label1 = new Label();
-            lblRecordsCount = new Label();
-            label2 = new Label();
-            cbFilterBy = new ComboBox();
-            txtFilterValue = new TextBox();
+            cbStatus = new ComboBox();
             label3 = new Label();
             dtpFrom = new DateTimePicker();
             label4 = new Label();
             dtpTo = new DateTimePicker();
-            label5 = new Label();
-            cbStatus = new ComboBox();
+            label2 = new Label();
+            cbFilterBy = new ComboBox();
+            txtFilterValue = new TextBox();
+            chkOnlyDue = new CheckBox();
+            btnRangeToday = new Button();
+            btnRangeMonth = new Button();
+            btnRange30 = new Button();
+            pnlSummary = new Panel();
+            flpSummary = new FlowLayoutPanel();
+            lblCountCaption = new Label();
+            lblRecordsCount = new Label();
+            lblTotalCaption = new Label();
+            lblTotalAmount = new Label();
+            lblPaidCaption = new Label();
+            lblTotalPaid = new Label();
+            lblDueCaption = new Label();
+            lblTotalDue = new Label();
+            pnlFooter = new Panel();
+            lblHint = new Label();
+            pnlGrid = new Panel();
+            emptyState = new Label();
+            dgvSales = new DataGridView();
+            colInvoiceNo = new DataGridViewTextBoxColumn();
+            colDate = new DataGridViewTextBoxColumn();
+            colCustomer = new DataGridViewTextBoxColumn();
+            colTotal = new DataGridViewTextBoxColumn();
+            colPaid = new DataGridViewTextBoxColumn();
+            colDue = new DataGridViewTextBoxColumn();
+            colStatus = new DataGridViewTextBoxColumn();
+            colNotes = new DataGridViewTextBoxColumn();
+            ctxMenu = new ContextMenuStrip(components);
+            tsmiView = new ToolStripMenuItem();
+            tsmiPost = new ToolStripMenuItem();
+            tsmiCancel = new ToolStripMenuItem();
+            tsSep1 = new ToolStripSeparator();
+            tsmiCopyInvoiceNo = new ToolStripMenuItem();
+            toolTip1 = new ToolTip(components);
+            pnlHeader.SuspendLayout();
+            pnlToolbar.SuspendLayout();
+            flpToolbar.SuspendLayout();
+            pnlFilters.SuspendLayout();
+            gbFilter.SuspendLayout();
+            pnlSummary.SuspendLayout();
+            flpSummary.SuspendLayout();
+            pnlFooter.SuspendLayout();
+            pnlGrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvSales).BeginInit();
+            ctxMenu.SuspendLayout();
             SuspendLayout();
+            // 
+            // pnlHeader
+            // 
+            pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+            pnlHeader.Controls.Add(lblMode);
+            pnlHeader.Dock = DockStyle.Top;
+            pnlHeader.Location = new Point(0, 0);
+            pnlHeader.Margin = new Padding(0);
+            pnlHeader.Name = "pnlHeader";
+            pnlHeader.Size = new Size(1584, 56);
+            pnlHeader.TabIndex = 0;
             // 
             // lblMode
             // 
-            lblMode.Anchor = AnchorStyles.Top;
-            lblMode.AutoSize = true;
-            lblMode.BackColor = Color.WhiteSmoke;
-            lblMode.FlatStyle = FlatStyle.Flat;
-            lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblMode.ForeColor = Color.Firebrick;
-            lblMode.Location = new Point(631, 50);
-            lblMode.Margin = new Padding(4);
+            lblMode.BackColor = Color.FromArgb(14, 165, 103);
+            lblMode.Dock = DockStyle.Fill;
+            lblMode.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblMode.ForeColor = Color.White;
+            lblMode.Location = new Point(0, 0);
+            lblMode.Margin = new Padding(0);
             lblMode.Name = "lblMode";
-            lblMode.Size = new Size(235, 39);
-            lblMode.TabIndex = 30;
-            lblMode.Text = "فواتير البيع";
+            lblMode.Size = new Size(1584, 56);
+            lblMode.TabIndex = 0;
+            lblMode.Text = "(( دليل فواتير البيع )) لائحة الفواتير";
+            lblMode.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pnlToolbar
+            // 
+            pnlToolbar.BackColor = Color.FromArgb(235, 240, 235);
+            pnlToolbar.Controls.Add(flpToolbar);
+            pnlToolbar.Dock = DockStyle.Top;
+            pnlToolbar.Location = new Point(0, 56);
+            pnlToolbar.Margin = new Padding(0);
+            pnlToolbar.Name = "pnlToolbar";
+            pnlToolbar.Size = new Size(1584, 64);
+            pnlToolbar.TabIndex = 1;
+            // 
+            // flpToolbar
+            // 
+            flpToolbar.BackColor = Color.FromArgb(235, 240, 235);
+            flpToolbar.Controls.Add(btnAdd);
+            flpToolbar.Controls.Add(btnView);
+            flpToolbar.Controls.Add(btnPost);
+            flpToolbar.Controls.Add(btnCancel);
+            flpToolbar.Controls.Add(btnRefresh);
+            flpToolbar.Controls.Add(btnClose);
+            flpToolbar.Dock = DockStyle.Fill;
+            flpToolbar.Location = new Point(0, 0);
+            flpToolbar.Margin = new Padding(0);
+            flpToolbar.Name = "flpToolbar";
+            flpToolbar.Padding = new Padding(10);
+            flpToolbar.Size = new Size(1584, 64);
+            flpToolbar.TabIndex = 0;
+            flpToolbar.WrapContents = false;
+            // 
+            // btnAdd
+            // 
+            btnAdd.Location = new Point(1421, 13);
+            btnAdd.Name = "btnAdd";
+            btnAdd.Size = new Size(140, 40);
+            btnAdd.TabIndex = 0;
+            btnAdd.Text = "فاتورة جديدة";
+            btnAdd.Click += btnAdd_Click;
+            // 
+            // btnView
+            // 
+            btnView.Enabled = false;
+            btnView.Location = new Point(1275, 13);
+            btnView.Name = "btnView";
+            btnView.Size = new Size(140, 40);
+            btnView.TabIndex = 1;
+            btnView.Text = "عرض / تعديل";
+            btnView.Click += btnView_Click;
+            // 
+            // btnPost
+            // 
+            btnPost.Enabled = false;
+            btnPost.Location = new Point(1129, 13);
+            btnPost.Name = "btnPost";
+            btnPost.Size = new Size(140, 40);
+            btnPost.TabIndex = 2;
+            btnPost.Text = "ترحيل";
+            btnPost.Click += btnPost_Click;
+            // 
+            // btnCancel
+            // 
+            btnCancel.Enabled = false;
+            btnCancel.Location = new Point(983, 13);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(140, 40);
+            btnCancel.TabIndex = 3;
+            btnCancel.Text = "إلغاء الفاتورة";
+            btnCancel.Click += btnCancel_Click;
+            // 
+            // btnRefresh
+            // 
+            btnRefresh.Location = new Point(837, 13);
+            btnRefresh.Name = "btnRefresh";
+            btnRefresh.Size = new Size(140, 40);
+            btnRefresh.TabIndex = 4;
+            btnRefresh.Text = "تحديث";
+            btnRefresh.Click += btnRefresh_Click;
+            // 
+            // btnClose
+            // 
+            btnClose.Location = new Point(691, 13);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(140, 40);
+            btnClose.TabIndex = 5;
+            btnClose.Text = "خروج";
+            btnClose.Click += btnClose_Click;
+            // 
+            // pnlFilters
+            // 
+            pnlFilters.BackColor = Color.FromArgb(235, 245, 235);
+            pnlFilters.Controls.Add(gbFilter);
+            pnlFilters.Dock = DockStyle.Top;
+            pnlFilters.Location = new Point(0, 120);
+            pnlFilters.Margin = new Padding(0);
+            pnlFilters.Name = "pnlFilters";
+            pnlFilters.Padding = new Padding(6, 4, 6, 4);
+            pnlFilters.Size = new Size(1584, 110);
+            pnlFilters.TabIndex = 2;
+            // 
+            // gbFilter
+            // 
+            gbFilter.BackColor = Color.FromArgb(235, 245, 235);
+            gbFilter.Controls.Add(label1);
+            gbFilter.Controls.Add(cbStatus);
+            gbFilter.Controls.Add(label3);
+            gbFilter.Controls.Add(dtpFrom);
+            gbFilter.Controls.Add(label4);
+            gbFilter.Controls.Add(dtpTo);
+            gbFilter.Controls.Add(label2);
+            gbFilter.Controls.Add(cbFilterBy);
+            gbFilter.Controls.Add(txtFilterValue);
+            gbFilter.Controls.Add(chkOnlyDue);
+            gbFilter.Controls.Add(btnRangeToday);
+            gbFilter.Controls.Add(btnRangeMonth);
+            gbFilter.Controls.Add(btnRange30);
+            gbFilter.Dock = DockStyle.Fill;
+            gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbFilter.Location = new Point(6, 4);
+            gbFilter.Margin = new Padding(0);
+            gbFilter.Name = "gbFilter";
+            gbFilter.Padding = new Padding(10);
+            gbFilter.Size = new Size(1572, 102);
+            gbFilter.TabIndex = 0;
+            gbFilter.TabStop = false;
+            gbFilter.Text = "بحث وتصفية";
+            // 
+            // label1
+            // 
+            label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.ForeColor = Color.FromArgb(14, 82, 52);
+            label1.Location = new Point(1420, 34);
+            label1.Margin = new Padding(0);
+            label1.Name = "label1";
+            label1.Size = new Size(82, 26);
+            label1.TabIndex = 0;
+            label1.Text = "الحالة:";
+            label1.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // cbStatus
+            // 
+            cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbStatus.FlatStyle = FlatStyle.Flat;
+            cbStatus.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cbStatus.FormattingEnabled = true;
+            cbStatus.Location = new Point(1290, 30);
+            cbStatus.Margin = new Padding(0);
+            cbStatus.Name = "cbStatus";
+            cbStatus.Size = new Size(124, 32);
+            cbStatus.TabIndex = 1;
+            cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
+            // 
+            // label3
+            // 
+            label3.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.ForeColor = Color.FromArgb(14, 82, 52);
+            label3.Location = new Point(1230, 34);
+            label3.Margin = new Padding(0);
+            label3.Name = "label3";
+            label3.Size = new Size(60, 26);
+            label3.TabIndex = 2;
+            label3.Text = "من:";
+            label3.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // dtpFrom
+            // 
+            dtpFrom.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dtpFrom.Format = DateTimePickerFormat.Short;
+            dtpFrom.Location = new Point(1070, 30);
+            dtpFrom.Margin = new Padding(0);
+            dtpFrom.Name = "dtpFrom";
+            dtpFrom.Size = new Size(154, 32);
+            dtpFrom.TabIndex = 3;
+            dtpFrom.ValueChanged += dtpFrom_ValueChanged;
+            // 
+            // label4
+            // 
+            label4.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label4.ForeColor = Color.FromArgb(14, 82, 52);
+            label4.Location = new Point(1010, 34);
+            label4.Margin = new Padding(0);
+            label4.Name = "label4";
+            label4.Size = new Size(60, 26);
+            label4.TabIndex = 4;
+            label4.Text = "إلى:";
+            label4.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // dtpTo
+            // 
+            dtpTo.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dtpTo.Format = DateTimePickerFormat.Short;
+            dtpTo.Location = new Point(850, 30);
+            dtpTo.Margin = new Padding(0);
+            dtpTo.Name = "dtpTo";
+            dtpTo.Size = new Size(154, 32);
+            dtpTo.TabIndex = 5;
+            dtpTo.ValueChanged += dtpTo_ValueChanged;
+            // 
+            // label2
+            // 
+            label2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.ForeColor = Color.FromArgb(14, 82, 52);
+            label2.Location = new Point(750, 34);
+            label2.Margin = new Padding(0);
+            label2.Name = "label2";
+            label2.Size = new Size(100, 26);
+            label2.TabIndex = 6;
+            label2.Text = "تصفية بـ:";
+            label2.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // cbFilterBy
+            // 
+            cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbFilterBy.FlatStyle = FlatStyle.Flat;
+            cbFilterBy.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cbFilterBy.FormattingEnabled = true;
+            cbFilterBy.Items.AddRange(new object[] { "لا شيئ", "رقم الفاتورة", "اسم العميل", "الحالة" });
+            cbFilterBy.Location = new Point(560, 30);
+            cbFilterBy.Margin = new Padding(0);
+            cbFilterBy.Name = "cbFilterBy";
+            cbFilterBy.Size = new Size(184, 32);
+            cbFilterBy.TabIndex = 7;
+            cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+            // 
+            // txtFilterValue
+            // 
+            txtFilterValue.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtFilterValue.Location = new Point(352, 30);
+            txtFilterValue.Margin = new Padding(0);
+            txtFilterValue.Name = "txtFilterValue";
+            txtFilterValue.Size = new Size(200, 32);
+            txtFilterValue.TabIndex = 8;
+            txtFilterValue.Visible = false;
+            txtFilterValue.TextChanged += txtFilterValue_TextChanged;
+            txtFilterValue.KeyPress += txtFilterValue_KeyPress;
+            // 
+            // chkOnlyDue
+            // 
+            chkOnlyDue.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            chkOnlyDue.ForeColor = Color.FromArgb(14, 82, 52);
+            chkOnlyDue.Location = new Point(180, 32);
+            chkOnlyDue.Margin = new Padding(0);
+            chkOnlyDue.Name = "chkOnlyDue";
+            chkOnlyDue.Size = new Size(160, 28);
+            chkOnlyDue.TabIndex = 9;
+            chkOnlyDue.Text = "غير المسددة فقط";
+            chkOnlyDue.UseVisualStyleBackColor = false;
+            chkOnlyDue.CheckedChanged += chkOnlyDue_CheckedChanged;
+            // 
+            // btnRangeToday
+            // 
+            btnRangeToday.Location = new Point(1124, 65);
+            btnRangeToday.Name = "btnRangeToday";
+            btnRangeToday.Size = new Size(100, 34);
+            btnRangeToday.TabIndex = 10;
+            btnRangeToday.Text = "اليوم";
+            btnRangeToday.Click += btnRangeToday_Click;
+            // 
+            // btnRangeMonth
+            // 
+            btnRangeMonth.Location = new Point(850, 65);
+            btnRangeMonth.Name = "btnRangeMonth";
+            btnRangeMonth.Size = new Size(131, 34);
+            btnRangeMonth.TabIndex = 11;
+            btnRangeMonth.Text = "هذا الشهر";
+            btnRangeMonth.Click += btnRangeMonth_Click;
+            // 
+            // btnRange30
+            // 
+            btnRange30.Location = new Point(987, 65);
+            btnRange30.Name = "btnRange30";
+            btnRange30.Size = new Size(131, 34);
+            btnRange30.TabIndex = 12;
+            btnRange30.Text = "آخر 30 يوماً";
+            btnRange30.Click += btnRange30_Click;
+            // 
+            // pnlSummary
+            // 
+            pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
+            pnlSummary.Controls.Add(flpSummary);
+            pnlSummary.Dock = DockStyle.Top;
+            pnlSummary.Location = new Point(0, 230);
+            pnlSummary.Margin = new Padding(0);
+            pnlSummary.Name = "pnlSummary";
+            pnlSummary.Size = new Size(1584, 46);
+            pnlSummary.TabIndex = 3;
+            // 
+            // flpSummary
+            // 
+            flpSummary.BackColor = Color.FromArgb(235, 240, 235);
+            flpSummary.Controls.Add(lblCountCaption);
+            flpSummary.Controls.Add(lblRecordsCount);
+            flpSummary.Controls.Add(lblTotalCaption);
+            flpSummary.Controls.Add(lblTotalAmount);
+            flpSummary.Controls.Add(lblPaidCaption);
+            flpSummary.Controls.Add(lblTotalPaid);
+            flpSummary.Controls.Add(lblDueCaption);
+            flpSummary.Controls.Add(lblTotalDue);
+            flpSummary.Dock = DockStyle.Fill;
+            flpSummary.Location = new Point(0, 0);
+            flpSummary.Margin = new Padding(0);
+            flpSummary.Name = "flpSummary";
+            flpSummary.Padding = new Padding(10, 8, 10, 8);
+            flpSummary.Size = new Size(1584, 46);
+            flpSummary.TabIndex = 0;
+            flpSummary.WrapContents = false;
+            // 
+            // lblCountCaption
+            // 
+            lblCountCaption.AutoSize = true;
+            lblCountCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblCountCaption.ForeColor = Color.FromArgb(14, 82, 52);
+            lblCountCaption.Location = new Point(1434, 8);
+            lblCountCaption.Margin = new Padding(4, 0, 4, 0);
+            lblCountCaption.Name = "lblCountCaption";
+            lblCountCaption.Size = new Size(126, 24);
+            lblCountCaption.TabIndex = 0;
+            lblCountCaption.Text = "عدد الفواتير:";
+            // 
+            // lblRecordsCount
+            // 
+            lblRecordsCount.AutoSize = true;
+            lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblRecordsCount.ForeColor = Color.FromArgb(14, 82, 52);
+            lblRecordsCount.Location = new Point(1403, 8);
+            lblRecordsCount.Margin = new Padding(4, 0, 24, 0);
+            lblRecordsCount.Name = "lblRecordsCount";
+            lblRecordsCount.Size = new Size(23, 24);
+            lblRecordsCount.TabIndex = 1;
+            lblRecordsCount.Text = "0";
+            // 
+            // lblTotalCaption
+            // 
+            lblTotalCaption.AutoSize = true;
+            lblTotalCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalCaption.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalCaption.Location = new Point(1273, 8);
+            lblTotalCaption.Margin = new Padding(4, 0, 4, 0);
+            lblTotalCaption.Name = "lblTotalCaption";
+            lblTotalCaption.Size = new Size(102, 24);
+            lblTotalCaption.TabIndex = 2;
+            lblTotalCaption.Text = "الإجمالي:";
+            // 
+            // lblTotalAmount
+            // 
+            lblTotalAmount.AutoSize = true;
+            lblTotalAmount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalAmount.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalAmount.Location = new Point(1210, 8);
+            lblTotalAmount.Margin = new Padding(4, 0, 24, 0);
+            lblTotalAmount.Name = "lblTotalAmount";
+            lblTotalAmount.Size = new Size(55, 24);
+            lblTotalAmount.TabIndex = 3;
+            lblTotalAmount.Text = "0.00";
+            // 
+            // lblPaidCaption
+            // 
+            lblPaidCaption.AutoSize = true;
+            lblPaidCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblPaidCaption.ForeColor = Color.FromArgb(14, 82, 52);
+            lblPaidCaption.Location = new Point(1091, 8);
+            lblPaidCaption.Margin = new Padding(4, 0, 4, 0);
+            lblPaidCaption.Name = "lblPaidCaption";
+            lblPaidCaption.Size = new Size(91, 24);
+            lblPaidCaption.TabIndex = 4;
+            lblPaidCaption.Text = "المدفوع:";
+            // 
+            // lblTotalPaid
+            // 
+            lblTotalPaid.AutoSize = true;
+            lblTotalPaid.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalPaid.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalPaid.Location = new Point(1028, 8);
+            lblTotalPaid.Margin = new Padding(4, 0, 24, 0);
+            lblTotalPaid.Name = "lblTotalPaid";
+            lblTotalPaid.Size = new Size(55, 24);
+            lblTotalPaid.TabIndex = 5;
+            lblTotalPaid.Text = "0.00";
+            // 
+            // lblDueCaption
+            // 
+            lblDueCaption.AutoSize = true;
+            lblDueCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblDueCaption.ForeColor = Color.FromArgb(14, 82, 52);
+            lblDueCaption.Location = new Point(907, 8);
+            lblDueCaption.Margin = new Padding(4, 0, 4, 0);
+            lblDueCaption.Name = "lblDueCaption";
+            lblDueCaption.Size = new Size(93, 24);
+            lblDueCaption.TabIndex = 6;
+            lblDueCaption.Text = "المتبقي:";
+            // 
+            // lblTotalDue
+            // 
+            lblTotalDue.AutoSize = true;
+            lblTotalDue.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalDue.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalDue.Location = new Point(844, 8);
+            lblTotalDue.Margin = new Padding(4, 0, 4, 0);
+            lblTotalDue.Name = "lblTotalDue";
+            lblTotalDue.Size = new Size(55, 24);
+            lblTotalDue.TabIndex = 7;
+            lblTotalDue.Text = "0.00";
+            // 
+            // pnlFooter
+            // 
+            pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+            pnlFooter.Controls.Add(lblHint);
+            pnlFooter.Dock = DockStyle.Bottom;
+            pnlFooter.Location = new Point(0, 803);
+            pnlFooter.Margin = new Padding(0);
+            pnlFooter.Name = "pnlFooter";
+            pnlFooter.Padding = new Padding(10, 0, 10, 0);
+            pnlFooter.Size = new Size(1584, 58);
+            pnlFooter.TabIndex = 5;
+            // 
+            // lblHint
+            // 
+            lblHint.Dock = DockStyle.Fill;
+            lblHint.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblHint.ForeColor = Color.FromArgb(14, 82, 52);
+            lblHint.Location = new Point(10, 0);
+            lblHint.Margin = new Padding(0);
+            lblHint.Name = "lblHint";
+            lblHint.Size = new Size(1564, 58);
+            lblHint.TabIndex = 0;
+            lblHint.Text = "F2 جديد · F3 عرض/تعديل · F4 ترحيل · Delete إلغاء · F5 تحديث · Enter = التالي";
+            lblHint.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // pnlGrid
+            // 
+            pnlGrid.BackColor = Color.FromArgb(220, 240, 220);
+            pnlGrid.Controls.Add(emptyState);
+            pnlGrid.Controls.Add(dgvSales);
+            pnlGrid.Dock = DockStyle.Fill;
+            pnlGrid.Location = new Point(0, 276);
+            pnlGrid.Margin = new Padding(0);
+            pnlGrid.Name = "pnlGrid";
+            pnlGrid.Size = new Size(1584, 527);
+            pnlGrid.TabIndex = 4;
+            // 
+            // emptyState
+            // 
+            emptyState.BackColor = Color.Transparent;
+            emptyState.Dock = DockStyle.Fill;
+            emptyState.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            emptyState.ForeColor = Color.FromArgb(14, 82, 52);
+            emptyState.Location = new Point(0, 0);
+            emptyState.Margin = new Padding(0);
+            emptyState.Name = "emptyState";
+            emptyState.Size = new Size(1584, 527);
+            emptyState.TabIndex = 1;
+            emptyState.Text = "لا توجد فواتير مطابقة للمعايير الحالية";
+            emptyState.TextAlign = ContentAlignment.MiddleCenter;
+            emptyState.Visible = false;
             // 
             // dgvSales
             // 
             dgvSales.AllowUserToAddRows = false;
             dgvSales.AllowUserToDeleteRows = false;
             dgvSales.AllowUserToOrderColumns = true;
-            dgvSales.BackgroundColor = SystemColors.Window;
-            dgvSales.BorderStyle = BorderStyle.Fixed3D;
-            dgvSales.ColumnHeadersHeight = 50;
-            dgvSales.Location = new Point(-2, 280);
-            dgvSales.Margin = new Padding(0, 4, 0, 4);
+            dgvSales.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSales.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvSales.BorderStyle = BorderStyle.None;
+            dgvSales.ColumnHeadersHeight = 45;
+            dgvSales.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvSales.Columns.AddRange(new DataGridViewColumn[] { colInvoiceNo, colDate, colCustomer, colTotal, colPaid, colDue, colStatus, colNotes });
+            dgvSales.ContextMenuStrip = ctxMenu;
+            dgvSales.Dock = DockStyle.Fill;
+            dgvSales.Location = new Point(0, 0);
+            dgvSales.Margin = new Padding(0);
+            dgvSales.MultiSelect = false;
             dgvSales.Name = "dgvSales";
             dgvSales.ReadOnly = true;
-            dgvSales.RowHeadersWidth = 62;
-            dgvSales.RowTemplate.Height = 28;
-            dgvSales.Size = new Size(1580, 483);
-            dgvSales.TabIndex = 34;
+            dgvSales.RowHeadersVisible = false;
+            dgvSales.RowHeadersWidth = 51;
+            dgvSales.RowTemplate.Height = 32;
+            dgvSales.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvSales.Size = new Size(1584, 527);
+            dgvSales.TabIndex = 0;
             dgvSales.TabStop = false;
+            dgvSales.CellFormatting += dgvSales_CellFormatting;
+            dgvSales.SelectionChanged += dgvSales_SelectionChanged;
             dgvSales.DoubleClick += dgvSales_DoubleClick;
             // 
-            // btnAdd
+            // colInvoiceNo
             // 
-            btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnAdd.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            btnAdd.BackColor = Color.White;
-            btnAdd.FlatAppearance.BorderColor = Color.Black;
-            btnAdd.FlatAppearance.BorderSize = 2;
-            btnAdd.FlatStyle = FlatStyle.Popup;
-            btnAdd.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnAdd.Location = new Point(1490, 180);
-            btnAdd.Margin = new Padding(4);
-            btnAdd.Name = "btnAdd";
-            btnAdd.Size = new Size(90, 40);
-            btnAdd.TabIndex = 5;
-            btnAdd.Text = "فاتورة جديدة";
-            btnAdd.UseVisualStyleBackColor = true;
-            btnAdd.Click += btnAdd_Click;
+            colInvoiceNo.FillWeight = 8F;
+            colInvoiceNo.HeaderText = "رقم الفاتورة";
+            colInvoiceNo.MinimumWidth = 80;
+            colInvoiceNo.Name = "colInvoiceNo";
+            colInvoiceNo.ReadOnly = true;
             // 
-            // btnView
+            // colDate
             // 
-            btnView.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnView.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            btnView.BackColor = Color.White;
-            btnView.FlatAppearance.BorderColor = Color.Black;
-            btnView.FlatAppearance.BorderSize = 2;
-            btnView.FlatStyle = FlatStyle.Popup;
-            btnView.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnView.Location = new Point(1390, 180);
-            btnView.Margin = new Padding(4);
-            btnView.Name = "btnView";
-            btnView.Size = new Size(90, 40);
-            btnView.TabIndex = 6;
-            btnView.Text = "عرض / تعديل";
-            btnView.UseVisualStyleBackColor = true;
-            btnView.Click += btnView_Click;
+            colDate.FillWeight = 10F;
+            colDate.HeaderText = "التاريخ";
+            colDate.MinimumWidth = 90;
+            colDate.Name = "colDate";
+            colDate.ReadOnly = true;
             // 
-            // btnPost
+            // colCustomer
             // 
-            btnPost.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnPost.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            btnPost.BackColor = Color.White;
-            btnPost.FlatAppearance.BorderColor = Color.Black;
-            btnPost.FlatAppearance.BorderSize = 2;
-            btnPost.FlatStyle = FlatStyle.Popup;
-            btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnPost.Location = new Point(1290, 180);
-            btnPost.Margin = new Padding(4);
-            btnPost.Name = "btnPost";
-            btnPost.Size = new Size(90, 40);
-            btnPost.TabIndex = 7;
-            btnPost.Text = "ترحيل";
-            btnPost.UseVisualStyleBackColor = true;
-            btnPost.Click += btnPost_Click;
+            colCustomer.FillWeight = 22F;
+            colCustomer.HeaderText = "العميل";
+            colCustomer.MinimumWidth = 140;
+            colCustomer.Name = "colCustomer";
+            colCustomer.ReadOnly = true;
             // 
-            // btnCancel
+            // colTotal
             // 
-            btnCancel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnCancel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            btnCancel.BackColor = Color.White;
-            btnCancel.FlatAppearance.BorderColor = Color.Black;
-            btnCancel.FlatAppearance.BorderSize = 2;
-            btnCancel.FlatStyle = FlatStyle.Popup;
-            btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancel.ForeColor = Color.Red;
-            btnCancel.Location = new Point(1190, 180);
-            btnCancel.Margin = new Padding(4);
-            btnCancel.Name = "btnCancel";
-            btnCancel.Size = new Size(90, 40);
-            btnCancel.TabIndex = 8;
-            btnCancel.Text = "إلغاء";
-            btnCancel.UseVisualStyleBackColor = true;
-            btnCancel.Click += btnCancel_Click;
+            colTotal.FillWeight = 12F;
+            colTotal.HeaderText = "الإجمالي";
+            colTotal.MinimumWidth = 100;
+            colTotal.Name = "colTotal";
+            colTotal.ReadOnly = true;
+            colTotal.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
-            // btnClose
+            // colPaid
             // 
-            btnClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnClose.BackColor = Color.White;
-            btnClose.DialogResult = DialogResult.Cancel;
-            btnClose.FlatStyle = FlatStyle.Popup;
-            btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnClose.ImageAlign = ContentAlignment.MiddleRight;
-            btnClose.Location = new Point(11, 771);
-            btnClose.Margin = new Padding(4);
-            btnClose.Name = "btnClose";
-            btnClose.Size = new Size(181, 61);
-            btnClose.TabIndex = 0;
-            btnClose.Text = "إغلاق";
-            btnClose.UseVisualStyleBackColor = false;
-            btnClose.Click += btnClose_Click;
+            colPaid.FillWeight = 12F;
+            colPaid.HeaderText = "المدفوع";
+            colPaid.MinimumWidth = 100;
+            colPaid.Name = "colPaid";
+            colPaid.ReadOnly = true;
+            colPaid.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
-            // label1
+            // colDue
             // 
-            label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            label1.AutoSize = true;
-            label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(1307, 771);
-            label1.Margin = new Padding(4);
-            label1.Name = "label1";
-            label1.Size = new Size(155, 24);
-            label1.TabIndex = 3;
-            label1.Text = "عدد الفواتير:";
+            colDue.FillWeight = 12F;
+            colDue.HeaderText = "المتبقي";
+            colDue.MinimumWidth = 100;
+            colDue.Name = "colDue";
+            colDue.ReadOnly = true;
+            colDue.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
-            // lblRecordsCount
+            // colStatus
             // 
-            lblRecordsCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblRecordsCount.AutoSize = true;
-            lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblRecordsCount.Location = new Point(1467, 771);
-            lblRecordsCount.Margin = new Padding(4);
-            lblRecordsCount.Name = "lblRecordsCount";
-            lblRecordsCount.Size = new Size(72, 24);
-            lblRecordsCount.TabIndex = 4;
-            lblRecordsCount.Text = "[????]";
+            colStatus.FillWeight = 8F;
+            colStatus.HeaderText = "الحالة";
+            colStatus.MinimumWidth = 80;
+            colStatus.Name = "colStatus";
+            colStatus.ReadOnly = true;
+            colStatus.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
-            // label2
+            // colNotes
             // 
-            label2.AutoSize = true;
-            label2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(21, 244);
-            label2.Margin = new Padding(4);
-            label2.Name = "label2";
-            label2.Size = new Size(171, 24);
-            label2.TabIndex = 5;
-            label2.Text = "البحث عن طريق:";
+            colNotes.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            colNotes.FillWeight = 16F;
+            colNotes.HeaderText = "ملاحظات";
+            colNotes.MinimumWidth = 120;
+            colNotes.Name = "colNotes";
+            colNotes.ReadOnly = true;
+            colNotes.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
-            // cbFilterBy
+            // ctxMenu
             // 
-            cbFilterBy.BackColor = SystemColors.Control;
-            cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbFilterBy.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            cbFilterBy.FormattingEnabled = true;
-            cbFilterBy.Items.AddRange(new object[] { "لا شيئ", "رقم الفاتورة", "اسم العميل" });
-            cbFilterBy.Location = new Point(200, 240);
-            cbFilterBy.Margin = new Padding(4);
-            cbFilterBy.Name = "cbFilterBy";
-            cbFilterBy.Size = new Size(326, 32);
-            cbFilterBy.TabIndex = 1;
-            cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+            ctxMenu.ImageScalingSize = new Size(24, 24);
+            ctxMenu.Items.AddRange(new ToolStripItem[] { tsmiView, tsmiPost, tsmiCancel, tsSep1, tsmiCopyInvoiceNo });
+            ctxMenu.Name = "ctxMenu";
+            ctxMenu.Size = new Size(242, 138);
+            ctxMenu.Opening += ctxMenu_Opening;
             // 
-            // txtFilterValue
+            // tsmiView
             // 
-            txtFilterValue.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            txtFilterValue.Location = new Point(534, 240);
-            txtFilterValue.Margin = new Padding(4);
-            txtFilterValue.Name = "txtFilterValue";
-            txtFilterValue.Size = new Size(200, 32);
-            txtFilterValue.TabIndex = 2;
-            txtFilterValue.Visible = false;
-            txtFilterValue.TextChanged += txtFilterValue_TextChanged;
-            txtFilterValue.KeyPress += txtFilterValue_KeyPress;
+            tsmiView.Name = "tsmiView";
+            tsmiView.ShortcutKeyDisplayString = "F3";
+            tsmiView.Size = new Size(241, 32);
+            tsmiView.Text = "عرض / تعديل";
+            tsmiView.Click += tsmiView_Click;
             // 
-            // label3
+            // tsmiPost
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label3.Location = new Point(784, 244);
-            label3.Margin = new Padding(4);
-            label3.Name = "label3";
-            label3.Size = new Size(42, 24);
-            label3.TabIndex = 9;
-            label3.Text = "من:";
+            tsmiPost.Name = "tsmiPost";
+            tsmiPost.ShortcutKeyDisplayString = "F4";
+            tsmiPost.Size = new Size(241, 32);
+            tsmiPost.Text = "ترحيل";
+            tsmiPost.Click += tsmiPost_Click;
             // 
-            // dtpFrom
+            // tsmiCancel
             // 
-            dtpFrom.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dtpFrom.Format = DateTimePickerFormat.Short;
-            dtpFrom.Location = new Point(830, 240);
-            dtpFrom.Margin = new Padding(4);
-            dtpFrom.Name = "dtpFrom";
-            dtpFrom.Size = new Size(150, 32);
-            dtpFrom.TabIndex = 10;
-            dtpFrom.ValueChanged += dtpFrom_ValueChanged;
+            tsmiCancel.Name = "tsmiCancel";
+            tsmiCancel.ShortcutKeyDisplayString = "Delete";
+            tsmiCancel.Size = new Size(241, 32);
+            tsmiCancel.Text = "إلغاء الفاتورة";
+            tsmiCancel.Click += tsmiCancel_Click;
             // 
-            // label4
+            // tsSep1
             // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(1000, 244);
-            label4.Margin = new Padding(4);
-            label4.Name = "label4";
-            label4.Size = new Size(40, 24);
-            label4.TabIndex = 11;
-            label4.Text = "إلى:";
+            tsSep1.Name = "tsSep1";
+            tsSep1.Size = new Size(238, 6);
             // 
-            // dtpTo
+            // tsmiCopyInvoiceNo
             // 
-            dtpTo.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dtpTo.Format = DateTimePickerFormat.Short;
-            dtpTo.Location = new Point(1046, 240);
-            dtpTo.Margin = new Padding(4);
-            dtpTo.Name = "dtpTo";
-            dtpTo.Size = new Size(150, 32);
-            dtpTo.TabIndex = 12;
-            dtpTo.ValueChanged += dtpTo_ValueChanged;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(1220, 244);
-            label5.Margin = new Padding(4);
-            label5.Name = "label5";
-            label5.Size = new Size(68, 24);
-            label5.TabIndex = 13;
-            label5.Text = "الحالة:";
-            // 
-            // cbStatus
-            // 
-            cbStatus.BackColor = SystemColors.Control;
-            cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbStatus.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            cbStatus.FormattingEnabled = true;
-            cbStatus.Items.AddRange(new object[] { "الكل", "مسودة", "مرحل", "ملغي" });
-            cbStatus.Location = new Point(1294, 240);
-            cbStatus.Margin = new Padding(4);
-            cbStatus.Name = "cbStatus";
-            cbStatus.Size = new Size(150, 32);
-            cbStatus.TabIndex = 14;
-            cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
+            tsmiCopyInvoiceNo.Name = "tsmiCopyInvoiceNo";
+            tsmiCopyInvoiceNo.Size = new Size(241, 32);
+            tsmiCopyInvoiceNo.Text = "نسخ رقم الفاتورة";
+            tsmiCopyInvoiceNo.Click += tsmiCopyInvoiceNo_Click;
             // 
             // frmListSales
             // 
-            AcceptButton = btnAdd;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.FromArgb(170, 220, 170);
             CancelButton = btnClose;
-            ClientSize = new Size(1578, 844);
-            Controls.Add(cbStatus);
-            Controls.Add(label5);
-            Controls.Add(dtpTo);
-            Controls.Add(label4);
-            Controls.Add(dtpFrom);
-            Controls.Add(label3);
-            Controls.Add(txtFilterValue);
-            Controls.Add(cbFilterBy);
-            Controls.Add(label2);
-            Controls.Add(lblRecordsCount);
-            Controls.Add(label1);
-            Controls.Add(btnCancel);
-            Controls.Add(btnPost);
-            Controls.Add(btnView);
-            Controls.Add(btnAdd);
-            Controls.Add(dgvSales);
-            Controls.Add(lblMode);
-            Controls.Add(btnClose);
-            Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
+            ClientSize = new Size(1584, 861);
+            Controls.Add(pnlGrid);
+            Controls.Add(pnlFooter);
+            Controls.Add(pnlSummary);
+            Controls.Add(pnlFilters);
+            Controls.Add(pnlToolbar);
+            Controls.Add(pnlHeader);
+            Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            KeyPreview = true;
+            MinimumSize = new Size(1200, 700);
             Name = "frmListSales";
             RightToLeft = RightToLeft.Yes;
             RightToLeftLayout = true;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "فواتير البيع";
+            Text = "دليل فواتير البيع";
             Load += frmListSales_Load;
+            pnlHeader.ResumeLayout(false);
+            pnlToolbar.ResumeLayout(false);
+            flpToolbar.ResumeLayout(false);
+            pnlFilters.ResumeLayout(false);
+            gbFilter.ResumeLayout(false);
+            gbFilter.PerformLayout();
+            pnlSummary.ResumeLayout(false);
+            flpSummary.ResumeLayout(false);
+            flpSummary.PerformLayout();
+            pnlFooter.ResumeLayout(false);
+            pnlGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvSales).EndInit();
+            ctxMenu.ResumeLayout(false);
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
+        private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblMode;
-        private System.Windows.Forms.DataGridView dgvSales;
+        private System.Windows.Forms.Panel pnlToolbar;
+        private System.Windows.Forms.FlowLayoutPanel flpToolbar;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Button btnView;
         private System.Windows.Forms.Button btnPost;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Panel pnlFilters;
+        private System.Windows.Forms.GroupBox gbFilter;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblRecordsCount;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox cbFilterBy;
-        private System.Windows.Forms.TextBox txtFilterValue;
+        private System.Windows.Forms.ComboBox cbStatus;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.DateTimePicker dtpFrom;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.DateTimePicker dtpTo;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox cbStatus;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cbFilterBy;
+        private System.Windows.Forms.TextBox txtFilterValue;
+        private System.Windows.Forms.CheckBox chkOnlyDue;
+        private System.Windows.Forms.Button btnRangeToday;
+        private System.Windows.Forms.Button btnRangeMonth;
+        private System.Windows.Forms.Button btnRange30;
+        private System.Windows.Forms.Panel pnlSummary;
+        private System.Windows.Forms.FlowLayoutPanel flpSummary;
+        private System.Windows.Forms.Label lblCountCaption;
+        private System.Windows.Forms.Label lblRecordsCount;
+        private System.Windows.Forms.Label lblTotalCaption;
+        private System.Windows.Forms.Label lblTotalAmount;
+        private System.Windows.Forms.Label lblPaidCaption;
+        private System.Windows.Forms.Label lblTotalPaid;
+        private System.Windows.Forms.Label lblDueCaption;
+        private System.Windows.Forms.Label lblTotalDue;
+        private System.Windows.Forms.Panel pnlFooter;
+        private System.Windows.Forms.Label lblHint;
+        private System.Windows.Forms.Panel pnlGrid;
+        private System.Windows.Forms.DataGridView dgvSales;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colInvoiceNo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCustomer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTotal;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPaid;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colDue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colStatus;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colNotes;
+        private System.Windows.Forms.Label emptyState;
+        private System.Windows.Forms.ContextMenuStrip ctxMenu;
+        private System.Windows.Forms.ToolStripMenuItem tsmiView;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPost;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCancel;
+        private System.Windows.Forms.ToolStripSeparator tsSep1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCopyInvoiceNo;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

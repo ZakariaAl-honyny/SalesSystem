@@ -15,23 +15,26 @@ partial class frmWarehouseTransferNew
 
     private void InitializeComponent()
     {
-        components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
         lblMode = new Label();
         grpHeader = new GroupBox();
-        lblTransferNo = new Label();
-        txtTransferNo = new TextBox();
-        lblDate = new Label();
-        dtpDate = new DateTimePicker();
-        lblFromWarehouse = new Label();
-        cmbFromWarehouse = new ComboBox();
-        lblToWarehouse = new Label();
-        cmbToWarehouse = new ComboBox();
-        lblDriverName = new Label();
-        txtDriverName = new TextBox();
-        lblVehiclePlate = new Label();
-        txtVehiclePlate = new TextBox();
         lblReference = new Label();
         txtReference = new TextBox();
+        lblVehiclePlate = new Label();
+        txtVehiclePlate = new TextBox();
+        lblDriverName = new Label();
+        txtDriverName = new TextBox();
+        lblToWarehouse = new Label();
+        cmbToWarehouse = new ComboBox();
+        lblFromWarehouse = new Label();
+        cmbFromWarehouse = new ComboBox();
+        lblDate = new Label();
+        dtpDate = new DateTimePicker();
+        lblTransferNo = new Label();
+        txtTransferNo = new TextBox();
         dgvLines = new DataGridView();
         colProduct = new DataGridViewComboBoxColumn();
         colUnit = new DataGridViewComboBoxColumn();
@@ -54,7 +57,7 @@ partial class frmWarehouseTransferNew
         lblMode.ForeColor = Color.Firebrick;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
-        lblMode.Size = new Size(760, 39);
+        lblMode.Size = new Size(775, 39);
         lblMode.TabIndex = 0;
         lblMode.Text = "سند تحويل مخزني";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
@@ -84,65 +87,59 @@ partial class frmWarehouseTransferNew
         grpHeader.TabStop = false;
         grpHeader.Text = "بيانات السند";
         // 
-        // lblTransferNo
+        // lblReference
         // 
-        lblTransferNo.AutoSize = true;
-        lblTransferNo.Font = new Font("Tahoma", 10F);
-        lblTransferNo.Location = new Point(15, 28);
-        lblTransferNo.Name = "lblTransferNo";
-        lblTransferNo.Size = new Size(89, 24);
-        lblTransferNo.TabIndex = 0;
-        lblTransferNo.Text = "رقم السند :";
+        lblReference.AutoSize = true;
+        lblReference.Font = new Font("Tahoma", 10F);
+        lblReference.Location = new Point(360, 116);
+        lblReference.Name = "lblReference";
+        lblReference.Size = new Size(79, 24);
+        lblReference.TabIndex = 12;
+        lblReference.Text = "المرجع :";
         // 
-        // txtTransferNo
+        // txtReference
         // 
-        txtTransferNo.Font = new Font("Tahoma", 10F);
-        txtTransferNo.Location = new Point(110, 25);
-        txtTransferNo.Name = "txtTransferNo";
-        txtTransferNo.ReadOnly = true;
-        txtTransferNo.Size = new Size(130, 30);
-        txtTransferNo.TabIndex = 1;
-        txtTransferNo.Text = "جديد";
+        txtReference.Font = new Font("Tahoma", 10F);
+        txtReference.Location = new Point(430, 113);
+        txtReference.Name = "txtReference";
+        txtReference.Size = new Size(290, 32);
+        txtReference.TabIndex = 13;
         // 
-        // lblDate
+        // lblVehiclePlate
         // 
-        lblDate.AutoSize = true;
-        lblDate.Font = new Font("Tahoma", 10F);
-        lblDate.Location = new Point(260, 28);
-        lblDate.Name = "lblDate";
-        lblDate.Size = new Size(70, 24);
-        lblDate.TabIndex = 2;
-        lblDate.Text = "التاريخ :";
+        lblVehiclePlate.AutoSize = true;
+        lblVehiclePlate.Font = new Font("Tahoma", 10F);
+        lblVehiclePlate.Location = new Point(15, 116);
+        lblVehiclePlate.Name = "lblVehiclePlate";
+        lblVehiclePlate.Size = new Size(127, 24);
+        lblVehiclePlate.TabIndex = 10;
+        lblVehiclePlate.Text = "لوحة المركبة :";
         // 
-        // dtpDate
+        // txtVehiclePlate
         // 
-        dtpDate.Font = new Font("Tahoma", 10F);
-        dtpDate.Format = DateTimePickerFormat.Short;
-        dtpDate.Location = new Point(340, 25);
-        dtpDate.Name = "dtpDate";
-        dtpDate.RightToLeft = RightToLeft.Yes;
-        dtpDate.Size = new Size(130, 30);
-        dtpDate.TabIndex = 3;
+        txtVehiclePlate.Font = new Font("Tahoma", 10F);
+        txtVehiclePlate.Location = new Point(135, 113);
+        txtVehiclePlate.Name = "txtVehiclePlate";
+        txtVehiclePlate.Size = new Size(205, 32);
+        txtVehiclePlate.TabIndex = 11;
         // 
-        // lblFromWarehouse
+        // lblDriverName
         // 
-        lblFromWarehouse.AutoSize = true;
-        lblFromWarehouse.Font = new Font("Tahoma", 10F);
-        lblFromWarehouse.Location = new Point(490, 28);
-        lblFromWarehouse.Name = "lblFromWarehouse";
-        lblFromWarehouse.Size = new Size(94, 24);
-        lblFromWarehouse.TabIndex = 4;
-        lblFromWarehouse.Text = "من مستودع :";
+        lblDriverName.AutoSize = true;
+        lblDriverName.Font = new Font("Tahoma", 10F);
+        lblDriverName.Location = new Point(270, 72);
+        lblDriverName.Name = "lblDriverName";
+        lblDriverName.Size = new Size(130, 24);
+        lblDriverName.TabIndex = 8;
+        lblDriverName.Text = "اسم السائق :";
         // 
-        // cmbFromWarehouse
+        // txtDriverName
         // 
-        cmbFromWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbFromWarehouse.Font = new Font("Tahoma", 10F);
-        cmbFromWarehouse.FormattingEnabled = true;
-        cmbFromWarehouse.Location = new Point(580, 25);
-        cmbFromWarehouse.Name = "cmbFromWarehouse";
-        cmbFromWarehouse.Size = new Size(140, 30);
-        cmbFromWarehouse.TabIndex = 5;
+        txtDriverName.Font = new Font("Tahoma", 10F);
+        txtDriverName.Location = new Point(365, 69);
+        txtDriverName.Name = "txtDriverName";
+        txtDriverName.Size = new Size(355, 32);
+        txtDriverName.TabIndex = 9;
         // 
         // lblToWarehouse
         // 
@@ -150,7 +147,7 @@ partial class frmWarehouseTransferNew
         lblToWarehouse.Font = new Font("Tahoma", 10F);
         lblToWarehouse.Location = new Point(15, 72);
         lblToWarehouse.Name = "lblToWarehouse";
-        lblToWarehouse.Size = new Size(90, 24);
+        lblToWarehouse.Size = new Size(128, 24);
         lblToWarehouse.TabIndex = 6;
         lblToWarehouse.Text = "إلى مستودع :";
         // 
@@ -161,81 +158,96 @@ partial class frmWarehouseTransferNew
         cmbToWarehouse.FormattingEnabled = true;
         cmbToWarehouse.Location = new Point(110, 69);
         cmbToWarehouse.Name = "cmbToWarehouse";
-        cmbToWarehouse.Size = new Size(140, 30);
+        cmbToWarehouse.Size = new Size(140, 32);
         cmbToWarehouse.TabIndex = 7;
         // 
-        // lblDriverName
+        // lblFromWarehouse
         // 
-        lblDriverName.AutoSize = true;
-        lblDriverName.Font = new Font("Tahoma", 10F);
-        lblDriverName.Location = new Point(270, 72);
-        lblDriverName.Name = "lblDriverName";
-        lblDriverName.Size = new Size(95, 24);
-        lblDriverName.TabIndex = 8;
-        lblDriverName.Text = "اسم السائق :";
+        lblFromWarehouse.AutoSize = true;
+        lblFromWarehouse.Font = new Font("Tahoma", 10F);
+        lblFromWarehouse.Location = new Point(490, 28);
+        lblFromWarehouse.Name = "lblFromWarehouse";
+        lblFromWarehouse.Size = new Size(122, 24);
+        lblFromWarehouse.TabIndex = 4;
+        lblFromWarehouse.Text = "من مستودع :";
         // 
-        // txtDriverName
+        // cmbFromWarehouse
         // 
-        txtDriverName.Font = new Font("Tahoma", 10F);
-        txtDriverName.Location = new Point(365, 69);
-        txtDriverName.Name = "txtDriverName";
-        txtDriverName.Size = new Size(355, 30);
-        txtDriverName.TabIndex = 9;
+        cmbFromWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbFromWarehouse.Font = new Font("Tahoma", 10F);
+        cmbFromWarehouse.FormattingEnabled = true;
+        cmbFromWarehouse.Location = new Point(580, 25);
+        cmbFromWarehouse.Name = "cmbFromWarehouse";
+        cmbFromWarehouse.Size = new Size(140, 32);
+        cmbFromWarehouse.TabIndex = 5;
         // 
-        // lblVehiclePlate
+        // lblDate
         // 
-        lblVehiclePlate.AutoSize = true;
-        lblVehiclePlate.Font = new Font("Tahoma", 10F);
-        lblVehiclePlate.Location = new Point(15, 116);
-        lblVehiclePlate.Name = "lblVehiclePlate";
-        lblVehiclePlate.Size = new Size(120, 24);
-        lblVehiclePlate.TabIndex = 10;
-        lblVehiclePlate.Text = "لوحة المركبة :";
+        lblDate.AutoSize = true;
+        lblDate.Font = new Font("Tahoma", 10F);
+        lblDate.Location = new Point(260, 28);
+        lblDate.Name = "lblDate";
+        lblDate.Size = new Size(74, 24);
+        lblDate.TabIndex = 2;
+        lblDate.Text = "التاريخ :";
         // 
-        // txtVehiclePlate
+        // dtpDate
         // 
-        txtVehiclePlate.Font = new Font("Tahoma", 10F);
-        txtVehiclePlate.Location = new Point(135, 113);
-        txtVehiclePlate.Name = "txtVehiclePlate";
-        txtVehiclePlate.Size = new Size(205, 30);
-        txtVehiclePlate.TabIndex = 11;
+        dtpDate.Font = new Font("Tahoma", 10F);
+        dtpDate.Format = DateTimePickerFormat.Short;
+        dtpDate.Location = new Point(340, 25);
+        dtpDate.Name = "dtpDate";
+        dtpDate.RightToLeft = RightToLeft.Yes;
+        dtpDate.Size = new Size(130, 32);
+        dtpDate.TabIndex = 3;
         // 
-        // lblReference
+        // lblTransferNo
         // 
-        lblReference.AutoSize = true;
-        lblReference.Font = new Font("Tahoma", 10F);
-        lblReference.Location = new Point(360, 116);
-        lblReference.Name = "lblReference";
-        lblReference.Size = new Size(70, 24);
-        lblReference.TabIndex = 12;
-        lblReference.Text = "المرجع :";
+        lblTransferNo.AutoSize = true;
+        lblTransferNo.Font = new Font("Tahoma", 10F);
+        lblTransferNo.Location = new Point(15, 28);
+        lblTransferNo.Name = "lblTransferNo";
+        lblTransferNo.Size = new Size(108, 24);
+        lblTransferNo.TabIndex = 0;
+        lblTransferNo.Text = "رقم السند :";
         // 
-        // txtReference
+        // txtTransferNo
         // 
-        txtReference.Font = new Font("Tahoma", 10F);
-        txtReference.Location = new Point(430, 113);
-        txtReference.Name = "txtReference";
-        txtReference.Size = new Size(290, 30);
-        txtReference.TabIndex = 13;
+        txtTransferNo.Font = new Font("Tahoma", 10F);
+        txtTransferNo.Location = new Point(110, 25);
+        txtTransferNo.Name = "txtTransferNo";
+        txtTransferNo.ReadOnly = true;
+        txtTransferNo.Size = new Size(130, 32);
+        txtTransferNo.TabIndex = 1;
+        txtTransferNo.Text = "جديد";
         // 
         // dgvLines
         // 
-        dgvLines.AllowUserToAddRows = true;
-        dgvLines.AllowUserToDeleteRows = true;
-        dgvLines.AutoGenerateColumns = false;
         dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvLines.BackgroundColor = Color.White;
         dgvLines.BorderStyle = BorderStyle.Fixed3D;
-        dgvLines.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvLines.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle1.BackColor = SystemColors.Control;
+        dataGridViewCellStyle1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+        dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+        dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+        dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+        dgvLines.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
         dgvLines.ColumnHeadersHeight = 40;
         dgvLines.Columns.AddRange(new DataGridViewColumn[] { colProduct, colUnit, colQuantity, colBatchNo, colExpiryDate });
-        dgvLines.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvLines.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
+        dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle4.BackColor = SystemColors.Window;
+        dataGridViewCellStyle4.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
+        dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+        dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+        dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
+        dgvLines.DefaultCellStyle = dataGridViewCellStyle4;
         dgvLines.Location = new Point(12, 219);
         dgvLines.Name = "dgvLines";
-        dgvLines.ReadOnly = false;
         dgvLines.RowHeadersVisible = false;
+        dgvLines.RowHeadersWidth = 62;
         dgvLines.RowTemplate.Height = 30;
         dgvLines.SelectionMode = DataGridViewSelectionMode.CellSelect;
         dgvLines.Size = new Size(736, 262);
@@ -246,7 +258,6 @@ partial class frmWarehouseTransferNew
         // 
         // colProduct
         // 
-        colProduct.DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton;
         colProduct.FillWeight = 30F;
         colProduct.FlatStyle = FlatStyle.Flat;
         colProduct.HeaderText = "الصنف";
@@ -255,7 +266,6 @@ partial class frmWarehouseTransferNew
         // 
         // colUnit
         // 
-        colUnit.DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton;
         colUnit.FillWeight = 12F;
         colUnit.FlatStyle = FlatStyle.Flat;
         colUnit.HeaderText = "الوحدة";
@@ -264,8 +274,9 @@ partial class frmWarehouseTransferNew
         // 
         // colQuantity
         // 
-        colQuantity.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-        colQuantity.DefaultCellStyle.Format = "N3";
+        dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
+        dataGridViewCellStyle2.Format = "N3";
+        colQuantity.DefaultCellStyle = dataGridViewCellStyle2;
         colQuantity.FillWeight = 15F;
         colQuantity.HeaderText = "الكمية";
         colQuantity.MinimumWidth = 90;
@@ -280,8 +291,9 @@ partial class frmWarehouseTransferNew
         // 
         // colExpiryDate
         // 
-        colExpiryDate.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        colExpiryDate.DefaultCellStyle.Format = "d";
+        dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle3.Format = "d";
+        colExpiryDate.DefaultCellStyle = dataGridViewCellStyle3;
         colExpiryDate.FillWeight = 14F;
         colExpiryDate.HeaderText = "تاريخ الصلاحية";
         colExpiryDate.MinimumWidth = 100;
@@ -309,7 +321,7 @@ partial class frmWarehouseTransferNew
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSave.ForeColor = Color.White;
-        btnSave.Location = new Point(140, 538);
+        btnSave.Location = new Point(140, 567);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(150, 50);
         btnSave.TabIndex = 5;
@@ -327,7 +339,7 @@ partial class frmWarehouseTransferNew
         btnCancel.FlatStyle = FlatStyle.Flat;
         btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnCancel.ForeColor = Color.White;
-        btnCancel.Location = new Point(12, 538);
+        btnCancel.Location = new Point(12, 567);
         btnCancel.Name = "btnCancel";
         btnCancel.Size = new Size(120, 50);
         btnCancel.TabIndex = 4;
@@ -341,7 +353,7 @@ partial class frmWarehouseTransferNew
         AutoScaleMode = AutoScaleMode.None;
         BackColor = Color.WhiteSmoke;
         CancelButton = btnCancel;
-        ClientSize = new Size(760, 600);
+        ClientSize = new Size(775, 629);
         Controls.Add(btnCancel);
         Controls.Add(btnSave);
         Controls.Add(lblNote);
@@ -362,7 +374,6 @@ partial class frmWarehouseTransferNew
         grpHeader.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)dgvLines).EndInit();
         ResumeLayout(false);
-        PerformLayout();
     }
 
     private Label lblMode;

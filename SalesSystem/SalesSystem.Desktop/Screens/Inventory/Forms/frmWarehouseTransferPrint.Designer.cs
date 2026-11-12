@@ -18,9 +18,6 @@ partial class frmWarehouseTransferPrint
         lblTitle = new Label();
         lblAccent = new Label();
         pnlPreviewCard = new Panel();
-        pnlCardHeader = new Panel();
-        lblStoreName = new Label();
-        lblTransferTitle = new Label();
         tblFields = new TableLayoutPanel();
         lblTransferNoValue = new Label();
         lblTransferNoLabel = new Label();
@@ -38,6 +35,9 @@ partial class frmWarehouseTransferPrint
         lblItemCountLabel = new Label();
         lblNoteValue = new Label();
         lblNoteLabel = new Label();
+        pnlCardHeader = new Panel();
+        lblTransferTitle = new Label();
+        lblStoreName = new Label();
         pnlDashedSeparator = new Panel();
         lblCardFooter = new Label();
         pnlFooter = new Panel();
@@ -46,8 +46,8 @@ partial class frmWarehouseTransferPrint
         lblFooterLine = new Label();
         pnlHeader.SuspendLayout();
         pnlPreviewCard.SuspendLayout();
-        pnlCardHeader.SuspendLayout();
         tblFields.SuspendLayout();
+        pnlCardHeader.SuspendLayout();
         pnlFooter.SuspendLayout();
         SuspendLayout();
         // 
@@ -58,9 +58,22 @@ partial class frmWarehouseTransferPrint
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
         pnlHeader.Dock = DockStyle.Top;
+        pnlHeader.Location = new Point(0, 0);
         pnlHeader.Name = "pnlHeader";
-        pnlHeader.Size = new Size(440, 46);
+        pnlHeader.Size = new Size(441, 46);
         pnlHeader.TabIndex = 0;
+        // 
+        // lblMockBadge
+        // 
+        lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblMockBadge.AutoSize = true;
+        lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
+        lblMockBadge.Location = new Point(317, 13);
+        lblMockBadge.Name = "lblMockBadge";
+        lblMockBadge.Size = new Size(174, 21);
+        lblMockBadge.TabIndex = 2;
+        lblMockBadge.Text = "وضع التجربة (Mock)";
         // 
         // lblTitle
         // 
@@ -69,29 +82,18 @@ partial class frmWarehouseTransferPrint
         lblTitle.ForeColor = Color.White;
         lblTitle.Location = new Point(0, 0);
         lblTitle.Name = "lblTitle";
-        lblTitle.Size = new Size(440, 42);
+        lblTitle.Size = new Size(441, 42);
         lblTitle.TabIndex = 1;
         lblTitle.Text = "طباعة سند تحويل مخزني";
         lblTitle.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // lblMockBadge
-        // 
-        lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        lblMockBadge.AutoSize = true;
-        lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
-        lblMockBadge.Location = new Point(316, 13);
-        lblMockBadge.Name = "lblMockBadge";
-        lblMockBadge.Size = new Size(112, 21);
-        lblMockBadge.TabIndex = 2;
-        lblMockBadge.Text = "وضع التجربة (Mock)";
         // 
         // lblAccent
         // 
         lblAccent.BackColor = Color.FromArgb(230, 126, 34);
         lblAccent.Dock = DockStyle.Bottom;
-        lblAccent.Height = 4;
+        lblAccent.Location = new Point(0, 42);
         lblAccent.Name = "lblAccent";
+        lblAccent.Size = new Size(441, 4);
         lblAccent.TabIndex = 3;
         // 
         // pnlPreviewCard
@@ -107,40 +109,6 @@ partial class frmWarehouseTransferPrint
         pnlPreviewCard.RightToLeft = RightToLeft.Yes;
         pnlPreviewCard.Size = new Size(400, 366);
         pnlPreviewCard.TabIndex = 1;
-        // 
-        // pnlCardHeader
-        // 
-        pnlCardHeader.BackColor = Color.White;
-        pnlCardHeader.Controls.Add(lblTransferTitle);
-        pnlCardHeader.Controls.Add(lblStoreName);
-        pnlCardHeader.Dock = DockStyle.Top;
-        pnlCardHeader.Name = "pnlCardHeader";
-        pnlCardHeader.Size = new Size(398, 74);
-        pnlCardHeader.TabIndex = 0;
-        // 
-        // lblStoreName
-        // 
-        lblStoreName.Dock = DockStyle.Top;
-        lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(23, 87, 129);
-        lblStoreName.Location = new Point(0, 0);
-        lblStoreName.Name = "lblStoreName";
-        lblStoreName.Size = new Size(398, 30);
-        lblStoreName.TabIndex = 0;
-        lblStoreName.Text = "متجر النور التجاري";
-        lblStoreName.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // lblTransferTitle
-        // 
-        lblTransferTitle.Dock = DockStyle.Top;
-        lblTransferTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferTitle.ForeColor = Color.FromArgb(230, 126, 34);
-        lblTransferTitle.Location = new Point(0, 30);
-        lblTransferTitle.Name = "lblTransferTitle";
-        lblTransferTitle.Size = new Size(398, 40);
-        lblTransferTitle.TabIndex = 1;
-        lblTransferTitle.Text = "سند تحويل مخزني";
-        lblTransferTitle.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // tblFields
         // 
@@ -165,7 +133,7 @@ partial class frmWarehouseTransferPrint
         tblFields.Controls.Add(lblNoteValue, 1, 7);
         tblFields.Controls.Add(lblNoteLabel, 0, 7);
         tblFields.Dock = DockStyle.Top;
-        tblFields.Location = new Point(0, 74);
+        tblFields.Location = new Point(0, 88);
         tblFields.Name = "tblFields";
         tblFields.Padding = new Padding(12, 4, 12, 4);
         tblFields.RightToLeft = RightToLeft.Yes;
@@ -181,19 +149,6 @@ partial class frmWarehouseTransferPrint
         tblFields.Size = new Size(398, 238);
         tblFields.TabIndex = 1;
         // 
-        // lblTransferNoLabel
-        // 
-        lblTransferNoLabel.AutoSize = true;
-        lblTransferNoLabel.Dock = DockStyle.Fill;
-        lblTransferNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferNoLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblTransferNoLabel.Location = new Point(15, 7);
-        lblTransferNoLabel.Name = "lblTransferNoLabel";
-        lblTransferNoLabel.Size = new Size(104, 20);
-        lblTransferNoLabel.TabIndex = 0;
-        lblTransferNoLabel.Text = "رقم السند";
-        lblTransferNoLabel.TextAlign = ContentAlignment.MiddleRight;
-        // 
         // lblTransferNoValue
         // 
         lblTransferNoValue.AutoEllipsis = true;
@@ -201,25 +156,25 @@ partial class frmWarehouseTransferPrint
         lblTransferNoValue.Dock = DockStyle.Fill;
         lblTransferNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTransferNoValue.ForeColor = Color.FromArgb(230, 126, 34);
-        lblTransferNoValue.Location = new Point(125, 7);
+        lblTransferNoValue.Location = new Point(15, 4);
         lblTransferNoValue.Name = "lblTransferNoValue";
-        lblTransferNoValue.Size = new Size(258, 20);
+        lblTransferNoValue.Size = new Size(258, 26);
         lblTransferNoValue.TabIndex = 1;
         lblTransferNoValue.Text = "TR-2026-001";
         lblTransferNoValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblDateLabel
+        // lblTransferNoLabel
         // 
-        lblDateLabel.AutoSize = true;
-        lblDateLabel.Dock = DockStyle.Fill;
-        lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDateLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblDateLabel.Location = new Point(15, 33);
-        lblDateLabel.Name = "lblDateLabel";
-        lblDateLabel.Size = new Size(104, 20);
-        lblDateLabel.TabIndex = 2;
-        lblDateLabel.Text = "التاريخ";
-        lblDateLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblTransferNoLabel.AutoSize = true;
+        lblTransferNoLabel.Dock = DockStyle.Fill;
+        lblTransferNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblTransferNoLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblTransferNoLabel.Location = new Point(279, 4);
+        lblTransferNoLabel.Name = "lblTransferNoLabel";
+        lblTransferNoLabel.Size = new Size(104, 26);
+        lblTransferNoLabel.TabIndex = 0;
+        lblTransferNoLabel.Text = "رقم السند";
+        lblTransferNoLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblDateValue
         // 
@@ -227,25 +182,25 @@ partial class frmWarehouseTransferPrint
         lblDateValue.Dock = DockStyle.Fill;
         lblDateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblDateValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblDateValue.Location = new Point(125, 33);
+        lblDateValue.Location = new Point(15, 30);
         lblDateValue.Name = "lblDateValue";
-        lblDateValue.Size = new Size(258, 20);
+        lblDateValue.Size = new Size(258, 26);
         lblDateValue.TabIndex = 3;
         lblDateValue.Text = "21/09/2026";
         lblDateValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblFromWarehouseLabel
+        // lblDateLabel
         // 
-        lblFromWarehouseLabel.AutoSize = true;
-        lblFromWarehouseLabel.Dock = DockStyle.Fill;
-        lblFromWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblFromWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblFromWarehouseLabel.Location = new Point(15, 59);
-        lblFromWarehouseLabel.Name = "lblFromWarehouseLabel";
-        lblFromWarehouseLabel.Size = new Size(104, 20);
-        lblFromWarehouseLabel.TabIndex = 4;
-        lblFromWarehouseLabel.Text = "من مستودع";
-        lblFromWarehouseLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblDateLabel.AutoSize = true;
+        lblDateLabel.Dock = DockStyle.Fill;
+        lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblDateLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblDateLabel.Location = new Point(279, 30);
+        lblDateLabel.Name = "lblDateLabel";
+        lblDateLabel.Size = new Size(104, 26);
+        lblDateLabel.TabIndex = 2;
+        lblDateLabel.Text = "التاريخ";
+        lblDateLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblFromWarehouseValue
         // 
@@ -253,25 +208,25 @@ partial class frmWarehouseTransferPrint
         lblFromWarehouseValue.Dock = DockStyle.Fill;
         lblFromWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblFromWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblFromWarehouseValue.Location = new Point(125, 59);
+        lblFromWarehouseValue.Location = new Point(15, 56);
         lblFromWarehouseValue.Name = "lblFromWarehouseValue";
-        lblFromWarehouseValue.Size = new Size(258, 20);
+        lblFromWarehouseValue.Size = new Size(258, 26);
         lblFromWarehouseValue.TabIndex = 5;
         lblFromWarehouseValue.Text = "المستودع الرئيسي";
         lblFromWarehouseValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblToWarehouseLabel
+        // lblFromWarehouseLabel
         // 
-        lblToWarehouseLabel.AutoSize = true;
-        lblToWarehouseLabel.Dock = DockStyle.Fill;
-        lblToWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblToWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblToWarehouseLabel.Location = new Point(15, 85);
-        lblToWarehouseLabel.Name = "lblToWarehouseLabel";
-        lblToWarehouseLabel.Size = new Size(104, 20);
-        lblToWarehouseLabel.TabIndex = 6;
-        lblToWarehouseLabel.Text = "إلى مستودع";
-        lblToWarehouseLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblFromWarehouseLabel.AutoSize = true;
+        lblFromWarehouseLabel.Dock = DockStyle.Fill;
+        lblFromWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblFromWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblFromWarehouseLabel.Location = new Point(279, 56);
+        lblFromWarehouseLabel.Name = "lblFromWarehouseLabel";
+        lblFromWarehouseLabel.Size = new Size(104, 26);
+        lblFromWarehouseLabel.TabIndex = 4;
+        lblFromWarehouseLabel.Text = "من مستودع";
+        lblFromWarehouseLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblToWarehouseValue
         // 
@@ -279,25 +234,25 @@ partial class frmWarehouseTransferPrint
         lblToWarehouseValue.Dock = DockStyle.Fill;
         lblToWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblToWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblToWarehouseValue.Location = new Point(125, 85);
+        lblToWarehouseValue.Location = new Point(15, 82);
         lblToWarehouseValue.Name = "lblToWarehouseValue";
-        lblToWarehouseValue.Size = new Size(258, 20);
+        lblToWarehouseValue.Size = new Size(258, 26);
         lblToWarehouseValue.TabIndex = 7;
         lblToWarehouseValue.Text = "مخزن المعرض";
         lblToWarehouseValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblDriverLabel
+        // lblToWarehouseLabel
         // 
-        lblDriverLabel.AutoSize = true;
-        lblDriverLabel.Dock = DockStyle.Fill;
-        lblDriverLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDriverLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblDriverLabel.Location = new Point(15, 111);
-        lblDriverLabel.Name = "lblDriverLabel";
-        lblDriverLabel.Size = new Size(104, 20);
-        lblDriverLabel.TabIndex = 8;
-        lblDriverLabel.Text = "السائق";
-        lblDriverLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblToWarehouseLabel.AutoSize = true;
+        lblToWarehouseLabel.Dock = DockStyle.Fill;
+        lblToWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblToWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblToWarehouseLabel.Location = new Point(279, 82);
+        lblToWarehouseLabel.Name = "lblToWarehouseLabel";
+        lblToWarehouseLabel.Size = new Size(104, 26);
+        lblToWarehouseLabel.TabIndex = 6;
+        lblToWarehouseLabel.Text = "إلى مستودع";
+        lblToWarehouseLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblDriverValue
         // 
@@ -305,25 +260,25 @@ partial class frmWarehouseTransferPrint
         lblDriverValue.Dock = DockStyle.Fill;
         lblDriverValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblDriverValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblDriverValue.Location = new Point(125, 111);
+        lblDriverValue.Location = new Point(15, 108);
         lblDriverValue.Name = "lblDriverValue";
-        lblDriverValue.Size = new Size(258, 20);
+        lblDriverValue.Size = new Size(258, 26);
         lblDriverValue.TabIndex = 9;
         lblDriverValue.Text = "محمد علي";
         lblDriverValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblVehiclePlateLabel
+        // lblDriverLabel
         // 
-        lblVehiclePlateLabel.AutoSize = true;
-        lblVehiclePlateLabel.Dock = DockStyle.Fill;
-        lblVehiclePlateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblVehiclePlateLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblVehiclePlateLabel.Location = new Point(15, 137);
-        lblVehiclePlateLabel.Name = "lblVehiclePlateLabel";
-        lblVehiclePlateLabel.Size = new Size(104, 20);
-        lblVehiclePlateLabel.TabIndex = 10;
-        lblVehiclePlateLabel.Text = "لوحة المركبة";
-        lblVehiclePlateLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblDriverLabel.AutoSize = true;
+        lblDriverLabel.Dock = DockStyle.Fill;
+        lblDriverLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblDriverLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblDriverLabel.Location = new Point(279, 108);
+        lblDriverLabel.Name = "lblDriverLabel";
+        lblDriverLabel.Size = new Size(104, 26);
+        lblDriverLabel.TabIndex = 8;
+        lblDriverLabel.Text = "السائق";
+        lblDriverLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblVehiclePlateValue
         // 
@@ -331,25 +286,25 @@ partial class frmWarehouseTransferPrint
         lblVehiclePlateValue.Dock = DockStyle.Fill;
         lblVehiclePlateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblVehiclePlateValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblVehiclePlateValue.Location = new Point(125, 137);
+        lblVehiclePlateValue.Location = new Point(15, 134);
         lblVehiclePlateValue.Name = "lblVehiclePlateValue";
-        lblVehiclePlateValue.Size = new Size(258, 20);
+        lblVehiclePlateValue.Size = new Size(258, 26);
         lblVehiclePlateValue.TabIndex = 11;
         lblVehiclePlateValue.Text = "12345 صنعاء";
         lblVehiclePlateValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblItemCountLabel
+        // lblVehiclePlateLabel
         // 
-        lblItemCountLabel.AutoSize = true;
-        lblItemCountLabel.Dock = DockStyle.Fill;
-        lblItemCountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblItemCountLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblItemCountLabel.Location = new Point(15, 163);
-        lblItemCountLabel.Name = "lblItemCountLabel";
-        lblItemCountLabel.Size = new Size(104, 20);
-        lblItemCountLabel.TabIndex = 12;
-        lblItemCountLabel.Text = "عدد الأصناف";
-        lblItemCountLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblVehiclePlateLabel.AutoSize = true;
+        lblVehiclePlateLabel.Dock = DockStyle.Fill;
+        lblVehiclePlateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblVehiclePlateLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblVehiclePlateLabel.Location = new Point(279, 134);
+        lblVehiclePlateLabel.Name = "lblVehiclePlateLabel";
+        lblVehiclePlateLabel.Size = new Size(104, 26);
+        lblVehiclePlateLabel.TabIndex = 10;
+        lblVehiclePlateLabel.Text = "لوحة المركبة";
+        lblVehiclePlateLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblItemCountValue
         // 
@@ -357,25 +312,25 @@ partial class frmWarehouseTransferPrint
         lblItemCountValue.Dock = DockStyle.Fill;
         lblItemCountValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblItemCountValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblItemCountValue.Location = new Point(125, 163);
+        lblItemCountValue.Location = new Point(15, 160);
         lblItemCountValue.Name = "lblItemCountValue";
-        lblItemCountValue.Size = new Size(258, 20);
+        lblItemCountValue.Size = new Size(258, 26);
         lblItemCountValue.TabIndex = 13;
         lblItemCountValue.Text = "8 أصناف";
         lblItemCountValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblNoteLabel
+        // lblItemCountLabel
         // 
-        lblNoteLabel.AutoSize = true;
-        lblNoteLabel.Dock = DockStyle.Fill;
-        lblNoteLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNoteLabel.ForeColor = Color.FromArgb(52, 73, 94);
-        lblNoteLabel.Location = new Point(15, 189);
-        lblNoteLabel.Name = "lblNoteLabel";
-        lblNoteLabel.Size = new Size(104, 50);
-        lblNoteLabel.TabIndex = 14;
-        lblNoteLabel.Text = "ملاحظة";
-        lblNoteLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblItemCountLabel.AutoSize = true;
+        lblItemCountLabel.Dock = DockStyle.Fill;
+        lblItemCountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblItemCountLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblItemCountLabel.Location = new Point(279, 160);
+        lblItemCountLabel.Name = "lblItemCountLabel";
+        lblItemCountLabel.Size = new Size(104, 26);
+        lblItemCountLabel.TabIndex = 12;
+        lblItemCountLabel.Text = "عدد الأصناف";
+        lblItemCountLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblNoteValue
         // 
@@ -384,18 +339,66 @@ partial class frmWarehouseTransferPrint
         lblNoteValue.Dock = DockStyle.Fill;
         lblNoteValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblNoteValue.ForeColor = Color.FromArgb(230, 126, 34);
-        lblNoteValue.Location = new Point(125, 189);
+        lblNoteValue.Location = new Point(15, 186);
         lblNoteValue.Name = "lblNoteValue";
-        lblNoteValue.Size = new Size(258, 50);
+        lblNoteValue.Size = new Size(258, 56);
         lblNoteValue.TabIndex = 15;
         lblNoteValue.Text = "يُستلم في المستودع الوجهة";
         lblNoteValue.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // lblNoteLabel
+        // 
+        lblNoteLabel.AutoSize = true;
+        lblNoteLabel.Dock = DockStyle.Fill;
+        lblNoteLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblNoteLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblNoteLabel.Location = new Point(279, 186);
+        lblNoteLabel.Name = "lblNoteLabel";
+        lblNoteLabel.Size = new Size(104, 56);
+        lblNoteLabel.TabIndex = 14;
+        lblNoteLabel.Text = "ملاحظة";
+        lblNoteLabel.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // pnlCardHeader
+        // 
+        pnlCardHeader.BackColor = Color.White;
+        pnlCardHeader.Controls.Add(lblTransferTitle);
+        pnlCardHeader.Controls.Add(lblStoreName);
+        pnlCardHeader.Dock = DockStyle.Top;
+        pnlCardHeader.Location = new Point(0, 14);
+        pnlCardHeader.Name = "pnlCardHeader";
+        pnlCardHeader.Size = new Size(398, 74);
+        pnlCardHeader.TabIndex = 0;
+        // 
+        // lblTransferTitle
+        // 
+        lblTransferTitle.Dock = DockStyle.Top;
+        lblTransferTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblTransferTitle.ForeColor = Color.FromArgb(230, 126, 34);
+        lblTransferTitle.Location = new Point(0, 30);
+        lblTransferTitle.Name = "lblTransferTitle";
+        lblTransferTitle.Size = new Size(398, 40);
+        lblTransferTitle.TabIndex = 1;
+        lblTransferTitle.Text = "سند تحويل مخزني";
+        lblTransferTitle.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // lblStoreName
+        // 
+        lblStoreName.Dock = DockStyle.Top;
+        lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblStoreName.ForeColor = Color.FromArgb(23, 87, 129);
+        lblStoreName.Location = new Point(0, 0);
+        lblStoreName.Name = "lblStoreName";
+        lblStoreName.Size = new Size(398, 30);
+        lblStoreName.TabIndex = 0;
+        lblStoreName.Text = "متجر النور التجاري";
+        lblStoreName.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlDashedSeparator
         // 
         pnlDashedSeparator.BackColor = Color.White;
         pnlDashedSeparator.Dock = DockStyle.Top;
-        pnlDashedSeparator.Location = new Point(0, 312);
+        pnlDashedSeparator.Location = new Point(0, 0);
         pnlDashedSeparator.Name = "pnlDashedSeparator";
         pnlDashedSeparator.Size = new Size(398, 14);
         pnlDashedSeparator.TabIndex = 2;
@@ -421,41 +424,16 @@ partial class frmWarehouseTransferPrint
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
         pnlFooter.Dock = DockStyle.Bottom;
+        pnlFooter.Location = new Point(0, 428);
         pnlFooter.Name = "pnlFooter";
-        pnlFooter.Size = new Size(440, 66);
+        pnlFooter.Size = new Size(441, 66);
         pnlFooter.TabIndex = 2;
-        // 
-        // lblFooterLine
-        // 
-        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
-        lblFooterLine.Dock = DockStyle.Top;
-        lblFooterLine.Height = 2;
-        lblFooterLine.Name = "lblFooterLine";
-        lblFooterLine.TabIndex = 0;
-        // 
-        // btnPrint
-        // 
-        btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
-        btnPrint.FlatAppearance.BorderSize = 0;
-        btnPrint.FlatStyle = FlatStyle.Flat;
-        btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnPrint.ForeColor = Color.White;
-        btnPrint.Location = new Point(288, 12);
-        btnPrint.Name = "btnPrint";
-        btnPrint.Size = new Size(132, 42);
-        btnPrint.TabIndex = 1;
-        btnPrint.Text = "طباعة";
-        btnPrint.UseVisualStyleBackColor = false;
-        btnPrint.Click += btnPrint_Click;
         // 
         // btnClose
         // 
-        btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
         btnClose.BackColor = Color.White;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
-        btnClose.FlatAppearance.BorderSize = 1;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
         btnClose.ForeColor = Color.FromArgb(52, 73, 94);
@@ -467,12 +445,37 @@ partial class frmWarehouseTransferPrint
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
+        // btnPrint
+        // 
+        btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
+        btnPrint.FlatAppearance.BorderSize = 0;
+        btnPrint.FlatStyle = FlatStyle.Flat;
+        btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnPrint.ForeColor = Color.White;
+        btnPrint.Location = new Point(289, 12);
+        btnPrint.Name = "btnPrint";
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.TabIndex = 1;
+        btnPrint.Text = "طباعة";
+        btnPrint.UseVisualStyleBackColor = false;
+        btnPrint.Click += btnPrint_Click;
+        // 
+        // lblFooterLine
+        // 
+        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
+        lblFooterLine.Dock = DockStyle.Top;
+        lblFooterLine.Location = new Point(0, 0);
+        lblFooterLine.Name = "lblFooterLine";
+        lblFooterLine.Size = new Size(441, 2);
+        lblFooterLine.TabIndex = 0;
+        // 
         // frmWarehouseTransferPrint
         // 
         AutoScaleMode = AutoScaleMode.None;
         BackColor = Color.WhiteSmoke;
         CancelButton = btnClose;
-        ClientSize = new Size(440, 560);
+        ClientSize = new Size(441, 494);
         Controls.Add(pnlFooter);
         Controls.Add(pnlPreviewCard);
         Controls.Add(pnlHeader);
@@ -488,12 +491,11 @@ partial class frmWarehouseTransferPrint
         pnlHeader.ResumeLayout(false);
         pnlHeader.PerformLayout();
         pnlPreviewCard.ResumeLayout(false);
-        pnlCardHeader.ResumeLayout(false);
         tblFields.ResumeLayout(false);
         tblFields.PerformLayout();
+        pnlCardHeader.ResumeLayout(false);
         pnlFooter.ResumeLayout(false);
         ResumeLayout(false);
-        PerformLayout();
     }
 
     #endregion

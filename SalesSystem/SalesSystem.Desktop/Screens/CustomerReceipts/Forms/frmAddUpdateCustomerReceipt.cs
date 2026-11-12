@@ -22,10 +22,26 @@ public partial class frmAddUpdateCustomerReceipt : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40: الأربعة معاً — Enter/Tab + تحديد القيمة + تظليل الحقل + أسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
+
         this.Text = "سند قبض جديد";
         lblMode.Text = "سند قبض جديد";
         _ = LoadComboBoxesAsync();
+
+        ApplyGreenTheme();   // RULE-N50 — آخر خطوة في التهيئة
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        // شاشة إدخال فقط — لا تحتوي أي DataGridView (لا استدعاء لـ ApplyGrid).
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     public frmAddUpdateCustomerReceipt(int id, IServiceProvider serviceProvider) : this(serviceProvider)

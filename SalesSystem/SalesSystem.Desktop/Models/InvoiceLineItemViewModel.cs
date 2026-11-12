@@ -15,6 +15,12 @@ public class InvoiceLineItemViewModel : INotifyPropertyChanged
     public string? UnitName { get; set; }
     public int ProductUnitId { get; set; }
 
+    /// <summary>
+    /// معامل التحويل إلى الوحدة الأساسية (1 للوحدة الأساسية، 12 لكرتونة من 12 حبة...).
+    /// يُستخدم لتحويل كميات السطر إلى وحدات أساسية عند التحقق من المخزون.
+    /// </summary>
+    public decimal ConversionFactor { get; set; } = 1m;
+
     private decimal _quantity;
     public decimal Quantity
     {
@@ -43,7 +49,16 @@ public class InvoiceLineItemViewModel : INotifyPropertyChanged
         set { _discountAmount = value; OnPropertyChanged(nameof(DiscountAmount)); OnPropertyChanged(nameof(LineTotal)); }
     }
 
-    public decimal LineTotal => (Quantity * (UnitPrice != 0 ? UnitPrice : UnitCost)) - DiscountAmount;
+    /// <summary>
+    /// تاريخ انتهاء صلاحية السطر — null يعني "بدون تاريخ انتهاء".
+    /// </summary>
+    public DateTime? ExpiryDate { get; set; }
+
+    /// <summary>
+    /// إجمالي السطر — نفس صيغة الكيان/الخادم: (الكمية × سعر الوحدة) - خصم السطر.
+    /// لا يوجد أي رجوع إلى UnitCost حتى لا تختلف قيمة الشاشة عن المحفوظ.
+    /// </summary>
+    public decimal LineTotal => (Quantity * UnitPrice) - DiscountAmount;
 
     public InvoiceLineItemViewModel Clone()
     {
@@ -55,10 +70,12 @@ public class InvoiceLineItemViewModel : INotifyPropertyChanged
             Barcode = Barcode,
             UnitName = UnitName,
             ProductUnitId = ProductUnitId,
+            ConversionFactor = ConversionFactor,
             Quantity = Quantity,
             UnitPrice = UnitPrice,
             UnitCost = UnitCost,
-            DiscountAmount = DiscountAmount
+            DiscountAmount = DiscountAmount,
+            ExpiryDate = ExpiryDate
         };
         copy.LineKey = LineKey;
         return copy;

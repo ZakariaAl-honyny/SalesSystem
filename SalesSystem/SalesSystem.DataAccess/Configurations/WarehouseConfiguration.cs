@@ -48,7 +48,7 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // === Global query filter — soft delete ===
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(w => w.IsActive);
     }
 }

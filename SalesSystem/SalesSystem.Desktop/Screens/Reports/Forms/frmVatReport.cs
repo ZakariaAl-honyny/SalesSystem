@@ -5,7 +5,7 @@ using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
@@ -48,7 +48,7 @@ public partial class frmVatReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportService>().GetVatReportAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetVatReportAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

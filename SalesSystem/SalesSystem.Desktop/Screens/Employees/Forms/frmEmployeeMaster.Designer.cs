@@ -38,17 +38,15 @@ partial class frmEmployeeMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnRefresh = new Button();
+        btnClose = new Button();
         pnlGrid = new Panel();
         dgvEmployees = new DataGridView();
-        colId = new DataGridViewTextBoxColumn();
-        colName = new DataGridViewTextBoxColumn();
-        colJobTitle = new DataGridViewTextBoxColumn();
-        colPhone = new DataGridViewTextBoxColumn();
-        colIsActive = new DataGridViewTextBoxColumn();
         pnlFilter = new Panel();
-        btnRefresh = new Button();
-        txtSearch = new TextBox();
+        groupBox1 = new GroupBox();
         lblSearch = new Label();
+        chkShowInactive = new CheckBox();
+        txtSearch = new TextBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numBasicSalary).BeginInit();
@@ -56,6 +54,7 @@ partial class frmEmployeeMaster
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvEmployees).BeginInit();
         pnlFilter.SuspendLayout();
+        groupBox1.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -100,7 +99,7 @@ partial class frmEmployeeMaster
         lblCode.AutoSize = true;
         lblCode.Location = new Point(1267, 15);
         lblCode.Name = "lblCode";
-        lblCode.Size = new Size(100, 24);
+        lblCode.Size = new Size(108, 24);
         lblCode.TabIndex = 0;
         lblCode.Text = "رقم الموظف";
         // 
@@ -111,13 +110,14 @@ partial class frmEmployeeMaster
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
+        txtCode.TabStop = false;
         // 
         // lblName
         // 
         lblName.AutoSize = true;
         lblName.Location = new Point(967, 15);
         lblName.Name = "lblName";
-        lblName.Size = new Size(104, 24);
+        lblName.Size = new Size(118, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم الموظف";
         // 
@@ -128,6 +128,8 @@ partial class frmEmployeeMaster
         lblNameReq.ForeColor = Color.Red;
         lblNameReq.Location = new Point(949, 15);
         lblNameReq.Name = "lblNameReq";
+        lblNameReq.Size = new Size(23, 24);
+        lblNameReq.TabIndex = 3;
         lblNameReq.Text = "*";
         // 
         // txtName
@@ -142,7 +144,7 @@ partial class frmEmployeeMaster
         lblJobTitle.AutoSize = true;
         lblJobTitle.Location = new Point(655, 15);
         lblJobTitle.Name = "lblJobTitle";
-        lblJobTitle.Size = new Size(130, 24);
+        lblJobTitle.Size = new Size(162, 24);
         lblJobTitle.TabIndex = 4;
         lblJobTitle.Text = "المسمى الوظيفي";
         // 
@@ -158,7 +160,7 @@ partial class frmEmployeeMaster
         lblNationalId.AutoSize = true;
         lblNationalId.Location = new Point(1267, 88);
         lblNationalId.Name = "lblNationalId";
-        lblNationalId.Size = new Size(120, 24);
+        lblNationalId.Size = new Size(117, 24);
         lblNationalId.TabIndex = 6;
         lblNationalId.Text = "الرقم الوطني";
         // 
@@ -174,7 +176,7 @@ partial class frmEmployeeMaster
         lblPhone.AutoSize = true;
         lblPhone.Location = new Point(967, 88);
         lblPhone.Name = "lblPhone";
-        lblPhone.Size = new Size(68, 24);
+        lblPhone.Size = new Size(62, 24);
         lblPhone.TabIndex = 8;
         lblPhone.Text = "الهاتف";
         // 
@@ -190,7 +192,7 @@ partial class frmEmployeeMaster
         lblBasicSalary.AutoSize = true;
         lblBasicSalary.Location = new Point(655, 88);
         lblBasicSalary.Name = "lblBasicSalary";
-        lblBasicSalary.Size = new Size(130, 24);
+        lblBasicSalary.Size = new Size(148, 24);
         lblBasicSalary.TabIndex = 10;
         lblBasicSalary.Text = "الراتب الأساسي";
         // 
@@ -209,7 +211,7 @@ partial class frmEmployeeMaster
         lblHireDate.AutoSize = true;
         lblHireDate.Location = new Point(355, 88);
         lblHireDate.Name = "lblHireDate";
-        lblHireDate.Size = new Size(130, 24);
+        lblHireDate.Size = new Size(112, 24);
         lblHireDate.TabIndex = 12;
         lblHireDate.Text = "تاريخ التعيين";
         // 
@@ -229,6 +231,8 @@ partial class frmEmployeeMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnRefresh);
+        pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 200);
         pnlButtons.Name = "pnlButtons";
@@ -238,47 +242,88 @@ partial class frmEmployeeMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.White;
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
+        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
-        btnNew.TabIndex = 0;
-        btnNew.Text = "🆕 إضافة";
+        btnNew.TabIndex = 16;
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.White;
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
-        btnSave.TabIndex = 1;
+        btnSave.TabIndex = 17;
         btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.White;
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
         btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
-        btnEdit.TabIndex = 2;
+        btnEdit.TabIndex = 19;
         btnEdit.Text = "✏️ تعديل";
         btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.White;
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
+        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDelete.ForeColor = Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
-        btnDelete.TabIndex = 3;
+        btnDelete.TabIndex = 18;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
+        btnRefresh.Location = new Point(719, 13);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 35);
+        btnRefresh.TabIndex = 21;
+        btnRefresh.Text = "🔄 تحديث";
+        btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(583, 13);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(130, 35);
+        btnClose.TabIndex = 22;
+        btnClose.TabStop = false;
+        btnClose.Text = "🚪 خروج";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // pnlGrid
         // 
@@ -287,7 +332,7 @@ partial class frmEmployeeMaster
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 260);
         pnlGrid.Name = "pnlGrid";
-        pnlGrid.Padding = new Padding(10);
+        pnlGrid.Padding = new Padding(0, 10, 0, 0);
         pnlGrid.Size = new Size(1432, 410);
         pnlGrid.TabIndex = 3;
         // 
@@ -295,104 +340,71 @@ partial class frmEmployeeMaster
         // 
         dgvEmployees.AllowUserToAddRows = false;
         dgvEmployees.AllowUserToDeleteRows = false;
-        dgvEmployees.AutoGenerateColumns = false;
         dgvEmployees.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvEmployees.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvEmployees.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvEmployees.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colJobTitle, colPhone, colIsActive });
         dgvEmployees.Dock = DockStyle.Fill;
-        dgvEmployees.Location = new Point(10, 50);
+        dgvEmployees.Location = new Point(0, 78);
         dgvEmployees.MultiSelect = false;
         dgvEmployees.Name = "dgvEmployees";
         dgvEmployees.ReadOnly = true;
         dgvEmployees.RowHeadersVisible = false;
         dgvEmployees.RowHeadersWidth = 62;
         dgvEmployees.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvEmployees.Size = new Size(1412, 350);
+        dgvEmployees.Size = new Size(1432, 332);
         dgvEmployees.TabIndex = 20;
-        // 
-        // colId
-        // 
-        colId.DataPropertyName = "Id";
-        colId.FillWeight = 8F;
-        colId.HeaderText = "رقم الموظف";
-        colId.MinimumWidth = 90;
-        colId.Name = "colId";
-        colId.ReadOnly = true;
-        // 
-        // colName
-        // 
-        colName.DataPropertyName = "Name";
-        colName.FillWeight = 30F;
-        colName.HeaderText = "اسم الموظف";
-        colName.MinimumWidth = 200;
-        colName.Name = "colName";
-        colName.ReadOnly = true;
-        // 
-        // colJobTitle
-        // 
-        colJobTitle.DataPropertyName = "JobTitle";
-        colJobTitle.FillWeight = 26F;
-        colJobTitle.HeaderText = "المسمى الوظيفي";
-        colJobTitle.MinimumWidth = 150;
-        colJobTitle.Name = "colJobTitle";
-        colJobTitle.ReadOnly = true;
-        // 
-        // colPhone
-        // 
-        colPhone.DataPropertyName = "Phone";
-        colPhone.FillWeight = 20F;
-        colPhone.HeaderText = "الهاتف";
-        colPhone.MinimumWidth = 120;
-        colPhone.Name = "colPhone";
-        colPhone.ReadOnly = true;
-        // 
-        // colIsActive
-        // 
-        colIsActive.DataPropertyName = "IsActive";
-        colIsActive.FillWeight = 8F;
-        colIsActive.HeaderText = "نشط";
-        colIsActive.MinimumWidth = 60;
-        colIsActive.Name = "colIsActive";
-        colIsActive.ReadOnly = true;
+        dgvEmployees.CellClick += dgvEmployees_CellClick;
         // 
         // pnlFilter
         // 
-        pnlFilter.Controls.Add(btnRefresh);
-        pnlFilter.Controls.Add(txtSearch);
-        pnlFilter.Controls.Add(lblSearch);
+        pnlFilter.Controls.Add(groupBox1);
         pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(10, 10);
+        pnlFilter.Location = new Point(0, 10);
         pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1412, 40);
+        pnlFilter.Size = new Size(1432, 68);
         pnlFilter.TabIndex = 21;
         // 
-        // btnRefresh
+        // groupBox1
         // 
-        btnRefresh.BackColor = Color.White;
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Location = new Point(550, 4);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
-        btnRefresh.TabIndex = 99;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
-        // 
-        // txtSearch
-        // 
-        txtSearch.Location = new Point(690, 7);
-        txtSearch.Name = "txtSearch";
-        txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 98;
+        groupBox1.Controls.Add(lblSearch);
+        groupBox1.Controls.Add(chkShowInactive);
+        groupBox1.Controls.Add(txtSearch);
+        groupBox1.Font = new Font("Tahoma", 10F);
+        groupBox1.Location = new Point(803, 3);
+        groupBox1.Name = "groupBox1";
+        groupBox1.Size = new Size(596, 62);
+        groupBox1.TabIndex = 22;
+        groupBox1.TabStop = false;
+        groupBox1.Text = "محرك البحث";
         // 
         // lblSearch
         // 
         lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(1000, 10);
+        lblSearch.Location = new Point(501, 32);
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(56, 24);
-        lblSearch.TabIndex = 97;
+        lblSearch.TabIndex = 1;
         lblSearch.Text = "بحث:";
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(13, 24);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.TabIndex = 21;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
+        // 
+        // txtSearch
+        // 
+        txtSearch.Location = new Point(195, 24);
+        txtSearch.Name = "txtSearch";
+        txtSearch.Size = new Size(300, 32);
+        txtSearch.TabIndex = 20;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // errorProvider
         // 
@@ -415,6 +427,7 @@ partial class frmEmployeeMaster
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
         Text = "دليل الموظفين";
+        Load += frmEmployeeMaster_Load;
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numBasicSalary).EndInit();
@@ -422,7 +435,8 @@ partial class frmEmployeeMaster
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvEmployees).EndInit();
         pnlFilter.ResumeLayout(false);
-        pnlFilter.PerformLayout();
+        groupBox1.ResumeLayout(false);
+        groupBox1.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -449,16 +463,14 @@ partial class frmEmployeeMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvEmployees;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colId;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colName;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colJobTitle;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colPhone;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilter;
+    private System.Windows.Forms.GroupBox groupBox1;
     private System.Windows.Forms.TextBox txtSearch;
-    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

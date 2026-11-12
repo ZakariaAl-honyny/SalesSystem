@@ -21,10 +21,21 @@ public partial class frmAddUpdateExpense : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
-        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         this.Text = "إضافة مصروف جديد";
         lblMode.Text = "إضافة مصروف جديد";
+        ApplyGreenTheme();
         _ = LoadComboBoxesAsync();
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     public frmAddUpdateExpense(int id, IServiceProvider serviceProvider) : this(serviceProvider)

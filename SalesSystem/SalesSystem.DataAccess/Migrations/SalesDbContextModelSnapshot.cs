@@ -75,7 +75,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("NameEn")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -134,7 +133,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -153,7 +151,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<bool>("IsReversed")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int?>("PaymentVoucherId")
                         .HasColumnType("int");
@@ -210,6 +210,8 @@ namespace SalesSystem.DataAccess.Migrations
                     b.HasIndex("ReceiptVoucherId");
 
                     b.HasIndex("ReversedByEntryId");
+
+                    b.HasIndex("ReviewedByUserId");
 
                     b.HasIndex("ReferenceType", "ReferenceId")
                         .HasFilter("[ReferenceType] IS NOT NULL AND [ReferenceId] IS NOT NULL");
@@ -423,6 +425,8 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("MappingKey")
                         .IsUnique()
                         .HasFilter("[MappingKey] IS NOT NULL");
@@ -556,7 +560,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(300)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -649,15 +655,19 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("CreditLimit")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1281,11 +1291,19 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LocationInStore")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("MinSalePrice")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1293,8 +1311,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("ReorderLevel")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                        .HasColumnType("decimal(18,3)")
+                        .HasDefaultValue(0m);
 
                     b.Property<bool>("TrackExpiry")
                         .HasColumnType("bit");
@@ -1443,7 +1463,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnName("Factor");
 
                     b.Property<bool>("IsBaseUnit")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<decimal?>("MaxDiscountAmount")
                         .HasPrecision(18, 2)
@@ -1472,6 +1494,11 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Barcode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ProductUnits_Barcode")
+                        .HasFilter("[Barcode] IS NOT NULL");
 
                     b.HasIndex("UnitId");
 
@@ -1521,8 +1548,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal?>("DiscountRate")
                         .HasPrecision(18, 2)
@@ -1548,12 +1577,16 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("OtherCharges")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("PaidAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("PaymentType")
                         .HasColumnType("tinyint");
@@ -1562,8 +1595,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("RemainingAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -1580,8 +1615,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1862,8 +1899,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal?>("DiscountRate")
                         .HasPrecision(18, 2)
@@ -1889,12 +1928,16 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("OtherCharges")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("PaidAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("PaymentType")
                         .HasColumnType("tinyint");
@@ -1903,8 +1946,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("RemainingAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -1914,8 +1959,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1969,6 +2016,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint")
                         .HasDefaultValue((byte)0);
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("date");
 
                     b.Property<decimal>("LineTotal")
                         .HasPrecision(18, 2)
@@ -2189,7 +2239,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2459,7 +2511,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsSystem")
                         .ValueGeneratedOnAdd()
@@ -2549,6 +2603,8 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("UserName")
                         .IsUnique();
 
@@ -2626,8 +2682,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                        .HasColumnType("decimal(18,3)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -2683,9 +2741,16 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("ReversedByEntryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("SalesSystem.Models.User", "ReviewedByUser")
+                        .WithMany()
+                        .HasForeignKey("ReviewedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Branch");
 
                     b.Navigation("ReversedByEntry");
+
+                    b.Navigation("ReviewedByUser");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Accounting.JournalEntryLine", b =>
@@ -2769,7 +2834,14 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SalesSystem.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Account");
+
+                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.AuditLog", b =>
@@ -3369,6 +3441,16 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SalesSystem.Models.User", b =>
+                {
+                    b.HasOne("SalesSystem.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Warehouse", b =>

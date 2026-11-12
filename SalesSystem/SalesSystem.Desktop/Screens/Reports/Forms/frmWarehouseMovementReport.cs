@@ -4,7 +4,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
 
@@ -37,7 +37,7 @@ public partial class frmWarehouseMovementReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportService>().GetWarehouseMovementsAsync(null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetWarehouseMovementsAsync(null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

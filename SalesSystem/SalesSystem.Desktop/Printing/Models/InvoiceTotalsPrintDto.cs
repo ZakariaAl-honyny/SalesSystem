@@ -8,4 +8,7 @@ public class InvoiceTotalsPrintDto
     public decimal TotalAmount { get; set; }
     public decimal PaidAmount { get; set; }
     public decimal DueAmount { get; set; }
+
+    /// <summary>التفقيط (المبلغ كتابةً) — اختياري؛ null يعني عدم عرض سطر التفقيط.</summary>
+    public string? Tafqit { get; set; }
 }

@@ -36,6 +36,7 @@ partial class frmWarehouseMaster
         btnEdit = new Button();
         btnDelete = new Button();
         btnSetDefault = new Button();
+        btnClose = new Button();
         pnlGrid = new Panel();
         dgvWarehouses = new DataGridView();
         colId = new DataGridViewTextBoxColumn();
@@ -46,6 +47,7 @@ partial class frmWarehouseMaster
         pnlFilter = new Panel();
         txtSearch = new TextBox();
         lblSearch = new Label();
+        chkShowInactive = new CheckBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -186,6 +188,7 @@ partial class frmWarehouseMaster
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
         pnlButtons.Controls.Add(btnSetDefault);
+        pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
         pnlButtons.Location = new Point(0, 200);
         pnlButtons.Name = "pnlButtons";
@@ -195,59 +198,88 @@ partial class frmWarehouseMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.White;
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
+        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
         btnNew.TabIndex = 0;
-        btnNew.Text = "🆕 إضافة";
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.White;
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
         btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.White;
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
         btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
         btnEdit.TabIndex = 2;
         btnEdit.Text = "✏️ تعديل";
         btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.White;
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
+        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDelete.ForeColor = Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 3;
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
         // 
         // btnSetDefault
         // 
-        btnSetDefault.BackColor = Color.FromArgb(30, 86, 160);
+        btnSetDefault.BackColor = Color.FromArgb(111, 66, 193);
         btnSetDefault.FlatStyle = FlatStyle.Flat;
+        btnSetDefault.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSetDefault.ForeColor = Color.White;
-        btnSetDefault.Location = new Point(793, 13);
+        btnSetDefault.Location = new Point(659, 13);
         btnSetDefault.Name = "btnSetDefault";
         btnSetDefault.Size = new Size(190, 35);
         btnSetDefault.TabIndex = 4;
         btnSetDefault.Text = "⭐ تعيين كمخزن افتراضي";
         btnSetDefault.UseVisualStyleBackColor = false;
+        btnSetDefault.Click += btnSetDefault_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(523, 13);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(130, 35);
+        btnClose.TabIndex = 5;
+        btnClose.TabStop = false;
+        btnClose.Text = "🚪 خروج";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // pnlGrid
         // 
@@ -279,6 +311,7 @@ partial class frmWarehouseMaster
         dgvWarehouses.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvWarehouses.Size = new Size(1412, 350);
         dgvWarehouses.TabIndex = 0;
+        dgvWarehouses.CellClick += dgvWarehouses_CellClick;
         // 
         // colId
         // 
@@ -330,6 +363,7 @@ partial class frmWarehouseMaster
         pnlFilter.Controls.Add(btnRefresh);
         pnlFilter.Controls.Add(txtSearch);
         pnlFilter.Controls.Add(lblSearch);
+        pnlFilter.Controls.Add(chkShowInactive);
         pnlFilter.Dock = DockStyle.Top;
         pnlFilter.Location = new Point(10, 10);
         pnlFilter.Name = "pnlFilter";
@@ -342,17 +376,34 @@ partial class frmWarehouseMaster
         txtSearch.Name = "txtSearch";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 99;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(368, 8);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.TabIndex = 97;
+        chkShowInactive.Text = "عرض غير النشط";
+        chkShowInactive.UseVisualStyleBackColor = true;
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.White;
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
         btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
         btnRefresh.Location = new Point(550, 4);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 32);
         btnRefresh.TabIndex = 98;
         btnRefresh.Text = "🔄 تحديث";
         btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
         // 
         // lblSearch
         // 
@@ -384,6 +435,7 @@ partial class frmWarehouseMaster
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
         Text = "دليل المخازن";
+        Load += frmWarehouseMaster_Load;
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();
         pnlButtons.ResumeLayout(false);
@@ -414,6 +466,7 @@ partial class frmWarehouseMaster
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
     private System.Windows.Forms.Button btnSetDefault;
+    private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvWarehouses;
     private System.Windows.Forms.DataGridViewTextBoxColumn colId;
@@ -425,5 +478,6 @@ partial class frmWarehouseMaster
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
+    private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

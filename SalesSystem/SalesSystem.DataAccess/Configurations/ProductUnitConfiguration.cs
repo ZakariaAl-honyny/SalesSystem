@@ -20,9 +20,18 @@ public class ProductUnitConfiguration : IEntityTypeConfiguration<ProductUnit>
             .HasPrecision(18, 3)
             .IsRequired();
 
+        builder.Property(x => x.IsBaseUnit)
+            .HasDefaultValue(false);
+
         builder.Property(x => x.Barcode)
             .HasMaxLength(50)
             .IsRequired(false);
+
+        // Unique filtered index on Barcode — ProductUnits has no IsActive column (AuditableEntity), so no AND IsActive=1 clause
+        builder.HasIndex(x => x.Barcode)
+            .IsUnique()
+            .HasFilter("[Barcode] IS NOT NULL")
+            .HasDatabaseName("IX_ProductUnits_Barcode");
 
         builder.Property(x => x.SalePrice)
             .HasPrecision(18, 2)

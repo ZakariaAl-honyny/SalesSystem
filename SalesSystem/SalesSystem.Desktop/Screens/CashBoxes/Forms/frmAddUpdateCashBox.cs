@@ -28,6 +28,9 @@ public partial class frmAddUpdateCashBox : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
         this.Text = "إضافة صندوق نقدي جديد";
         lblMode.Text = "إضافة صندوق نقدي جديد";
 
@@ -96,7 +99,9 @@ public partial class frmAddUpdateCashBox : Form
         catch (Exception ex)
         {
             Cursor = Cursors.Default;
-            MessageBox.Show($"خطأ في تحميل بيانات الصندوق: {ex.Message}",
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "خطأ في تحميل بيانات الصندوق");
+            MessageBox.Show("خطأ في تحميل بيانات الصندوق. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Close();
         }
@@ -210,7 +215,9 @@ public partial class frmAddUpdateCashBox : Form
         }
         catch (Exception ex)
         {
-            ShowAccountingError($"خطأ: {ex.Message}");
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "خطأ أثناء تحميل المعاينة المحاسبية للصندوق");
+            ShowAccountingError("خطأ في تحميل المعاينة المحاسبية");
         }
     }
 
@@ -277,6 +284,8 @@ public partial class frmAddUpdateCashBox : Form
                 await LoadCashBoxAsync();
             else
                 await LoadAccountingPreviewAsync();
+
+            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
@@ -284,6 +293,13 @@ public partial class frmAddUpdateCashBox : Form
             System.Windows.Forms.MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل النموذج. يرجى إعادة المحاولة.", "خطأ",
                 System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
         }
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // RadioButton: هل تريد رصيد ابتدائي؟

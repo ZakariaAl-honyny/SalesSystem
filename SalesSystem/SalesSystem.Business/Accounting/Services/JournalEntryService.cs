@@ -271,14 +271,18 @@ public class JournalEntryService : IJournalEntryService
 
     private static string GetEntryTypeDisplay(JournalEntryType entryType) => entryType switch
     {
+        JournalEntryType.Manual => "يدوي",
         JournalEntryType.Sales => "مبيعات",
-        JournalEntryType.SalesReturn => "مرتجع مبيعات",
         JournalEntryType.Purchase => "مشتريات",
+        JournalEntryType.Receipt => "سند قبض",
+        JournalEntryType.Payment => "سند صرف",
+        JournalEntryType.Inventory => "مخزون",
+        JournalEntryType.Adjustment => "تسوية",
+        JournalEntryType.SalesReturn => "مرتجع مبيعات",
         JournalEntryType.PurchaseReturn => "مرتجع مشتريات",
         JournalEntryType.Expense => "مصروف",
         JournalEntryType.StockWriteOff => "إعدام مخزون",
         JournalEntryType.Transfer => "تحويل",
-        JournalEntryType.Manual => "يدوي",
         JournalEntryType.OpeningBalance => "رصيد افتتاحي",
         JournalEntryType.CustomerReceipt => "مقبوضات عميل",
         JournalEntryType.SupplierPayment => "مدفوعات مورد",

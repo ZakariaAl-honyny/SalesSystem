@@ -19,6 +19,9 @@ public partial class frmCustomerSelection : Form
     {
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
     }
 
     public frmCustomerSelection(IServiceProvider serviceProvider) : this()
@@ -29,6 +32,21 @@ public partial class frmCustomerSelection : Form
     private void frmCustomerSelection_Load(object sender, EventArgs e)
     {
         _LoadCustomers();
+        ApplyGreenTheme();
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyGrid(dgvCustomers);
+
+        // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
+        dgvCustomers.ReadOnly = true;
+        dgvCustomers.AllowUserToAddRows = false;
+        dgvCustomers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvCustomers.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     private async void _LoadCustomers()

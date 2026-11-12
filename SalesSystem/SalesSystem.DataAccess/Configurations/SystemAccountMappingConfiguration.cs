@@ -26,6 +26,15 @@ public class SystemAccountMappingConfiguration : IEntityTypeConfiguration<System
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // FK to Branch (nullable — NULL = default system mapping)
+        builder.Property(x => x.BranchId)
+            .HasColumnType("smallint")
+            .IsRequired(false);
+        builder.HasOne(x => x.Branch)
+            .WithMany()
+            .HasForeignKey(x => x.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 
     }
 }

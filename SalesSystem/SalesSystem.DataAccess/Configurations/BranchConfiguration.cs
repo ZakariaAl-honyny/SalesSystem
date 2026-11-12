@@ -16,6 +16,7 @@ public class BranchConfiguration : IEntityTypeConfiguration<Branch>
         builder.Property(b => b.Phone).HasMaxLength(30);
         builder.Property(b => b.IsActive).HasDefaultValue(true);
 
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(b => b.IsActive);
 
         builder.HasIndex(b => b.Name).IsUnique();

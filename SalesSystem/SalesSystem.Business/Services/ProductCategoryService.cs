@@ -43,7 +43,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         try
         {
-            var category = await _uow.ProductCategories.FirstOrDefaultAsync(c => c.Id == id, ct);
+            var category = await _uow.ProductCategories.FirstOrDefaultIgnoreFiltersAsync(c => c.Id == id, ct);
             if (category == null)
                 return Result<ProductCategoryDto>.Failure("التصنيف غير موجود", ErrorCodes.NotFound);
 
@@ -92,7 +92,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         try
         {
-            var category = await _uow.ProductCategories.FirstOrDefaultAsync(c => c.Id == id, ct);
+            var category = await _uow.ProductCategories.FirstOrDefaultIgnoreFiltersAsync(c => c.Id == id, ct);
             if (category == null)
                 return Result<ProductCategoryDto>.Failure("التصنيف غير موجود", ErrorCodes.NotFound);
 

@@ -23,8 +23,19 @@ public partial class frmAddUpdateWarehouse : Form
             _serviceProvider = serviceProvider;
             InitializeComponent();
             KeyboardHelper.WireEnterAsTab(this);
+            KeyboardHelper.WireSelectAllOnFocus(this);
+            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+            KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
             this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
+        ApplyGreenTheme(); // الثيم الأخضر — آخر خطوة في المنشئ (RULE-N50)
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     public void LoadData(WarehouseDto? existingWarehouse)

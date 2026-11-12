@@ -174,7 +174,7 @@ public partial class frmMain : Form
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListSales>());
 
     private void msbtnSalesInvoice_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesInvoice>());
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateSalesInvoice>());
 
     private void msbtnSalesReturn_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesReturn>());

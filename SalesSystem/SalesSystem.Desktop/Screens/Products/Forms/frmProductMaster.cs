@@ -133,6 +133,8 @@ public partial class frmProductMaster : Form
             await _LoadUnitLookupAsync();
             await _LoadProductsAsync();
             _ResetForm();
+
+            ApplyGreenTheme(); // الثيم الأخضر آخر خطوة في مسار التحميل (RULE-N50)
         }
         catch (Exception ex)
         {
@@ -147,6 +149,16 @@ public partial class frmProductMaster : Form
     }
 
     // ── Lookups ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.
+    /// </summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblTitle);
+        GreenThemeHelper.ApplyGrid(dgvProducts);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً
+    }
 
     private async Task _LoadCategoriesAsync()
     {

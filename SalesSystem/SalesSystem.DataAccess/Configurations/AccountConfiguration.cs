@@ -25,7 +25,8 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
             .IsRequired()
             .HasMaxLength(200);
         builder.Property(x => x.NameEn)
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .IsRequired(false);
 
         // Nature: tinyint — 1=Asset, 2=Liability, 3=Equity, 4=Revenue, 5=Expense
         builder.Property(x => x.Nature)
@@ -62,6 +63,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
             .HasForeignKey(x => x.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(x => x.IsActive);
     }
 }

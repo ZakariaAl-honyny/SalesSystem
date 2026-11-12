@@ -35,6 +35,9 @@ public partial class frmPurchaseReturn : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
         SetupGrid();
@@ -55,6 +58,7 @@ public partial class frmPurchaseReturn : Form
             base.OnLoad(e);
             await LoadLookups();
             if (_invoice == null) ResetForm(); // Default state
+            ApplyGreenTheme();
         }
         catch (Exception ex)
         {
@@ -146,6 +150,24 @@ public partial class frmPurchaseReturn : Form
             CalculateTotals();
             dgvItems.Refresh();
         };
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblStatus);
+        GreenThemeHelper.ApplyGrid(dgvItems);
+
+        // RULE-N22a — شبكة إدخال: تحرير داخل الخلية
+        // القيم الأصلية (وقت التصميم): AllowUserToAddRows=true · ReadOnly=false ·
+        // SelectionMode=RowHeaderSelect · MultiSelect=true — تُعاد صراحةً بعد ApplyGrid.
+        dgvItems.AllowUserToAddRows = true;
+        dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
+        dgvItems.MultiSelect = true;
+        // ReadOnly تابع لحالة المستند كما في UpdateUIState (مسودة ⇔ قابل للتحرير) — لا يُثبَّت
+        dgvItems.ReadOnly = _invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير
     }
 
     private void CalculateTotals()

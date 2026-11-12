@@ -1,9 +1,9 @@
 using System.Data;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -46,52 +46,25 @@ public partial class frmUnitMaster : Form
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-
-        _WireEvents();
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnRefresh, btnClose);
     }
 
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
-
-    private void _WireEvents()
-    {
-        Load += frmUnitMaster_Load;
-
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvUnits.CellClick += dgvUnits_CellClick;
-    }
-
-    /// <summary>هل الحقل المطلوب (اسم الوحدة) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtName.Text);
-
-    /// <summary>أسماء الحقول المطلوبة الناقصة (اسم الوحدة).</summary>
-    private List<string> _MissingRequiredNames()
-    {
-        var missing = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-            missing.Add("اسم الوحدة");
-
-        return missing;
-    }
+    // ── Validation helpers ────────────────────────────────────────────────────
 
     /// <summary>
     /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
+    /// يعيد false إن وُجد حقل ناقص.
     /// </summary>
-    private void _FocusFirstMissingField()
+    private bool _FocusFirstMissingField(bool edit)
     {
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
             errorProvider.SetError(txtName, "اسم الوحدة مطلوب");
             txtName.Focus();
+            return false;
         }
+
+        return true;
     }
 
     /// <summary>تحديث يدوي لقائمة الوحدات مع الإبقاء على نص البحث الحالي.</summary>
@@ -114,6 +87,9 @@ public partial class frmUnitMaster : Form
         }
     }
 
+    /// <summary>زر الخروج: إغلاق شاشة دليل الوحدات.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
+
     // ── Form Load ─────────────────────────────────────────────────────────────
 
     private async void frmUnitMaster_Load(object? sender, EventArgs e)
@@ -123,6 +99,7 @@ public partial class frmUnitMaster : Form
         {
             await _LoadUnitsAsync();
             _ResetForm();
+            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
@@ -134,6 +111,21 @@ public partial class frmUnitMaster : Form
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvUnits);
+
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        dgvUnits.ReadOnly = true;
+        dgvUnits.AllowUserToAddRows = false;
+        dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvUnits.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ── Data Loading ──────────────────────────────────────────────────────────
@@ -177,8 +169,29 @@ public partial class frmUnitMaster : Form
             _unitsTable = table;
             _unitsView = new DataView(_unitsTable);
             dgvUnits.DataSource = _unitsView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يستخدم DataGridView عنوان <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvUnits.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "رقم الوحدة",
+                "Name" => "اسم الوحدة",
+                "Symbol" => "الرمز",
+                "IsActive" => "نشط",
+                _ => column.HeaderText
+            };
         }
     }
 
@@ -199,21 +212,38 @@ public partial class frmUnitMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
         if (_unitsView is null) return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
-        if (string.IsNullOrEmpty(text))
-        {
-            _unitsView.RowFilter = "";
-            return;
-        }
+        var conditions = new List<string>();
 
-        _unitsView.RowFilter =
-            $"Name LIKE '%{text}%' OR Symbol LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
+        if (!chkShowInactive.Checked)
+            conditions.Add("IsActive = true");
+
+        if (!string.IsNullOrEmpty(text))
+            conditions.Add(
+                $"(Name LIKE '%{text}%' OR Symbol LIKE '%{text}%' " +
+                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+
+        _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -284,43 +314,28 @@ public partial class frmUnitMaster : Form
 
     // ── Validation ────────────────────────────────────────────────────────────
 
+    /// <summary>قواعد التحقق الإضافية (الأطوال) — بلا رسالة منبثقة، بلا تعطيل أزرار.</summary>
     private bool _ValidateForm()
     {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم الوحدة مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
         if (txtName.Text.Trim().Length > 50)
         {
             errorProvider.SetError(txtName, "اسم الوحدة أطول من المسموح (50 حرفاً)");
-            isValid = false;
+            txtName.Focus();
+            return false;
         }
+
+        errorProvider.SetError(txtName, "");
 
         if (txtSymbol.Text.Trim().Length > 20)
         {
             errorProvider.SetError(txtSymbol, "رمز الوحدة أطول من المسموح (20 حرفاً)");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtSymbol, "");
+            txtSymbol.Focus();
+            return false;
         }
 
-        if (!isValid)
-        {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
+        errorProvider.SetError(txtSymbol, "");
 
-        return isValid;
+        return true;
     }
 
     // ── Buttons ───────────────────────────────────────────────────────────────
@@ -328,29 +343,21 @@ public partial class frmUnitMaster : Form
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
     /// <summary>زر الإضافة: يُضيف وحدة جديدة دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
-    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveUnitAsync(edit: false);
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: false);
 
     /// <summary>زر التعديل: يُحدّث الوحدة المحددة فقط.</summary>
-    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveUnitAsync(edit: true);
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: true);
 
     /// <summary>
     /// حفظ الوحدة: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
     /// </summary>
-    private async Task _SaveUnitAsync(bool edit)
+    private async Task _SaveAsync(bool edit)
     {
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
         // الحقل المطلوب الناقص: نقل المؤشر إلى الحقل مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
-        {
-            _FocusFirstMissingField();
-
-            var missing = string.Join("، ", _MissingRequiredNames());
-            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
+        if (!_FocusFirstMissingField(edit)) return;
 
         if (!_ValidateForm()) return;
 

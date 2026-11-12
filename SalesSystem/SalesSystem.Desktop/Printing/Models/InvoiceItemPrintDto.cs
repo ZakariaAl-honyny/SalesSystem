@@ -8,4 +8,7 @@ public class InvoiceItemPrintDto
     public decimal UnitPrice { get; set; } // decimal(18,2)
     public decimal Discount { get; set; } // decimal(18,2)
     public decimal LineTotal { get; set; } // decimal(18,2)
+
+    /// <summary>اسم وحدة القياس (اختياري) — تُترك null عندما لا يتوفر اسم الوحدة في مصدر البيانات.</summary>
+    public string? UnitName { get; set; }
 }

@@ -16,6 +16,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(256);
 
         builder.Property(u => u.BranchId).IsRequired(false).HasColumnType("smallint");
+        builder.HasOne(u => u.Branch)
+            .WithMany()
+            .HasForeignKey(u => u.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(u => u.EmployeeId).IsRequired(false);
         builder.Property(u => u.IsLocked).IsRequired().HasDefaultValue(false);
@@ -23,6 +27,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.LoginAttempts).IsRequired().HasDefaultValue((short)0);
         builder.Property(u => u.LastLoginAt).IsRequired(false);
 
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(u => u.IsActive);
     }
 }

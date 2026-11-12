@@ -18,9 +18,27 @@ public partial class frmListSupplierPayments : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
-        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         _supplierTable = new DataTable();
         _supplierView = new DataView();
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvSupplierPayments);
+
+        // RULE-N22: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه (RULE-N52).
+        dgvSupplierPayments.ReadOnly = true;
+        dgvSupplierPayments.AllowUserToAddRows = false;
+        dgvSupplierPayments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvSupplierPayments.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     private void _SetupGrid()
@@ -94,7 +112,9 @@ public partial class frmListSupplierPayments : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء تحميل المدفوعات: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "فشل تحميل مدفوعات الموردين في شاشة مدفوعات الموردين");
+            MessageBox.Show("حدث خطأ أثناء تحميل المدفوعات.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -112,6 +132,7 @@ public partial class frmListSupplierPayments : Form
     private void frmListSupplierPayments_Load(object sender, EventArgs e)
     {
         _ReloadForm();
+        ApplyGreenTheme();   // RULE-N50 — الأخير في مسار التحميل
     }
 
     private void btnClose_Click(object sender, EventArgs e)

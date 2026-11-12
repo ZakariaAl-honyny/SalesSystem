@@ -2,6 +2,7 @@ using System.Data;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Responses;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
@@ -47,24 +48,6 @@ public partial class frmEmployeeMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-
-        _WireEvents();
-    }
-
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
-
-    private void _WireEvents()
-    {
-        Load += frmEmployeeMaster_Load;
-
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvEmployees.CellClick += dgvEmployees_CellClick;
     }
 
     /// <summary>هل الحقل المطلوب (اسم الموظف) مكتمل؟</summary>
@@ -74,13 +57,17 @@ public partial class frmEmployeeMaster : Form
     /// <summary>
     /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
     /// </summary>
-    private void _FocusFirstMissingField()
+    private void _FocusFirstMissingField(bool edit)
     {
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
             errorProvider.SetError(txtName, "اسم الموظف مطلوب");
             txtName.Focus();
+            return;
         }
+
+        // لا توجد حقول مطلوبة أخرى في هذه الشاشة (الباقي اختياري في وضعي الإضافة والتعديل).
+        _ = edit;
     }
 
     /// <summary>تحديث يدوي لقائمة الموظفين مع الإبقاء على نص البحث الحالي.</summary>
@@ -90,6 +77,7 @@ public partial class frmEmployeeMaster : Form
         try
         {
             await _LoadEmployeesAsync();
+            _ResetForm(); // تفريغ الحقول + وضع الاستعداد بعد التحديث
         }
         catch (Exception ex)
         {
@@ -112,6 +100,7 @@ public partial class frmEmployeeMaster : Form
         {
             await _LoadEmployeesAsync();
             _ResetForm();
+            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
@@ -123,6 +112,21 @@ public partial class frmEmployeeMaster : Form
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvEmployees);
+
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        dgvEmployees.ReadOnly = true;
+        dgvEmployees.AllowUserToAddRows = false;
+        dgvEmployees.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvEmployees.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ── Data Loading ──────────────────────────────────────────────────────────
@@ -172,8 +176,30 @@ public partial class frmEmployeeMaster : Form
             _employeesTable = table;
             _employeesView = new DataView(_employeesTable);
             dgvEmployees.DataSource = _employeesView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يستخدم DataGridView عنوان <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvEmployees.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "الرقم",
+                "Name" => "اسم الموظف",
+                "JobTitle" => "المسمى الوظيفي",
+                "Phone" => "الهاتف",
+                "IsActive" => "الحالة",
+                _ => column.HeaderText
+            };
         }
     }
 
@@ -194,21 +220,40 @@ public partial class frmEmployeeMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
         if (_employeesView is null) return;
 
         string text = txtSearch.Text.Trim().Replace("'", "''");
 
-        if (string.IsNullOrEmpty(text))
+        var conditions = new List<string>();
+
+        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
+        if (!chkShowInactive.Checked)
+            conditions.Add("IsActive = true");
+
+        if (!string.IsNullOrEmpty(text))
         {
-            _employeesView.RowFilter = "";
-            return;
+            conditions.Add(
+                $"(Name LIKE '%{text}%' OR JobTitle LIKE '%{text}%' OR Phone LIKE '%{text}%' " +
+                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
         }
 
-        _employeesView.RowFilter =
-            $"Name LIKE '%{text}%' OR JobTitle LIKE '%{text}%' OR Phone LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        _employeesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -338,6 +383,9 @@ public partial class frmEmployeeMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
+    /// <summary>زر الخروج: إغلاق شاشة دليل الموظفين.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
+
     /// <summary>
     /// بناء بطاقة الموظف من حقول الشاشة.
     /// الحقول غير الظاهرة (الملاحظات، الحساب المحاسبي، حساب المستخدم، نسبة العمولة)
@@ -365,23 +413,23 @@ public partial class frmEmployeeMaster : Form
     }
 
     /// <summary>زر الإضافة: يُضيف موظفاً جديداً دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
-    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveEmployeeAsync(edit: false);
+    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: false);
 
     /// <summary>زر التعديل: يُحدّث الموظف المحدد فقط.</summary>
-    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveEmployeeAsync(edit: true);
+    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: true);
 
     /// <summary>
     /// حفظ الموظف: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
     /// </summary>
-    private async Task _SaveEmployeeAsync(bool edit)
+    private async Task _SaveAsync(bool edit)
     {
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقل المطلوب الناقص: نقل المؤشر إلى الحقل مع أيقونة خطأ (الأزرار تبقى مفعّلة).
+        // الحقل المطلوب الناقص: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
         if (!_RequiredFieldsValid())
         {
-            _FocusFirstMissingField();
+            _FocusFirstMissingField(edit);
             return;
         }
 

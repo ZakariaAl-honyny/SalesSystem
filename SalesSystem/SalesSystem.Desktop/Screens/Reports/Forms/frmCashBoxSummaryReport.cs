@@ -4,7 +4,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
 
@@ -37,7 +37,7 @@ public partial class frmCashBoxSummaryReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<ICashBoxReportService>().GetCashBoxSummaryAsync();
+            var result = await _serviceProvider.GetRequiredService<ICashBoxReportApiService>().GetCashBoxSummaryAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

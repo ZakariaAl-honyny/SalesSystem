@@ -20,7 +20,18 @@ public partial class frmListPurchases : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40: الأربعة معاً — Enter/Tab + تحديد القيمة + تظليل الحقل + أسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
+
+        // RULE-N22 — سلوك شبكة العرض (ApplyGrid لا يغيّره، RULE-N52)
+        dgvPurchases.ReadOnly = true;
+        dgvPurchases.AllowUserToAddRows = false;
+        dgvPurchases.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvPurchases.MultiSelect = false;
     }
 
     // ── Data Loading ───────────────────────────────────────────────────────────
@@ -49,7 +60,9 @@ public partial class frmListPurchases : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء تحميل البيانات: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء تحميل البيانات");
+            MessageBox.Show("حدث خطأ أثناء تحميل البيانات",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _allInvoices = new List<PurchaseInvoiceDto>();
         }
@@ -177,7 +190,9 @@ public partial class frmListPurchases : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء الترحيل: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء الترحيل");
+            MessageBox.Show("حدث خطأ أثناء الترحيل",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -215,7 +230,9 @@ public partial class frmListPurchases : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء الإلغاء: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء الإلغاء");
+            MessageBox.Show("حدث خطأ أثناء الإلغاء",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -228,6 +245,23 @@ public partial class frmListPurchases : Form
         cbFilterBy.SelectedIndex = cbFilterBy.FindString("لا شيئ");
         cbStatus.SelectedIndex = 0;
         _ReloadForm();
+
+        ApplyGreenTheme();   // RULE-N50 — آمن للاستدعاء المتكرر (idempotent)
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvPurchases);
+
+        // RULE-N22/RULE-N52: سلوك الشبكة تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
+        dgvPurchases.ReadOnly = true;
+        dgvPurchases.AllowUserToAddRows = false;
+        dgvPurchases.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvPurchases.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير (RULE-N50)
     }
 
     private void btnClose_Click(object sender, EventArgs e)

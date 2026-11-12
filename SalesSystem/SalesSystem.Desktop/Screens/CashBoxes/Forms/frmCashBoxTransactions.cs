@@ -18,6 +18,9 @@ public partial class frmCashBoxTransactions : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
         _SetupGridColumns();
         _ = LoadCashBoxesAsync();
     }
@@ -99,6 +102,23 @@ public partial class frmCashBoxTransactions : Form
     private void frmCashBoxTransactions_Load(object sender, EventArgs e)
     {
         _SetupGridColumns();
+        ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvTransactions);
+
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        dgvTransactions.ReadOnly = true;
+        dgvTransactions.AllowUserToAddRows = false;
+        dgvTransactions.AllowUserToDeleteRows = false;
+        dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvTransactions.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     private void cmbCashBox_SelectedIndexChanged(object sender, EventArgs e)

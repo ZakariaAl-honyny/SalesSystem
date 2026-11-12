@@ -5,7 +5,7 @@ using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
@@ -48,7 +48,7 @@ public partial class frmTrialBalanceReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportService>().GetTrialBalanceAsync(dtpAsOf.Value.Date);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetTrialBalanceAsync(dtpAsOf.Value.Date);
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();

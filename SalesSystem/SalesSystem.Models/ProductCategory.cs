@@ -22,6 +22,7 @@ public class ProductCategory : ActivatableEntity
 
     /// <summary>
     /// Branch identifier for multi-branch support (smallint FK).
+    /// عمود أحادي الفرع للنسخة التجريبية (MVP) — يُثبّت على 1 في الوضع الراهن.
     /// </summary>
     public short BranchId { get; private set; }
 

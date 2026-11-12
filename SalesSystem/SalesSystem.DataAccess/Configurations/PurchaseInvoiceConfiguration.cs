@@ -12,12 +12,12 @@ public class PurchaseInvoiceConfiguration : IEntityTypeConfiguration<PurchaseInv
         builder.HasKey(pi => pi.Id);
         builder.HasIndex(pi => pi.InvoiceNo).IsUnique();
         builder.Property(pi => pi.SubTotal).HasPrecision(18, 2);
-        builder.Property(pi => pi.DiscountAmount).HasPrecision(18, 2);
-        builder.Property(pi => pi.TaxAmount).HasPrecision(18, 2);
-        builder.Property(pi => pi.OtherCharges).HasPrecision(18, 2);
+        builder.Property(pi => pi.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(pi => pi.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(pi => pi.OtherCharges).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(pi => pi.NetTotal).HasPrecision(18, 2);
-        builder.Property(pi => pi.PaidAmount).HasPrecision(18, 2);
-        builder.Property(pi => pi.RemainingAmount).HasPrecision(18, 2);
+        builder.Property(pi => pi.PaidAmount).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(pi => pi.RemainingAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(pi => pi.Notes).HasMaxLength(500);
         builder.Property(pi => pi.SupplierInvoiceNo).HasMaxLength(200).IsRequired(false);
         builder.Property(pi => pi.InvoiceDate).HasColumnType("date");

@@ -24,7 +24,7 @@ public class WarehouseService : IWarehouseService
 
     public async Task<Result<WarehouseDto>> GetByIdAsync(int id, CancellationToken ct)
     {
-        var warehouse = await _uow.Warehouses.GetByIdAsync(id, ct);
+        var warehouse = await _uow.Warehouses.FirstOrDefaultIgnoreFiltersAsync(w => w.Id == id, ct);
         if (warehouse == null)
             return Result<WarehouseDto>.Failure("المخزن غير موجود", ErrorCodes.NotFound);
 
@@ -92,7 +92,7 @@ public class WarehouseService : IWarehouseService
 
     public async Task<Result> DeleteAsync(int id, CancellationToken ct)
     {
-        var warehouse = await _uow.Warehouses.GetByIdAsync(id, ct);
+        var warehouse = await _uow.Warehouses.FirstOrDefaultIgnoreFiltersAsync(w => w.Id == id, ct);
         if (warehouse == null)
             return Result.Failure("المخزن غير موجود", ErrorCodes.NotFound);
 

@@ -4,7 +4,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Common;
 using ClosedXML.Excel;
 using SalesSystem.Desktop.Screens.Reports;
-using SalesSystem.Business.Interfaces.Services;
+using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
 
@@ -37,7 +37,7 @@ public partial class frmExpiredProductsReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportService>().GetExpiredProductsReportAsync(0, default);
+            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetExpiredProductsAsync(0, default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

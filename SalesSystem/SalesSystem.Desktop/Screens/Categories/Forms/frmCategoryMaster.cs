@@ -1,9 +1,9 @@
 using System.Data;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -39,6 +39,7 @@ public partial class frmCategoryMaster : Form
     public frmCategoryMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
+
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
@@ -47,51 +48,23 @@ public partial class frmCategoryMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
-
-        _WireEvents();
-    }
-
-    // ── Event wiring (the Designer defines controls only) ─────────────────────
-
-    private void _WireEvents()
-    {
-        Load += frmCategoryMaster_Load;
-
-        btnNew.Click += btnNew_Click;
-        btnSave.Click += btnSave_Click;
-        btnEdit.Click += btnEdit_Click;
-        btnDelete.Click += btnDelete_Click;
-        btnRefresh.Click += btnRefresh_Click;
-
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        dgvCategories.CellClick += dgvCategories_CellClick;
-    }
-
-    /// <summary>هل الحقل المطلوب (اسم المجموعة) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtName.Text);
-
-    /// <summary>أسماء الحقول المطلوبة الناقصة (اسم المجموعة).</summary>
-    private List<string> _MissingRequiredNames()
-    {
-        var missing = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-            missing.Add("اسم المجموعة");
-
-        return missing;
     }
 
     /// <summary>
     /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
+    /// يعيد <c>false</c> عند وجود حقل ناقص.
     /// </summary>
-    private void _FocusFirstMissingField()
+    private bool _FocusFirstMissingField(bool edit)
     {
         if (string.IsNullOrWhiteSpace(txtName.Text))
         {
             errorProvider.SetError(txtName, "اسم المجموعة مطلوب");
             txtName.Focus();
+            return false;
         }
+
+        errorProvider.SetError(txtName, "");
+        return true;
     }
 
     /// <summary>تحديث يدوي لقائمة المجموعات مع الإبقاء على نص البحث الحالي.</summary>
@@ -123,6 +96,7 @@ public partial class frmCategoryMaster : Form
         {
             await _LoadCategoriesAsync();
             _ResetForm();
+            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
@@ -134,6 +108,21 @@ public partial class frmCategoryMaster : Form
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvCategories);
+
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        dgvCategories.ReadOnly = true;
+        dgvCategories.AllowUserToAddRows = false;
+        dgvCategories.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvCategories.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ── Data Loading ──────────────────────────────────────────────────────────
@@ -177,8 +166,29 @@ public partial class frmCategoryMaster : Form
             _categoriesTable = table;
             _categoriesView = new DataView(_categoriesTable);
             dgvCategories.DataSource = _categoriesView;
+            _ApplyGridHeaders();
             _ApplyFilter();
             _ApplyRowColoring();
+        }
+    }
+
+    /// <summary>
+    /// عناوين أعمدة الشبكة بالعربية.
+    /// لا يستخدم DataGridView عنوان <c>DataColumn.Caption</c> عند الربط بـ <see cref="DataView"/>،
+    /// لذا تُضبط <c>HeaderText</c> صراحةً بعد إسناد <c>DataSource</c>.
+    /// </summary>
+    private void _ApplyGridHeaders()
+    {
+        foreach (DataGridViewColumn column in dgvCategories.Columns)
+        {
+            column.HeaderText = column.DataPropertyName switch
+            {
+                "Id" => "رقم المجموعة",
+                "Name" => "اسم المجموعة",
+                "Description" => "الوصف",
+                "IsActive" => "نشط",
+                _ => column.HeaderText
+            };
         }
     }
 
@@ -199,21 +209,38 @@ public partial class frmCategoryMaster : Form
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>
+    /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
+    /// </summary>
+    private void txtSearch_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        if (char.IsPunctuation(e.KeyChar))
+        {
+            e.Handled = true;
+            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+        }
+    }
+
     private void _ApplyFilter()
     {
         if (_categoriesView is null) return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
-        if (string.IsNullOrEmpty(text))
-        {
-            _categoriesView.RowFilter = "";
-            return;
-        }
+        var conditions = new List<string>();
 
-        _categoriesView.RowFilter =
-            $"Name LIKE '%{text}%' OR Description LIKE '%{text}%' " +
-            $"OR CONVERT(Id, 'System.String') LIKE '{text}%'";
+        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
+        if (!chkShowInactive.Checked)
+            conditions.Add("IsActive = true");
+
+        if (!string.IsNullOrEmpty(text))
+            conditions.Add(
+                $"(Name LIKE '%{text}%' OR Description LIKE '%{text}%' " +
+                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+
+        _categoriesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -317,6 +344,9 @@ public partial class frmCategoryMaster : Form
 
     private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
 
+    /// <summary>زر الخروج: إغلاق شاشة دليل مجموعات الأصناف.</summary>
+    private void btnClose_Click(object? sender, EventArgs e) => Close();
+
     /// <summary>زر الإضافة: يُضيف مجموعة جديدة دائماً (لا يعتمد على الاختيار في الشبكة).</summary>
     private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveCategoryAsync(edit: false);
 
@@ -331,16 +361,8 @@ public partial class frmCategoryMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقل المطلوب الناقص: نقل المؤشر إلى الحقل مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
-        {
-            _FocusFirstMissingField();
-
-            var missing = string.Join("، ", _MissingRequiredNames());
-            MessageBox.Show("يرجى تعبئة الحقول المطلوبة: " + missing, "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return;
-        }
+        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
+        if (!_FocusFirstMissingField(edit)) return;
 
         if (!_ValidateForm()) return;
 
@@ -497,10 +519,5 @@ public partial class frmCategoryMaster : Form
                 break;
             }
         }
-    }
-
-    private void pnlFields_Paint(object sender, PaintEventArgs e)
-    {
-
     }
 }

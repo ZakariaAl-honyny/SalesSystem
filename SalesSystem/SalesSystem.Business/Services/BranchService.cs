@@ -22,7 +22,7 @@ public class BranchService : IBranchService
     {
         try
         {
-            var query = await _uow.Branches.ToListAsync(ct);
+            var query = await _uow.Branches.ToListIgnoreFiltersAsync(ct);
             if (!includeInactive)
                 query = query.Where(x => x.IsActive).ToList();
             var dtos = query.OrderByDescending(x => x.Id).Select(MapToDto).ToList();
@@ -39,7 +39,7 @@ public class BranchService : IBranchService
     {
         try
         {
-            var branch = await _uow.Branches.GetByIdAsync(id, ct);
+            var branch = await _uow.Branches.FirstOrDefaultIgnoreFiltersAsync(b => b.Id == id, ct);
             if (branch == null)
                 return Result<BranchDto>.Failure("الفرع غير موجود");
             return Result<BranchDto>.Success(MapToDto(branch));
@@ -71,7 +71,7 @@ public class BranchService : IBranchService
     {
         try
         {
-            var branch = await _uow.Branches.GetByIdAsync(id, ct);
+            var branch = await _uow.Branches.FirstOrDefaultIgnoreFiltersAsync(b => b.Id == id, ct);
             if (branch == null)
                 return Result<BranchDto>.Failure("الفرع غير موجود");
             branch.Update(name, address, phone, userId);
@@ -107,7 +107,7 @@ public class BranchService : IBranchService
     {
         try
         {
-            var branch = await _uow.Branches.GetByIdAsync(id, ct);
+            var branch = await _uow.Branches.FirstOrDefaultIgnoreFiltersAsync(b => b.Id == id, ct);
             if (branch == null)
                 return Result.Failure("الفرع غير موجود");
             branch.Restore();

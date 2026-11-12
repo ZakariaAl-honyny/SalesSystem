@@ -33,7 +33,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasFilter("[Barcode] IS NOT NULL AND [IsActive] = 1");
 
         // ─── Numeric properties ─────────────────────────────
-        builder.Property(p => p.ReorderLevel).HasPrecision(18, 3);
+        builder.Property(p => p.ReorderLevel).HasPrecision(18, 3).HasDefaultValue(0m);
+        builder.Property(p => p.MinSalePrice).HasPrecision(18, 2).HasDefaultValue(0m);
+        builder.Property(p => p.IsActive).HasDefaultValue(true);
 
         // ─── Relationships ─────────────────────────────────────
         builder.HasOne(p => p.ProductCategory)
@@ -66,6 +68,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .OnDelete(DeleteBehavior.Restrict);
 
         // ─── Global query filter ───────────────────────────────
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(p => p.IsActive);
     }
 }

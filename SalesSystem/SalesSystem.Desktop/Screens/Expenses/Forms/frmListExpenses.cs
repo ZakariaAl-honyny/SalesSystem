@@ -19,7 +19,25 @@ public partial class frmListExpenses : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
-        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvExpenses);
+
+        // RULE-N22: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه (RULE-N52).
+        dgvExpenses.ReadOnly = true;
+        dgvExpenses.AllowUserToAddRows = false;
+        dgvExpenses.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvExpenses.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     private void _SetupGridColumns()
@@ -134,6 +152,7 @@ public partial class frmListExpenses : Form
     private void frmListExpenses_Load(object sender, EventArgs e)
     {
         _ReloadForm();
+        ApplyGreenTheme();   // RULE-N50 — الأخير في مسار التحميل
     }
 
     private void btnClose_Click(object sender, EventArgs e)

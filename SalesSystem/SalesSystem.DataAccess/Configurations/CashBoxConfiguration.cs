@@ -22,6 +22,9 @@ public class CashBoxConfiguration : IEntityTypeConfiguration<CashBox>
         builder.Property(x => x.AccountId)
             .IsRequired();
 
+        builder.Property(x => x.IsActive)
+            .HasDefaultValue(true);
+
         // FK to Accounts
         builder.HasOne(x => x.Account)
             .WithMany()
@@ -36,6 +39,7 @@ public class CashBoxConfiguration : IEntityTypeConfiguration<CashBox>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Global query filter for soft delete
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(x => x.IsActive);
     }
 }

@@ -154,6 +154,16 @@ public class DirectFinancialReportService : IFinancialReportApiService
         }
     }
 
+    // ─── BLL-name aliases (delegates to the same BLL methods) ────────────
+
+    public Task<Result<IReadOnlyList<AccountStatementDto>>> GetAccountStatementAsync(
+        int customerId, DateTime from, DateTime to, CancellationToken ct = default)
+        => GetCustomerAccountStatementAsync(customerId, from, to, ct);
+
+    public Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierStatementAsync(
+        int supplierId, DateTime from, DateTime to, CancellationToken ct = default)
+        => GetSupplierAccountStatementAsync(supplierId, from, to, ct);
+
     // ─── Mapping: Business DTO → Desktop DTO ───────────────────────────────
 
     private static AccountLedgerDto MapToDesktop(GeneralLedgerDto src) => new(

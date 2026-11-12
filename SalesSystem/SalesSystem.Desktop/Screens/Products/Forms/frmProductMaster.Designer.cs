@@ -61,9 +61,10 @@ partial class frmProductMaster
         pnlGrid = new Panel();
         dgvProducts = new DataGridView();
         pnlFilter = new Panel();
-        txtSearch = new TextBox();
+        gbFilter = new GroupBox();
         lblSearch = new Label();
         chkShowInactive = new CheckBox();
+        txtSearch = new TextBox();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
@@ -76,6 +77,7 @@ partial class frmProductMaster
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
         pnlFilter.SuspendLayout();
+        gbFilter.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -214,12 +216,17 @@ partial class frmProductMaster
         // 
         // btnAddCategory
         // 
-        btnAddCategory.Location = new Point(1341, 31);
+        btnAddCategory.BackColor = Color.FromArgb(13, 110, 253);
+        btnAddCategory.FlatStyle = FlatStyle.Flat;
+        btnAddCategory.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnAddCategory.ForeColor = Color.White;
+        btnAddCategory.Location = new Point(1341, 30);
         btnAddCategory.Name = "btnAddCategory";
-        btnAddCategory.Size = new Size(90, 31);
+        btnAddCategory.Size = new Size(36, 32);
         btnAddCategory.TabIndex = 10;
         btnAddCategory.TabStop = false;
         btnAddCategory.Text = "➕ مجموعة";
+        btnAddCategory.UseVisualStyleBackColor = false;
         btnAddCategory.Click += btnAddCategory_Click;
         // 
         // lblReorderLevel
@@ -242,7 +249,7 @@ partial class frmProductMaster
         // chkTrackExpiry
         // 
         chkTrackExpiry.AutoSize = true;
-        chkTrackExpiry.Location = new Point(947, 102);
+        chkTrackExpiry.Location = new Point(911, 101);
         chkTrackExpiry.Name = "chkTrackExpiry";
         chkTrackExpiry.Size = new Size(153, 28);
         chkTrackExpiry.TabIndex = 6;
@@ -259,10 +266,10 @@ partial class frmProductMaster
         // 
         // numExpiryAlertDays
         // 
-        numExpiryAlertDays.Location = new Point(730, 101);
+        numExpiryAlertDays.Location = new Point(675, 101);
         numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
         numExpiryAlertDays.Name = "numExpiryAlertDays";
-        numExpiryAlertDays.Size = new Size(175, 32);
+        numExpiryAlertDays.Size = new Size(230, 32);
         numExpiryAlertDays.TabIndex = 7;
         // 
         // lblLocation
@@ -276,15 +283,15 @@ partial class frmProductMaster
         // 
         // txtLocationInStore
         // 
-        txtLocationInStore.Location = new Point(989, 161);
+        txtLocationInStore.Location = new Point(914, 161);
         txtLocationInStore.Name = "txtLocationInStore";
-        txtLocationInStore.Size = new Size(290, 32);
+        txtLocationInStore.Size = new Size(463, 32);
         txtLocationInStore.TabIndex = 8;
         // 
         // lblNotes
         // 
         lblNotes.AutoSize = true;
-        lblNotes.Location = new Point(694, 136);
+        lblNotes.Location = new Point(752, 134);
         lblNotes.Name = "lblNotes";
         lblNotes.Size = new Size(83, 24);
         lblNotes.TabIndex = 20;
@@ -294,7 +301,7 @@ partial class frmProductMaster
         // 
         txtNotes.Location = new Point(675, 161);
         txtNotes.Name = "txtNotes";
-        txtNotes.Size = new Size(230, 32);
+        txtNotes.Size = new Size(233, 32);
         txtNotes.TabIndex = 9;
         // 
         // grpMainUnit
@@ -404,11 +411,11 @@ partial class frmProductMaster
         // lblMainUnitMaxDiscount
         // 
         lblMainUnitMaxDiscount.AutoSize = true;
-        lblMainUnitMaxDiscount.Location = new Point(246, 98);
+        lblMainUnitMaxDiscount.Location = new Point(260, 98);
         lblMainUnitMaxDiscount.Name = "lblMainUnitMaxDiscount";
-        lblMainUnitMaxDiscount.Size = new Size(196, 24);
+        lblMainUnitMaxDiscount.Size = new Size(170, 24);
         lblMainUnitMaxDiscount.TabIndex = 10;
-        lblMainUnitMaxDiscount.Text = "الخصم المسموح به %";
+        lblMainUnitMaxDiscount.Text = "الخصم المسموح به";
         // 
         // numMainUnitMaxDiscount
         // 
@@ -436,8 +443,10 @@ partial class frmProductMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.White;
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
+        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
@@ -448,8 +457,10 @@ partial class frmProductMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.White;
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
@@ -460,8 +471,10 @@ partial class frmProductMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.White;
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
         btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -472,8 +485,10 @@ partial class frmProductMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.White;
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
+        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDelete.ForeColor = Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
@@ -484,11 +499,13 @@ partial class frmProductMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.White;
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
         btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = Color.White;
         btnRefresh.Location = new Point(719, 13);
         btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 32);
+        btnRefresh.Size = new Size(130, 35);
         btnRefresh.TabIndex = 21;
         btnRefresh.Text = "🔄 تحديث";
         btnRefresh.UseVisualStyleBackColor = false;
@@ -496,8 +513,9 @@ partial class frmProductMaster
         // 
         // btnManageUnits
         // 
-        btnManageUnits.BackColor = Color.FromArgb(30, 86, 160);
+        btnManageUnits.BackColor = Color.FromArgb(111, 66, 193);
         btnManageUnits.FlatStyle = FlatStyle.Flat;
+        btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnManageUnits.ForeColor = Color.White;
         btnManageUnits.Location = new Point(533, 13);
         btnManageUnits.Name = "btnManageUnits";
@@ -509,8 +527,10 @@ partial class frmProductMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.White;
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(397, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
@@ -527,7 +547,7 @@ partial class frmProductMaster
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 310);
         pnlGrid.Name = "pnlGrid";
-        pnlGrid.Padding = new Padding(10);
+        pnlGrid.Padding = new Padding(0, 10, 0, 0);
         pnlGrid.Size = new Size(1432, 360);
         pnlGrid.TabIndex = 3;
         // 
@@ -539,42 +559,44 @@ partial class frmProductMaster
         dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvProducts.Dock = DockStyle.Fill;
-        dgvProducts.Location = new Point(10, 50);
+        dgvProducts.Location = new Point(0, 78);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
         dgvProducts.ReadOnly = true;
         dgvProducts.RowHeadersVisible = false;
         dgvProducts.RowHeadersWidth = 62;
         dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvProducts.Size = new Size(1412, 300);
+        dgvProducts.Size = new Size(1432, 282);
         dgvProducts.TabIndex = 0;
         dgvProducts.CellClick += dgvProducts_CellClick;
         dgvProducts.ChangeUICues += dgvProducts_ChangeUICues;
         // 
         // pnlFilter
         // 
-        pnlFilter.Controls.Add(txtSearch);
-        pnlFilter.Controls.Add(lblSearch);
-        pnlFilter.Controls.Add(chkShowInactive);
+        pnlFilter.Controls.Add(gbFilter);
         pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(10, 10);
+        pnlFilter.Location = new Point(0, 10);
         pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1412, 40);
+        pnlFilter.Size = new Size(1432, 68);
         pnlFilter.TabIndex = 1;
         // 
-        // txtSearch
+        // gbFilter
         // 
-        txtSearch.Location = new Point(690, 7);
-        txtSearch.Name = "txtSearch";
-        txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 20;
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
+        gbFilter.Controls.Add(lblSearch);
+        gbFilter.Controls.Add(chkShowInactive);
+        gbFilter.Controls.Add(txtSearch);
+        gbFilter.Font = new Font("Tahoma", 10F);
+        gbFilter.Location = new Point(803, 3);
+        gbFilter.Name = "gbFilter";
+        gbFilter.Size = new Size(596, 62);
+        gbFilter.TabIndex = 22;
+        gbFilter.TabStop = false;
+        gbFilter.Text = "محرك البحث";
         // 
         // lblSearch
         // 
         lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(1000, 10);
+        lblSearch.Location = new Point(501, 32);
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(56, 24);
         lblSearch.TabIndex = 1;
@@ -584,12 +606,21 @@ partial class frmProductMaster
         // 
         chkShowInactive.AutoSize = true;
         chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(518, 6);
+        chkShowInactive.Location = new Point(13, 24);
         chkShowInactive.Name = "chkShowInactive";
         chkShowInactive.Size = new Size(166, 28);
         chkShowInactive.TabIndex = 21;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
+        // 
+        // txtSearch
+        // 
+        txtSearch.Location = new Point(195, 24);
+        txtSearch.Name = "txtSearch";
+        txtSearch.Size = new Size(300, 32);
+        txtSearch.TabIndex = 20;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // errorProvider
         // 
@@ -626,7 +657,8 @@ partial class frmProductMaster
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
         pnlFilter.ResumeLayout(false);
-        pnlFilter.PerformLayout();
+        gbFilter.ResumeLayout(false);
+        gbFilter.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -683,5 +715,6 @@ partial class frmProductMaster
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.ErrorProvider errorProvider;
+    private GroupBox gbFilter;
 }
 

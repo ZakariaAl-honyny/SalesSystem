@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Responses;
+using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 
 namespace SalesSystem.Desktop.Screens.Customers.Forms;
@@ -45,6 +46,35 @@ public partial class frmCustomerStatement : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط (شاشة عرض/كشف: لا تُعاد بنيتها).
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
+    }
+
+    // ── الثيم الأخضر ───────────────────────────────────────────────────────────
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvStatement);
+        GreenThemeHelper.ApplyGrid(dgvAging);
+
+        // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
+        dgvStatement.ReadOnly = true;
+        dgvStatement.AllowUserToAddRows = false;
+        dgvStatement.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvStatement.MultiSelect = false;
+
+        dgvAging.ReadOnly = true;
+        dgvAging.AllowUserToAddRows = false;
+        dgvAging.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvAging.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
     // ── تحميل الشاشة ───────────────────────────────────────────────────────────
@@ -57,6 +87,8 @@ public partial class frmCustomerStatement : Form
 
         dtpFrom.Value = new DateTime(2026, 9, 1);
         dtpTo.Value = DateTime.Today;
+
+        ApplyGreenTheme();
     }
 
     // ── تحميل البيانات الأساسية من خدمات المحاكاة ─────────────────────────────
@@ -106,7 +138,8 @@ public partial class frmCustomerStatement : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء تحميل البيانات: " + ex.Message,
+            Serilog.Log.Error(ex, "خطأ أثناء تحميل البيانات"); // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            MessageBox.Show("حدث خطأ أثناء تحميل البيانات. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -419,7 +452,8 @@ public partial class frmCustomerStatement : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء إعداد كشف الحساب: " + ex.Message,
+            Serilog.Log.Error(ex, "خطأ أثناء إعداد كشف الحساب"); // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            MessageBox.Show("حدث خطأ أثناء إعداد كشف الحساب. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally

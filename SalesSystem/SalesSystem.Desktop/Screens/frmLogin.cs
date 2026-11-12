@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using SalesSystem.Business.Interfaces.Services;
 using SalesSystem.Common.Enums;
 using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.Models;
@@ -29,12 +28,12 @@ public partial class frmLogin : Form
     private const string AdminPinKey = "AdminPin";
     private const string DefaultAdminPin = "1234";
 
-    private readonly IAuthService _authService;
+    private readonly IAuthApiService _authService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ISessionService _sessionService;
 
     public frmLogin(
-        IAuthService authService,
+        IAuthApiService authService,
         IServiceProvider serviceProvider,
         ISessionService sessionService)
     {

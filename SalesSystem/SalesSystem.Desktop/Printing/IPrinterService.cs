@@ -8,5 +8,13 @@ public interface IPrinterService
     void Print(InvoicePrintDto invoice, IEnumerable<InvoiceItemPrintDto> items, InvoiceTotalsPrintDto totals, StoreInfoPrintDto storeInfo, string? printerName = null);
 }
 
-public interface IInvoicePrinter : IPrinterService { }
+public interface IInvoicePrinter : IPrinterService
+{
+    void PrintSummaryPreview(
+        InvoicePrintDto invoice,
+        IEnumerable<InvoiceItemPrintDto> items,
+        InvoiceTotalsPrintDto totals,
+        StoreInfoPrintDto storeInfo);
+}
+
 public interface IReceiptPrinter : IPrinterService { }

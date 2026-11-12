@@ -24,6 +24,31 @@ public partial class frmListReturns : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
+    private void ApplyGreenTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+
+        GreenThemeHelper.ApplyGrid(dgvSales);
+        GreenThemeHelper.ApplyGrid(dgvPurchases);
+
+        // RULE-N22 — الشبكتان للعرض فقط؛ نُعيد تأكيد سلوكهما (المساعد لا يلمس هذه الخصائص).
+        dgvSales.ReadOnly = true;
+        dgvSales.AllowUserToAddRows = false;
+        dgvSales.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvSales.MultiSelect = false;
+
+        dgvPurchases.ReadOnly = true;
+        dgvPurchases.AllowUserToAddRows = false;
+        dgvPurchases.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvPurchases.MultiSelect = false;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير
     }
 
     // ── Data Loading ─────────────────────────────────────────────────────────
@@ -63,7 +88,9 @@ public partial class frmListReturns : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show("حدث خطأ أثناء تحميل المرتجعات: " + ex.Message,
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "حدث خطأ أثناء تحميل المرتجعات");
+            MessageBox.Show("حدث خطأ أثناء تحميل المرتجعات",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _allSalesReturns = new List<SalesReturnDto>();
             _allPurchaseReturns = new List<PurchaseReturnDto>();
@@ -171,6 +198,7 @@ public partial class frmListReturns : Form
     private void frmListReturns_Load(object sender, EventArgs e)
     {
         _ReloadForm();
+        ApplyGreenTheme();
     }
 
     private void btnClose_Click(object sender, EventArgs e)

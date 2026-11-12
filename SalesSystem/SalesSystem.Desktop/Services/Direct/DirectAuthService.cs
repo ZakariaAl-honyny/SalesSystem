@@ -48,4 +48,17 @@ public class DirectAuthService : IAuthApiService
             return Result.Failure("حدث خطأ غير متوقع أثناء تغيير كلمة المرور.");
         }
     }
+
+    public async Task<Result> ChangePasswordAsync(ChangePasswordRequest request, int userId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.ChangePasswordAsync(request, userId, ct);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "DirectAuthService.ChangePasswordAsync(userId) failed for userId {UserId}", userId);
+            return Result.Failure("حدث خطأ غير متوقع أثناء تغيير كلمة المرور.");
+        }
+    }
 }

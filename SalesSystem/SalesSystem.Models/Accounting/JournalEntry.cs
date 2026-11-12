@@ -51,6 +51,9 @@ public class JournalEntry : DocumentEntity
     /// <summary>User who reviewed this entry (nullable).</summary>
     public int? ReviewedByUserId { get; private set; }
 
+    /// <summary>Navigation to the reviewing user.</summary>
+    public virtual User? ReviewedByUser { get; private set; }
+
     /// <summary>Timestamp when this entry was reviewed (nullable).</summary>
     public DateTime? ReviewedAt { get; private set; }
 

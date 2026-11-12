@@ -95,7 +95,6 @@ static class Program
                     services.AddTransient<ICashBoxReportApiService, DirectCashBoxReportService>();
                                         services.AddTransient<IDashboardApiService, DirectDashboardService>();
                     services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
-                    services.AddTransient<IInventoryApiService, DirectInventoryService>();
                     services.AddTransient<IPersonApiService, DirectPersonService>();
                     services.AddTransient<IPurchaseReportApiService, DirectPurchaseReportService>();
                     services.AddTransient<IReportApiService, DirectReportService>();
@@ -111,6 +110,7 @@ static class Program
                         services.AddTransient<ICustomerReceiptApiService, MockCustomerReceiptApiService>();
                         services.AddTransient<IExpenseApiService, MockExpenseApiService>();
                         services.AddTransient<IInventoryAdjustmentApiService, MockInventoryAdjustmentApiService>();
+                        services.AddTransient<IInventoryApiService, MockInventoryApiService>();
                         services.AddTransient<IInventoryBatchApiService, MockInventoryBatchApiService>();
                         services.AddTransient<IJournalEntryApiService, MockJournalEntryApiService>();
                         services.AddTransient<IProductApiService, MockProductApiService>();
@@ -135,6 +135,7 @@ static class Program
                         services.AddTransient<ICustomerReceiptApiService, DirectCustomerReceiptService>();
                         services.AddTransient<IExpenseApiService, DirectExpenseService>();
                         services.AddTransient<IInventoryAdjustmentApiService, DirectInventoryAdjustmentService>();
+                        services.AddTransient<IInventoryApiService, DirectInventoryService>();
                         services.AddTransient<IInventoryBatchApiService, DirectInventoryBatchService>();
                         services.AddTransient<IJournalEntryApiService, DirectJournalEntryService>();
                         services.AddTransient<IProductApiService, DirectProductService>();
@@ -236,7 +237,7 @@ static class Program
                     // services.AddTransient<frmAddUpdateCustomer>();
                     // services.AddTransient<frmAddUpdateSupplier>();
                     // services.AddTransient<frmAddUpdateProduct>();
-                    services.AddTransient<frmSalesInvoice>();
+                    services.AddTransient<frmAddUpdateSalesInvoice>();
                     services.AddTransient<frmPurchaseInvoice>();
                     services.AddTransient<frmSalesReturn>();
                     services.AddTransient<frmPurchaseReturn>();

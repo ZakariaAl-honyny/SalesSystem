@@ -67,7 +67,7 @@ public class CashBoxService : ICashBoxService
     {
         try
         {
-            var box = await _uow.CashBoxes.FirstOrDefaultAsync(
+            var box = await _uow.CashBoxes.FirstOrDefaultIgnoreFiltersAsync(
                 b => b.Id == id, ct, "Account", "Branch");
             if (box == null)
                 return Result<CashBoxDto>.Failure("الصندوق النقدي غير موجود", ErrorCodes.NotFound);
@@ -232,7 +232,7 @@ public class CashBoxService : ICashBoxService
     public async Task<Result<CashBoxDto>> UpdateAsync(int id, UpdateCashBoxRequest request, int userId, CancellationToken ct)
     {
         // ── Guard checks stay OUTSIDE the transaction ──
-        var box = await _uow.CashBoxes.FirstOrDefaultAsync(
+        var box = await _uow.CashBoxes.FirstOrDefaultIgnoreFiltersAsync(
             b => b.Id == id, ct, "Account");
         if (box == null)
             return Result<CashBoxDto>.Failure("الصندوق النقدي غير موجود", ErrorCodes.NotFound);

@@ -28,6 +28,9 @@ public class SystemAccountMapping : Entity
     /// </summary>
     public short? BranchId { get; private set; }
 
+    /// <summary>Navigation property to the Branch (nullable override).</summary>
+    public virtual Branch? Branch { get; private set; }
+
     private SystemAccountMapping() { } // EF Core
 
     /// <summary>

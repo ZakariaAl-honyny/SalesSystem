@@ -18,6 +18,7 @@ public class SalesInvoiceLine : Entity
     public decimal? CostInBaseCurrency { get; private set; }
     public decimal UnitCost { get; private set; }
     public decimal ProfitAmount { get; private set; }
+    public DateTime? ExpiryDate { get; private set; }
 
     public virtual SalesInvoice? SalesInvoice { get; private set; }
     public virtual Product? Product { get; private set; }
@@ -31,7 +32,8 @@ public class SalesInvoiceLine : Entity
         decimal quantity,
         decimal unitPrice,
         DiscountType discountType = DiscountType.Amount,
-        decimal? discountRate = null)
+        decimal? discountRate = null,
+        DateTime? expiryDate = null)
     {
         if (productId <= 0)
             throw new DomainException("المنتج مطلوب.");
@@ -51,12 +53,15 @@ public class SalesInvoiceLine : Entity
             Quantity = quantity,
             UnitPrice = unitPrice,
             DiscountType = discountType,
-            DiscountRate = discountType == DiscountType.Percentage ? discountRate : null
+            DiscountRate = discountType == DiscountType.Percentage ? discountRate : null,
+            ExpiryDate = expiryDate
         };
 
         item.RecalculateLineTotal();
         return item;
     }
+
+    public void SetExpiryDate(DateTime? expiryDate) => ExpiryDate = expiryDate;
 
     public void RecalculateLineTotal()
     {

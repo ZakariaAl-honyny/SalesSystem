@@ -26,6 +26,7 @@ public class ProductCategoryConfiguration : IEntityTypeConfiguration<ProductCate
             .HasForeignKey(pc => pc.BranchId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(pc => pc.IsActive);
     }
 }
