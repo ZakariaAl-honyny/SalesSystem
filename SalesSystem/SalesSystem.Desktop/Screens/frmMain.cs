@@ -54,14 +54,6 @@ public partial class frmMain : Form
     /// </summary>
     private void ApplyMvpMenuVisibility()
     {
-        // ── المنتجات ─────────────────────────────────────────────────────────
-        msbtnProductCategories.Visible = false;     // MVP: مخفي (V2)
-
-        // ── إضافة سريعة (أصبحت داخل شاشات الـ Master) ───────────────────────
-        msbtnAddProduct.Visible = false;            // MVP: مخفي — add handled inside Master form
-        msbtnAddCustomer.Visible = false;           // MVP: مخفي — add handled inside Master form
-        msbtnAddSupplier.Visible = false;           // MVP: مخفي — add handled inside Master form
-
         // ── المبيعات ────────────────────────────────────────────────────────
         msbtnCurrencySelection.Visible = false;     // MVP: محذوف (وحدة العملات الوهمية) — يبقى مخفياً
 
@@ -109,38 +101,17 @@ public partial class frmMain : Form
     private void msbtnManageProducts_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductMaster>());
 
-    private void msbtnAddProduct_Click(object sender, EventArgs e)
-    {
-        // MVP: مخفي — add handled inside Master form
-        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateProduct>());
-    }
-
     private void msbtnManageCustomers_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCustomerMaster>());
 
-    private void msbtnAddCustomer_Click(object sender, EventArgs e)
-    {
-        // MVP: مخفي — add handled inside Master form
-        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateCustomer>());
-    }
-
     private void msbtnManageSuppliers_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSupplierMaster>());
-
-    private void msbtnAddSupplier_Click(object sender, EventArgs e)
-    {
-        // MVP: مخفي — add handled inside Master form
-        // clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateSupplier>());
-    }
 
     private void msbtnManageCategories_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCategoryMaster>());
 
     private void msbtnManageUnits_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUnitMaster>());
-
-    private void msbtnProductCategories_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCategoryMaster>());
 
     // ── المخزون (Warehouse / Stock Transfers / Inventory) ────────────────────
 
@@ -150,8 +121,17 @@ public partial class frmMain : Form
     private void msbtnInventoryMovement_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventoryList>());
 
+    private void msbtnInventoryTransactions_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryTransactions>());
+
+    private void msbtnInventoryBatches_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryBatches>());
+
     private void msbtnInventoryAdjustments_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryAdjustments>());
+
+    private void msbtnOpeningStock_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmOpeningStock>());
 
     private void msbtnInventoryCounts_Click(object sender, EventArgs e)
     {
@@ -186,6 +166,9 @@ public partial class frmMain : Form
     private void msbtnSalesReturn_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesReturn>());
 
+    private void msbtnReturnsList_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListReturns>());
+
     // ── المبيعات — نقطة البيع وأدوات الفاتورة (جديد) ────────────────
 
     private void msbtnPOS_Click(object sender, EventArgs e)
@@ -202,6 +185,9 @@ public partial class frmMain : Form
 
     private void msbtnCashBoxes_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxMaster>());
+
+    private void msbtnCashBoxTransactions_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxTransactions>());
 
     private void msbtnExpenses_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListExpenses>());

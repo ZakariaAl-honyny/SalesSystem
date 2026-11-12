@@ -235,24 +235,11 @@ static class Program
                     // UI Components - Essential Forms
                     services.AddTransient<frmLogin>();
                     services.AddTransient<frmMain>();
-                    // MVP: مخفي — replaced by Master form
-                    // services.AddTransient<frmAddUpdateCategory>();
-                    // services.AddTransient<frmAddUpdateUnit>();
-                    services.AddTransient<frmAddUpdateWarehouse>();
-                    // MVP: مخفي — replaced by Master form
-                    // services.AddTransient<frmAddUpdateCustomer>();
-                    // services.AddTransient<frmAddUpdateSupplier>();
-                    // services.AddTransient<frmAddUpdateProduct>();
                     services.AddTransient<frmAddUpdateSalesInvoice>();
                     services.AddTransient<frmPurchaseInvoice>();
                     services.AddTransient<frmSalesReturn>();
                     services.AddTransient<frmPurchaseReturn>();
-                    services.AddTransient<frmListReturns>();
-                    // MVP: مخفي — replaced by Master form
-                    // services.AddTransient<frmListWarehouses>();
                     services.AddTransient<frmWarehouseMaster>();
-                    // MVP: مخفي — replaced by Master form
-                    // services.AddTransient<frmListUnits>();
                     services.AddTransient<frmListSales>();
                     services.AddTransient<frmListPurchases>();
                     
@@ -265,13 +252,8 @@ static class Program
                     services.AddTransient<frmUnitMaster>();
                     services.AddTransient<frmCustomerMaster>();
                     services.AddTransient<frmSupplierMaster>();
-                    // MVP: مخفي — replaced by Master form
-                    // services.AddTransient<frmListProducts>();
-                    // services.AddTransient<frmListCustomers>();
-                    // services.AddTransient<frmListSuppliers>();
                     services.AddTransient<frmInventoryList>();
                     services.AddTransient<frmListPayments>();
-                    // services.AddTransient<frmUpdateCheck>(); // V2: update-check removed
                     // reports (31 screens — RULE-N70/N71) — one screen = one report
                     services.AddTransient<frmSalesReport>();
                     services.AddTransient<frmPurchasesReport>();
@@ -320,10 +302,7 @@ static class Program
                     services.AddTransient<frmOpeningStock>();
 
                     // CashBoxes Module
-                    // MVP: مخفي — replaced by Master form
-                    // services.AddTransient<frmListCashBoxes>();
                     services.AddTransient<frmCashBoxMaster>();
-                    services.AddTransient<frmAddUpdateCashBox>();
                     services.AddTransient<frmCashBoxTransactions>();
 
                     // Expenses Module
@@ -339,7 +318,9 @@ static class Program
 
                     // Supplier Payments Module
                     services.AddTransient<frmListSupplierPayments>();
-                    services.AddTransient<frmAddUpdateSupplierPayment>();
+
+                    // Returns Module — document list (RULE-N101: keep frmList* + frmAddUpdate*)
+                    services.AddTransient<frmListReturns>();
 
                     // Payment Dialogs
                     services.AddTransient<frmSupplierPaymentDialog>();

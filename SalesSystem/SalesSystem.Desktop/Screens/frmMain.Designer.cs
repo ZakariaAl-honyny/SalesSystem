@@ -31,19 +31,18 @@
             // ── المنتجات ────────────────────────────────────────────────────────────────────────────────
             msBasis = new ToolStripMenuItem();
             msbtnManageProducts = new ToolStripMenuItem();
-            msbtnAddProduct = new ToolStripMenuItem();
             msbtnManageCustomers = new ToolStripMenuItem();
-            msbtnAddCustomer = new ToolStripMenuItem();
             msbtnManageSuppliers = new ToolStripMenuItem();
-            msbtnAddSupplier = new ToolStripMenuItem();
             msbtnManageCategories = new ToolStripMenuItem();
             msbtnManageUnits = new ToolStripMenuItem();
-            msbtnProductCategories = new ToolStripMenuItem();
             // ── المخزون ──────────────────────────────────────────────────────────────────────────────
             msStore = new ToolStripMenuItem();
             msbtnManageWarehouses = new ToolStripMenuItem();
             msbtnInventoryMovement = new ToolStripMenuItem();
             msbtnInventoryAdjustments = new ToolStripMenuItem();
+            msbtnInventoryTransactions = new ToolStripMenuItem();
+            msbtnInventoryBatches = new ToolStripMenuItem();
+            msbtnOpeningStock = new ToolStripMenuItem();
             // ── المشتريات ──────────────────────────────────────────────────────────────────────────
             msBuy = new ToolStripMenuItem();
             msbtnManagePurchases = new ToolStripMenuItem();
@@ -54,10 +53,12 @@
             msbtnManageSales = new ToolStripMenuItem();
             msbtnSalesInvoice = new ToolStripMenuItem();
             msbtnSalesReturn = new ToolStripMenuItem();
+            msbtnReturnsList = new ToolStripMenuItem();
             // ── الخزينة ──────────────────────────────────────────────────────────────────────────────
             msRevenue = new ToolStripMenuItem();
             msbtnManagePayments = new ToolStripMenuItem();
             msbtnCashBoxes = new ToolStripMenuItem();
+            msbtnCashBoxTransactions = new ToolStripMenuItem();
             msbtnExpenses = new ToolStripMenuItem();
             msbtnCustomerReceipts = new ToolStripMenuItem();
             msbtnSupplierPayments = new ToolStripMenuItem();
@@ -187,9 +188,7 @@
             // msBasis
             // 
             msBasis.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnManageProducts, msbtnAddProduct,
-                new ToolStripSeparator(),
-                msbtnProductCategories
+                msbtnManageProducts
             });
             msBasis.Name = "msBasis";
             msBasis.Size = new Size(105, 33);
@@ -202,13 +201,6 @@
             msbtnManageProducts.Text = "إدارة المنتجات";
             msbtnManageProducts.Click += msbtnManageProducts_Click;
             // 
-            // msbtnAddProduct
-            // 
-            msbtnAddProduct.Name = "msbtnAddProduct";
-            msbtnAddProduct.Size = new Size(300, 38);
-            msbtnAddProduct.Text = "إضافة منتج جديد";
-            msbtnAddProduct.Click += msbtnAddProduct_Click;
-            // 
             // msbtnManageCustomers
             // 
             msbtnManageCustomers.Name = "msbtnManageCustomers";
@@ -216,26 +208,12 @@
             msbtnManageCustomers.Text = "إدارة العملاء";
             msbtnManageCustomers.Click += msbtnManageCustomers_Click;
             // 
-            // msbtnAddCustomer
-            // 
-            msbtnAddCustomer.Name = "msbtnAddCustomer";
-            msbtnAddCustomer.Size = new Size(300, 38);
-            msbtnAddCustomer.Text = "إضافة عميل جديد";
-            msbtnAddCustomer.Click += msbtnAddCustomer_Click;
-            // 
             // msbtnManageSuppliers
             // 
             msbtnManageSuppliers.Name = "msbtnManageSuppliers";
             msbtnManageSuppliers.Size = new Size(300, 38);
             msbtnManageSuppliers.Text = "إدارة الموردين";
             msbtnManageSuppliers.Click += msbtnManageSuppliers_Click;
-            // 
-            // msbtnAddSupplier
-            // 
-            msbtnAddSupplier.Name = "msbtnAddSupplier";
-            msbtnAddSupplier.Size = new Size(300, 38);
-            msbtnAddSupplier.Text = "إضافة مورد جديد";
-            msbtnAddSupplier.Click += msbtnAddSupplier_Click;
             // 
             // msbtnManageCategories
             // 
@@ -251,20 +229,14 @@
             msbtnManageUnits.Text = "الوحدات";
             msbtnManageUnits.Click += msbtnManageUnits_Click;
             // 
-            // msbtnProductCategories
-            // 
-            msbtnProductCategories.Name = "msbtnProductCategories";
-            msbtnProductCategories.Size = new Size(300, 38);
-            msbtnProductCategories.Text = "تصنيفات المنتجات";
-            msbtnProductCategories.Click += msbtnProductCategories_Click;
-            // 
             // msStore
             // 
             msStore.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnInventory,
                 new ToolStripSeparator(),
                 msbtnManageWarehouses, msbtnInventoryMovement,
-                msbtnInventoryAdjustments
+                msbtnInventoryTransactions, msbtnInventoryBatches,
+                msbtnInventoryAdjustments, msbtnOpeningStock
             });
             msStore.Name = "msStore";
             msStore.Size = new Size(95, 33);
@@ -298,6 +270,27 @@
             msbtnInventoryAdjustments.Text = "تعديل المخزون";
             msbtnInventoryAdjustments.Click += msbtnInventoryAdjustments_Click;
             // 
+            // msbtnInventoryTransactions
+            // 
+            msbtnInventoryTransactions.Name = "msbtnInventoryTransactions";
+            msbtnInventoryTransactions.Size = new Size(300, 38);
+            msbtnInventoryTransactions.Text = "حركة المخزون التفصيلية";
+            msbtnInventoryTransactions.Click += msbtnInventoryTransactions_Click;
+            // 
+            // msbtnInventoryBatches
+            // 
+            msbtnInventoryBatches.Name = "msbtnInventoryBatches";
+            msbtnInventoryBatches.Size = new Size(300, 38);
+            msbtnInventoryBatches.Text = "دفعات المخزون (الصلاحية)";
+            msbtnInventoryBatches.Click += msbtnInventoryBatches_Click;
+            // 
+            // msbtnOpeningStock
+            // 
+            msbtnOpeningStock.Name = "msbtnOpeningStock";
+            msbtnOpeningStock.Size = new Size(300, 38);
+            msbtnOpeningStock.Text = "بضاعة أول المدة";
+            msbtnOpeningStock.Click += msbtnOpeningStock_Click;
+            // 
             // msBuy
             // 
             msBuy.DropDownItems.AddRange(new ToolStripItem[] {
@@ -305,7 +298,7 @@
                 new ToolStripSeparator(),
                 msbtnPurchaseInvoice, msbtnPurchaseReturn, msbtnManagePurchases,
                 new ToolStripSeparator(),
-                msbtnManageSuppliers, msbtnAddSupplier,
+                msbtnManageSuppliers,
                 new ToolStripSeparator(),
                 msbtnSupplierPayments
             });
@@ -346,11 +339,11 @@
             msSale.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnPOS,
                 new ToolStripSeparator(),
-                msbtnSalesInvoice, msbtnManageSales, msbtnSalesReturn,
+                msbtnSalesInvoice, msbtnManageSales, msbtnSalesReturn, msbtnReturnsList,
                 new ToolStripSeparator(),
                 msbtnCurrencySelection,
                 new ToolStripSeparator(),
-                msbtnManageCustomers, msbtnAddCustomer,
+                msbtnManageCustomers,
                 new ToolStripSeparator(),
                 msbtnCustomerReceipts, msbtnManagePayments
             });
@@ -379,6 +372,13 @@
             msbtnSalesReturn.Text = "مرتجع بيع";
             msbtnSalesReturn.Click += msbtnSalesReturn_Click;
             // 
+            // msbtnReturnsList
+            // 
+            msbtnReturnsList.Name = "msbtnReturnsList";
+            msbtnReturnsList.Size = new Size(300, 38);
+            msbtnReturnsList.Text = "قائمة المرتجعات";
+            msbtnReturnsList.Click += msbtnReturnsList_Click;
+            // 
             // msbtnPOS
             // 
             msbtnPOS.Name = "msbtnPOS";
@@ -396,7 +396,7 @@
             // msRevenue
             // 
             msRevenue.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnCashBoxes, msbtnExpenses
+                msbtnCashBoxes, msbtnCashBoxTransactions, msbtnExpenses
             });
             msRevenue.Name = "msRevenue";
             msRevenue.Size = new Size(95, 33);
@@ -415,6 +415,13 @@
             msbtnCashBoxes.Size = new Size(300, 38);
             msbtnCashBoxes.Text = "صناديق النقدية";
             msbtnCashBoxes.Click += msbtnCashBoxes_Click;
+            // 
+            // msbtnCashBoxTransactions
+            // 
+            msbtnCashBoxTransactions.Name = "msbtnCashBoxTransactions";
+            msbtnCashBoxTransactions.Size = new Size(300, 38);
+            msbtnCashBoxTransactions.Text = "حركات الصندوق";
+            msbtnCashBoxTransactions.Click += msbtnCashBoxTransactions_Click;
             // 
             // msbtnExpenses
             // 
@@ -893,18 +900,17 @@
         private ToolStripMenuItem msbtnEmployees;
         private ToolStripMenuItem msBasis;
         private ToolStripMenuItem msbtnManageProducts;
-        private ToolStripMenuItem msbtnAddProduct;
         private ToolStripMenuItem msbtnManageCustomers;
-        private ToolStripMenuItem msbtnAddCustomer;
         private ToolStripMenuItem msbtnManageSuppliers;
-        private ToolStripMenuItem msbtnAddSupplier;
         private ToolStripMenuItem msbtnManageCategories;
         private ToolStripMenuItem msbtnManageUnits;
-        private ToolStripMenuItem msbtnProductCategories;
         private ToolStripMenuItem msStore;
         private ToolStripMenuItem msbtnManageWarehouses;
         private ToolStripMenuItem msbtnInventoryMovement;
         private ToolStripMenuItem msbtnInventoryAdjustments;
+        private ToolStripMenuItem msbtnInventoryTransactions;
+        private ToolStripMenuItem msbtnInventoryBatches;
+        private ToolStripMenuItem msbtnOpeningStock;
         private ToolStripMenuItem msBuy;
         private ToolStripMenuItem msbtnManagePurchases;
         private ToolStripMenuItem msbtnPurchaseInvoice;
@@ -913,9 +919,11 @@
         private ToolStripMenuItem msbtnManageSales;
         private ToolStripMenuItem msbtnSalesInvoice;
         private ToolStripMenuItem msbtnSalesReturn;
+        private ToolStripMenuItem msbtnReturnsList;
         private ToolStripMenuItem msRevenue;
         private ToolStripMenuItem msbtnManagePayments;
         private ToolStripMenuItem msbtnCashBoxes;
+        private ToolStripMenuItem msbtnCashBoxTransactions;
         private ToolStripMenuItem msbtnExpenses;
         private ToolStripMenuItem msbtnCustomerReceipts;
         private ToolStripMenuItem msbtnSupplierPayments;
