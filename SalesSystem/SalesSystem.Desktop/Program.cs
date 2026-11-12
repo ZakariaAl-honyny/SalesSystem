@@ -91,13 +91,13 @@ static class Program
                     // Interfaces with NO mock — always Direct:
                     services.AddTransient<IAuthApiService, DirectAuthService>();
                     services.AddTransient<IBackupApiService, DirectBackupService>();
-                    services.AddTransient<IBranchApiService, DirectBranchApiService>();
                     services.AddTransient<IPersonApiService, DirectPersonService>();
                     
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
                         services.AddTransient<IAccountApiService, MockAccountApiService>();
+                        services.AddTransient<IBranchApiService, MockBranchApiService>();
                         services.AddTransient<ICashBoxApiService, MockCashBoxApiService>();
                         services.AddTransient<ICashBoxReportApiService, MockCashBoxReportApiService>();
                         services.AddTransient<ICategoryApiService, MockCategoryApiService>();
@@ -129,6 +129,7 @@ static class Program
                     else
                     {
                         services.AddTransient<IAccountApiService, DirectAccountService>();
+                        services.AddTransient<IBranchApiService, DirectBranchApiService>();
                         services.AddTransient<ICashBoxApiService, DirectCashBoxService>();
                         services.AddTransient<ICashBoxReportApiService, DirectCashBoxReportService>();
                         services.AddTransient<ICategoryApiService, DirectCategoryService>();
