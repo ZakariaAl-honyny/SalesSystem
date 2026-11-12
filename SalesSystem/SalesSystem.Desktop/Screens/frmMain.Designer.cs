@@ -65,8 +65,46 @@
             msData = new ToolStripMenuItem();
             msbtnManageUsers = new ToolStripMenuItem();
             // ── تقارير ────────────────────────────────────────────────────────────────────────────────
+            // RULE-N70/N72: قائمة التقارير مقسّمة إلى 6 تصنيفات ثابتة، تقرير واحد = شاشة واحدة
             msReport = new ToolStripMenuItem();
-            msbtnReports = new ToolStripMenuItem();
+            msReportSales = new ToolStripMenuItem();
+            // ملاحظة: اسم صنف "المبيعات" = msReportSalesReport لأن msReportSales محجوز لعنصر التصنيف
+            msReportSalesReport = new ToolStripMenuItem();
+            msReportDailySales = new ToolStripMenuItem();
+            msReportSalesByCustomer = new ToolStripMenuItem();
+            msReportSalesByProduct = new ToolStripMenuItem();
+            msReportSalesByCategory = new ToolStripMenuItem();
+            msReportProfitByCustomer = new ToolStripMenuItem();
+            msReportProductProfitability = new ToolStripMenuItem();
+            msReportReturns = new ToolStripMenuItem();
+            msReportPurchases = new ToolStripMenuItem();
+            msReportPurchasesReport = new ToolStripMenuItem();
+            msReportPurchasesBySupplier = new ToolStripMenuItem();
+            msReportPurchasesByProduct = new ToolStripMenuItem();
+            msReportInventory = new ToolStripMenuItem();
+            msReportInventoryReport = new ToolStripMenuItem();
+            msReportStockBalance = new ToolStripMenuItem();
+            msReportWarehouseMovement = new ToolStripMenuItem();
+            msReportDetailedStockLedger = new ToolStripMenuItem();
+            msReportProductMovement = new ToolStripMenuItem();
+            msReportLowStock = new ToolStripMenuItem();
+            msReportExpiredProducts = new ToolStripMenuItem();
+            msReportFinance = new ToolStripMenuItem();
+            msReportTrialBalance = new ToolStripMenuItem();
+            msReportGeneralLedger = new ToolStripMenuItem();
+            msReportIncomeStatement = new ToolStripMenuItem();
+            msReportBalanceSheet = new ToolStripMenuItem();
+            msReportCashFlow = new ToolStripMenuItem();
+            msReportWorkingCapital = new ToolStripMenuItem();
+            msReportVat = new ToolStripMenuItem();
+            msReportAccountStatement = new ToolStripMenuItem();
+            msReportParties = new ToolStripMenuItem();
+            msReportCustomerBalance = new ToolStripMenuItem();
+            msReportSupplierBalance = new ToolStripMenuItem();
+            msReportAging = new ToolStripMenuItem();
+            msReportCashBox = new ToolStripMenuItem();
+            msReportCashBoxSummary = new ToolStripMenuItem();
+            msReportDailyClosure = new ToolStripMenuItem();
             // ── الإعدادات ────────────────────────────────────────────────────────────────────────────
             msSettings = new ToolStripMenuItem();
             msbtnSettings = new ToolStripMenuItem();
@@ -88,7 +126,6 @@
             // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
             msbtnPurchases = new ToolStripMenuItem();
             msbtnInventory = new ToolStripMenuItem();
-            msbtnReportsDashboard = new ToolStripMenuItem();
             // ── المحاسبة (جديد) ───────────────────────────────────────────────────────────────────
             msAccounting = new ToolStripMenuItem();
             msbtnChartOfAccounts = new ToolStripMenuItem();
@@ -450,27 +487,312 @@
             // msReport
             // 
             msReport.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnReportsDashboard,
-                new ToolStripSeparator(),
-                msbtnReports
+                msReportSales,
+                msReportPurchases,
+                msReportInventory,
+                msReportFinance,
+                msReportParties,
+                msReportCashBox
             });
             msReport.Name = "msReport";
             msReport.Size = new Size(79, 33);
             msReport.Text = "تقارير";
             // 
-            // msbtnReportsDashboard
+            // msReportSales
             // 
-            msbtnReportsDashboard.Name = "msbtnReportsDashboard";
-            msbtnReportsDashboard.Size = new Size(300, 38);
-            msbtnReportsDashboard.Text = "لوحة التقارير";
-            msbtnReportsDashboard.Click += msbtnReportsDashboard_Click;
+            msReportSales.DropDownItems.AddRange(new ToolStripItem[] {
+                msReportSalesReport,
+                msReportDailySales,
+                msReportSalesByCustomer,
+                msReportSalesByProduct,
+                msReportSalesByCategory,
+                msReportProfitByCustomer,
+                msReportProductProfitability,
+                msReportReturns
+            });
+            msReportSales.Name = "msReportSales";
+            msReportSales.Size = new Size(300, 38);
+            msReportSales.Text = "تقارير المبيعات";
             // 
-            // msbtnReports
+            // msReportSalesReport
             // 
-            msbtnReports.Name = "msbtnReports";
-            msbtnReports.Size = new Size(300, 38);
-            msbtnReports.Text = "التقارير";
-            msbtnReports.Click += msbtnReports_Click;
+            msReportSalesReport.Name = "msReportSalesReport";
+            msReportSalesReport.Size = new Size(280, 34);
+            msReportSalesReport.Text = "المبيعات";
+            msReportSalesReport.Click += msReportSalesReport_Click;
+            // 
+            // msReportDailySales
+            // 
+            msReportDailySales.Name = "msReportDailySales";
+            msReportDailySales.Size = new Size(280, 34);
+            msReportDailySales.Text = "المبيعات اليومية";
+            msReportDailySales.Click += msReportDailySales_Click;
+            // 
+            // msReportSalesByCustomer
+            // 
+            msReportSalesByCustomer.Name = "msReportSalesByCustomer";
+            msReportSalesByCustomer.Size = new Size(280, 34);
+            msReportSalesByCustomer.Text = "المبيعات حسب العميل";
+            msReportSalesByCustomer.Click += msReportSalesByCustomer_Click;
+            // 
+            // msReportSalesByProduct
+            // 
+            msReportSalesByProduct.Name = "msReportSalesByProduct";
+            msReportSalesByProduct.Size = new Size(280, 34);
+            msReportSalesByProduct.Text = "المبيعات حسب الصنف";
+            msReportSalesByProduct.Click += msReportSalesByProduct_Click;
+            // 
+            // msReportSalesByCategory
+            // 
+            msReportSalesByCategory.Name = "msReportSalesByCategory";
+            msReportSalesByCategory.Size = new Size(280, 34);
+            msReportSalesByCategory.Text = "المبيعات حسب التصنيف";
+            msReportSalesByCategory.Click += msReportSalesByCategory_Click;
+            // 
+            // msReportProfitByCustomer
+            // 
+            msReportProfitByCustomer.Name = "msReportProfitByCustomer";
+            msReportProfitByCustomer.Size = new Size(280, 34);
+            msReportProfitByCustomer.Text = "الربحية حسب العميل";
+            msReportProfitByCustomer.Click += msReportProfitByCustomer_Click;
+            // 
+            // msReportProductProfitability
+            // 
+            msReportProductProfitability.Name = "msReportProductProfitability";
+            msReportProductProfitability.Size = new Size(280, 34);
+            msReportProductProfitability.Text = "ربحية الأصناف";
+            msReportProductProfitability.Click += msReportProductProfitability_Click;
+            // 
+            // msReportReturns
+            // 
+            msReportReturns.Name = "msReportReturns";
+            msReportReturns.Size = new Size(280, 34);
+            msReportReturns.Text = "المرتجعات";
+            msReportReturns.Click += msReportReturns_Click;
+            // 
+            // msReportPurchases
+            // 
+            msReportPurchases.DropDownItems.AddRange(new ToolStripItem[] {
+                msReportPurchasesReport,
+                msReportPurchasesBySupplier,
+                msReportPurchasesByProduct
+            });
+            msReportPurchases.Name = "msReportPurchases";
+            msReportPurchases.Size = new Size(300, 38);
+            msReportPurchases.Text = "تقارير المشتريات";
+            // 
+            // msReportPurchasesReport
+            // 
+            msReportPurchasesReport.Name = "msReportPurchasesReport";
+            msReportPurchasesReport.Size = new Size(280, 34);
+            msReportPurchasesReport.Text = "المشتريات";
+            msReportPurchasesReport.Click += msReportPurchasesReport_Click;
+            // 
+            // msReportPurchasesBySupplier
+            // 
+            msReportPurchasesBySupplier.Name = "msReportPurchasesBySupplier";
+            msReportPurchasesBySupplier.Size = new Size(280, 34);
+            msReportPurchasesBySupplier.Text = "المشتريات حسب المورد";
+            msReportPurchasesBySupplier.Click += msReportPurchasesBySupplier_Click;
+            // 
+            // msReportPurchasesByProduct
+            // 
+            msReportPurchasesByProduct.Name = "msReportPurchasesByProduct";
+            msReportPurchasesByProduct.Size = new Size(280, 34);
+            msReportPurchasesByProduct.Text = "المشتريات حسب الصنف";
+            msReportPurchasesByProduct.Click += msReportPurchasesByProduct_Click;
+            // 
+            // msReportInventory
+            // 
+            msReportInventory.DropDownItems.AddRange(new ToolStripItem[] {
+                msReportInventoryReport,
+                msReportStockBalance,
+                msReportWarehouseMovement,
+                msReportDetailedStockLedger,
+                msReportProductMovement,
+                msReportLowStock,
+                msReportExpiredProducts
+            });
+            msReportInventory.Name = "msReportInventory";
+            msReportInventory.Size = new Size(300, 38);
+            msReportInventory.Text = "تقارير المخزون";
+            // 
+            // msReportInventoryReport
+            // 
+            msReportInventoryReport.Name = "msReportInventoryReport";
+            msReportInventoryReport.Size = new Size(280, 34);
+            msReportInventoryReport.Text = "المخزون";
+            msReportInventoryReport.Click += msReportInventoryReport_Click;
+            // 
+            // msReportStockBalance
+            // 
+            msReportStockBalance.Name = "msReportStockBalance";
+            msReportStockBalance.Size = new Size(280, 34);
+            msReportStockBalance.Text = "أرصدة المخزون";
+            msReportStockBalance.Click += msReportStockBalance_Click;
+            // 
+            // msReportWarehouseMovement
+            // 
+            msReportWarehouseMovement.Name = "msReportWarehouseMovement";
+            msReportWarehouseMovement.Size = new Size(280, 34);
+            msReportWarehouseMovement.Text = "حركة المستودعات";
+            msReportWarehouseMovement.Click += msReportWarehouseMovement_Click;
+            // 
+            // msReportDetailedStockLedger
+            // 
+            msReportDetailedStockLedger.Name = "msReportDetailedStockLedger";
+            msReportDetailedStockLedger.Size = new Size(280, 34);
+            msReportDetailedStockLedger.Text = "دفتر حركة المخزون التفصيلي";
+            msReportDetailedStockLedger.Click += msReportDetailedStockLedger_Click;
+            // 
+            // msReportProductMovement
+            // 
+            msReportProductMovement.Name = "msReportProductMovement";
+            msReportProductMovement.Size = new Size(280, 34);
+            msReportProductMovement.Text = "حركة صنف";
+            msReportProductMovement.Click += msReportProductMovement_Click;
+            // 
+            // msReportLowStock
+            // 
+            msReportLowStock.Name = "msReportLowStock";
+            msReportLowStock.Size = new Size(280, 34);
+            msReportLowStock.Text = "النواقص";
+            msReportLowStock.Click += msReportLowStock_Click;
+            // 
+            // msReportExpiredProducts
+            // 
+            msReportExpiredProducts.Name = "msReportExpiredProducts";
+            msReportExpiredProducts.Size = new Size(280, 34);
+            msReportExpiredProducts.Text = "منتهي الصلاحية";
+            msReportExpiredProducts.Click += msReportExpiredProducts_Click;
+            // 
+            // msReportFinance
+            // 
+            msReportFinance.DropDownItems.AddRange(new ToolStripItem[] {
+                msReportTrialBalance,
+                msReportGeneralLedger,
+                msReportIncomeStatement,
+                msReportBalanceSheet,
+                msReportCashFlow,
+                msReportWorkingCapital,
+                msReportVat,
+                msReportAccountStatement
+            });
+            msReportFinance.Name = "msReportFinance";
+            msReportFinance.Size = new Size(300, 38);
+            msReportFinance.Text = "التقارير المالية والمحاسبية";
+            // 
+            // msReportTrialBalance
+            // 
+            msReportTrialBalance.Name = "msReportTrialBalance";
+            msReportTrialBalance.Size = new Size(280, 34);
+            msReportTrialBalance.Text = "ميزان المراجعة";
+            msReportTrialBalance.Click += msReportTrialBalance_Click;
+            // 
+            // msReportGeneralLedger
+            // 
+            msReportGeneralLedger.Name = "msReportGeneralLedger";
+            msReportGeneralLedger.Size = new Size(280, 34);
+            msReportGeneralLedger.Text = "دفتر الأستاذ";
+            msReportGeneralLedger.Click += msReportGeneralLedger_Click;
+            // 
+            // msReportIncomeStatement
+            // 
+            msReportIncomeStatement.Name = "msReportIncomeStatement";
+            msReportIncomeStatement.Size = new Size(280, 34);
+            msReportIncomeStatement.Text = "قائمة الدخل";
+            msReportIncomeStatement.Click += msReportIncomeStatement_Click;
+            // 
+            // msReportBalanceSheet
+            // 
+            msReportBalanceSheet.Name = "msReportBalanceSheet";
+            msReportBalanceSheet.Size = new Size(280, 34);
+            msReportBalanceSheet.Text = "الميزانية العمومية";
+            msReportBalanceSheet.Click += msReportBalanceSheet_Click;
+            // 
+            // msReportCashFlow
+            // 
+            msReportCashFlow.Name = "msReportCashFlow";
+            msReportCashFlow.Size = new Size(280, 34);
+            msReportCashFlow.Text = "التدفقات النقدية";
+            msReportCashFlow.Click += msReportCashFlow_Click;
+            // 
+            // msReportWorkingCapital
+            // 
+            msReportWorkingCapital.Name = "msReportWorkingCapital";
+            msReportWorkingCapital.Size = new Size(280, 34);
+            msReportWorkingCapital.Text = "رأس المال العامل";
+            msReportWorkingCapital.Click += msReportWorkingCapital_Click;
+            // 
+            // msReportVat
+            // 
+            msReportVat.Name = "msReportVat";
+            msReportVat.Size = new Size(280, 34);
+            msReportVat.Text = "ضريبة القيمة المضافة";
+            msReportVat.Click += msReportVat_Click;
+            // 
+            // msReportAccountStatement
+            // 
+            msReportAccountStatement.Name = "msReportAccountStatement";
+            msReportAccountStatement.Size = new Size(280, 34);
+            msReportAccountStatement.Text = "كشف حساب";
+            msReportAccountStatement.Click += msReportAccountStatement_Click;
+            // 
+            // msReportParties
+            // 
+            msReportParties.DropDownItems.AddRange(new ToolStripItem[] {
+                msReportCustomerBalance,
+                msReportSupplierBalance,
+                msReportAging
+            });
+            msReportParties.Name = "msReportParties";
+            msReportParties.Size = new Size(300, 38);
+            msReportParties.Text = "تقارير العملاء والموردين";
+            // 
+            // msReportCustomerBalance
+            // 
+            msReportCustomerBalance.Name = "msReportCustomerBalance";
+            msReportCustomerBalance.Size = new Size(280, 34);
+            msReportCustomerBalance.Text = "أرصدة العملاء";
+            msReportCustomerBalance.Click += msReportCustomerBalance_Click;
+            // 
+            // msReportSupplierBalance
+            // 
+            msReportSupplierBalance.Name = "msReportSupplierBalance";
+            msReportSupplierBalance.Size = new Size(280, 34);
+            msReportSupplierBalance.Text = "أرصدة الموردين";
+            msReportSupplierBalance.Click += msReportSupplierBalance_Click;
+            // 
+            // msReportAging
+            // 
+            msReportAging.Name = "msReportAging";
+            msReportAging.Size = new Size(280, 34);
+            msReportAging.Text = "أعمار الديون";
+            msReportAging.Click += msReportAging_Click;
+            // 
+            // msReportCashBox
+            // 
+            msReportCashBox.DropDownItems.AddRange(new ToolStripItem[] {
+                msReportCashBoxSummary,
+                msReportDailyClosure
+            });
+            msReportCashBox.Name = "msReportCashBox";
+            msReportCashBox.Size = new Size(300, 38);
+            msReportCashBox.Text = "تقارير الصندوق";
+            // 
+            // msReportCashBoxSummary
+            // 
+            msReportCashBoxSummary.Name = "msReportCashBoxSummary";
+            msReportCashBoxSummary.Size = new Size(280, 34);
+            msReportCashBoxSummary.Text = "ملخص الصندوق";
+            msReportCashBoxSummary.Click += msReportCashBoxSummary_Click;
+            // 
+            // msReportDailyClosure
+            // 
+            msReportDailyClosure.Name = "msReportDailyClosure";
+            msReportDailyClosure.Size = new Size(280, 34);
+            msReportDailyClosure.Text = "الإغلاق اليومي";
+            msReportDailyClosure.Click += msReportDailyClosure_Click;
             // 
             // msSettings
             // 
@@ -600,11 +922,53 @@
         private ToolStripMenuItem msData;
         private ToolStripMenuItem msbtnManageUsers;
         private ToolStripMenuItem msReport;
-        private ToolStripMenuItem msbtnReports;
+        // تصنيفات التقارير الستة (RULE-N72)
+        private ToolStripMenuItem msReportSales;
+        private ToolStripMenuItem msReportPurchases;
+        private ToolStripMenuItem msReportInventory;
+        private ToolStripMenuItem msReportFinance;
+        private ToolStripMenuItem msReportParties;
+        private ToolStripMenuItem msReportCashBox;
+        // تقارير المبيعات (8)
+        private ToolStripMenuItem msReportSalesReport;
+        private ToolStripMenuItem msReportDailySales;
+        private ToolStripMenuItem msReportSalesByCustomer;
+        private ToolStripMenuItem msReportSalesByProduct;
+        private ToolStripMenuItem msReportSalesByCategory;
+        private ToolStripMenuItem msReportProfitByCustomer;
+        private ToolStripMenuItem msReportProductProfitability;
+        private ToolStripMenuItem msReportReturns;
+        // تقارير المشتريات (3)
+        private ToolStripMenuItem msReportPurchasesReport;
+        private ToolStripMenuItem msReportPurchasesBySupplier;
+        private ToolStripMenuItem msReportPurchasesByProduct;
+        // تقارير المخزون (7)
+        private ToolStripMenuItem msReportInventoryReport;
+        private ToolStripMenuItem msReportStockBalance;
+        private ToolStripMenuItem msReportWarehouseMovement;
+        private ToolStripMenuItem msReportDetailedStockLedger;
+        private ToolStripMenuItem msReportProductMovement;
+        private ToolStripMenuItem msReportLowStock;
+        private ToolStripMenuItem msReportExpiredProducts;
+        // التقارير المالية والمحاسبية (8)
+        private ToolStripMenuItem msReportTrialBalance;
+        private ToolStripMenuItem msReportGeneralLedger;
+        private ToolStripMenuItem msReportIncomeStatement;
+        private ToolStripMenuItem msReportBalanceSheet;
+        private ToolStripMenuItem msReportCashFlow;
+        private ToolStripMenuItem msReportWorkingCapital;
+        private ToolStripMenuItem msReportVat;
+        private ToolStripMenuItem msReportAccountStatement;
+        // تقارير العملاء والموردين (3)
+        private ToolStripMenuItem msReportCustomerBalance;
+        private ToolStripMenuItem msReportSupplierBalance;
+        private ToolStripMenuItem msReportAging;
+        // تقارير الصندوق (2)
+        private ToolStripMenuItem msReportCashBoxSummary;
+        private ToolStripMenuItem msReportDailyClosure;
         private ToolStripMenuItem msAccounting;
         private ToolStripMenuItem msbtnChartOfAccounts;
         private ToolStripMenuItem msbtnJournalEntries;
-        private ToolStripMenuItem msbtnReportsDashboard;
         private ToolStripMenuItem msbtnPurchases;
         private ToolStripMenuItem msbtnInventory;
         private ToolStripMenuItem msSettings;

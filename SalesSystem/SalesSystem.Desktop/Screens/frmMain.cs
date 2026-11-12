@@ -229,12 +229,106 @@ public partial class frmMain : Form
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmJournalEntries>());
 
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
+    // RULE-N70/N71/N72: تقرير واحد = شاشة واحدة، كل تقرير يُفتح من عنصره في تصنيفه.
 
-    private void msbtnReports_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReports>());
+    // تقارير المبيعات
+    private void msReportSalesReport_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesReport>());
 
-    private void msbtnReportsDashboard_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReportsDashboard>());
+    private void msReportDailySales_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDailySalesReport>());
+
+    private void msReportSalesByCustomer_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesByCustomerReport>());
+
+    private void msReportSalesByProduct_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesByProductReport>());
+
+    private void msReportSalesByCategory_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesByCategoryReport>());
+
+    private void msReportProfitByCustomer_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProfitByCustomerReport>());
+
+    private void msReportProductProfitability_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductProfitabilityReport>());
+
+    private void msReportReturns_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReturnsReport>());
+
+    // تقارير المشتريات
+    private void msReportPurchasesReport_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchasesReport>());
+
+    private void msReportPurchasesBySupplier_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchasesBySupplierReport>());
+
+    private void msReportPurchasesByProduct_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchasesByProductReport>());
+
+    // تقارير المخزون
+    private void msReportInventoryReport_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventoryReport>());
+
+    private void msReportStockBalance_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmStockBalanceReport>());
+
+    private void msReportWarehouseMovement_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWarehouseMovementReport>());
+
+    private void msReportDetailedStockLedger_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDetailedStockLedgerReport>());
+
+    private void msReportProductMovement_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductMovementReport>());
+
+    private void msReportLowStock_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmLowStockReport>());
+
+    private void msReportExpiredProducts_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmExpiredProductsReport>());
+
+    // التقارير المالية والمحاسبية
+    private void msReportTrialBalance_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmTrialBalanceReport>());
+
+    private void msReportGeneralLedger_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmGeneralLedgerReport>());
+
+    private void msReportIncomeStatement_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmIncomeStatementReport>());
+
+    private void msReportBalanceSheet_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmBalanceSheetReport>());
+
+    private void msReportCashFlow_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashFlowReport>());
+
+    private void msReportWorkingCapital_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWorkingCapitalReport>());
+
+    private void msReportVat_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmVatReport>());
+
+    private void msReportAccountStatement_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccountStatementReport>());
+
+    // تقارير العملاء والموردين
+    private void msReportCustomerBalance_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCustomerBalanceReport>());
+
+    private void msReportSupplierBalance_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSupplierBalanceReport>());
+
+    private void msReportAging_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAgingReport>());
+
+    // تقارير الصندوق
+    private void msReportCashBoxSummary_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxSummaryReport>());
+
+    private void msReportDailyClosure_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDailyClosureReport>());
 
     // ── الإعدادات (Settings) ──────────────────────────────────────────────────
     // الإعدادات العامة وإعدادات الشركة أُزيلتا من الواجهة — المعالجات تبقى فارغة

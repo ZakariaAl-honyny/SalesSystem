@@ -275,7 +275,7 @@ static class Program
                     services.AddTransient<frmInventoryList>();
                     services.AddTransient<frmListPayments>();
                     // services.AddTransient<frmUpdateCheck>(); // V2: update-check removed
-                    services.AddTransient<frmReports>();
+                    // reports (31 screens — RULE-N70/N71) — one screen = one report
                     services.AddTransient<frmSalesReport>();
                     services.AddTransient<frmPurchasesReport>();
                     services.AddTransient<frmInventoryReport>();
@@ -283,6 +283,30 @@ static class Program
                     services.AddTransient<frmSupplierBalanceReport>();
                     services.AddTransient<frmProductMovementReport>();
                     services.AddTransient<frmLowStockReport>();
+                    services.AddTransient<frmDailySalesReport>();
+                    services.AddTransient<frmSalesByCustomerReport>();
+                    services.AddTransient<frmSalesByProductReport>();
+                    services.AddTransient<frmSalesByCategoryReport>();
+                    services.AddTransient<frmProfitByCustomerReport>();
+                    services.AddTransient<frmProductProfitabilityReport>();
+                    services.AddTransient<frmReturnsReport>();
+                    services.AddTransient<frmPurchasesBySupplierReport>();
+                    services.AddTransient<frmPurchasesByProductReport>();
+                    services.AddTransient<frmStockBalanceReport>();
+                    services.AddTransient<frmWarehouseMovementReport>();
+                    services.AddTransient<frmDetailedStockLedgerReport>();
+                    services.AddTransient<frmExpiredProductsReport>();
+                    services.AddTransient<frmTrialBalanceReport>();
+                    services.AddTransient<frmGeneralLedgerReport>();
+                    services.AddTransient<frmIncomeStatementReport>();
+                    services.AddTransient<frmBalanceSheetReport>();
+                    services.AddTransient<frmCashFlowReport>();
+                    services.AddTransient<frmWorkingCapitalReport>();
+                    services.AddTransient<frmVatReport>();
+                    services.AddTransient<frmAccountStatementReport>();
+                    services.AddTransient<frmAgingReport>();
+                    services.AddTransient<frmCashBoxSummaryReport>();
+                    services.AddTransient<frmDailyClosureReport>();
                     // Users/Admin Forms
                     services.AddTransient<frmPasswordChange>();
                     services.AddTransient<frmBackup>();
@@ -336,7 +360,6 @@ static class Program
                     // Newly-built module hub screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmPurchases>();
                     services.AddTransient<frmInventory>();
-                    services.AddTransient<frmReportsDashboard>();
                 })
                 .Build();
 
