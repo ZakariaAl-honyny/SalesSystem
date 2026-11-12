@@ -9,9 +9,6 @@ using SalesSystem.Desktop.Services.Direct;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Services.Mock;
 using SalesSystem.Desktop.Products.Forms;
-using SalesSystem.Desktop.People;
-using SalesSystem.Desktop.People.Controls;
-using SalesSystem.Desktop.People.Forms;
 using SalesSystem.Desktop.Suppliers;
 using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Printing.Core;
@@ -91,7 +88,6 @@ static class Program
                     // Interfaces with NO mock — always Direct:
                     services.AddTransient<IAuthApiService, DirectAuthService>();
                     services.AddTransient<IBackupApiService, DirectBackupService>();
-                    services.AddTransient<IPersonApiService, DirectPersonService>();
                     
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
@@ -201,7 +197,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IInventoryBatchService, BizServices.InventoryBatchService>();
                     services.AddScoped<BizInterfaces.IInventoryService, BizServices.InventoryService>();
                     services.AddScoped<BizInterfaces.IPaymentVoucherService, BizServices.PaymentVoucherService>();
-                    services.AddScoped<BizInterfaces.IPersonService, BizServices.PersonService>();
                     services.AddScoped<BizInterfaces.IProductCategoryService, BizServices.ProductCategoryService>();
                     services.AddScoped<BizInterfaces.IProductCostService, BizServices.ProductCostService>();
                     services.AddScoped<BizInterfaces.IProductImportService, BizServices.ProductImportService>();
@@ -252,10 +247,6 @@ static class Program
                     services.AddTransient<frmPurchaseInvoice>();
                     services.AddTransient<frmSalesReturn>();
                     services.AddTransient<frmPurchaseReturn>();
-                    services.AddTransient<frmListPeople>();
-                    services.AddTransient<frmAddUpdatePerson>();
-                    services.AddTransient<frmShowPersonInfo>();
-                    services.AddTransient<frmFindPerson>();
                     services.AddTransient<frmListReturns>();
                     // MVP: مخفي — replaced by Master form
                     // services.AddTransient<frmListWarehouses>();
