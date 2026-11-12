@@ -158,6 +158,10 @@ static class Program
                         options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
                     services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+                    // Startup initializer — applies migrations + seeds the database ONCE at startup, real mode only
+                    services.AddScoped<SalesSystem.Business.Infrastructure.IApplicationInitializer,
+                                       SalesSystem.DataAccess.Initialization.DatabaseInitializer>();
+
                     // Infrastructure Services (implemented in DataAccess)
                     services.AddScoped<BizInterfaces.IBackupService, BackupService>();
                     services.AddScoped<BizInterfaces.IConnectionStringProtector, ConnectionStringProtector>();
@@ -337,6 +341,31 @@ static class Program
                 .Build();
 
             Program.ServiceProvider = host.Services;
+
+            // واقعي فقط: تطبيق الهجرات وزرع البيانات الأساسية قبل شاشة الدخول
+            var appSettings = host.Services.GetRequiredService<AppSettings>();
+            if (!appSettings.UseMockData)
+            {
+                try
+                {
+                    using var initScope = host.Services.CreateScope();
+                    var initializer = initScope.ServiceProvider
+                        .GetRequiredService<SalesSystem.Business.Infrastructure.IApplicationInitializer>();
+                    var initResult = initializer.InitializeAsync().GetAwaiter().GetResult();
+                    if (!initResult.IsSuccess)
+                    {
+                        Log.Error("Database initialization failed: {Error}", initResult.Error);
+                        MessageBox.Show(initResult.Error ?? "تعذر تهيئة قاعدة البيانات.",
+                            "تهيئة قاعدة البيانات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected failure during database initialization");
+                    MessageBox.Show("تعذر تهيئة قاعدة البيانات. تحقق من الاتصال ثم أعد تشغيل النظام.",
+                        "تهيئة قاعدة البيانات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
 
             using var scope = host.Services.CreateScope();
             var serviceProvider = scope.ServiceProvider;
