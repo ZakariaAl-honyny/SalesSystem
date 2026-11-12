@@ -55,6 +55,7 @@ partial class frmProductMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnReactivate = new Button();
         btnRefresh = new Button();
         btnManageUnits = new Button();
         btnClose = new Button();
@@ -70,6 +71,7 @@ partial class frmProductMaster
         pnlSummary = new Panel();
         lblSummary = new Label();
         errorProvider = new ErrorProvider(components);
+        toolTip = new ToolTip(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).BeginInit();
@@ -436,6 +438,7 @@ partial class frmProductMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnReactivate);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnManageUnits);
         pnlButtons.Controls.Add(btnClose);
@@ -502,13 +505,30 @@ partial class frmProductMaster
         btnDelete.UseVisualStyleBackColor = false;
         btnDelete.Click += btnDelete_Click;
         // 
+        // btnReactivate
+        // 
+        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.Enabled = false;
+        btnReactivate.FlatStyle = FlatStyle.Flat;
+        btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReactivate.ForeColor = Color.White;
+        btnReactivate.Location = new Point(689, 13);
+        btnReactivate.Margin = new Padding(3, 3, 3, 3);
+        btnReactivate.Name = "btnReactivate";
+        btnReactivate.Size = new Size(160, 35);
+        btnReactivate.TabIndex = 23;
+        btnReactivate.Text = "↺ إعادة تنشيط";
+        btnReactivate.UseVisualStyleBackColor = false;
+        btnReactivate.Click += btnReactivate_Click;
+        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
+        // 
         // btnRefresh
         // 
         btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnRefresh.ForeColor = Color.White;
-        btnRefresh.Location = new Point(719, 13);
+        btnRefresh.Location = new Point(553, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
         btnRefresh.TabIndex = 21;
@@ -522,7 +542,7 @@ partial class frmProductMaster
         btnManageUnits.FlatStyle = FlatStyle.Flat;
         btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnManageUnits.ForeColor = Color.White;
-        btnManageUnits.Location = new Point(533, 13);
+        btnManageUnits.Location = new Point(367, 13);
         btnManageUnits.Name = "btnManageUnits";
         btnManageUnits.Size = new Size(180, 35);
         btnManageUnits.TabIndex = 20;
@@ -536,7 +556,7 @@ partial class frmProductMaster
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(397, 13);
+        btnClose.Location = new Point(231, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
         btnClose.TabIndex = 22;
@@ -763,6 +783,7 @@ partial class frmProductMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnReactivate;
     private System.Windows.Forms.Button btnManageUnits;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
@@ -777,6 +798,7 @@ partial class frmProductMaster
     private System.Windows.Forms.Panel pnlSummary;
     private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.ToolTip toolTip;
     private GroupBox gbFilter;
 }
 

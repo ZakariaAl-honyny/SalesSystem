@@ -50,6 +50,7 @@ public partial class frmListCustomerReceipts : Form
         _SetDateRange(_StartOfCurrentMonth(), DateTime.Today);   // «هذا الشهر» افتراضياً
         _SetupToolTips();
         _isInitializing = false;
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>

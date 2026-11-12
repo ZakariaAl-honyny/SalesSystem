@@ -53,6 +53,7 @@ public partial class frmListInventoryTransactions : Form
 
         _SetupToolTips();
         ApplyUiTheme();
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     private IInventoryDesktopService DesktopService

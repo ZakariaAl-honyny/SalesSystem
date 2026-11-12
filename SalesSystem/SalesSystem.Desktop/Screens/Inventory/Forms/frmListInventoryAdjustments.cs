@@ -47,6 +47,7 @@ public partial class frmListInventoryAdjustments : Form
 
         _SetupToolTips();
         ApplyUiTheme();
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>RULE-N04 — الخدمة تُحل من الحاوية ولا تُنشأ يدوياً.</summary>

@@ -60,6 +60,7 @@ public partial class frmListInventoryBatches : Form
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Escape, () => _ClearFilters()));
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── Theme & Shortcuts ──────────────────────────────────────────────────────────

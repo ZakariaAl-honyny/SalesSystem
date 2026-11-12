@@ -80,6 +80,7 @@ public partial class frmProductUnitMaster : Form
         {
             _isBinding = false;
         }
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>

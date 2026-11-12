@@ -39,6 +39,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 (Keys.F2, _AddNewForActiveTab),
                 (Keys.F5, _RefreshActiveTab),
                 (Keys.Escape, _ResetFilters));
+            FilterPanelHelper.Attach(this, _serviceProvider);
         }
 
         /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>

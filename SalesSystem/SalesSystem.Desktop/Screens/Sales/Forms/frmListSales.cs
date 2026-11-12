@@ -38,6 +38,7 @@ public partial class frmListSales : Form
         _ApplyUiTheme();
         _LoadStatusOptions();
         _WireShortcuts();
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── Initialisation ─────────────────────────────────────────────────────────

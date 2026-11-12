@@ -64,6 +64,7 @@ public partial class frmUserMaster : Form
         // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: اسم المستخدم» افتراضياً.
         cbStatus.SelectedIndex = 0;
         cbFilterBy.SelectedIndex = 0;
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── Global Shortcuts ──────────────────────────────────────────────────────

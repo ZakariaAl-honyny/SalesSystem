@@ -130,6 +130,7 @@ public partial class frmJournalEntries : Form
             (numLineCredit, "الدائن", LiveTafqeetHelper.ReadMode.Money));
 
         dgvLines.DataSource = _lines;
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── الثيم (RULE-N50…RULE-N54) ────────────────────────────────────────────

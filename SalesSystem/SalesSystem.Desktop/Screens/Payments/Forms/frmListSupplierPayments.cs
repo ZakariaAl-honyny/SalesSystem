@@ -47,6 +47,7 @@ public partial class frmListSupplierPayments : Form
             (Keys.F2, () => btnAddNew.PerformClick()),
             (Keys.F5, () => _RefreshPayments()),
             (Keys.Escape, () => _ClearFilters()));
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     private ISupplierPaymentDesktopService PaymentApi

@@ -59,6 +59,7 @@ public partial class frmCategoryMaster : Form
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Delete, () => btnDelete.PerformClick()),
             (Keys.Escape, () => _ClearAllFilters()));
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>

@@ -48,7 +48,7 @@ public partial class frmSupplierMaster : Form
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnReactivate);
 
         // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc إلغاء/مسح التصفية.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -60,6 +60,9 @@ public partial class frmSupplierMaster : Form
         // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: الاسم» افتراضياً.
         cbStatus.SelectedIndex = 0;
         cbFilterBy.SelectedIndex = 0;
+
+        // زر طوي صندوق التصفية + حفظ حالته (RULE-N63) — آخر سطر في المُنشئ دائماً.
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── Global Shortcuts ──────────────────────────────────────────────────────
@@ -470,10 +473,16 @@ public partial class frmSupplierMaster : Form
 
         _editId = s.Id;
 
+        // ضمان أن حالة التنشيط المحسوبة للأزرار مأخوذة من أحدث نسخة من السجل.
+        _suppliersById[s.Id] = s;
+
         // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
         btnSave.Enabled = false;
         btnEdit.Enabled = true;
         btnDelete.Enabled = true;
+
+        // RULE-N92: إعادة التنشيط تُتاح فقط على سجل معطّل.
+        _UpdateActionButtons();
 
         txtId.Text = s.Id.ToString();
         txtName.Text = s.Name;
@@ -494,6 +503,21 @@ public partial class frmSupplierMaster : Form
             ? "(( دليل الموردين )) — تعديل مورد"
             : "(( دليل الموردين )) — إضافة مورد جديد";
 
+    /// <summary>هل يوجد إجراء غير متزامن قيد التنفيذ؟ (يمنع إعادة تنشيط مزدوجة ويُعطّل الزر مؤقتاً).</summary>
+    private bool _actionButtonsBusy;
+
+    /// <summary>
+    /// آلة حالة زر «إعادة تنشيط» (RULE-N43 + RULE-N92):
+    /// مفعّل فقط عند وجود سجل محدد معطّل، ومعطّل أثناء تنفيذ إجراء أو على السجل النشط.
+    /// </summary>
+    private void _UpdateActionButtons()
+    {
+        bool hasSelection = _editId.HasValue;
+        bool isActive = hasSelection && _suppliersById.TryGetValue(_editId!.Value, out var s) && s.IsActive;
+
+        btnReactivate.Enabled = hasSelection && !isActive && !_actionButtonsBusy;   // RULE-N92
+    }
+
     private void _ResetForm()
     {
         _editId = null;
@@ -502,6 +526,9 @@ public partial class frmSupplierMaster : Form
         btnSave.Enabled = true;
         btnEdit.Enabled = false;
         btnDelete.Enabled = false;
+
+        // RULE-N92: لا سجل محدد → إعادة التنشيط معطّلة.
+        _UpdateActionButtons();
 
         errorProvider.Clear();
 
@@ -684,6 +711,9 @@ public partial class frmSupplierMaster : Form
                 btnEdit.Enabled = true;
             }
 
+            // RULE-N92: إعادة تقييم أهلية إعادة التنشيط بعد انتهاء الإجراء.
+            _UpdateActionButtons();
+
             Cursor = Cursors.Default;
         }
     }
@@ -737,6 +767,81 @@ public partial class frmSupplierMaster : Form
             // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا التعديل والحذف معطّلين.
             btnDelete.Enabled = _editId.HasValue;
             btnEdit.Enabled = _editId.HasValue;
+
+            // RULE-N92: إعادة تقييم أهلية إعادة التنشيط.
+            _UpdateActionButtons();
+
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>
+    /// إعادة تنشيط المورد المعطَّل (RULE-N90…RULE-N94):
+    /// الزر مفعّل فقط على سطر غير نشط، والتنفيذ داخل الخدمة (BLL) داخل معاملة.
+    /// </summary>
+    private async void btnReactivate_Click(object? sender, EventArgs e)
+    {
+        // حارس إعادة الدخول: لا تُنفَّذ عمليتان في وقت واحد.
+        if (_actionButtonsBusy) return;
+
+        if (_editId is not int id)
+        {
+            MessageBox.Show("يرجى اختيار مورد معطّل من القائمة أولاً.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string name = txtName.Text.Trim();
+
+        if (MessageBox.Show($"هل تريد إعادة تنشيط المورد \"{name}\"؟",
+                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        Cursor = Cursors.WaitCursor;
+        _actionButtonsBusy = true;
+        _UpdateActionButtons();
+
+        try
+        {
+            var result = await SupplierService.ReactivateAsync(id);
+
+            if (result.IsSuccess)
+            {
+                Log.Information("تم إعادة تنشيط المورد {SupplierId}", id);
+
+                EventBus.Publish(new SupplierChangedMessage(id));
+
+                await _LoadSuppliersAsync();
+
+                // RULE-N94: يبقى السطر المُعاد تنشيطه محدداً في الشبكة (يعود لونه أبيض ويُفعَّل زر التعطيل)
+                // مع الإبقاء على بيانات المورد في الحقول، ليرى المستخدم نتيجة العملية فوراً.
+                _editId = id;
+                btnSave.Enabled = false;
+                btnEdit.Enabled = true;
+                btnDelete.Enabled = true;
+                _SelectGridRow(id);
+                _UpdateModeHeader();
+
+                MessageBox.Show("تم إعادة تنشيط المورد بنجاح.", "تم إعادة التنشيط",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show($"تعذر إعادة تنشيط المورد.\n{result.Error}",
+                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء إعادة تنشيط المورد {SupplierId}", id);
+            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _actionButtonsBusy = false;
+            _UpdateActionButtons();
             Cursor = Cursors.Default;
         }
     }

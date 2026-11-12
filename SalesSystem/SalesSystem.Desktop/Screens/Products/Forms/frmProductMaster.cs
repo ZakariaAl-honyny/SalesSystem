@@ -40,6 +40,9 @@ public partial class frmProductMaster : Form
     /// <summary>يمنع إعادة تحميل سعر الوحدة أثناء تعبئة النموذج برمجياً.</summary>
     private bool _isBindingMainUnit;
 
+    /// <summary>يمنع تكرار تنفيذ إعادة التنشيط ويُعطّل زرها مؤقتاً أثناء العملية (RULE-N92).</summary>
+    private bool _reactivateBusy;
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmProductMaster()
     {
@@ -54,9 +57,9 @@ public partial class frmProductMaster : Form
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this);
 
-        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnManageUnits); // RULE-N43
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnManageUnits, btnReactivate); // RULE-N43
 
         // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc مسح التصفية/إلغاء.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -64,6 +67,9 @@ public partial class frmProductMaster : Form
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Delete, _GlobalDelete),
             (Keys.Escape, _GlobalEscape));
+
+        // طيّ/إظهار صندوق التصفية (RULE-N63) — آخر سطر في المُنشئ.
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── Global Shortcuts ──────────────────────────────────────────────────────
@@ -533,6 +539,7 @@ public partial class frmProductMaster : Form
         btnEdit.Enabled = true;
         btnDelete.Enabled = true;
         btnManageUnits.Enabled = true;
+        _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
 
         txtCode.Text = p.Id.ToString();
         txtName.Text = p.Name;
@@ -715,6 +722,22 @@ public partial class frmProductMaster : Form
         }
     }
 
+    // ── Actions state (RULE-N43 / RULE-N92) ───────────────────────────────────
+
+    /// <summary>
+    /// آلة حالة زر «إعادة تنشيط» (RULE-N92): مفعّل فقط عند تحديد سجل **غير نشط**،
+    /// ومعطّل عند عدم وجود تحديد أو عند كون السجل نشطاً أو أثناء عملية جارية.
+    /// </summary>
+    private void _UpdateReactivateButton()
+    {
+        bool hasSelection = _editId.HasValue;
+        bool isActive = hasSelection
+            && _productsById.TryGetValue(_editId!.Value, out var product)
+            && product.IsActive;
+
+        btnReactivate.Enabled = hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
+    }
+
     // ── Reset ──────────────────────────────────────────────────────────
 
     private void _ResetForm()
@@ -727,6 +750,7 @@ public partial class frmProductMaster : Form
         btnEdit.Enabled = false;
         btnDelete.Enabled = false;
         btnManageUnits.Enabled = false;
+        _UpdateReactivateButton();   // لا تحديد → إعادة التنشيط معطّلة (RULE-N92)
 
         errorProvider.Clear();
 
@@ -946,6 +970,7 @@ public partial class frmProductMaster : Form
                 btnEdit.Enabled = true;
                 btnDelete.Enabled = true;
                 btnManageUnits.Enabled = true;
+                _UpdateReactivateButton();   // السجل نشط بعد الحفظ → إعادة التنشيط معطّلة (RULE-N92)
 
                 await _LoadProductsAsync();
                 _SelectGridRow(result.Value.Id);
@@ -979,6 +1004,8 @@ public partial class frmProductMaster : Form
                 btnSave.Enabled = false;
                 btnEdit.Enabled = true;
             }
+
+            _UpdateReactivateButton();   // RULE-N92
 
             Cursor = Cursors.Default;
         }
@@ -1034,6 +1061,88 @@ public partial class frmProductMaster : Form
             btnDelete.Enabled = _editId.HasValue;
             btnEdit.Enabled = _editId.HasValue;
             btnManageUnits.Enabled = _editId.HasValue;
+            _UpdateReactivateButton();   // RULE-N92
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>
+    /// إعادة تنشيط الصنف المعطَّل (RULE-N90…RULE-N94):
+    /// الزر مفعّل فقط على سطر غير نشط، والتنفيذ داخل الخدمة (BLL) داخل معاملة.
+    /// </summary>
+    private async void btnReactivate_Click(object? sender, EventArgs e)
+    {
+        if (_editId is not int id)
+        {
+            MessageBox.Show("يرجى اختيار صنف معطّل من القائمة أولاً.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (!_productsById.TryGetValue(id, out var product))
+        {
+            MessageBox.Show("تعذر العثور على بيانات الصنف المحدد. يرجى تحديث القائمة.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (product.IsActive)
+        {
+            MessageBox.Show("الصنف المحدد نشط بالفعل.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            _UpdateReactivateButton();
+            return;
+        }
+
+        if (_reactivateBusy) return;
+
+        if (MessageBox.Show($"هل تريد إعادة تنشيط الصنف \"{product.Name}\"؟",
+                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        Cursor = Cursors.WaitCursor;
+        _reactivateBusy = true;
+        _UpdateReactivateButton();
+
+        try
+        {
+            var result = await ProductService.ReactivateAsync(id);
+
+            if (result.IsSuccess)
+            {
+                Log.Information("أُعيد تنشيط الصنف {ProductId} ({ProductName}) بنجاح", id, product.Name);
+
+                EventBus.Publish(new ProductChangedMessage(id));
+
+                await _LoadProductsAsync();
+
+                // RULE-N94: يبقى السطر المُعاد تنشيطه محدداً بعد التحديث، مع بقاء بياناته في الحقول.
+                _editId = id;
+                _SelectGridRow(id);
+                _UpdateReactivateButton();
+
+                MessageBox.Show("تم إعادة تنشيط الصنف بنجاح.", "تم إعادة التنشيط",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                Log.Warning("تعذر إعادة تنشيط الصنف {ProductId}. السبب: {Error}", id, result.Error);
+
+                MessageBox.Show($"تعذر إعادة تنشيط الصنف.\n{result.Error}",
+                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء إعادة تنشيط الصنف {ProductId}", id);
+            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _reactivateBusy = false;
+            _UpdateReactivateButton();
             Cursor = Cursors.Default;
         }
     }

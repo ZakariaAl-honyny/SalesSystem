@@ -66,6 +66,7 @@ public partial class frmEmployeeMaster : Form
         // RULE-N97 — التفقيط الحيّ على الحقل المالي
         LiveTafqeetHelper.Attach(tafqeetTip,
             (numBasicSalary, "الراتب الأساسي", LiveTafqeetHelper.ReadMode.Money));
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>هل الحقل المطلوب (اسم الموظف) مكتمل؟</summary>

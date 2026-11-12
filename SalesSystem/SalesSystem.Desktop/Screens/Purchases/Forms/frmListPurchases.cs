@@ -56,6 +56,7 @@ public partial class frmListPurchases : Form
 
         // RULE-N43 — بعد تلوين الأزرار حتى يلتقط الـ Helper لون الثيم الصحيح.
         KeyboardHelper.WireButtonDisabledVisual(btnView, btnPost, btnCancel);
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── التهيئة ────────────────────────────────────────────────────────────────

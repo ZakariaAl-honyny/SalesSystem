@@ -82,6 +82,7 @@ public partial class frmAccounts : Form
         // RULE-N97: التفقيط الحيّ على الحقل المالي الوحيد في الشاشة.
         LiveTafqeetHelper.Attach(liveTip,
             (numOpeningBalance, "الرصيد الافتتاحي", LiveTafqeetHelper.ReadMode.Money));
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     // ── Theme (RULE-N50…RULE-N54) ────────────────────────────────────────────

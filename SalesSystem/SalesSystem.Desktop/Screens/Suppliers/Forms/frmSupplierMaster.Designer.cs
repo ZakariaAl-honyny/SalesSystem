@@ -40,6 +40,7 @@ partial class frmSupplierMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnReactivate = new Button();
         btnRefresh = new Button();
         btnClose = new Button();
         pnlFilters = new Panel();
@@ -57,6 +58,7 @@ partial class frmSupplierMaster
         pnlGrid = new Panel();
         dgvSuppliers = new DataGridView();
         errorProvider = new ErrorProvider(components);
+        toolTip = new ToolTip(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numCreditLimit).BeginInit();
         pnlButtons.SuspendLayout();
@@ -259,6 +261,7 @@ partial class frmSupplierMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnReactivate);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
@@ -324,13 +327,29 @@ partial class frmSupplierMaster
         btnDelete.UseVisualStyleBackColor = false;
         btnDelete.Click += btnDelete_Click;
         // 
+        // btnReactivate
+        // 
+        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.Enabled = false;
+        btnReactivate.FlatStyle = FlatStyle.Flat;
+        btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReactivate.ForeColor = Color.White;
+        btnReactivate.Location = new Point(711, 13);
+        btnReactivate.Name = "btnReactivate";
+        btnReactivate.Size = new Size(138, 35);
+        btnReactivate.TabIndex = 20;
+        btnReactivate.Text = "إعادة تنشيط";
+        btnReactivate.UseVisualStyleBackColor = false;
+        btnReactivate.Click += btnReactivate_Click;
+        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
+        // 
         // btnRefresh
         // 
         btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnRefresh.ForeColor = Color.White;
-        btnRefresh.Location = new Point(719, 13);
+        btnRefresh.Location = new Point(575, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
         btnRefresh.TabIndex = 21;
@@ -344,7 +363,7 @@ partial class frmSupplierMaster
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(583, 13);
+        btnClose.Location = new Point(439, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
         btnClose.TabIndex = 22;
@@ -600,6 +619,7 @@ partial class frmSupplierMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnReactivate;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlFilters;
@@ -617,4 +637,5 @@ partial class frmSupplierMaster
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvSuppliers;
     private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.ToolTip toolTip;
 }

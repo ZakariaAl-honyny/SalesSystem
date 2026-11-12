@@ -51,6 +51,7 @@ public partial class frmListExpenses : Form
         LiveTafqeetHelper.Attach(liveTip, (txtSearch, "المبلغ", LiveTafqeetHelper.ReadMode.Money));
 
         _SetupToolTips();
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>تلميحات الأزرار مع اختصاراتها (RULE-N47).</summary>

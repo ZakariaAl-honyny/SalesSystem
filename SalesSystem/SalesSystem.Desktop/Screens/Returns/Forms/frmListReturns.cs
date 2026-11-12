@@ -43,6 +43,7 @@ public partial class frmListReturns : Form
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Delete, () => { txtFilterValue.Clear(); _ApplyFilter(); }),
             (Keys.Escape, _ResetFilters));
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
