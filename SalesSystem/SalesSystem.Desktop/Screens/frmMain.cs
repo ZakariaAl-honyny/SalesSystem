@@ -152,9 +152,6 @@ public partial class frmMain : Form
     private void msbtnPurchaseReturn_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchaseReturn>());
 
-    private void msbtnPurchases_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchases>());
-
     // ── المبيعات (Sales) ─────────────────────────────────────────────────────
 
     private void msbtnManageSales_Click(object sender, EventArgs e)

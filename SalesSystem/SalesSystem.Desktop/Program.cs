@@ -336,7 +336,6 @@ static class Program
                     services.AddTransient<frmEmployeeMaster>();
 
                     // Newly-built module hub screens (wired into frmMain MenuStrip)
-                    services.AddTransient<frmPurchases>();
                     services.AddTransient<frmInventory>();
                 })
                 .Build();

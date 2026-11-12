@@ -197,21 +197,32 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 
 ### 2.11 NuGet Packages
 
-| Package | Project |
-|---------|---------|
-| `Microsoft.EntityFrameworkCore.SqlServer` 10.x | DataAccess |
-| `Microsoft.EntityFrameworkCore.Tools` 10.x | DataAccess |
-| `BCrypt.Net-Next` 4.x | DataAccess |
-| `Serilog.Sinks.File` 5.x | Desktop |
-| `System.Text.Json` 10.x | Desktop |
-| `ClosedXML` 0.102.x | Desktop (Excel export) |
-| `QuestPDF` 2024.3.x | DataAccess (A4 PDF) |
-| `SixLabors.ImageSharp` 3.1.x | DataAccess |
-| `System.Drawing.Common` 10.x | DataAccess |
-| `Microsoft.Extensions.Hosting` 10.x | Desktop |
-| `Microsoft.AspNetCore.DataProtection` 10.x | DataAccess |
+القائمة أدناه مقروءة من ملفات `.csproj` الفعلية (تحقّق: `Select-String -Path *.csproj -Pattern "PackageReference"`).
 
-> The API-only packages (`FluentValidation.AspNetCore`, `Serilog.AspNetCore`, `Microsoft.AspNetCore.Authentication.JwtBearer`, `Swashbuckle.AspNetCore`, `Microsoft.Extensions.Hosting.WindowsServices`, `Serilog.Sinks.EventLog`) and `Microsoft.Extensions.Http` were removed with the API project.
+| Package | Version | Project |
+|---------|---------|---------|
+| `Microsoft.EntityFrameworkCore.SqlServer` | 10.0.0 | DataAccess |
+| `Microsoft.EntityFrameworkCore.Tools` | 10.0.0 | DataAccess |
+| `Microsoft.EntityFrameworkCore.Design` | 10.0.0 | DataAccess |
+| `Microsoft.EntityFrameworkCore.Design` | 10.0.10 | Desktop (تصميم/هجرات) |
+| `Microsoft.EntityFrameworkCore` | 10.0.0 | Business |
+| `Microsoft.Extensions.Hosting` | 10.0.0 | Business |
+| `Microsoft.Extensions.Hosting` | 10.0.7 | Desktop |
+| `Microsoft.Extensions.Logging.Abstractions` | 10.0.0 | Common |
+| `FluentValidation` | 11.3.0 | Business |
+| `BCrypt.Net-Next` | 4.0.3 | Business · DataAccess |
+| `Microsoft.AspNetCore.DataProtection` | 10.0.10 | DataAccess |
+| `ClosedXML` | 0.105.0 | DataAccess · Desktop (Excel export) |
+| `QuestPDF` | 2024.3.0 | DataAccess (A4 PDF) |
+| `System.Drawing.Common` | 10.0.0 | DataAccess |
+| `Serilog` | 4.3.1 | Desktop |
+| `Serilog.Sinks.File` | 7.0.0 | Desktop |
+| `xunit` · `xunit.runner.visualstudio` · `Microsoft.NET.Test.Sdk` · `coverlet.collector` | 2.9.3 · 3.1.4 · 17.14.1 · 6.0.4 | Tests |
+| `Microsoft.Extensions.Http` | 10.0.7 | DataAccess — ⚠️ مرجع ميت — يُزال (`RULE-N123`) |
+| `Serilog.AspNetCore` | 10.0.0 | DataAccess — ⚠️ مرجع ميت — يُزال (`RULE-N123`) |
+
+> حُذفت مع مشروع الـ API خمس حزم: `FluentValidation.AspNetCore`، `Microsoft.AspNetCore.Authentication.JwtBearer`، `Swashbuckle.AspNetCore`، `Microsoft.Extensions.Hosting.WindowsServices`، `Serilog.Sinks.EventLog`.
+> **تنبيه:** `Serilog.AspNetCore` و`Microsoft.Extensions.Http` **لا تزالان معلنتين في `SalesSystem.DataAccess.csproj` ولا يستخدمهما أي كود** — مرجع ميت يُزال عند أول مساس بالملف (`RULE-N123`). كذلك `System.Text.Json` و`SixLabors.ImageSharp` لم تعودا مرجعيتين في أي مشروع، وأُزيلت صفوفهما من الجدول.
 
 ### 2.12 WinForms UI Conventions
 
@@ -221,8 +232,8 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 | RULE-N21 | ALL forms use `Tahoma` font family |
 | RULE-N22 | DataGridView with `AllowUserToAddRows = false`, `ReadOnly = true`, `SelectionMode = FullRowSelect` |
 | RULE-N22a | استثناء موثّق ومقصود: شبكة إدخال سطور الفاتورة `dgvItems` في `frmAddUpdateSalesInvoice` تستخدم `AllowUserToAddRows = true` و `SelectionMode = CellSelect` وتحريراً داخل الخلية (إدخال مباشر بالباركود/التحرير السريع) | `RULE-N22` تبقى إلزامية لكل شبكات العرض والقوائم والتقارير؛ الاستثناء لا يُعمَّم على أي شبكة أخرى |
-| RULE-N23 | ContextMenuStrip on DataGridView for row operations |
-| RULE-N24 | Filter pattern: `ComboBox` (cbFilterBy) + `TextBox` (txtFilterValue) with `DataView.RowFilter` |
+| RULE-N23 | ContextMenuStrip on DataGridView for row operations — 🔄 14 شبكة من 77 شبكة حتى الآن؛ إلزامية لشاشات القوائم والمستندات، وليست شرط إغلاق لكل شاشة عرض |
+| RULE-N24 | نمط التصفية: `cbFilterBy` + `txtFilterValue` **داخل `gbFilter`** (§2.22) مع تصفية فورية؛ وبناء `DataView.RowFilter` حصراً عبر `RowFilterHelper.Like/Escape` على أعمدة معروفة (`Name`/`Barcode`/`Phone`) — ممنوع إدراج قيمة المستخدم خاماً أو المقارنة بنص عربي مباشر (`RULE-N60`) |
 | RULE-N25 | Loading data: `async void` handlers with try/catch and `MessageBox.Show` on error |
 | RULE-N26 | Cursor feedback: `Cursor = Cursors.WaitCursor` before async operations, restore in finally |
 | RULE-N27 | Form pattern: Header label (lblMode, Dock=Top, colored) + Filter bar + DataGridView + Footer buttons |
@@ -232,17 +243,19 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 
 > **إلزامي:** أي نموذج جديد (أو نموذج يُعاد بناؤه) يجب أن يجتاز قائمة الإلزام في §2.21 قبل اعتباره مكتملاً.
 
-### 2.13 Users & Permissions (2-Tier)
+### 2.13 المستخدمون (Users) — مصادقة MVP + الصلاحيات مؤجلة إلى V2 (§2.29)
+
+النظام في MVP أحادي المستخدم: مصادقة واحدة (دخول + كلمة سر) بلا نظام صلاحيات. الشاشات: `frmUserMaster` (الدليل المدمج) + `frmPasswordChange` + `frmBackup`.
 
 | RULE | DIRECTIVE |
 |------|-----------|
-| RULE-N31 | `User` entity uses `PermissionsMask` (bigint) for bitwise permission flags — `-1` = Super Admin |
-| RULE-N32 | Roles are templates stored in `Role` entity — assigning a role copies `PermissionsMask` to the user |
-| RULE-N33 | 9 seeded roles: Admin(1), Manager(2), Accountant(3), Treasurer(4), Cashier(5), WarehouseSupervisor(6), SalesEmployee(7), Observer(8), BranchManager(9) |
-| RULE-N34 | `UserRole` enum in `SalesSystem.Common.Enums` with all 9 roles |
-| RULE-N35 | `User.Create()` is passwordless — `MustChangePassword = true` by default |
-| RULE-N36 | Password hashing via BCrypt (work factor 12) in service layer |
-| RULE-N37 | Lockout after 5 failed login attempts (`LoginAttempts >= 5 → IsLocked = true`) |
+| RULE-N35 | ✅ مطبَّق — `User.Create()` is passwordless — `MustChangePassword = true` by default |
+| RULE-N36 | ✅ مطبَّق — Password hashing via BCrypt (work factor 12) in service layer (`UserService`/`AuthService`) |
+| RULE-N37 | ✅ مطبَّق — Lockout after 5 failed login attempts (`LoginAttempts >= 5 → IsLocked = true`) |
+
+**🔒 مؤجل إلى V2 — أُزيل من الكود:**
+
+`RULE-N31`…`RULE-N34` (الأدوار والصلاحيات) **لم تُنفَّذ ولم تبقَ في الكود**: لا يوجد `PermissionsMask` على `User`، ولا كيان `Role` في `SalesSystem.Models`، ولا شاشة `frmRoles` (ولا أي زر/فحص `HasPermission` في الشاشات) — وهذا متوافق مع §2.29 (`RULE-N105`). يبقى `UserRole` في `SalesSystem.Common.Enums` **كوسم جلسة فقط**: `frmLogin` يضبط `Admin`/`Observer` في `UserSession.Role`، ويُستهلك في `NavigationItem.MinRole` وعرض لوحة التحكم — لا في أي فحص صلاحيات.
 
 ### 2.14 Desktop Service Interface Pattern (`I*DesktopService` → `Direct*Service`)
 
@@ -271,12 +284,12 @@ namespace SalesSystem.Desktop.Services.Direct;
 
 public class DirectCustomerService : ICustomerDesktopService
 {
-    private readonly BizInterfaces.ICustomerService _customers;
+    private readonly BizInterfaces.ICustomerService _bll;
     private readonly ISessionService _session;
 
-    public DirectCustomerService(BizInterfaces.ICustomerService customers, ISessionService session)
+    public DirectCustomerService(BizInterfaces.ICustomerService bll, ISessionService session)
     {
-        _customers = customers;
+        _bll = bll;
         _session = session;
     }
 
@@ -285,28 +298,39 @@ public class DirectCustomerService : ICustomerDesktopService
     public async Task<Result<IReadOnlyList<CustomerDto>>> GetAllAsync(
         string? search = null, bool includeInactive = false, CancellationToken ct = default)
     {
-        var result = await _customers.GetAllAsync(search, 1, 1000, includeInactive, ct);
-        return result.IsSuccess
-            ? Result<IReadOnlyList<CustomerDto>>.Success(result.Value!.Items.ToList())
-            : Result<IReadOnlyList<CustomerDto>>.Failure(result.Error!, result.ErrorCode);
+        try
+        {
+            // PagedResult<CustomerDto> → IReadOnlyList<CustomerDto>
+            var r = await _bll.GetAllAsync(search, 1, int.MaxValue, includeInactive, ct);
+            return r.IsSuccess
+                ? Result<IReadOnlyList<CustomerDto>>.Success(r.Value!.Items.ToList())
+                : Result<IReadOnlyList<CustomerDto>>.Failure(r.Error ?? "تعذر تحميل قائمة العملاء", r.ErrorCode);
+        }
+        catch (Exception)
+        {
+            return Result<IReadOnlyList<CustomerDto>>.Failure("تعذر تحميل قائمة العملاء");
+        }
     }
 
     public Task<Result<CustomerDto>> GetByIdAsync(int id, CancellationToken ct = default)
-        => _customers.GetByIdAsync(id, ct);
+        => _bll.GetByIdAsync(id, ct);
 
     public Task<Result<CustomerDto>> CreateAsync(CreateCustomerRequest r, CancellationToken ct = default)
-        => _customers.CreateAsync(r, UserId, ct);
+        => _bll.CreateAsync(r, UserId, ct);
 
     public Task<Result<CustomerDto>> UpdateAsync(int id, UpdateCustomerRequest r, CancellationToken ct = default)
-        => _customers.UpdateAsync(id, r, UserId, ct);
+        => _bll.UpdateAsync(id, r, UserId, ct);
 
     public Task<Result> DeactivateAsync(int id, CancellationToken ct = default)
-        => _customers.DeleteAsync(id, UserId, ct);
+        => _bll.DeleteAsync(id, UserId, ct);
 
-    // ReactivateAsync / other members map to the remaining ICustomerService operations
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+        => _bll.ReactivateAsync(id, ct);
 }
 ```
 
+> كل عضو في الـ wrapper مُغلَّف بـ try/catch يُعيد `Result.Failure` برسالة عربية (`RULE-N14`).
+>
 > BLL interfaces live in `SalesSystem.Business.Interfaces.Services` (Aliased as `BizInterfaces`). Implementations are registered as `Scoped` BLL services in `Program.cs`.
 
 ### 2.16 Mock Data / UI-First Testing
@@ -316,7 +340,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | Aspect | Detail |
 |--------|--------|
 | Flag | `AppSettings.UseMockData` in `SalesSystem.Desktop/appsettings.json` (default `true`) |
-| Mock implementations | `SalesSystem.Desktop/Services/Mock/` — `MockAuthService` plus mock implementations of the `I*DesktopService` interfaces (`MockCustomerDesktopService`, `MockProductDesktopService`, `MockWarehouseDesktopService`, `MockSalesInvoiceDesktopService`, `MockSettingsDesktopService`) and shared in-memory `MockData` |
+| Mock implementations | `SalesSystem.Desktop/Services/Mock/` (43 ملفاً) — `MockAuthService` plus mock implementations of the `I*DesktopService` interfaces (`MockCustomerDesktopService`, `MockProductDesktopService`, `MockWarehouseDesktopService`, `MockSalesInvoiceDesktopService`, `MockSettingsDesktopService`, `MockDashboardDesktopService` — `RULE-N68`) and the five report mocks (`MockSalesReportDesktopService`, `MockPurchaseReportDesktopService`, `MockFinancialReportDesktopService`, `MockCashBoxReportDesktopService`, `MockReportDesktopService` — `RULE-N75`) مع `MockData` مشترك في الذاكرة |
 | Switching | Set `UseMockData` to `true` (mock) or `false` (real BLL/DB) in `appsettings.json`; `Program.cs` maps each `I*DesktopService` to `Mock*DesktopService` or `Direct*Service` at startup |
 | Indicator | `frmMain` appends `وضع التجربة (Mock)` to the title bar when mock mode is active |
 | Login | In mock mode, login accepts any credentials (no database required) |
@@ -327,11 +351,11 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 
 خطة تطوير الواجهة تُنفَّذ على ثلاث مراحل، ولكل مرحلة معيار إغلاق قابل للتحقق:
 
-| المرحلة | النطاق | معيار الإغلاق |
-|---|---|---|
-| أ — الدين المعماري | إغلاق `RULE-N05`/`RULE-N06` بالكامل: كل شاشة في `Desktop/Screens/**` تتحدث مع BLL **فقط** عبر `I*DesktopService` → `Direct*Service` | `grep -r "SalesSystem.Business" SalesSystem/SalesSystem.Desktop/Screens` = **0 نتائج**، و`HttpClient` = 0، و`dotnet build` = 0 أخطاء |
-| ب — UX دليل الأصناف | `frmProductMaster` + `frmProductUnitMaster`: مؤشر وضع، آلة حالة الأزرار، تنقل لوحة المفاتيح، شبكة أغنى، تحقق دقيق | البنود B1–B11 من خطة التحسين منفَّذة ومُختبرة يدوياً |
-| ج — شاشة فاتورة البيع | تثبيت استثناء `RULE-N22a` + تحسينات متقدمة (تفقيط حيّ داخل تحرير الخلية عبر `EditingControlShowing`) | الاستثناء موثّق هنا + الشاشة تعمل بوضعي Mock/Real |
+| المرحلة | النطاق | معيار الإغلاق | الحالة |
+|---|---|---|---|
+| أ — الدين المعماري | إغلاق `RULE-N05`/`RULE-N06` بالكامل: كل شاشة في `Desktop/Screens/**` تتحدث مع BLL **فقط** عبر `I*DesktopService` → `Direct*Service` | `grep -r "SalesSystem.Business" SalesSystem/SalesSystem.Desktop/Screens` = **0 نتائج**، و`HttpClient` = 0، و`dotnet build` = 0 أخطاء | ✅ **مغلقة** — `SalesSystem.Business` في `Screens` = 0، و`ViewModel\|HttpClient` في المشروع كله = 0 |
+| ب — UX دليل الأصناف | `frmProductMaster` + `frmProductUnitMaster`: مؤشر وضع، آلة حالة الأزرار، تنقل لوحة المفاتيح، شبكة أغنى، تحقق دقيق | البنود B1–B11 من خطة التحسين منفَّذة ومُختبرة يدوياً | ✅ **مغلقة** — الشاشتان موجودتان ومكتملتان (هما النمط المرجعي في §2.22) |
+| ج — شاشة فاتورة البيع | تثبيت استثناء `RULE-N22a` + تحسينات متقدمة (تفقيط حيّ داخل تحرير الخلية عبر `EditingControlShowing`) | الاستثناء موثّق هنا + الشاشة تعمل بوضعي Mock/Real | ✅ **مغلقة** — `RULE-N22a` موثّق ونشط، و`frmAddUpdateSalesInvoice` هي الشاشة المرجعية للتفقيط الحيّ |
 
 > **قاعدة:** لا تُفتح مرحلة جديدة قبل إغلاق سابقتها، ولا يُعاد فتح مرحلة مغلقة إلا بقرار صريح من المالك.
 
@@ -385,16 +409,16 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 
 | # | الميزة | المرجع | الحالة | ملاحظات |
 |---|---|---|---|---|
-| 1 | تنقل لوحة المفاتيح (Enter/Tab + أسهم RTL + تحديد القيمة + تظليل الحقل) | `RULE-N40`…`RULE-N47` + `KeyboardHelper` | 🔄 تعميم جارٍ | 10 شاشات فقط تستدعي الأربعة حتى الآن |
+| 1 | تنقل لوحة المفاتيح (Enter/Tab + أسهم RTL + تحديد القيمة + تظليل الحقل) | `RULE-N40`…`RULE-N47` + `KeyboardHelper` | 🔄 تعميم جارٍ | **37** شاشة تستدعي الأربعة، و**23** شاشة تستدعي الستة كاملة من أصل 95 نموذج `frm*` |
 | 2 | الثيم الأخضر في وقت التشغيل | `RULE-N50`…`RULE-N54` + `GreenThemeHelper` | 🔄 تعميم جارٍ | `frmAddUpdateSalesInvoice` هي الشاشة المرجعية |
-| 3 | التفقيط الحيّ كتلميح (ToolTip) على الحقول الرقمية | `LiveTafqeetHelper` | 🔄 شاشة واحدة | `frmAddUpdateSalesInvoice`؛ يُعمَّم على الحقول المالية في باقي الشاشات |
-| 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` |
-| 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | — |
-| 6 | صندوق التصفية الموحّد `gbFilter` + تصفية فورية + مربعات اختيار + شريط ملخص | `RULE-N56`…`N63` | 🔄 تعميم جارٍ | النمطان المرجعيان: `frmListSales` و`frmProductMaster` |
-| 7 | لوحة التحكم كمكوّن `ctrlDashboard` قابل للتضمين | `RULE-N64`…`N69` | ⬜ لم يبدأ | يُستهلك في `frmDashboard` و`frmMain` |
-| 8 | تقرير واحد لكل شاشة + تصنيفات قائمة التقارير | `RULE-N70`…`N76` | ⬜ لم يبدأ | إلغاء نموذج التُبويبات |
-| 9 | نقطة بيع متجر تجزئة بنمط `frmAddUpdateSalesInvoice` | `RULE-N80`…`N85` | ⬜ لم يبدأ | بيع سريع باختيار الأصناف |
-| 10 | دورة «تعطيل → إظهار غير النشط → إعادة تنشيط» | `RULE-N90`…`N94` | ⬜ لم يبدأ | `ReactivateAsync` + زر في الشاشة |
+| 3 | التفقيط الحيّ كتلميح (ToolTip) على الحقول الرقمية | `LiveTafqeetHelper` | 🔄 تعميم جارٍ | **6 شاشات**: `frmAddUpdateSalesInvoice` · `frmPOS` · `frmJournalEntries` · `frmAccounts` · `frmListExpenses` · `frmEmployeeMaster` |
+| 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` — `ContextMenuStrip` في **14 شبكة من 77** |
+| 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | `WireButtonDisabledVisual` في **23** شاشة |
+| 6 | صندوق التصفية الموحّد `gbFilter` + تصفية فورية + مربعات اختيار + شريط ملخص | `RULE-N56`…`N63` | 🔄 تعميم جارٍ | **22 شاشة** فيها `gbFilter` + `pnlSummary` معاً؛ النمطان المرجعيان: `frmListSales` و`frmProductMaster` |
+| 7 | لوحة التحكم كمكوّن `ctrlDashboard` قابل للتضمين | `RULE-N64`…`N69` | ✅ منفّذ | `Screens/Dashboard/Controls/ctrlDashboard` + غلاف `frmDashboard` + `DirectDashboardService`/`MockDashboardDesktopService` + `IEventBus` |
+| 8 | تقرير واحد لكل شاشة + تصنيفات قائمة التقارير | `RULE-N70`…`N76` | ✅ منفّذ | **31 تقريراً** في `Screens/Reports/Forms/`، نموذج واحد لكل تقرير + تنقل داخلي بـ `ReportNavigationHelper` + خمسة `Mock*ReportDesktopService` |
+| 9 | نقطة بيع متجر تجزئة بنمط `frmAddUpdateSalesInvoice` | `RULE-N80`…`N85` | ✅ منفّذ | `frmPOS` (1371 سطراً) + شبكة `dgvCart` + خمس خدمات Desktop (منتج · فاتورة بيع · عميل · مستودع · صندوق) |
+| 10 | دورة «تعطيل → إظهار غير النشط → إعادة تنشيط» | `RULE-N90`…`N94` | 🔄 بدأ | العميل مكتمل (خدمة + زر `btnReactivate` في `frmCustomerMaster`)؛ الأصناف والموردون لديهما `ReactivateAsync` بلا زر؛ الباقي لم يبدأ |
 
 **مراحل التعميم:**
 
@@ -402,7 +426,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 |---|---|---|
 | P1 — الشاشات اليومية | `frmListSales`, `frmAddUpdateSalesInvoice`, `frmProductMaster`, `frmProductUnitMaster`, `frmProductSelection`, `frmListPurchases`, `frmPurchaseInvoice`, `frmListReturns`, `frmSalesReturn`, `frmPurchaseReturn` | كل شاشة: ثيم أخضر + تنقل كامل + شبكة خضراء + تجربة يدوية |
 | P2 — البيانات الأساسية | Categories, Units, Customers, Suppliers, Warehouses, CashBoxes, Employees, Users, Expenses, Payments, CustomerReceipts | كما أعلاه |
-| P3 — التقارير والمخزون والباقي | `Screens/Reports/**` (33), `Screens/Inventory/**` (16), Dashboard, POS, Tools, Login | كما أعلاه، مع مراعاة أن شاشات الطباعة/المعاينة تُعفى من تعبئة النماذج |
+| P3 — التقارير والمخزون والباقي | `Screens/Reports/Forms/**` (31), `Screens/Inventory/**` (16), Dashboard, POS, Tools, Login | كما أعلاه، مع مراعاة أن شاشات التقارير تُعفى من بنود لوحة المفاتيح و`gbFilter` (`RULE-N121`) وشاشات الطباعة/المعاينة تُعفى من تعبئة النماذج |
 
 > **قاعدة:** تُنفَّذ المراحل بالترتيب P1 → P2 → P3، ولا تُعتبر الشاشة «مكتملة» حتى تلتزم بالميزات 1 و2 أعلاه.
 
@@ -415,6 +439,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | RULE | DIRECTIVE |
 |------|-----------|
 | RULE-N55 | إنشاء نموذج بدون استيفاء بنود §2.21 يُعدّ عملاً غير مكتمل ويُرفض في المراجعة — بلا استثناء إلا شاشات المعاينة/الطباعة للقراءة فقط |
+| RULE-N79 | هيكلان مرجعيان فقط للشاشات: (أ) مستند/قائمة = `pnlHeader`+`pnlToolbar`+`pnlFilters`+`pnlSummary`+`pnlGrid`+`pnlFooter` (ب) `frm*Master` مدمجة = محرر + `gbFilter` + `pnlSummary` + `pnlGrid` — و`lblMode` إلزامي في الحالتين |
 
 | # | البند | المرجع | كيف يُتحقق |
 |---|------|--------|-------------|
@@ -423,8 +448,8 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 3 | تسجيل النموذج في حاوية DI داخل `Program.cs` | RULE-N10 | `services.AddTransient<frmXxx>();` |
 | 4 | كل الخدمات عبر `I*DesktopService` فقط — لا `DbContext` ولا `SalesSystem.Business` ولا `HttpClient` | RULE-N05/N06 | `grep "SalesSystem.Business\|HttpClient"` = 0 |
 | 5 | `RightToLeft = Yes` + `RightToLeftLayout = true` + خط `Tahoma` | RULE-N20/N21 | المصمّم + `ApplyUiTheme` |
-| 6 | هيكل الأشرطة: `pnlHeader` (Dock=Top, 56) + `lblMode` + `pnlToolbar` + `pnlFilters` + `pnlSummary` + `pnlGrid` + `pnlFooter` | RULE-N27 | جدول العناصر في تقرير التسليم |
-| 7 | استدعاء الأربعة في المُنشئ: `WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` | RULE-N40 | نص الاستدعاء |
+| 6 | الهيكل المرجعي (RULE-N79): شاشة مستند/قائمة = `pnlHeader`(`lblMode`) + `pnlToolbar` + `pnlFilters`/`gbFilter` + `pnlSummary` + `pnlGrid` + `pnlFooter` · شاشة `frm*Master` مدمجة = لوحة المحرر + `gbFilter` + `pnlSummary` + `pnlGrid` (بلا شريط أدوات منفصل) — و`lblMode` إلزامي في الحالتين | RULE-N79 | جدول العناصر في تقرير التسليم |
+| 7 | كل الستة من `KeyboardHelper` في المُنشئ (تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات) | = البند 23 (RULE-N95) | نص الاستدعاء |
 | 8 | تحديد القيمة الحالية يعمل بالفأرة وبلوحة المفاتيح | RULE-N41 | سلوك `KeyboardHelper` (تلقائي عند استدعاء البند 7) |
 | 9 | أسهم RTL: يمين/أعلى = السابق، يسار/أسفل = التالي | RULE-N45 | سلوك `KeyboardHelper` |
 | 10 | تظليل الحقل النشط `(0xD6,0xE4,0xF0)` | RULE-N46 | معامل `WireFocusHighlight` |
@@ -432,18 +457,18 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 12 | آلة حالة الأزرار + `WireButtonDisabledVisual` | RULE-N43 | `_UpdateButtonsState()` |
 | 13 | **الثيم الأخضر**: `GreenThemeHelper.ApplyHeader(lblMode)` + `GreenThemeHelper.ApplyGrid(dgv)` لكل شبكة + `GreenThemeHelper.Apply(this)` **كآخر سطر** في `ApplyUiTheme()` | RULE-N50…N54 | نهاية `ApplyUiTheme` |
 | 14 | الشبكة: `ReadOnly = true` + `AllowUserToAddRows = false` + `SelectionMode = FullRowSelect` + `ContextMenuStrip` + بحث فوري + نقر مزدوج + سطر «لا توجد بيانات» | RULE-N22/N23/N24 | خصائص الشبكة + الأحداث |
-| 15 | التفقيط الحيّ على الحقول الرقمية/المالية عبر `LiveTafqeetHelper.Attach(liveTip, …)` | §2.20 بند 3 | نص `Attach` |
+| 15 | التفقيط الحيّ إلزامي في شاشات إدخال المال (فواتير · POS · قيود · حسابات · مصروفات · سندات) عبر `LiveTafqeetHelper.Attach(liveTip, …)` — 6 شاشات منفّذة حتى الآن | §2.20 بند 3 + `RULE-N97` | نص `Attach` |
 | 16 | `ToolTip` لكل زر يتضمن اختصاره، واختصارات `F2` جديد · `F3` عرض/تعديل · `F4` ترحيل · `F5` تحديث · `Delete` إلغاء · `Esc` خروج | RULE-N47 | `WireGlobalShortcuts` |
 | 17 | تحقق بـ `errorProvider` + رسائل عربية + **لا** `ex.Message` للمستخدم (Serilog فقط) | RULE-N28/N29 + FORBIDDEN | `grep "ex.Message"` = 0 |
 | 18 | `async void` مع `try/catch` + `Cursor.WaitCursor` واستعادته في `finally` + `CancellationToken` | RULE-N25/N26 | مراجعة المعالجات |
 | 19 | المال `decimal` وعرضه `N2`، الكميات `decimal(18,3)` | RULE-001/RULE-002 | أنواع الخصائص |
 | 20 | عدم كسر أي سلوك قائم: تُحفظ أسماء العناصر والأحداث المُستدعاة من خارج الشاشة | — | `git diff` محدود |
-| 21 | صندوق تصفية موحّد `gbFilter` بأدوات التصفية القياسية والتصفية الفورية | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم |
+| 21 | صندوق تصفية موحّد `gbFilter` بأدوات التصفية القياسية والتصفية الفورية | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم — شاشات التقارير تُعفى من `gbFilter` لأنها تُوحَّد بـ `ReportUiStandardizer` (`RULE-N121`) |
 | 22 | شريط ملخص (`pnlSummary`) يعدّ النتائج والإجماليات `N2` بعد كل تصفية | `RULE-N61` | `_UpdateSummary()` |
 | 23 | كل الشاشات تستدعي الستة من `KeyboardHelper` (تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات) | `RULE-N95` | grep على `WireArrowNavigation` في كل `frm*.cs` |
 | 24 | الثيم الأخضر مطبَّق على الشاشة وكل شبكاتها | `RULE-N96` | `ApplyGrid` + آخر سطر `Apply(this)` |
 | 25 | زر «إعادة تنشيط» يعمل على السطر غير النشط فقط | `RULE-N90`…`N94` | تجربة يدوية: عطّل ثم أعد التنشيط |
-| 26 | كل التصفية داخل `gbFilter` بلا استثناء | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم |
+| 26 | كل التصفية داخل `gbFilter` بلا استثناء | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم — شاشات التقارير تُعفى من `gbFilter` لأنها تُوحَّد بـ `ReportUiStandardizer` (`RULE-N121`) |
 | 27 | النمط الصحيح للشاشة: بيانات أساسية ⇒ `frm*Master` مدمج · مستند ⇒ `frmList*` + `frmAddUpdate*` | `RULE-N100`…`N104` | لا يوجد `frmAddUpdate*`/`frmList*` لكيان له Master |
 | 28 | لا يُضاف أي بند من §2.29 (صلاحيات/نطاق DI/الموظفون المُخزَّنون) إلى MVP | `RULE-N105`…`N108` | مراجعة القائمة قبل كل تسليم |
 
@@ -498,7 +523,7 @@ private void ApplyUiTheme()
 | RULE-N60 | التصفية بـ`SelectedIndex` لا بمقارنة نص عربي، والبحث النصي على أعمدة معروفة (`Name`/`Barcode`/`Phone`…) لا على `DataView.RowFilter` المبني من إدخال المستخدم مباشرة |
 | RULE-N61 | شريط `pnlSummary` يعرض عدد النتائج والإجماليات (`N2`) ويُعاد حسابه بعد كل تصفية |
 | RULE-N62 | أي فلتر جديد يُضاف داخل `gbFilter` فقط — ممنوع أزرار/حقول تصفية خارجها |
-| RULE-N63 | زر اختياري `btnToggleFilters` («إخفاء/إظهار التصفية») يطوي `pnlFilters` إلى ارتفاع 34 للحصول على مساحة أكبر للشبكة، ويُحفظ حالته في `SystemSettings` بمفتاح `UI.FiltersCollapsed` |
+| RULE-N63 | زر اختياري `btnToggleFilters` («إخفاء/إظهار التصفية») يطوي `pnlFilters` إلى ارتفاع 34 للحصول على مساحة أكبر للشبكة، ويُحفظ حالته في `SystemSettings` بمفتاح `UI.FiltersCollapsed` — 🔄 لم يُنفَّذ بعد في أي شاشة (`btnToggleFilters` = 0)؛ يُنفَّذ عند توسيع P2/P3 |
 
 **مخطط عناصر `gbFilter`:**
 
@@ -540,8 +565,8 @@ private void ApplyUiTheme()
 | RULE-N70 | كل تقرير شاشة `frm*Report` مستقلة تعرض تقريراً **واحداً** فقط؛ نموذج التُبويبات المتعددة (`frmReports`) يُلغى دوره ولا يُضاف تقرير إليه |
 | RULE-N71 | كل تقرير يُسجَّل في DI ويُفتح من **عنصر قائمة واحد** في `frmMain` — لا تكرار ولا شاشة يتيمة |
 | RULE-N72 | قائمة «التقارير» تُقسَّم إلى قوائم فرعية ثابتة: **المبيعات** · **المشتريات** · **المخزون** · **المحاسبة والمالية** · **العملاء والموردون** · **الصندوق** — كل تصنيف `ToolStripMenuItem` يحتوي تقاريره فقط |
-| RULE-N73 | كل تقرير يستوفي §2.21 + §2.22 (`gbFilter` + `pnlSummary`) + تصدير Excel عبر `IExportableReport` |
-| RULE-N74 | كود التقارير يُوزَّع حسب التصنيف: `Screens/Reports/{Sales,Purchases,Inventory,Finance,Parties,CashBox}/` — لا حشر كل التقارير في مجلد واحد |
+| RULE-N73 | كل تقرير يستوفي §2.21 **عدا بنود لوحة المفاتيح والتصفية**؛ يُوحَّد مظهره وسلوكه حصراً عبر `ReportUiStandardizer.ApplyForm(this)` + `ReportNavigationHelper.Attach(this, _serviceProvider)` كآخر سطرين في المُنشئ، مع تصدير Excel عبر `IExportableReport` (`RULE-N121`) |
+| RULE-N74 | ملفات التقارير في مجلد واحد `Screens/Reports/Forms/`؛ التصنيف يُطبَّق في قائمة `frmMain` فقط (`RULE-N72`) — لا مجلدات `{Sales,Purchases,…}` |
 | RULE-N75 | كل `I*ReportDesktopService` تحتاج تنفيذاً وهمياً `Mock*ReportDesktopService` وإلا انكسر وضع التجربة |
 | RULE-N76 | لا يُعتبر التصنيف مكتملاً حتى تصل كل تقاريره من القائمة في نقرتين على الأكثر |
 | RULE-N77 | لا يوجد مجلد `Tabs` للتقارير: كل تقرير **نموذج واحد** `frm*Report` بملفَي `.cs` + `.Designer.cs` ومنطقه داخله — ممنوع `UserControl` وسيط لكل تقرير، وممنوع إبقاء تاب ميت بلا مرجع |
@@ -557,8 +582,8 @@ private void ApplyUiTheme()
 |------|-----------|
 | RULE-N80 | `frmPOS` تُبنى على نمط `frmAddUpdateSalesInvoice`: باركود → شبكة سطور → مجاميع → دفع → ترحيل |
 | RULE-N81 | الشاشة تعتمد الاختيار السريع للأصناف: أزرار/قائمة أصناف + حقل باركود، والتركيز على أقل عدد نقرات لإتمام البيع — ولا تُضاف أي وحدة أو تبويب أو خطوة لا يطلبها البيع السريع |
-| RULE-N82 | تعمل بوضعي Mock/Real عبر `IProductDesktopService` + `ISalesInvoiceDesktopService` + `ICustomerDesktopService` فقط — لا وصول مباشر لأي طبقة أخرى |
-| RULE-N83 | شبكة سطور POS هي الاستثناء الثاني المسموح لـ `RULE-N22a` (مع `dgvItems`)، ولا يُعمَّم على غيرها |
+| RULE-N82 | تعمل بوضعي Mock/Real عبر الخمس خدمات المستخدمة فعلياً: `IProductDesktopService` + `ISalesInvoiceDesktopService` + `ICustomerDesktopService` + `IWarehouseDesktopService` + `ICashBoxDesktopService` (+ `IEventBus` للتحديث) — لا وصول مباشر لأي طبقة أخرى |
+| RULE-N83 | شبكة سطور POS هي الاستثناء الثاني المسموح لـ `RULE-N22a` — اسمها `dgvCart` في `frmPOS` (مع `dgvItems` في `frmAddUpdateSalesInvoice`)، ولا يُعمَّم على غيرها |
 | RULE-N84 | كل بيع يُرحَّل كـ `SalesInvoice` بحالة `Posted` داخل `BeginTransactionAsync` مع خصم المخزون وتسجيل `InventoryTransactions` والقيد المحاسبي |
 | RULE-N85 | بعد الحفظ لا تُغلق الشاشة: تُفرَّغ السلة وتُعاد التهيئة لبيع جديد ويبقى التركيز على حقل الباركود |
 
@@ -568,7 +593,7 @@ private void ApplyUiTheme()
 
 | RULE | DIRECTIVE |
 |------|-----------|
-| RULE-N90 | كل كيان يرث `ActivatableEntity` يجب أن يدعم الدورة كاملة: تعطيل → إظهار غير النشط → إعادة تنشيط |
+| RULE-N90 | كل كيان يرث `ActivatableEntity` يجب أن يدعم الدورة كاملة: تعطيل → إظهار غير النشط → إعادة تنشيط — 🔄 التعميم جزئي: العميل مكتمل (خدمة + زر)، الأصناف/الفئات/الموردون خدمة بلا زر (`RULE-N122`) |
 | RULE-N91 | كل `I*DesktopService` لكيان قابل للتعطيل يعرّض `ReactivateAsync` ويُسندها للـ BLL — لا منطق في الـ wrapper (`RULE-N11`) |
 | RULE-N92 | شاشة الدليل تُظهر زر «إعادة تنشيط» مفعّلاً على السطر **غير النشط فقط**، ومعطّلاً على النشط (`RULE-N43`) |
 | RULE-N93 | إعادة التنشيط تُنفَّذ داخل معاملة، وتُعيد تنشيط الحساب المحاسبي المرتبط إن وُجد، وتُستخدم `IgnoreQueryFilters` للوصول للسجل المعطَّل |
@@ -590,10 +615,15 @@ private void ApplyUiTheme()
 
 | Helper | الملف | الوظائف المستهلكة |
 |---|---|---|
-| `KeyboardHelper` | `SalesSystem.Desktop/Helpers/KeyboardHelper.cs` | `WireEnterAsTab` · `WireSelectAllOnFocus` · `WireFocusHighlight` · `WireArrowNavigation` · `WireButtonDisabledVisual` · `WireGlobalShortcuts` |
+| `KeyboardHelper` | `SalesSystem.Desktop/Helpers/KeyboardHelper.cs` | `WireEnterAsTab` · `WireSelectAllOnFocus` · `WireFocusHighlight` · `WireArrowNavigation` · `WireEnterToClick` · `WireButtonDisabledVisual` · `WireGlobalShortcuts` |
 | `GreenThemeHelper` | `SalesSystem.Desktop/Helpers/GreenThemeHelper.cs` | `Apply` · `ApplyHeader` · `ApplyGrid` · `TextStrong` |
 | `LiveTafqeetHelper` | `SalesSystem.Desktop/Helpers/LiveTafqeetHelper.cs` | `Attach` (تلميح التفقيط الحيّ) |
 | `ThemeHelper` | `SalesSystem.Desktop/Helpers/ThemeHelper.cs` | `ApplyMainFormStyle` · `ApplyButtonStyle` (يُستدعى **قبل** الثيم الأخضر) |
+| `RowFilterHelper` | `SalesSystem.Desktop/Helpers/RowFilterHelper.cs` | `Escape` · `Like` (تهريب قيمة التصفية وبناء `RowFilter` آمن — `RULE-N24`/`RULE-N60`) |
+| `ReportNavigationHelper` | `SalesSystem.Desktop/Helpers/ReportNavigationHelper.cs` | `Attach` (شريط تنقل التقارير داخل النموذج — `RULE-N78`) |
+| `ReportUiStandardizer` | `SalesSystem.Desktop/Helpers/ReportUiStandardizer.cs` | `Apply` · `ApplyForm` (توحيد مظهر شاشات التقارير — `RULE-N121`) |
+| `ExportHelper` | `SalesSystem.Desktop/Helpers/ExportHelper.cs` | `ExportToExcel` · `ExportToCsv` (التصدير الموحّد للشبكات) |
+| `ArabicNumberToWords` | `SalesSystem.Desktop/Helpers/ArabicNumberToWords.cs` | `ToWords` (التفقيط: مبلغ + عملة + كسر) |
 
 **سطر الإلزام في كل مُنشئ شاشة:**
 
@@ -648,7 +678,7 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 
 | # | البند | القرار | البديل المعتمد في MVP | الحالة |
 |---|------|--------|------------------------|--------|
-| 1 | الأدوار والصلاحيات (`PermissionsMask`، `RULE-N31`…`N37`) | مؤجل — مستخدم واحد بصلاحيات كاملة | كل الشاشات متاحة للأدمن؛ لا فحص صلاحيات | 🔒 V2 |
+| 1 | الأدوار والصلاحيات (`PermissionsMask`، `RULE-N31`…`N34`) | مؤجل — مستخدم واحد بصلاحيات كاملة | كل الشاشات متاحة للأدمن؛ لا فحص صلاحيات (المصادقة `RULE-N35`…`N37` مطبَّقة — §2.13) | 🔒 V2 |
 | 2 | نطاق DI لكل عملية (بدل نطاق واحد لعمر التطبيق) | مؤجل | نطاق واحد مُنشأ في `Program.cs` | 🔒 V2 |
 | 3 | وحدة الموظفين كوحدة مُخزَّنة (لا جدول `Employees` في MVP) | مؤجل — موجودة كواجهة تجريبية | `MockEmployeeDesktopService` في وضع التجربة | 🔒 V2 |
 
@@ -680,6 +710,18 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 | RULE-N117 | ممنوع `dotnet test` أو تشغيل التطبيق من أي وكيل. المسموح فقط `dotnet build` للتحقق من الترجمة |
 | RULE-N118 | مراجعة الكود/الأمن لا تُبلغ «نقص تغطية اختبارات» كعيب — تُغلق بإحالة إلى هذا القسم |
 | RULE-N119 | ملف تسليم لا يحتوي قائمة اختبار يدوي يُعدّ ناقصاً ويُرفض |
+
+---
+
+### 2.32 قواعد نظافة الواجهة والتوثيق (UI Housekeeping)
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N120 | مصفوفة §2.20 وجدول §2.17 وحالات §9 تُحدَّث عند إغلاق كل شاشة/مرحلة — يُمنع بقاء «⬜ لم يبدأ» على ما هو منفّذ |
+| RULE-N121 | شاشات `frm*Report` للقراءة فقط تُدار حصراً بـ `ReportUiStandardizer.ApplyForm` + `ReportNavigationHelper.Attach` + `IExportableReport`، وتُعفى من بنود لوحة المفاتيح الستة و`gbFilter` |
+| RULE-N122 | كل كيان يرث `ActivatableEntity` جديد يجب أن يخرج بـ `ReactivateAsync` في الواجهة وBLL **وزر إعادة تنشيط في شاشته** — لا يُغلق الكيان دون الدورة كاملة |
+| RULE-N123 | لا تبقى مراجع NuGet ميتة (مُعلنة وغير مستخدمة) — تُزال عند أول مساس بملف `.csproj` المعني |
+| RULE-N124 | أسماء مجلدات الشاشات تُكتب `Forms` — أي مجلد مكتوب `Froms` يُصحَّح عند أول مساس بمحتواه |
 
 ## 3. Enums
 
@@ -814,22 +856,22 @@ SalesSystem.slnx
 │
 ├── SalesSystem.Desktop/              ← WinForms Desktop Client
 │   ├── Program.cs                    ← DI container, entry point
-│   ├── Screens/                      ← 24 module folders (Sales, Products, Customers, etc.)
+│   ├── Screens/                      ← 23 module folders (Sales, Products, Customers, etc.)
 │   │   ├── Sales/                    ← frm* forms for sales
 │   │   ├── Products/                 ← frm* forms for products
 │   │   ├── Customers/                ← frm* forms for customers
-│   │   └── ... (24 modules)
+│   │   └── ... (23 modules)
 │   ├── Services/                     ← Service implementations
 │   │   ├── Direct/                   ← Direct*Service wrappers (I*DesktopService → BLL)
 │   │   ├── Interfaces/               ← I*DesktopService interfaces
 │   │   └── Mock/                     ← Mock*DesktopService + MockData (in-memory, no DB)
 │   ├── Controls/                     ← Custom WinForms controls
 │   ├── Helpers/                      ← Desktop utility classes
-│   ├── Models/                       ← Desktop-specific view models
+│   ├── Models/                       ← Desktop-specific models (InvoiceLineItem, UserSession, NavigationItem, Notification, SalesLineDto)
 │   ├── Printing/                     ← Desktop print handling
 │   └── Configuration/                ← App configuration (AppSettings.cs)
 │
-└── SalesSystem.Tests/                ← Unit + Integration tests
+└── SalesSystem.Tests/                ← Unit tests for Common/Helpers only (owner-owned)
 ```
 
 ---
@@ -838,32 +880,39 @@ SalesSystem.slnx
 
 | Module | Status | Desktop Screens | Business | DB |
 |--------|--------|-----------------|----------|----|
-| Users & Permissions | ✅ Done | frmUsers, frmRoles | ✅ | ✅ |
-| Settings | ✅ Done | frmSettings | ✅ | ✅ |
-| Currencies | ✅ Done | frmCurrencies | ✅ | ✅ |
-| Chart of Accounts | ✅ Done | frmAccounts | ✅ | ✅ |
-| Customers | ✅ Done | frmCustomers | ✅ | ✅ |
-| Suppliers | ✅ Done | frmSuppliers | ✅ | ✅ |
-| Categories | ✅ Done | frmCategories | ✅ | ✅ |
-| Units | ✅ Done | frmUnits | ✅ | ✅ |
-| Taxes | ✅ Done | frmTaxes | ✅ | ✅ |
-| Warehouses | ✅ Done | frmWarehouses | ✅ | ✅ |
-| Products | ✅ Done | frmProducts | ✅ | ✅ |
-| CashBoxes | ✅ Done | frmCashBoxes | ✅ | ✅ |
-| Banks | ✅ Done | frmBanks | ✅ | ✅ |
-| Purchases | 🔄 In Progress | frmPurchases | ✅ | ✅ |
-| Sales | 🔄 In Progress | frmSales | ✅ | ✅ |
-| Sales Returns | 🔄 In Progress | frmReturns | 🔄 | ✅ |
-| Receipts & Payments | 🔄 In Progress | frmReceipts, frmPayments | 🔄 | ✅ |
-| Journal Entries | 🔄 In Progress | frmJournalEntries | 🔄 | ✅ |
-| Reports | ❌ Not Started | — | — | — |
-| Dashboard | ❌ Not Started | frmDashboard (shell) | — | — |
-| Inventory (Transfers/Adjustments) | 🔄 In Progress | frmInventory | 🔄 | ✅ |
-| Expenses | ✅ Done | frmExpenses | ✅ | ✅ |
-| Accounting Engine | ✅ Done | — (auto) | ✅ | ✅ |
-| Printing | 🔄 In Progress | — | ✅ | ✅ |
+| Users | ✅ Done | `frmUserMaster`, `frmPasswordChange`, `frmBackup` | ✅ `UserService` · `AuthService` | ✅ `Users` |
+| Roles & Permissions | 🔒 V2 (§2.29) | — (لا `frmRoles`) | — | — (لا كيان `Role`/`PermissionsMask`) |
+| Employees | 🔄 Mock فقط | `frmEmployeeMaster` | ❌ لا خدمة BLL | ❌ لا كيان `Employee` |
+| Settings | 🔄 BLL+DB بلا شاشة | — (`Screens/Settings` فارغ) | ✅ `CompanySettingsService` · `StoreSettingsService` | ✅ `SystemSettings` |
+| Currencies | ❌ Not Implemented | — (لا `frmCurrencies`) | ❌ | ❌ |
+| Chart of Accounts | ✅ Done | `frmAccounts` | ✅ `AccountService` | ✅ `Accounts` |
+| Journal Entries | ✅ Done | `frmJournalEntries` | ✅ `JournalEntryService` + `AccountingIntegrationService` | ✅ `JournalEntries` |
+| Customers | ✅ Done | `frmCustomerMaster`, `frmCustomerSelection`, `frmCustomerStatement` | ✅ `CustomerService` | ✅ `Customers` |
+| Suppliers | ✅ Done | `frmSupplierMaster`, `frmSupplierSelection` | ✅ `SupplierService` | ✅ `Suppliers` |
+| Categories | ✅ Done | `frmCategoryMaster` | ✅ `ProductCategoryService` | ✅ `ProductCategories` |
+| Units | ✅ Done | `frmUnitMaster` | ✅ `UnitService` | ✅ `Units` |
+| Taxes | ❌ Not Implemented | — (لا `frmTaxes`) | ❌ | ❌ |
+| Warehouses | ✅ Done | `frmWarehouseMaster` | ✅ `WarehouseService` | ✅ `Warehouses` |
+| Products | ✅ Done | `frmProductMaster`, `frmProductUnitMaster`, `frmProductSelection`, `frmImportProductsExcel` | ✅ `ProductService` · `ProductUnitService` · `ProductImportService` | ✅ `Products` · `ProductUnits` |
+| CashBoxes | ✅ Done | `frmCashBoxMaster`, `frmCashBoxTransactions` | ✅ `CashBoxService` | ✅ `CashBoxes` |
+| Banks | ❌ Not Implemented | — (لا `frmBanks`) | ❌ | ❌ |
+| Purchases | ✅ Done | `frmListPurchases`, `frmPurchaseInvoice`, `frmPurchases` | ✅ `PurchaseService` | ✅ `PurchaseInvoices` |
+| Sales | ✅ Done | `frmListSales`, `frmAddUpdateSalesInvoice` | ✅ `SalesService` | ✅ `SalesInvoices` |
+| Sales Returns | ✅ Done | `frmSalesReturn`, `frmListReturns` | ✅ `SalesReturnService` | ✅ `SalesReturns` |
+| Purchase Returns | ✅ Done | `frmPurchaseReturn` | ✅ `PurchaseReturnService` | ✅ `PurchaseReturns` |
+| Receipts (سندات القبض) | ✅ Done | `frmListCustomerReceipts`, `frmAddUpdateCustomerReceipt` | ✅ `CustomerReceiptService` | ✅ `CustomerReceipts` |
+| Payments (سندات الصرف) | ✅ Done | `frmListPayments`, `frmListSupplierPayments`, `frmSupplierPaymentDialog` | ✅ `SupplierPaymentService` · `PaymentVoucherService` | ✅ `SupplierPayments` |
+| Reports | ✅ Done | **31** نموذج `frm*Report` في `Screens/Reports/Forms/` | ✅ 5 خدمات تقارير (+ Mocks) | ✅ (تقرأ من الجداول القائمة) |
+| Dashboard | ✅ Done | `frmDashboard` (غلاف) + `ctrlDashboard` | ✅ `DirectDashboardService`/`MockDashboardDesktopService` | ✅ (إحصاءات فوق الجداول القائمة) |
+| Inventory (Transfers/Adjustments) | ✅ Done | `frmInventory`, `frmListInventoryTransactions`, `frmListInventoryBatches`, `frmListInventoryAdjustments`, `frmOpeningStock`, `frmWarehouseTransferNew`, `frmStocktakingNew` + نوافذ الطباعة | ✅ `InventoryService` · `InventoryBatchService` · `InventoryAdjustmentService` | ✅ `InventoryTransactions` · `InventoryBatches` · `InventoryAdjustments` |
+| Expenses | ✅ Done | `frmListExpenses`, `frmAddUpdateExpense` | ✅ `ExpenseService` | ✅ `Expense` (عبر `ExpenseConfiguration`) |
+| POS | ✅ Done | `frmPOS` (1371 سطراً) | ✅ `SalesService` (نفس مسار الفاتورة) | ✅ `SalesInvoices` |
+| Accounting Engine | ✅ Done | — (auto) | ✅ `AccountingIntegrationService` | ✅ `JournalEntries` |
+| Printing | ✅ Done | نوافذ طباعة داخلية (فاتورة شراء/مخزون) | ✅ `Business/Printing` · `DataAccess/Printing` (QuestPDF) | ✅ |
 
 > The former `API` column was removed — there is no HTTP/API layer; every module's Desktop layer goes straight to Business.
+>
+> **قاعدة:** كل صف في هذا الجدول يُتحقَّق من وجود نموذجه فعلياً في `Screens/<Module>/` قبل ادّعاء «Done» — أسماء لا وجود لها (`frmUsers`, `frmRoles`, `frmSettings`, `frmCurrencies`, `frmTaxes`, `frmBanks`, `frmCategories`, `frmProducts`, `frmWarehouses`, `frmCashBoxes`, `frmSuppliers`, `frmCustomers`, `frmUnits`, `frmSales`, `frmReturns`, `frmReceipts`, `frmPayments`) أُزيلت أو استُبدلت بالاسم الحقيقي (`frm*Master`).
 
 ---
 

@@ -125,7 +125,6 @@
             // ── الموظفون (جديد) ────────────────────────────────────────────────────────────────────
             msbtnEmployees = new ToolStripMenuItem();
             // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
-            msbtnPurchases = new ToolStripMenuItem();
             msbtnInventory = new ToolStripMenuItem();
             // ── المحاسبة (جديد) ───────────────────────────────────────────────────────────────────
             msAccounting = new ToolStripMenuItem();
@@ -294,8 +293,6 @@
             // msBuy
             // 
             msBuy.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnPurchases,
-                new ToolStripSeparator(),
                 msbtnPurchaseInvoice, msbtnPurchaseReturn, msbtnManagePurchases,
                 new ToolStripSeparator(),
                 msbtnManageSuppliers,
@@ -305,13 +302,6 @@
             msBuy.Name = "msBuy";
             msBuy.Size = new Size(115, 33);
             msBuy.Text = "المشتريات";
-            // 
-            // msbtnPurchases
-            // 
-            msbtnPurchases.Name = "msbtnPurchases";
-            msbtnPurchases.Size = new Size(300, 38);
-            msbtnPurchases.Text = "إدارة المشتريات";
-            msbtnPurchases.Click += msbtnPurchases_Click;
             // 
             // msbtnManagePurchases
             // 
@@ -977,7 +967,6 @@
         private ToolStripMenuItem msAccounting;
         private ToolStripMenuItem msbtnChartOfAccounts;
         private ToolStripMenuItem msbtnJournalEntries;
-        private ToolStripMenuItem msbtnPurchases;
         private ToolStripMenuItem msbtnInventory;
         private ToolStripMenuItem msSettings;
         private ToolStripMenuItem msbtnSettings;
