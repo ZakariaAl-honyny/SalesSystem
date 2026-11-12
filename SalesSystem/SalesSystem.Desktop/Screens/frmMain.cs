@@ -14,6 +14,7 @@ using SalesSystem.Desktop.Screens.Products.Forms;
 using SalesSystem.Desktop.Screens.Purchases.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.Desktop.Screens.Customers.Forms;
+using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
@@ -212,6 +213,11 @@ public partial class frmMain : Form
 
     private void msbtnEmployees_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmEmployeeMaster>());
+
+    // ── المحاسبة (Accounting) ────────────────────────────────────────────────
+
+    private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccounts>());
 
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
 

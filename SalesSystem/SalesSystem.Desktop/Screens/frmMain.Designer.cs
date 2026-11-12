@@ -88,6 +88,9 @@
             msbtnPurchases = new ToolStripMenuItem();
             msbtnInventory = new ToolStripMenuItem();
             msbtnReportsDashboard = new ToolStripMenuItem();
+            // ── المحاسبة (جديد) ───────────────────────────────────────────────────────────────────
+            msAccounting = new ToolStripMenuItem();
+            msbtnChartOfAccounts = new ToolStripMenuItem();
 
             errorProvider1 = new ErrorProvider(components);
             msMainMenu.SuspendLayout();
@@ -102,7 +105,7 @@
             msMainMenu.ImageScalingSize = new Size(24, 24);
             msMainMenu.Items.AddRange(new ToolStripItem[] {
                 msFile, msSale, msBuy, msBasis, msStore, msRevenue,
-                msData, msReport, msSettings, msAccoutSettings
+                msAccounting, msData, msReport, msSettings, msAccoutSettings
             });
             msMainMenu.Location = new Point(0, 0);
             msMainMenu.Name = "msMainMenu";
@@ -411,6 +414,22 @@
             msbtnEmployees.Text = "الموظفون";
             msbtnEmployees.Click += msbtnEmployees_Click;
             // 
+            // msAccounting
+            // 
+            msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnChartOfAccounts
+            });
+            msAccounting.Name = "msAccounting";
+            msAccounting.Size = new Size(105, 33);
+            msAccounting.Text = "المحاسبة";
+            // 
+            // msbtnChartOfAccounts
+            // 
+            msbtnChartOfAccounts.Name = "msbtnChartOfAccounts";
+            msbtnChartOfAccounts.Size = new Size(300, 38);
+            msbtnChartOfAccounts.Text = "دليل الحسابات";
+            msbtnChartOfAccounts.Click += msbtnChartOfAccounts_Click;
+            // 
             // msReport
             // 
             msReport.DropDownItems.AddRange(new ToolStripItem[] {
@@ -564,6 +583,8 @@
         private ToolStripMenuItem msbtnManageUsers;
         private ToolStripMenuItem msReport;
         private ToolStripMenuItem msbtnReports;
+        private ToolStripMenuItem msAccounting;
+        private ToolStripMenuItem msbtnChartOfAccounts;
         private ToolStripMenuItem msbtnReportsDashboard;
         private ToolStripMenuItem msbtnPurchases;
         private ToolStripMenuItem msbtnInventory;
