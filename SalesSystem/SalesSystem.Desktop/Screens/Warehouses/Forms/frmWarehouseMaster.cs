@@ -322,7 +322,7 @@ public partial class frmWarehouseMaster : Form
         if (txtFilterValue is null || cbFilterBy is null || cbStatus is null || chkShowInactive is null)
             return;
 
-        string text = txtFilterValue.Text.Trim().Replace("'", "''");
+        string text = txtFilterValue.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -348,11 +348,21 @@ public partial class frmWarehouseMaster : Form
         {
             string? column = _FilterColumn();
             conditions.Add(column is null
-                ? $"(Name LIKE '%{text}%' OR Address LIKE '%{text}%' OR Phone LIKE '%{text}%')"
-                : $"{column} LIKE '%{text}%'");
+                ? "(" + RowFilterHelper.Like("Name", text)
+                    + " OR " + RowFilterHelper.Like("Address", text)
+                    + " OR " + RowFilterHelper.Like("Phone", text) + ")"
+                : RowFilterHelper.Like(column, text));
         }
 
-        _warehousesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _warehousesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل المستودعات — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();

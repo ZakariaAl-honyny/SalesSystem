@@ -401,7 +401,7 @@ public partial class frmUserMaster : Form
             || chkShowInactive is null || chkOnlyLocked is null || chkOnlyMustChangePassword is null)
             return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -426,8 +426,8 @@ public partial class frmUserMaster : Form
         if (text.Length > 0)
         {
             conditions.Add(cbFilterBy.SelectedIndex == 1
-                ? $"CONVERT(Id, 'System.String') LIKE '{text}%'"   // رقم المستخدم
-                : $"UserName LIKE '%{text}%'");                     // اسم المستخدم (الافتراضي)
+                ? $"CONVERT(Id, 'System.String') LIKE '{RowFilterHelper.Escape(text)}%'"   // رقم المستخدم
+                : RowFilterHelper.Like("UserName", text));                                   // اسم المستخدم (الافتراضي)
         }
 
         // ── مربعات الاختيار: المقفلون / الملزمون بتغيير كلمة المرور ──
@@ -437,7 +437,15 @@ public partial class frmUserMaster : Form
         if (chkOnlyMustChangePassword.Checked)
             conditions.Add("MustChangePassword = true");
 
-        _usersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _usersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل المستخدمين — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();

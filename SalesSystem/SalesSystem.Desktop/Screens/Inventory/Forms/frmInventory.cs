@@ -264,19 +264,49 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             string search = txtSearch.Text.Trim();
             if (search.Length > 0)
             {
-                string s = search.Replace("'", "''");
-                parts.Add($"(Name LIKE '%{s}%' OR Code LIKE '%{s}%' OR Barcode LIKE '%{s}%')");
+                parts.Add("(" + RowFilterHelper.Like("Name", search)
+                          + " OR " + RowFilterHelper.Like("Code", search)
+                          + " OR " + RowFilterHelper.Like("Barcode", search) + ")");
             }
 
-            if (cbWarehouseFilter.SelectedIndex >= 1)
-                parts.Add($"WarehouseName = '{cbWarehouseFilter.Text}'");
+            // RULE-N60: القيمة تُقرأ من فهرس الاختيار (لا من .Text) وتُهرَّب قبل بنائها في RowFilter.
+            string? warehouse = _SelectedWarehouseValue();
+            if (warehouse is not null)
+                parts.Add($"WarehouseName = '{RowFilterHelper.Escape(warehouse)}'");
 
-            if (cbStockStatusFilter.SelectedIndex >= 1)
-                parts.Add($"StockStatus = '{cbStockStatusFilter.Text}'");
+            string? status = _SelectedStockStatusValue();
+            if (status is not null)
+                parts.Add($"StockStatus = '{RowFilterHelper.Escape(status)}'");
 
-            _productsView.RowFilter = parts.Count > 0 ? string.Join(" AND ", parts) : "";
+            // إن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+            try
+            {
+                _productsView.RowFilter = parts.Count > 0 ? string.Join(" AND ", parts) : "";
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "تعذر تطبيق تصفية أصناف المخزون — أُبقيت التصفية السابقة كما هي");
+            }
+
             lblProductsCount.Text = _productsView.Count.ToString();
         }
+
+        /// <summary>قيمة المستودع المقابلة لفهرس الاختيار — ثوابت داخل الكود لا يُبنى العمود ولا القيمة من نص المستخدم.</summary>
+        private string? _SelectedWarehouseValue() => cbWarehouseFilter.SelectedIndex switch
+        {
+            1 => "الرئيسي",
+            2 => "المعرض",
+            _ => null   // «الكل»
+        };
+
+        /// <summary>قيمة حالة الرصيد المقابلة لفهرس الاختيار.</summary>
+        private string? _SelectedStockStatusValue() => cbStockStatusFilter.SelectedIndex switch
+        {
+            1 => "نفذ",
+            2 => "محدود",
+            3 => "متوفر",
+            _ => null   // «الكل»
+        };
 
         // ── Status Badge Helpers ───────────────────────────────────────────────────
 

@@ -139,7 +139,12 @@ public class AccountService : IAccountService
         // Step 5: Auto-generate color code from nature
         var colorCode = IAccountCodeGeneratorService.GetColorCode(request.Nature);
 
+        // Step 5a: Reject negative opening balance explicitly
+        if (request.OpeningBalance.HasValue && request.OpeningBalance.Value < 0)
+            return Result<AccountDto>.Failure("لا يمكن أن يكون الرصيد الافتتاحي سالباً", ErrorCodes.ValidationError);
+
         // Step 6: Create the account entity
+        // ملاحظة: إشارات IsSystem من الطلب تُجاهل عمداً — الحسابات النظامية يُنشأ من البذور فقط
         var account = Account.Create(
             accountCode: codeResult.Value!,
             nameAr: request.NameAr,
@@ -147,7 +152,7 @@ public class AccountService : IAccountService
             nature: request.Nature,
             isLeaf: request.IsLeaf,
             parentId: request.ParentId,
-            isSystem: request.IsSystem,
+            isSystem: false,
             level: level,
             description: request.Description,
             colorCode: colorCode,

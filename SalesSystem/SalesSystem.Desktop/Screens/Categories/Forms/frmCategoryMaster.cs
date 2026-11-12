@@ -286,7 +286,7 @@ public partial class frmCategoryMaster : Form
         if (_categoriesView?.Table is null) return;
         if (txtSearch is null || cbFilterBy is null || cbStatus is null || chkShowInactive is null) return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -309,9 +309,17 @@ public partial class frmCategoryMaster : Form
 
         // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
         if (text.Length > 0)
-            conditions.Add($"{_FilterColumn()} LIKE '%{text}%'");
+            conditions.Add(RowFilterHelper.Like(_FilterColumn(), text));
 
-        _categoriesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _categoriesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل المجموعات — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();

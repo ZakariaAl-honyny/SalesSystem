@@ -347,7 +347,7 @@ public partial class frmSupplierMaster : Form
             || chkShowInactive is null || chkOnlyWithBalance is null || chkOnlyOverLimit is null)
             return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -370,7 +370,7 @@ public partial class frmSupplierMaster : Form
 
         // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
         if (text.Length > 0)
-            conditions.Add($"{_FilterColumn()} LIKE '%{text}%'");
+            conditions.Add(RowFilterHelper.Like(_FilterColumn(), text));
 
         // ── مربعات الاختيار المالية ──
         if (chkOnlyWithBalance.Checked)
@@ -379,7 +379,15 @@ public partial class frmSupplierMaster : Form
         if (chkOnlyOverLimit.Checked)
             conditions.Add("CurrentBalance > CreditLimit");
 
-        _suppliersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _suppliersView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل الموردين — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();

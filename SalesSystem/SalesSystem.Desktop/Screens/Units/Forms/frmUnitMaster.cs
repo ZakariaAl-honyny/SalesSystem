@@ -310,7 +310,7 @@ public partial class frmUnitMaster : Form
         if (txtSearch is null || cbFilterBy is null || cbStatus is null || chkShowInactive is null)
             return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -335,18 +335,26 @@ public partial class frmUnitMaster : Form
         if (text.Length > 0)
             conditions.Add(_FilterExpression(text));
 
-        _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل الوحدات — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();
     }
 
     /// <summary>تعبير البحث المقابل لاختيار «تصفية بـ» — أسماء أعمدة ثابتة داخل الكود (RULE-N60).</summary>
-    private string _FilterExpression(string escapedText) => cbFilterBy.SelectedIndex switch
+    private string _FilterExpression(string text) => cbFilterBy.SelectedIndex switch
     {
-        1 => $"Symbol LIKE '%{escapedText}%'",
-        2 => $"CONVERT(Id, 'System.String') LIKE '%{escapedText}%'",
-        _ => $"Name LIKE '%{escapedText}%'"
+        1 => RowFilterHelper.Like("Symbol", text),
+        2 => $"CONVERT(Id, 'System.String') LIKE '%{RowFilterHelper.Escape(text)}%'",
+        _ => RowFilterHelper.Like("Name", text)
     };
 
     /// <summary>

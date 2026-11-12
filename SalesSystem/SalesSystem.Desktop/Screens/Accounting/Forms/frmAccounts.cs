@@ -804,6 +804,9 @@ public partial class frmAccounts : Form
     /// </summary>
     private async Task _SaveAsync()
     {
+        // حماية من النقر المزدوج: لا ندخل الحفظ مرتين قبل أن يُصفَّر العلم في finally.
+        if (_actionButtonsBusy) return;
+
         if (!_ValidateForm())
             return;
 

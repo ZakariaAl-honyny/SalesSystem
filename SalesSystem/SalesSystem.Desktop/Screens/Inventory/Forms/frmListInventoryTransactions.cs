@@ -487,9 +487,6 @@ public partial class frmListInventoryTransactions : Form
 
     private void btnClose_Click(object sender, EventArgs e) { Close(); }
 
-    /// <summary>محفوظ للتوافق: التصفية فورية، وهذا المعالج يعيد تطبيقها فقط (لا زر بحث — RULE-N59).</summary>
-    private void btnSearch_Click(object sender, EventArgs e) { _ApplyFilter(); }
-
     private async void btnRefresh_Click(object sender, EventArgs e)
     {
         try

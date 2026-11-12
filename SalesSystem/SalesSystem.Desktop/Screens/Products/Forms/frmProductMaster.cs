@@ -449,11 +449,23 @@ public partial class frmProductMaster : Form
             conditions.Add("(CurrentStock > 0 AND CurrentStock <= ReorderLevel)");
 
         if (!string.IsNullOrEmpty(text))
+        {
             conditions.Add(
-                $"(Name LIKE '%{text}%' OR CategoryName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+                "(" + RowFilterHelper.Like("Name", text)
+                    + " OR " + RowFilterHelper.Like("CategoryName", text)
+                    + " OR " + RowFilterHelper.Like("Barcode", text)
+                    + " OR CONVERT(Id, 'System.String') LIKE '" + RowFilterHelper.Escape(text) + "%')");
+        }
 
-        _productsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _productsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل الأصناف — أُبقيت التصفية السابقة كما هي");
+        }
 
         _UpdateSummary();
     }

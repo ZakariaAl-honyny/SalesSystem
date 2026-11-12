@@ -333,7 +333,7 @@ public partial class frmCashBoxMaster : Form
             || chkShowInactive is null || chkOnlyWithAccount is null)
             return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = txtSearch.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -356,13 +356,21 @@ public partial class frmCashBoxMaster : Form
 
         // ── البحث النصي: عمود واحد فقط يحدده cbFilterBy ──
         if (text.Length > 0)
-            conditions.Add($"{_FilterColumn()} LIKE '%{text}%'");
+            conditions.Add(RowFilterHelper.Like(_FilterColumn(), text));
 
         // ── «المربوط بالحسابات فقط» ──
         if (chkOnlyWithAccount.Checked)
             conditions.Add("AccountId > 0");
 
-        _cashBoxesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _cashBoxesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل الصناديق — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();

@@ -378,7 +378,7 @@ static class Program
         catch (Exception ex)
         {
             Log.Fatal(ex, "Application terminated unexpectedly");
-            MessageBox.Show($"حدث خطأ كارثي أثناء تشغيل التطبيق. تم تسجيل التفاصيل في ملف Logs.\nالخطأ: {ex.Message}", "خطأ فادح", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("حدث خطأ فادح أثناء بدء التشغيل. تم تسجيل التفاصيل في ملف السجل. أغلق التطبيق وأعد المحاولة.", "خطأ فادح", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
