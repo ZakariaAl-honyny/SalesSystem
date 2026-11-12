@@ -98,7 +98,12 @@ public partial class frmWorkingCapitalReport : Form, IExportableReport
         catch (Exception ex) { Log.Error(ex, "خطأ في تصدير رأس المال العامل"); MessageBox.Show("حدث خطأ أثناء التصدير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
     }
 
-    private void ShowLoading(bool show) { loadingPanel.Visible = show; this.Enabled = !show; }
+    private void ShowLoading(bool show)
+    {
+        if (show) loadingPanel.BringToFront();
+        loadingPanel.Visible = show;
+        this.Enabled = !show;
+    }
 
     private void label1_Click(object sender, EventArgs e)
     {

@@ -170,14 +170,6 @@ partial class frmAccountStatementReport
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
         loadingPanel.Controls.Add(ll);
-        loadingPanel.Controls.Add(btnRefresh);
-        loadingPanel.Controls.Add(dtpTo);
-        loadingPanel.Controls.Add(dtpFrom);
-        loadingPanel.Controls.Add(label4);
-        loadingPanel.Controls.Add(cmbPartyType);
-        loadingPanel.Controls.Add(label3);
-        loadingPanel.Controls.Add(label6);
-        loadingPanel.Controls.Add(nudPartyId);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
         loadingPanel.Name = "loadingPanel";
@@ -289,6 +281,14 @@ partial class frmAccountStatementReport
         Controls.Add(btnClose);
         Controls.Add(lblSummary);
         Controls.Add(lblRecordsCount);
+        Controls.Add(btnRefresh);
+        Controls.Add(dtpTo);
+        Controls.Add(dtpFrom);
+        Controls.Add(label4);
+        Controls.Add(cmbPartyType);
+        Controls.Add(label3);
+        Controls.Add(label6);
+        Controls.Add(nudPartyId);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

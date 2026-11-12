@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // ReportUiStandardizer.cs — معيار واجهة موحّد لكل شاشات التقارير (31 تقريراً)
 //
 // المشكلة: شاشات التقارير بُنيت على نمطين قديمين — بعضها يبني شبكته بـ Tahoma
@@ -6,9 +6,12 @@
 // رؤوس رمادية وخط Segoe UI، وكلها بلا تنقل بالوحة المفاتيح. إصلاح ذلك يدوياً
 // في 62 ملفاً مكرر ومحفوف بالانحراف، لذلك يُطبَّق المعيار من نقطة واحدة.
 //
-// الاستهلاك: سطر واحد في نهاية المُنشئ (أو بعد InitializeComponent):
-//     ReportUiStandardizer.Apply(this);       // من داخل *ReportTab : UserControl
-//     ReportUiStandardizer.ApplyForm(this);   // من داخل frm*Report : Form
+// البنية: كل تقرير اليوم نموذج واحد frm*Report : Form بملفَي *.cs + *.Designer.cs
+// ومنطقه داخله — لم يعد هناك مجلد Tabs ولا توابع UserControl وسيطة لكل تقرير.
+//
+// الاستهلاك: سطر واحد كآخر عبارة في مُنشئ النموذج:
+//     ReportUiStandardizer.ApplyForm(this);   // من داخل frm*Report : Form — المدخل الوحيد لشاشات التقارير
+//     ReportUiStandardizer.Apply(this);       // لأي سطح تقرير مضمَّن (UserControl / Panel)
 //
 // ما تفعله الأداة:
 //   1) تمرّ على شجرة العناصر وتُطبّق GreenThemeHelper.ApplyGrid على **كل**
@@ -92,14 +95,16 @@ public static class ReportUiStandardizer
     private static readonly ConditionalWeakTable<Control, object> FilterGrouped = new();
 
     // ═════════════════════════════════════════════════════════════════
-    //  Apply — لتبويب تقرير أو أي حاوية (UserControl / Panel)
+    //  Apply — لسطح تقرير مضمَّن أو أي حاوية (UserControl / Panel)
     // ═════════════════════════════════════════════════════════════════
 
     /// <summary>
+    /// للاستدعاء على أي سطح تقرير مضمَّن (UserControl / Panel) — أما نماذج التقارير
+    /// <c>frm*Report</c> فمدخلها الوحيد <see cref="ApplyForm"/>.
     /// يوحّد واجهة الحاوية: شبكات خضراء + خط Tahoma + تنقل لوحة مفاتيح + الثيم الأخضر.
     /// آمن للاستدعاء المتكرر: الاستدعاء الثاني لا يفعل شيئاً.
     /// </summary>
-    /// <param name="root">جذر الشجرة (تبويب تقرير عادةً) — قد يكون null.</param>
+    /// <param name="root">جذر الشجرة (سطح تقرير مضمَّن عادةً) — قد يكون null.</param>
     public static void Apply(Control? root)
     {
         if (root is null) return;
@@ -135,6 +140,8 @@ public static class ReportUiStandardizer
     /// <summary>
     /// يوحّد نموذج التقرير: يطبّق <see cref="Apply"/> على شجرته، ويُلوّن تسمية العنوان
     /// العلوية إن وُجدت، ويُوصِّل <c>F5</c> بزر التحديث المرئي إن أمكن العثور عليه.
+    /// هذا هو المدخل الوحيد لشاشات التقارير <c>frm*Report</c> — يُستدعى كآخر عبارة
+    /// في مُنشئ النموذج بعد <c>InitializeComponent()</c> (RULE-N50 … N62، N96).
     /// </summary>
     /// <param name="form">نموذج التقرير — قد يكون null.</param>
     public static void ApplyForm(Form? form)

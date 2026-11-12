@@ -157,9 +157,6 @@ partial class frmWorkingCapitalReport
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
         loadingPanel.Controls.Add(ll);
-        loadingPanel.Controls.Add(dtpAsOf);
-        loadingPanel.Controls.Add(label3);
-        loadingPanel.Controls.Add(label1);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
         loadingPanel.Name = "loadingPanel";
@@ -210,6 +207,9 @@ partial class frmWorkingCapitalReport
         Controls.Add(btnClose);
         Controls.Add(lblSummary);
         Controls.Add(lblRecordsCount);
+        Controls.Add(dtpAsOf);
+        Controls.Add(label3);
+        Controls.Add(label1);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

@@ -140,8 +140,6 @@ partial class frmAgingReport
         // loadingPanel
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
-        loadingPanel.Controls.Add(btnExport);
-        loadingPanel.Controls.Add(dgvReport);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
         loadingPanel.Name = "loadingPanel";
@@ -161,6 +159,8 @@ partial class frmAgingReport
         Controls.Add(btnRefresh);
         Controls.Add(lblMode);
         Controls.Add(btnClose);
+        Controls.Add(dgvReport);
+        Controls.Add(btnExport);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

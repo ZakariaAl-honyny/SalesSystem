@@ -199,10 +199,6 @@ partial class frmIncomeStatementReport
         // loadingPanel
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
-        loadingPanel.Controls.Add(label4);
-        loadingPanel.Controls.Add(dtpTo);
-        loadingPanel.Controls.Add(label3);
-        loadingPanel.Controls.Add(dtpFrom);
         loadingPanel.Controls.Add(loadingLabel);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
@@ -237,6 +233,10 @@ partial class frmIncomeStatementReport
         Controls.Add(dgvReport);
         Controls.Add(lblMode);
         Controls.Add(btnClose);
+        Controls.Add(label4);
+        Controls.Add(dtpTo);
+        Controls.Add(label3);
+        Controls.Add(dtpFrom);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

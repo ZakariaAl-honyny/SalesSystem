@@ -144,14 +144,6 @@ partial class frmDetailedStockLedgerReport
         // loadingPanel
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
-        loadingPanel.Controls.Add(lblRecordsCount);
-        loadingPanel.Controls.Add(dtpTo);
-        loadingPanel.Controls.Add(label1);
-        loadingPanel.Controls.Add(label4);
-        loadingPanel.Controls.Add(btnExport);
-        loadingPanel.Controls.Add(dtpFrom);
-        loadingPanel.Controls.Add(label3);
-        loadingPanel.Controls.Add(btnClose);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
         loadingPanel.Name = "loadingPanel";
@@ -215,6 +207,14 @@ partial class frmDetailedStockLedgerReport
         Controls.Add(btnRefresh);
         Controls.Add(dgvReport);
         Controls.Add(lblMode);
+        Controls.Add(lblRecordsCount);
+        Controls.Add(dtpTo);
+        Controls.Add(label1);
+        Controls.Add(label4);
+        Controls.Add(btnExport);
+        Controls.Add(dtpFrom);
+        Controls.Add(label3);
+        Controls.Add(btnClose);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

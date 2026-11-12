@@ -156,7 +156,6 @@ partial class frmBalanceSheetReport
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
         loadingPanel.Controls.Add(ll);
-        loadingPanel.Controls.Add(dtpAsOf);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
         loadingPanel.Name = "loadingPanel";
@@ -209,6 +208,7 @@ partial class frmBalanceSheetReport
         Controls.Add(lblSummary);
         Controls.Add(label1);
         Controls.Add(lblRecordsCount);
+        Controls.Add(dtpAsOf);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

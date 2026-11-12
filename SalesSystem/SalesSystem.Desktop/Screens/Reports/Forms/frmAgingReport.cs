@@ -85,7 +85,12 @@ public partial class frmAgingReport : Form, IExportableReport
         catch (Exception ex) { Log.Error(ex, "خطأ في تصدير تقرير الأعمار المدينة"); MessageBox.Show("حدث خطأ أثناء التصدير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
     }
 
-    private void ShowLoading(bool show) { loadingPanel.Visible = show; this.Enabled = !show; }
+    private void ShowLoading(bool show)
+    {
+        if (show) loadingPanel.BringToFront();
+        loadingPanel.Visible = show;
+        this.Enabled = !show;
+    }
 
     private void btnRefresh_Click(object? sender, EventArgs e)
     {

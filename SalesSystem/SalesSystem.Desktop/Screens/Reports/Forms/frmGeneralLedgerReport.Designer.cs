@@ -165,13 +165,6 @@ partial class frmGeneralLedgerReport
         // 
         loadingPanel.BackColor = Color.FromArgb(100, 255, 255, 255);
         loadingPanel.Controls.Add(ll);
-        loadingPanel.Controls.Add(dtpTo);
-        loadingPanel.Controls.Add(label4);
-        loadingPanel.Controls.Add(label5);
-        loadingPanel.Controls.Add(dtpFrom);
-        loadingPanel.Controls.Add(nudAccountId);
-        loadingPanel.Controls.Add(label1);
-        loadingPanel.Controls.Add(label3);
         loadingPanel.Dock = DockStyle.Fill;
         loadingPanel.Location = new Point(0, 0);
         loadingPanel.Name = "loadingPanel";
@@ -263,6 +256,13 @@ partial class frmGeneralLedgerReport
         Controls.Add(btnClose);
         Controls.Add(lblSummary);
         Controls.Add(lblRecordsCount);
+        Controls.Add(dtpTo);
+        Controls.Add(label4);
+        Controls.Add(label5);
+        Controls.Add(dtpFrom);
+        Controls.Add(nudAccountId);
+        Controls.Add(label1);
+        Controls.Add(label3);
         Controls.Add(loadingPanel);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;

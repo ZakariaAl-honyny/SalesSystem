@@ -161,6 +161,7 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
 
     private void ShowLoading(bool show)
     {
+        if (show) loadingPanel.BringToFront();
         loadingPanel.Visible = show;
         this.Enabled = !show;
     }
