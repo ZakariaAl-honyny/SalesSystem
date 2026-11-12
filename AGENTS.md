@@ -390,6 +390,10 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` |
 | 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | — |
 | 6 | صندوق التصفية الموحّد `gbFilter` + تصفية فورية + مربعات اختيار + شريط ملخص | `RULE-N56`…`N63` | 🔄 تعميم جارٍ | النمطان المرجعيان: `frmListSales` و`frmProductMaster` |
+| 7 | لوحة التحكم كمكوّن `ctrlDashboard` قابل للتضمين | `RULE-N64`…`N69` | ⬜ لم يبدأ | يُستهلك في `frmDashboard` و`frmMain` |
+| 8 | تقرير واحد لكل شاشة + تصنيفات قائمة التقارير | `RULE-N70`…`N76` | ⬜ لم يبدأ | إلغاء نموذج التُبويبات |
+| 9 | نقطة بيع متجر تجزئة بنمط `frmAddUpdateSalesInvoice` | `RULE-N80`…`N85` | ⬜ لم يبدأ | استبدال نموذج المطاعم |
+| 10 | دورة «تعطيل → إظهار غير النشط → إعادة تنشيط» | `RULE-N90`…`N94` | ⬜ لم يبدأ | `ReactivateAsync` + زر في الشاشة |
 
 **مراحل التعميم:**
 
@@ -435,6 +439,10 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 20 | عدم كسر أي سلوك قائم: تُحفظ أسماء العناصر والأحداث المُستدعاة من خارج الشاشة | — | `git diff` محدود |
 | 21 | صندوق تصفية موحّد `gbFilter` بأدوات التصفية القياسية والتصفية الفورية | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم |
 | 22 | شريط ملخص (`pnlSummary`) يعدّ النتائج والإجماليات `N2` بعد كل تصفية | `RULE-N61` | `_UpdateSummary()` |
+| 23 | كل الشاشات تستدعي الستة من `KeyboardHelper` (تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات) | `RULE-N95` | grep على `WireArrowNavigation` في كل `frm*.cs` |
+| 24 | الثيم الأخضر مطبَّق على الشاشة وكل شبكاتها | `RULE-N96` | `ApplyGrid` + آخر سطر `Apply(this)` |
+| 25 | زر «إعادة تنشيط» يعمل على السطر غير النشط فقط | `RULE-N90`…`N94` | تجربة يدوية: عطّل ثم أعد التنشيط |
+| 26 | كل التصفية داخل `gbFilter` بلا استثناء | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم |
 
 **الهيكل المرجعي للمُنشئ وشريط المظهر:**
 
@@ -504,6 +512,94 @@ private void ApplyUiTheme()
 > **تعميم:** يُطبّق المعيار على المراحل P1 → P2 → P3 المذكورة في §2.20، وتُعدّ الشاشة غير مكتملة إن كانت أدوات تصفيتها خارج `gbFilter`.
 
 ---
+
+### 2.23 معيار لوحة التحكم كـ UserControl (Dashboard Control Standard)
+
+لوحة التحكم **مكوّن قابل للتضمين** وليست نموذجاً؛ تُبنى مرة واحدة وتُستهلك في أي حاوية.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N64 | لوحة التحكم تُبنى كـ `UserControl` باسم `ctrlDashboard` في `SalesSystem.Desktop/Screens/Dashboard/Controls/` — ممنوع بناؤها كـ `Form` |
+| RULE-N65 | `ctrlDashboard` يستقبل `IServiceProvider` في المُنشئ ويحل خدماته بـ `GetRequiredService<T>()`؛ يعمل بلا تعديل داخل `frmDashboard` وداخل `frmMain` |
+| RULE-N66 | `frmDashboard` يبقى غلافاً رقيقاً: `ctrlDashboard` بـ `Dock = Fill` + زر إغلاق فقط، ولا منطق تحميل فيه |
+| RULE-N67 | كل `UserControl` جديد يأخذ بادئة `ctrl*` ويُسجَّل في حاوية DI (`services.AddTransient<ctrlXxx>();`) |
+| RULE-N68 | `ctrlDashboard` يعمل في وضعي Mock/Real: يجب وجود `MockDashboardApiService` مسجَّل في فرع Mock حسب `RULE-N10` |
+| RULE-N69 | `ctrlDashboard` ينتهي بـ `GreenThemeHelper.Apply(this)` ويستمع لرسائل `EventBus` ليُحدّث أرقامه دون إعادة فتح |
+
+---
+
+### 2.24 معيار التقارير وقائمة التقارير (Reports Standard)
+
+**تقرير واحد = شاشة واحدة.** لا نماذج بتُبويبات تقارير متعددة.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N70 | كل تقرير شاشة `frm*Report` مستقلة تعرض تقريراً **واحداً** فقط؛ نموذج التُبويبات المتعددة (`frmReports`) يُلغى دوره ولا يُضاف تقرير إليه |
+| RULE-N71 | كل تقرير يُسجَّل في DI ويُفتح من **عنصر قائمة واحد** في `frmMain` — لا تكرار ولا شاشة يتيمة |
+| RULE-N72 | قائمة «التقارير» تُقسَّم إلى قوائم فرعية ثابتة: **المبيعات** · **المشتريات** · **المخزون** · **المحاسبة والمالية** · **العملاء والموردون** · **الصندوق** — كل تصنيف `ToolStripMenuItem` يحتوي تقاريره فقط |
+| RULE-N73 | كل تقرير يستوفي §2.21 + §2.22 (`gbFilter` + `pnlSummary`) + تصدير Excel عبر `IExportableReport` |
+| RULE-N74 | كود التقارير يُوزَّع حسب التصنيف: `Screens/Reports/{Sales,Purchases,Inventory,Finance,Parties,CashBox}/` — لا حشر كل التقارير في مجلد واحد |
+| RULE-N75 | كل `I*ReportApiService` تحتاج تنفيذاً وهمياً `Mock*ReportApiService` وإلا انكسر وضع التجربة |
+| RULE-N76 | لا يُعتبر التصنيف مكتملاً حتى تصل كل تقاريره من القائمة في نقرتين على الأكثر |
+
+---
+
+### 2.25 معيار نقطة البيع (POS Standard)
+
+`frmPOS` شاشة بيع **متجر تجزئة** — ليست شاشة مطاعم.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N80 | `frmPOS` تُبنى على نمط `frmAddUpdateSalesInvoice`: باركود → شبكة سطور → مجاميع → دفع → ترحيل |
+| RULE-N81 | ممنوع بقايا نمط المطاعم (طاولات، طلبات، شاشة تحضير، تقسيم فاتورة) — أي عنصر لا معنى له في متجر تجزئة يُحذف |
+| RULE-N82 | تعمل بوضعي Mock/Real عبر `IProductApiService` + `ISalesInvoiceApiService` + `ICustomerApiService` فقط — لا وصول مباشر لأي طبقة أخرى |
+| RULE-N83 | شبكة سطور POS هي الاستثناء الثاني المسموح لـ `RULE-N22a` (مع `dgvItems`)، ولا يُعمَّم على غيرها |
+| RULE-N84 | كل بيع يُرحَّل كـ `SalesInvoice` بحالة `Posted` داخل `BeginTransactionAsync` مع خصم المخزون وتسجيل `InventoryTransactions` والقيد المحاسبي |
+| RULE-N85 | بعد الحفظ لا تُغلق الشاشة: تُفرَّغ السلة وتُعاد التهيئة لبيع جديد ويبقى التركيز على حقل الباركود |
+
+---
+
+### 2.26 ثابت إعادة التنشيط (Reactivation Invariant)
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N90 | كل كيان يرث `ActivatableEntity` يجب أن يدعم الدورة كاملة: تعطيل → إظهار غير النشط → إعادة تنشيط |
+| RULE-N91 | كل `I*ApiService` لكيان قابل للتعطيل يعرّض `ReactivateAsync` ويُسندها للـ BLL — لا منطق في الـ wrapper (`RULE-N11`) |
+| RULE-N92 | شاشة الدليل تُظهر زر «إعادة تنشيط» مفعّلاً على السطر **غير النشط فقط**، ومعطّلاً على النشط (`RULE-N43`) |
+| RULE-N93 | إعادة التنشيط تُنفَّذ داخل معاملة، وتُعيد تنشيط الحساب المحاسبي المرتبط إن وُجد، وتُستخدم `IgnoreQueryFilters` للوصول للسجل المعطَّل |
+| RULE-N94 | اختبار القبول الإلزامي لكل كيان: «عطّل → أعد التنشيط» يجب أن ينجح، ويُحدَّد السطر بعد التحديث، والرسالة عربية |
+
+---
+
+### 2.27 اعتماد الـ Helpers إلزامياً (Mandatory Helpers)
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N95 | كل شاشة إدخال/دليل تستدعي من `KeyboardHelper` الستة معاً: `WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` + `WireButtonDisabledVisual` + `WireGlobalShortcuts` — بلا استثناء |
+| RULE-N96 | كل `DataGridView` تأخذ `GreenThemeHelper.ApplyGrid(dgv)`، وكل شاشة تنتهي بـ `GreenThemeHelper.Apply(this)` كآخر سطر — بلا استثناء |
+| RULE-N97 | كل حقل مالي/رقمي يأخذ تلميح التفقيط الحيّ عبر `LiveTafqeetHelper.Attach` |
+| RULE-N98 | ممنوع تكرار كود التنقل أو الألوان أو الاختصارات داخل الشاشة؛ أي سلوك ناقص يُضاف إلى الـ Helper أولاً ثم يُستهلك من كل الشاشات |
+| RULE-N99 | شاشة لا تجتاز §2.27 تُعدّ غير مكتملة وتُرفض في المراجعة |
+
+**مرجع الـ Helpers (المصدر الوحيد):**
+
+| Helper | الملف | الوظائف المستهلكة |
+|---|---|---|
+| `KeyboardHelper` | `SalesSystem.Desktop/Helpers/KeyboardHelper.cs` | `WireEnterAsTab` · `WireSelectAllOnFocus` · `WireFocusHighlight` · `WireArrowNavigation` · `WireButtonDisabledVisual` · `WireGlobalShortcuts` |
+| `GreenThemeHelper` | `SalesSystem.Desktop/Helpers/GreenThemeHelper.cs` | `Apply` · `ApplyHeader` · `ApplyGrid` · `TextStrong` |
+| `LiveTafqeetHelper` | `SalesSystem.Desktop/Helpers/LiveTafqeetHelper.cs` | `Attach` (تلميح التفقيط الحيّ) |
+| `ThemeHelper` | `SalesSystem.Desktop/Helpers/ThemeHelper.cs` | `ApplyMainFormStyle` · `ApplyButtonStyle` (يُستدعى **قبل** الثيم الأخضر) |
+
+**سطر الإلزام في كل مُنشئ شاشة:**
+
+```csharp
+KeyboardHelper.WireEnterAsTab(this);
+KeyboardHelper.WireSelectAllOnFocus(this);
+KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);      // RULE-N43
+KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F5, () => _RefreshAsync())); // RULE-N47
+```
 
 ## 3. Enums
 
