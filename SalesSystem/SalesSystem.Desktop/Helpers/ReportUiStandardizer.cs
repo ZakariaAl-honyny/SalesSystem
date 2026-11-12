@@ -20,12 +20,17 @@
 //   3) تُوصِّل تنقل لوحة المفاتيح مرة واحدة لكل شجرة:
 //      WireEnterAsTab + WireSelectAllOnFocus + WireFocusHighlight + WireArrowNavigation
 //      (RULE-N40 … RULE-N46).
-//   4) تنتهي بـ GreenThemeHelper.Apply(root) — آخر خطوة دائماً (RULE-N96)،
+//   4) تجمع عناصر التصفية في صندوق مجموعة واحد gbFilter («بحث وتصفية») داخل صفّ
+//      جديد أعلى الشبكة، مع بقاء أزرار الإجراءات فوقه خارج الصندوق
+//      (RULE-N56 … RULE-N62). النقل Reparent — لا إعادة إنشاء — فلا تُفقد أي
+//      معالجات أحداث ولا تُلمس قيم التصفية.
+//   5) تنتهي بـ GreenThemeHelper.Apply(root) — آخر خطوة دائماً (RULE-N96)،
 //      لأن أي تنسيق لاحق كان سيمحو الأخضر.
 //
 // ما لا تفعله (حدود متعمّدة):
-//   • لا تُعيد بناء أي تخطيط، ولا تُعيد تسمية عنصر، ولا تلمس أي منطق تقرير
-//     أو SQL أو تصفية أو تصدير أو نص عربي.
+//   • لا تُعيد بناء أي منطق، ولا تُعيد تسمية عنصر قائم، ولا تلمس أي منطق تقرير
+//     أو SQL أو تصفية أو تصدير أو نص عربي. العنصر الوحيد الذي يُنشأ هو صندوق
+//     التصفية نفسه (gbFilter/pnlFilters) وعناصره الحاوية لا غير.
 //   • لا تلمس ReadOnly / AllowUserToAddRows / SelectionMode / DataSource
 //     (RULE-N52) — كل تقرير يعلن سلوك شبكته بنفسه.
 //   • كل الأساليب دفاعية: null-safe، ولا تُطلق استثناءً إلى النموذج أبداً.
@@ -65,6 +70,27 @@ public static class ReportUiStandardizer
     /// <summary>أسماء تسميات شريط العنوان المعتمدة.</summary>
     private static readonly string[] HeaderLabelNames = { "lblMode", "lblTitle", "lblHeader", "lblPageTitle" };
 
+    /// <summary>اسم صندوق التصفية الموحّد (RULE-N56).</summary>
+    private const string FilterGroupControlName = "gbFilter";
+
+    /// <summary>اسم اللوحة التي تحمل صندوق التصفية كصف مستقل أعلى الشبكة.</summary>
+    private const string FilterPanelControlName = "pnlFilters";
+
+    /// <summary>اسم حاوية عناصر التصفية داخل الصندوق.</summary>
+    private const string FilterFlowControlName = "flpFilterControls";
+
+    /// <summary>نص صندوق التصفية الموحّد.</summary>
+    private const string FilterGroupCaption = "بحث وتصفية";
+
+    /// <summary>ارتفاع صف التصفية الجديد بالبكسل (RULE-N56).</summary>
+    private const int FilterPanelHeight = 68;
+
+    /// <summary>الحد الأدنى لعناصر التصفية قبل إنشاء الصندوق (RULE-N56).</summary>
+    private const int MinFilterControls = 2;
+
+    /// <summary>سجل الشجرات التي أُنشئ فيها صندوق التصفية (منع التنفيذ المزدوج).</summary>
+    private static readonly ConditionalWeakTable<Control, object> FilterGrouped = new();
+
     // ═════════════════════════════════════════════════════════════════
     //  Apply — لتبويب تقرير أو أي حاوية (UserControl / Panel)
     // ═════════════════════════════════════════════════════════════════
@@ -84,6 +110,9 @@ public static class ReportUiStandardizer
 
             StyleTree(root, skipAppliedSubtrees: false);
             WireKeyboard(root);
+
+            // RULE-N56 … RULE-N62: صندوق التصفية الموحّد قبل الثيم الأخير.
+            EnsureFilterGroup(root);
 
             // RULE-N96: الثيم الأخضر آخر خطوة — بعد أي تنسيق سابق في المُنشئ.
             GreenThemeHelper.Apply(root);
@@ -238,6 +267,296 @@ public static class ReportUiStandardizer
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر توصيل تنقل لوحة المفاتيح في تقرير: {Root}", root?.GetType().Name);
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  صندوق التصفية الموحّد (RULE-N56 … RULE-N62)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// يجمع عناصر تصفية التقرير في صندوق مجموعة واحد <c>gbFilter</c> («بحث وتصفية»)
+    /// داخل صفّ جديد أعلى الشبكة، ويترك أزرار الإجراءات في مكانها خارج الصندوق
+    /// (RULE-N56 … RULE-N62). ينقل العناصر (Reparent) ولا يُعيد إنشاءها، فلا تُفقد
+    /// أي معالجات أحداث ولا مراجع في كود التقرير.
+    /// <para>حدود آمنة: لا يفعل شيئاً إذا لم تُطابق بنية التقرير المتوقعة، أو كانت
+    /// عناصر التصفية أقل من عنصرين، أو كان الصندوق موجوداً مسبقاً.</para>
+    /// </summary>
+    private static void EnsureFilterGroup(Control root)
+    {
+        try
+        {
+            if (root is null) return;
+
+            // (6) لا تُنفَّذ مرتين على الشجرة نفسها.
+            if (FilterGrouped.TryGetValue(root, out _)) return;
+
+            // (3) الصندوق موجود مسبقاً ⇒ لا شيء يُفعل.
+            if (FindChildByName(root, FilterGroupControlName) is not null) return;
+
+            // (1) جدول التخطيط الذي يستضيف شريط الإجراءات في صفّه الأول.
+            var layout = FindReportLayout(root);
+            if (layout is null) return;
+
+            var host = FindFilterHost(layout);
+            if (host is null) return;
+
+            // (2) أقل من عنصرين ⇒ التقرير يبقى على تخطيطه الحالي.
+            var filterControls = CollectFilterControls(host);
+            if (filterControls.Count < MinFilterControls) return;
+
+            BuildFilterGroup(layout, host, filterControls);
+        }
+        catch (Exception ex)
+        {
+            // لا نُفشل فتح تقرير بسبب تخطيط: نسجّل الخطأ فقط وتبقى الشاشة كما هي.
+            Serilog.Log.Error(ex, "تعذر إنشاء صندوق التصفية الموحّد في تقرير: {Root}", root?.GetType().Name);
+        }
+        finally
+        {
+            MarkFilterGrouped(root);
+        }
+    }
+
+    /// <summary>هل هذا العنصر حقل تصفية (لا تسمية)؟</summary>
+    private static bool IsFilterInput(Control control) => control switch
+    {
+        DateTimePicker => true,
+        ComboBox => true,
+        TextBox => true,
+        CheckBox => true,
+        RadioButton => true,
+        NumericUpDown => true,
+        _ => false
+    };
+
+    /// <summary>يبحث عن عنصر بالاسم داخل الشجرة (بلا استثناء).</summary>
+    private static Control? FindChildByName(Control parent, string name)
+    {
+        foreach (Control child in parent.Controls)
+        {
+            if (string.Equals(child.Name, name, StringComparison.OrdinalIgnoreCase)) return child;
+
+            if (child.HasChildren)
+            {
+                var nested = FindChildByName(child, name);
+                if (nested is not null) return nested;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// يجد جدول التخطيط المرجعي للتقارير: صفوفه ثلاثة على الأقل، وصفّه الأول
+    /// يستضيف حاوية تضم عناصر تصفية (شريط الأدوات).
+    /// </summary>
+    private static TableLayoutPanel? FindReportLayout(Control parent)
+    {
+        foreach (Control child in parent.Controls)
+        {
+            if (child is TableLayoutPanel layout && layout.RowCount >= 3 && FindFilterHost(layout) is not null)
+                return layout;
+
+            if (child.HasChildren)
+            {
+                var nested = FindReportLayout(child);
+                if (nested is not null) return nested;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>يبحث عن حاوية عناصر التصفية داخل صفوف الجدول الأول (Row = 0).</summary>
+    private static Control? FindFilterHost(TableLayoutPanel layout)
+    {
+        foreach (Control child in layout.Controls)
+        {
+            if (layout.GetRow(child) != 0) continue;
+
+            var host = FindFilterHostIn(child);
+            if (host is not null) return host;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// الحاوية الأعمق التي تضم عناصر التصفية **مباشرةً** (شريط الأدوات عادةً).
+    /// لا نُعمّق البحث داخل حقول التصفية نفسها — <c>NumericUpDown</c> له مربع نص داخلي
+    /// كان سيُحسب عنصر تصفية مستقلاً.
+    /// </summary>
+    private static Control? FindFilterHostIn(Control container)
+    {
+        if (!IsFilterInput(container))
+        {
+            foreach (Control child in container.Controls)
+            {
+                if (!child.HasChildren) continue;
+
+                var nested = FindFilterHostIn(child);
+                if (nested is not null) return nested;
+            }
+        }
+
+        return CollectFilterControls(container).Count >= MinFilterControls ? container : null;
+    }
+
+    /// <summary>
+    /// عناصر التصفية المباشرة داخل الحاوية بترتيب العرض الحالي: حقول الإدخال
+    /// متبوعةً بتسمياتها كما وردت في <see cref="Control.ControlCollection"/>.
+    /// التسمية (<see cref="Label"/>) تُعدّ عنواناً لحقل لأن الحاوية تضم حقلاً بالفعل.
+    /// </summary>
+    private static List<Control> CollectFilterControls(Control host)
+    {
+        var result = new List<Control>();
+
+        bool hasInput = false;
+        foreach (Control child in host.Controls)
+        {
+            if (!IsFilterInput(child)) continue;
+            hasInput = true;
+            break;
+        }
+
+        if (!hasInput) return result;
+
+        foreach (Control child in host.Controls)
+        {
+            if (IsFilterInput(child) || child is Label) result.Add(child);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// ينشئ <c>pnlFilters</c> + <c>gbFilter</c> + حاوية تدفّق، وينقل عناصر التصفية
+    /// إليها بالترتيب والهوامش والمقاسات نفسها، ثم يُدخلها كصفّ جديد رقم 1.
+    /// </summary>
+    private static void BuildFilterGroup(TableLayoutPanel layout, Control host, List<Control> filterControls)
+    {
+        var flow = new FlowLayoutPanel
+        {
+            Name = FilterFlowControlName,
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.RightToLeft,
+            WrapContents = true,
+            Margin = new Padding(0)
+        };
+
+        var groupBox = new GroupBox
+        {
+            Name = FilterGroupControlName,
+            Text = FilterGroupCaption,
+            Dock = DockStyle.Fill,
+            Padding = new Padding(8),
+            RightToLeft = RightToLeft.Yes,
+            Font = new Font("Tahoma", 9F, FontStyle.Bold)
+        };
+        groupBox.Controls.Add(flow);
+
+        // نقل (Reparent) — يحفظ المعالجات والمراجع والهوامش والمقاسات كما هي.
+        foreach (var control in filterControls)
+        {
+            switch (control)
+            {
+                case CheckBox check:
+                    check.AutoSize = true;
+                    break;
+
+                case Label label:
+                    label.AutoSize = true;
+                    label.TextAlign = ContentAlignment.MiddleRight;
+                    break;
+            }
+
+            flow.Controls.Add(control);   // الإضافة إلى حاوية جديدة تنقل العنصر من حاويته القديمة
+        }
+
+        var panel = new Panel
+        {
+            Name = FilterPanelControlName,
+            Dock = DockStyle.Top,
+            Height = FilterPanelHeight,
+            Margin = new Padding(0)
+        };
+        panel.Controls.Add(groupBox);
+
+        InsertFilterRow(layout, panel);
+    }
+
+    /// <summary>
+    /// يُدخل لوحة التصفية كصفّ جديد رقم 1: يزيد عدد الصفوف، يُزحزح صفوف العناصر
+    /// القائمة بمقدار واحد، يُدرج <see cref="RowStyle"/> مطلق بارتفاع الصف الجديد،
+    /// ثم يضع اللوحة في العمود 0 (ممتدة على كل الأعمدة إن كان الجدول متعدد الأعمدة).
+    /// </summary>
+    private static void InsertFilterRow(TableLayoutPanel layout, Control panel)
+    {
+        const int newRowIndex = 1;
+
+        layout.RowCount += 1;
+
+        var existingChildren = new List<Control>();
+        foreach (Control child in layout.Controls) existingChildren.Add(child);
+
+        foreach (var child in existingChildren)
+        {
+            int row = layout.GetRow(child);
+            if (row >= newRowIndex) layout.SetRow(child, row + 1);
+        }
+
+        InsertRowStyle(layout, newRowIndex, FilterPanelHeight);
+
+        layout.Controls.Add(panel);
+        layout.SetRow(panel, newRowIndex);
+        layout.SetColumn(panel, 0);
+
+        if (layout.ColumnCount > 1)
+            layout.SetColumnSpan(panel, layout.ColumnCount);
+    }
+
+    /// <summary>
+    /// يُدرج <see cref="RowStyle"/> في موضع محدّد. <c>RowStyleCollection</c> لا يوفّر
+    /// <c>Insert</c>، فتُعاد بناء القائمة بأنماطها الأصلية وترتيبها ثم يُضاف النمط الجديد
+    /// في موضعه، مع مزامنة العدد مع <see cref="TableLayoutPanel.RowCount"/>.
+    /// </summary>
+    private static void InsertRowStyle(TableLayoutPanel layout, int index, int height)
+    {
+        var existing = new List<RowStyle>();
+        foreach (RowStyle style in layout.RowStyles)
+            existing.Add(new RowStyle(style.SizeType, style.Height));
+
+        if (index < 0) index = 0;
+        if (index > existing.Count) index = existing.Count;
+
+        layout.RowStyles.Clear();
+
+        for (int i = 0; i < existing.Count; i++)
+        {
+            if (i == index) layout.RowStyles.Add(new RowStyle(SizeType.Absolute, height));
+            layout.RowStyles.Add(existing[i]);
+        }
+
+        if (index >= existing.Count) layout.RowStyles.Add(new RowStyle(SizeType.Absolute, height));
+
+        while (layout.RowStyles.Count < layout.RowCount)
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+    }
+
+    /// <summary>يسجّل الشجرة كمعالَجة حتى لا يُنشأ الصندوق مرتين.</summary>
+    private static void MarkFilterGrouped(Control root)
+    {
+        if (root is null) return;
+
+        try
+        {
+            if (!FilterGrouped.TryGetValue(root, out _))
+                FilterGrouped.Add(root, AppliedMarker);
+        }
+        catch
+        {
+            // مفتاح مُضاف بالفعل — لا شيء يُفعل.
         }
     }
 
