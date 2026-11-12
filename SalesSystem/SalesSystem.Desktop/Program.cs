@@ -92,9 +92,7 @@ static class Program
                     services.AddTransient<IAuthApiService, DirectAuthService>();
                     services.AddTransient<IBackupApiService, DirectBackupService>();
                     services.AddTransient<IBranchApiService, DirectBranchApiService>();
-                    services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
                     services.AddTransient<IPersonApiService, DirectPersonService>();
-                    services.AddTransient<IReportApiService, DirectReportService>();
                     
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
@@ -107,6 +105,7 @@ static class Program
                         services.AddTransient<ICustomerReceiptApiService, MockCustomerReceiptApiService>();
                         services.AddTransient<IDashboardApiService, MockDashboardApiService>();
                         services.AddTransient<IExpenseApiService, MockExpenseApiService>();
+                        services.AddTransient<IFinancialReportApiService, MockFinancialReportApiService>();
                         services.AddTransient<IInventoryAdjustmentApiService, MockInventoryAdjustmentApiService>();
                         services.AddTransient<IInventoryApiService, MockInventoryApiService>();
                         services.AddTransient<IInventoryBatchApiService, MockInventoryBatchApiService>();
@@ -115,6 +114,7 @@ static class Program
                         services.AddTransient<IPurchaseInvoiceApiService, MockPurchaseInvoiceApiService>();
                         services.AddTransient<IPurchaseReportApiService, MockPurchaseReportApiService>();
                         services.AddTransient<IPurchaseReturnApiService, MockPurchaseReturnApiService>();
+                        services.AddTransient<IReportApiService, MockReportApiService>();
                         services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
                         services.AddTransient<ISalesReportApiService, MockSalesReportApiService>();
                         services.AddTransient<ISalesReturnApiService, MockSalesReturnApiService>();
@@ -136,6 +136,7 @@ static class Program
                         services.AddTransient<ICustomerReceiptApiService, DirectCustomerReceiptService>();
                         services.AddTransient<IDashboardApiService, DirectDashboardService>();
                         services.AddTransient<IExpenseApiService, DirectExpenseService>();
+                        services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
                         services.AddTransient<IInventoryAdjustmentApiService, DirectInventoryAdjustmentService>();
                         services.AddTransient<IInventoryApiService, DirectInventoryService>();
                         services.AddTransient<IInventoryBatchApiService, DirectInventoryBatchService>();
@@ -144,6 +145,7 @@ static class Program
                         services.AddTransient<IPurchaseInvoiceApiService, DirectPurchaseInvoiceService>();
                         services.AddTransient<IPurchaseReportApiService, DirectPurchaseReportService>();
                         services.AddTransient<IPurchaseReturnApiService, DirectPurchaseReturnApiService>();
+                        services.AddTransient<IReportApiService, DirectReportService>();
                         services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
                         services.AddTransient<ISalesReportApiService, DirectSalesReportService>();
                         services.AddTransient<ISalesReturnApiService, DirectSalesReturnApiService>();
