@@ -18,15 +18,15 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms;
 public partial class frmPurchaseReturn : Form
 {
     private readonly IServiceProvider _serviceProvider;
-    private IPurchaseReturnApiService _returnApi => _serviceProvider.GetRequiredService<IPurchaseReturnApiService>();
-    private ISupplierApiService _supplierApi => _serviceProvider.GetRequiredService<ISupplierApiService>();
-    private IProductApiService _productApi => _serviceProvider.GetRequiredService<IProductApiService>();
-    private IWarehouseApiService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseApiService>();
+    private IPurchaseReturnDesktopService _returnApi => _serviceProvider.GetRequiredService<IPurchaseReturnDesktopService>();
+    private ISupplierDesktopService _supplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
+    private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
+    private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
     private INotificationService _notification => _serviceProvider.GetRequiredService<INotificationService>();
     private IEventBus _eventBus => _serviceProvider.GetRequiredService<IEventBus>();
     
     private PurchaseReturnDto? _invoice;
-    private BindingList<InvoiceLineItemViewModel> _lines = new();
+    private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
     private bool _isUpdating = false;
 
@@ -110,7 +110,7 @@ public partial class frmPurchaseReturn : Form
         _lines.Clear();
         foreach (var item in _invoice.Items)
         {
-            _lines.Add(new InvoiceLineItemViewModel {
+            _lines.Add(new InvoiceLineItem {
                 ProductId = item.ProductId,
                 ProductName = item.ProductName,
                 Quantity = item.Quantity,
@@ -189,8 +189,8 @@ public partial class frmPurchaseReturn : Form
         lblStatus.Text = _invoice?.Status switch { 1 => "مسودة", 2 => "مرحل", 3 => "ملغي", _ => "جديد" };
     }
 
-    private void btnAddItem_Click(object sender, EventArgs e) { _lines.Add(new InvoiceLineItemViewModel()); dgvItems.Focus(); }
-    private void btnRemoveItem_Click(object sender, EventArgs e) { if (dgvItems.CurrentRow?.DataBoundItem is InvoiceLineItemViewModel line) { _lines.Remove(line); CalculateTotals(); } }
+    private void btnAddItem_Click(object sender, EventArgs e) { _lines.Add(new InvoiceLineItem()); dgvItems.Focus(); }
+    private void btnRemoveItem_Click(object sender, EventArgs e) { if (dgvItems.CurrentRow?.DataBoundItem is InvoiceLineItem line) { _lines.Remove(line); CalculateTotals(); } }
 
     private async void btnSaveDraft_Click(object sender, EventArgs e) => await SaveInvoiceAsync(false);
     private async void btnPost_Click(object sender, EventArgs e) => await SaveInvoiceAsync(true);

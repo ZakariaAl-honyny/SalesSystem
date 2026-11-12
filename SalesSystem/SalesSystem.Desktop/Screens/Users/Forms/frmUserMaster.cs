@@ -19,8 +19,8 @@ public partial class frmUserMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private IUserApiService UserService => _serviceProvider.GetRequiredService<IUserApiService>();
-    private IBranchApiService BranchService => _serviceProvider.GetRequiredService<IBranchApiService>();
+    private IUserDesktopService UserService => _serviceProvider.GetRequiredService<IUserDesktopService>();
+    private IBranchDesktopService BranchService => _serviceProvider.GetRequiredService<IBranchDesktopService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, UserDto> _usersById = new();
@@ -675,7 +675,7 @@ public partial class frmUserMaster : Form
                 result = await UserService.CreateAsync(request);
             }
 
-            // TODO: إعادة تعيين كلمة المرور (IUserApiService.ResetPasswordAsync) غير منفذة في هذه الشاشة.
+            // TODO: إعادة تعيين كلمة المرور (IUserDesktopService.ResetPasswordAsync) غير منفذة في هذه الشاشة.
 
             if (result.IsSuccess && result.Value != null)
             {

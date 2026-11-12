@@ -18,7 +18,7 @@ public partial class frmEmployeeMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private IEmployeeApiService EmployeeService => _serviceProvider.GetRequiredService<IEmployeeApiService>();
+    private IEmployeeDesktopService EmployeeService => _serviceProvider.GetRequiredService<IEmployeeDesktopService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, EmployeeDto> _employeesById = new();

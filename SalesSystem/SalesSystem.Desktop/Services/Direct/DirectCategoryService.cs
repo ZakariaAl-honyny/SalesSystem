@@ -11,7 +11,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// غلاف مباشر لخدمة تصنيفات المنتجات — يستدعي طبقة الأعمال داخل نفس العملية (بدون HTTP).
 /// التصنيف في واجهة سطح المكتب (CategoryDto) يقابل ProductCategory في طبقة الأعمال.
 /// </summary>
-public class DirectCategoryService : ICategoryApiService
+public class DirectCategoryService : ICategoryDesktopService
 {
     private readonly BizInterfaces.IProductCategoryService _bll;
     private readonly ISessionService _session;

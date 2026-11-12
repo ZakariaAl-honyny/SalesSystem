@@ -40,7 +40,7 @@ public class AgingReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetAgingReportAsync("Customers");
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetAgingReportAsync("Customers");
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

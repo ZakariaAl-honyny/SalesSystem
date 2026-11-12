@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// تنفيذ مباشر لخدمة فواتير البيع — يفوّض كل المنطق إلى ISalesService في طبقة الأعمال (بدون HTTP).
 /// </summary>
-public class DirectSalesInvoiceService : ISalesInvoiceApiService
+public class DirectSalesInvoiceService : ISalesInvoiceDesktopService
 {
     private readonly BizInterfaces.ISalesService _bll;
     private readonly ISessionService _session;

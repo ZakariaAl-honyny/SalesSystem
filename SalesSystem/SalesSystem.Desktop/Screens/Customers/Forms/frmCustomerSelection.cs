@@ -59,7 +59,7 @@ public partial class frmCustomerSelection : Form
         _customersTable.Columns.Add("Phone", typeof(string));
         _customersTable.Columns.Add("Email", typeof(string));
 
-        var result = await _serviceProvider.GetRequiredService<ICustomerApiService>().GetAllAsync();
+        var result = await _serviceProvider.GetRequiredService<ICustomerDesktopService>().GetAllAsync();
 
         if (result.IsSuccess && result.Value != null)
         {

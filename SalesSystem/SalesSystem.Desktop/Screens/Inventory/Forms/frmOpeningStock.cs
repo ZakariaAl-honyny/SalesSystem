@@ -43,7 +43,7 @@ public partial class frmOpeningStock : Form
     {
         try
         {
-            var result = await ServiceProvider.GetRequiredService<IWarehouseApiService>().GetAllAsync();
+            var result = await ServiceProvider.GetRequiredService<IWarehouseDesktopService>().GetAllAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 cmbWarehouse.DisplayMember = "Name";
@@ -114,7 +114,7 @@ public partial class frmOpeningStock : Form
 
         try
         {
-            var result = await ServiceProvider.GetRequiredService<IProductApiService>()
+            var result = await ServiceProvider.GetRequiredService<IProductDesktopService>()
                 .GetProductUnitsAsync(productId);
 
             if (result.IsSuccess && result.Value != null)
@@ -304,7 +304,7 @@ public partial class frmOpeningStock : Form
                 return;
             }
 
-            var adjustmentApi = ServiceProvider.GetRequiredService<IInventoryAdjustmentApiService>();
+            var adjustmentApi = ServiceProvider.GetRequiredService<IInventoryAdjustmentDesktopService>();
 
             var createRequest = new CreateInventoryAdjustmentRequest(
                 WarehouseId: warehouseId,

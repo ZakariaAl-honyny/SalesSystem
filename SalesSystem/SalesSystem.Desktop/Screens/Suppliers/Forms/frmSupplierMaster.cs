@@ -21,7 +21,7 @@ public partial class frmSupplierMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private ISupplierApiService SupplierService => _serviceProvider.GetRequiredService<ISupplierApiService>();
+    private ISupplierDesktopService SupplierService => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────

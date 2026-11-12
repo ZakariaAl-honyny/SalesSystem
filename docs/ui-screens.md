@@ -33,8 +33,8 @@ All financial screens must show currency alongside amounts:
 - **Invoice Total**: `الإجمالي: 15,000 YER (≈ $21.43 USD)`
 
 ## Screen Flow (UI First)
-1. **Login**: Authenticates and stores JWT in memory.
-2. **Dashboard / Main Form**: Houses the Sidebar menu. Applies Role-Based Visibility (e.g., Admin sees Warehouses/Settings; Cashier sees Sales).
+1. **Login**: Authenticates the single admin account and holds the session (`ISessionService.Current`) in memory.
+2. **Dashboard / Main Form**: Houses the Sidebar menu. Every module is visible: role-based visibility/RBAC is deferred to V2 (`AGENTS.md §2.29`), so the admin sees all screens (Warehouses, Settings, Sales, …).
 3. **Module Flow**: `frmMain` -> `frmList*` -> `frmAddUpdate*` (Modal).
 
 *For specific UI styling, RightToLeft properties, fonts (Tahoma), and interaction rules, see `AGENTS.md`.*

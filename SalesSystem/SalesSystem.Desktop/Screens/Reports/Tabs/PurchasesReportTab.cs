@@ -51,7 +51,7 @@ public class PurchasesReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetPurchasesAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetPurchasesAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
             
             if (result.IsSuccess)
             {

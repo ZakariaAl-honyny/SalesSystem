@@ -49,11 +49,6 @@ partial class frmWarehouseMaster
         lblSummary = new Label();
         pnlGrid = new Panel();
         dgvWarehouses = new DataGridView();
-        colId = new DataGridViewTextBoxColumn();
-        colName = new DataGridViewTextBoxColumn();
-        colPhone = new DataGridViewTextBoxColumn();
-        colAddress = new DataGridViewTextBoxColumn();
-        colIsActive = new DataGridViewTextBoxColumn();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -102,7 +97,7 @@ partial class frmWarehouseMaster
         lblCode.AutoSize = true;
         lblCode.Location = new Point(1267, 15);
         lblCode.Name = "lblCode";
-        lblCode.Size = new Size(100, 24);
+        lblCode.Size = new Size(103, 24);
         lblCode.TabIndex = 0;
         lblCode.Text = "رقم المخزن";
         // 
@@ -119,7 +114,7 @@ partial class frmWarehouseMaster
         lblName.AutoSize = true;
         lblName.Location = new Point(967, 15);
         lblName.Name = "lblName";
-        lblName.Size = new Size(106, 24);
+        lblName.Size = new Size(113, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم المخزن";
         // 
@@ -130,6 +125,8 @@ partial class frmWarehouseMaster
         lblNameReq.ForeColor = Color.Red;
         lblNameReq.Location = new Point(949, 15);
         lblNameReq.Name = "lblNameReq";
+        lblNameReq.Size = new Size(23, 24);
+        lblNameReq.TabIndex = 3;
         lblNameReq.Text = "*";
         // 
         // txtName
@@ -144,7 +141,7 @@ partial class frmWarehouseMaster
         lblPhone.AutoSize = true;
         lblPhone.Location = new Point(694, 15);
         lblPhone.Name = "lblPhone";
-        lblPhone.Size = new Size(56, 24);
+        lblPhone.Size = new Size(62, 24);
         lblPhone.TabIndex = 4;
         lblPhone.Text = "الهاتف";
         // 
@@ -160,7 +157,7 @@ partial class frmWarehouseMaster
         lblAddress.AutoSize = true;
         lblAddress.Location = new Point(430, 15);
         lblAddress.Name = "lblAddress";
-        lblAddress.Size = new Size(66, 24);
+        lblAddress.Size = new Size(65, 24);
         lblAddress.TabIndex = 6;
         lblAddress.Text = "العنوان";
         // 
@@ -176,7 +173,7 @@ partial class frmWarehouseMaster
         lblNotes.AutoSize = true;
         lblNotes.Location = new Point(1267, 88);
         lblNotes.Name = "lblNotes";
-        lblNotes.Size = new Size(86, 24);
+        lblNotes.Size = new Size(83, 24);
         lblNotes.TabIndex = 8;
         lblNotes.Text = "ملاحظات";
         // 
@@ -395,17 +392,17 @@ partial class frmWarehouseMaster
         txtFilterValue.Size = new Size(412, 32);
         txtFilterValue.TabIndex = 4;
         txtFilterValue.TextChanged += txtFilterValue_TextChanged;
-        txtFilterValue.KeyPress += txtFilterValue_KeyPress;
         txtFilterValue.KeyDown += txtFilterValue_KeyDown;
+        txtFilterValue.KeyPress += txtFilterValue_KeyPress;
         // 
         // chkShowInactive
         // 
         chkShowInactive.AutoSize = true;
         chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(1245, 64);
+        chkShowInactive.Location = new Point(1110, 70);
         chkShowInactive.Margin = new Padding(0);
         chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.Size = new Size(172, 26);
         chkShowInactive.TabIndex = 5;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.UseVisualStyleBackColor = true;
@@ -446,11 +443,9 @@ partial class frmWarehouseMaster
         // 
         dgvWarehouses.AllowUserToAddRows = false;
         dgvWarehouses.AllowUserToDeleteRows = false;
-        dgvWarehouses.AutoGenerateColumns = false;
         dgvWarehouses.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvWarehouses.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvWarehouses.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvWarehouses.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colPhone, colAddress, colIsActive });
         dgvWarehouses.Dock = DockStyle.Fill;
         dgvWarehouses.Location = new Point(10, 10);
         dgvWarehouses.MultiSelect = false;
@@ -462,51 +457,6 @@ partial class frmWarehouseMaster
         dgvWarehouses.Size = new Size(1412, 376);
         dgvWarehouses.TabIndex = 0;
         dgvWarehouses.CellClick += dgvWarehouses_CellClick;
-        // 
-        // colId
-        // 
-        colId.DataPropertyName = "Id";
-        colId.FillWeight = 8F;
-        colId.HeaderText = "رقم المخزن";
-        colId.MinimumWidth = 80;
-        colId.Name = "colId";
-        colId.ReadOnly = true;
-        // 
-        // colName
-        // 
-        colName.DataPropertyName = "Name";
-        colName.FillWeight = 24F;
-        colName.HeaderText = "اسم المخزن";
-        colName.MinimumWidth = 200;
-        colName.Name = "colName";
-        colName.ReadOnly = true;
-        // 
-        // colPhone
-        // 
-        colPhone.DataPropertyName = "Phone";
-        colPhone.FillWeight = 14F;
-        colPhone.HeaderText = "الهاتف";
-        colPhone.MinimumWidth = 130;
-        colPhone.Name = "colPhone";
-        colPhone.ReadOnly = true;
-        // 
-        // colAddress
-        // 
-        colAddress.DataPropertyName = "Address";
-        colAddress.FillWeight = 32F;
-        colAddress.HeaderText = "العنوان";
-        colAddress.MinimumWidth = 200;
-        colAddress.Name = "colAddress";
-        colAddress.ReadOnly = true;
-        // 
-        // colIsActive
-        // 
-        colIsActive.DataPropertyName = "IsActive";
-        colIsActive.FillWeight = 8F;
-        colIsActive.HeaderText = "نشط";
-        colIsActive.MinimumWidth = 60;
-        colIsActive.Name = "colIsActive";
-        colIsActive.ReadOnly = true;
         // 
         // errorProvider
         // 

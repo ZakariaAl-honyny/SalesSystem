@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// تنفيذ مباشر لخدمة دفعات المخزون — يفوّض كل المنطق إلى IInventoryBatchService في طبقة الأعمال.
 /// </summary>
-public class DirectInventoryBatchService : IInventoryBatchApiService
+public class DirectInventoryBatchService : IInventoryBatchDesktopService
 {
     private readonly BizInterfaces.IInventoryBatchService _bll;
     private readonly ISessionService _session;

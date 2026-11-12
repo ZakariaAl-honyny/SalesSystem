@@ -66,7 +66,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _movementsTable.Columns.Add("ReferenceNo", typeof(string));
 
             var searchText = txtFilterValue.Text.Trim();
-            var result = _serviceProvider.GetRequiredService<IReportApiService>().GetMovementsAsync().GetAwaiter().GetResult();
+            var result = _serviceProvider.GetRequiredService<IReportDesktopService>().GetMovementsAsync().GetAwaiter().GetResult();
 
             if (result.IsSuccess && result.Value != null)
             {

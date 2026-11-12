@@ -178,7 +178,7 @@ public partial class frmListCustomerReceipts : Form
         btnRefresh.Enabled = false;
         try
         {
-            var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().GetAllAsync();
+            var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().GetAllAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 _allReceipts = result.Value.ToList();
@@ -463,7 +463,7 @@ public partial class frmListCustomerReceipts : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().PostAsync(id);
+            var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().PostAsync(id);
 
             if (result.IsSuccess)
             {
@@ -511,7 +511,7 @@ public partial class frmListCustomerReceipts : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().CancelAsync(id);
+            var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().CancelAsync(id);
 
             if (result.IsSuccess)
             {

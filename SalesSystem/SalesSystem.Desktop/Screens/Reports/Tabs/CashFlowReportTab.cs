@@ -43,7 +43,7 @@ public class CashFlowReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetCashFlowReportAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetCashFlowReportAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
             if (result.IsSuccess && result.Value != null)
             {
                 var allItems = new List<object>();

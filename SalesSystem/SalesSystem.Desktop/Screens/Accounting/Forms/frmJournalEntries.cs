@@ -13,7 +13,7 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms;
 
 /// <summary>
 /// شاشة القيود المحاسبية — قائمة + تصفية موحّدة (gbFilter) + محرر قيد مزدوج + ترحيل/إلغاء/حذف مسودة.
-/// كل البيانات تُقرأ وتُكتب عبر <see cref="IJournalEntryApiService"/> و<see cref="IAccountApiService"/> فقط
+/// كل البيانات تُقرأ وتُكتب عبر <see cref="IJournalEntryDesktopService"/> و<see cref="IAccountDesktopService"/> فقط
 /// (RULE-N05/RULE-N06) — لا DbContext، ولا استدعاء شبكي، ولا أي طبقة أعمال مباشرة من الشاشة.
 /// </summary>
 public partial class frmJournalEntries : Form
@@ -25,11 +25,11 @@ public partial class frmJournalEntries : Form
 
     private readonly IServiceProvider _serviceProvider = null!;
 
-    private IJournalEntryApiService JournalService
-        => _serviceProvider.GetRequiredService<IJournalEntryApiService>();
+    private IJournalEntryDesktopService JournalService
+        => _serviceProvider.GetRequiredService<IJournalEntryDesktopService>();
 
-    private IAccountApiService AccountService
-        => _serviceProvider.GetRequiredService<IAccountApiService>();
+    private IAccountDesktopService AccountService
+        => _serviceProvider.GetRequiredService<IAccountDesktopService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly BindingList<LineRow> _lines = new();

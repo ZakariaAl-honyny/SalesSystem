@@ -12,14 +12,14 @@ namespace SalesSystem.Desktop.Screens.Accounting.Forms;
 /// <summary>
 /// شاشة دليل الحسابات (Chart of Accounts) — نموذج Master يجمع:
 /// نموذج إدخال/تعديل الحساب + شبكة عرض هرمية + صندوق تصفية موحّد + شريط ملخص.
-/// كل الخدمات تُحل عبر <see cref="IServiceProvider"/> من واجهة <see cref="IAccountApiService"/> فقط
+/// كل الخدمات تُحل عبر <see cref="IServiceProvider"/> من واجهة <see cref="IAccountDesktopService"/> فقط
 /// (RULE-N05/RULE-N06) — لا وصول لأي طبقة أخرى، ولا اتصال شبكي، ولا DbContext.
 /// </summary>
 public partial class frmAccounts : Form
 {
     private readonly IServiceProvider _serviceProvider = null!;
 
-    private IAccountApiService AccountService => _serviceProvider.GetRequiredService<IAccountApiService>();
+    private IAccountDesktopService AccountService => _serviceProvider.GetRequiredService<IAccountDesktopService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly List<AccountDto> _accounts = new();

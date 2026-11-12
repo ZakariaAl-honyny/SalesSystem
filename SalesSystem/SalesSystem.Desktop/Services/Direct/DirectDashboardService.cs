@@ -8,7 +8,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لبيانات لوحة المعلومات — يستدعي خدمات طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectDashboardService : IDashboardApiService
+public class DirectDashboardService : IDashboardDesktopService
 {
     private readonly BizInterfaces.IReportService _reports;
 

@@ -502,7 +502,7 @@ public class PurchaseService : IPurchaseService
 
                 await _uow.SaveChangesAsync(ct);
 
-                // ─── Auto-print intent logging (actual print triggered from Desktop via API) ───
+                // ─── Auto-print intent logging (actual print triggered from the Desktop in-process) ───
                 var autoPrint = await _systemSettingsRepo.GetBoolAsync("AutoPrintAfterPosting", false, ct);
                 if (autoPrint)
                 {

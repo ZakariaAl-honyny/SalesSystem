@@ -168,7 +168,7 @@ public partial class frmImportProductsExcel : Form
         try
         {
             Cursor = Cursors.WaitCursor;
-            var productService = _serviceProvider.GetRequiredService<IProductApiService>();
+            var productService = _serviceProvider.GetRequiredService<IProductDesktopService>();
             int successCount = 0;
 
             foreach (var r in validRows)

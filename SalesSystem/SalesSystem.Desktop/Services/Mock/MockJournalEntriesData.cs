@@ -5,7 +5,7 @@ using SalesSystem.Models.Accounting.Enums;
 namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
-/// بيانات تجريبية للقيود اليومية — تُستخدم بواسطة MockJournalEntryApiService.
+/// بيانات تجريبية للقيود اليومية — تُستخدم بواسطة MockJournalEntryDesktopService.
 /// 4 قيود متوازنة مع بنودها (EntryNo 101..104) مأخوذة من INITIAL_JOURNAL_ENTRIES.
 /// </summary>
 /// <remarks>

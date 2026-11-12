@@ -49,8 +49,8 @@ public partial class frmListSupplierPayments : Form
             (Keys.Escape, () => _ClearFilters()));
     }
 
-    private ISupplierPaymentApiService PaymentApi
-        => _serviceProvider.GetRequiredService<ISupplierPaymentApiService>();
+    private ISupplierPaymentDesktopService PaymentApi
+        => _serviceProvider.GetRequiredService<ISupplierPaymentDesktopService>();
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
     private void ApplyGreenTheme()

@@ -2,7 +2,7 @@
 # Platform: .NET 10 | N-Layer Architecture | WinForms
 
 ## 1. Single Source of Truth
-The master rules for architecture, UI patterns, and API services are defined in `AGENTS.md`. This Constitution file defines strictly the unchangeable core financial and transactional rules.
+The master rules for architecture and UI patterns are defined in `AGENTS.md`. This Constitution file defines strictly the unchangeable core financial and transactional rules.
 
 ## 2. Core Financial Rules
 1. **Monetary Values**: MUST use `decimal(18,2)`. NEVER `float`, `double`, or `money`.
@@ -33,6 +33,7 @@ Every multi-table operation MUST use `IUnitOfWork.ExecuteTransactionAsync()`.
 1. Passwords: Hash with BCrypt (WorkFactor 12).
 2. Connection Strings: Use environment variables or encrypted configs.
 3. Hard Deletes: Strictly FORBIDDEN. Use soft-delete `IsActive = false`.
-4. API: All endpoints require `[Authorize]` except login.
+4. **No HTTP surface**: the Desktop calls the Business layer in-process (`Desktop → Business → DataAccess → SQL Server`). There are no endpoints and no tokens to authorize.
+5. **Roles & permissions**: RBAC is deferred to V2 (`AGENTS.md §2.29`); this version runs as a single admin account with full access. No `PermissionsMask` checks inside screens.
 
-*For all UI and API guidelines, refer to `AGENTS.md`.*
+*For all UI guidelines, refer to `AGENTS.md`.*

@@ -99,31 +99,31 @@ public partial class frmCustomerStatement : Form
         try
         {
             // تحميل العملاء
-            var customerResult = await _serviceProvider.GetRequiredService<ICustomerApiService>()
+            var customerResult = await _serviceProvider.GetRequiredService<ICustomerDesktopService>()
                 .GetAllAsync(includeInactive: false);
             if (customerResult.IsSuccess && customerResult.Value != null)
                 _customers = customerResult.Value.ToList();
 
             // تحميل فواتير البيع
-            var invoiceResult = await _serviceProvider.GetRequiredService<ISalesInvoiceApiService>()
+            var invoiceResult = await _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>()
                 .GetAllAsync(status: 2); // المرحلة فقط
             if (invoiceResult.IsSuccess && invoiceResult.Value != null)
                 _allInvoices = invoiceResult.Value.ToList();
 
             // تحميل مرتجعات المبيعات
-            var returnResult = await _serviceProvider.GetRequiredService<ISalesReturnApiService>()
+            var returnResult = await _serviceProvider.GetRequiredService<ISalesReturnDesktopService>()
                 .GetAllAsync();
             if (returnResult.IsSuccess && returnResult.Value != null)
                 _allReturns = returnResult.Value.ToList();
 
             // تحميل سندات القبض
-            var receiptResult = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>()
+            var receiptResult = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>()
                 .GetAllAsync();
             if (receiptResult.IsSuccess && receiptResult.Value != null)
                 _allReceipts = receiptResult.Value.ToList();
 
             // تحميل القيود اليومية
-            var journalResult = await _serviceProvider.GetRequiredService<IJournalEntryApiService>()
+            var journalResult = await _serviceProvider.GetRequiredService<IJournalEntryDesktopService>()
                 .GetAllAsync();
             if (journalResult.IsSuccess && journalResult.Value != null)
                 _allJournalEntries = journalResult.Value.ToList();
@@ -352,7 +352,7 @@ public partial class frmCustomerStatement : Form
             {
                 try
                 {
-                    var detailResult = await _serviceProvider.GetRequiredService<IJournalEntryApiService>()
+                    var detailResult = await _serviceProvider.GetRequiredService<IJournalEntryDesktopService>()
                         .GetByIdAsync(entry.Id);
                     if (detailResult.IsSuccess && detailResult.Value != null)
                     {

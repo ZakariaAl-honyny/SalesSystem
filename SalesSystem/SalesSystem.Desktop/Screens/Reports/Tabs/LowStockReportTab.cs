@@ -50,7 +50,7 @@ public class LowStockReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetLowStockAsync();
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetLowStockAsync();
             
             if (result.IsSuccess)
             {

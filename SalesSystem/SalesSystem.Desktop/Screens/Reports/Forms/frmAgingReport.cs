@@ -38,7 +38,7 @@ public partial class frmAgingReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetAgingReportAsync("Customers", null, default);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetAgingReportAsync("Customers", null, default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

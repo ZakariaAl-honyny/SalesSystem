@@ -5,8 +5,8 @@ namespace SalesSystem.Business.Interfaces.Services;
 
 /// <summary>
 /// Service for importing products in bulk from Excel data.
-/// The Desktop client parses the Excel file using ClosedXML and sends
-/// structured JSON (List&lt;ProductImportRowDto&gt;) to the API for validation and persistence.
+/// The Desktop client parses the Excel file using ClosedXML and passes
+/// the rows (List&lt;ProductImportRowDto&gt;) in-process for validation and persistence.
 /// </summary>
 public interface IProductImportService
 {

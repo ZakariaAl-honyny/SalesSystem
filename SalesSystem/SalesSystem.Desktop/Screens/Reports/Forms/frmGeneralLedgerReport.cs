@@ -51,7 +51,7 @@ public partial class frmGeneralLedgerReport : Form, IExportableReport
             ShowLoading(true);
             var accountId = (int)nudAccountId.Value;
             if (accountId <= 0) { lblSummary.Text = "أدخل رقم الحساب أولاً"; return; }
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetGeneralLedgerAsync(accountId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetGeneralLedgerAsync(accountId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
             if (result.IsSuccess && result.Value != null)
             {
                 var ledger = result.Value;

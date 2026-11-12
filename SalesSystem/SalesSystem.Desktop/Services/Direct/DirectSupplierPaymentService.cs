@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// Desktop wrapper over the BLL supplier-payment service (in-process, no HTTP).
 /// </summary>
-public class DirectSupplierPaymentService : ISupplierPaymentApiService
+public class DirectSupplierPaymentService : ISupplierPaymentDesktopService
 {
     private readonly BizInterfaces.ISupplierPaymentService _bll;
     private readonly ISessionService _session;

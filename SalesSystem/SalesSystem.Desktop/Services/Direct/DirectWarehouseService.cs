@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة المستودعات — يستدعي طبقة الأعمال (المستودعات + المخزون) داخل نفس العملية (بدون HTTP).
 /// </summary>
-public class DirectWarehouseService : IWarehouseApiService
+public class DirectWarehouseService : IWarehouseDesktopService
 {
     private readonly BizInterfaces.IWarehouseService _warehouses;
     private readonly BizInterfaces.IInventoryService _inventory;

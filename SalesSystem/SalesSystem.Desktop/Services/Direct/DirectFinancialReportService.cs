@@ -8,7 +8,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة التقارير المالية — ينادي طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectFinancialReportService : IFinancialReportApiService
+public class DirectFinancialReportService : IFinancialReportDesktopService
 {
     private const string NotAvailableMessage = "هذا التقرير غير متاح في الإصدار الحالي";
 

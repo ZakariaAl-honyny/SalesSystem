@@ -1,31 +1,35 @@
 <h1 align="center">🧾 Sales Management System</h1>
 
 <p align="center">
-  <strong>A comprehensive sales management platform for small-to-medium retail businesses</strong><br/>
-  <em>v5.0.0 — N-Layer WinForms Edition</em>
+  <strong>Local desktop sales management for small retail shops</strong><br/>
+  <em>v6.0.0 — Classic WinForms · N-Layer 2-Tier</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/.NET-10%20LTS-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10"/>
+  <img src="https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10"/>
   <img src="https://img.shields.io/badge/WinForms-Desktop-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="WinForms"/>
   <img src="https://img.shields.io/badge/SQL%20Server-2019+-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server"/>
-  <img src="https://img.shields.io/badge/Architecture-N--Layer-2ECC71?style=for-the-badge" alt="N-Layer Architecture"/>
-  <img src="https://img.shields.io/badge/API-ASP.NET%20Core%2010-512BD4?style=for-the-badge" alt="ASP.NET Core"/>
+  <img src="https://img.shields.io/badge/Architecture-N--Layer%202--Tier-2ECC71?style=for-the-badge" alt="N-Layer 2-Tier"/>
 </p>
 
 ---
 
-## 📋 Overview
+## Overview
 
-A **comprehensive sales management platform** built with an N-Layer Architecture, designed for small-to-medium retail businesses. The current version delivers a **WinForms Desktop client** backed by an **ASP.NET Core Web API**, handling sales, purchases, inventory, returns, and financial tracking with full Arabic support.
+A desktop application for a single retail shop: sales invoices, purchases, returns, inventory and
+warehouses, cash boxes, chart of accounts, journal entries, and reports. The UI is Arabic (RTL,
+`Tahoma`), and the whole product runs on one machine against a local SQL Server instance.
 
-The API-first architecture ensures that the backend can support future web and mobile clients without any changes to the core business logic.
+One admin user with full access. No roles, no permission checks.
+
+**Desktop-only.** There is no server, no HTTP, no API. The WinForms client loads the business layer
+in the same process and talks to SQL Server itself.
 
 ---
 
-## 🏗️ Architecture (N-Layer)
+## Architecture — N-Layer, 2-Tier
 
-The system follows a strict 8-project N-Layer solution structure:
+Seven projects, one solution:
 
 ```text
 SalesSystem/
@@ -34,56 +38,155 @@ SalesSystem/
 ├── SalesSystem.DTO/          ← DTOs + Requests + Responses + Result<T>
 ├── SalesSystem.DataAccess/   ← EF Core + DbContext + Repositories + Migrations
 ├── SalesSystem.Business/     ← Business Logic Services (57 services)
-├── SalesSystem.API/          ← ASP.NET Core API + Controllers (59) + Validators
 ├── SalesSystem.Desktop/      ← WinForms Desktop (frm* forms)
 └── SalesSystem.Tests/        ← Tests
 ```
 
-### 🔄 Data Flow
+Data flow:
 
 ```text
-# CRUD / data screens (API path)
-Desktop (WinForms) → (HttpClient) → API Controllers → Business Services → DataAccess (EF Core) → SQL Server
-
-# Authentication + Reports (in-process BLL path)
-Desktop (WinForms) → Business Services → DataAccess (EF Core) → SQL Server
+Desktop (WinForms) → Business (BLL) → DataAccess (EF Core) → SQL Server
 ```
 
-> **Key Principle:** The Desktop app **never** connects to the database directly (no `DbContext`/EF/SQL in the Desktop project). CRUD and data screens call the Web API via `HttpClient`, while authentication and reports call the Business Logic layer in-process. Both paths strictly adhere to the `Result<T>` pattern.
+| Layer | Its only job |
+|---|---|
+| `SalesSystem.Desktop` | Forms (`frm*`), DI wiring, helpers, desktop services. No rules, no SQL. |
+| `SalesSystem.Business` | Business rules, validation, calculations, transactions, journal automation. |
+| `SalesSystem.DataAccess` | EF Core `SalesDbContext`, Fluent configurations, repositories, `IUnitOfWork`, migrations, seeding. |
+| `SalesSystem.Models` / `SalesSystem.DTO` / `SalesSystem.Common` | Entities, request/response contracts, enums, `Result<T>`, shared helpers. |
+
+> **No API layer, ever.** The Desktop never uses `HttpClient`, never serializes JSON on the data
+> path, and never touches `DbContext`. Anything that looks like one is a bug.
 
 ---
 
-## 🧪 Mock Mode (UI-first testing)
+## Screen ⇄ Service pattern (Direct)
 
-Mock mode is **ON by default** (`UseMockData: true` in `appsettings.json`), letting you explore and build the UI without a running API or database.
+Every screen resolves an interface from DI and calls it:
 
-- No API or database required — services resolve to in-memory `Mock*` implementations under `Services/Mock/`.
+- Interface: `I<Entity>DesktopService` (in `Desktop/Services/Interfaces/`)
+- Real mode: `Direct<Entity>Service` — a thin wrapper that calls the Business service in-process
+- Mock mode: `Mock<Entity>DesktopService` — in-memory data, no database
+- Every method returns `Result` / `Result<T>`; no exceptions cross the boundary
+
+```csharp
+public frmCustomerMaster(IServiceProvider serviceProvider)
+{
+    _serviceProvider = serviceProvider;
+    InitializeComponent();
+}
+
+private ICustomerDesktopService CustomerService
+    => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
+```
+
+The wrapper holds no logic of its own — it maps DTOs and forwards the BLL's `Result<T>` unchanged.
+
+---
+
+## UI doctrine — classic WinForms, reusable Helpers
+
+- **Code-behind only.** Event handlers (`btnSave_Click`, `dgvMain_CellDoubleClick`, …) call services.
+  No MVVM, no ViewModel classes, no binding frameworks, no `ICommand` plumbing.
+- **Helpers own all repeated behaviour.** Screens consume them; they never re-implement them.
+
+| Helper | Owns |
+|---|---|
+| `GreenThemeHelper` | Every colour of the system — form background, header bar, grids, group boxes, highlight text. |
+| `KeyboardHelper` | Enter-as-Tab, select-all-on-focus, focus highlight, RTL arrow navigation, disabled-button visuals, global shortcuts. |
+| `LiveTafqeetHelper` | Live Arabic amount-in-words tooltip on money fields. |
+| `RowFilterHelper` | Safe `DataView.RowFilter` values (escaping, known columns only). |
+| `ThemeHelper` | Base form/button styling; applied before the green theme. |
+| `ReportUiStandardizer` | Shared layout, filter panel and summary bar for report screens. |
+
+**Changing a colour anywhere in the system = editing one constant in `GreenThemeHelper`.** Screens
+must not contain colour literals.
+
+---
+
+## Mock mode (UI-first)
+
+`appsettings.json` ships with `UseMockData: true`.
+
+- No database and no server needed — services resolve to in-memory `Mock*` implementations.
 - Login accepts any credentials.
-- The main window title bar shows `وضع التجربة (Mock)`.
-- Set `UseMockData: false` in `appsettings.json` to switch to the real API + database.
+- The main window title shows `وضع التجربة (Mock)`.
+- Set `UseMockData: false` to run against real SQL Server; at startup the app applies migrations and
+  seeds the baseline data automatically before the login screen appears.
 
 ---
 
-## 🚀 Core Features
+## Financial integrity
 
-- 🏪 **Purpose-built for retail** — Sales invoices, purchase orders, returns, and stock transfers.
-- 💰 **Robust Financials** — Chart of Accounts, Journal Entries, Cash Boxes, and Bank tracking.
-- 📦 **Inventory Management** — Multi-warehouse tracking, FIFO/FEFO costing, and automated low-stock alerts.
-- 👥 **Role-Based Permissions** — 9 DB-driven roles with granular access control.
-- 🖨️ **Print Integration** — A4 Invoice generation via QuestPDF and ESC/POS thermal receipt printing.
-- 🛡️ **Data Integrity** — All monetary values use `decimal(18,2)`. All inventory quantities use `decimal(18,3)`.
+Money is `decimal(18,2)`. Quantities are `decimal(18,3)`. Never `float`, `double`, or `money`.
+
+```csharp
+// sales line
+LineTotal = (Quantity * UnitPrice) - DiscountAmount;
+
+// purchase line
+LineTotal = (Quantity * UnitCost) - DiscountAmount;
+
+// invoice
+SubTotal        = Items.Sum(i => i.LineTotal);
+NetTotal        = SubTotal - InvoiceDiscount + TaxAmount + OtherCharges;
+RemainingAmount = NetTotal - PaidAmount;
+```
+
+- Invoice lifecycle: `Draft (1) → Posted (2) → Cancelled (3)`. No hard delete, no editing a posted invoice.
+- Every financial write happens inside a transaction (`IUnitOfWork`).
+- Every stock change is recorded in `InventoryTransactions`.
+- `WarehouseStocks.Quantity` carries a `CHECK (Quantity >= 0)` constraint — negative stock is impossible.
 
 ---
 
-## 📚 Documentation & Guidelines
+## Build & run
 
-All core architectural rules, coding standards, and AI Agent constraints are documented in the master rules file:
+From the solution folder (`SalesSystem/`):
 
-👉 **[AGENTS.md](AGENTS.md)** (Read this before contributing)
+```powershell
+dotnet build .\SalesSystem.slnx
+dotnet build .\SalesSystem.Desktop\SalesSystem.Desktop.csproj
+dotnet build .\SalesSystem.Business\SalesSystem.Business.csproj
+dotnet build .\SalesSystem.DataAccess\SalesSystem.DataAccess.csproj
+```
 
-For detailed module rules and database schemas, refer to the `docs/` folder:
-- `docs/CONSTITUTION.md` (Financial rules and constraints)
-- `docs/PRD-MVP.md` (Product Requirements Document)
-- `docs/database-schema.md` (Database Architecture)
-- `docs/BUSINESS-RULES.md` (Domain logic)
-- `docs/ui-screens.md` (WinForms guidelines)
+From the repo root:
+
+```powershell
+dotnet run --project .\SalesSystem\SalesSystem.Desktop\SalesSystem.Desktop.csproj
+```
+
+---
+
+## Testing
+
+Automated tests are **not** written by AI agents. `SalesSystem.Tests` covers the `SalesSystem.Common`
+helpers only and is maintained by the project owner.
+
+Every delivered change ships with a **manual test checklist** in its delivery report — screen →
+action → expected result — which the owner executes.
+
+---
+
+## Documentation & rules
+
+| Document | Contents |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | Must read first. Architecture, rules, enums, forbidden patterns, UI standards. |
+| [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) | Financial formulas, transaction protocol, non-negotiables. |
+| [`docs/BUSINESS-RULES.md`](docs/BUSINESS-RULES.md) | Domain rules per module. |
+| [`docs/database-schema.md`](docs/database-schema.md) | Tables, types, constraints, indexes. |
+| [`docs/PRD-MVP.md`](docs/PRD-MVP.md) | Product requirements (reference). |
+| [`docs/ui-screens.md`](docs/ui-screens.md) | WinForms screen guidelines. |
+
+`docs/archive/**` is historical only — it describes earlier plans and does not reflect the current
+architecture.
+
+---
+
+## Deferred to V2
+
+- Roles and permissions (single admin with full access today).
+- Per-operation DI scope (one application-lifetime scope is used today).
+- Stored Employees module (`MockEmployeeDesktopService` only today).

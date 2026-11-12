@@ -68,7 +68,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     {
         if (_adjustmentId is null) return;
 
-        var api = _serviceProvider.GetRequiredService<IInventoryAdjustmentApiService>();
+        var api = _serviceProvider.GetRequiredService<IInventoryAdjustmentDesktopService>();
         var result = api.GetByIdAsync(_adjustmentId.Value).GetAwaiter().GetResult();
 
         if (!result.IsSuccess || result.Value is null)
@@ -117,7 +117,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
     private void _LoadWarehouses()
     {
-        var api = _serviceProvider.GetRequiredService<IWarehouseApiService>();
+        var api = _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
         var result = api.GetAllAsync().GetAwaiter().GetResult();
         if (result.IsSuccess && result.Value is { Count: > 0 })
         {
@@ -146,7 +146,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     {
         if (!_ValidateForm()) return;
 
-        var api = _serviceProvider.GetRequiredService<IInventoryAdjustmentApiService>();
+        var api = _serviceProvider.GetRequiredService<IInventoryAdjustmentDesktopService>();
         var request = new CreateInventoryAdjustmentRequest(
             WarehouseId: (short)(cmbWarehouse.SelectedValue ?? 0),
             AdjustmentType: (byte)(cmbAdjustmentType.SelectedValue ?? 1),
@@ -174,7 +174,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
             if (_adjustmentId is null) return;
         }
 
-        var api = _serviceProvider.GetRequiredService<IInventoryAdjustmentApiService>();
+        var api = _serviceProvider.GetRequiredService<IInventoryAdjustmentDesktopService>();
         var result = api.PostAsync(_adjustmentId.Value).GetAwaiter().GetResult();
 
         if (result.IsSuccess)

@@ -50,8 +50,8 @@ public partial class frmListInventoryAdjustments : Form
     }
 
     /// <summary>RULE-N04 — الخدمة تُحل من الحاوية ولا تُنشأ يدوياً.</summary>
-    private IInventoryAdjustmentApiService ApiService
-        => _serviceProvider.GetRequiredService<IInventoryAdjustmentApiService>();
+    private IInventoryAdjustmentDesktopService DesktopService
+        => _serviceProvider.GetRequiredService<IInventoryAdjustmentDesktopService>();
 
     // ── المظهر ─────────────────────────────────────────────────────────────────────
 
@@ -132,7 +132,7 @@ public partial class frmListInventoryAdjustments : Form
             _adjustmentsTable = _CreateTable();
             _adjustmentsView = new DataView(_adjustmentsTable);
 
-            var result = await ApiService.GetAllAsync(includeInactive: chkIncludeCancelled.Checked);
+            var result = await DesktopService.GetAllAsync(includeInactive: chkIncludeCancelled.Checked);
 
             if (result.IsSuccess && result.Value is { Count: > 0 })
             {
@@ -338,7 +338,7 @@ public partial class frmListInventoryAdjustments : Form
             return;
 
         int id = Convert.ToInt32(drv["Id"]);
-        var result = await ApiService.GetByIdAsync(id);
+        var result = await DesktopService.GetByIdAsync(id);
         _selectedAdjustment = result.IsSuccess ? result.Value : null;
     }
 
@@ -399,7 +399,7 @@ public partial class frmListInventoryAdjustments : Form
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
-            var result = await ApiService.PostAsync(_selectedAdjustment.Id);
+            var result = await DesktopService.PostAsync(_selectedAdjustment.Id);
 
             if (result.IsSuccess)
                 MessageBox.Show("تم ترحيل تسوية المخزون بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -438,7 +438,7 @@ public partial class frmListInventoryAdjustments : Form
                 "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
-            var result = await ApiService.CancelAsync(_selectedAdjustment.Id);
+            var result = await DesktopService.CancelAsync(_selectedAdjustment.Id);
 
             if (result.IsSuccess)
                 MessageBox.Show("تم إلغاء تسوية المخزون بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);

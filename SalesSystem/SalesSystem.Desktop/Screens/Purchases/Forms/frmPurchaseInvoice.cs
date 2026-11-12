@@ -19,17 +19,17 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 public partial class frmPurchaseInvoice : Form
 {
     private readonly IServiceProvider _serviceProvider;
-    private IPurchaseInvoiceApiService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceApiService>();
-    private ISupplierApiService _supplierApi => _serviceProvider.GetRequiredService<ISupplierApiService>();
-    private IProductApiService _productApi => _serviceProvider.GetRequiredService<IProductApiService>();
-    private IWarehouseApiService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseApiService>();
+    private IPurchaseInvoiceDesktopService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();
+    private ISupplierDesktopService _supplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
+    private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
+    private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
     private INotificationService _notification => _serviceProvider.GetRequiredService<INotificationService>();
     private IEventBus _eventBus => _serviceProvider.GetRequiredService<IEventBus>();
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
-    private ISettingsApiService _settingsApi => _serviceProvider.GetRequiredService<ISettingsApiService>();
+    private ISettingsDesktopService _settingsApi => _serviceProvider.GetRequiredService<ISettingsDesktopService>();
     
     private PurchaseInvoiceDto? _invoice;
-    private BindingList<InvoiceLineItemViewModel> _lines = new();
+    private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
     private bool _isUpdating = false;
     private Button btnPrintA4 = null!;
@@ -159,7 +159,7 @@ public partial class frmPurchaseInvoice : Form
         _lines.Clear();
         foreach (var item in _invoice.Items)
         {
-            _lines.Add(new InvoiceLineItemViewModel {
+            _lines.Add(new InvoiceLineItem {
                 ProductId = item.ProductId,
                 ProductCode = item.ProductCode,
                 ProductName = item.ProductName,
@@ -272,14 +272,14 @@ public partial class frmPurchaseInvoice : Form
 
     private void btnAddItem_Click(object? sender, EventArgs e)
     {
-        _lines.Add(new InvoiceLineItemViewModel());
+        _lines.Add(new InvoiceLineItem());
         dgvItems.Focus();
         dgvItems.CurrentCell = dgvItems.Rows[_lines.Count - 1].Cells[0];
     }
 
     private void btnRemoveItem_Click(object? sender, EventArgs e)
     {
-        if (dgvItems.CurrentRow?.DataBoundItem is InvoiceLineItemViewModel line)
+        if (dgvItems.CurrentRow?.DataBoundItem is InvoiceLineItem line)
         {
             _lines.Remove(line);
             CalculateTotals();

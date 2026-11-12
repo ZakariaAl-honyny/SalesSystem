@@ -4,7 +4,7 @@
 // • المكوّن يحمل كل محتوى لوحة التحكم وسلوكها (البطاقات الست + أهلاً + الأرقام
 //   + الاشتراكات في EventBus) — لا يوجد فيه زر إغلاق: الإغلاق مسؤولية الحاضن.
 // • يعمل بلا تعديل داخل frmDashboard أو داخل أي حاضن آخر (frmMain لاحقاً).
-// • كل خدماته تُحلّ من DI عبر I*ApiService فقط — لا وصول مباشر لقاعدة البيانات
+// • كل خدماته تُحلّ من DI عبر I*DesktopService فقط — لا وصول مباشر لقاعدة البيانات
 //   ولا أي طبقة أدنى (RULE-N05 / RULE-N06).
 //
 // ملاحظة الاشتراك (RULE-N69): نستخدم Control.OnLoad — وهو يُطلق فعلياً
@@ -41,7 +41,7 @@ public partial class ctrlDashboard : UserControl
     private DateTime _lastRefreshUtc = DateTime.MinValue;
 
     // ── الخدمات (RULE-N04) ───────────────────────────────────────────────────
-    private IDashboardApiService ApiService => _serviceProvider.GetRequiredService<IDashboardApiService>();
+    private IDashboardDesktopService DesktopService => _serviceProvider.GetRequiredService<IDashboardDesktopService>();
     private ISessionService SessionService => _serviceProvider.GetRequiredService<ISessionService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
@@ -83,7 +83,7 @@ public partial class ctrlDashboard : UserControl
         {
             _lastRefreshUtc = DateTime.UtcNow;
 
-            var result = await ApiService.GetSummaryAsync().ConfigureAwait(true);
+            var result = await DesktopService.GetSummaryAsync().ConfigureAwait(true);
 
             if (result is null)
             {

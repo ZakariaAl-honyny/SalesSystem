@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة وحدات القياس — يستدعي طبقة الأعمال داخل نفس العملية (بدون HTTP).
 /// </summary>
-public class DirectUnitService : IUnitApiService
+public class DirectUnitService : IUnitDesktopService
 {
     private readonly BizInterfaces.IUnitService _bll;
 

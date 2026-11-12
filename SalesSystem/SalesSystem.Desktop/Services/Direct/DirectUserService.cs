@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة المستخدمين — يستدعي خدمات طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectUserService : IUserApiService
+public class DirectUserService : IUserDesktopService
 {
     private readonly BizInterfaces.IUserService _users;
 

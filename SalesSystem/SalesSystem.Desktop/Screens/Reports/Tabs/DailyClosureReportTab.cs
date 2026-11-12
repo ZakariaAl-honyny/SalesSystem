@@ -40,7 +40,7 @@ public class DailyClosureReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<ICashBoxReportApiService>().GetCashBoxSummaryAsync();
+            var result = await _serviceProvider.GetRequiredService<ICashBoxReportDesktopService>().GetCashBoxSummaryAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

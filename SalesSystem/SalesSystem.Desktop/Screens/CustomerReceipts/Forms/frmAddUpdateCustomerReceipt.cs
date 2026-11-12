@@ -54,7 +54,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
     private async Task LoadComboBoxesAsync()
     {
-        var customerResult = await _serviceProvider.GetRequiredService<ICustomerApiService>().GetAllAsync();
+        var customerResult = await _serviceProvider.GetRequiredService<ICustomerDesktopService>().GetAllAsync();
         if (customerResult.IsSuccess && customerResult.Value != null)
         {
             _customers = customerResult.Value.Where(c => c.IsActive).ToList();
@@ -64,7 +64,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
             cmbCustomer.SelectedIndex = -1;
         }
 
-        var cashResult = await _serviceProvider.GetRequiredService<ICashBoxApiService>().GetAllAsync();
+        var cashResult = await _serviceProvider.GetRequiredService<ICashBoxDesktopService>().GetAllAsync();
         if (cashResult.IsSuccess && cashResult.Value != null)
         {
             _cashBoxes = cashResult.Value.Where(b => b.IsActive).ToList();
@@ -78,7 +78,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
     private async Task LoadReceiptAsync()
     {
         Cursor = Cursors.WaitCursor;
-        var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().GetByIdAsync(_editingId);
+        var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().GetByIdAsync(_editingId);
         Cursor = Cursors.Default;
 
         if (result.IsSuccess && result.Value != null)
@@ -159,7 +159,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
                     Amount: numAmount.Value,
                     Notes: string.IsNullOrWhiteSpace(txtNotes.Text) ? null : txtNotes.Text.Trim());
 
-                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().UpdateAsync(_editingId, request);
+                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().UpdateAsync(_editingId, request);
                 if (result.IsSuccess)
                 {
                     MessageBox.Show("تم تحديث سند القبض بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -179,7 +179,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
                     Amount: numAmount.Value,
                     Notes: string.IsNullOrWhiteSpace(txtNotes.Text) ? null : txtNotes.Text.Trim());
 
-                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().CreateAsync(request);
+                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().CreateAsync(request);
                 if (result.IsSuccess)
                 {
                     MessageBox.Show("تم إضافة سند القبض بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);

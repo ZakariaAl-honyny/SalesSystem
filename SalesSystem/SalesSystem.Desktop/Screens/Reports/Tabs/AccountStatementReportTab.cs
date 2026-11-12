@@ -55,13 +55,13 @@ public class AccountStatementReportTab : UserControl, IExportableReport
             IReadOnlyList<AccountStatementDto>? list = null;
             if (cmbPartyType.SelectedIndex == 0)
             {
-                var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetCustomerAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+                var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetCustomerAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
                 if (result.IsSuccess) list = result.Value;
                 else { _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!); return; }
             }
             else
             {
-                var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetSupplierAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+                var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetSupplierAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
                 if (result.IsSuccess) list = result.Value;
                 else { _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!); return; }
             }

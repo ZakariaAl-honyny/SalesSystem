@@ -49,7 +49,7 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetIncomeStatementAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetIncomeStatementAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
 
             if (result.IsSuccess && result.Value != null)
             {

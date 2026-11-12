@@ -122,7 +122,7 @@ public partial class frmListExpenses : Form
 
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().GetAllAsync();
+            var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().GetAllAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 _allExpenses = result.Value.ToList();
@@ -492,7 +492,7 @@ public partial class frmListExpenses : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().PostAsync(id);
+            var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().PostAsync(id);
 
             if (result.IsSuccess)
             {
@@ -539,7 +539,7 @@ public partial class frmListExpenses : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().CancelAsync(id);
+            var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().CancelAsync(id);
 
             if (result.IsSuccess)
             {
@@ -586,7 +586,7 @@ public partial class frmListExpenses : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().DeleteAsync(id);
+            var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().DeleteAsync(id);
 
             if (result.IsSuccess)
             {

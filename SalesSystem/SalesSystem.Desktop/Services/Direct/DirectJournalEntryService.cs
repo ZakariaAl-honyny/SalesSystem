@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة القيود اليومية — ينادي طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectJournalEntryService : IJournalEntryApiService
+public class DirectJournalEntryService : IJournalEntryDesktopService
 {
     private readonly BizInterfaces.IJournalEntryService _bll;
     private readonly ISessionService _session;

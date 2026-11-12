@@ -37,7 +37,7 @@ public partial class frmStockBalanceReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetStockBalanceAsync(null, default);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetStockBalanceAsync(null, default);
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();

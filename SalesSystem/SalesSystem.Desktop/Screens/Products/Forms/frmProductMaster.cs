@@ -21,9 +21,9 @@ public partial class frmProductMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private IProductApiService ProductService => _serviceProvider.GetRequiredService<IProductApiService>();
-    private ICategoryApiService CategoryService => _serviceProvider.GetRequiredService<ICategoryApiService>();
-    private IUnitApiService UnitService => _serviceProvider.GetRequiredService<IUnitApiService>();
+    private IProductDesktopService ProductService => _serviceProvider.GetRequiredService<IProductDesktopService>();
+    private ICategoryDesktopService CategoryService => _serviceProvider.GetRequiredService<ICategoryDesktopService>();
+    private IUnitDesktopService UnitService => _serviceProvider.GetRequiredService<IUnitDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────

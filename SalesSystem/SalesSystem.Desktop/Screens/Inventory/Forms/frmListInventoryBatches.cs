@@ -199,7 +199,7 @@ public partial class frmListInventoryBatches : Form
     {
         try
         {
-            var api = _serviceProvider.GetRequiredService<IProductApiService>();
+            var api = _serviceProvider.GetRequiredService<IProductDesktopService>();
             var result = await api.GetAllAsync();
 
             if (!result.IsSuccess || result.Value is not { Count: > 0 })
@@ -233,7 +233,7 @@ public partial class frmListInventoryBatches : Form
 
         try
         {
-            var api = _serviceProvider.GetRequiredService<IInventoryBatchApiService>();
+            var api = _serviceProvider.GetRequiredService<IInventoryBatchDesktopService>();
             var allBatches = new List<InventoryBatchDto>();
 
             int? filterProductId = cmbProduct.SelectedValue is int pid && pid > 0 ? pid : null;
@@ -250,7 +250,7 @@ public partial class frmListInventoryBatches : Form
             else
             {
                 // تحميل دفعات كل الأصناف من خلال قائمة الأصناف (حد أقصى 50 صنفاً لتفادي البطء).
-                var productApi = _serviceProvider.GetRequiredService<IProductApiService>();
+                var productApi = _serviceProvider.GetRequiredService<IProductDesktopService>();
                 var productsResult = await productApi.GetAllAsync();
 
                 if (productsResult.IsSuccess && productsResult.Value is { Count: > 0 })

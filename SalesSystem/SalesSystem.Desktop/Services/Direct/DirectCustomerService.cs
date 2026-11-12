@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة العملاء — يستدعي طبقة الأعمال داخل نفس العملية (بدون HTTP).
 /// </summary>
-public class DirectCustomerService : ICustomerApiService
+public class DirectCustomerService : ICustomerDesktopService
 {
     private readonly BizInterfaces.ICustomerService _bll;
     private readonly ISessionService _session;

@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v6.0.0 — Code doctrine & naming cleanup
+
+- Removed every API/HTTP reference from docs and code naming (`I*ApiService` → `I*DesktopService`).
+- Doctrine registered: classic WinForms (no MVVM) · simple N-Layer (no Clean Architecture) · reusable Helpers.
+- Testing responsibility moved to the project owner: every delivery ships a manual test checklist (`AGENTS.md §2.31`).
+
+---
+
 ## v4.10.7 — Transaction Atomicity & Inventory Audit Trail (2026-06-23)
+
+> Historical (v5 and earlier) — everything below this point is release history. The API project no longer exists; the system today is 2-Tier: `Desktop → Business → DataAccess → SQL Server` (in-process, classic WinForms, no MVVM).
 
 ### 🔒 Transaction Atomicity: All 22 Operations Audited
 Complete audit of every transaction operation that affects stock, cash, or accounting — all now wrapped in `ExecuteTransactionAsync` per RULE-275/276/281.
@@ -794,6 +804,8 @@ Complete audit of every transaction operation that affects stock, cash, or accou
 
 ## v4.3 — محرك الطباعة (2026-05-25)
 
+> Historical (v5) — the API project no longer exists; printing is now called in-process from the Desktop.
+
 ### الميزات الجديدة
 - **طباعة فواتير A4 (PDF)**: إنشاء فواتير احترافية بتنسيق A4 باستخدام QuestPDF مع دعم RTL للغة العربية
   - شعار المتجر في رأس الصفحة (مع معالجة عدم وجود الشعار بشكل آمن)
@@ -827,6 +839,8 @@ Complete audit of every transaction operation that affects stock, cash, or accou
 - اختبارات وحدة لـ `EscPosCommandBuilder` (التحقق من صحة تسلسل الأوامر الثنائية)
 
 ## [1.11.0] - 2026-05-24
+
+> Historical (v5) — the API project no longer exists.
 ### Added
 - **v4.3 — Dynamic UOM & Costing Engine** (Phase 2–4 MVP):
   - **ProductUnit Entity**: Multi-unit support per product with `UnitName`, `ConversionFactor`, per-unit `SalesPrice`/`PurchaseCost`, `IsBaseUnit` flag. Guard clauses and factory methods.
@@ -1125,6 +1139,8 @@ Complete audit of every transaction operation that affects stock, cash, or accou
 
 ## [1.4.0] - 2026-05-21
 
+> Historical (v5) — "Clean Architecture" below refers to the removed design; the current design is a simple N-Layer (no MVVM, no MediatR/CQRS).
+
 ### Added
 - **ExecuteAsync() Pattern (v4.5)**: Centralized error handling wrapper in ViewModelBase.
   - `ExecuteAsync(Func<Task>)` — wraps async operations with IsBusy + error handling.
@@ -1273,6 +1289,8 @@ Complete audit of every transaction operation that affects stock, cash, or accou
 
 ## [1.2.0] - 2026-05-21
 
+> Historical (v5) — the API project no longer exists.
+
 ### Added
 - **Printing & PDF Generation Engine (Phase 7)**: Complete A4 + Thermal printing subsystem.
   - **A4 PDF generation** via QuestPDF (`A4InvoiceDocument`) with RTL Arabic, store logo, alternating rows, tax breakdown, page numbers.
@@ -1303,6 +1321,8 @@ Complete audit of every transaction operation that affects stock, cash, or accou
 - **All 7 projects** build with 0 errors; 1,342 tests pass (2 printer-dependent skipped).
 
 ## [1.1.0] - 2026-05-21
+
+> Historical (v5) — the WPF/MVVM desktop and all API Controllers described below were removed; the desktop is classic WinForms calling the BLL in-process.
 
 ### Added
 - **Dynamic Unit of Measure (v4.3)**: Multiple units per product (Piece, Box, Carton) with configurable conversion factors.

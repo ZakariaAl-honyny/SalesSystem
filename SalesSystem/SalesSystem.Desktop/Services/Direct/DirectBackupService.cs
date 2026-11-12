@@ -7,7 +7,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// Desktop wrapper over the BLL backup service (in-process, no HTTP).
 /// </summary>
-public class DirectBackupService : IBackupApiService
+public class DirectBackupService : IBackupDesktopService
 {
     private readonly BizInterfaces.IBackupService _bll;
 

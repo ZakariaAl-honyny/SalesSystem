@@ -8,7 +8,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// تنفيذ مباشر لخدمة تقارير الشراء — يفوّض كل المنطق إلى IPurchaseReportService في طبقة الأعمال.
 /// </summary>
-public class DirectPurchaseReportService : IPurchaseReportApiService
+public class DirectPurchaseReportService : IPurchaseReportDesktopService
 {
     private readonly BizInterfaces.IPurchaseReportService _bll;
 

@@ -38,7 +38,7 @@ public partial class frmExpiredProductsReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetExpiredProductsAsync(0, default);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetExpiredProductsAsync(0, default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

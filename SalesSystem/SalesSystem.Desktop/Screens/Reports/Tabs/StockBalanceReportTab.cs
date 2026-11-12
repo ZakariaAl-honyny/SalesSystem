@@ -40,7 +40,7 @@ public class StockBalanceReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetStockBalanceAsync();
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetStockBalanceAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();

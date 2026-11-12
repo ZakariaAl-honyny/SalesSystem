@@ -19,7 +19,7 @@ namespace SalesSystem.Desktop.Screens.POS.Forms;
 /// <summary>
 /// نقطة بيع تجزئة (§2.25 / RULE-N80…N85): اختيار سريع للأصناف + باركود ← سلة قابلة للتحرير
 /// ← مجاميع وتفقيط ← دفع ← إنشاء وترحيل <c>SalesInvoice</c> ذرّياً.
-/// لا تصل الشاشة إلى قاعدة البيانات ولا إلى BLL مباشرةً؛ كل شيء عبر <c>I*ApiService</c>
+/// لا تصل الشاشة إلى قاعدة البيانات ولا إلى BLL مباشرةً؛ كل شيء عبر <c>I*DesktopService</c>
 /// (Mock في وضع التجربة و Direct في الوضع الحقيقي) — RULE-N82.
 /// </summary>
 public partial class frmPOS : Form
@@ -76,11 +76,11 @@ public partial class frmPOS : Form
     //  الخدمات — كلها عبر الواجهات فقط (RULE-N03/N04/N05)
     // ═════════════════════════════════════════════════════════════════
 
-    private IProductApiService ProductApi => _serviceProvider.GetRequiredService<IProductApiService>();
-    private ISalesInvoiceApiService SalesApi => _serviceProvider.GetRequiredService<ISalesInvoiceApiService>();
-    private ICustomerApiService CustomerApi => _serviceProvider.GetRequiredService<ICustomerApiService>();
-    private IWarehouseApiService WarehouseApi => _serviceProvider.GetRequiredService<IWarehouseApiService>();
-    private ICashBoxApiService CashBoxApi => _serviceProvider.GetRequiredService<ICashBoxApiService>();
+    private IProductDesktopService ProductApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
+    private ISalesInvoiceDesktopService SalesApi => _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>();
+    private ICustomerDesktopService CustomerApi => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
+    private IWarehouseDesktopService WarehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
+    private ICashBoxDesktopService CashBoxApi => _serviceProvider.GetRequiredService<ICashBoxDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ═════════════════════════════════════════════════════════════════

@@ -144,7 +144,7 @@ public class ProductMovementReportTab : UserControl, IExportableReport
     {
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IProductApiService>().GetAllAsync();
+            var result = await _serviceProvider.GetRequiredService<IProductDesktopService>().GetAllAsync();
             if (result.IsSuccess)
             {
                 var products = result.Value.ToList();
@@ -176,7 +176,7 @@ public class ProductMovementReportTab : UserControl, IExportableReport
         ShowLoading(true);
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetMovementsAsync(productId, null, dtpFrom.Value, dtpTo.Value);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetMovementsAsync(productId, null, dtpFrom.Value, dtpTo.Value);
             if (result.IsSuccess)
             {
                 var data = result.Value.ToList();

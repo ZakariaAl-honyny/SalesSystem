@@ -20,7 +20,7 @@ public partial class frmCashBoxMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private ICashBoxApiService CashBoxService => _serviceProvider.GetRequiredService<ICashBoxApiService>();
+    private ICashBoxDesktopService CashBoxService => _serviceProvider.GetRequiredService<ICashBoxDesktopService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, CashBoxDto> _cashBoxesById = new();

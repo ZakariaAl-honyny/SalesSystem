@@ -21,7 +21,7 @@ public partial class frmListPurchases : Form
     private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
 
     private readonly IServiceProvider _serviceProvider;
-    private IPurchaseInvoiceApiService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceApiService>();
+    private IPurchaseInvoiceDesktopService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();
 
     /// <summary>ربط السطر بالفاتورة بالمعرّف لا بترتيب السطر.</summary>
     private readonly Dictionary<int, PurchaseInvoiceDto> _invoicesById = new();

@@ -12,7 +12,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة المنتجات (منتجات + وحدات + أسعار) — يستدعي طبقة الأعمال داخل نفس العملية (بدون HTTP).
 /// </summary>
-public class DirectProductService : IProductApiService
+public class DirectProductService : IProductDesktopService
 {
     private readonly BizInterfaces.IProductService _products;
     private readonly BizInterfaces.IProductUnitService _productUnits;

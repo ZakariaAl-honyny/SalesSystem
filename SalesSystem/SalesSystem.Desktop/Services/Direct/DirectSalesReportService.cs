@@ -8,7 +8,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// تنفيذ مباشر لخدمة تقارير البيع — يفوّض كل المنطق إلى ISalesReportService في طبقة الأعمال.
 /// </summary>
-public class DirectSalesReportService : ISalesReportApiService
+public class DirectSalesReportService : ISalesReportDesktopService
 {
     private readonly BizInterfaces.ISalesReportService _bll;
 

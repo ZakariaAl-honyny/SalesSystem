@@ -20,7 +20,7 @@ public partial class frmCustomerMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private ICustomerApiService CustomerService => _serviceProvider.GetRequiredService<ICustomerApiService>();
+    private ICustomerDesktopService CustomerService => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────

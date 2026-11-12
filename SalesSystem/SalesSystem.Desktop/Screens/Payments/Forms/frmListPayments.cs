@@ -529,7 +529,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 _customerTable.Columns.Add("Notes", typeof(string));
                 _customerTable.Columns.Add("Status", typeof(byte));   // داخلي للتصفية والملخص
 
-                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().GetAllAsync();
+                var result = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>().GetAllAsync();
 
                 if (result.IsSuccess && result.Value != null)
                 {
@@ -577,7 +577,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 _supplierTable.Columns.Add("PaymentDate", typeof(string));
                 _supplierTable.Columns.Add("Notes", typeof(string));
 
-                var result = await _serviceProvider.GetRequiredService<ISupplierPaymentApiService>().GetAllAsync();
+                var result = await _serviceProvider.GetRequiredService<ISupplierPaymentDesktopService>().GetAllAsync();
 
                 if (result.IsSuccess && result.Value != null)
                 {

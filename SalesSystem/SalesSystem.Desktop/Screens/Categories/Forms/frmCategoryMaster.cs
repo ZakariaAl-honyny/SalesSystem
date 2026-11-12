@@ -19,7 +19,7 @@ public partial class frmCategoryMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private ICategoryApiService CategoryService => _serviceProvider.GetRequiredService<ICategoryApiService>();
+    private ICategoryDesktopService CategoryService => _serviceProvider.GetRequiredService<ICategoryDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────

@@ -42,7 +42,7 @@ public class DetailedStockLedgerReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetDetailedStockLedgerAsync(null, null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetDetailedStockLedgerAsync(null, null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

@@ -49,7 +49,7 @@ public partial class frmWorkingCapitalReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetBalanceSheetAsync(dtpAsOf.Value.Date);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetBalanceSheetAsync(dtpAsOf.Value.Date);
             if (result.IsSuccess && result.Value != null)
             {
                 var bs = result.Value;

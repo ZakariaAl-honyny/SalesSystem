@@ -40,7 +40,7 @@ public class ExpiredProductsReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetExpiredProductsAsync();
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetExpiredProductsAsync();
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();

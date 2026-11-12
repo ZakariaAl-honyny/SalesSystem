@@ -48,7 +48,7 @@ public partial class frmAddUpdateExpense : Form
 
     private async Task LoadComboBoxesAsync()
     {
-        var cashResult = await _serviceProvider.GetRequiredService<ICashBoxApiService>().GetAllAsync();
+        var cashResult = await _serviceProvider.GetRequiredService<ICashBoxDesktopService>().GetAllAsync();
         if (cashResult.IsSuccess && cashResult.Value != null)
         {
             _cashBoxes = cashResult.Value.Where(b => b.IsActive).ToList();
@@ -62,7 +62,7 @@ public partial class frmAddUpdateExpense : Form
     private async Task LoadExpenseAsync()
     {
         Cursor = Cursors.WaitCursor;
-        var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().GetByIdAsync(_editingId);
+        var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().GetByIdAsync(_editingId);
         Cursor = Cursors.Default;
 
         if (result.IsSuccess && result.Value != null)
@@ -142,7 +142,7 @@ public partial class frmAddUpdateExpense : Form
                     Amount: numAmount.Value,
                     Notes: string.IsNullOrWhiteSpace(txtNotes.Text) ? null : txtNotes.Text.Trim());
 
-                var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().UpdateAsync(_editingId, request);
+                var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().UpdateAsync(_editingId, request);
                 if (result.IsSuccess)
                 {
                     MessageBox.Show("تم تحديث المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -163,7 +163,7 @@ public partial class frmAddUpdateExpense : Form
                     Amount: numAmount.Value,
                     Notes: string.IsNullOrWhiteSpace(txtNotes.Text) ? null : txtNotes.Text.Trim());
 
-                var result = await _serviceProvider.GetRequiredService<IExpenseApiService>().CreateAsync(request);
+                var result = await _serviceProvider.GetRequiredService<IExpenseDesktopService>().CreateAsync(request);
                 if (result.IsSuccess)
                 {
                     MessageBox.Show("تم إضافة المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);

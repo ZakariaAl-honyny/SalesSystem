@@ -17,7 +17,7 @@ public partial class frmListSales : Form
     private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
 
     private readonly IServiceProvider _serviceProvider;
-    private ISalesInvoiceApiService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceApiService>();
+    private ISalesInvoiceDesktopService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>();
 
     private readonly Dictionary<int, SalesInvoiceDto> _invoicesById = new();
     private List<SalesInvoiceDto> _allInvoices = new();

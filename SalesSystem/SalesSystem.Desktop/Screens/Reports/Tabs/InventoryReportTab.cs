@@ -55,7 +55,7 @@ public class InventoryReportTab : UserControl, IExportableReport
     {
         try
         {
-            var whResult = await _serviceProvider.GetRequiredService<IWarehouseApiService>().GetAllAsync(true);
+            var whResult = await _serviceProvider.GetRequiredService<IWarehouseDesktopService>().GetAllAsync(true);
             if (whResult.IsSuccess)
             {
                 _warehouses = whResult.Value;
@@ -85,7 +85,7 @@ public class InventoryReportTab : UserControl, IExportableReport
         {
             ShowLoading(true);
             int? warehouseId = GetSelectedWarehouseId();
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetStockReportAsync(warehouseId);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetStockReportAsync(warehouseId);
             
             if (result.IsSuccess)
             {

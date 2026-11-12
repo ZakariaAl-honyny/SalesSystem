@@ -606,7 +606,7 @@ public class SalesService : ISalesService
 
                 await _uow.SaveChangesAsync(ct);
 
-                // 7. Auto-print intent logging (actual print triggered from Desktop via API)
+                // 7. Auto-print intent logging (actual print triggered from the Desktop in-process)
                 var autoPrint = await _systemSettingsRepo.GetBoolAsync("AutoPrintAfterPosting", false, ct);
                 if (autoPrint)
                 {

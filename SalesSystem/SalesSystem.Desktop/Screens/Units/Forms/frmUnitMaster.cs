@@ -19,7 +19,7 @@ public partial class frmUnitMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private IUnitApiService UnitService => _serviceProvider.GetRequiredService<IUnitApiService>();
+    private IUnitDesktopService UnitService => _serviceProvider.GetRequiredService<IUnitDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────

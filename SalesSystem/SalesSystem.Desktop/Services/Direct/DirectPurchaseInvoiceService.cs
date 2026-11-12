@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// تنفيذ مباشر لخدمة فواتير الشراء — يفوّض كل المنطق إلى IPurchaseService في طبقة الأعمال.
 /// </summary>
-public class DirectPurchaseInvoiceService : IPurchaseInvoiceApiService
+public class DirectPurchaseInvoiceService : IPurchaseInvoiceDesktopService
 {
     private readonly BizInterfaces.IPurchaseService _bll;
     private readonly ISessionService _session;

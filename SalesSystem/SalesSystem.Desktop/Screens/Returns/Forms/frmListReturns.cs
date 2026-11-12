@@ -13,8 +13,8 @@ public partial class frmListReturns : Form
     private const string CashCustomerName = "عميل نقدي";
 
     private readonly IServiceProvider _serviceProvider;
-    private ISalesReturnApiService _salesReturnService => _serviceProvider.GetRequiredService<ISalesReturnApiService>();
-    private IPurchaseReturnApiService _purchaseReturnService => _serviceProvider.GetRequiredService<IPurchaseReturnApiService>();
+    private ISalesReturnDesktopService _salesReturnService => _serviceProvider.GetRequiredService<ISalesReturnDesktopService>();
+    private IPurchaseReturnDesktopService _purchaseReturnService => _serviceProvider.GetRequiredService<IPurchaseReturnDesktopService>();
 
     // ── Data Stores ──────────────────────────────────────────────────────────
     private List<SalesReturnDto> _allSalesReturns = new();

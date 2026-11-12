@@ -59,7 +59,7 @@ public partial class frmSupplierSelection : Form
         _suppliersTable.Columns.Add("Phone", typeof(string));
         _suppliersTable.Columns.Add("Email", typeof(string));
 
-        var result = await _serviceProvider.GetRequiredService<ISupplierApiService>().GetAllAsync();
+        var result = await _serviceProvider.GetRequiredService<ISupplierDesktopService>().GetAllAsync();
 
         if (result.IsSuccess && result.Value != null)
         {

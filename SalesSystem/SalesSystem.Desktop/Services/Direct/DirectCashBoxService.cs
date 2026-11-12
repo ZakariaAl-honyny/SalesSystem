@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// Desktop wrapper over the BLL cash-box service (in-process, no HTTP).
 /// </summary>
-public class DirectCashBoxService : ICashBoxApiService
+public class DirectCashBoxService : ICashBoxDesktopService
 {
     private readonly BizInterfaces.ICashBoxService _bll;
     private readonly ISessionService _session;

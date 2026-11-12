@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// Desktop wrapper over the BLL expense service (in-process, no HTTP).
 /// </summary>
-public class DirectExpenseService : IExpenseApiService
+public class DirectExpenseService : IExpenseDesktopService
 {
     private readonly BizInterfaces.IExpenseService _bll;
     private readonly ISessionService _session;

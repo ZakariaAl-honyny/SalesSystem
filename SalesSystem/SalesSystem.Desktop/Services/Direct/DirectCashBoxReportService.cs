@@ -8,7 +8,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لتقارير الصناديق — يستدعي خدمات طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectCashBoxReportService : ICashBoxReportApiService
+public class DirectCashBoxReportService : ICashBoxReportDesktopService
 {
     private readonly BizInterfaces.ICashBoxReportService _reports;
 

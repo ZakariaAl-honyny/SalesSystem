@@ -642,7 +642,7 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `ReversedByEntryId` | int null FK → JournalEntries(Id) | Restrict |
 | `ReviewedByUserId` | int null FK → Users(Id) | set when posted (reviewer) |
 | `ReviewedAt` | datetime2 null | set when posted |
-| `CreatedByUserId` | int null FK → Users(Id) | extracted from JWT, never client-supplied |
+| `CreatedByUserId` | int null FK → Users(Id) | taken from the current session (`ISessionService.Current.UserId`), never typed by the user |
 | `UpdatedByUserId` | int null FK | |
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
@@ -747,7 +747,7 @@ This scheme allows up to 9,999 detail accounts per sub-category (e.g., 9,999 cus
 | `PostedAt` | datetime2 null | set when Status=2 |
 | `CancelledAt` | datetime2 null | set when Status=3 |
 
-> ⚠️ **Implementation status:** `TreasuryTransfers` is **not yet an EF entity/table** (no model, no migration). The Desktop currently runs this screen via `MockTreasuryTransferApiService`. Create the table + entity before switching off mock mode.
+> ⚠️ **Implementation status:** `TreasuryTransfers` is **not yet an EF entity/table** (no model, no migration). The Desktop currently runs this screen via `MockTreasuryTransferDesktopService`. Create the table + entity before switching off mock mode.
 
 **Per analysis (`FrmCash_TreasuryTransfer`) — planned columns beyond box→box:**
 

@@ -188,7 +188,7 @@ public record PurchaseTrendDto(
 // ═══════════════════════════════════════════════════════
 
 /// <summary>
-/// Cash box summary — per-box balance snapshot used by CashBoxSummaryViewModel.
+/// Cash box summary — per-box balance snapshot used by frmCashBoxSummaryReport.
 /// </summary>
 public record CashBoxSummaryDto(
     int CashBoxId,

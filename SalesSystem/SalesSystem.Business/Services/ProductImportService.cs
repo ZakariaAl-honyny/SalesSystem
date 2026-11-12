@@ -10,8 +10,8 @@ using SalesSystem.Common.Exceptions;
 namespace SalesSystem.Business.Services;
 
 /// <summary>
-/// Implements bulk product import from structured JSON data.
-/// The Desktop client parses Excel using ClosedXML and sends the rows to the API.
+/// Implements bulk product import from structured row data.
+/// The Desktop client parses Excel using ClosedXML and passes the rows in-process to this service.
 /// This service validates and persists products, auto-creating categories as needed.
 /// </summary>
 public class ProductImportService : IProductImportService

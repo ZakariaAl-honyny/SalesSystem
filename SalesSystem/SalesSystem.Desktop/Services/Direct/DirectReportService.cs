@@ -8,7 +8,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لتقارير المبيعات والمخزون — يستدعي خدمات طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectReportService : IReportApiService
+public class DirectReportService : IReportDesktopService
 {
     private readonly BizInterfaces.IReportService _reports;
 

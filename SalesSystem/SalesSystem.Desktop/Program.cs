@@ -81,77 +81,77 @@ static class Program
                     AppSettings.Current = appSettings;
                     services.AddSingleton(appSettings);
 
-                    // --- I*ApiService implementations (2-Tier) ---
+                    // --- I*DesktopService implementations (2-Tier) ---
                     // Mock-only by design (no BLL backend yet) — Employee module is intentionally kept:
-                    services.AddTransient<IEmployeeApiService, MockEmployeeApiService>();
+                    services.AddTransient<IEmployeeDesktopService, MockEmployeeDesktopService>();
 
                     // Interfaces with NO mock — always Direct:
-                    services.AddTransient<IAuthApiService, DirectAuthService>();
-                    services.AddTransient<IBackupApiService, DirectBackupService>();
+                    services.AddTransient<IAuthDesktopService, DirectAuthService>();
+                    services.AddTransient<IBackupDesktopService, DirectBackupService>();
                     
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
-                        services.AddTransient<IAccountApiService, MockAccountApiService>();
-                        services.AddTransient<IBranchApiService, MockBranchApiService>();
-                        services.AddTransient<ICashBoxApiService, MockCashBoxApiService>();
-                        services.AddTransient<ICashBoxReportApiService, MockCashBoxReportApiService>();
-                        services.AddTransient<ICategoryApiService, MockCategoryApiService>();
-                        services.AddTransient<ICustomerApiService, MockCustomerApiService>();
-                        services.AddTransient<ICustomerReceiptApiService, MockCustomerReceiptApiService>();
-                        services.AddTransient<IDashboardApiService, MockDashboardApiService>();
-                        services.AddTransient<IExpenseApiService, MockExpenseApiService>();
-                        services.AddTransient<IFinancialReportApiService, MockFinancialReportApiService>();
-                        services.AddTransient<IInventoryAdjustmentApiService, MockInventoryAdjustmentApiService>();
-                        services.AddTransient<IInventoryApiService, MockInventoryApiService>();
-                        services.AddTransient<IInventoryBatchApiService, MockInventoryBatchApiService>();
-                        services.AddTransient<IJournalEntryApiService, MockJournalEntryApiService>();
-                        services.AddTransient<IProductApiService, MockProductApiService>();
-                        services.AddTransient<IPurchaseInvoiceApiService, MockPurchaseInvoiceApiService>();
-                        services.AddTransient<IPurchaseReportApiService, MockPurchaseReportApiService>();
-                        services.AddTransient<IPurchaseReturnApiService, MockPurchaseReturnApiService>();
-                        services.AddTransient<IReportApiService, MockReportApiService>();
-                        services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
-                        services.AddTransient<ISalesReportApiService, MockSalesReportApiService>();
-                        services.AddTransient<ISalesReturnApiService, MockSalesReturnApiService>();
-                        services.AddTransient<ISettingsApiService, MockSettingsApiService>();
-                        services.AddTransient<ISupplierApiService, MockSupplierApiService>();
-                        services.AddTransient<ISupplierPaymentApiService, MockSupplierPaymentApiService>();
-                        services.AddTransient<IUnitApiService, MockUnitApiService>();
-                        services.AddTransient<IUserApiService, MockUserApiService>();
-                        services.AddTransient<IWarehouseApiService, MockWarehouseApiService>();
+                        services.AddTransient<IAccountDesktopService, MockAccountDesktopService>();
+                        services.AddTransient<IBranchDesktopService, MockBranchDesktopService>();
+                        services.AddTransient<ICashBoxDesktopService, MockCashBoxDesktopService>();
+                        services.AddTransient<ICashBoxReportDesktopService, MockCashBoxReportDesktopService>();
+                        services.AddTransient<ICategoryDesktopService, MockCategoryDesktopService>();
+                        services.AddTransient<ICustomerDesktopService, MockCustomerDesktopService>();
+                        services.AddTransient<ICustomerReceiptDesktopService, MockCustomerReceiptDesktopService>();
+                        services.AddTransient<IDashboardDesktopService, MockDashboardDesktopService>();
+                        services.AddTransient<IExpenseDesktopService, MockExpenseDesktopService>();
+                        services.AddTransient<IFinancialReportDesktopService, MockFinancialReportDesktopService>();
+                        services.AddTransient<IInventoryAdjustmentDesktopService, MockInventoryAdjustmentDesktopService>();
+                        services.AddTransient<IInventoryDesktopService, MockInventoryDesktopService>();
+                        services.AddTransient<IInventoryBatchDesktopService, MockInventoryBatchDesktopService>();
+                        services.AddTransient<IJournalEntryDesktopService, MockJournalEntryDesktopService>();
+                        services.AddTransient<IProductDesktopService, MockProductDesktopService>();
+                        services.AddTransient<IPurchaseInvoiceDesktopService, MockPurchaseInvoiceDesktopService>();
+                        services.AddTransient<IPurchaseReportDesktopService, MockPurchaseReportDesktopService>();
+                        services.AddTransient<IPurchaseReturnDesktopService, MockPurchaseReturnDesktopService>();
+                        services.AddTransient<IReportDesktopService, MockReportDesktopService>();
+                        services.AddTransient<ISalesInvoiceDesktopService, MockSalesInvoiceDesktopService>();
+                        services.AddTransient<ISalesReportDesktopService, MockSalesReportDesktopService>();
+                        services.AddTransient<ISalesReturnDesktopService, MockSalesReturnDesktopService>();
+                        services.AddTransient<ISettingsDesktopService, MockSettingsDesktopService>();
+                        services.AddTransient<ISupplierDesktopService, MockSupplierDesktopService>();
+                        services.AddTransient<ISupplierPaymentDesktopService, MockSupplierPaymentDesktopService>();
+                        services.AddTransient<IUnitDesktopService, MockUnitDesktopService>();
+                        services.AddTransient<IUserDesktopService, MockUserDesktopService>();
+                        services.AddTransient<IWarehouseDesktopService, MockWarehouseDesktopService>();
                         services.AddScoped<BizInterfaces.IAuthService, MockAuthService>();
                     }
                     else
                     {
-                        services.AddTransient<IAccountApiService, DirectAccountService>();
-                        services.AddTransient<IBranchApiService, DirectBranchApiService>();
-                        services.AddTransient<ICashBoxApiService, DirectCashBoxService>();
-                        services.AddTransient<ICashBoxReportApiService, DirectCashBoxReportService>();
-                        services.AddTransient<ICategoryApiService, DirectCategoryService>();
-                        services.AddTransient<ICustomerApiService, DirectCustomerService>();
-                        services.AddTransient<ICustomerReceiptApiService, DirectCustomerReceiptService>();
-                        services.AddTransient<IDashboardApiService, DirectDashboardService>();
-                        services.AddTransient<IExpenseApiService, DirectExpenseService>();
-                        services.AddTransient<IFinancialReportApiService, DirectFinancialReportService>();
-                        services.AddTransient<IInventoryAdjustmentApiService, DirectInventoryAdjustmentService>();
-                        services.AddTransient<IInventoryApiService, DirectInventoryService>();
-                        services.AddTransient<IInventoryBatchApiService, DirectInventoryBatchService>();
-                        services.AddTransient<IJournalEntryApiService, DirectJournalEntryService>();
-                        services.AddTransient<IProductApiService, DirectProductService>();
-                        services.AddTransient<IPurchaseInvoiceApiService, DirectPurchaseInvoiceService>();
-                        services.AddTransient<IPurchaseReportApiService, DirectPurchaseReportService>();
-                        services.AddTransient<IPurchaseReturnApiService, DirectPurchaseReturnApiService>();
-                        services.AddTransient<IReportApiService, DirectReportService>();
-                        services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
-                        services.AddTransient<ISalesReportApiService, DirectSalesReportService>();
-                        services.AddTransient<ISalesReturnApiService, DirectSalesReturnApiService>();
-                        services.AddTransient<ISettingsApiService, DirectSettingsService>();
-                        services.AddTransient<ISupplierApiService, DirectSupplierService>();
-                        services.AddTransient<ISupplierPaymentApiService, DirectSupplierPaymentService>();
-                        services.AddTransient<IUnitApiService, DirectUnitService>();
-                        services.AddTransient<IUserApiService, DirectUserService>();
-                        services.AddTransient<IWarehouseApiService, DirectWarehouseService>();
+                        services.AddTransient<IAccountDesktopService, DirectAccountService>();
+                        services.AddTransient<IBranchDesktopService, DirectBranchService>();
+                        services.AddTransient<ICashBoxDesktopService, DirectCashBoxService>();
+                        services.AddTransient<ICashBoxReportDesktopService, DirectCashBoxReportService>();
+                        services.AddTransient<ICategoryDesktopService, DirectCategoryService>();
+                        services.AddTransient<ICustomerDesktopService, DirectCustomerService>();
+                        services.AddTransient<ICustomerReceiptDesktopService, DirectCustomerReceiptService>();
+                        services.AddTransient<IDashboardDesktopService, DirectDashboardService>();
+                        services.AddTransient<IExpenseDesktopService, DirectExpenseService>();
+                        services.AddTransient<IFinancialReportDesktopService, DirectFinancialReportService>();
+                        services.AddTransient<IInventoryAdjustmentDesktopService, DirectInventoryAdjustmentService>();
+                        services.AddTransient<IInventoryDesktopService, DirectInventoryService>();
+                        services.AddTransient<IInventoryBatchDesktopService, DirectInventoryBatchService>();
+                        services.AddTransient<IJournalEntryDesktopService, DirectJournalEntryService>();
+                        services.AddTransient<IProductDesktopService, DirectProductService>();
+                        services.AddTransient<IPurchaseInvoiceDesktopService, DirectPurchaseInvoiceService>();
+                        services.AddTransient<IPurchaseReportDesktopService, DirectPurchaseReportService>();
+                        services.AddTransient<IPurchaseReturnDesktopService, DirectPurchaseReturnService>();
+                        services.AddTransient<IReportDesktopService, DirectReportService>();
+                        services.AddTransient<ISalesInvoiceDesktopService, DirectSalesInvoiceService>();
+                        services.AddTransient<ISalesReportDesktopService, DirectSalesReportService>();
+                        services.AddTransient<ISalesReturnDesktopService, DirectSalesReturnService>();
+                        services.AddTransient<ISettingsDesktopService, DirectSettingsService>();
+                        services.AddTransient<ISupplierDesktopService, DirectSupplierService>();
+                        services.AddTransient<ISupplierPaymentDesktopService, DirectSupplierPaymentService>();
+                        services.AddTransient<IUnitDesktopService, DirectUnitService>();
+                        services.AddTransient<IUserDesktopService, DirectUserService>();
+                        services.AddTransient<IWarehouseDesktopService, DirectWarehouseService>();
                         services.AddScoped<BizInterfaces.IAuthService, BizServices.AuthService>();
                     }
 
@@ -328,7 +328,7 @@ static class Program
                     // Product Management Forms
                     services.AddTransient<frmProductUnitMaster>();
                     // Fully-qualified: two frmProductSelection types exist.
-                    // Old API-backed picker (Products.Forms) — used by frmOpeningStock / frmAddUpdateSalesInvoice.
+                    // Legacy picker (Products.Forms) — used by frmOpeningStock / frmAddUpdateSalesInvoice.
                     services.AddTransient<SalesSystem.Desktop.Products.Forms.frmProductSelection>();
 
                     // Newly-built screens (wired into frmMain MenuStrip)

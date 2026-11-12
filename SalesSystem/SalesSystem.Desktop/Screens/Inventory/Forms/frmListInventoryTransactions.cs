@@ -55,8 +55,8 @@ public partial class frmListInventoryTransactions : Form
         ApplyUiTheme();
     }
 
-    private IInventoryApiService ApiService
-        => _serviceProvider.GetRequiredService<IInventoryApiService>();
+    private IInventoryDesktopService DesktopService
+        => _serviceProvider.GetRequiredService<IInventoryDesktopService>();
 
     /// <summary>تلميحات الأزرار مع اختصاراتها (RULE-N47).</summary>
     private void _SetupToolTips()
@@ -158,7 +158,7 @@ public partial class frmListInventoryTransactions : Form
             table.Columns.Add("Quantity", typeof(decimal));
             table.Columns.Add("Notes", typeof(string));
 
-            var result = await ApiService.GetMovementsAsync(pageSize: 500, ct: _loadCts.Token);
+            var result = await DesktopService.GetMovementsAsync(pageSize: 500, ct: _loadCts.Token);
 
             if (result.IsSuccess && result.Value is { Count: > 0 })
             {
@@ -422,7 +422,7 @@ public partial class frmListInventoryTransactions : Form
         if (row.DataBoundItem is not DataRowView drv) return;
 
         int id = Convert.ToInt32(drv["Id"]);
-        var result = ApiService.GetInventoryTransactionByIdAsync(id).GetAwaiter().GetResult();
+        var result = DesktopService.GetInventoryTransactionByIdAsync(id).GetAwaiter().GetResult();
 
         if (!result.IsSuccess || result.Value is null)
         {

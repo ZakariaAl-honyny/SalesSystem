@@ -20,7 +20,7 @@ public partial class frmWarehouseMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    private IWarehouseApiService WarehouseService => _serviceProvider.GetRequiredService<IWarehouseApiService>();
+    private IWarehouseDesktopService WarehouseService => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ── State ────────────────────────────────────────────────────────────────
@@ -624,7 +624,7 @@ public partial class frmWarehouseMaster : Form
 
         try
         {
-            // لا توجد عملية حذف مخصصة في IWarehouseApiService — التعطيل يتم عبر Update مع IsActive = false.
+            // لا توجد عملية حذف مخصصة في IWarehouseDesktopService — التعطيل يتم عبر Update مع IsActive = false.
             var current = await WarehouseService.GetByIdAsync(id);
             if (!current.IsSuccess || current.Value is null)
             {

@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة إعدادات المتجر — ينادي طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectSettingsService : ISettingsApiService
+public class DirectSettingsService : ISettingsDesktopService
 {
     private readonly BizInterfaces.IStoreSettingsService _bll;
     private readonly ISessionService _session;

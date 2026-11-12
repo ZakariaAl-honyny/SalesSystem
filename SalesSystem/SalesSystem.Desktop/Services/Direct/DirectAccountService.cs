@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// غلاف مباشر لخدمة دليل الحسابات — ينادي طبقة الأعمال داخل نفس العملية.
 /// </summary>
-public class DirectAccountService : IAccountApiService
+public class DirectAccountService : IAccountDesktopService
 {
     private readonly BizInterfaces.IAccountService _bll;
     private readonly ISessionService _session;

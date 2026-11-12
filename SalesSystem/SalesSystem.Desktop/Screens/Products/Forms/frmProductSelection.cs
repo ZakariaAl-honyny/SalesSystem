@@ -100,7 +100,7 @@ public partial class frmProductSelection : Form
             _productsTable.Columns.Add("Barcode", typeof(string));
             _productsTable.Columns.Add("Available", typeof(string));
 
-            var result = await ServiceProvider.GetRequiredService<IProductApiService>().GetAllAsync();
+            var result = await ServiceProvider.GetRequiredService<IProductDesktopService>().GetAllAsync();
 
             if (result.IsSuccess && result.Value != null)
             {
@@ -151,7 +151,7 @@ public partial class frmProductSelection : Form
         if (WarehouseId <= 0)
             return;
 
-        var result = await ServiceProvider.GetRequiredService<IInventoryApiService>()
+        var result = await ServiceProvider.GetRequiredService<IInventoryDesktopService>()
             .GetStockByWarehouseAsync(WarehouseId);
 
         if (result.IsSuccess && result.Value != null)
@@ -207,7 +207,7 @@ public partial class frmProductSelection : Form
             lblNoUnits.Visible = false;
             lblSelectedProduct.Text = $"المنتج المحدد: {_CurrentProductName()}";
 
-            var result = await ServiceProvider.GetRequiredService<IProductApiService>()
+            var result = await ServiceProvider.GetRequiredService<IProductDesktopService>()
                 .GetProductUnitsAsync(productId);
 
             if (result.IsSuccess && result.Value != null)

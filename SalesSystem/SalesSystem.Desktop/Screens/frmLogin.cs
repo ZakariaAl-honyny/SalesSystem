@@ -15,7 +15,7 @@ namespace SalesSystem.Desktop.Screens;
 /// شاشة تسجيل الدخول.
 /// <list type="bullet">
 /// <item>وضع التجربة (Mock): تسجيل دخول تلقائي بالمدير دون أي إدخال من المستخدم.</item>
-/// <item>الوضع الحقيقي (BLL + قاعدة البيانات): مصادقة حقيقية عبر <see cref="IAuthApiService.LoginAsync"/>
+/// <item>الوضع الحقيقي (BLL + قاعدة البيانات): مصادقة حقيقية عبر <see cref="IAuthDesktopService.LoginAsync"/>
 /// (BCrypt + قفل الحساب بعد المحاولات الفاشلة + MustChangePassword) — لا مقارنة محلية لأي كلمة مرور.</item>
 /// </list>
 /// </summary>
@@ -26,12 +26,12 @@ public partial class frmLogin : Form
     private const string AdminLoginName = "admin";
     private const string AdminDisplayName = "المدير";
 
-    private readonly IAuthApiService _authService;
+    private readonly IAuthDesktopService _authService;
     private readonly IServiceProvider _serviceProvider;
     private readonly ISessionService _sessionService;
 
     public frmLogin(
-        IAuthApiService authService,
+        IAuthDesktopService authService,
         IServiceProvider serviceProvider,
         ISessionService sessionService)
     {
@@ -157,7 +157,7 @@ public partial class frmLogin : Form
     // ── الوضع الحقيقي: مصادقة حقيقية عبر BLL ─────────────────────────────────
 
     /// <summary>
-    /// مصادقة حقيقية: تُمرَّر كلمة المرور المكتوبة إلى <see cref="IAuthApiService.LoginAsync"/>
+    /// مصادقة حقيقية: تُمرَّر كلمة المرور المكتوبة إلى <see cref="IAuthDesktopService.LoginAsync"/>
     /// (BLL AuthService: BCrypt + عدّ المحاولات + القفل بعد 5 محاولات + MustChangePassword).
     /// لا مقارنة محلية ولا عدّاد محاولات في الواجهة — كل ذلك مسؤولية الطبقة التجارية.
     /// </summary>

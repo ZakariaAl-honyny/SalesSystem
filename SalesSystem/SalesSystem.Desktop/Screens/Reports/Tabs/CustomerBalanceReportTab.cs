@@ -55,7 +55,7 @@ public class CustomerBalanceReportTab : UserControl, IExportableReport
     {
         try
         {
-            var custResult = await _serviceProvider.GetRequiredService<ICustomerApiService>().GetAllAsync(null, true);
+            var custResult = await _serviceProvider.GetRequiredService<ICustomerDesktopService>().GetAllAsync(null, true);
             if (custResult.IsSuccess)
             {
                 _customers = custResult.Value;
@@ -85,7 +85,7 @@ public class CustomerBalanceReportTab : UserControl, IExportableReport
         {
             ShowLoading(true);
             int? customerId = GetSelectedCustomerId();
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetCustomerBalancesAsync(customerId);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetCustomerBalancesAsync(customerId);
             
             if (result.IsSuccess)
             {

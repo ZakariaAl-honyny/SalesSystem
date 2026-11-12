@@ -27,14 +27,14 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     // ── Data ─────────────────────────────────────────────────────────
     private SalesInvoiceDto? _invoice;
-    private BindingList<InvoiceLineItemViewModel> _lines = new();
+    private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
     private Dictionary<int, List<ProductUnitDto>> _productUnitsCache = new();
     private List<AccountDto> _bankAccounts = new();
     private List<CashBoxDto> _cashBoxes = new();
     private bool _isUpdating;
     private Guid? _editingLineKey = null;
-    private InvoiceLineItemViewModel? _editingOriginalItem = null;
+    private InvoiceLineItem? _editingOriginalItem = null;
 
     // ── رصيد المستودع الحالي بالوحدات الأساسية (productId → qty) ──
     private readonly Dictionary<int, decimal> _warehouseStockBase = new();
@@ -49,16 +49,16 @@ public partial class frmAddUpdateSalesInvoice : Form
     private bool IsLocked => _invoice != null && _invoice.Status is 2 or 3;
 
     // ── Lazy Service Accessors ──────────────────────────────────────
-    private ISalesInvoiceApiService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceApiService>();
-    private ICustomerApiService _customerApi => _serviceProvider.GetRequiredService<ICustomerApiService>();
-    private IProductApiService _productApi => _serviceProvider.GetRequiredService<IProductApiService>();
-    private IWarehouseApiService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseApiService>();
+    private ISalesInvoiceDesktopService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>();
+    private ICustomerDesktopService _customerApi => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
+    private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
+    private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
     private IReceiptPrinter _receiptPrinter => _serviceProvider.GetRequiredService<IReceiptPrinter>();
-    private ISettingsApiService _settingsApi => _serviceProvider.GetRequiredService<ISettingsApiService>();
-    private IAccountApiService _accountApi => _serviceProvider.GetRequiredService<IAccountApiService>();
-    private IInventoryApiService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryApiService>();
-    private ICashBoxApiService _cashBoxApi => _serviceProvider.GetRequiredService<ICashBoxApiService>();
+    private ISettingsDesktopService _settingsApi => _serviceProvider.GetRequiredService<ISettingsDesktopService>();
+    private IAccountDesktopService _accountApi => _serviceProvider.GetRequiredService<IAccountDesktopService>();
+    private IInventoryDesktopService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryDesktopService>();
+    private ICashBoxDesktopService _cashBoxApi => _serviceProvider.GetRequiredService<ICashBoxDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ═════════════════════════════════════════════════════════════════
@@ -539,7 +539,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         try
         {
-            // وحدات المنتج عبر واجهة Desktop (IProductApiService) — تعمل في الوضع الحقيقي ووضع التجربة
+            // وحدات المنتج عبر واجهة Desktop (IProductDesktopService) — تعمل في الوضع الحقيقي ووضع التجربة
             var unitsResult = await _productApi.GetProductUnitsAsync(productId, default);
             if (unitsResult.IsSuccess && unitsResult.Value != null)
             {
@@ -629,7 +629,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// <summary>
     /// التحقق من كفاية المخزون بوحدات أساسية:
     ///   neededBase = Σ(كميات السطور الأخرى لنفس المنتج × معامل تحويلها) + (الكمية الجديدة × معامل تحويلها)
-    /// ويُقارن بالرصيد المخزني الأساسي للمستودع (من أرصدة IInventoryApiService.GetStockByWarehouseAsync).
+    /// ويُقارن بالرصيد المخزني الأساسي للمستودع (من أرصدة IInventoryDesktopService.GetStockByWarehouseAsync).
     /// يُرجع true (السماح) عند تعذّر التحقق — الخادم يحكم عند الترحيل.
     /// </summary>
     private async Task<bool> IsStockSufficientAsync(
@@ -710,7 +710,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         _lines.Clear();
         foreach (var item in _invoice.Items)
         {
-            _lines.Add(new InvoiceLineItemViewModel
+            _lines.Add(new InvoiceLineItem
             {
                 ProductId = item.ProductId,
                 ProductCode = item.ProductCode ?? "",
@@ -1347,7 +1347,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         else
         {
             // ── Add new row ──
-            _lines.Add(new InvoiceLineItemViewModel
+            _lines.Add(new InvoiceLineItem
             {
                 ProductId = productId,
                 ProductCode = barcode,
@@ -1786,14 +1786,14 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (!await IsStockSufficientAsync(product.Id, requestedQty, conversionFactor, excludeKey))
             return;
 
-        InvoiceLineItemViewModel line;
+        InvoiceLineItem line;
         if (rowIndex < _lines.Count)
         {
             line = _lines[rowIndex];
         }
         else
         {
-            line = new InvoiceLineItemViewModel();
+            line = new InvoiceLineItem();
             _lines.Add(line);
         }
 
@@ -1878,7 +1878,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                                ?? lineUnits.FirstOrDefault(u => u.IsBaseUnit)
                                ?? lineUnits.FirstOrDefault();
 
-                var line = new InvoiceLineItemViewModel
+                var line = new InvoiceLineItem
                 {
                     ProductId = product.Id,
                     ProductCode = product.Barcode ?? "",
@@ -2356,7 +2356,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     private void DeleteSelectedRow()
     {
         if (IsLocked) return; // الفاتورة مقفلة — لا حذف
-        if (dgvItems.CurrentRow?.DataBoundItem is not InvoiceLineItemViewModel line)
+        if (dgvItems.CurrentRow?.DataBoundItem is not InvoiceLineItem line)
             return;
 
         var result = MessageBox.Show("هل أنت متأكد من حذف هذا الصنف من الفاتورة؟",

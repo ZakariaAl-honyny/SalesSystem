@@ -52,7 +52,7 @@ public partial class frmBackup : Form
 
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IBackupApiService>().GetBackupListAsync();
+            var result = await _serviceProvider.GetRequiredService<IBackupDesktopService>().GetBackupListAsync();
 
             if (result.IsSuccess && result.Value != null)
                 _backupList = result.Value;
@@ -146,7 +146,7 @@ public partial class frmBackup : Form
 
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IBackupApiService>().CreateBackupAsync();
+            var result = await _serviceProvider.GetRequiredService<IBackupDesktopService>().CreateBackupAsync();
 
             if (result.IsSuccess)
             {
@@ -198,7 +198,7 @@ public partial class frmBackup : Form
 
         try
         {
-            var result = await _serviceProvider.GetRequiredService<IBackupApiService>().RestoreBackupAsync(fileName);
+            var result = await _serviceProvider.GetRequiredService<IBackupDesktopService>().RestoreBackupAsync(fileName);
 
             if (result.IsSuccess)
             {

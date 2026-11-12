@@ -42,7 +42,7 @@ public class WorkingCapitalReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetWorkingCapitalAsync(dtpAsOf.Value.Date);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetWorkingCapitalAsync(dtpAsOf.Value.Date);
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.Accounts.ToList();

@@ -9,7 +9,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// تنفيذ مباشر لخدمة المخزون — يفوّض كل المنطق إلى IInventoryService في طبقة الأعمال.
 /// </summary>
-public class DirectInventoryService : IInventoryApiService
+public class DirectInventoryService : IInventoryDesktopService
 {
     private readonly BizInterfaces.IInventoryService _bll;
     private readonly ISessionService _session;

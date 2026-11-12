@@ -86,7 +86,7 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
         try
         {
             // Use the auth service to change password via API
-            var authService = _serviceProvider.GetRequiredService<IAuthApiService>();
+            var authService = _serviceProvider.GetRequiredService<IAuthDesktopService>();
             var request = new ChangePasswordRequest(
                 txtCurrentPassword.Text,
                 txtNewPassword.Text,

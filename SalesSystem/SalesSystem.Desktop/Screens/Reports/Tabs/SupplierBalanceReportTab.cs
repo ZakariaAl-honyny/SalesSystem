@@ -50,7 +50,7 @@ public class SupplierBalanceReportTab : UserControl, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportApiService>().GetSupplierBalancesAsync(null);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetSupplierBalancesAsync(null);
             
             if (result.IsSuccess)
             {

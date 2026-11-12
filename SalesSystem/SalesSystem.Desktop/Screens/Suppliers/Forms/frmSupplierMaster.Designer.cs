@@ -129,7 +129,7 @@ partial class frmSupplierMaster
         lblName.AutoSize = true;
         lblName.Location = new Point(860, 10);
         lblName.Name = "lblName";
-        lblName.Size = new Size(120, 24);
+        lblName.Size = new Size(103, 24);
         lblName.TabIndex = 2;
         lblName.Text = "اسم المورد";
         // 
@@ -421,8 +421,8 @@ partial class frmSupplierMaster
         txtSearch.Size = new Size(412, 32);
         txtSearch.TabIndex = 4;
         txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
         txtSearch.KeyDown += txtSearch_KeyDown;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // label1
         // 
@@ -453,10 +453,10 @@ partial class frmSupplierMaster
         // 
         chkShowInactive.AutoSize = true;
         chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(1245, 64);
+        chkShowInactive.Location = new Point(1094, 68);
         chkShowInactive.Margin = new Padding(0);
         chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(170, 28);
+        chkShowInactive.Size = new Size(188, 28);
         chkShowInactive.TabIndex = 5;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.UseVisualStyleBackColor = true;
@@ -466,10 +466,10 @@ partial class frmSupplierMaster
         // 
         chkOnlyWithBalance.AutoSize = true;
         chkOnlyWithBalance.FlatStyle = FlatStyle.Flat;
-        chkOnlyWithBalance.Location = new Point(1040, 64);
+        chkOnlyWithBalance.Location = new Point(849, 64);
         chkOnlyWithBalance.Margin = new Padding(0);
         chkOnlyWithBalance.Name = "chkOnlyWithBalance";
-        chkOnlyWithBalance.Size = new Size(195, 28);
+        chkOnlyWithBalance.Size = new Size(235, 28);
         chkOnlyWithBalance.TabIndex = 6;
         chkOnlyWithBalance.Text = "له رصيد مستحق فقط";
         chkOnlyWithBalance.CheckedChanged += chkOnlyWithBalance_CheckedChanged;
@@ -478,10 +478,10 @@ partial class frmSupplierMaster
         // 
         chkOnlyOverLimit.AutoSize = true;
         chkOnlyOverLimit.FlatStyle = FlatStyle.Flat;
-        chkOnlyOverLimit.Location = new Point(860, 64);
+        chkOnlyOverLimit.Location = new Point(634, 64);
         chkOnlyOverLimit.Margin = new Padding(0);
         chkOnlyOverLimit.Name = "chkOnlyOverLimit";
-        chkOnlyOverLimit.Size = new Size(170, 28);
+        chkOnlyOverLimit.Size = new Size(190, 28);
         chkOnlyOverLimit.TabIndex = 7;
         chkOnlyOverLimit.Text = "تجاوز حد الائتمان";
         chkOnlyOverLimit.CheckedChanged += chkOnlyOverLimit_CheckedChanged;

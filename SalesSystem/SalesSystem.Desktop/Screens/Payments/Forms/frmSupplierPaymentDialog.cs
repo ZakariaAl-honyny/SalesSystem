@@ -13,9 +13,9 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms;
 public partial class frmSupplierPaymentDialog : Form
 {
     private readonly IServiceProvider _serviceProvider;
-    private ISupplierPaymentApiService PaymentApi => _serviceProvider.GetRequiredService<ISupplierPaymentApiService>();
-    private ISupplierApiService SupplierApi => _serviceProvider.GetRequiredService<ISupplierApiService>();
-    private IPurchaseInvoiceApiService PurchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceApiService>();
+    private ISupplierPaymentDesktopService PaymentApi => _serviceProvider.GetRequiredService<ISupplierPaymentDesktopService>();
+    private ISupplierDesktopService SupplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
+    private IPurchaseInvoiceDesktopService PurchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();
     private INotificationService Notification => _serviceProvider.GetRequiredService<INotificationService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
     

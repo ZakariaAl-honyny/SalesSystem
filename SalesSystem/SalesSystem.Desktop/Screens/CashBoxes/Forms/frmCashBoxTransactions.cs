@@ -57,7 +57,7 @@ public partial class frmCashBoxTransactions : Form
     {
         Cursor = Cursors.WaitCursor;
 
-        var result = await _serviceProvider.GetRequiredService<ICashBoxApiService>().GetAllAsync();
+        var result = await _serviceProvider.GetRequiredService<ICashBoxDesktopService>().GetAllAsync();
 
         Cursor = Cursors.Default;
 

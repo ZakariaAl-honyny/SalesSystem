@@ -1,6 +1,7 @@
 # AGENTS.md — Sales Management System (v5.0.0 — 2-Tier WinForms Edition)
 # READ THIS FILE FIRST — BEFORE WRITING ANY CODE
 # Platform: .NET 10 | 2-Tier Architecture
+# Code doctrine: Classic WinForms (NO MVVM) · Simple N-Layer (NO Clean Architecture) · No API layer · Reusable Helpers — see §2.30
 # WinForms Desktop + Business Logic Layer + SQL Server (no HTTP/API layer)
 
 ---
@@ -32,7 +33,7 @@ Desktop (WinForms) → BLL Services → DataAccess (EF Core) → SQL Server
 
 The Desktop never accesses the database directly (no `DbContext`/EF/SQL in the Desktop project); it always calls Business Layer services in-process.
 
-**Mock mode (UI-first testing):** when `AppSettings.UseMockData = true`, each `I*ApiService` is implemented by a `Mock*ApiService` (in `Services/Mock/`) backed by in-memory `MockData` — no database required. When `false`, the same interface is implemented by a `Direct*Service` (in `Services/Direct/`) that calls the BLL in-process.
+**Mock mode (UI-first testing):** when `AppSettings.UseMockData = true`, each `I*DesktopService` is implemented by a `Mock*DesktopService` (in `Services/Mock/`) backed by in-memory `MockData` — no database required. When `false`, the same interface is implemented by a `Direct*Service` (in `Services/Direct/`) that calls the BLL in-process.
 
 ---
 
@@ -111,13 +112,13 @@ public class Result<T> : Result
 | RULE-N01 | ALL WinForms use `frm*` naming convention — NEVER `*View` or `*Window` |
 | RULE-N02 | Forms are resolved via DI (`Program.ServiceProvider.GetRequiredService<T>()`) — NEVER `new frmXxx()` |
 | RULE-N03 | Forms receive `IServiceProvider` via constructor injection and resolve services with `_serviceProvider.GetRequiredService<T>()` |
-| RULE-N04 | Resolved services are exposed as typed properties (e.g., `private ICustomerApiService ApiService => _serviceProvider.GetRequiredService<ICustomerApiService>();`) |
-| RULE-N05 | `I*ApiService` interfaces live in `Services/Interfaces/`; real implementations (`Direct*Service`) live in `Services/Direct/`, mock implementations (`Mock*ApiService`) in `Services/Mock/` |
+| RULE-N04 | Resolved services are exposed as typed properties (e.g., `private ICustomerDesktopService DesktopService => _serviceProvider.GetRequiredService<ICustomerDesktopService>();`) |
+| RULE-N05 | `I*DesktopService` interfaces live in `Services/Interfaces/`; real implementations (`Direct*Service`) live in `Services/Direct/`, mock implementations (`Mock*DesktopService`) in `Services/Mock/` |
 | RULE-N06 | `Direct*Service` classes call BLL services in-process via constructor injection (e.g. `SalesSystem.Business.Interfaces.Services.ICustomerService`) — NEVER `HttpClient`, never HTTP |
 | RULE-N07 | Global exception handlers in `Program.cs`: `Application.ThreadException` + `AppDomain.CurrentDomain.UnhandledException` |
 | RULE-N08 | `MessageBox.Show` is the standard user feedback mechanism — use `MessageBoxIcon.Error`/`Information`/`Warning` appropriately |
 | RULE-N09 | Forms are shown modally via `ShowDialog()` — NEVER non-modal for data-entry screens |
-| RULE-N10 | Every `I*ApiService` interface is registered in the `Program.cs` DI container — mapped to `Mock*ApiService` (mock mode) or `Direct*Service` (real mode) |
+| RULE-N10 | Every `I*DesktopService` interface is registered in the `Program.cs` DI container — mapped to `Mock*DesktopService` (mock mode) or `Direct*Service` (real mode) |
 
 **Service Resolution Pattern:**
 ```csharp
@@ -132,8 +133,8 @@ public partial class frmAddUpdateCustomer : Form
         InitializeComponent();
     }
 
-    private ICustomerApiService ApiService
-        => _serviceProvider.GetRequiredService<ICustomerApiService>();
+    private ICustomerDesktopService DesktopService
+        => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
 }
 ```
 
@@ -149,20 +150,20 @@ services.AddScoped<BizInterfaces.ICustomerService, BizServices.CustomerService>(
 // Mock / Real service toggle (switch UseMockData in appsettings.json)
 if (appSettings.UseMockData)
 {
-    services.AddTransient<ICustomerApiService, MockCustomerApiService>();
-    services.AddTransient<IProductApiService, MockProductApiService>();
-    services.AddTransient<IWarehouseApiService, MockWarehouseApiService>();
-    services.AddTransient<ISalesInvoiceApiService, MockSalesInvoiceApiService>();
-    services.AddTransient<ISettingsApiService, MockSettingsApiService>();
+    services.AddTransient<ICustomerDesktopService, MockCustomerDesktopService>();
+    services.AddTransient<IProductDesktopService, MockProductDesktopService>();
+    services.AddTransient<IWarehouseDesktopService, MockWarehouseDesktopService>();
+    services.AddTransient<ISalesInvoiceDesktopService, MockSalesInvoiceDesktopService>();
+    services.AddTransient<ISettingsDesktopService, MockSettingsDesktopService>();
     services.AddScoped<BizInterfaces.IAuthService, MockAuthService>();
 }
 else
 {
-    services.AddTransient<ICustomerApiService, DirectCustomerService>();
-    services.AddTransient<IProductApiService, DirectProductService>();
-    services.AddTransient<IWarehouseApiService, DirectWarehouseService>();
-    services.AddTransient<ISalesInvoiceApiService, DirectSalesInvoiceService>();
-    services.AddTransient<ISettingsApiService, DirectSettingsService>();
+    services.AddTransient<ICustomerDesktopService, DirectCustomerService>();
+    services.AddTransient<IProductDesktopService, DirectProductService>();
+    services.AddTransient<IWarehouseDesktopService, DirectWarehouseService>();
+    services.AddTransient<ISalesInvoiceDesktopService, DirectSalesInvoiceService>();
+    services.AddTransient<ISettingsDesktopService, DirectSettingsService>();
     services.AddScoped<BizInterfaces.IAuthService, BizServices.AuthService>();
 }
 
@@ -178,7 +179,7 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 
 | RULE | DIRECTIVE |
 |------|-----------|
-| RULE-N11 | `Direct*Service` implements the `I*ApiService` interface and delegates to a single BLL service — no business logic of its own |
+| RULE-N11 | `Direct*Service` implements the `I*DesktopService` interface and delegates to a single BLL service — no business logic of its own |
 | RULE-N12 | `Direct*Service` returns the BLL's `Result<T>` unchanged (or maps paged results to the interface's shape) — never rewraps error messages |
 | RULE-N13 | Every method passes `CancellationToken` through and supplies the current `UserId` from `ISessionService.Current?.UserId` where the BLL requires it |
 | RULE-N14 | Exceptions never escape a `Direct*Service` — BLL returns `Result<T>`; unexpected exceptions are returned as `Result.Failure` with an Arabic message |
@@ -243,13 +244,13 @@ There are no HTTP controllers, no routes, no JWT policies to configure for data 
 | RULE-N36 | Password hashing via BCrypt (work factor 12) in service layer |
 | RULE-N37 | Lockout after 5 failed login attempts (`LoginAttempts >= 5 → IsLocked = true`) |
 
-### 2.14 Desktop Service Interface Pattern (`I*ApiService` → `Direct*Service`)
+### 2.14 Desktop Service Interface Pattern (`I*DesktopService` → `Direct*Service`)
 
-Interfaces are **unchanged** by the shift to 2-Tier. The name `I*ApiService` is historical; the implementation is now a `Direct*Service` wrapper over the BLL (not HTTP).
+العقد يُسمّى `I<Entity>DesktopService` — لا علاقة له بأي HTTP؛ هو واجهة الطبقة المكتبية فوق BLL. التنفيذ الحقيقي `Direct*Service` غلاف رقيق فوق BLL (ليس HTTP).
 
 ```csharp
-// Interface (Services/Interfaces/) — unchanged
-public interface IUserApiService
+// Interface (Services/Interfaces/)
+public interface IUserDesktopService
 {
     Task<Result<List<UserDto>>> GetAllAsync();
     Task<Result<UserDto>> GetByIdAsync(int id);
@@ -268,7 +269,7 @@ using BizInterfaces = SalesSystem.Business.Interfaces.Services;
 
 namespace SalesSystem.Desktop.Services.Direct;
 
-public class DirectCustomerService : ICustomerApiService
+public class DirectCustomerService : ICustomerDesktopService
 {
     private readonly BizInterfaces.ICustomerService _customers;
     private readonly ISessionService _session;
@@ -315,8 +316,8 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | Aspect | Detail |
 |--------|--------|
 | Flag | `AppSettings.UseMockData` in `SalesSystem.Desktop/appsettings.json` (default `true`) |
-| Mock implementations | `SalesSystem.Desktop/Services/Mock/` — `MockAuthService` plus mock implementations of the `I*ApiService` interfaces (`MockCustomerApiService`, `MockProductApiService`, `MockWarehouseApiService`, `MockSalesInvoiceApiService`, `MockSettingsApiService`) and shared in-memory `MockData` |
-| Switching | Set `UseMockData` to `true` (mock) or `false` (real BLL/DB) in `appsettings.json`; `Program.cs` maps each `I*ApiService` to `Mock*ApiService` or `Direct*Service` at startup |
+| Mock implementations | `SalesSystem.Desktop/Services/Mock/` — `MockAuthService` plus mock implementations of the `I*DesktopService` interfaces (`MockCustomerDesktopService`, `MockProductDesktopService`, `MockWarehouseDesktopService`, `MockSalesInvoiceDesktopService`, `MockSettingsDesktopService`) and shared in-memory `MockData` |
+| Switching | Set `UseMockData` to `true` (mock) or `false` (real BLL/DB) in `appsettings.json`; `Program.cs` maps each `I*DesktopService` to `Mock*DesktopService` or `Direct*Service` at startup |
 | Indicator | `frmMain` appends `وضع التجربة (Mock)` to the title bar when mock mode is active |
 | Login | In mock mode, login accepts any credentials (no database required) |
 
@@ -328,7 +329,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 
 | المرحلة | النطاق | معيار الإغلاق |
 |---|---|---|
-| أ — الدين المعماري | إغلاق `RULE-N05`/`RULE-N06` بالكامل: كل شاشة في `Desktop/Screens/**` تتحدث مع BLL **فقط** عبر `I*ApiService` → `Direct*Service` | `grep -r "SalesSystem.Business" SalesSystem/SalesSystem.Desktop/Screens` = **0 نتائج**، و`HttpClient` = 0، و`dotnet build` = 0 أخطاء |
+| أ — الدين المعماري | إغلاق `RULE-N05`/`RULE-N06` بالكامل: كل شاشة في `Desktop/Screens/**` تتحدث مع BLL **فقط** عبر `I*DesktopService` → `Direct*Service` | `grep -r "SalesSystem.Business" SalesSystem/SalesSystem.Desktop/Screens` = **0 نتائج**، و`HttpClient` = 0، و`dotnet build` = 0 أخطاء |
 | ب — UX دليل الأصناف | `frmProductMaster` + `frmProductUnitMaster`: مؤشر وضع، آلة حالة الأزرار، تنقل لوحة المفاتيح، شبكة أغنى، تحقق دقيق | البنود B1–B11 من خطة التحسين منفَّذة ومُختبرة يدوياً |
 | ج — شاشة فاتورة البيع | تثبيت استثناء `RULE-N22a` + تحسينات متقدمة (تفقيط حيّ داخل تحرير الخلية عبر `EditingControlShowing`) | الاستثناء موثّق هنا + الشاشة تعمل بوضعي Mock/Real |
 
@@ -420,7 +421,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 1 | الاسم `frm*` والوراثة من `Form` | RULE-N01 | اسم الملف والصنف |
 | 2 | حقن `IServiceProvider` في المُنشئ وعدم استخدام `new frmXxx()` | RULE-N02/N03 | المُنشئ + `Program.cs` |
 | 3 | تسجيل النموذج في حاوية DI داخل `Program.cs` | RULE-N10 | `services.AddTransient<frmXxx>();` |
-| 4 | كل الخدمات عبر `I*ApiService` فقط — لا `DbContext` ولا `SalesSystem.Business` ولا `HttpClient` | RULE-N05/N06 | `grep "SalesSystem.Business\|HttpClient"` = 0 |
+| 4 | كل الخدمات عبر `I*DesktopService` فقط — لا `DbContext` ولا `SalesSystem.Business` ولا `HttpClient` | RULE-N05/N06 | `grep "SalesSystem.Business\|HttpClient"` = 0 |
 | 5 | `RightToLeft = Yes` + `RightToLeftLayout = true` + خط `Tahoma` | RULE-N20/N21 | المصمّم + `ApplyUiTheme` |
 | 6 | هيكل الأشرطة: `pnlHeader` (Dock=Top, 56) + `lblMode` + `pnlToolbar` + `pnlFilters` + `pnlSummary` + `pnlGrid` + `pnlFooter` | RULE-N27 | جدول العناصر في تقرير التسليم |
 | 7 | استدعاء الأربعة في المُنشئ: `WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` | RULE-N40 | نص الاستدعاء |
@@ -525,7 +526,7 @@ private void ApplyUiTheme()
 | RULE-N65 | `ctrlDashboard` يستقبل `IServiceProvider` في المُنشئ ويحل خدماته بـ `GetRequiredService<T>()`؛ يعمل بلا تعديل داخل `frmDashboard` وداخل `frmMain` |
 | RULE-N66 | `frmDashboard` يبقى غلافاً رقيقاً: `ctrlDashboard` بـ `Dock = Fill` + زر إغلاق فقط، ولا منطق تحميل فيه |
 | RULE-N67 | كل `UserControl` جديد يأخذ بادئة `ctrl*` ويُسجَّل في حاوية DI (`services.AddTransient<ctrlXxx>();`) |
-| RULE-N68 | `ctrlDashboard` يعمل في وضعي Mock/Real: يجب وجود `MockDashboardApiService` مسجَّل في فرع Mock حسب `RULE-N10` |
+| RULE-N68 | `ctrlDashboard` يعمل في وضعي Mock/Real: يجب وجود `MockDashboardDesktopService` مسجَّل في فرع Mock حسب `RULE-N10` |
 | RULE-N69 | `ctrlDashboard` ينتهي بـ `GreenThemeHelper.Apply(this)` ويستمع لرسائل `EventBus` ليُحدّث أرقامه دون إعادة فتح |
 
 ---
@@ -541,7 +542,7 @@ private void ApplyUiTheme()
 | RULE-N72 | قائمة «التقارير» تُقسَّم إلى قوائم فرعية ثابتة: **المبيعات** · **المشتريات** · **المخزون** · **المحاسبة والمالية** · **العملاء والموردون** · **الصندوق** — كل تصنيف `ToolStripMenuItem` يحتوي تقاريره فقط |
 | RULE-N73 | كل تقرير يستوفي §2.21 + §2.22 (`gbFilter` + `pnlSummary`) + تصدير Excel عبر `IExportableReport` |
 | RULE-N74 | كود التقارير يُوزَّع حسب التصنيف: `Screens/Reports/{Sales,Purchases,Inventory,Finance,Parties,CashBox}/` — لا حشر كل التقارير في مجلد واحد |
-| RULE-N75 | كل `I*ReportApiService` تحتاج تنفيذاً وهمياً `Mock*ReportApiService` وإلا انكسر وضع التجربة |
+| RULE-N75 | كل `I*ReportDesktopService` تحتاج تنفيذاً وهمياً `Mock*ReportDesktopService` وإلا انكسر وضع التجربة |
 | RULE-N76 | لا يُعتبر التصنيف مكتملاً حتى تصل كل تقاريره من القائمة في نقرتين على الأكثر |
 
 ---
@@ -554,7 +555,7 @@ private void ApplyUiTheme()
 |------|-----------|
 | RULE-N80 | `frmPOS` تُبنى على نمط `frmAddUpdateSalesInvoice`: باركود → شبكة سطور → مجاميع → دفع → ترحيل |
 | RULE-N81 | الشاشة تعتمد الاختيار السريع للأصناف: أزرار/قائمة أصناف + حقل باركود، والتركيز على أقل عدد نقرات لإتمام البيع — ولا تُضاف أي وحدة أو تبويب أو خطوة لا يطلبها البيع السريع |
-| RULE-N82 | تعمل بوضعي Mock/Real عبر `IProductApiService` + `ISalesInvoiceApiService` + `ICustomerApiService` فقط — لا وصول مباشر لأي طبقة أخرى |
+| RULE-N82 | تعمل بوضعي Mock/Real عبر `IProductDesktopService` + `ISalesInvoiceDesktopService` + `ICustomerDesktopService` فقط — لا وصول مباشر لأي طبقة أخرى |
 | RULE-N83 | شبكة سطور POS هي الاستثناء الثاني المسموح لـ `RULE-N22a` (مع `dgvItems`)، ولا يُعمَّم على غيرها |
 | RULE-N84 | كل بيع يُرحَّل كـ `SalesInvoice` بحالة `Posted` داخل `BeginTransactionAsync` مع خصم المخزون وتسجيل `InventoryTransactions` والقيد المحاسبي |
 | RULE-N85 | بعد الحفظ لا تُغلق الشاشة: تُفرَّغ السلة وتُعاد التهيئة لبيع جديد ويبقى التركيز على حقل الباركود |
@@ -566,7 +567,7 @@ private void ApplyUiTheme()
 | RULE | DIRECTIVE |
 |------|-----------|
 | RULE-N90 | كل كيان يرث `ActivatableEntity` يجب أن يدعم الدورة كاملة: تعطيل → إظهار غير النشط → إعادة تنشيط |
-| RULE-N91 | كل `I*ApiService` لكيان قابل للتعطيل يعرّض `ReactivateAsync` ويُسندها للـ BLL — لا منطق في الـ wrapper (`RULE-N11`) |
+| RULE-N91 | كل `I*DesktopService` لكيان قابل للتعطيل يعرّض `ReactivateAsync` ويُسندها للـ BLL — لا منطق في الـ wrapper (`RULE-N11`) |
 | RULE-N92 | شاشة الدليل تُظهر زر «إعادة تنشيط» مفعّلاً على السطر **غير النشط فقط**، ومعطّلاً على النشط (`RULE-N43`) |
 | RULE-N93 | إعادة التنشيط تُنفَّذ داخل معاملة، وتُعيد تنشيط الحساب المحاسبي المرتبط إن وُجد، وتُستخدم `IgnoreQueryFilters` للوصول للسجل المعطَّل |
 | RULE-N94 | اختبار القبول الإلزامي لكل كيان: «عطّل → أعد التنشيط» يجب أن ينجح، ويُحدَّد السطر بعد التحديث، والرسالة عربية |
@@ -647,7 +648,36 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 |---|------|--------|------------------------|--------|
 | 1 | الأدوار والصلاحيات (`PermissionsMask`، `RULE-N31`…`N37`) | مؤجل — مستخدم واحد بصلاحيات كاملة | كل الشاشات متاحة للأدمن؛ لا فحص صلاحيات | 🔒 V2 |
 | 2 | نطاق DI لكل عملية (بدل نطاق واحد لعمر التطبيق) | مؤجل | نطاق واحد مُنشأ في `Program.cs` | 🔒 V2 |
-| 3 | وحدة الموظفين كوحدة مُخزَّنة (لا جدول `Employees` في MVP) | مؤجل — موجودة كواجهة تجريبية | `MockEmployeeApiService` في وضع التجربة | 🔒 V2 |
+| 3 | وحدة الموظفين كوحدة مُخزَّنة (لا جدول `Employees` في MVP) | مؤجل — موجودة كواجهة تجريبية | `MockEmployeeDesktopService` في وضع التجربة | 🔒 V2 |
+
+---
+
+### 2.30 عقيدة الكود: WinForms كلاسيكي + N-Layer بسيط (Code Doctrine) — إلزامي
+
+النظام **WinForms كلاسيكي** بطبقات N-Layer بسيطة. الهدف: كود قصير، واضح، بلا تجريدات زائدة، ويُعاد استخدامه من مكان واحد.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N109 | **الواجهة كلاسيكية:** منطق الشاشة في معالجات الأحداث داخل `frm*.cs` (code-behind). ممنوع MVVM: لا أصناف `*ViewModel`، ولا `RelayCommand`/`ICommand` مخصّص، ولا أطر ربط (ReactiveUI / CommunityToolkit.Mvvm / Prism). الاستثناء الوحيد المسموح: `INotifyPropertyChanged` على صنف سطر واحد داخل `BindingList<T>` لأن `DataGridView` يحتاجه لتحديث `LineTotal` — ويُسمّى الصنف باسم الكيان (`InvoiceLineItem`) لا `*ViewModel` |
+| RULE-N110 | **الباك-إند N-Layer بسيط:** الطبقات هي `Common` · `Models` · `DTO` · `DataAccess` · `Business` · `Desktop`. ممنوع Clean Architecture: لا مجلدات `Domain`/`Application`/`Infrastructure`/`UseCases`، ولا MediatR/CQRS/Handlers، ولا AutoMapper Profiles، ولا Specification Pattern، ولا مستودعات عامة إضافية فوق `IUnitOfWork` القائم، ولا واجهات تُضاف بلا سلوك مقابل |
+| RULE-N111 | **لا طبقة API إطلاقاً:** لا `HttpClient`، لا `System.Net.Http`، لا Controllers، ولا تسلسل JSON في مسار البيانات. التسمية المعتمدة: عقد الشاشة `I<Entity>DesktopService` · التنفيذ الحقيقي `Direct<Entity>Service` (يستدعي BLL داخل العملية) · التنفيذ الوهمي `Mock<Entity>DesktopService` |
+| RULE-N112 | **إعادة الاستخدام أولاً:** كل لون/خط/تنقل/اختصار/تفقيط/تهريب فلترة يعيش في `SalesSystem.Desktop/Helpers/` فقط. أي سلوك مشترك جديد يُضاف إلى Helper أولاً ثم تُستهلكه الشاشات — وممنوع نسخه داخل شاشة (`RULE-N98`) |
+| RULE-N113 | **بوابة البساطة:** الحل الأصغر القابل للقراءة هو الصحيح. إن تطلّب الطلب أكثر من 3 تجريدات جديدة (واجهة + مصنع + وسيط…) توقّف وأبلغ المدير بسبب الحاجة الفعلية قبل الكتابة |
+| RULE-N114 | **الملفات المشتركة تُعدَّل من مكان واحد:** `Program.cs` و`appsettings.json` وملف الحل ومشروع `.csproj` يملكها وكيل واحد فقط في كل مهمة — البقية تُبلّغ المدير بالحاجة ولا تعدّلها |
+
+**مصادر الحقيقة للـ Helpers (لا تُكرَّر قيمها):** `GreenThemeHelper` (كل ألوان النظام) · `KeyboardHelper` (التنقل/التحديد/التظليل/الأسهم/الأزرار/الاختصارات) · `LiveTafqeetHelper` (التفقيط الحيّ) · `RowFilterHelper` (تهريب قيم التصفية) · `ThemeHelper` (تنسيق النموذج/الزر الأساسي، يُستدعى قبل الثيم الأخضر) · `ReportUiStandardizer` (توحيد شاشات التقارير).
+
+---
+
+### 2.31 مسؤولية الاختبار (Testing Responsibility) — الاختبار ليس عمل الوكلاء
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N115 | **الوكلاء لا يكتبون اختبارات آلية ولا يعدّلون `SalesSystem.Tests/**`** — هذا المشروع ملك المالك ويغطي `Common/Helpers` فقط |
+| RULE-N116 | **كل تسليم ينتهي بقائمة اختبار يدوي** يكتبها الوكيل في تقريره: جدول (الشاشة · الخطوة · النتيجة المتوقعة) بالعربية، تغطي المسار السعيد + حالات الرفض + الأثر المالي/المخزني، وينفّذها المالك بنفسه |
+| RULE-N117 | ممنوع `dotnet test` أو تشغيل التطبيق من أي وكيل. المسموح فقط `dotnet build` للتحقق من الترجمة |
+| RULE-N118 | مراجعة الكود/الأمن لا تُبلغ «نقص تغطية اختبارات» كعيب — تُغلق بإحالة إلى هذا القسم |
+| RULE-N119 | ملف تسليم لا يحتوي قائمة اختبار يدوي يُعدّ ناقصاً ويُرفض |
 
 ## 3. Enums
 
@@ -697,6 +727,11 @@ public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Dam
 ❌ Async void handlers without try/catch
 ❌ English user-facing messages (must be Arabic)
 ❌ Showing exception details directly to users
+❌ MVVM: أي صنف `*ViewModel` أو `ICommand`/`RelayCommand` أو إطار ربط (RULE-N109)
+❌ Clean Architecture: Domain/Application/Infrastructure/UseCases/MediatR/CQRS/AutoMapper (RULE-N110)
+❌ `HttpClient` / `System.Net.Http` / أي نقطة HTTP — التسمية `I*DesktopService` (RULE-N111)
+❌ نسخ لون/خط/اختصار/تنقل داخل شاشة بدل استخدام Helpers (RULE-N112)
+❌ كتابة أو تعديل أو تشغيل اختبارات آلية من أي وكيل (RULE-N115/RULE-N117)
 ```
 
 ---
@@ -717,11 +752,11 @@ dotnet build .\SalesSystem.DataAccess\SalesSystem.DataAccess.csproj
 
 ## 6. Desktop ↔ BLL Service Convention
 
-There is no HTTP surface. Each Desktop data screen talks to the BLL through one `I*ApiService` interface:
+There is no HTTP surface. Each Desktop data screen talks to the BLL through one `I*DesktopService` interface:
 
-- Interface: `Services/Interfaces/I<Entity>ApiService.cs`
+- Interface: `Services/Interfaces/I<Entity>DesktopService.cs`
 - Real implementation: `Services/Direct/Direct<Entity>Service.cs` → calls `Business.Interfaces.Services.I<Entity>Service`
-- Mock implementation: `Services/Mock/Mock<Entity>ApiService.cs` → in-memory `MockData`
+- Mock implementation: `Services/Mock/Mock<Entity>DesktopService.cs` → in-memory `MockData`
 - Return type: always `Result` / `Result<T>` — never raw values, never exceptions
 - Registration: `Program.cs` maps the interface to the mock or direct implementation based on `AppSettings.UseMockData`
 
@@ -783,9 +818,9 @@ SalesSystem.slnx
 │   │   ├── Customers/                ← frm* forms for customers
 │   │   └── ... (24 modules)
 │   ├── Services/                     ← Service implementations
-│   │   ├── Direct/                   ← Direct*Service wrappers (I*ApiService → BLL)
-│   │   ├── Interfaces/               ← I*ApiService interfaces (unchanged)
-│   │   └── Mock/                     ← Mock*ApiService + MockData (in-memory, no DB)
+│   │   ├── Direct/                   ← Direct*Service wrappers (I*DesktopService → BLL)
+│   │   ├── Interfaces/               ← I*DesktopService interfaces
+│   │   └── Mock/                     ← Mock*DesktopService + MockData (in-memory, no DB)
 │   ├── Controls/                     ← Custom WinForms controls
 │   ├── Helpers/                      ← Desktop utility classes
 │   ├── Models/                       ← Desktop-specific view models
@@ -856,7 +891,7 @@ Desktop (WinForms)  →  BLL Services  →  DataAccess (EF Core)  →  SQL Serve
  GetRequiredService  All logic here       Fluent API           CHECK constraints
  DI resolved         No exceptions        Repositories
      ↓
- I*ApiService  →  Direct*Service (Services/Direct/)  or  Mock*ApiService (Services/Mock/)
+ I*DesktopService  →  Direct*Service (Services/Direct/)  or  Mock*DesktopService (Services/Mock/)
 ```
 
 No HTTP, no controllers, no JSON serialization on the data path. If you find yourself importing `System.Net.Http`, you are in the wrong layer.

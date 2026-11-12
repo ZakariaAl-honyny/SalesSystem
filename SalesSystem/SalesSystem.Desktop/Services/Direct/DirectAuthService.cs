@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// Desktop wrapper over the BLL authentication service (in-process, no HTTP).
 /// </summary>
-public class DirectAuthService : IAuthApiService
+public class DirectAuthService : IAuthDesktopService
 {
     private readonly BizInterfaces.IAuthService _bll;
     private readonly ISessionService _session;

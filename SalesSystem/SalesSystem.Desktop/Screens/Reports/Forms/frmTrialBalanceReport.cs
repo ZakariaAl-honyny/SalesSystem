@@ -49,7 +49,7 @@ public partial class frmTrialBalanceReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportApiService>().GetTrialBalanceAsync(dtpAsOf.Value.Date);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetTrialBalanceAsync(dtpAsOf.Value.Date);
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();

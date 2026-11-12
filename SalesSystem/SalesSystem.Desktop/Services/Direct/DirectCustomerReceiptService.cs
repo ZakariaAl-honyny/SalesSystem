@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 /// <summary>
 /// Desktop wrapper over the BLL customer-receipt service (in-process, no HTTP).
 /// </summary>
-public class DirectCustomerReceiptService : ICustomerReceiptApiService
+public class DirectCustomerReceiptService : ICustomerReceiptDesktopService
 {
     private readonly BizInterfaces.ICustomerReceiptService _bll;
     private readonly ISessionService _session;
