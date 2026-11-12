@@ -1,4 +1,6 @@
 using SalesSystem.DTO;
+using SalesSystem.DTO.Common;
+using SalesSystem.Models.Accounting.Enums;
 
 namespace SalesSystem.Desktop.Services.Mock;
 
@@ -7,10 +9,9 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// 4 قيود متوازنة مع بنودها (EntryNo 101..104) مأخوذة من INITIAL_JOURNAL_ENTRIES.
 /// </summary>
 /// <remarks>
-/// TODO: الحقول التالية أُزيلت من DTOs القيود ولم تُعد موجودة:
-/// JournalEntryListDto / JournalEntryDetailDto → SourceModule
-/// JournalEntryLineDetailDto → CostCenterCode, CostCenterName
-/// (مراكز التكلفة المحذوفة كانت: 201 فرع حدة، 202 فرع التحرير، 102 إدارة IT.)
+/// الالتزام: التسمية العربية لنوع القيد <c>EntryType</c> تُشتق دائماً من
+/// <see cref="JournalEntryTypeDisplay.GetArabicName"/> انطلاقاً من القيمة الرقمية
+/// <c>EntryTypeValue</c> — فالقيمة الرقمية هي المصدر ولا يمكن أن تنفصل عن التسمية.
 /// </remarks>
 internal static class MockJournalEntriesData
 {
@@ -54,7 +55,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "101",
             EntryDate: new DateTime(2026, 8, 30),
             Description: "قيد إيداع الرصيد الافتتاحي في الصندوق الرئيسي",
-            EntryType: "رصيد افتتاحي",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.OpeningBalance),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "افتتاح الخزينة والوردية الأولى",
@@ -63,7 +64,8 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 8, 30),
-            CreatedByUserId: 1
+            CreatedByUserId: 1,
+            EntryTypeValue: JournalEntryType.OpeningBalance
         ),
 
         new JournalEntryListDto(
@@ -71,7 +73,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "102",
             EntryDate: new DateTime(2026, 8, 31),
             Description: "تحويل بنكي من حساب الكريمي لحساب المورد هائل سعيد",
-            EntryType: "مدفوعات",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.SupplierPayment),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "سداد دفعة للمورد هائل سعيد",
@@ -80,7 +82,8 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 8, 31),
-            CreatedByUserId: 1
+            CreatedByUserId: 1,
+            EntryTypeValue: JournalEntryType.SupplierPayment
         ),
 
         new JournalEntryListDto(
@@ -88,7 +91,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "103",
             EntryDate: new DateTime(2026, 9, 1),
             Description: "صرف إيجار فرع حدة وفرع التحرير نقداً محمل على مراكز التكلفة",
-            EntryType: "مصروف",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.Expense),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "سداد إيجار وكهرباء الفروع التشغيلية",
@@ -97,7 +100,8 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 9, 1),
-            CreatedByUserId: 1
+            CreatedByUserId: 1,
+            EntryTypeValue: JournalEntryType.Expense
         ),
 
         new JournalEntryListDto(
@@ -105,7 +109,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "104",
             EntryDate: new DateTime(2026, 9, 2),
             Description: "فاتورة صيانة وتحديث أجهزة IT محملة على مركز تقنية المعلومات",
-            EntryType: "مصروف",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.Expense),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "صيانة خوادم وشبكات نقاط البيع",
@@ -114,7 +118,8 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 9, 2),
-            CreatedByUserId: 1
+            CreatedByUserId: 1,
+            EntryTypeValue: JournalEntryType.Expense
         ),
     };
 
@@ -129,7 +134,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "101",
             EntryDate: new DateTime(2026, 8, 30),
             Description: "قيد إيداع الرصيد الافتتاحي في الصندوق الرئيسي",
-            EntryType: "رصيد افتتاحي",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.OpeningBalance),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "افتتاح الخزينة والوردية الأولى",
@@ -138,7 +143,8 @@ internal static class MockJournalEntriesData
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 8, 30),
             CreatedByUserId: 1,
-            Lines: Lines1
+            Lines: Lines1,
+            EntryTypeValue: JournalEntryType.OpeningBalance
         ),
 
         new JournalEntryDetailDto(
@@ -146,7 +152,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "102",
             EntryDate: new DateTime(2026, 8, 31),
             Description: "تحويل بنكي من حساب الكريمي لحساب المورد هائل سعيد",
-            EntryType: "مدفوعات",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.SupplierPayment),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "سداد دفعة للمورد هائل سعيد",
@@ -155,7 +161,8 @@ internal static class MockJournalEntriesData
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 8, 31),
             CreatedByUserId: 1,
-            Lines: Lines2
+            Lines: Lines2,
+            EntryTypeValue: JournalEntryType.SupplierPayment
         ),
 
         new JournalEntryDetailDto(
@@ -163,7 +170,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "103",
             EntryDate: new DateTime(2026, 9, 1),
             Description: "صرف إيجار فرع حدة وفرع التحرير نقداً محمل على مراكز التكلفة",
-            EntryType: "مصروف",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.Expense),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "سداد إيجار وكهرباء الفروع التشغيلية",
@@ -172,7 +179,8 @@ internal static class MockJournalEntriesData
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 9, 1),
             CreatedByUserId: 1,
-            Lines: Lines3
+            Lines: Lines3,
+            EntryTypeValue: JournalEntryType.Expense
         ),
 
         new JournalEntryDetailDto(
@@ -180,7 +188,7 @@ internal static class MockJournalEntriesData
             EntryNumber: "104",
             EntryDate: new DateTime(2026, 9, 2),
             Description: "فاتورة صيانة وتحديث أجهزة IT محملة على مركز تقنية المعلومات",
-            EntryType: "مصروف",
+            EntryType: JournalEntryTypeDisplay.GetArabicName(JournalEntryType.Expense),
             ReferenceType: null,
             ReferenceId: null,
             ReferenceNumber: "صيانة خوادم وشبكات نقاط البيع",
@@ -189,7 +197,8 @@ internal static class MockJournalEntriesData
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 9, 2),
             CreatedByUserId: 1,
-            Lines: Lines4
+            Lines: Lines4,
+            EntryTypeValue: JournalEntryType.Expense
         ),
     };
 }

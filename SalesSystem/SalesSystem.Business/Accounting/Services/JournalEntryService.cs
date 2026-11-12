@@ -41,7 +41,7 @@ public class JournalEntryService : IJournalEntryService
             var totalCredit = request.Lines.Sum(l => l.Credit);
             if (Math.Abs(totalDebit - totalCredit) > 0.001m)
                 return Result<int>.Failure(
-                    $"القيد غير متوازن — مجموع الخصوم ({totalDebit:N2}) لا يساوي مجموع الإيداعات ({totalCredit:N2})");
+                    $"القيد غير متوازن — مجموع المدين ({totalDebit:N2}) لا يساوي مجموع الدائن ({totalCredit:N2})");
 
             // 3. Validate individual line amounts
             foreach (var line in request.Lines)
@@ -147,7 +147,7 @@ public class JournalEntryService : IJournalEntryService
             var totalCredit = request.Lines.Sum(l => l.Credit);
             if (Math.Abs(totalDebit - totalCredit) > 0.001m)
                 return Result<JournalEntryDetailDto>.Failure(
-                    $"القيد غير متوازن — مجموع الخصوم ({totalDebit:N2}) لا يساوي مجموع الإيداعات ({totalCredit:N2})");
+                    $"القيد غير متوازن — مجموع المدين ({totalDebit:N2}) لا يساوي مجموع الدائن ({totalCredit:N2})");
 
             // 5. Validate individual line amounts
             foreach (var line in request.Lines)

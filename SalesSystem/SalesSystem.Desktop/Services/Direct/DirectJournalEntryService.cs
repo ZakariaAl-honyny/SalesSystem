@@ -2,6 +2,7 @@ using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Models.Accounting.Enums;
 using BizInterfaces = SalesSystem.Business.Interfaces.Services;
 
 namespace SalesSystem.Desktop.Services.Direct;
@@ -22,11 +23,20 @@ public class DirectJournalEntryService : IJournalEntryApiService
 
     private int UserId => _session.Current?.UserId ?? 0;
 
-    public async Task<Result<IReadOnlyList<JournalEntryListDto>>> GetAllAsync(CancellationToken ct = default)
+    public async Task<Result<IReadOnlyList<JournalEntryListDto>>> GetAllAsync(
+        CancellationToken ct = default,
+        JournalEntryType? entryType = null,
+        byte? status = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? search = null)
     {
         try
         {
-            var result = await _bll.GetAllAsync(page: 1, pageSize: int.MaxValue, ct: ct);
+            var result = await _bll.GetAllAsync(
+                page: 1, pageSize: int.MaxValue, ct: ct,
+                entryType: entryType, status: status,
+                fromDate: fromDate, toDate: toDate, search: search);
             return result.IsSuccess
                 ? Result<IReadOnlyList<JournalEntryListDto>>.Success(result.Value!)
                 : Result<IReadOnlyList<JournalEntryListDto>>.Failure(result.Error!, result.ErrorCode);
@@ -88,6 +98,30 @@ public class DirectJournalEntryService : IJournalEntryApiService
         catch (Exception)
         {
             return Result.Failure("تعذر إلغاء القيد اليومي. حاول مرة أخرى.");
+        }
+    }
+
+    public async Task<Result<JournalEntryDetailDto>> UpdateAsync(int id, UpdateJournalEntryRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.UpdateAsync(id, request, UserId, ct);
+        }
+        catch (Exception)
+        {
+            return Result<JournalEntryDetailDto>.Failure("تعذر تحديث القيد اليومي. حاول مرة أخرى.");
+        }
+    }
+
+    public async Task<Result> DeleteDraftAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.DeleteDraftAsync(id, UserId, ct);
+        }
+        catch (Exception)
+        {
+            return Result.Failure("تعذر حذف القيد اليومي. حاول مرة أخرى.");
         }
     }
 }
