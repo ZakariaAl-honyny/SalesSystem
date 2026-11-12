@@ -47,7 +47,7 @@ public partial class frmCustomerMaster : Form
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnReactivate);
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────
@@ -309,10 +309,13 @@ public partial class frmCustomerMaster : Form
 
         _editId = c.Id;
 
-        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
+        // ضمان أن حالة التنشيط المحسوبة للأزرار مأخوذة من أحدث نسخة من السجل.
+        _customersById[c.Id] = c;
+
+        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)،
+        // وأزرار التعطيل/إعادة التنشيط تُضبط حسب حالة التنشيط (RULE-N92).
         btnSave.Enabled = false;
-        btnEdit.Enabled = true;
-        btnDelete.Enabled = true;
+        _UpdateActionButtons();
 
         txtId.Text = c.Id.ToString();
         txtName.Text = c.Name;
@@ -333,14 +336,30 @@ public partial class frmCustomerMaster : Form
             ? "(( دليل العملاء )) — تعديل عميل"
             : "(( دليل العملاء )) — إضافة عميل جديد";
 
+    /// <summary>هل يوجد إجراء غير متزامن قيد التنفيذ؟ (يمنع تكرار النقر ويُعطّل أزرار الإجراءات مؤقتاً).</summary>
+    private bool _actionButtonsBusy;
+
+    /// <summary>
+    /// آلة حالة أزرار الإجراءات (RULE-N43 + RULE-N92):
+    /// التعديل يحتاج سجلاً محدداً، والتعطيل للنشط فقط، وإعادة التنشيط لغير النشط فقط.
+    /// </summary>
+    private void _UpdateActionButtons()
+    {
+        bool hasSelection = _editId.HasValue;
+        bool isActive = hasSelection && _customersById.TryGetValue(_editId!.Value, out var c) && c.IsActive;
+
+        btnEdit.Enabled = hasSelection && !_actionButtonsBusy;
+        btnDelete.Enabled = hasSelection && isActive && !_actionButtonsBusy;        // التعطيل للنشط فقط
+        btnReactivate.Enabled = hasSelection && !isActive && !_actionButtonsBusy;   // RULE-N92
+    }
+
     private void _ResetForm()
     {
         _editId = null;
 
-        // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
+        // وضع الإضافة: زر الإضافة متاح، وبقية أزرار الإجراءات معطّلة لعدم وجود سجل محدد.
         btnSave.Enabled = true;
-        btnEdit.Enabled = false;
-        btnDelete.Enabled = false;
+        _UpdateActionButtons();
 
         errorProvider.Clear();
 
@@ -435,7 +454,8 @@ public partial class frmCustomerMaster : Form
 
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
-        btnEdit.Enabled = false;
+        _actionButtonsBusy = true;
+        _UpdateActionButtons();
 
         try
         {
@@ -493,8 +513,7 @@ public partial class frmCustomerMaster : Form
                 // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
                 _editId = result.Value.Id;
                 btnSave.Enabled = false;
-                btnEdit.Enabled = true;
-                btnDelete.Enabled = true;
+                _UpdateActionButtons();
 
                 await _LoadCustomersAsync();
                 _SelectGridRow(result.Value.Id);
@@ -515,16 +534,9 @@ public partial class frmCustomerMaster : Form
         finally
         {
             // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
-            if (_editId is null)
-            {
-                btnSave.Enabled = true;
-                btnEdit.Enabled = false;
-            }
-            else
-            {
-                btnSave.Enabled = false;
-                btnEdit.Enabled = true;
-            }
+            _actionButtonsBusy = false;
+            btnSave.Enabled = _editId is null;
+            _UpdateActionButtons();
 
             Cursor = Cursors.Default;
         }
@@ -547,7 +559,8 @@ public partial class frmCustomerMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
-        btnDelete.Enabled = false;
+        _actionButtonsBusy = true;
+        _UpdateActionButtons();
 
         try
         {
@@ -577,8 +590,72 @@ public partial class frmCustomerMaster : Form
         finally
         {
             // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا التعديل والحذف معطّلين.
-            btnDelete.Enabled = _editId.HasValue;
-            btnEdit.Enabled = _editId.HasValue;
+            _actionButtonsBusy = false;
+            _UpdateActionButtons();
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>
+    /// إعادة تنشيط العميل المعطَّل (RULE-N90…RULE-N94):
+    /// الزر مفعّل فقط على سطر غير نشط، والتنفيذ داخل الخدمة (BLL) داخل معاملة.
+    /// </summary>
+    private async void btnReactivate_Click(object? sender, EventArgs e)
+    {
+        if (_editId is not int id)
+        {
+            MessageBox.Show("يرجى اختيار عميل معطّل من القائمة أولاً.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string name = txtName.Text.Trim();
+
+        if (MessageBox.Show($"هل تريد إعادة تنشيط العميل \"{name}\"؟",
+                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        Cursor = Cursors.WaitCursor;
+        _actionButtonsBusy = true;
+        _UpdateActionButtons();
+
+        try
+        {
+            var result = await CustomerService.ReactivateAsync(id);
+
+            if (result.IsSuccess)
+            {
+                MessageBox.Show("تم إعادة تنشيط العميل بنجاح.", "تم إعادة التنشيط",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                EventBus.Publish(new CustomerChangedMessage(id));
+
+                await _LoadCustomersAsync();
+
+                // RULE-N94: يبقى السطر المُعاد تنشيطه محدداً في الشبكة (يعود لونه أبيض ويُفعَّل زر التعطيل)
+                // مع الإبقاء على بيانات العميل في الحقول، ليرى المستخدم نتيجة العملية فوراً.
+                _editId = id;
+                _SelectGridRow(id);
+                _UpdateModeHeader();
+                _UpdateActionButtons();
+            }
+            else
+            {
+                MessageBox.Show($"تعذر إعادة تنشيط العميل.\n{result.Error}",
+                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء إعادة تنشيط العميل {CustomerId}", id);
+            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _actionButtonsBusy = false;
+            _UpdateActionButtons();
             Cursor = Cursors.Default;
         }
     }

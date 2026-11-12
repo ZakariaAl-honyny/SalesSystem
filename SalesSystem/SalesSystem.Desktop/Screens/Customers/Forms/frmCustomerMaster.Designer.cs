@@ -40,6 +40,7 @@ partial class frmCustomerMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnReactivate = new Button();
         btnRefresh = new Button();
         btnClose = new Button();
         pnlGrid = new Panel();
@@ -249,6 +250,7 @@ partial class frmCustomerMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnReactivate);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
@@ -313,6 +315,21 @@ partial class frmCustomerMaster
         btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
         btnDelete.Click += btnDelete_Click;
+        // 
+        // btnReactivate
+        // 
+        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.Enabled = false;
+        btnReactivate.FlatStyle = FlatStyle.Flat;
+        btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReactivate.ForeColor = Color.White;
+        btnReactivate.Location = new Point(699, 13);
+        btnReactivate.Name = "btnReactivate";
+        btnReactivate.Size = new Size(150, 35);
+        btnReactivate.TabIndex = 6;
+        btnReactivate.Text = "↺ إعادة تنشيط";
+        btnReactivate.UseVisualStyleBackColor = false;
+        btnReactivate.Click += btnReactivate_Click;
         // 
         // btnRefresh
         // 
@@ -472,6 +489,7 @@ partial class frmCustomerMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnReactivate;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
