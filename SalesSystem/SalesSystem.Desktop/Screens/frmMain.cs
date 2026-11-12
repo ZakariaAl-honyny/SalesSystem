@@ -219,6 +219,9 @@ public partial class frmMain : Form
     private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
         => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccounts>());
 
+    private void msbtnJournalEntries_Click(object sender, EventArgs e)
+        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmJournalEntries>());
+
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
 
     private void msbtnReports_Click(object sender, EventArgs e)

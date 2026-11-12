@@ -91,6 +91,7 @@
             // ── المحاسبة (جديد) ───────────────────────────────────────────────────────────────────
             msAccounting = new ToolStripMenuItem();
             msbtnChartOfAccounts = new ToolStripMenuItem();
+            msbtnJournalEntries = new ToolStripMenuItem();
 
             errorProvider1 = new ErrorProvider(components);
             msMainMenu.SuspendLayout();
@@ -417,7 +418,8 @@
             // msAccounting
             // 
             msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnChartOfAccounts
+                msbtnChartOfAccounts,
+                msbtnJournalEntries
             });
             msAccounting.Name = "msAccounting";
             msAccounting.Size = new Size(105, 33);
@@ -429,6 +431,13 @@
             msbtnChartOfAccounts.Size = new Size(300, 38);
             msbtnChartOfAccounts.Text = "دليل الحسابات";
             msbtnChartOfAccounts.Click += msbtnChartOfAccounts_Click;
+            // 
+            // msbtnJournalEntries
+            // 
+            msbtnJournalEntries.Name = "msbtnJournalEntries";
+            msbtnJournalEntries.Size = new Size(300, 38);
+            msbtnJournalEntries.Text = "القيود المحاسبية";
+            msbtnJournalEntries.Click += msbtnJournalEntries_Click;
             // 
             // msReport
             // 
@@ -585,6 +594,7 @@
         private ToolStripMenuItem msbtnReports;
         private ToolStripMenuItem msAccounting;
         private ToolStripMenuItem msbtnChartOfAccounts;
+        private ToolStripMenuItem msbtnJournalEntries;
         private ToolStripMenuItem msbtnReportsDashboard;
         private ToolStripMenuItem msbtnPurchases;
         private ToolStripMenuItem msbtnInventory;

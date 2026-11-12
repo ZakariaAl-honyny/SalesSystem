@@ -283,6 +283,7 @@ static class Program
                     // Master forms — replace the removed frmList* / frmAddUpdate* screens
                     services.AddTransient<frmUserMaster>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmAccounts>();
+                    services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmJournalEntries>();
 
                     // Inventory Module - New Forms
                     services.AddTransient<frmListInventoryAdjustments>();
