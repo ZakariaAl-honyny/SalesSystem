@@ -6,6 +6,7 @@ using ClosedXML.Excel;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Reports.Tabs;
 
@@ -36,6 +37,7 @@ public class SalesReportTab : UserControl, IExportableReport
         dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
+        ReportUiStandardizer.Apply(this);
     }
 
     protected override async void OnLoad(EventArgs e)

@@ -25,6 +25,7 @@ public partial class frmDailyClosureReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private async void frmDailyClosureReport_Load(object sender, EventArgs e)

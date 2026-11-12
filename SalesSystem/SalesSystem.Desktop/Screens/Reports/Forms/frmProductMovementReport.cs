@@ -18,6 +18,7 @@ public partial class frmProductMovementReport : Form
         _productMovementTab = new ProductMovementReportTab(_serviceProvider);
         _productMovementTab.Dock = DockStyle.Fill;
         this.Controls.Add(_productMovementTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

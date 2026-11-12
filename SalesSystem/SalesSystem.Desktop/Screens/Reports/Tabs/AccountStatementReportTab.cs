@@ -40,6 +40,7 @@ public class AccountStatementReportTab : UserControl, IExportableReport
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect; dgvReport.AutoGenerateColumns = true;
         // MVP: كشف حساب العميل/المورد — ضبط النوع الافتراضي حسب التبويب المفتوح
         if (supplierDefault && cmbPartyType.Items.Count > 1) cmbPartyType.SelectedIndex = 1;
+        ReportUiStandardizer.Apply(this);
     }
 
     protected override async void OnLoad(EventArgs e) { base.OnLoad(e); }

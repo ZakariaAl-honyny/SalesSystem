@@ -18,6 +18,7 @@ public partial class frmLowStockReport : Form
         _lowStockTab = new LowStockReportTab(_serviceProvider);
         _lowStockTab.Dock = DockStyle.Fill;
         this.Controls.Add(_lowStockTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

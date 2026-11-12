@@ -5,6 +5,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Reports.Tabs;
 
@@ -26,6 +27,7 @@ public class ProductMovementReportTab : UserControl, IExportableReport
         _serviceProvider = serviceProvider;
         InitializeComponent();
         Load += OnLoadHandler;
+        ReportUiStandardizer.Apply(this);
     }
 
     private async void OnLoadHandler(object? sender, EventArgs e)

@@ -18,6 +18,7 @@ public partial class frmPurchasesReport : Form
         _purchasesTab = new PurchasesReportTab(_serviceProvider);
         _purchasesTab.Dock = DockStyle.Fill;
         this.Controls.Add(_purchasesTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

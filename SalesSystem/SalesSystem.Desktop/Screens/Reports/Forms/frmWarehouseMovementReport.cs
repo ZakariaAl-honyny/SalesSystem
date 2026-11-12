@@ -25,6 +25,7 @@ public partial class frmWarehouseMovementReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private async void frmWarehouseMovementReport_Load(object sender, EventArgs e)

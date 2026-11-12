@@ -18,6 +18,7 @@ public partial class frmSupplierBalanceReport : Form
         _supplierBalanceTab = new SupplierBalanceReportTab(_serviceProvider);
         _supplierBalanceTab.Dock = DockStyle.Fill;
         this.Controls.Add(_supplierBalanceTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

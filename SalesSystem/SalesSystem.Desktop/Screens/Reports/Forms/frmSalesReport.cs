@@ -18,6 +18,7 @@ public partial class frmSalesReport : Form
         _salesTab = new SalesReportTab(_serviceProvider);
         _salesTab.Dock = DockStyle.Fill;
         this.Controls.Add(_salesTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

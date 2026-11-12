@@ -17,6 +17,7 @@ public partial class frmCustomerBalanceReport : Form
         _customerBalanceTab = new CustomerBalanceReportTab(_serviceProvider);
         _customerBalanceTab.Dock = DockStyle.Fill;
         this.Controls.Add(_customerBalanceTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

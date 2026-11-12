@@ -32,6 +32,7 @@ public class WorkingCapitalReportTab : UserControl, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true; dgvReport.AllowUserToAddRows = false; dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect; dgvReport.AutoGenerateColumns = true;
+        ReportUiStandardizer.Apply(this);
     }
 
     protected override async void OnLoad(EventArgs e) { base.OnLoad(e); await LoadReportAsync(); }

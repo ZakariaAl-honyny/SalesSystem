@@ -18,6 +18,7 @@ public partial class frmInventoryReport : Form
         _inventoryTab = new InventoryReportTab(_serviceProvider);
         _inventoryTab.Dock = DockStyle.Fill;
         this.Controls.Add(_inventoryTab);
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

@@ -25,6 +25,7 @@ public partial class frmCashBoxSummaryReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private async void frmCashBoxSummaryReport_Load(object sender, EventArgs e)

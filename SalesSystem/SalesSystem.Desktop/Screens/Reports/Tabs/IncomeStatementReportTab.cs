@@ -37,6 +37,7 @@ public class IncomeStatementReportTab : UserControl, IExportableReport
         dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
+        ReportUiStandardizer.Apply(this);
     }
 
     protected override async void OnLoad(EventArgs e)

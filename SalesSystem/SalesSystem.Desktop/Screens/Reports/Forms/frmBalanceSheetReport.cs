@@ -28,6 +28,7 @@ public partial class frmBalanceSheetReport : Form, IExportableReport
         dgvReport.AutoGenerateColumns = true;
         dgvReport.DataSource = _bindingSource;
         this.Load += async (s, e) => await LoadReportAsync();
+        ReportUiStandardizer.ApplyForm(this);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

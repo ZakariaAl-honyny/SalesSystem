@@ -8,6 +8,7 @@ using SalesSystem.Desktop.Controls.Common;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Reports.Tabs;
 
@@ -40,6 +41,7 @@ public class CustomerBalanceReportTab : UserControl, IExportableReport
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
         dgvReport.CellFormatting += DgvReport_CellFormatting;
+        ReportUiStandardizer.Apply(this);
     }
 
     protected override async void OnLoad(EventArgs e)
