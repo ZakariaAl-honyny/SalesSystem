@@ -16,6 +16,25 @@
         {
             this.components = new System.ComponentModel.Container();
             this.lblMode = new System.Windows.Forms.Label();
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.pnlFilters = new System.Windows.Forms.Panel();
+            this.gbFilter = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cbFilterBy = new System.Windows.Forms.ComboBox();
+            this.txtFilterValue = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cbStatus = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.dtpFrom = new System.Windows.Forms.DateTimePicker();
+            this.label4 = new System.Windows.Forms.Label();
+            this.dtpTo = new System.Windows.Forms.DateTimePicker();
+            this.btnRangeToday = new System.Windows.Forms.Button();
+            this.btnRange30 = new System.Windows.Forms.Button();
+            this.btnRangeMonth = new System.Windows.Forms.Button();
+            this.chkOnlyCancelled = new System.Windows.Forms.CheckBox();
+            this.pnlSummary = new System.Windows.Forms.Panel();
+            this.lblSummary = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tabPayments = new System.Windows.Forms.TabControl();
             this.tpCustomerPayments = new System.Windows.Forms.TabPage();
             this.dgvCustomerPayments = new System.Windows.Forms.DataGridView();
@@ -40,6 +59,10 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiSupplierEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSupplierAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.pnlHeader.SuspendLayout();
+            this.pnlFilters.SuspendLayout();
+            this.gbFilter.SuspendLayout();
+            this.pnlSummary.SuspendLayout();
             this.tabPayments.SuspendLayout();
             this.tpCustomerPayments.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCustomerPayments)).BeginInit();
@@ -53,33 +76,251 @@
             // 
             // lblMode
             // 
-            this.lblMode.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.lblMode.AutoSize = true;
+            this.lblMode.AutoSize = false;
             this.lblMode.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.lblMode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lblMode.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
             this.lblMode.ForeColor = System.Drawing.Color.Firebrick;
-            this.lblMode.Location = new System.Drawing.Point(505, 20);
+            this.lblMode.Location = new System.Drawing.Point(0, 0);
             this.lblMode.Name = "lblMode";
-            this.lblMode.Size = new System.Drawing.Size(310, 39);
+            this.lblMode.Size = new System.Drawing.Size(1070, 56);
             this.lblMode.TabIndex = 30;
             this.lblMode.Text = "إدارة المقبوضات والمدفوعات";
+            this.lblMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // pnlHeader
+            // 
+            this.pnlHeader.Controls.Add(this.lblMode);
+            this.pnlHeader.Controls.Add(this.btnClose);
+            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(1200, 56);
+            this.pnlHeader.TabIndex = 30;
+            // 
+            // pnlFilters
+            // 
+            this.pnlFilters.Controls.Add(this.gbFilter);
+            this.pnlFilters.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlFilters.Location = new System.Drawing.Point(0, 56);
+            this.pnlFilters.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlFilters.Name = "pnlFilters";
+            this.pnlFilters.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+            this.pnlFilters.Size = new System.Drawing.Size(1200, 112);
+            this.pnlFilters.TabIndex = 20;
+            // 
+            // gbFilter
+            // 
+            this.gbFilter.Controls.Add(this.label2);
+            this.gbFilter.Controls.Add(this.cbFilterBy);
+            this.gbFilter.Controls.Add(this.txtFilterValue);
+            this.gbFilter.Controls.Add(this.label1);
+            this.gbFilter.Controls.Add(this.cbStatus);
+            this.gbFilter.Controls.Add(this.label3);
+            this.gbFilter.Controls.Add(this.dtpFrom);
+            this.gbFilter.Controls.Add(this.label4);
+            this.gbFilter.Controls.Add(this.dtpTo);
+            this.gbFilter.Controls.Add(this.btnRangeToday);
+            this.gbFilter.Controls.Add(this.btnRange30);
+            this.gbFilter.Controls.Add(this.btnRangeMonth);
+            this.gbFilter.Controls.Add(this.chkOnlyCancelled);
+            this.gbFilter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbFilter.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.gbFilter.Location = new System.Drawing.Point(6, 4);
+            this.gbFilter.Margin = new System.Windows.Forms.Padding(0);
+            this.gbFilter.Name = "gbFilter";
+            this.gbFilter.Padding = new System.Windows.Forms.Padding(8);
+            this.gbFilter.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.gbFilter.Size = new System.Drawing.Size(1188, 104);
+            this.gbFilter.TabIndex = 0;
+            this.gbFilter.TabStop = false;
+            this.gbFilter.Text = "بحث وتصفية";
+            // 
+            // label2
+            // 
+            this.label2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.label2.Location = new System.Drawing.Point(12, 30);
+            this.label2.Margin = new System.Windows.Forms.Padding(0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(96, 26);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "تصفية بـ:";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cbFilterBy
+            // 
+            this.cbFilterBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbFilterBy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbFilterBy.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.cbFilterBy.FormattingEnabled = true;
+            this.cbFilterBy.Location = new System.Drawing.Point(112, 26);
+            this.cbFilterBy.Margin = new System.Windows.Forms.Padding(0);
+            this.cbFilterBy.Name = "cbFilterBy";
+            this.cbFilterBy.Size = new System.Drawing.Size(176, 30);
+            this.cbFilterBy.TabIndex = 1;
+            this.cbFilterBy.SelectedIndexChanged += new System.EventHandler(this.cbFilterBy_SelectedIndexChanged);
+            // 
+            // txtFilterValue
+            // 
+            this.txtFilterValue.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.txtFilterValue.Location = new System.Drawing.Point(292, 26);
+            this.txtFilterValue.Margin = new System.Windows.Forms.Padding(0);
+            this.txtFilterValue.Name = "txtFilterValue";
+            this.txtFilterValue.Size = new System.Drawing.Size(236, 30);
+            this.txtFilterValue.TabIndex = 2;
+            this.txtFilterValue.TextChanged += new System.EventHandler(this.txtFilterValue_TextChanged);
+            this.txtFilterValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilterValue_KeyDown);
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.label1.Location = new System.Drawing.Point(536, 30);
+            this.label1.Margin = new System.Windows.Forms.Padding(0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(72, 26);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "الحالة:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cbStatus
+            // 
+            this.cbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbStatus.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.cbStatus.FormattingEnabled = true;
+            this.cbStatus.Location = new System.Drawing.Point(612, 26);
+            this.cbStatus.Margin = new System.Windows.Forms.Padding(0);
+            this.cbStatus.Name = "cbStatus";
+            this.cbStatus.Size = new System.Drawing.Size(124, 30);
+            this.cbStatus.TabIndex = 4;
+            this.cbStatus.SelectedIndexChanged += new System.EventHandler(this.cbStatus_SelectedIndexChanged);
+            // 
+            // label3
+            // 
+            this.label3.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.label3.Location = new System.Drawing.Point(744, 30);
+            this.label3.Margin = new System.Windows.Forms.Padding(0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(52, 26);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "من:";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // dtpFrom
+            // 
+            this.dtpFrom.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpFrom.Location = new System.Drawing.Point(800, 26);
+            this.dtpFrom.Margin = new System.Windows.Forms.Padding(0);
+            this.dtpFrom.Name = "dtpFrom";
+            this.dtpFrom.Size = new System.Drawing.Size(146, 30);
+            this.dtpFrom.TabIndex = 6;
+            this.dtpFrom.ValueChanged += new System.EventHandler(this.dtpFrom_ValueChanged);
+            // 
+            // label4
+            // 
+            this.label4.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.label4.Location = new System.Drawing.Point(954, 30);
+            this.label4.Margin = new System.Windows.Forms.Padding(0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(52, 26);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "إلى:";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // dtpTo
+            // 
+            this.dtpTo.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpTo.Location = new System.Drawing.Point(1010, 26);
+            this.dtpTo.Margin = new System.Windows.Forms.Padding(0);
+            this.dtpTo.Name = "dtpTo";
+            this.dtpTo.Size = new System.Drawing.Size(146, 30);
+            this.dtpTo.TabIndex = 8;
+            this.dtpTo.ValueChanged += new System.EventHandler(this.dtpTo_ValueChanged);
+            // 
+            // btnRangeToday
+            // 
+            this.btnRangeToday.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.btnRangeToday.Location = new System.Drawing.Point(12, 62);
+            this.btnRangeToday.Name = "btnRangeToday";
+            this.btnRangeToday.Size = new System.Drawing.Size(100, 32);
+            this.btnRangeToday.TabIndex = 9;
+            this.btnRangeToday.Text = "اليوم";
+            this.btnRangeToday.UseVisualStyleBackColor = true;
+            this.btnRangeToday.Click += new System.EventHandler(this.btnRangeToday_Click);
+            // 
+            // btnRange30
+            // 
+            this.btnRange30.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.btnRange30.Location = new System.Drawing.Point(122, 62);
+            this.btnRange30.Name = "btnRange30";
+            this.btnRange30.Size = new System.Drawing.Size(138, 32);
+            this.btnRange30.TabIndex = 10;
+            this.btnRange30.Text = "آخر 30 يوماً";
+            this.btnRange30.UseVisualStyleBackColor = true;
+            this.btnRange30.Click += new System.EventHandler(this.btnRange30_Click);
+            // 
+            // btnRangeMonth
+            // 
+            this.btnRangeMonth.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.btnRangeMonth.Location = new System.Drawing.Point(270, 62);
+            this.btnRangeMonth.Name = "btnRangeMonth";
+            this.btnRangeMonth.Size = new System.Drawing.Size(130, 32);
+            this.btnRangeMonth.TabIndex = 11;
+            this.btnRangeMonth.Text = "هذا الشهر";
+            this.btnRangeMonth.UseVisualStyleBackColor = true;
+            this.btnRangeMonth.Click += new System.EventHandler(this.btnRangeMonth_Click);
+            // 
+            // chkOnlyCancelled
+            // 
+            this.chkOnlyCancelled.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.chkOnlyCancelled.Location = new System.Drawing.Point(412, 66);
+            this.chkOnlyCancelled.Margin = new System.Windows.Forms.Padding(0);
+            this.chkOnlyCancelled.Name = "chkOnlyCancelled";
+            this.chkOnlyCancelled.Size = new System.Drawing.Size(170, 26);
+            this.chkOnlyCancelled.TabIndex = 12;
+            this.chkOnlyCancelled.Text = "الملغاة فقط";
+            this.chkOnlyCancelled.UseVisualStyleBackColor = false;
+            this.chkOnlyCancelled.CheckedChanged += new System.EventHandler(this.chkOnlyCancelled_CheckedChanged);
+            // 
+            // pnlSummary
+            // 
+            this.pnlSummary.Controls.Add(this.lblSummary);
+            this.pnlSummary.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlSummary.Location = new System.Drawing.Point(0, 671);
+            this.pnlSummary.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlSummary.Name = "pnlSummary";
+            this.pnlSummary.Size = new System.Drawing.Size(1200, 32);
+            this.pnlSummary.TabIndex = 10;
+            // 
+            // lblSummary
+            // 
+            this.lblSummary.AutoSize = false;
+            this.lblSummary.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblSummary.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
+            this.lblSummary.Location = new System.Drawing.Point(0, 0);
+            this.lblSummary.Name = "lblSummary";
+            this.lblSummary.Size = new System.Drawing.Size(1200, 32);
+            this.lblSummary.TabIndex = 0;
+            this.lblSummary.Text = "المعروض: 0 من 0 — الإجمالي: 0.00";
+            this.lblSummary.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // tabPayments
             // 
-            this.tabPayments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabPayments.Controls.Add(this.tpCustomerPayments);
             this.tabPayments.Controls.Add(this.tpSupplierPayments);
+            this.tabPayments.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabPayments.Font = new System.Drawing.Font("Tahoma", 9F);
-            this.tabPayments.Location = new System.Drawing.Point(12, 50);
+            this.tabPayments.Location = new System.Drawing.Point(0, 168);
             this.tabPayments.Name = "tabPayments";
             this.tabPayments.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.tabPayments.RightToLeftLayout = true;
             this.tabPayments.SelectedIndex = 0;
-            this.tabPayments.Size = new System.Drawing.Size(1040, 530);
+            this.tabPayments.Size = new System.Drawing.Size(1200, 503);
             this.tabPayments.TabIndex = 1;
+            this.tabPayments.SelectedIndexChanged += new System.EventHandler(this.tabPayments_SelectedIndexChanged);
             // 
             // tpCustomerPayments
             // 
@@ -89,7 +330,7 @@
             this.tpCustomerPayments.Location = new System.Drawing.Point(4, 28);
             this.tpCustomerPayments.Name = "tpCustomerPayments";
             this.tpCustomerPayments.Padding = new System.Windows.Forms.Padding(3);
-            this.tpCustomerPayments.Size = new System.Drawing.Size(1032, 498);
+            this.tpCustomerPayments.Size = new System.Drawing.Size(1192, 471);
             this.tpCustomerPayments.TabIndex = 0;
             this.tpCustomerPayments.Text = "\u0645\u0642\u0628\u0648\u0636\u0627\u062a \u0627\u0644\u0639\u0645\u0644\u0627\u0621";
             // 
@@ -99,6 +340,7 @@
             this.dgvCustomerPayments.AllowUserToDeleteRows = false;
             this.dgvCustomerPayments.AllowUserToOrderColumns = true;
             this.dgvCustomerPayments.AllowUserToResizeRows = false;
+            this.dgvCustomerPayments.AutoGenerateColumns = false;
             this.dgvCustomerPayments.BackgroundColor = System.Drawing.Color.White;
             this.dgvCustomerPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvCustomerPayments.ColumnHeadersHeight = 50;
@@ -111,7 +353,7 @@
             this.dgvCustomerPayments.RowHeadersWidth = 51;
             this.dgvCustomerPayments.RowTemplate.Height = 28;
             this.dgvCustomerPayments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCustomerPayments.Size = new System.Drawing.Size(1026, 452);
+            this.dgvCustomerPayments.Size = new System.Drawing.Size(1186, 425);
             this.dgvCustomerPayments.TabIndex = 1;
             // 
             // pnlCustomerTop
@@ -163,7 +405,7 @@
             this.tpSupplierPayments.Location = new System.Drawing.Point(4, 28);
             this.tpSupplierPayments.Name = "tpSupplierPayments";
             this.tpSupplierPayments.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSupplierPayments.Size = new System.Drawing.Size(1032, 498);
+            this.tpSupplierPayments.Size = new System.Drawing.Size(1192, 471);
             this.tpSupplierPayments.TabIndex = 1;
             this.tpSupplierPayments.Text = "\u0645\u062f\u0641\u0648\u0639\u0627\u062a \u0627\u0644\u0645\u0648\u0631\u062f\u064a\u0646";
             // 
@@ -173,6 +415,7 @@
             this.dgvSupplierPayments.AllowUserToDeleteRows = false;
             this.dgvSupplierPayments.AllowUserToOrderColumns = true;
             this.dgvSupplierPayments.AllowUserToResizeRows = false;
+            this.dgvSupplierPayments.AutoGenerateColumns = false;
             this.dgvSupplierPayments.BackgroundColor = System.Drawing.Color.White;
             this.dgvSupplierPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvSupplierPayments.ColumnHeadersHeight = 50;
@@ -185,7 +428,7 @@
             this.dgvSupplierPayments.RowHeadersWidth = 51;
             this.dgvSupplierPayments.RowTemplate.Height = 28;
             this.dgvSupplierPayments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvSupplierPayments.Size = new System.Drawing.Size(1026, 452);
+            this.dgvSupplierPayments.Size = new System.Drawing.Size(1186, 425);
             this.dgvSupplierPayments.TabIndex = 1;
             // 
             // pnlSupplierTop
@@ -231,15 +474,15 @@
             // 
             // btnClose
             // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnClose.BackColor = System.Drawing.Color.White;
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnClose.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnClose.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.btnClose.Location = new System.Drawing.Point(12, 630);
+            this.btnClose.Location = new System.Drawing.Point(1070, 0);
             this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(181, 61);
-            this.btnClose.TabIndex = 2;
+            this.btnClose.Size = new System.Drawing.Size(130, 56);
+            this.btnClose.TabIndex = 0;
             this.btnClose.Text = "إغلاق";
             this.btnClose.UseVisualStyleBackColor = false;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
@@ -329,8 +572,9 @@
             this.CancelButton = this.btnClose;
             this.ClientSize = new System.Drawing.Size(1200, 703);
             this.Controls.Add(this.tabPayments);
-            this.Controls.Add(this.btnClose);
-            this.Controls.Add(this.lblMode);
+            this.Controls.Add(this.pnlSummary);
+            this.Controls.Add(this.pnlFilters);
+            this.Controls.Add(this.pnlHeader);
             this.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -340,6 +584,11 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "إدارة المقبوضات والمدفوعات";
             this.Load += new System.EventHandler(this.frmListPayments_Load);
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlFilters.ResumeLayout(false);
+            this.gbFilter.ResumeLayout(false);
+            this.gbFilter.PerformLayout();
+            this.pnlSummary.ResumeLayout(false);
             this.tabPayments.ResumeLayout(false);
             this.tpCustomerPayments.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCustomerPayments)).EndInit();
@@ -357,7 +606,26 @@
 
         #endregion
 
+        private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblMode;
+        private System.Windows.Forms.Panel pnlFilters;
+        private System.Windows.Forms.GroupBox gbFilter;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cbFilterBy;
+        private System.Windows.Forms.TextBox txtFilterValue;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox cbStatus;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.DateTimePicker dtpFrom;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.DateTimePicker dtpTo;
+        private System.Windows.Forms.Button btnRangeToday;
+        private System.Windows.Forms.Button btnRange30;
+        private System.Windows.Forms.Button btnRangeMonth;
+        private System.Windows.Forms.CheckBox chkOnlyCancelled;
+        private System.Windows.Forms.Panel pnlSummary;
+        private System.Windows.Forms.Label lblSummary;
+        private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.TabControl tabPayments;
         private System.Windows.Forms.TabPage tpCustomerPayments;
         private System.Windows.Forms.TabPage tpSupplierPayments;

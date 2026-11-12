@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Data;
+using System.Globalization;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.Desktop.GlobalClasses;
@@ -18,14 +19,26 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         private DataTable _supplierTable = new();
         private DataView _supplierView = new();
 
+        /// <summary>يمنع تطبيق التصفية أثناء ضبط القيم برمجياً (RULE-N59 — تصفية فورية بلا وميض).</summary>
+        private bool _isInitializing;
+
         public frmListPayments(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             InitializeComponent();
+
+            _InitializeFilters();   // RULE-N57 — عناصر gbFilter ونطاق التاريخ الابتدائي
+            _InitializeToolTips();  // RULE-N47 — كل زر/حقل تصفية وله تلميح
+
             KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
             KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
             KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
             KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
+            KeyboardHelper.WireButtonDisabledVisual(btnAddCustomerPayment, btnAddSupplierPayment); // RULE-N43
+            KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
+                (Keys.F2, _AddNewForActiveTab),
+                (Keys.F5, _RefreshActiveTab),
+                (Keys.Escape, _ResetFilters));
         }
 
         /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
@@ -46,11 +59,400 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             dgvSupplierPayments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvSupplierPayments.MultiSelect = false;
 
+            // RULE-N53/N54: النص المميّز يُستهلك من ثوابت الثيم لا من قيم مكرّرة.
+            lblSummary.ForeColor = GreenThemeHelper.TextStrong;
+
             GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
         }
 
+        // ── التصفية (§2.22) ────────────────────────────────────────────────────
+
+        /// <summary>RULE-N57: تجهيز عناصر gbFilter ونطاق التاريخ الابتدائي.</summary>
+        private void _InitializeFilters()
+        {
+            _isInitializing = true;
+            try
+            {
+                cbFilterBy.Items.Clear();
+                cbFilterBy.Items.AddRange(new object[]
+                {
+                    "لا شيء",
+                    "المستفيد/المورد",
+                    "رقم السند",
+                    "البيان",
+                    "المبلغ"
+                });
+
+                cbStatus.Items.Clear();
+                cbStatus.Items.AddRange(new object[] { "الكل", "مرحّل", "ملغى" });
+
+                cbFilterBy.SelectedIndex = 1;   // المستفيد/المورد
+                cbStatus.SelectedIndex = 0;     // الكل
+
+                // نطاق ابتدائي واسع كي لا تُخفى السندات القديمة عند فتح الشاشة،
+                // و«هذا الشهر» متاح بزر وبتصفير Esc (RULE-N59).
+                var today = DateTime.Today;
+                dtpFrom.Value = new DateTime(today.Year, today.Month, 1).AddMonths(-3);
+                dtpTo.Value = today;
+
+                txtFilterValue.Visible = true;
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
+
+        /// <summary>RULE-N47: تلميحات الأزرار/الحقول مع اختصاراتها.</summary>
+        private void _InitializeToolTips()
+        {
+            toolTip1.SetToolTip(cbFilterBy, "اختر الحقل الذي تُصفّي به السندات");
+            toolTip1.SetToolTip(txtFilterValue, "اكتب قيمة التصفية — تُطبَّق فوراً (Enter يطبّق)");
+            toolTip1.SetToolTip(cbStatus, "حالة السند: الكل / مرحّل / ملغى (سندات القبض)");
+            toolTip1.SetToolTip(dtpFrom, "تاريخ البداية (من)");
+            toolTip1.SetToolTip(dtpTo, "تاريخ النهاية (إلى)");
+            toolTip1.SetToolTip(btnRangeToday, "تصفية سندات اليوم فقط");
+            toolTip1.SetToolTip(btnRangeMonth, "من بداية الشهر الحالي حتى اليوم");
+            toolTip1.SetToolTip(btnRange30, "آخر 30 يوماً");
+            toolTip1.SetToolTip(chkOnlyCancelled, "إظهار السندات الملغاة فقط");
+            toolTip1.SetToolTip(btnAddCustomerPayment, "سند قبض جديد (F2)");
+            toolTip1.SetToolTip(btnAddSupplierPayment, "سند صرف جديد (F2)");
+            toolTip1.SetToolTip(btnClose, "إغلاق الشاشة");
+        }
+
+        /// <summary>RULE-N59: تصفية فورية على الشبكتين + تحديث شريط الملخص.</summary>
+        private void _ApplyFilter()
+        {
+            if (_isInitializing)
+                return;
+
+            try
+            {
+                if (_customerView.Table != null)
+                    _customerView.RowFilter = _BuildCustomerFilter();
+
+                if (_supplierView.Table != null)
+                    _supplierView.RowFilter = _BuildSupplierFilter();
+            }
+            catch (Exception ex)
+            {
+                // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+                Serilog.Log.Error(ex, "فشل تطبيق تصفية المقبوضات والمدفوعات");
+                MessageBox.Show("تعذر تطبيق التصفية الحالية. يرجى تعديل معايير التصفية.",
+                    "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _UpdateSummary();
+        }
+
+        /// <summary>RULE-N60: بناء التصفية بأسماء أعمدة معروفة — لا نص المستخدم مباشرة.</summary>
+        private string _BuildCustomerFilter()
+        {
+            var parts = new List<string>
+            {
+                _DateRangeClause("ReceiptDate")
+            };
+
+            if (chkOnlyCancelled.Checked)
+                parts.Add("Status = 3");
+            else if (cbStatus.SelectedIndex == 1)
+                parts.Add("Status = 2");    // مرحّل
+            else if (cbStatus.SelectedIndex == 2)
+                parts.Add("Status = 3");    // ملغى
+
+            string text = txtFilterValue.Text.Trim();
+            int filterBy = cbFilterBy.SelectedIndex;
+
+            if (filterBy > 0 && text.Length > 0)
+            {
+                switch (filterBy)
+                {
+                    case 1:
+                        parts.Add($"CustomerName LIKE '%{_EscapeLike(text)}%'");
+                        break;
+                    case 2:
+                        parts.Add(int.TryParse(text, out int receiptNo)
+                            ? $"ReceiptNo = {receiptNo}"
+                            : "ReceiptNo < 0");
+                        break;
+                    case 3:
+                        parts.Add($"Notes LIKE '%{_EscapeLike(text)}%'");
+                        break;
+                    case 4:
+                        parts.Add(decimal.TryParse(text, out decimal amount)
+                            ? $"Amount = {amount.ToString(CultureInfo.InvariantCulture)}"
+                            : "Amount < 0");
+                        break;
+                }
+            }
+
+            return string.Join(" AND ", parts);
+        }
+
+        /// <summary>سندات الصرف لا تحمل حقل حالة في العقد — تُصفّى بالتاريخ والبحث النصي فقط.</summary>
+        private string _BuildSupplierFilter()
+        {
+            var parts = new List<string>
+            {
+                _DateRangeClause("PaymentDate")
+            };
+
+            string text = txtFilterValue.Text.Trim();
+            int filterBy = cbFilterBy.SelectedIndex;
+
+            if (filterBy > 0 && text.Length > 0)
+            {
+                switch (filterBy)
+                {
+                    case 1:
+                        parts.Add($"SupplierName LIKE '%{_EscapeLike(text)}%'");
+                        break;
+                    case 2:
+                        parts.Add($"PaymentNo LIKE '%{_EscapeLike(text)}%'");
+                        break;
+                    case 3:
+                        parts.Add($"Notes LIKE '%{_EscapeLike(text)}%'");
+                        break;
+                    case 4:
+                        parts.Add(decimal.TryParse(text, out decimal amount)
+                            ? $"Amount = {amount.ToString(CultureInfo.InvariantCulture)}"
+                            : "Amount < 0");
+                        break;
+                }
+            }
+
+            return string.Join(" AND ", parts);
+        }
+
+        /// <summary>نطاق التاريخ على عمود نصي بصيغة yyyy/MM/dd (ترتيب نصي = ترتيب زمني).</summary>
+        private string _DateRangeClause(string column)
+            => $"{column} >= '{dtpFrom.Value:yyyy/MM/dd}' AND {column} <= '{dtpTo.Value:yyyy/MM/dd}'";
+
+        /// <summary>RULE-N60: تحييد محارف LIKE الخاصة قبل بناء شرط البحث.</summary>
+        private static string _EscapeLike(string value)
+            => value.Replace("'", "''")
+                    .Replace("[", "[[]")
+                    .Replace("%", "[%]")
+                    .Replace("*", "[*]");
+
+        /// <summary>RULE-N61: «المعروض: N من M — الإجمالي: X» بعد كل تصفية أو تحميل.</summary>
+        private void _UpdateSummary()
+        {
+            bool isSupplierTab = tabPayments.SelectedTab == tpSupplierPayments;
+
+            int shown = 0;
+            int total = 0;
+            int posted = 0;
+            int cancelled = 0;
+            decimal sum = 0m;
+
+            try
+            {
+                if (isSupplierTab)
+                {
+                    total = _supplierTable.Rows.Count;
+
+                    if (_supplierView.Table != null)
+                    {
+                        foreach (DataRowView row in _supplierView)
+                        {
+                            shown++;
+                            sum += _AmountOf(row);
+                        }
+                    }
+                }
+                else
+                {
+                    total = _customerTable.Rows.Count;
+
+                    if (_customerView.Table != null)
+                    {
+                        foreach (DataRowView row in _customerView)
+                        {
+                            shown++;
+                            sum += _AmountOf(row);
+
+                            byte status = _StatusOf(row);
+                            if (status == 2) posted++;
+                            else if (status == 3) cancelled++;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "فشل حساب ملخص المقبوضات والمدفوعات");
+            }
+
+            lblCustomerCount.Text = _customerView.Table != null ? _customerView.Count.ToString() : "0";
+            lblSupplierCount.Text = _supplierView.Table != null ? _supplierView.Count.ToString() : "0";
+
+            string summary = $"المعروض: {shown:N0} من {total:N0} — الإجمالي: {sum:N2}";
+
+            // سندات الصرف بلا حقل حالة في العقد — لا نعرض عدّادات حالة غير موجودة.
+            if (!isSupplierTab)
+                summary += $" · مرحّل: {posted:N0} · ملغى: {cancelled:N0}";
+
+            lblSummary.Text = summary;
+        }
+
+        private static decimal _AmountOf(DataRowView row)
+        {
+            if (!row.Row.Table.Columns.Contains("Amount"))
+                return 0m;
+
+            object? value = row["Amount"];
+            return value == null || value == DBNull.Value ? 0m : Convert.ToDecimal(value);
+        }
+
+        private static byte _StatusOf(DataRowView row)
+        {
+            if (!row.Row.Table.Columns.Contains("Status"))
+                return 0;
+
+            object? value = row["Status"];
+            return value == null || value == DBNull.Value ? (byte)0 : Convert.ToByte(value);
+        }
+
+        /// <summary>RULE-N59: Esc يمسح كل التصفية ويُعيد «هذا الشهر».</summary>
+        private void _ResetFilters()
+        {
+            _isInitializing = true;
+            try
+            {
+                txtFilterValue.Clear();
+                cbFilterBy.SelectedIndex = 1;
+                cbStatus.SelectedIndex = 0;
+                chkOnlyCancelled.Checked = false;
+
+                var today = DateTime.Today;
+                dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
+                dtpTo.Value = today;
+
+                txtFilterValue.Visible = true;
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+
+            _ApplyFilter();
+            txtFilterValue.Focus();
+        }
+
+        private void _SetDateRange(DateTime from, DateTime to)
+        {
+            _isInitializing = true;
+            try
+            {
+                dtpFrom.Value = from;
+                dtpTo.Value = to;
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+
+            _ApplyFilter();
+        }
+
+        // ── أحداث التصفية (فورية — RULE-N59) ───────────────────────────────────
+
+        private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_isInitializing)
+                return;
+
+            txtFilterValue.Visible = cbFilterBy.SelectedIndex > 0;
+
+            if (txtFilterValue.Visible)
+            {
+                txtFilterValue.Clear();
+                txtFilterValue.Focus();
+            }
+
+            _ApplyFilter();
+        }
+
+        private void txtFilterValue_TextChanged(object sender, EventArgs e)
+        {
+            if (_isInitializing)
+                return;
+
+            _ApplyFilter();
+        }
+
+        /// <summary>RULE-N59: Enter يطبّق التصفية فوراً.</summary>
+        private void txtFilterValue_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter || e.Modifiers != Keys.None)
+                return;
+
+            e.SuppressKeyPress = true;
+            e.Handled = true;
+            _ApplyFilter();
+        }
+
+        private void cbStatus_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_isInitializing)
+                return;
+
+            _ApplyFilter();
+        }
+
+        private void dtpFrom_ValueChanged(object sender, EventArgs e)
+        {
+            if (_isInitializing)
+                return;
+
+            _ApplyFilter();
+        }
+
+        private void dtpTo_ValueChanged(object sender, EventArgs e)
+        {
+            if (_isInitializing)
+                return;
+
+            _ApplyFilter();
+        }
+
+        private void chkOnlyCancelled_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_isInitializing)
+                return;
+
+            _ApplyFilter();
+        }
+
+        private void btnRangeToday_Click(object sender, EventArgs e)
+            => _SetDateRange(DateTime.Today, DateTime.Today);
+
+        private void btnRangeMonth_Click(object sender, EventArgs e)
+        {
+            var today = DateTime.Today;
+            _SetDateRange(new DateTime(today.Year, today.Month, 1), today);
+        }
+
+        private void btnRange30_Click(object sender, EventArgs e)
+            => _SetDateRange(DateTime.Today.AddDays(-29), DateTime.Today);
+
+        private void tabPayments_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // سندات الصرف بلا حقل حالة — تُعطَّل أدوات الحالة على تبويبها.
+            bool isSupplierTab = tabPayments.SelectedTab == tpSupplierPayments;
+            cbStatus.Enabled = !isSupplierTab;
+            chkOnlyCancelled.Enabled = !isSupplierTab;
+
+            _UpdateSummary();
+        }
+
+        // ── الشبكات ────────────────────────────────────────────────────────────
+
         private void _SetupCustomerGrid()
         {
+            dgvCustomerPayments.AutoGenerateColumns = false;   // حتى لا يظهر عمود Status الداخلي
             dgvCustomerPayments.Columns.Clear();
 
             var cols = new[]
@@ -64,19 +466,25 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
             foreach (var c in cols)
             {
-                dgvCustomerPayments.Columns.Add(new DataGridViewTextBoxColumn
+                var column = new DataGridViewTextBoxColumn
                 {
                     Name = c.Name,
                     HeaderText = c.Header,
                     DataPropertyName = c.Name,
                     Width = c.Width,
                     ReadOnly = true,
-                });
+                };
+
+                if (c.Name == "Amount")
+                    column.DefaultCellStyle.Format = "N2";   // RULE-001: عرض المال N2
+
+                dgvCustomerPayments.Columns.Add(column);
             }
         }
 
         private void _SetupSupplierGrid()
         {
+            dgvSupplierPayments.AutoGenerateColumns = false;   // شبكة صريحة الأعمدة
             dgvSupplierPayments.Columns.Clear();
 
             var cols = new[]
@@ -90,16 +498,23 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
             foreach (var c in cols)
             {
-                dgvSupplierPayments.Columns.Add(new DataGridViewTextBoxColumn
+                var column = new DataGridViewTextBoxColumn
                 {
                     Name = c.Name,
                     HeaderText = c.Header,
                     DataPropertyName = c.Name,
                     Width = c.Width,
                     ReadOnly = true,
-                });
+                };
+
+                if (c.Name == "Amount")
+                    column.DefaultCellStyle.Format = "N2";   // RULE-001: عرض المال N2
+
+                dgvSupplierPayments.Columns.Add(column);
             }
         }
+
+        // ── تحميل البيانات ─────────────────────────────────────────────────────
 
         private async void _RefreshCustomerPayments()
         {
@@ -112,6 +527,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 _customerTable.Columns.Add("Amount", typeof(decimal));
                 _customerTable.Columns.Add("ReceiptDate", typeof(string));
                 _customerTable.Columns.Add("Notes", typeof(string));
+                _customerTable.Columns.Add("Status", typeof(byte));   // داخلي للتصفية والملخص
 
                 var result = await _serviceProvider.GetRequiredService<ICustomerReceiptApiService>().GetAllAsync();
 
@@ -124,7 +540,8 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                             p.CustomerName ?? "",
                             p.Amount,
                             p.ReceiptDate.ToString("yyyy/MM/dd"),
-                            p.Notes ?? "");
+                            p.Notes ?? "",
+                            p.Status);
                     }
                 }
                 else if (!result.IsSuccess)
@@ -143,7 +560,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             {
                 _customerView = new DataView(_customerTable);
                 dgvCustomerPayments.DataSource = _customerView;
-                lblCustomerCount.Text = _customerView.Count.ToString();
+                _ApplyFilter();
                 Cursor = dgvCustomerPayments.Cursor = Cursors.Default;
             }
         }
@@ -190,7 +607,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             {
                 _supplierView = new DataView(_supplierTable);
                 dgvSupplierPayments.DataSource = _supplierView;
-                lblSupplierCount.Text = _supplierView.Count.ToString();
+                _ApplyFilter();
                 Cursor = dgvSupplierPayments.Cursor = Cursors.Default;
             }
         }
@@ -201,6 +618,24 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             _SetupSupplierGrid();
             _RefreshCustomerPayments();
             _RefreshSupplierPayments();
+        }
+
+        /// <summary>RULE-N47: F5 — إعادة تحميل التبويب النشط من الخدمة.</summary>
+        private void _RefreshActiveTab()
+        {
+            if (tabPayments.SelectedTab == tpSupplierPayments)
+                _RefreshSupplierPayments();
+            else
+                _RefreshCustomerPayments();
+        }
+
+        /// <summary>RULE-N47: F2 — سند جديد حسب التبويب النشط (نفس أزرار الإضافة القائمة).</summary>
+        private void _AddNewForActiveTab()
+        {
+            if (tabPayments.SelectedTab == tpSupplierPayments)
+                btnAddSupplierPayment.PerformClick();
+            else
+                btnAddCustomerPayment.PerformClick();
         }
 
         private void frmListPayments_Load(object sender, EventArgs e)

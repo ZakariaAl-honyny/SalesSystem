@@ -14,16 +14,42 @@ public partial class frmListCustomerReceipts : Form
     private List<CustomerReceiptDto> _allReceipts = new();
     private List<CustomerReceiptDto> _filteredReceipts = new();
 
+    /// <summary>يمنع التصفية الفورية أثناء التهيئة الأولية (RULE-N59).</summary>
+    private bool _isInitializing = true;
+
+    private const byte StatusDraft = 1;
+    private const byte StatusPosted = 2;
+    private const byte StatusCancelled = 3;
+
     public frmListCustomerReceipts(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
-        // RULE-N40: الأربعة معاً — Enter/Tab + تحديد القيمة + تظليل الحقل + أسهم RTL.
+        // RULE-N40/RULE-N95: الستة من KeyboardHelper — تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose);     // RULE-N43
+
+        KeyboardHelper.WireGlobalShortcuts(this,                                      // RULE-N47
+            (Keys.F2, () => btnAddNew.PerformClick()),
+            (Keys.Delete, () =>
+            {
+                if (dgvReceipts.ContainsFocus && dgvReceipts.CurrentRow != null)
+                    cancelToolStripMenuItem.PerformClick();
+            }),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Escape, () => _ClearFilters()));
+
+        // Enter في حقل التصفية = تطبيق فوري (RULE-N59).
+        KeyboardHelper.WireEnterToClick(txtFilterValue, () => _ApplyFilter());
+
+        _LoadStatusOptions();
+        _SetDateRange(_StartOfCurrentMonth(), DateTime.Today);   // «هذا الشهر» افتراضياً
+        _SetupToolTips();
+        _isInitializing = false;
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
@@ -38,8 +64,83 @@ public partial class frmListCustomerReceipts : Form
         dgvReceipts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReceipts.MultiSelect = false;
 
+        _ApplyTextTheme();
+
         GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
+
+    /// <summary>RULE-N54: ألوان النصوص من الثيم الأخضر فقط — لا قيم لونية خام داخل الشاشة.</summary>
+    private void _ApplyTextTheme()
+    {
+        foreach (var lbl in new[] { label1, label2, label3, label4, lblSummary })
+            lbl.ForeColor = GreenThemeHelper.TextStrong;
+
+        lblCountCaption.ForeColor = GreenThemeHelper.HeaderForeground;
+        lblCountCaption.BackColor = GreenThemeHelper.HeaderBackground;
+        lblRecordsCount.ForeColor = GreenThemeHelper.HeaderForeground;
+        lblRecordsCount.BackColor = GreenThemeHelper.HeaderBackground;
+    }
+
+    private void _SetupToolTips()
+    {
+        toolTip1.SetToolTip(btnAddNew, "سند قبض جديد (F2)");
+        toolTip1.SetToolTip(btnRefresh, "تحديث القائمة (F5)");
+        toolTip1.SetToolTip(btnClose, "إغلاق الشاشة");
+
+        toolTip1.SetToolTip(cbFilterBy, "اختر الحقل الذي تُصفّى به القائمة");
+        toolTip1.SetToolTip(txtFilterValue, "تصفية فورية — Enter يطبّق، Esc يمسح كل التصفية");
+        toolTip1.SetToolTip(cbStatus, "تصفية بحالة السند");
+        toolTip1.SetToolTip(dtpFrom, "تاريخ السند — من");
+        toolTip1.SetToolTip(dtpTo, "تاريخ السند — إلى");
+
+        toolTip1.SetToolTip(btnRangeToday, "سندات اليوم فقط");
+        toolTip1.SetToolTip(btnRange30, "آخر 30 يوماً");
+        toolTip1.SetToolTip(btnRangeMonth, "من بداية الشهر الحالي حتى اليوم");
+        toolTip1.SetToolTip(chkOnlyUnapplied, "السندات التي لم يُخصَّص كامل مبلغها بعد");
+    }
+
+    // ── خيارات التصفية ─────────────────────────────────────────────────────────
+
+    /// <summary>RULE-N60: التصفية بالـ SelectedIndex لا بمقارنة نص عربي.</summary>
+    private void _LoadStatusOptions()
+    {
+        cbStatus.Items.Clear();
+        cbStatus.Items.Add("الكل");
+        cbStatus.Items.Add("مرحّل");
+        cbStatus.Items.Add("ملغى");
+        cbStatus.SelectedIndex = 0;
+    }
+
+    /// <summary>0 = الكل · 1 = مرحّل (2) · 2 = ملغى (3).</summary>
+    private byte? _GetStatusFilter() => cbStatus.SelectedIndex switch
+    {
+        1 => StatusPosted,
+        2 => StatusCancelled,
+        _ => null
+    };
+
+    private static DateTime _StartOfCurrentMonth()
+    {
+        var today = DateTime.Today;
+        return new DateTime(today.Year, today.Month, 1);
+    }
+
+    private void _SetDateRange(DateTime from, DateTime to)
+    {
+        bool wasInitializing = _isInitializing;
+        _isInitializing = true;
+        try
+        {
+            dtpFrom.Value = from;
+            dtpTo.Value = to;
+        }
+        finally
+        {
+            _isInitializing = wasInitializing;
+        }
+    }
+
+    // ── البيانات ───────────────────────────────────────────────────────────────
 
     private void _SetupGridColumns()
     {
@@ -100,12 +201,85 @@ public partial class frmListCustomerReceipts : Form
         }
         finally
         {
-            _filteredReceipts = _allReceipts.ToList();
-            _PopulateGrid();
-            _UpdateRecordsCount();
-            btnRefresh.Enabled = true;
-            Cursor = Cursors.Default;
+            if (!IsDisposed)
+            {
+                _ApplyFilter();
+                btnRefresh.Enabled = true;
+                Cursor = Cursors.Default;
+            }
         }
+    }
+
+    // ── التصفية ────────────────────────────────────────────────────────────────
+
+    /// <summary>RULE-N56…N60: تصفية فورية بلا زر «بحث» — الحالة + النطاق + غير المخصصة + البحث النصي.</summary>
+    private void _ApplyFilter()
+    {
+        if (_isInitializing)
+            return;
+
+        IEnumerable<CustomerReceiptDto> query = _allReceipts;
+
+        byte? status = _GetStatusFilter();
+        if (status.HasValue)
+            query = query.Where(r => r.Status == status.Value);
+
+        // نطاق التاريخ: نُبدّل الطرفين بدل إظهار رسالة مع كل كتابة (RULE-N59).
+        DateTime from = dtpFrom.Value.Date;
+        DateTime to = dtpTo.Value.Date;
+        if (from > to)
+            (from, to) = (to, from);
+
+        query = query.Where(r => r.ReceiptDate.Date >= from && r.ReceiptDate.Date <= to);
+
+        if (chkOnlyUnapplied.Checked)
+            query = query.Where(r => _GetUnappliedAmount(r) > 0m);
+
+        string text = txtFilterValue.Text.Trim();
+        if (text.Length > 0)
+        {
+            int filterBy = cbFilterBy.SelectedIndex;
+            query = query.Where(r => _MatchesText(r, filterBy, text));
+        }
+
+        _filteredReceipts = query.ToList();
+        _PopulateGrid();
+        _UpdateSummary();
+    }
+
+    private static bool _MatchesText(CustomerReceiptDto r, int filterBy, string text) => filterBy switch
+    {
+        1 => r.ReceiptNo.ToString().Contains(text, StringComparison.Ordinal),
+        2 => (r.Notes ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase),
+        3 => r.Amount.ToString("N2").Contains(text, StringComparison.Ordinal)
+             || r.Amount.ToString("0.###").Contains(text, StringComparison.Ordinal),
+        _ => (r.CustomerName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase),
+    };
+
+    private static decimal _GetAppliedAmount(CustomerReceiptDto r)
+        => r.Applications?.Where(a => a.IsActive).Sum(a => a.AppliedAmount) ?? 0m;
+
+    private static decimal _GetUnappliedAmount(CustomerReceiptDto r)
+        => Math.Max(0m, r.Amount - _GetAppliedAmount(r));
+
+    /// <summary>مسح كل أدوات التصفية وإعادة المدى إلى «هذا الشهر» (Esc — RULE-N59).</summary>
+    private void _ClearFilters()
+    {
+        _isInitializing = true;
+        try
+        {
+            cbFilterBy.SelectedIndex = 0;
+            txtFilterValue.Clear();
+            cbStatus.SelectedIndex = 0;
+            chkOnlyUnapplied.Checked = false;
+            _SetDateRange(_StartOfCurrentMonth(), DateTime.Today);
+        }
+        finally
+        {
+            _isInitializing = false;
+        }
+
+        _ApplyFilter();
     }
 
     private void _PopulateGrid()
@@ -115,7 +289,7 @@ public partial class frmListCustomerReceipts : Form
 
         foreach (var r in _filteredReceipts)
         {
-            dgvReceipts.Rows.Add(
+            int rowIndex = dgvReceipts.Rows.Add(
                 r.Id,
                 r.ReceiptNo,
                 r.ReceiptDate.ToString("yyyy-MM-dd"),
@@ -125,13 +299,34 @@ public partial class frmListCustomerReceipts : Form
                 r.CashBoxName ?? "",
                 r.StatusName ?? ""
             );
+
+            // الربط بالمعرّف لا بترتيب السطر.
+            dgvReceipts.Rows[rowIndex].Tag = r.Id;
         }
+
+        emptyState.Visible = _filteredReceipts.Count == 0;
+        if (emptyState.Visible)
+            emptyState.BringToFront();
     }
 
     private void _ReloadForm()
     {
         _SetupGridColumns();
         _RefreshList();
+    }
+
+    /// <summary>RULE-N61: شريط الملخص — المعروض/الإجمالي/عدد المرحّل والملغى.</summary>
+    private void _UpdateSummary()
+    {
+        int shown = _filteredReceipts.Count;
+        decimal total = _filteredReceipts.Sum(r => r.Amount);
+        int posted = _filteredReceipts.Count(r => r.Status == StatusPosted);
+        int cancelled = _filteredReceipts.Count(r => r.Status == StatusCancelled);
+
+        lblSummary.Text =
+            $"المعروض: {shown} من {_allReceipts.Count} — الإجمالي: {total:N2} · مرحّل: {posted} · ملغى: {cancelled}";
+
+        _UpdateRecordsCount();
     }
 
     private void _UpdateRecordsCount()
@@ -142,7 +337,7 @@ public partial class frmListCustomerReceipts : Form
     private int _GetSelectedId()
     {
         if (dgvReceipts.CurrentRow == null) return -1;
-        return (int)dgvReceipts.CurrentRow.Cells[0].Value;
+        return dgvReceipts.CurrentRow.Cells[0].Value is int id ? id : -1;
     }
 
     private byte _GetSelectedStatus()
@@ -160,9 +355,68 @@ public partial class frmListCustomerReceipts : Form
 
     private void frmListCustomerReceipts_Load(object sender, EventArgs e)
     {
+        _isInitializing = false;
         _ReloadForm();
         ApplyGreenTheme();   // RULE-N50 — آخر خطوة في مسار التحميل
     }
+
+    // ── أحداث التصفية (فورية — بلا زر بحث) ─────────────────────────────────────
+
+    private void txtFilterValue_TextChanged(object sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+        _ApplyFilter();
+    }
+
+    private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+        _ApplyFilter();
+    }
+
+    private void cbStatus_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+        _ApplyFilter();
+    }
+
+    private void dtpFrom_ValueChanged(object sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+        _ApplyFilter();
+    }
+
+    private void dtpTo_ValueChanged(object sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+        _ApplyFilter();
+    }
+
+    private void chkOnlyUnapplied_CheckedChanged(object sender, EventArgs e)
+    {
+        if (_isInitializing) return;
+        _ApplyFilter();
+    }
+
+    private void btnRangeToday_Click(object sender, EventArgs e)
+    {
+        _SetDateRange(DateTime.Today, DateTime.Today);
+        _ApplyFilter();
+    }
+
+    private void btnRangeMonth_Click(object sender, EventArgs e)
+    {
+        _SetDateRange(_StartOfCurrentMonth(), DateTime.Today);
+        _ApplyFilter();
+    }
+
+    private void btnRange30_Click(object sender, EventArgs e)
+    {
+        _SetDateRange(DateTime.Today.AddDays(-29), DateTime.Today);
+        _ApplyFilter();
+    }
+
+    // ── الإجراءات ──────────────────────────────────────────────────────────────
 
     private void btnClose_Click(object sender, EventArgs e)
         => Close();
@@ -174,21 +428,6 @@ public partial class frmListCustomerReceipts : Form
 
     private void btnRefresh_Click(object sender, EventArgs e)
         => _ReloadForm();
-
-    private void txtSearch_TextChanged(object sender, EventArgs e)
-    {
-        string filterText = txtSearch.Text.Trim();
-        if (string.IsNullOrEmpty(filterText))
-            _filteredReceipts = _allReceipts.ToList();
-        else
-            _filteredReceipts = _allReceipts.Where(r =>
-                r.ReceiptNo.ToString().Contains(filterText) ||
-                (r.CustomerName ?? "").Contains(filterText, StringComparison.OrdinalIgnoreCase)
-            ).ToList();
-
-        _PopulateGrid();
-        _UpdateRecordsCount();
-    }
 
     private void editToolStripMenuItem_Click(object sender, EventArgs e)
     {
@@ -207,7 +446,7 @@ public partial class frmListCustomerReceipts : Form
         byte status = _GetSelectedStatus();
         if (id <= 0) return;
 
-        if (status != 1)
+        if (status != StatusDraft)
         {
             MessageBox.Show("لا يمكن ترحيل السند إلا في حالة مسودة.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
@@ -255,7 +494,7 @@ public partial class frmListCustomerReceipts : Form
         byte status = _GetSelectedStatus();
         if (id <= 0) return;
 
-        if (status == 3)
+        if (status == StatusCancelled)
         {
             MessageBox.Show("السند ملغي بالفعل.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
