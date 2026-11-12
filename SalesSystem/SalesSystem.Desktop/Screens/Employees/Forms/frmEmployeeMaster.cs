@@ -48,6 +48,24 @@ public partial class frmEmployeeMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
+        // RULE-N47 — اختصارات موحّدة: F2 جديد · F5 تحديث · Esc مسح كل التصفية (RULE-N59)
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, btnNew.PerformClick),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Escape, _ClearFilters));
+
+        // RULE-N47 — اختصار كل زر في تلميحه
+        tafqeetTip.SetToolTip(btnNew, "جديد (F2) — Esc يمسح التصفية");
+        tafqeetTip.SetToolTip(btnSave, "إضافة موظف جديد");
+        tafqeetTip.SetToolTip(btnEdit, "تعديل الموظف المحدد");
+        tafqeetTip.SetToolTip(btnDelete, "حذف (تعطيل) الموظف المحدد");
+        tafqeetTip.SetToolTip(btnRefresh, "تحديث البيانات (F5)");
+        tafqeetTip.SetToolTip(btnClose, "خروج من الشاشة");
+
+        // RULE-N97 — التفقيط الحيّ على الحقل المالي
+        LiveTafqeetHelper.Attach(tafqeetTip,
+            (numBasicSalary, "الراتب الأساسي", LiveTafqeetHelper.ReadMode.Money));
     }
 
     /// <summary>هل الحقل المطلوب (اسم الموظف) مكتمل؟</summary>
@@ -138,6 +156,8 @@ public partial class frmEmployeeMaster : Form
         table.Columns.Add("Name", typeof(string));
         table.Columns.Add("JobTitle", typeof(string));
         table.Columns.Add("Phone", typeof(string));
+        table.Columns.Add("NationalId", typeof(string));
+        table.Columns.Add("BasicSalary", typeof(decimal));
         table.Columns.Add("IsActive", typeof(bool));
 
         try
@@ -156,6 +176,8 @@ public partial class frmEmployeeMaster : Form
                         e.Name,
                         e.JobTitle ?? "",
                         e.Phone ?? "",
+                        e.NationalId ?? "",
+                        e.BasicSalary,
                         e.IsActive);
                 }
             }
@@ -177,8 +199,7 @@ public partial class frmEmployeeMaster : Form
             _employeesView = new DataView(_employeesTable);
             dgvEmployees.DataSource = _employeesView;
             _ApplyGridHeaders();
-            _ApplyFilter();
-            _ApplyRowColoring();
+            _ApplyFilter(); // يشمل تلوين الأسطر + شريط الملخص (RULE-N61)
         }
     }
 
@@ -197,9 +218,14 @@ public partial class frmEmployeeMaster : Form
                 "Name" => "اسم الموظف",
                 "JobTitle" => "المسمى الوظيفي",
                 "Phone" => "الهاتف",
+                "NationalId" => "الرقم الوطني",
+                "BasicSalary" => "الراتب الأساسي",
                 "IsActive" => "الحالة",
                 _ => column.HeaderText
             };
+
+            // أعمدة مساندة للتصفية والتلخيص فقط — لا تُعرض في الشبكة.
+            column.Visible = column.DataPropertyName is not ("NationalId" or "BasicSalary");
         }
     }
 
@@ -216,11 +242,29 @@ public partial class frmEmployeeMaster : Form
         }
     }
 
-    // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
+    // ── Search / Filter (DataView.RowFilter — RULE-N56…N63) ───────────────────
 
+    // المعالجان الأصليان (txtSearch_TextChanged / txtSearch_KeyPress) محفوظان بالاسم،
+    // لكنهما مربوطان الآن بالحقل القياسي txtFilterValue داخل gbFilter (RULE-N57).
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
 
     private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkHasSalary_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>RULE-N59 — Enter في حقل التصفية يطبّق فوراً.</summary>
+    private void txtFilterValue_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter) return;
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+        _ApplyFilter();
+    }
 
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
@@ -230,30 +274,115 @@ public partial class frmEmployeeMaster : Form
         if (char.IsPunctuation(e.KeyChar))
         {
             e.Handled = true;
-            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+            clsInputFeedback.ShowRejectTooltip(txtFilterValue, "لا يُسمح بإدخال علامات الترقيم.");
         }
     }
 
+    /// <summary>RULE-N59 — Esc يمسح كل أدوات التصفية ويعيد القائمة كاملة.</summary>
+    private void _ClearFilters()
+    {
+        if (cbFilterBy.SelectedIndex != 0) cbFilterBy.SelectedIndex = 0;
+        if (cbStatus.SelectedIndex != 0) cbStatus.SelectedIndex = 0;
+        if (chkShowInactive.Checked) chkShowInactive.Checked = false;
+        if (chkHasSalary.Checked) chkHasSalary.Checked = false;
+        if (txtFilterValue.Text.Length > 0) txtFilterValue.Clear();
+
+        _ApplyFilter(); // ضمان التطبيق حتى لو لم يتغيّر شيء
+    }
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59): تُطبَّق على <see cref="DataView.RowFilter"/> بأسماء أعمدة معروفة
+    /// حسب <c>cbFilterBy.SelectedIndex</c> (RULE-N60) وبقيم مُهرَّبة، ثم تُحدَّث لوحة الملخص (RULE-N61).
+    /// </summary>
     private void _ApplyFilter()
     {
-        if (_employeesView is null) return;
-
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        if (_employeesView is null || _employeesView.Table is null)
+        {
+            _UpdateSummary();
+            return;
+        }
 
         var conditions = new List<string>();
 
-        // إخفاء غير النشط ما لم يُفَعَّل خيار "عرض غير النشط"
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
-
-        if (!string.IsNullOrEmpty(text))
+        // (1) الحالة — cbStatus لها الأولوية، وإلا يحكمها مربع «إظهار غير النشط».
+        switch (cbStatus.SelectedIndex)
         {
-            conditions.Add(
-                $"(Name LIKE '%{text}%' OR JobTitle LIKE '%{text}%' OR Phone LIKE '%{text}%' " +
-                $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+            case 1:
+                conditions.Add("IsActive = true");
+                break;
+
+            case 2:
+                conditions.Add("IsActive = false");
+                break;
+
+            default:
+                if (!chkShowInactive.Checked)
+                    conditions.Add("IsActive = true");
+                break;
         }
 
-        _employeesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // (2) له راتب محدد — عمود حقيقي (BasicSalary)
+        if (chkHasSalary.Checked)
+            conditions.Add("BasicSalary > 0");
+
+        // (3) البحث النصي على العمود المختار فقط
+        string text = txtFilterValue.Text.Trim();
+
+        if (text.Length > 0)
+        {
+            string column = cbFilterBy.SelectedIndex switch
+            {
+                1 => "Phone",
+                2 => "JobTitle",
+                3 => "NationalId",
+                _ => "Name",
+            };
+
+            conditions.Add($"{column} LIKE '%{_EscapeFilterValue(text)}%'");
+        }
+
+        _employeesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : string.Empty;
+
+        _ApplyRowColoring();
+        _UpdateSummary();
+    }
+
+    /// <summary>تهريب قيمة البحث قبل حقنها في <see cref="DataView.RowFilter"/> (RULE-N60).</summary>
+    private static string _EscapeFilterValue(string value)
+        => value.Replace("'", "''").Replace("[", "[[]").Replace("*", "[*]").Replace("%", "[%]");
+
+    /// <summary>RULE-N61 — شريط الملخص: المعروض/الإجمالي + نشط/معطّل + إجمالي رواتب المعروض.</summary>
+    private void _UpdateSummary()
+    {
+        int total = _employeesTable?.Rows.Count ?? 0;
+        int shown = _employeesView?.Table is null ? 0 : _employeesView.Count;
+
+        int active = 0;
+        int inactive = 0;
+
+        if (_employeesTable is not null)
+        {
+            foreach (DataRow row in _employeesTable.Rows)
+            {
+                if (row["IsActive"] is bool isActive && isActive) active++;
+                else inactive++;
+            }
+        }
+
+        decimal shownSalary = 0m;
+
+        if (_employeesView?.Table is not null)
+        {
+            for (int i = 0; i < _employeesView.Count; i++)
+            {
+                if (_employeesView[i]["BasicSalary"] is decimal salary)
+                    shownSalary += salary;
+            }
+        }
+
+        lblSummary.Text =
+            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}" +
+            $" · إجمالي رواتب المعروض: {shownSalary:N2}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────

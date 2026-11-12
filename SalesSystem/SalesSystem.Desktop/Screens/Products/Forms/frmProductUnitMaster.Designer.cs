@@ -43,10 +43,16 @@ partial class frmProductUnitMaster
         btnClose = new Button();
         pnlGrid = new Panel();
         dgvUnits = new DataGridView();
-        pnlFilter = new Panel();
-        groupBox1 = new GroupBox();
+        pnlFilters = new Panel();
+        gbFilter = new GroupBox();
+        label2 = new Label();
+        cbFilterBy = new ComboBox();
         lblSearch = new Label();
-        txtSearch = new TextBox();
+        txtFilterValue = new TextBox();
+        chkOnlyBaseUnit = new CheckBox();
+        chkOnlyWithBarcode = new CheckBox();
+        pnlSummary = new Panel();
+        lblSummary = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numFactor).BeginInit();
@@ -57,8 +63,9 @@ partial class frmProductUnitMaster
         pnlButtons.SuspendLayout();
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvUnits).BeginInit();
-        pnlFilter.SuspendLayout();
-        groupBox1.SuspendLayout();
+        pnlFilters.SuspendLayout();
+        gbFilter.SuspendLayout();
+        pnlSummary.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -378,13 +385,12 @@ partial class frmProductUnitMaster
         // pnlGrid
         // 
         pnlGrid.Controls.Add(dgvUnits);
-        pnlGrid.Controls.Add(pnlFilter);
         pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 290);
+        pnlGrid.Location = new Point(0, 402);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(0, 10, 0, 0);
-        pnlGrid.Size = new Size(1200, 410);
-        pnlGrid.TabIndex = 3;
+        pnlGrid.Size = new Size(1200, 346);
+        pnlGrid.TabIndex = 4;
         // 
         // dgvUnits
         // 
@@ -395,56 +401,127 @@ partial class frmProductUnitMaster
         dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvUnits.Dock = DockStyle.Fill;
         dgvUnits.Font = new Font("Tahoma", 10F);
-        dgvUnits.Location = new Point(0, 78);
+        dgvUnits.Location = new Point(0, 10);
         dgvUnits.MultiSelect = false;
         dgvUnits.Name = "dgvUnits";
         dgvUnits.ReadOnly = true;
         dgvUnits.RowHeadersVisible = false;
         dgvUnits.RowHeadersWidth = 62;
         dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvUnits.Size = new Size(1200, 332);
+        dgvUnits.Size = new Size(1200, 336);
         dgvUnits.TabIndex = 0;
         dgvUnits.CellClick += dgvUnits_CellClick;
         dgvUnits.SelectionChanged += dgvUnits_SelectionChanged;
         // 
-        // pnlFilter
+        // pnlFilters
         // 
-        pnlFilter.Controls.Add(groupBox1);
-        pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(0, 10);
-        pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1200, 68);
-        pnlFilter.TabIndex = 1;
+        pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Dock = DockStyle.Top;
+        pnlFilters.Location = new Point(0, 290);
+        pnlFilters.Name = "pnlFilters";
+        pnlFilters.Size = new Size(1200, 112);
+        pnlFilters.TabIndex = 3;
         // 
-        // groupBox1
+        // gbFilter
         // 
-        groupBox1.Controls.Add(lblSearch);
-        groupBox1.Controls.Add(txtSearch);
-        groupBox1.Font = new Font("Tahoma", 10F);
-        groupBox1.Location = new Point(570, 3);
-        groupBox1.Name = "groupBox1";
-        groupBox1.Size = new Size(620, 62);
-        groupBox1.TabIndex = 0;
-        groupBox1.TabStop = false;
-        groupBox1.Text = "محرك البحث";
+        gbFilter.Controls.Add(label2);
+        gbFilter.Controls.Add(cbFilterBy);
+        gbFilter.Controls.Add(lblSearch);
+        gbFilter.Controls.Add(txtFilterValue);
+        gbFilter.Controls.Add(chkOnlyBaseUnit);
+        gbFilter.Controls.Add(chkOnlyWithBarcode);
+        gbFilter.Dock = DockStyle.Fill;
+        gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        gbFilter.Location = new Point(0, 0);
+        gbFilter.Name = "gbFilter";
+        gbFilter.Padding = new Padding(8);
+        gbFilter.Size = new Size(1200, 112);
+        gbFilter.TabIndex = 0;
+        gbFilter.TabStop = false;
+        gbFilter.Text = "بحث وتصفية";
+        // 
+        // label2
+        // 
+        label2.AutoSize = true;
+        label2.Location = new Point(1096, 36);
+        label2.Name = "label2";
+        label2.Size = new Size(64, 20);
+        label2.TabIndex = 0;
+        label2.Text = "تصفية بـ:";
+        // 
+        // cbFilterBy
+        // 
+        cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
+        cbFilterBy.FlatStyle = FlatStyle.Flat;
+        cbFilterBy.Font = new Font("Tahoma", 9F);
+        cbFilterBy.FormattingEnabled = true;
+        cbFilterBy.Items.AddRange(new object[] { "الكل", "اسم الوحدة", "الباركود", "رقم الوحدة" });
+        cbFilterBy.Location = new Point(906, 32);
+        cbFilterBy.Name = "cbFilterBy";
+        cbFilterBy.Size = new Size(180, 28);
+        cbFilterBy.TabIndex = 1;
+        cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
         // 
         // lblSearch
         // 
         lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(520, 32);
+        lblSearch.Location = new Point(826, 36);
         lblSearch.Name = "lblSearch";
-        lblSearch.Size = new Size(56, 24);
-        lblSearch.TabIndex = 1;
+        lblSearch.Size = new Size(48, 20);
+        lblSearch.TabIndex = 2;
         lblSearch.Text = "بحث:";
         // 
-        // txtSearch
+        // txtFilterValue
         // 
-        txtSearch.Location = new Point(160, 24);
-        txtSearch.Name = "txtSearch";
-        txtSearch.Size = new Size(340, 32);
-        txtSearch.TabIndex = 0;
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
+        txtFilterValue.Font = new Font("Tahoma", 9F);
+        txtFilterValue.Location = new Point(556, 32);
+        txtFilterValue.Name = "txtFilterValue";
+        txtFilterValue.Size = new Size(260, 28);
+        txtFilterValue.TabIndex = 3;
+        txtFilterValue.TextChanged += txtSearch_TextChanged;
+        txtFilterValue.KeyPress += txtSearch_KeyPress;
+        txtFilterValue.KeyDown += txtFilterValue_KeyDown;
+        // 
+        // chkOnlyBaseUnit
+        // 
+        chkOnlyBaseUnit.AutoSize = true;
+        chkOnlyBaseUnit.Location = new Point(990, 72);
+        chkOnlyBaseUnit.Name = "chkOnlyBaseUnit";
+        chkOnlyBaseUnit.Size = new Size(170, 24);
+        chkOnlyBaseUnit.TabIndex = 4;
+        chkOnlyBaseUnit.Text = "الوحدة الأساسية فقط";
+        chkOnlyBaseUnit.CheckedChanged += chkOnlyBaseUnit_CheckedChanged;
+        // 
+        // chkOnlyWithBarcode
+        // 
+        chkOnlyWithBarcode.AutoSize = true;
+        chkOnlyWithBarcode.Location = new Point(806, 72);
+        chkOnlyWithBarcode.Name = "chkOnlyWithBarcode";
+        chkOnlyWithBarcode.Size = new Size(150, 24);
+        chkOnlyWithBarcode.TabIndex = 5;
+        chkOnlyWithBarcode.Text = "لها باركود فقط";
+        chkOnlyWithBarcode.CheckedChanged += chkOnlyWithBarcode_CheckedChanged;
+        // 
+        // pnlSummary
+        // 
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 748);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Padding = new Padding(10, 0, 10, 0);
+        pnlSummary.Size = new Size(1200, 32);
+        pnlSummary.TabIndex = 5;
+        // 
+        // lblSummary
+        // 
+        lblSummary.Dock = DockStyle.Fill;
+        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.Location = new Point(10, 0);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Size = new Size(1180, 32);
+        lblSummary.TabIndex = 0;
+        lblSummary.Text = "المعروض: 0 من 0 — أساسية: 0 · فرعية: 0";
+        lblSummary.TextAlign = ContentAlignment.MiddleRight;
         // 
         // errorProvider
         // 
@@ -457,13 +534,15 @@ partial class frmProductUnitMaster
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(170, 220, 170);
-        ClientSize = new Size(1200, 700);
+        ClientSize = new Size(1200, 780);
         Controls.Add(pnlGrid);
+        Controls.Add(pnlSummary);
+        Controls.Add(pnlFilters);
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
         Font = new Font("Tahoma", 10F);
-        MinimumSize = new Size(900, 600);
+        MinimumSize = new Size(900, 700);
         Name = "frmProductUnitMaster";
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
@@ -481,9 +560,10 @@ partial class frmProductUnitMaster
         pnlButtons.ResumeLayout(false);
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvUnits).EndInit();
-        pnlFilter.ResumeLayout(false);
-        groupBox1.ResumeLayout(false);
-        groupBox1.PerformLayout();
+        pnlFilters.ResumeLayout(false);
+        gbFilter.ResumeLayout(false);
+        gbFilter.PerformLayout();
+        pnlSummary.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -515,9 +595,15 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvUnits;
-    private System.Windows.Forms.Panel pnlFilter;
-    private System.Windows.Forms.GroupBox groupBox1;
+    private System.Windows.Forms.Panel pnlFilters;
+    private System.Windows.Forms.GroupBox gbFilter;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.ComboBox cbFilterBy;
     private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.TextBox txtSearch;
+    private System.Windows.Forms.TextBox txtFilterValue;
+    private System.Windows.Forms.CheckBox chkOnlyBaseUnit;
+    private System.Windows.Forms.CheckBox chkOnlyWithBarcode;
+    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.ErrorProvider errorProvider;
 }

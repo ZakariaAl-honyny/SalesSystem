@@ -60,11 +60,15 @@ partial class frmProductMaster
         btnClose = new Button();
         pnlGrid = new Panel();
         dgvProducts = new DataGridView();
-        pnlFilter = new Panel();
+        pnlFilters = new Panel();
         gbFilter = new GroupBox();
         lblSearch = new Label();
         chkShowInactive = new CheckBox();
         txtSearch = new TextBox();
+        chkOnlyOutOfStock = new CheckBox();
+        chkOnlyLowStock = new CheckBox();
+        pnlSummary = new Panel();
+        lblSummary = new Label();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
@@ -76,8 +80,9 @@ partial class frmProductMaster
         pnlButtons.SuspendLayout();
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
-        pnlFilter.SuspendLayout();
+        pnlFilters.SuspendLayout();
         gbFilter.SuspendLayout();
+        pnlSummary.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -543,13 +548,12 @@ partial class frmProductMaster
         // pnlGrid
         // 
         pnlGrid.Controls.Add(dgvProducts);
-        pnlGrid.Controls.Add(pnlFilter);
         pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 310);
+        pnlGrid.Location = new Point(0, 422);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(0, 10, 0, 0);
-        pnlGrid.Size = new Size(1432, 360);
-        pnlGrid.TabIndex = 3;
+        pnlGrid.Size = new Size(1432, 292);
+        pnlGrid.TabIndex = 4;
         // 
         // dgvProducts
         // 
@@ -559,7 +563,7 @@ partial class frmProductMaster
         dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvProducts.Dock = DockStyle.Fill;
-        dgvProducts.Location = new Point(0, 78);
+        dgvProducts.Location = new Point(0, 10);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
         dgvProducts.ReadOnly = true;
@@ -571,24 +575,31 @@ partial class frmProductMaster
         dgvProducts.CellClick += dgvProducts_CellClick;
         dgvProducts.ChangeUICues += dgvProducts_ChangeUICues;
         // 
-        // pnlFilter
+        // pnlFilters
         // 
-        pnlFilter.Controls.Add(gbFilter);
-        pnlFilter.Dock = DockStyle.Top;
-        pnlFilter.Location = new Point(0, 10);
-        pnlFilter.Name = "pnlFilter";
-        pnlFilter.Size = new Size(1432, 68);
-        pnlFilter.TabIndex = 1;
+        pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Dock = DockStyle.Top;
+        pnlFilters.Location = new Point(0, 310);
+        pnlFilters.Margin = new Padding(0);
+        pnlFilters.Name = "pnlFilters";
+        pnlFilters.Padding = new Padding(6, 4, 6, 4);
+        pnlFilters.Size = new Size(1432, 112);
+        pnlFilters.TabIndex = 3;
         // 
         // gbFilter
         // 
         gbFilter.Controls.Add(lblSearch);
         gbFilter.Controls.Add(chkShowInactive);
         gbFilter.Controls.Add(txtSearch);
+        gbFilter.Controls.Add(chkOnlyOutOfStock);
+        gbFilter.Controls.Add(chkOnlyLowStock);
+        gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 10F);
-        gbFilter.Location = new Point(803, 3);
+        gbFilter.Location = new Point(6, 4);
+        gbFilter.Margin = new Padding(0);
         gbFilter.Name = "gbFilter";
-        gbFilter.Size = new Size(596, 62);
+        gbFilter.Padding = new Padding(8);
+        gbFilter.Size = new Size(1420, 104);
         gbFilter.TabIndex = 22;
         gbFilter.TabStop = false;
         gbFilter.Text = "محرك البحث";
@@ -621,6 +632,50 @@ partial class frmProductMaster
         txtSearch.TabIndex = 20;
         txtSearch.TextChanged += txtSearch_TextChanged;
         txtSearch.KeyPress += txtSearch_KeyPress;
+        txtSearch.KeyDown += txtSearch_KeyDown;
+        // 
+        // chkOnlyOutOfStock
+        // 
+        chkOnlyOutOfStock.AutoSize = true;
+        chkOnlyOutOfStock.FlatStyle = FlatStyle.Flat;
+        chkOnlyOutOfStock.Location = new Point(580, 24);
+        chkOnlyOutOfStock.Name = "chkOnlyOutOfStock";
+        chkOnlyOutOfStock.Size = new Size(126, 28);
+        chkOnlyOutOfStock.TabIndex = 23;
+        chkOnlyOutOfStock.Text = "النافد فقط";
+        chkOnlyOutOfStock.CheckedChanged += chkOnlyOutOfStock_CheckedChanged;
+        // 
+        // chkOnlyLowStock
+        // 
+        chkOnlyLowStock.AutoSize = true;
+        chkOnlyLowStock.FlatStyle = FlatStyle.Flat;
+        chkOnlyLowStock.Location = new Point(720, 24);
+        chkOnlyLowStock.Name = "chkOnlyLowStock";
+        chkOnlyLowStock.Size = new Size(152, 28);
+        chkOnlyLowStock.TabIndex = 24;
+        chkOnlyLowStock.Text = "تحت حد الطلب";
+        chkOnlyLowStock.CheckedChanged += chkOnlyLowStock_CheckedChanged;
+        // 
+        // pnlSummary
+        // 
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 714);
+        pnlSummary.Margin = new Padding(0);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Size = new Size(1432, 32);
+        pnlSummary.TabIndex = 5;
+        // 
+        // lblSummary
+        // 
+        lblSummary.Dock = DockStyle.Fill;
+        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.Location = new Point(0, 0);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Size = new Size(1432, 32);
+        lblSummary.TabIndex = 0;
+        lblSummary.Text = "المعروض: 0 من 0";
+        lblSummary.TextAlign = ContentAlignment.MiddleRight;
         // 
         // errorProvider
         // 
@@ -632,8 +687,10 @@ partial class frmProductMaster
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(170, 220, 170);
-        ClientSize = new Size(1432, 670);
+        ClientSize = new Size(1432, 746);
         Controls.Add(pnlGrid);
+        Controls.Add(pnlSummary);
+        Controls.Add(pnlFilters);
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
         Controls.Add(lblTitle);
@@ -656,9 +713,10 @@ partial class frmProductMaster
         pnlButtons.ResumeLayout(false);
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
-        pnlFilter.ResumeLayout(false);
+        pnlFilters.ResumeLayout(false);
         gbFilter.ResumeLayout(false);
         gbFilter.PerformLayout();
+        pnlSummary.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -709,11 +767,15 @@ partial class frmProductMaster
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvProducts;
-    private System.Windows.Forms.Panel pnlFilter;
+    private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.CheckBox chkShowInactive;
+    private System.Windows.Forms.CheckBox chkOnlyOutOfStock;
+    private System.Windows.Forms.CheckBox chkOnlyLowStock;
+    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.ErrorProvider errorProvider;
     private GroupBox gbFilter;
 }

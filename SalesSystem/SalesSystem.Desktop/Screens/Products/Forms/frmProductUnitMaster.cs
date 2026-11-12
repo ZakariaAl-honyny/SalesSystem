@@ -57,6 +57,46 @@ public partial class frmProductUnitMaster : Form
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+
+        // اختصارات موحّدة (RULE-N47): F2 = جديد · F5 = تحديث · Delete = حذف السجل المحدد · Esc = مسح التصفية.
+        // Delete لا يعمل أثناء الكتابة داخل حقل حتى لا يُحذف سجل بالخطأ.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, () =>
+            {
+                if (btnDelete.Enabled && !_IsTextEditingFocused())
+                    btnDelete.PerformClick();
+            }),
+            (Keys.Escape, _ClearFilters));
+
+        // الفهرس الافتراضي «الكل» = نفس سلوك البحث السابق (RULE-N60).
+        _isBinding = true;
+        try
+        {
+            cbFilterBy.SelectedIndex = 0;
+        }
+        finally
+        {
+            _isBinding = false;
+        }
+    }
+
+    /// <summary>
+    /// هل التركيز الحالي داخل حقل كتابة؟ (يُستخدم لحماية اختصار Delete من حذف سجل أثناء التصفية)
+    /// </summary>
+    private bool _IsTextEditingFocused()
+    {
+        Control? focus = ActiveControl;
+
+        while (focus is ContainerControl container
+               && container.ActiveControl is { } inner
+               && !ReferenceEquals(inner, focus))
+        {
+            focus = inner;
+        }
+
+        return focus is TextBoxBase or NumericUpDown or ComboBox or IDataGridViewEditingControl;
     }
 
     // ── Public API (يستدعيه frmProductMaster) ─────────────────────────────────
@@ -142,6 +182,10 @@ public partial class frmProductUnitMaster : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvUnits);
+
+        // نص شريط الملخص: أخضر داكن مميّز (RULE-N53) — القيمة من الـ Helper لا من الشاشة (RULE-N54)
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;
+
         GreenThemeHelper.Apply(this); // ← الأخير دائماً
     }
 
@@ -296,9 +340,25 @@ public partial class frmProductUnitMaster : Form
         }
     }
 
-    // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
+    // ── Search / Filter (DataView.RowFilter — RULE-N56…RULE-N62) ───────────────
 
     private void txtSearch_TextChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyBaseUnit_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyWithBarcode_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter في حقل التصفية يطبّق فوراً (RULE-N59).</summary>
+    private void txtFilterValue_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter) return;
+
+        _ApplyFilter();
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+    }
 
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
@@ -308,20 +368,105 @@ public partial class frmProductUnitMaster : Form
         if (char.IsPunctuation(e.KeyChar))
         {
             e.Handled = true;
-            clsInputFeedback.ShowRejectTooltip(txtSearch, "لا يُسمح بإدخال علامات الترقيم.");
+            clsInputFeedback.ShowRejectTooltip(txtFilterValue, "لا يُسمح بإدخال علامات الترقيم.");
         }
     }
 
+    /// <summary>
+    /// تصفية فورية (بلا زر بحث): يُبنى الفلتر من أسماء أعمدة معروفة حسب اختيار
+    /// <c>cbFilterBy</c>، وتُهرَّب القيم المدخلة (RULE-N60).
+    /// </summary>
     private void _ApplyFilter()
     {
         if (_unitsView is null) return;
 
-        string text = txtSearch.Text.Trim().Replace("'", "''");
+        string text = _EscapeFilterValue(txtFilterValue.Text.Trim());
 
-        _unitsView.RowFilter = string.IsNullOrEmpty(text)
-            ? ""
-            : $"(UnitName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
-              $"OR CONVERT(Id, 'System.String') LIKE '{text}%')";
+        var conditions = new List<string>();
+
+        if (!string.IsNullOrEmpty(text))
+        {
+            switch (cbFilterBy.SelectedIndex)
+            {
+                case 1: // اسم الوحدة
+                    conditions.Add($"UnitName LIKE '%{text}%'");
+                    break;
+
+                case 2: // الباركود
+                    conditions.Add($"Barcode LIKE '%{text}%'");
+                    break;
+
+                case 3: // رقم الوحدة
+                    conditions.Add($"CONVERT(Id, 'System.String') LIKE '{text}%'");
+                    break;
+
+                default: // الكل — نفس سلوك البحث السابق
+                    conditions.Add($"(UnitName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
+                                   $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+                    break;
+            }
+        }
+
+        if (chkOnlyBaseUnit.Checked)
+            conditions.Add("IsBaseUnit = true");
+
+        if (chkOnlyWithBarcode.Checked)
+            conditions.Add("Barcode <> ''");
+
+        _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _UpdateSummary();
+    }
+
+    /// <summary>
+    /// يهرّب قيمة التصفية قبل حقنها في <see cref="DataView.RowFilter"/>:
+    /// حذف الأقواس المربعة (رموز خاصة في RowFilter) وتضعيف علامة الاقتباس (RULE-N60).
+    /// </summary>
+    private static string _EscapeFilterValue(string value)
+        => value
+            .Replace("[", "")
+            .Replace("]", "")
+            .Replace("'", "''");
+
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة كاملة (Esc — RULE-N59).</summary>
+    private void _ClearFilters()
+    {
+        _isBinding = true;
+        try
+        {
+            cbFilterBy.SelectedIndex = 0;
+            txtFilterValue.Clear();
+            chkOnlyBaseUnit.Checked = false;
+            chkOnlyWithBarcode.Checked = false;
+        }
+        finally
+        {
+            _isBinding = false;
+        }
+
+        _ApplyFilter();
+    }
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): عدد المعروض من الإجمالي + عدد الوحدات الأساسية والفرعية.
+    /// يُعاد حسابه بعد كل تصفية وكل تحديث للبيانات.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        int shown = _unitsView?.Count ?? 0;
+        int total = _unitsTable?.Rows.Count ?? 0;
+
+        int baseUnits = 0;
+        if (_unitsTable.Columns.Contains("IsBaseUnit"))
+        {
+            foreach (DataRow row in _unitsTable.Rows)
+            {
+                if (row["IsBaseUnit"] is bool isBase && isBase)
+                    baseUnits++;
+            }
+        }
+
+        lblSummary.Text = $"المعروض: {shown} من {total} — أساسية: {baseUnits} · فرعية: {total - baseUnits}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────

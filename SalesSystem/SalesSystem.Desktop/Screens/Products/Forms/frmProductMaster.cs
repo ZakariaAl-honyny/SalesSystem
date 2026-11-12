@@ -56,7 +56,53 @@ public partial class frmProductMaster : Form
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        _WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnManageUnits);
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnManageUnits); // RULE-N43
+
+        // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc مسح التصفية/إلغاء.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Delete, _GlobalDelete),
+            (Keys.Escape, _GlobalEscape));
+    }
+
+    // ── Global Shortcuts ──────────────────────────────────────────────────────
+
+    /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
+    private void _GlobalDelete()
+    {
+        if (_IsTextInputFocused()) return;
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();
+    }
+
+    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
+    private bool _IsTextInputFocused()
+    {
+        foreach (Control input in new Control[]
+                 {
+                     txtSearch, chkShowInactive, chkOnlyOutOfStock, chkOnlyLowStock,
+                     txtCode, txtName, txtForeignName, txtLocationInStore, txtNotes,
+                     txtMainUnitBarcode, cmbCategory, cmbMainUnit,
+                     numReorderLevel, numExpiryAlertDays,
+                     numMainUnitCostPrice, numMainUnitSalePrice, numMainUnitMaxDiscount
+                 })
+        {
+            if (input.Focused) return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -157,6 +203,7 @@ public partial class frmProductMaster : Form
     {
         GreenThemeHelper.ApplyHeader(lblTitle);
         GreenThemeHelper.ApplyGrid(dgvProducts);
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53
         GreenThemeHelper.Apply(this); // ← الأخير دائماً
     }
 
@@ -339,6 +386,37 @@ public partial class frmProductMaster : Form
 
     private void chkShowInactive_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
+    private void chkOnlyOutOfStock_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    private void chkOnlyLowStock_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
+    private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+    }
+
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        txtSearch.Clear();
+        chkShowInactive.Checked = false;
+        chkOnlyOutOfStock.Checked = false;
+        chkOnlyLowStock.Checked = false;
+
+        _ApplyFilter();
+    }
+
     /// <summary>
     /// يمنع إدخال علامات الترقيم (مثل ' و % و [ ]) التي تفسد فلتر البحث DataView.RowFilter.
     /// </summary>
@@ -363,12 +441,52 @@ public partial class frmProductMaster : Form
         if (!chkShowInactive.Checked)
             conditions.Add("IsActive = true");
 
+        // ── مرشحات المخزون القياسية (RULE-N58) ──
+        if (chkOnlyOutOfStock.Checked)
+            conditions.Add("CurrentStock <= 0");
+
+        if (chkOnlyLowStock.Checked)
+            conditions.Add("(CurrentStock > 0 AND CurrentStock <= ReorderLevel)");
+
         if (!string.IsNullOrEmpty(text))
             conditions.Add(
                 $"(Name LIKE '%{text}%' OR CategoryName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
                 $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
 
         _productsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+
+        _UpdateSummary();
+    }
+
+    /// <summary>
+    /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل/النافد/تحت حد الطلب،
+    /// ويُعاد حسابه بعد كل تصفية وكل تحميل.
+    /// </summary>
+    private void _UpdateSummary()
+    {
+        if (lblSummary is null || _productsView?.Table is null) return;
+
+        int total = _productsTable.Rows.Count;
+        int shown = _productsView.Count;
+
+        int active = 0, inactive = 0, outOfStock = 0, lowStock = 0;
+
+        foreach (DataRowView row in _productsView)
+        {
+            if (row["IsActive"] is bool isActive && isActive) active++;
+            else inactive++;
+
+            if (row["CurrentStock"] is decimal stock)
+            {
+                if (stock <= 0m)
+                    outOfStock++;
+                else if (row["ReorderLevel"] is decimal reorderLevel && stock <= reorderLevel)
+                    lowStock++;
+            }
+        }
+
+        lblSummary.Text =
+            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive} · نافد: {outOfStock} · تحت حد الطلب: {lowStock}";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -977,27 +1095,6 @@ public partial class frmProductMaster : Form
 
     private static decimal _Clamp(NumericUpDown control, decimal value)
         => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
-
-    /// <summary>
-    /// يمنح الأزرار شكلاً واضحاً عند تعطيلها (خلفية رمادية + نص باهت) بدلاً من المظهر الافتراضي غير الواضح.
-    /// </summary>
-    private static void _WireButtonDisabledVisual(params Button[] buttons)
-    {
-        foreach (var btn in buttons)
-        {
-            var normalBack = btn.BackColor;
-            var normalFore = btn.ForeColor;
-
-            void Apply()
-            {
-                btn.BackColor = btn.Enabled ? normalBack : Color.FromArgb(224, 224, 224);
-                btn.ForeColor = btn.Enabled ? normalFore : Color.FromArgb(150, 150, 150);
-            }
-
-            btn.EnabledChanged += (s, e) => Apply();
-            Apply();
-        }
-    }
 
     // ── Barcode Scanner ───────────────────────────────────────────────────────
 
