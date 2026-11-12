@@ -12,6 +12,7 @@ using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Products.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.DTO.Responses;
@@ -58,6 +59,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     private IAccountApiService _accountApi => _serviceProvider.GetRequiredService<IAccountApiService>();
     private IInventoryApiService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryApiService>();
     private ICashBoxApiService _cashBoxApi => _serviceProvider.GetRequiredService<ICashBoxApiService>();
+    private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     // ═════════════════════════════════════════════════════════════════
     //  CONSTRUCTOR
@@ -2943,6 +2945,9 @@ public partial class frmAddUpdateSalesInvoice : Form
             }
 
             // Update UI — stay open for further editing
+            try { EventBus.Publish(new SaleInvoiceChangedMessage(invoiceId)); }
+            catch (Exception ex) { Log.Warning(ex, "تعذر نشر حدث تغيير فاتورة البيع {InvoiceId}", invoiceId); }
+
             lblInvoiceNo.Text = _invoice.InvoiceNo.ToString();
             UpdateUIState();
         }
