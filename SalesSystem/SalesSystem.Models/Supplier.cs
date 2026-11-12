@@ -73,7 +73,7 @@ public class Supplier : ActivatableEntity
     public virtual Branch? Branch { get; private set; }
 
     /// <summary>
-    /// Optional FK to AccountCategories for supplier classification.
+    /// تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10
     /// </summary>
     public int? CategoryId { get; private set; }
 
@@ -90,7 +90,7 @@ public class Supplier : ActivatableEntity
     /// <param name="address">Optional physical address.</param>
     /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="notes">Optional free-text notes.</param>
-    /// <param name="categoryId">Optional FK to AccountCategories.</param>
+    /// <param name="categoryId">تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10</param>
     /// <param name="createdByUserId">ID of the user creating this supplier.</param>
     /// <returns>A new Supplier instance.</returns>
     /// <exception cref="DomainException">If any guard clause fails.</exception>

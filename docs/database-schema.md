@@ -1665,11 +1665,25 @@ The following entities are **NOT in V1**. They are deferred to V2 for scope mana
 | 3 | `InventoryAdjustments` | `AdjustmentDate` date not null, `AdjustmentNo` int not null, `UpdatedAt`/`UpdatedByUserId` موجودان | لا توجد `AdjustmentDate`؛ `AdjustmentNo` هو `nvarchar(50)`؛ لا يوجد `UpdatedAt`/`UpdatedByUserId` | ⏳ مؤجل — Module 5 alignment phase |
 | 4 | `InventoryAdjustmentLines` | `Quantity` decimal(18,3) not null, `TotalCost` decimal(18,2) not null | يستخدم `ActualQuantity`/`ExpectedQuantity` بدلاً من `Quantity`/`TotalCost` | ⏳ مؤجل — Module 5 alignment phase |
 | 5 | `Warehouses.BranchId` | smallint not null FK (default=1) | `short?` (nullable) — مُبقاة nullable للأمان عبر الطبقات | ✅ مغلق — مقبول عمداً |
-| 6 | `Customers.CategoryId`, `Suppliers.CategoryId` | FK → AccountCategories(Id) | أعمدة عادية بدون جدول هدف في MVP (AccountCategories مؤجل لـ V2) | ⏳ مؤجل — V2 when AccountCategories is activated |
+| 6 | `Customers.CategoryId`, `Suppliers.CategoryId` | FK → AccountCategories(Id) | أعمدة عادية بدون جدول هدف (AccountCategories أُزيل نهائياً — انظر §11) | ✅ مغلق — حقل مرجعي حر بلا جدول هدف |
 | 7 | `Users.EmployeeId` | FK → Employees(Id) | عمود عادي بدون جدول هدف في MVP (Employees مؤجل لـ V2) | ⏳ مؤجل — V2 when Employees is activated |
 | 8 | `AuditLogs` | `EntityName` nvarchar(100), `EntityId` nvarchar(50), `Details` nvarchar(max) | `EntityType` nvarchar(100), `EntityId` int?, `OldValues`/`NewValues`/`ChangedColumns` (ثلاثة أعمدة منفصلة) | ✅ مغلق — الكود أصح (JSON split) |
 | 9 | Multi-currency leftovers | `Currencies` V2 only | `BaseNetTotal`, `CostInBaseCurrency` موجودة على الفواتير/المرتجعات/السندات مع أن `Currencies` مؤجل لـ V2 | ⏳ مؤجل — V2 when Currencies is activated |
-| 10 | `Accounts.CategoryId` | FK → AccountCategories(Id) | غير موجود في الكود (AccountCategories مؤجل لـ V2) | ⏳ مؤجل — V2 when AccountCategories is activated |
+| 10 | `Accounts.CategoryId` | FK → AccountCategories(Id) | غير موجود في الكود ولا في قاعدة البيانات (AccountCategories أُزيل نهائياً — انظر §11) | ✅ مغلق — العنصر مؤرشف |
 | 11 | `JournalEntries.FiscalYearId` | FK → FiscalYears(Id) | غير موجود في الكود (FiscalYears مؤجل لـ V2) | ⏳ مؤجل — V2 when FiscalYears is activated |
 | 12 | `SupplierPayments.CashBoxId` | int not null FK | `int?` (nullable) — مسموح بسند صرف بدون صندوق نقدية | ✅ مغلق — مقبول عمداً |
+
+---
+
+# 11) كيانات وجداول مؤرشفة (Archived / Removed)
+
+العناصر التالية كانت جزءاً من التصميمات الأولية للنظام، ثم أُزيلت من الكود وقاعدة البيانات، ولا يُحتفظ بها هنا إلا لأغراض التتبّع فقط — الكود وقاعدة البيانات هما المصدر الوحيد للحقيقة.
+
+| # | العنصر | ما كان يفعل | لماذا أُزيل | أين أُزيل | الحالة |
+|---|--------|-------------|-------------|-----------|--------|
+| 1 | `AccountCategories` | جدول منفصل لتصنيف الحسابات المحاسبية | استُبدل بشجرة الحسابات الذاتية داخل `Accounts` (`ParentId` / `Level` / `Nature` / `AccountCode`) فلم يبقَ له أي مستخدم في الكود ولا في الواجهات | أُزيل نهائياً بالهجرة `20260718161015_update` (حذف الجدول والمفتاح والعمود والفهرس) | ✅ مؤرشف |
+| 2 | `Accounts.CategoryId` | عمود ربط الحساب بتصنيفه الخارجي | لا معنى له بعد إزالة `AccountCategories` | أُزيل في نفس الهجرة `20260718161015_update` | ✅ مؤرشف |
+| 3 | `Accounts` → `AccountCategories` (FK) — `FK_Accounts_AccountCategories_CategoryId` | علاقة أجنبية للتصنيف الخارجي | أُزيلت مع الجدول | ✅ مؤرشف |
+
+> ملاحظة: العمودان `Customers.CategoryId` و `Suppliers.CategoryId` ما زالا موجودين كحقول مرجعية حرة بلا جدول هدف، وهما مسجّلان في §10.
 

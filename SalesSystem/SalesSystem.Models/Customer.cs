@@ -63,7 +63,7 @@ public class Customer : ActivatableEntity
     public virtual Branch? Branch { get; private set; }
 
     /// <summary>
-    /// Optional FK to AccountCategories for customer classification.
+    /// تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10
     /// </summary>
     public int? CategoryId { get; private set; }
 
@@ -90,7 +90,7 @@ public class Customer : ActivatableEntity
     /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="creditLimit">Credit limit (default 0 = no limit).</param>
-    /// <param name="categoryId">Optional FK to AccountCategories.</param>
+    /// <param name="categoryId">تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10</param>
     /// <param name="createdByUserId">ID of the user creating this customer.</param>
     /// <returns>A new Customer instance.</returns>
     /// <exception cref="DomainException">If any guard clause fails.</exception>

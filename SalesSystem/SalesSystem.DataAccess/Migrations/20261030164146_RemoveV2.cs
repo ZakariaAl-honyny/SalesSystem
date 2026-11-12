@@ -12,10 +12,6 @@ namespace SalesSystem.DataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Accounts_AccountCategories_CategoryId",
-                table: "Accounts");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_JournalEntries_FiscalYears_FiscalYearId",
                 table: "JournalEntries");
 
@@ -26,9 +22,6 @@ namespace SalesSystem.DataAccess.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_SalesInvoices_Taxes_TaxId",
                 table: "SalesInvoices");
-
-            migrationBuilder.DropTable(
-                name: "AccountCategories");
 
             migrationBuilder.DropTable(
                 name: "Attachments");
@@ -72,10 +65,6 @@ namespace SalesSystem.DataAccess.Migrations
                 name: "IX_JournalEntries_FiscalYearId",
                 table: "JournalEntries");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Accounts_CategoryId",
-                table: "Accounts");
-
             migrationBuilder.DropColumn(
                 name: "TaxId",
                 table: "SalesReturns");
@@ -95,10 +84,6 @@ namespace SalesSystem.DataAccess.Migrations
             migrationBuilder.DropColumn(
                 name: "FiscalYearId",
                 table: "JournalEntries");
-
-            migrationBuilder.DropColumn(
-                name: "CategoryId",
-                table: "Accounts");
         }
 
         /// <inheritdoc />
