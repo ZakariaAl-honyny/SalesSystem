@@ -7,15 +7,15 @@
 // ثم يعيد جلسة صالحة للبيانات الأولية نفسها.
 //
 // تكافؤ المحاكاة (RULE-N167) — يرفض ما ترفضه الخدمة الحقيقية/طبقة الأعمال:
-// الدخول (بالترتيب):
-//   1) اسم مستخدم فارغ                ⇒ «اسم المستخدم مطلوب»
-//   2) اسم مستخدم غير موجود            ⇒ «اسم المستخدم غير موجود.»
-//   3) حساب مقفل مسبقاً (IsLocked)     ⇒ «الحساب مقفل بعد محاولات دخول فاشلة. رجاءً راجع المدير.»
-//   4) حساب معطّل (IsActive=false)      ⇒ «هذا المستخدم معطّل.»
-//   5) كلمة مرور فارغة                 ⇒ «يرجى إدخال كلمة المرور.»
-//   6) كلمة مرور لا تطابق المخزن       ⇒ «كلمة المرور غير صحيحة.» (تُزيد المحاولات في المخزن)
-//      وعند المحاولة الخامسة           ⇒ «تم قفل الحساب بعد 5 محاولات فاشلة. رجاءً راجع المدير.» + IsLocked
-//   7) النجاح                          ⇒ تصفير المحاولات + LastLoginAt = الآن + الجلسة
+// الدخول (بالترتيب — AGENTS.md §2.16، صف «Login»):
+//   1) اسم مستخدم فارغ                 ⇒ «اسم المستخدم مطلوب»
+//   2) اسم مستخدم غير مزروع            ⇒ «اسم المستخدم أو كلمة المرور غير صحيحة»
+//   3) حساب مقفل مسبقاً (IsLocked)     ⇒ «الحساب مقفل بسبب محاولات دخول خاطئة — راجع المدير»
+//   4) حساب معطّل (IsActive=false)      ⇒ «الحساب معطّل — لا يمكن تسجيل الدخول»
+//   5) كلمة مرور لا تساوي «123456»      ⇒ «كلمة المرور غير صحيحة» (تُزيد المحاولات في المخزن،
+//      وعند المحاولة الخامسة يُقفل الحساب فيصير الرفض 3 في المحاولة التالية — RULE-N37)
+//   6) النجاح                          ⇒ تصفير المحاولات + LastLoginAt = الآن + جلسة السجل المزروع نفسه
+//   وكلمة المرور الفارغة رفضها محلي في frmLogin، وهي هنا لا تساوي «123456» ⇒ الرفض 5.
 //
 // تغيير كلمة المرور — الخدمة الذاتية (المستخدم الحالي نفسه):
 //   الحالية فارغة · الحالية لا تطابق المخزن · الجديدة فارغة · الجديدة أقصر من الحد الأدنى
@@ -48,20 +48,20 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
     /// <summary>رسالة رفض الدخول بلا اسم مستخدم — مطابقة لقاعدة طبقة الأعمال.</summary>
     private const string MissingUserNameMessage = "اسم المستخدم مطلوب";
 
-    /// <summary>رسالة رفض اسم مستخدم غير موجود في البيانات الأولية.</summary>
-    private const string UnknownUserMessage = "اسم المستخدم غير موجود.";
+    /// <summary>
+    /// رسالة رفض اسم مستخدم غير مزروع — عامة ومطابقة لقاعدة طبقة الأعمال،
+    /// فلا تكشف للمستخدم أي الأسماء مسجَّلة.
+    /// </summary>
+    private const string UnknownUserMessage = "اسم المستخدم أو كلمة المرور غير صحيحة";
 
     /// <summary>رسالة رفض الحساب المقفل بعد المحاولات الفاشلة.</summary>
-    private const string LockedUserMessage = "الحساب مقفل بعد محاولات دخول فاشلة. رجاءً راجع المدير.";
+    private const string LockedUserMessage = "الحساب مقفل بسبب محاولات دخول خاطئة — راجع المدير";
 
     /// <summary>رسالة رفض الحساب المعطّل.</summary>
-    private const string InactiveUserMessage = "هذا المستخدم معطّل.";
+    private const string InactiveUserMessage = "الحساب معطّل — لا يمكن تسجيل الدخول";
 
-    /// <summary>رسالة رفض كلمة المرور الفارغة — الدخول بلا كلمة مرور مرفوض دائماً.</summary>
-    private const string MissingPasswordMessage = "يرجى إدخال كلمة المرور.";
-
-    /// <summary>رسالة رفض كلمة المرور التي لا تطابق المخزن التجريبي.</summary>
-    private const string WrongPasswordMessage = "كلمة المرور غير صحيحة.";
+    /// <summary>رسالة رفض كلمة المرور التي لا تساوي الكلمة التجريبية «123456».</summary>
+    private const string WrongPasswordMessage = "كلمة المرور غير صحيحة";
 
     /// <summary>رسالة رفض كلمة المرور الحالية الفارغة عند التغيير.</summary>
     private const string MissingCurrentPasswordMessage = "كلمة المرور الحالية مطلوبة.";
@@ -97,10 +97,6 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
     private static readonly string ShortNewPasswordMessage =
         $"كلمة المرور الجديدة يجب ألا تقل عن {clsValidation.PasswordMinLength} خانات.";
 
-    /// <summary>رسالة قفل الحساب عند بلوغ حد المحاولات الفاشلة — الرقم من الثابت وحده.</summary>
-    private static readonly string LockedByAttemptsMessage =
-        $"تم قفل الحساب بعد {MaxFailedAttempts} محاولات فاشلة. رجاءً راجع المدير.";
-
     /// <summary>الجلسة الحالية — لتمييز الخدمة الذاتية عن إعادة التعيين الإدارية.</summary>
     private readonly ISessionService _sessionService;
 
@@ -111,41 +107,45 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
     }
 
     /// <summary>
-    /// دخول تجريبي: يتحقق من وجود المستخدم وحالته، ثم يطابق كلمة المرور مع المخزن التجريبي
-    /// (لا يقبل أي كلمة مرور)، ويُحدّث المحاولات/آخر دخول في <see cref="MockSecurityData"/>.
+    /// دخول تجريبي (AGENTS.md §2.16 — صف «Login»): اسم المستخدم المزروع وحده يُقبل، وكلمة مروره
+    /// التجريبية <see cref="MockSecurityData.DefaultPassword"/> («123456») — لا قاعدة بيانات،
+    /// ويُحدّث المحاولات/آخر دخول في <see cref="MockSecurityData"/>.
     /// </summary>
     public Task<Result<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         try
         {
+            // 1) اسم المستخدم مطلوب.
             if (request is null || string.IsNullOrWhiteSpace(request.UserName))
                 return Task.FromResult(Result<LoginResponse>.Failure(MissingUserNameMessage));
 
             var userName = request.UserName.Trim();
 
+            // 2) المستخدم غير المزروع — رسالة عامة واحدة (لا كشف لأسماء المستخدمين المسجَّلة).
             var user = MockSecurityData.Users
                 .FirstOrDefault(u => u.UserName.Equals(userName, StringComparison.OrdinalIgnoreCase));
 
             if (user is null)
-                return Task.FromResult(Result<LoginResponse>.Failure(UnknownUserMessage, ErrorCodes.NotFound));
+                return Task.FromResult(Result<LoginResponse>.Failure(UnknownUserMessage, ErrorCodes.Unauthorized));
 
+            // 3) حساب مقفل مسبقاً.
             if (user.IsLocked)
                 return Task.FromResult(Result<LoginResponse>.Failure(LockedUserMessage, ErrorCodes.AccountLocked));
 
+            // 4) حساب معطّل.
             if (!user.IsActive)
                 return Task.FromResult(Result<LoginResponse>.Failure(InactiveUserMessage, ErrorCodes.Unauthorized));
 
-            if (string.IsNullOrWhiteSpace(request.Password))
-                return Task.FromResult(Result<LoginResponse>.Failure(MissingPasswordMessage, ErrorCodes.ValidationError));
-
-            // الحساب الذي أنشأه المستخدم من الدليل لا سجل له في المخزن ⇒ كلمة المرور الافتراضية.
-            var storedPassword = MockSecurityData.TryGetPassword(user.UserName, out var stored)
+            // 5) كلمة المرور: الكلمة التجريبية للحساب المزروع — «123456» لكل حساب أولي
+            //    (والحساب الذي أنشأه المستخدم من الدليل لا سجل له في المخزن ⇒ الكلمة الافتراضية).
+            var demoPassword = MockSecurityData.TryGetPassword(user.UserName, out var stored)
                 ? stored
                 : MockSecurityData.DefaultPassword;
 
-            if (!string.Equals(request.Password, storedPassword, StringComparison.Ordinal))
+            if (!string.Equals(request.Password, demoPassword, StringComparison.Ordinal))
                 return RejectWrongPassword(user);
 
+            // 6) النجاح: تصفير المحاولات + آخر دخول، ثم جلسة السجل المزروع نفسه (لا قيم مصطنعة).
             MockSecurityData.ReplaceUser(user, user with { LoginAttempts = 0, LastLoginAt = DateTime.Now });
 
             var response = new LoginResponse(
@@ -242,22 +242,20 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
     }
 
     /// <summary>
-    /// يرفض كلمة مرور خاطئة: يُزيد <c>LoginAttempts</c> في المخزن ويقفل الحساب عند بلوغ
-    /// <see cref="MaxFailedAttempts"/> — سلوك <c>RULE-N37</c> نفسه، والرسالة تتبع المحاولة.
+    /// يرفض كلمة مرور لا تساوي «123456» بالرسالة الثابتة «كلمة المرور غير صحيحة»، ويُزيد
+    /// <c>LoginAttempts</c> ويقفل الحساب عند بلوغ <see cref="MaxFailedAttempts"/> — فيصير الرفض
+    /// بعدها رفض «حساب مقفل» (الخطوة 3) — سلوك <c>RULE-N37</c> نفسه.
     /// </summary>
     private static Task<Result<LoginResponse>> RejectWrongPassword(UserDto user)
     {
         var attempts = (short)Math.Min(user.LoginAttempts + 1, MaxFailedAttempts);
-        var shouldLock = attempts >= MaxFailedAttempts;
 
         MockSecurityData.ReplaceUser(user, user with
         {
             LoginAttempts = attempts,
-            IsLocked = user.IsLocked || shouldLock
+            IsLocked = user.IsLocked || attempts >= MaxFailedAttempts
         });
 
-        return Task.FromResult(Result<LoginResponse>.Failure(
-            shouldLock ? LockedByAttemptsMessage : WrongPasswordMessage,
-            shouldLock ? ErrorCodes.AccountLocked : ErrorCodes.Unauthorized));
+        return Task.FromResult(Result<LoginResponse>.Failure(WrongPasswordMessage, ErrorCodes.Unauthorized));
     }
 }

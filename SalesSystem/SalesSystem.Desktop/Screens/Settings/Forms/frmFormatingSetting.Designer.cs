@@ -68,10 +68,10 @@ partial class frmFormatingSetting
         pnlFooter = new Panel();
         lblFooterHint = new Label();
         flpFooter = new FlowLayoutPanel();
-        btnSave = new Button();
         btnReset = new Button();
         btnClose = new Button();
         toolTip = new ToolTip(components);
+        btnSave = new Button();
         pnlHeader.SuspendLayout();
         gbNumbers.SuspendLayout();
         pnlThousandsOptions.SuspendLayout();
@@ -225,7 +225,7 @@ partial class frmFormatingSetting
         lblThousandsSeparator.AutoSize = true;
         lblThousandsSeparator.Location = new Point(1044, 90);
         lblThousandsSeparator.Name = "lblThousandsSeparator";
-        lblThousandsSeparator.Size = new Size(120, 24);
+        lblThousandsSeparator.Size = new Size(105, 24);
         lblThousandsSeparator.TabIndex = 8;
         lblThousandsSeparator.Text = "فاصل الآلاف";
         // 
@@ -247,7 +247,7 @@ partial class frmFormatingSetting
         rdoThousandsYes.ForeColor = Color.FromArgb(14, 82, 52);
         rdoThousandsYes.Location = new Point(220, 6);
         rdoThousandsYes.Name = "rdoThousandsYes";
-        rdoThousandsYes.Size = new Size(66, 26);
+        rdoThousandsYes.Size = new Size(65, 28);
         rdoThousandsYes.TabIndex = 0;
         rdoThousandsYes.TabStop = true;
         rdoThousandsYes.Text = "نعم";
@@ -260,7 +260,7 @@ partial class frmFormatingSetting
         rdoThousandsNo.ForeColor = Color.FromArgb(14, 82, 52);
         rdoThousandsNo.Location = new Point(140, 6);
         rdoThousandsNo.Name = "rdoThousandsNo";
-        rdoThousandsNo.Size = new Size(52, 26);
+        rdoThousandsNo.Size = new Size(47, 28);
         rdoThousandsNo.TabIndex = 1;
         rdoThousandsNo.TabStop = true;
         rdoThousandsNo.Text = "لا";
@@ -271,7 +271,7 @@ partial class frmFormatingSetting
         lblArabicIndicDigits.AutoSize = true;
         lblArabicIndicDigits.Location = new Point(476, 90);
         lblArabicIndicDigits.Name = "lblArabicIndicDigits";
-        lblArabicIndicDigits.Size = new Size(240, 24);
+        lblArabicIndicDigits.Size = new Size(230, 24);
         lblArabicIndicDigits.TabIndex = 10;
         lblArabicIndicDigits.Text = "أرقام عربية (٠١٢٣٤٥٦٧٨٩)";
         // 
@@ -292,7 +292,7 @@ partial class frmFormatingSetting
         rdoArabicYes.ForeColor = Color.FromArgb(14, 82, 52);
         rdoArabicYes.Location = new Point(220, 6);
         rdoArabicYes.Name = "rdoArabicYes";
-        rdoArabicYes.Size = new Size(66, 26);
+        rdoArabicYes.Size = new Size(65, 28);
         rdoArabicYes.TabIndex = 0;
         rdoArabicYes.TabStop = true;
         rdoArabicYes.Text = "نعم";
@@ -306,7 +306,7 @@ partial class frmFormatingSetting
         rdoArabicNo.ForeColor = Color.FromArgb(14, 82, 52);
         rdoArabicNo.Location = new Point(140, 6);
         rdoArabicNo.Name = "rdoArabicNo";
-        rdoArabicNo.Size = new Size(52, 26);
+        rdoArabicNo.Size = new Size(47, 28);
         rdoArabicNo.TabIndex = 1;
         rdoArabicNo.TabStop = true;
         rdoArabicNo.Text = "لا";
@@ -317,7 +317,7 @@ partial class frmFormatingSetting
         lblDecimalSeparator.AutoSize = true;
         lblDecimalSeparator.Location = new Point(1044, 142);
         lblDecimalSeparator.Name = "lblDecimalSeparator";
-        lblDecimalSeparator.Size = new Size(120, 24);
+        lblDecimalSeparator.Size = new Size(110, 24);
         lblDecimalSeparator.TabIndex = 12;
         lblDecimalSeparator.Text = "فاصل الكسر";
         // 
@@ -359,14 +359,13 @@ partial class frmFormatingSetting
         lblDateShortPattern.AutoSize = true;
         lblDateShortPattern.Location = new Point(1034, 38);
         lblDateShortPattern.Name = "lblDateShortPattern";
-        lblDateShortPattern.Size = new Size(130, 24);
+        lblDateShortPattern.Size = new Size(118, 24);
         lblDateShortPattern.TabIndex = 0;
         lblDateShortPattern.Text = "التاريخ القصير";
         // 
         // cmbDateShortPattern
         // 
         cmbDateShortPattern.BackColor = Color.White;
-        cmbDateShortPattern.DropDownStyle = ComboBoxStyle.DropDown;
         cmbDateShortPattern.FlatStyle = FlatStyle.Flat;
         cmbDateShortPattern.Font = new Font("Tahoma", 10F);
         cmbDateShortPattern.Location = new Point(806, 34);
@@ -381,14 +380,13 @@ partial class frmFormatingSetting
         lblDateDayMonthYearPattern.AutoSize = true;
         lblDateDayMonthYearPattern.Location = new Point(678, 38);
         lblDateDayMonthYearPattern.Name = "lblDateDayMonthYearPattern";
-        lblDateDayMonthYearPattern.Size = new Size(120, 24);
+        lblDateDayMonthYearPattern.Size = new Size(130, 24);
         lblDateDayMonthYearPattern.TabIndex = 2;
         lblDateDayMonthYearPattern.Text = "يوم/شهر/سنة";
         // 
         // cmbDateDayMonthYearPattern
         // 
         cmbDateDayMonthYearPattern.BackColor = Color.White;
-        cmbDateDayMonthYearPattern.DropDownStyle = ComboBoxStyle.DropDown;
         cmbDateDayMonthYearPattern.FlatStyle = FlatStyle.Flat;
         cmbDateDayMonthYearPattern.Font = new Font("Tahoma", 10F);
         cmbDateDayMonthYearPattern.Location = new Point(450, 34);
@@ -403,14 +401,13 @@ partial class frmFormatingSetting
         lblDateLongPattern.AutoSize = true;
         lblDateLongPattern.Location = new Point(302, 38);
         lblDateLongPattern.Name = "lblDateLongPattern";
-        lblDateLongPattern.Size = new Size(140, 24);
+        lblDateLongPattern.Size = new Size(122, 24);
         lblDateLongPattern.TabIndex = 4;
         lblDateLongPattern.Text = "التاريخ والوقت";
         // 
         // cmbDateLongPattern
         // 
         cmbDateLongPattern.BackColor = Color.White;
-        cmbDateLongPattern.DropDownStyle = ComboBoxStyle.DropDown;
         cmbDateLongPattern.FlatStyle = FlatStyle.Flat;
         cmbDateLongPattern.Font = new Font("Tahoma", 10F);
         cmbDateLongPattern.Location = new Point(74, 34);
@@ -707,24 +704,6 @@ partial class frmFormatingSetting
         flpFooter.TabIndex = 1;
         flpFooter.WrapContents = false;
         // 
-        // btnSave
-        // 
-        btnSave.BackColor = Color.FromArgb(25, 135, 84);
-        btnSave.Cursor = Cursors.Hand;
-        btnSave.FlatAppearance.BorderSize = 0;
-        btnSave.FlatStyle = FlatStyle.Flat;
-        btnSave.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
-        btnSave.Location = new Point(354, 11);
-        btnSave.Margin = new Padding(0, 0, 8, 0);
-        btnSave.Name = "btnSave";
-        btnSave.Size = new Size(150, 38);
-        btnSave.TabIndex = 0;
-        btnSave.Text = "حفظ وتطبيق";
-        toolTip.SetToolTip(btnSave, "حفظ إعدادات التنسيق وتطبيقها على النظام كله (Enter)");
-        btnSave.UseVisualStyleBackColor = false;
-        btnSave.Click += btnSave_Click;
-        // 
         // btnReset
         // 
         btnReset.BackColor = Color.FromArgb(108, 117, 125);
@@ -760,6 +739,24 @@ partial class frmFormatingSetting
         toolTip.SetToolTip(btnClose, "إغلاق الشاشة بلا حفظ (Esc)");
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
+        // 
+        // btnSave
+        // 
+        btnSave.BackColor = Color.FromArgb(25, 135, 84);
+        btnSave.Cursor = Cursors.Hand;
+        btnSave.FlatAppearance.BorderSize = 0;
+        btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
+        btnSave.Location = new Point(354, 11);
+        btnSave.Margin = new Padding(0, 0, 8, 0);
+        btnSave.Name = "btnSave";
+        btnSave.Size = new Size(150, 38);
+        btnSave.TabIndex = 0;
+        btnSave.Text = "حفظ وتطبيق";
+        toolTip.SetToolTip(btnSave, "حفظ إعدادات التنسيق وتطبيقها على النظام كله (Enter)");
+        btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
         // 
         // frmFormatingSetting
         // 
@@ -851,8 +848,8 @@ partial class frmFormatingSetting
     private System.Windows.Forms.Panel pnlFooter;
     private System.Windows.Forms.Label lblFooterHint;
     private System.Windows.Forms.FlowLayoutPanel flpFooter;
-    private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnReset;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.ToolTip toolTip;
+    private Button btnSave;
 }
