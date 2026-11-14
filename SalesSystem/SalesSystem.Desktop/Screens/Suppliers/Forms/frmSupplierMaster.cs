@@ -306,15 +306,7 @@ public partial class frmSupplierMaster : Form
 
     private void _ApplyRowColoring()
     {
-        if (!dgvSuppliers.Columns.Contains("IsActive")) return;
-
-        foreach (DataGridViewRow row in dgvSuppliers.Rows)
-        {
-            if (row.Cells["IsActive"].Value is bool isActive && isActive) continue;
-
-            row.DefaultCellStyle.BackColor = Color.MistyRose;
-            row.DefaultCellStyle.ForeColor = Color.DarkRed;
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvSuppliers, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
@@ -578,8 +570,7 @@ public partial class frmSupplierMaster : Form
         bool hasRow = dgvSuppliers.CurrentRow?.DataBoundItem is DataRowView;
 
         bool isActive = hasRow
-            && dgvSuppliers.CurrentRow!.Cells["IsActive"].Value is bool flag
-            && flag;
+            && GridRowHelper.GetBool(dgvSuppliers.CurrentRow, "IsActive");
 
         cmsEdit.Enabled = hasRow;
         cmsDelete.Enabled = hasRow && isActive;
@@ -1088,14 +1079,14 @@ public partial class frmSupplierMaster : Form
     {
         foreach (DataGridViewRow row in dgvSuppliers.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == supplierId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == supplierId)
             {
                 row.Selected = true;
 
                 // ضمان ظهور السطر داخل منطقة العرض — تُتجاهل السطور التي تخفيها التصفية الحالية.
                 if (row.Visible)
                 {
-                    dgvSuppliers.CurrentCell = row.Cells["Name"];
+                    if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvSuppliers.CurrentCell = nameCell;
                     dgvSuppliers.FirstDisplayedScrollingRowIndex = row.Index;
                 }
 

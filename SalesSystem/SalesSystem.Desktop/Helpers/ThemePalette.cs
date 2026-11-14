@@ -12,13 +12,19 @@
 //     الشاشات (بلا تغيير — نفس الأسماء ونفس النوع Color)
 //
 // قواعد ملزمة:
-//   • لا يُشير هذا الملف إلى GreenThemeHelper إطلاقاً (منعاً للتهيئة الدائرية).
+//   • ممنوع أن يشير أي حقل أو تهيئة ثابتة (field / static initializer) في هذا
+//     الملف إلى GreenThemeHelper أو إلى أي عضو في Helpers/ — منعاً للتهيئة
+//     الدائرية وقت تحميل الأنواع. والاستثناء المشروع الوحيد هو داخل أجسام
+//     الدوال (method bodies) لا في المُهيّئات: ApplyToOpenForms تنادي
+//     GreenThemeHelper.Apply و KeyboardHelper.RefreshFocusHighlight بحق،
+//     لأن النداء يقع وقت التشغيل بعد اكتمال التهيئة.
 //   • لا يوجد أي `Color.FromArgb` خارج جدول الافتراضيات أدناه (RULE-N112).
 //   • التغيير هنا لا يُعيد إنشاء الشاشات: ApplyToOpenForms تُعيد تلوين المفتوح فقط.
 // -----------------------------------------------------------------------------
 
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace SalesSystem.Desktop.Helpers;
 
@@ -38,6 +44,12 @@ public sealed record ThemeColorDefinition(string Key, string ArabicLabel, string
 /// كل عضو عام في <see cref="GreenThemeHelper"/> و<see cref="ThemeHelper"/> يقرأ من
 /// هنا وقت العرض، فبمجرد <see cref="TrySet"/> أو <see cref="ResetToDefaults"/>
 /// تتغيّر كل الشاشات المفتوحة عبر <see cref="ApplyToOpenForms"/> بلا إعادة فتح.
+/// </para>
+/// <para>
+/// وهي أيضاً **البيت الواحد** لقاعدة التحقق من مجموعة ألوان كاملة وتطبيقها ذرّياً
+/// (<see cref="ValidateAll"/> / <see cref="TryApplyAll"/>): الرسائل العربية والترتيب
+/// وصيغة <c>#RRGGBB</c> وقواعد التباين تعيش هنا مرة واحدة، ويستهلكها أي تنفيذ
+/// (وهمي أو حقيقي) بلا نسخة ثانية (RULE-N169 / RULE-N172).
 /// </para>
 /// </summary>
 public static class ThemePalette
@@ -658,6 +670,176 @@ public static class ThemePalette
         >= 'A' and <= 'F' => c - 'A' + 10,
         >= 'a' and <= 'f' => c - 'a' + 10,
         _ => -1
+    };
+
+    // ═════════════════════════════════════════════════════════════════
+    //  التحقق من مجموعة ألوان كاملة وتطبيقها ذرّياً — البيت الواحد
+    //  (نُقلت هنا حرفياً من الخدمة الوهمية — RULE-N169 / RULE-N172)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// الصيغة الوحيدة المقبولة لقيمة اللون (<c>#RRGGBB</c>) — العبارة النمطية الوحيدة
+    /// لفحص قيمة لون في النظام كله (RULE-N172): لا نسخة ثانية في أي خدمة أو شاشة.
+    /// </summary>
+    private static readonly Regex HexPattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
+
+    /// <summary>
+    /// يتحقّق من **مجموعة ألوان كاملة** (23 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
+    /// رسالة رفض عربية، أو <c>null</c> إن كانت المجموعة كلها مقبولة.
+    /// <para>
+    /// <b>البيت الواحد (RULE-N169 · RULE-N172):</b> كانت هذه الفحوص الخمسة مكتوبة داخل
+    /// <c>MockThemeColorDesktopService</c>؛ نُقلت إلى هنا بالترتيب نفسه والصياغة العربية
+    /// نفسها، فتُستهلك من أي تنفيذ (وهمي أو حقيقي) بلا نسخة ثانية.
+    /// </para>
+    /// <para>
+    /// الترتيب ملزم: (1) طلب فارغ · (2) مفتاح من <see cref="Definitions"/> مفقود أو فارغ ·
+    /// (3) مفتاح غير معروف · (4) قيمة لا تطابق <see cref="HexPattern"/> أو لا تُقرأ بـ
+    /// <see cref="TryParseHex"/> · (5) تباين ضعيف بين النص وشريكه وفق
+    /// <see cref="MinimumContrastFor"/> و<see cref="ContrastPartnerKey"/> و<see cref="ContrastRatioRaw"/>.
+    /// </para>
+    /// </summary>
+    /// <param name="colors">المفاتيح وقيمها كما وصلت من الشاشة (قد تكون <c>null</c>).</param>
+    /// <returns>أول رسالة رفض عربية، أو <c>null</c> إن كانت المجموعة مقبولة.</returns>
+    public static string? ValidateAll(IReadOnlyDictionary<string, string>? colors)
+    {
+        // (1) لا شيء للحفظ
+        if (colors is null || colors.Count == 0)
+            return "لا توجد ألوان للحفظ.";
+
+        // (2) مفتاح من التعريفات مفقود من الطلب
+        foreach (var definition in AllDefinitions)
+        {
+            if (!colors.TryGetValue(definition.Key, out var value)
+                || string.IsNullOrWhiteSpace(value))
+            {
+                return $"اللون المطلوب غير موجود: {definition.ArabicLabel} ({definition.Key}).";
+            }
+        }
+
+        // (3) مفتاح غير معروف (ليس من التعريفات)
+        var known = new HashSet<string>(AllDefinitions.Select(d => d.Key), StringComparer.Ordinal);
+        foreach (var key in colors.Keys)
+        {
+            if (!known.Contains(key))
+                return $"مفتاح لون غير معروف: {key}.";
+        }
+
+        // (4) قيمة ليست بصيغة #RRGGBB
+        var parsed = new Dictionary<string, Color>(StringComparer.Ordinal);
+        foreach (var definition in AllDefinitions)
+        {
+            string hex = colors[definition.Key];
+
+            if (!HexPattern.IsMatch(hex) || !TryParseHex(hex, out var color))
+                return $"قيمة اللون غير صالحة لـ «{definition.ArabicLabel}». استخدم الصيغة #RRGGBB.";
+
+            parsed[definition.Key] = color;
+        }
+
+        // (5) تباين ضعيف بين النص وخلفيته
+        return ValidateContrast(parsed);
+    }
+
+    /// <summary>
+    /// يُطبِّق مجموعة ألوان **ذرّياً**: يتحقّق منها أولاً بـ <see cref="ValidateAll"/> ويُحوِّل
+    /// كل قيمها، ولا ينادي <see cref="TrySet"/> إلا بعد أن تصير كل المفاتيح صالحة — فلا تطبيق
+    /// جزئي أبداً: مجموعة فيها قيمة واحدة خاطئة لا تغيّر أي لون.
+    /// <para>
+    /// <b>العقد:</b> <c>string?</c> = أول رسالة رفض عربية، أو <c>null</c> عند النجاح — نفس عقد
+    /// <c>clsFormat.TryApplyAll</c> (RULE-N171: شكل واحد لسلوك واحد). رسالة الرفض هي **نفسها**
+    /// التي أنتجها <see cref="ValidateAll"/> لهذه المجموعة؛ وإن نجح التحقق وفشل
+    /// <see cref="TrySet"/> لسبب آخر فتُعاد رسالة التطبيق العامة أدناه.
+    /// </para>
+    /// </summary>
+    /// <param name="colors">المفاتيح وقيمها كما وصلت من الشاشة (قد تكون <c>null</c>).</param>
+    /// <returns>أول رسالة رفض عربية، أو <c>null</c> إذا طُبِّقت المجموعة كاملة.</returns>
+    public static string? TryApplyAll(IReadOnlyDictionary<string, string>? colors)
+    {
+        // (1) كل الفحوص الخمسة ورسائلها العربية من البيت الواحد — تُعاد كما هي بلا نسخة ثانية
+        var validationError = ValidateAll(colors);
+        if (validationError is not null || colors is null) return validationError;
+
+        // (2) تحويل كل القيم قبل أي TrySet — لا تطبيق جزئي
+        var parsed = new Dictionary<string, Color>(AllDefinitions.Length, StringComparer.Ordinal);
+        foreach (var definition in AllDefinitions)
+        {
+            if (!TryParseHex(colors[definition.Key], out var color)) return ApplyFailureMessage;
+            parsed[definition.Key] = color;
+        }
+
+        // (3) التطبيق دفعة واحدة — أي فشل في TrySet = رسالة التطبيق العامة
+        bool allApplied = true;
+        foreach (var pair in parsed)
+            allApplied &= TrySet(pair.Key, pair.Value);
+
+        return allApplied ? null : ApplyFailureMessage;
+    }
+
+    /// <summary>
+    /// رسالة فشل التطبيق العامة (بعد نجاح التحقق) — تُعلَن هنا مرة واحدة، فلا تعيد أي خدمة
+    /// كتابة نصها (RULE-N169 / RULE-N171).
+    /// </summary>
+    private const string ApplyFailureMessage = "تعذر تطبيق بعض الألوان. يرجى إعادة المحاولة.";
+
+    // ── التباين: العتبات والمفاتيح تأتي من خريطة ContrastRules — لا ثوابت محلية ──
+
+    /// <summary>
+    /// يمرّ على كل تعريفات اللوحة ويطبّق **قاعدة اللوحة نفسها**: لكل مفتاح له حد أدنى
+    /// (<see cref="MinimumContrastFor"/>) وشريك (<see cref="ContrastPartnerKey"/>)
+    /// يُقاس التباين بـ <see cref="ContrastRatioRaw"/> — لا قاعدة ولا عتبة محلية هنا.
+    /// <para>
+    /// <b>لماذا الطلب لا القيمة الحيّة:</b> قد تُغيّر المسودة مفتاح النص **و**شريكه الخلفي
+    /// في نفس الحفظ، فلا يجوز الحكم على زوج (جديد، قديم) — يُقاس الزوج (جديد، جديد)
+    /// من الطلب المقدَّم نفسه؛ والقيمة الحيّة تُستخدم فقط إذا لم يكن الشريك في الطلب
+    /// (لا يحدث عملياً لأن كل المفاتيح إلزامية، لكنها تُبقي الدالة آمنة).
+    /// </para>
+    /// يرجع أول رسالة رفض عربية، أو <c>null</c> إن كانت كل الأزواج مقبولة.
+    /// </summary>
+    private static string? ValidateContrast(IReadOnlyDictionary<string, Color> colors)
+    {
+        foreach (var definition in AllDefinitions)
+        {
+            double minimum = MinimumContrastFor(definition.Key);
+            if (minimum <= 0) continue;                       // لا متطلب لهذا المفتاح
+
+            if (!colors.TryGetValue(definition.Key, out var candidate)) continue;
+
+            string? partnerKey = ContrastPartnerKey(definition.Key);
+            if (partnerKey is null) continue;                 // لا شريك لهذا المفتاح
+
+            var partner = colors.TryGetValue(partnerKey, out var submitted)
+                ? submitted                                   // ★ الزوج (جديد، جديد) — المسودة كاملة
+                : Get(partnerKey);                            // احتياط: القيمة الحيّة
+
+            if (ContrastRatioRaw(candidate, partner) < minimum)
+                return _ContrastMessage(definition.Key, definition.ArabicLabel);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// الرسائل العربية الخمس الأصلية مربوطة بمفتاحها؛ وأي مفتاح آخر له متطلب تباين
+    /// يأخذ رسالة عامة بنفس الصياغة (لا تُضاف رسالة لكل لون في الشاشة).
+    /// </summary>
+    private static string _ContrastMessage(string key, string arabicLabel) => key switch
+    {
+        HeaderTextColor
+            => "تباين نص شريط العنوان مع خلفيته ضعيف — اختر لوناً أغمق أو أفتح.",
+
+        GridHeaderTextColor
+            => "تباين نص رؤوس الأعمدة مع خلفيتها ضعيف — اختر لوناً أغمق أو أفتح.",
+
+        GridCellTextColor
+            => "تباين نص الخلايا مع خلفية الشبكة ضعيف — اختر لوناً أغمق أو أفتح.",
+
+        TextStrongColor
+            => "تباين النص المميّز مع خلفية الشاشة ضعيف — اختر لوناً أغمق أو أفتح.",
+
+        DisabledForeColor
+            => "تباين نص العنصر المعطّل مع خلفيته ضعيف.",
+
+        _ => $"تباين «{arabicLabel}» مع اللون المرتبط به ضعيف — اختر لوناً أغمق أو أفتح."
     };
 
     // ═════════════════════════════════════════════════════════════════

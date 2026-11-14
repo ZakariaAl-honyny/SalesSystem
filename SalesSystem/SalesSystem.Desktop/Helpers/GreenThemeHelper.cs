@@ -156,6 +156,36 @@ public static class GreenThemeHelper
     /// <summary>خلفية حالة محايدة.</summary>
     public static Color StatusNeutralBack { get; } = Color.FromArgb(241, 242, 246);
 
+    // ---- ألوان السطر «غير النشط» في شبكات الأدلة (RULE-N169 — بيت واحد) ----
+    // لونا «حالة» لا لونا تصميم: يعيشان هنا مرة واحدة فقط، ولأنهما لونا حالة لا يُعلنان
+    // في أي *.Designer.cs ولا يُستهلكان من ThemePalette (كألوان Status* أعلاه).
+    /// <summary>
+    /// خلفية السطر **غير النشط** (سجل معطّل) في شبكات الأدلة — رمادية محايدة موحّدة لكل النظام.
+    /// <para>
+    /// <b>هذا هو البيت الواحد لهذا اللون</b> (<c>RULE-N54</c>/<c>RULE-N169</c>/<c>RULE-N172</c>):
+    /// ممنوع كتابة <c>Color.MistyRose</c> أو أي رمادي محلي داخل أي شاشة؛ الشاشة تطلب رمّد
+    /// السطور المعطّلة بسطر واحد — <c>GridRowHelper.ApplyInactiveRowStyle(dgv)</c> — وهو يقرأ
+    /// هذا اللون من هنا.
+    /// </para>
+    /// <para>
+    /// لون حالة دلالية لا لون تصميم: لا يأتي من <see cref="ThemePalette"/> ولا يتغيّر مع لوحة
+    /// ألوان النظام (مثل ألوان <c>Status*</c> أعلاه)، لأنه يعني «سجل معطّل» لا «سطح شاشة»،
+    /// ولا يُعلَن في <c>*.Designer.cs</c> لأن السطور تُلوَّن وقت التشغيل من بياناتها فقط.
+    /// </para>
+    /// </summary>
+    public static Color InactiveRowBack { get; } = Color.FromArgb(238, 238, 238);
+
+    /// <summary>
+    /// نص السطر **غير النشط** (سجل معطّل) — رفيق <see cref="InactiveRowBack"/> ويُطبَّق معه
+    /// على <c>ForeColor</c> و<c>SelectionForeColor</c> للسطر.
+    /// <para>
+    /// <b>هذا هو البيت الواحد لهذا اللون</b> (<c>RULE-N169</c>): المستهلك الوحيد
+    /// <c>GridRowHelper.ApplyInactiveRowStyle</c> — ممنوع <c>Color.DarkRed</c> أو أي رمادي
+    /// محلي داخل شاشة، وممنوع نسخ قيمته في أي ملف ثانٍ (<c>RULE-N112</c>/<c>RULE-N172</c>).
+    /// </para>
+    /// </summary>
+    public static Color InactiveRowFore { get; } = Color.FromArgb(110, 112, 116);
+
     /// <summary>أسماء شريط العنوان/العنوان التي يُطبَّق عليها <see cref="ApplyHeader"/>.</summary>
     private static readonly HashSet<string> HeaderLabelNames = new(StringComparer.OrdinalIgnoreCase)
     {

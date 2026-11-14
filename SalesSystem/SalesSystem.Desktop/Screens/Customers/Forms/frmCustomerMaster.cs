@@ -308,17 +308,7 @@ public partial class frmCustomerMaster : Form
 
     private void _ApplyRowColoring()
     {
-        if (!dgvCustomers.Columns.Contains("IsActive")) return;
-
-        foreach (DataGridViewRow row in dgvCustomers.Rows)
-        {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvCustomers, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
@@ -584,8 +574,7 @@ public partial class frmCustomerMaster : Form
         bool hasRow = dgvCustomers.CurrentRow?.DataBoundItem is DataRowView;
 
         bool isActive = hasRow
-            && dgvCustomers.CurrentRow!.Cells["IsActive"].Value is bool flag
-            && flag;
+            && GridRowHelper.GetBool(dgvCustomers.CurrentRow, "IsActive");
 
         cmsEdit.Enabled = hasRow;
         cmsDelete.Enabled = hasRow && isActive;
@@ -1076,10 +1065,10 @@ public partial class frmCustomerMaster : Form
     {
         foreach (DataGridViewRow row in dgvCustomers.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == customerId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == customerId)
             {
                 row.Selected = true;
-                dgvCustomers.CurrentCell = row.Cells["Name"];
+                if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvCustomers.CurrentCell = nameCell;
 
                 // RULE-N94: يبقى السطر المتأثر مرئياً بعد التحديث التلقائي.
                 if (row.Visible) dgvCustomers.FirstDisplayedScrollingRowIndex = row.Index;

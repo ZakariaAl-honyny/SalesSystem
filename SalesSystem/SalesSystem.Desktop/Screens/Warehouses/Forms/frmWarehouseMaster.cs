@@ -284,16 +284,7 @@ public partial class frmWarehouseMaster : Form
 
     private void _ApplyRowColoring()
     {
-        foreach (DataGridViewRow row in dgvWarehouses.Rows)
-        {
-            if (row.DataBoundItem is not DataRowView dataRow) continue;
-
-            bool isActive = dataRow["IsActive"] is bool b && b;
-            if (isActive) continue;
-
-            row.DefaultCellStyle.BackColor = Color.MistyRose;
-            row.DefaultCellStyle.ForeColor = Color.DarkRed;
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvWarehouses, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────

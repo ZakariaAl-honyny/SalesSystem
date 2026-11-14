@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.Forms;
 using SalesSystem.Desktop.GlobalClasses;
+using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Direct;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -88,18 +89,6 @@ static class Program
                     // Mock-only by design (no BLL backend yet) — Employee module is intentionally kept:
                     services.AddTransient<IEmployeeDesktopService, MockEmployeeDesktopService>();
 
-                    // Mock-only by design: ألوان النظام تُخزَّن في وضع التجربة فقط.
-                    // يبقى التسجيل خارج فرعي Mock/Direct كي لا يبقى النوع غير قابل للحل
-                    // في أي وضع (RULE-N168)، ويُستبدل بـ Direct*Service بعد موافقة
-                    // المالك الصريحة على المرحلة B (RULE-N165/RULE-N166).
-                    services.AddTransient<IThemeColorDesktopService, MockThemeColorDesktopService>();
-
-                    // Mock-only by design: إعدادات التنسيق تُخزَّن في وضع التجربة فقط.
-                    // يبقى التسجيل خارج فرعي Mock/Direct كي لا يبقى النوع غير قابل للحل
-                    // في أي وضع (RULE-N168)، ويُستبدل بـ Direct*Service بعد موافقة
-                    // المالك الصريحة على المرحلة B (RULE-N165/RULE-N166).
-                    services.AddTransient<IFormatSettingsDesktopService, MockFormatSettingsDesktopService>();
-
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
@@ -128,11 +117,20 @@ static class Program
                         services.AddTransient<ISalesReportDesktopService, MockSalesReportDesktopService>();
                         services.AddTransient<ISalesReturnDesktopService, MockSalesReturnDesktopService>();
                         services.AddTransient<ISettingsDesktopService, MockSettingsDesktopService>();
+                        // المرحلة أ — محاضر الجرد الفعلي: Mock فقط حتى موافقة المالك ثم Direct*Service
+                        // في المرحلة ب (RULE-N165/RULE-N166/RULE-N168 — لا تسجيل Direct هنا).
+                        services.AddTransient<IStocktakingDesktopService, MockStocktakingDesktopService>();
                         services.AddTransient<ISupplierDesktopService, MockSupplierDesktopService>();
                         services.AddTransient<ISupplierPaymentDesktopService, MockSupplierPaymentDesktopService>();
+                        // ألوان النظام وإعدادات التنسيق — وضع التجربة: قيم في الذاكرة فقط (RULE-N168).
+                        services.AddTransient<IThemeColorDesktopService, MockThemeColorDesktopService>();
+                        services.AddTransient<IFormatSettingsDesktopService, MockFormatSettingsDesktopService>();
                         services.AddTransient<IUnitDesktopService, MockUnitDesktopService>();
                         services.AddTransient<IUserDesktopService, MockUserDesktopService>();
                         services.AddTransient<IWarehouseDesktopService, MockWarehouseDesktopService>();
+                        // المرحلة أ — سندات التحويل المخزني: Mock فقط حتى موافقة المالك ثم Direct*Service
+                        // في المرحلة ب (RULE-N165/RULE-N166/RULE-N168 — لا تسجيل Direct هنا).
+                        services.AddTransient<IWarehouseTransferDesktopService, MockWarehouseTransferDesktopService>();
                         services.AddScoped<BizInterfaces.IAuthService, MockAuthService>();
                     }
                     else
@@ -164,6 +162,9 @@ static class Program
                         services.AddTransient<ISettingsDesktopService, DirectSettingsService>();
                         services.AddTransient<ISupplierDesktopService, DirectSupplierService>();
                         services.AddTransient<ISupplierPaymentDesktopService, DirectSupplierPaymentService>();
+                        // ألوان النظام وإعدادات التنسيق — الوضع الحقيقي: تقرأ من SystemSettings وتُطبَّق عند الإقلاع.
+                        services.AddTransient<IThemeColorDesktopService, DirectThemeColorService>();
+                        services.AddTransient<IFormatSettingsDesktopService, DirectFormatSettingsService>();
                         services.AddTransient<IUnitDesktopService, DirectUnitService>();
                         services.AddTransient<IUserDesktopService, DirectUserService>();
                         services.AddTransient<IWarehouseDesktopService, DirectWarehouseService>();
@@ -174,6 +175,11 @@ static class Program
                     services.AddDbContext<SalesDbContext>(options =>
                         options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
                     services.AddScoped<IUnitOfWork, UnitOfWork>();
+                    // الذاكرة المؤقتة + مستودع إعدادات النظام: تحتاجهما خدمات الباك-إند (ProductService ·
+                    // CashBoxService · SalesService · StoreSettingsService …) ومسار تحميل الألوان/التنسيق عند الإقلاع.
+                    services.AddMemoryCache();
+                    services.AddScoped<SalesSystem.Business.Interfaces.Repositories.ISystemSettingsRepository,
+                                       SalesSystem.DataAccess.Repositories.SystemSettingsRepository>();
 
                     // Startup initializer — applies migrations + seeds the database ONCE at startup, real mode only
                     services.AddScoped<SalesSystem.Business.Infrastructure.IApplicationInitializer,
@@ -390,28 +396,65 @@ static class Program
 
             Program.ServiceProvider = host.Services;
 
-            // واقعي فقط: تطبيق الهجرات وزرع البيانات الأساسية قبل شاشة الدخول
+            // واقعي فقط: تطبيق الهجرات وزرع البيانات الأساسية قبل شاشة الدخول.
+            // فشل التهيئة = توقّف مُغلق (fail-closed): لا شاشة دخول على قاعدة بيانات غير مهيّأة (RULE-N166).
             var appSettings = host.Services.GetRequiredService<AppSettings>();
             if (!appSettings.UseMockData)
             {
+                bool initFailed;
+
                 try
                 {
                     using var initScope = host.Services.CreateScope();
                     var initializer = initScope.ServiceProvider
                         .GetRequiredService<SalesSystem.Business.Infrastructure.IApplicationInitializer>();
                     var initResult = initializer.InitializeAsync().GetAwaiter().GetResult();
-                    if (!initResult.IsSuccess)
-                    {
+
+                    initFailed = !initResult.IsSuccess;
+
+                    if (initFailed)
                         Log.Error("Database initialization failed: {Error}", initResult.Error);
-                        clsDialogs.Warning(initResult.Error ?? "تعذر تهيئة قاعدة البيانات.",
-                            "تهيئة قاعدة البيانات");
-                    }
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Unexpected failure during database initialization");
-                    clsDialogs.Warning("تعذر تهيئة قاعدة البيانات. تحقق من الاتصال ثم أعد تشغيل النظام.",
-                        "تهيئة قاعدة البيانات");
+                    initFailed = true;
+                }
+
+                // لا شاشة دخول بلا قاعدة بيانات جاهزة: رسالة عربية واحدة ثم خروج نظيف
+                // (السبب الحقيقي يبقى في السجل فقط — لا يُعرض نص استثناء للمستخدم).
+                if (initFailed)
+                {
+                    clsDialogs.Error(
+                        "تعذر تجهيز قاعدة البيانات (تطبيق التحديثات وزرع البيانات الأساسية)، " +
+                        "ولذلك سيُغلق النظام الآن ولن تُفتح شاشة الدخول.\n" +
+                        "تحقق من اتصال قاعدة البيانات وصلاحية المستخدم ثم أعد تشغيل النظام. " +
+                        "التفاصيل مسجَّلة في ملف السجل.",
+                        "تعذر تجهيز قاعدة البيانات");
+
+                    Environment.ExitCode = 1;   // فشل الإقلاع — رمز خروج غير صفري
+                    return;                     // قبل إنشاء/عرض أي نموذج — و« finally » يُفرِّغ سجل Serilog
+                }
+
+                // قراءة الألوان وإعدادات التنسيق المحفوظة في SystemSettings وتطبيقها قبل إنشاء أي نموذج.
+                // صفوف غائبة (أول تشغيل) أو أي فشل = متابعة بالقيم الافتراضية بلا إزعاج المستخدم ولا تعطيل الإقلاع.
+                try
+                {
+                    using var prefScope = host.Services.CreateScope();
+
+                    var themeService = prefScope.ServiceProvider.GetRequiredService<IThemeColorDesktopService>();
+                    var themeResult = themeService.GetAsync().GetAwaiter().GetResult();
+                    if (themeResult.IsSuccess && themeResult.Value is not null)
+                        ThemePalette.TryApplyAll(themeResult.Value.Colors);
+
+                    var formatService = prefScope.ServiceProvider.GetRequiredService<IFormatSettingsDesktopService>();
+                    var formatResult = formatService.GetAsync().GetAwaiter().GetResult();
+                    if (formatResult.IsSuccess && formatResult.Value is not null)
+                        clsFormat.TryApplyAll(formatResult.Value.Values);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to load persisted theme/format settings; continuing with defaults");
                 }
             }
 

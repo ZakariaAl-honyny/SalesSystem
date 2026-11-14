@@ -39,6 +39,9 @@ public partial class frmProductUnitMaster : Form
     /// <summary>يمنع معالجات الأحداث من إعادة تعبئة النموذج أثناء الربط البرمجي.</summary>
     private bool _isBinding;
 
+    /// <summary>خط التمييز — يُنشأ مرة واحدة.</summary>
+    private static readonly Font BaseUnitRowFont = new("Tahoma", 10F, FontStyle.Bold);
+
     /// <summary>
     /// حالة الشاشة (آلة الحالة): تبدأ دائماً بوضع العرض <see cref="EntryMode.Browsing"/>
     /// حيث كل حقول الإدخال **معطّلة**، ولا تُفعَّل إلا بزر «جديد» أو باختيار سجل من الشبكة (RULE-N149).
@@ -368,16 +371,18 @@ public partial class frmProductUnitMaster : Form
 
     private void _ApplyRowColoring()
     {
-        if (!dgvUnits.Columns.Contains("IsBaseUnit")) return;
-
         foreach (DataGridViewRow row in dgvUnits.Rows)
         {
-            bool isBase = row.Cells["IsBaseUnit"].Value is bool b && b;
-            if (isBase)
-            {
-                row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
-                row.DefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            }
+            if (row.IsNewRow) continue;
+
+            // إعادة السطر إلى نمطه الموروث أولاً — فلا تبقى علامة «الوحدة الأساسية» بعد نقلها
+            row.DefaultCellStyle.BackColor = Color.Empty;
+            row.DefaultCellStyle.Font = null;
+
+            if (!GridRowHelper.GetBool(row, "IsBaseUnit")) continue;
+
+            row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
+            row.DefaultCellStyle.Font = BaseUnitRowFont;
         }
     }
 
@@ -1065,14 +1070,14 @@ public partial class frmProductUnitMaster : Form
 
         foreach (DataGridViewRow row in dgvUnits.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == productUnitId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == productUnitId)
             {
                 _isBinding = true;
                 try
                 {
                     dgvUnits.ClearSelection();
                     row.Selected = true;
-                    dgvUnits.CurrentCell = row.Cells["UnitName"];
+                    if (GridRowHelper.Cell(row, "UnitName") is { } unitCell) dgvUnits.CurrentCell = unitCell;
                 }
                 finally
                 {

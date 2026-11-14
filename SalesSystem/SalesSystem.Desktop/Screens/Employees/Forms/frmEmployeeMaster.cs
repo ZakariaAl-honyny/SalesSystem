@@ -2,6 +2,7 @@ using System.Data;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Responses;
+using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -19,6 +20,18 @@ public partial class frmEmployeeMaster : Form
     private readonly IServiceProvider _serviceProvider;
 
     private IEmployeeDesktopService EmployeeService => _serviceProvider.GetRequiredService<IEmployeeDesktopService>();
+
+    /// <summary>
+    /// نص الإعلان الظاهر في الوضع الحقيقي — يُعرض في <c>lblMode</c> (عنصر مصمّم قائم، بلا عنصر جديد — RULE-N145).
+    /// </summary>
+    private const string RealModeNotice = "هذه الشاشة تُحفظ في وضع التجربة فقط حتى اعتماد الباك-إند";
+
+    /// <summary>
+    /// المرحلة أ — في الوضع الحقيقي يبقى <see cref="IEmployeeDesktopService"/> محاكاة في الذاكرة
+    /// (وحدة الموظفين Mock-only حتى المرحلة ب — AGENTS.md §2.29 بند 3)، فأي حفظ يُفقد عند إغلاق التطبيق.
+    /// لذلك تُعطَّل أوامر الحفظ/التعديل/الحذف/إعادة التنشيط ويُعلَن السبب في شريط الوضع (RULE-N165/RULE-N168).
+    /// </summary>
+    private readonly bool _persistenceDisabled = !AppSettings.Current.UseMockData;
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, EmployeeDto> _employeesById = new();
@@ -96,6 +109,18 @@ public partial class frmEmployeeMaster : Form
         LiveTafqeetHelper.Attach(tafqeetTip,
             (numBasicSalary, "الراتب الأساسي", LiveTafqeetHelper.ReadMode.Money));
         FilterPanelHelper.Attach(this, _serviceProvider);
+
+        // المرحلة أ — وضع حقيقي بلا حفظ: تُعطَّل أوامر الكتابة فوراً ويُعلَن السبب على شريط الوضع
+        // (العنصر lblMode قائم في المصمّم — RULE-N134/RULE-N145). الشاشة تبقى مفتوحة وقابلة للقراءة.
+        if (_persistenceDisabled)
+        {
+            btnNew.Enabled = false;
+            btnSave.Enabled = false;
+            btnEdit.Enabled = false;
+            btnDelete.Enabled = false;
+            btnReactivate.Enabled = false;
+            lblMode.Text = $"{FormTitle} — وضع العرض — {RealModeNotice}";
+        }
     }
 
     // ── Global Shortcuts ──────────────────────────────────────────────────────
@@ -278,15 +303,7 @@ public partial class frmEmployeeMaster : Form
 
     private void _ApplyRowColoring()
     {
-        foreach (DataGridViewRow row in dgvEmployees.Rows)
-        {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvEmployees, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter — RULE-N56…N63) ───────────────────
@@ -534,12 +551,13 @@ public partial class frmEmployeeMaster : Form
 
         // آلة حالة الأزرار (RULE-N43): «جديد/تحديث/خروج» متاحة دائماً،
         // «إضافة» في وضع الإضافة، «تعديل/حذف» عند وجود سجل محدد.
-        btnNew.Enabled = true;
+        // وفي الوضع الحقيقي (بلا باك-إند للموظفين) تبقى أوامر الكتابة معطّلة دائماً — لا حفظ في الذاكرة.
+        btnNew.Enabled = !_persistenceDisabled;
         btnRefresh.Enabled = true;
         btnClose.Enabled = true;
-        btnSave.Enabled = _mode == EntryMode.Adding;
-        btnEdit.Enabled = _mode == EntryMode.Editing;
-        btnDelete.Enabled = _mode == EntryMode.Editing;
+        btnSave.Enabled = !_persistenceDisabled && _mode == EntryMode.Adding;
+        btnEdit.Enabled = !_persistenceDisabled && _mode == EntryMode.Editing;
+        btnDelete.Enabled = !_persistenceDisabled && _mode == EntryMode.Editing;
 
         _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
 
@@ -584,6 +602,10 @@ public partial class frmEmployeeMaster : Form
             EntryMode.Editing => $"{FormTitle} — تعديل موظف: {txtName.Text.Trim()}",
             _ => $"{FormTitle} — وضع العرض"
         };
+
+        // الوضع الحقيقي: إعلان صريح أن أي حفظ لا يُخزَّن (Mock-only) — على عنصر المصمّم نفسه.
+        if (_persistenceDisabled)
+            lblMode.Text += $" — {RealModeNotice}";
     }
 
     /// <summary>
@@ -599,7 +621,8 @@ public partial class frmEmployeeMaster : Form
             && employee.IsActive;
 
         btnReactivate.Enabled =
-            _mode == EntryMode.Editing && hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
+            !_persistenceDisabled                                        // لا كتابة في الوضع الحقيقي
+            && _mode == EntryMode.Editing && hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
     }
 
     /// <summary>
@@ -913,10 +936,10 @@ public partial class frmEmployeeMaster : Form
     {
         foreach (DataGridViewRow row in dgvEmployees.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == employeeId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == employeeId)
             {
                 row.Selected = true;
-                dgvEmployees.CurrentCell = row.Cells["Name"];
+                if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvEmployees.CurrentCell = nameCell;
                 break;
             }
         }

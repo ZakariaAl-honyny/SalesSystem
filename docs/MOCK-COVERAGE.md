@@ -64,7 +64,7 @@ dotnet build .\SalesSystem.slnx
 | 11 | `IEmployeeDesktopService` | Employees | `MockEmployeeDesktopService` (4) | `MockEmployeesData` | Mock-only by design | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض الحقول الإلزامية/التكرار لا «غير موجود» فقط |
 | 12 | `IExpenseDesktopService` | Expenses | `MockExpenseDesktopService` (9) | `MockExpensesData` + `MockData` + `MockAccountsData` | فرع Mock | `مؤهل للمراجعة` | — |
 | 13 | `IFinancialReportDesktopService` | Reports / Accounting | `MockFinancialReportDesktopService` (21 — قراءة) | 8 ملفات بيانات | فرع Mock | `مؤهل للمراجعة` | — |
-| 14 | `IFormatSettingsDesktopService` | Settings | `MockFormatSettingsDesktopService` (5) | افتراضيات `clsFormat` | Mock-only by design (المرحلة أ) | `مؤهل للمراجعة` | — |
+| 14 | `IFormatSettingsDesktopService` | Settings | `MockFormatSettingsDesktopService` (5) | افتراضيات `clsFormat` | فرع Mock + فرع Direct (`Stage B` 2026-11-15) | `مؤهل للمراجعة` | — |
 | 15 | `IInventoryAdjustmentDesktopService` | Inventory | `MockInventoryAdjustmentDesktopService` (8) | `MockInventoryData` + `MockData` | فرع Mock | `مؤهل للمراجعة` | — |
 | 16 | `IInventoryBatchDesktopService` | Inventory | `MockInventoryBatchDesktopService` (2) | `MockInventoryData` + `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | تحقّق حقول `CreateAsync` |
 | 17 | `IInventoryDesktopService` | Inventory | `MockInventoryDesktopService` (5) | `MockData` | فرع Mock | `مؤهل للمراجعة` | لا شاشة تكتب مخزوناً عبر هذا العقد (ف-3 مغلقة) |
@@ -80,12 +80,12 @@ dotnet build .\SalesSystem.slnx
 | 27 | `ISettingsDesktopService` | Settings / Invoices | `MockSettingsDesktopService` (0) | قيم داخلية | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | دالتا الكتابة تعيدان النجاح دائماً (لا شاشة تستهلكهما) |
 | 28 | `ISupplierDesktopService` | Suppliers | `MockSupplierDesktopService` (4) | `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الاسم |
 | 29 | `ISupplierPaymentDesktopService` | Payments | `MockSupplierPaymentDesktopService` (3) | `MockSupplierPaymentsData` + `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | المدفوع > المتبقي (ف-4) · إلغاء بدل حذف صلب |
-| 30 | `IThemeColorDesktopService` | Settings | `MockThemeColorDesktopService` (9) | افتراضيات `ThemePalette` | Mock-only by design (المرحلة أ) | `مؤهل للمراجعة` | — |
+| 30 | `IThemeColorDesktopService` | Settings | `MockThemeColorDesktopService` (9) | افتراضيات `ThemePalette` | فرع Mock + فرع Direct (`Stage B` 2026-11-15) | `مؤهل للمراجعة` | — |
 | 31 | `IUnitDesktopService` | Units | `MockUnitDesktopService` (6) | `MockLookupsData` | فرع Mock | `مؤهل للمراجعة` | — |
 | 32 | `IUserDesktopService` | Users | `MockUserDesktopService` (7) | `MockSecurityData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | لا رفض «اسم مستخدم مطلوب» في `CreateAsync`/`UpdateAsync`، و`Password` يتجاهله الـMock ⇒ كلمة المرور المكتوبة في `frmUserMaster` لا تعمل في الدخول (ف-6) |
 | 33 | `IWarehouseDesktopService` | Warehouses / Inventory | `MockWarehouseDesktopService` (4) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الاسم |
 
-**الخلاصة (عدّ فعلي 2026-11-14، بعد موجة Auth/Backup — تدقيق `mock-qa`):** **37** واجهة `I*` في `Services/Interfaces/` · منها **33 عقد بيانات** (المستثنى 4 عقود تحتية: `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` — وعقود الطباعة في `Printing/`) · **33** عقداً له `Mock*DesktopService`: **30** مسجَّلة داخل `if (appSettings.UseMockData)` + **3** Mock-only by design (`IEmployee` · `IThemeColor` · `IFormatSettings`) · **0** موصول دائماً بـ`Direct*` · **48** ملفاً في `Services/Mock/` = **33** `Mock*DesktopService` + `MockAuthService` (غير قابل للحل في وضع التجربة — مرشَّح للحذف) + **13** `Mock*Data.cs` + `MockData.cs`.
+**الخلاصة (عدّ فعلي 2026-11-14، بعد موجة Auth/Backup — تدقيق `mock-qa`):** **37** واجهة `I*` في `Services/Interfaces/` · منها **33 عقد بيانات** (المستثنى 4 عقود تحتية: `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` — وعقود الطباعة في `Printing/`) · **33** عقداً له `Mock*DesktopService`: **32** مسجَّلة داخل `if (appSettings.UseMockData)` + **1** Mock-only by design (`IEmployee`) · **0** موصول دائماً بـ`Direct*` · **48** ملفاً في `Services/Mock/` = **33** `Mock*DesktopService` + `MockAuthService` (غير قابل للحل في وضع التجربة — مرشَّح للحذف) + **13** `Mock*Data.cs` + `MockData.cs`.
 
 > **الحكم الإجمالي للسجل: `مؤهل جزئياً — تكافؤ الرفض ناقص`** — **19** عقداً `مؤهل للمراجعة` و**14** `مؤهل جزئياً` و**0** `غير مؤهل`. لم يبقَ عقد يمنع مراجعة المالك (بوابة 0c)، لكن **الباك-إند مقفل لكل الوحدات** لسببين: نقص التكافؤ في 14 عقداً، و**سجل الموافقات المكتوبة الفارغ** (§7) — `RULE-N177`.
 
@@ -182,7 +182,13 @@ dotnet build .\SalesSystem.slnx
 | `مؤهل جزئياً — تكافؤ الرفض ناقص` | **مقفل** حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً — **ويبقى شرط الموافقة المكتوبة المؤرَّخة على سلوك الـMock واجباً** (الصف الأول) | إصلاح تكافؤ الرفض في `Mock*` |
 | `غير مؤهل — فجوة تغطية` | **مجمَّد الباك-إند**: لا `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` ولا ترحيل — الحظر على الباك-إند لا على إغلاق التغطية | إغلاق الفجوة فقط (Mock/seeds/تسجيل/تكافؤ) |
 
-**سجل الموافقات المكتوبة:** (فارغ — **0 موافقات مؤرَّخة حتى 2026-11-14**) ⇐ **الباك-إند مقفل لكل الوحدات بلا استثناء**، وتُقيَّد كل موافقة هنا بالشكل: `التاريخ · الوحدة · نص المالك الحرفي · ما راجعه`.
+**سجل الموافقات المكتوبة (Stage B):**
+
+| التاريخ | الوحدة | نص المالك الحرفي | ما راجعه | نطاق الباك-إند المفتوح |
+|---|---|---|---|---|
+| 2026-11-15 | Settings — `frmChangeSystemColorsSettings` · `frmFormatingSetting` | «write real code for frm*Settings» ثم «must do this work» | شاشتا الإعدادات في وضع التجربة — `IThemeColorDesktopService` و`IFormatSettingsDesktopService`، كلاهما `مؤهل للمراجعة` في §3 | `Services/Direct/DirectThemeColorService` · `Services/Direct/DirectFormatSettingsService` · فرع DI الحقيقي + تحميل التفضيلات عند الإقلاع. **لا نموذج ولا ترحيل:** التخزين في جدول `SystemSettings` القائم عبر `IStoreSettingsService` الموجود |
+
+> **الموافقة لا تفتح إلا وحدتها:** بقية الوحدات تبقى مقفلة الباك-إند (`RULE-N177`/`RULE-N178`)، وتُقيَّد كل موافقة هنا بالشكل: `التاريخ · الوحدة · نص المالك الحرفي · ما راجعه`.
 
 **ملاحظات القفل:**
 - القفل **لا يُعيد فتح وحدة مغلقة** ولا يُلغي عملاً مكتملاً؛ يحكم **التغيير التالي** على وحدتها (`RULE-N178`).
@@ -194,6 +200,8 @@ dotnet build .\SalesSystem.slnx
 ---
 
 ## 8) بروتوكول التحديث
+
+**تحديث 2026-11-15 (Stage B — وحدة الإعدادات فقط):** `IThemeColorDesktopService` و`IFormatSettingsDesktopService` خرجا من «Mock-only by design» إلى **فرعين مسجَّلين**: `Mock*` داخل `if (appSettings.UseMockData)` و`Direct*` في `else` (`DirectThemeColorService` · `DirectFormatSettingsService`) — بموافقة المالك المكتوبة في §7 (2026-11-15). الحفظ الحقيقي في جدول `SystemSettings` القائم عبر `IStoreSettingsService` **بلا كيان جديد ولا ترحيل**، والتحقق/التطبيق في بيتهما الواحد (`ThemePalette.ValidateAll`/`TryApplyAll` · `clsFormat.ValidateAll`/`TryApplyAll`). أحكام §3 لم تتغيّر (`مؤهل للمراجعة`)، و**بقية الوحدات ما زالت مقفلة الباك-إند** — الموافقة لا تُعمَّم (`RULE-N177`/`RULE-N178`).
 
 0. **تحديث 2026-11-14 (الموجة الثانية — إغلاق تكافؤ الرفض):** أُغلقت الفجوات `ف-4` و`ف-6`…`ف-19` داخل الـMock وحده (`RULE-N176`)، وصار أعلى هذا الملف (§1–§7) **مرجعاً تاريخياً** لما قبل الموجة. الحقائق المعتمدة الآن:
    - **33 عقداً · 33 `Mock*DesktopService` · 30 مسجَّلاً في فرع `UseMockData` + 3 «Mock-only by design» · 0 مسجَّل في فرع Direct دائماً · 33/33 ببيانات أولية.**

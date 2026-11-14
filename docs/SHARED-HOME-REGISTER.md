@@ -364,3 +364,33 @@
 | **W6** | `GAP-10`+`GAP-21` صيغ الطباعة وBLL · `GAP-11` · `GAP-24` | `printing` + `backend-architect` + `fast-agent` |
 | **W7–W10** | `GAP-04` — 67 شاشة / 240 موضعاً (`FORMAT-COVERAGE`) | `ui-agent` ×4/موجة |
 | **W11** | `mock-qa` إعادة تصديق + `code-reviewer` واحد | — |
+
+---
+
+## 9. موجة 2026-11-15 — البيت الواحد لتلوين الأسطر + باك-إند الإعدادات
+
+### 9.1 بيت جديد: حالة السطر في الشبكة
+
+| # | البيت | ماذا انتقل إليه | المستهلكون | القياس |
+|---|---|---|---|---|
+| H-01 | `Helpers/GridRowHelper.cs` | قراءة خلية بالاسم **المنطقي** (العمود بالاسم ثم `DataPropertyName`) + `ApplyInactiveRowStyle` (ترميم وراثة السطر ثم تلوين غير النشط) | 8 ماسترات: الصناديق · الفئات · العملاء · الموردون · الوحدات · المخازن · الموظفون · الأصناف · المستخدمون (+ شاشة الوحدات بقاعدة «الوحدة الأساسية») | `row.Cells["<حقل منطقي>"]` في الماسترات = **0** · `Color.MistyRose`/`DarkRed` فيها = **0** · كتلة تلوين مكرّرة = **0** |
+| H-02 | `Helpers/GreenThemeHelper.cs` | `InactiveRowBack` · `InactiveRowFore` (دلالة «سجل غير نشط» لا «حقل معطّل») | `GridRowHelper` وحده | صفر لون حرفي في `GridRowHelper` |
+
+**السبب المقيس:** `DataGridViewCellCollection` يحلّ بالاسم لا بـ`DataPropertyName`، فـ`Cells["IsActive"]` رمت `ArgumentException` وأسقطت تحميل الشاشة (سجل 2026-11-15). القاعدة الجديدة `RULE-N179` في `AGENTS.md` §2.33.
+
+### 9.2 باك-إند الإعدادات (Stage B بموافقة مالك مكتوبة 2026-11-15)
+
+| # | الصف | البيت / العقد | ملاحظة |
+|---|---|---|---|
+| S-01 | التحقق من مجموعة الألوان + التطبيق الذرّي | `ThemePalette.ValidateAll` · `ThemePalette.TryApplyAll` (`string?` = أول رفض عربي أو `null`) | نُقلا من `MockThemeColorDesktopService` — صفر نسخة ثانية (`RULE-N172`) |
+| S-02 | التحقق من إعدادات التنسيق + التطبيق الذرّي | `clsFormat.ValidateAll` · `clsFormat.TryApplyAll` | كانا في بيتهما من قبل — الخدمة الحقيقية تستهلكهما فقط |
+| S-03 | الحفظ الحقيقي | `Services/Direct/DirectThemeColorService` · `DirectFormatSettingsService` → `IStoreSettingsService` (قائم) → `SystemSettingsRepository` → جدول `SystemSettings` | بلا كيان جديد · بلا ترحيل · بلا خدمة BLL جديدة |
+| S-04 | التحميل عند الإقلاع | `Program.cs` (وضع حقيقي فقط) → `ThemePalette.TryApplyAll` / `clsFormat.TryApplyAll` قبل شاشة الدخول | فشل التحميل = سجل + قيم افتراضية، لا حجب إقلاع |
+
+### 9.3 فجوات مسجَّلة للفحص (لم تُصلح)
+
+| # | الفجوة | الموضع | الأثر | المالك المقترح |
+|---|---|---|---|---|
+| P-13 | `IReportRepository` · `IPrintService` · `IPrintDataService` غير مسجَّلة في DI، و`PrintingBootstrapper.Initialize()` لا يُستدعى | `Program.cs` | الوضع الحقيقي: التقارير وفاتورة البيع/الطباعة تُفشل بالحلّ | `fast-agent` (سطر DI) — بعد موافقة الوحدة |
+| P-14 | تغيير «fail-closed» لتهيئة قاعدة البيانات (رسالة + `Environment.ExitCode = 1`) موجود في شجرة العمل من موجة متزامنة ولم تمرّ بمراجعة هذه الموجة | `Program.cs:399-437` | سلوك إقلاع جديد يحتاج اعتماد المالك صريحاً | قرار مالك |
+| P-15 | `Color.MistyRose`/`DarkRed` باقية كألوان حالة في `frmListSales` · `frmAccounts` · `frmJournalEntries` · `frmAddUpdateSalesInvoice:2960` | 4 شاشات | مخالفة `RULE-N54` (لون غير معلن) — لا انهيار | `ui-agent` (S) |

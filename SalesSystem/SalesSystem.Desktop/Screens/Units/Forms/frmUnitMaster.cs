@@ -273,15 +273,7 @@ public partial class frmUnitMaster : Form
 
     private void _ApplyRowColoring()
     {
-        foreach (DataGridViewRow row in dgvUnits.Rows)
-        {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvUnits, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
@@ -855,10 +847,10 @@ public partial class frmUnitMaster : Form
     {
         foreach (DataGridViewRow row in dgvUnits.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == unitId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == unitId)
             {
                 row.Selected = true;
-                dgvUnits.CurrentCell = row.Cells["Name"];
+                if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvUnits.CurrentCell = nameCell;
                 return true;
             }
         }

@@ -405,15 +405,7 @@ public partial class frmProductMaster : Form
 
     private void _ApplyRowColoring()
     {
-        foreach (DataGridViewRow row in dgvProducts.Rows)
-        {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvProducts, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
@@ -1349,10 +1341,10 @@ public partial class frmProductMaster : Form
     {
         foreach (DataGridViewRow row in dgvProducts.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == productId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == productId)
             {
                 row.Selected = true;
-                dgvProducts.CurrentCell = row.Cells["Name"];
+                if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvProducts.CurrentCell = nameCell;
                 break;
             }
         }

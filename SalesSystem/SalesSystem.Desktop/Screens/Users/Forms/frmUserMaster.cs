@@ -350,23 +350,17 @@ public partial class frmUserMaster : Form
 
     private void _ApplyRowColoring()
     {
+        GridRowHelper.ApplyInactiveRowStyle(dgvUsers, "IsActive");
+
+        // المستخدم المقفل (نشط لكن مقفل) يُميَّز بلون تحذير من الثيم — قاعدة خاصة بهذه الشاشة وليست «سجل غير نشط»
         foreach (DataGridViewRow row in dgvUsers.Rows)
         {
-            if (row.DataBoundItem is not DataRowView dataRow) continue;
+            if (row.IsNewRow) continue;
+            if (!GridRowHelper.GetBool(row, "IsActive", true)) continue;
+            if (!GridRowHelper.GetBool(row, "IsLocked")) continue;
 
-            bool isActive = dataRow["IsActive"] is bool active && active;
-            bool isLocked = dataRow["IsLocked"] is bool locked && locked;
-
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-            else if (isLocked)
-            {
-                row.DefaultCellStyle.BackColor = Color.LemonChiffon;
-                row.DefaultCellStyle.ForeColor = Color.DarkOrange;
-            }
+            row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
+            row.DefaultCellStyle.ForeColor = GreenThemeHelper.StatusWarning;
         }
     }
 
