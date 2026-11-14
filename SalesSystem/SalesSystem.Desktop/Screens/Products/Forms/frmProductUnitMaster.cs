@@ -73,7 +73,7 @@ public partial class frmProductUnitMaster : Form
 
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b — لون الحقل النشط حيّاً من اللوحة
         KeyboardHelper.WireArrowNavigation(this);                                  // RTL: يمين/أعلى = السابق، يسار/أسفل = التالي
 
         // أزرار الوضع (إضافة/تعديل/حذف) وزر «مسح التصفية» تتغير حالة تفعيلها،
@@ -94,6 +94,14 @@ public partial class frmProductUnitMaster : Form
 
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // RULE-N97 — التفقيط الحيّ كتلميح على حقول الأسعار فقط (معامل التحويل كمية ⇒ لا يُربط).
+        // مكان واحد للتلميح: نستهلك toolTip المُعلَن في المصمّم بدل إنشاء نسخة ثانية (RULE-N169/RULE-N145).
+        LiveTafqeetHelper.Attach(toolTip,
+            (numSalePrice, "سعر التجزئة", LiveTafqeetHelper.ReadMode.Money),
+            (numWholesalePrice, "سعر الجملة", LiveTafqeetHelper.ReadMode.Money),
+            (numCostPrice, "سعر التكلفة", LiveTafqeetHelper.ReadMode.Money),
+            (numMaxDiscount, "أقصى خصم", LiveTafqeetHelper.ReadMode.Money));
 
         // الفهرس الافتراضي «الكل» = نفس سلوك البحث السابق (RULE-N60).
         _isBinding = true;
@@ -367,7 +375,7 @@ public partial class frmProductUnitMaster : Form
             bool isBase = row.Cells["IsBaseUnit"].Value is bool b && b;
             if (isBase)
             {
-                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 250, 205);
+                row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
                 row.DefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             }
         }
@@ -1015,6 +1023,38 @@ public partial class frmProductUnitMaster : Form
             _ApplyModeState();
             Cursor = Cursors.Default;
         }
+    }
+
+    // ── Context Menu (RULE-N23) ───────────────────────────────────────────────
+
+    /// <summary>RULE-N23: عناصر القائمة تستدعي نفس أزرار الشاشة — لا منطق مكرر.</summary>
+    private void cmsEdit_Click(object? sender, EventArgs e)
+    {
+        if (btnEdit.Enabled) btnEdit.PerformClick();
+    }
+
+    private void cmsDelete_Click(object? sender, EventArgs e)
+    {
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    private void cmsRefresh_Click(object? sender, EventArgs e) => btnRefresh.PerformClick();
+
+    /// <summary>
+    /// قائمة السياق لا تُعرض بلا سطر محدد (RULE-N23): تُلغى عند خلو الشبكة من الصفوف،
+    /// وتُزامَن حالة العناصر مع أزرار الشاشة نفسها (RULE-N43) — بلا أي منطق جديد.
+    /// </summary>
+    private void cmsRows_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (dgvUnits.CurrentRow?.DataBoundItem is not DataRowView || dgvUnits.SelectedRows.Count == 0)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        cmsEdit.Enabled = btnEdit.Enabled;
+        cmsDelete.Enabled = btnDelete.Enabled;
+        cmsRefresh.Enabled = btnRefresh.Enabled;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

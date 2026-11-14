@@ -1,3 +1,4 @@
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -37,8 +38,28 @@ public class MockCustomerDesktopService : ICustomerDesktopService
             : Task.FromResult(Result<CustomerDto>.Success(customer));
     }
 
+    // ── تكافؤ الرفض مع الـBLL (RULE-N167): المقارنة النصية في البيت الواحد StringExtensions.SameText ──
+    private static bool _NameExists(string? name, int? exceptId)
+        => !string.IsNullOrWhiteSpace(name) &&
+           MockData.Customers.Any(c => c.Id != exceptId &&
+               c.Name.SameText(name));
+
+    private static bool _PhoneExists(string? phone, int? exceptId)
+        => !string.IsNullOrWhiteSpace(phone) &&
+           MockData.Customers.Any(c => c.Id != exceptId && !string.IsNullOrWhiteSpace(c.Phone) &&
+               c.Phone.SameText(phone));
+
     public Task<Result<CustomerDto>> CreateAsync(CreateCustomerRequest r, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<CustomerDto>.Failure("اسم العميل مطلوب"));
+
+        if (_NameExists(r.Name, null))
+            return Task.FromResult(Result<CustomerDto>.Failure("اسم العميل مستخدم بالفعل"));
+
+        if (_PhoneExists(r.Phone, null))
+            return Task.FromResult(Result<CustomerDto>.Failure("رقم الهاتف مستخدم بالفعل"));
+
         var nextId = MockData.Customers.Max(c => c.Id) + 1;
         var nextAccountId = MockData.Customers.Max(c => c.AccountId) + 1;
         var customer = new CustomerDto(
@@ -54,6 +75,15 @@ public class MockCustomerDesktopService : ICustomerDesktopService
         var existing = MockData.Customers.FirstOrDefault(c => c.Id == id);
         if (existing is null)
             return Task.FromResult(Result<CustomerDto>.Failure("العميل غير موجود"));
+
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<CustomerDto>.Failure("اسم العميل مطلوب"));
+
+        if (_NameExists(r.Name, id))
+            return Task.FromResult(Result<CustomerDto>.Failure("اسم العميل مستخدم بالفعل"));
+
+        if (_PhoneExists(r.Phone, id))
+            return Task.FromResult(Result<CustomerDto>.Failure("رقم الهاتف مستخدم بالفعل"));
 
         var updated = existing with
         {

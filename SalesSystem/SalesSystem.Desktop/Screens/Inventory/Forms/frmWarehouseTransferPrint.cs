@@ -95,12 +95,12 @@ public partial class frmWarehouseTransferPrint : Form
     private void _BindTransfer()
     {
         lblTransferNoValue.Text = _transfer.TransferNo;
-        lblDateValue.Text = _transfer.Date.ToString("dd/MM/yyyy");
+        lblDateValue.Text = clsFormat.DateToDayMonthYear(_transfer.Date);
         lblFromWarehouseValue.Text = _transfer.FromWarehouse;
         lblToWarehouseValue.Text = _transfer.ToWarehouse;
         lblDriverValue.Text = _transfer.Driver;
         lblVehiclePlateValue.Text = _transfer.VehiclePlate;
-        lblItemCountValue.Text = $"{_transfer.ItemCount} أصناف";
+        lblItemCountValue.Text = $"{clsFormat.Number(_transfer.ItemCount)} أصناف";
         lblNoteValue.Text = _transfer.Note;
     }
 
@@ -113,7 +113,7 @@ public partial class frmWarehouseTransferPrint : Form
             clsDialogs.Success(
                 $"تمت طباعة سند التحويل رقم {_transfer.TransferNo} بنجاح.\n" +
                 $"من: {_transfer.FromWarehouse} — إلى: {_transfer.ToWarehouse}\n" +
-                $"السائق: {_transfer.Driver} — عدد الأصناف: {_transfer.ItemCount}\n" +
+                $"السائق: {_transfer.Driver} — عدد الأصناف: {clsFormat.Number(_transfer.ItemCount)}\n" +
                 "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
@@ -131,7 +131,7 @@ public partial class frmWarehouseTransferPrint : Form
 
     private void pnlDashedSeparator_Paint(object? sender, PaintEventArgs e)
     {
-        using var pen = new Pen(Color.FromArgb(190, 195, 200), 2) { DashStyle = DashStyle.Dash };
+        using var pen = new Pen(GreenThemeHelper.GridLine, 2) { DashStyle = DashStyle.Dash };
         int y = pnlDashedSeparator.Height / 2;
         e.Graphics.DrawLine(pen, 6, y, pnlDashedSeparator.Width - 6, y);
     }

@@ -10,7 +10,7 @@
 //     إعادة فتحها وبلا تعديل أي شاشة.
 //
 // ⚠️ ترتيب التطبيق إلزامي (RULE-N50):
-//     ThemeHelper.ApplyMainFormStyle(this)   ← يفرض خلفية بيضاء وخط Segoe UI
+//     ThemeHelper.ApplyMainFormStyle(this)   ← يفرض خط Segoe UI (ولا يمسّ خلفية النموذج)
 //     ThemeHelper.ApplyButtonStyle(...)      ← يفرض Segoe UI على الأزرار
 //     GreenThemeHelper.Apply(this)           ← يُستدعى **أخيراً** ليردّ الأخضر
 //   لأن ThemeHelper يعمل في الاتجاه المعاكس (يُلغي ألوان المصمّم)، فأي تطبيق
@@ -106,6 +106,55 @@ public static class GreenThemeHelper
     /// وقت التشغيل فقط أثناء <c>Enabled == false</c> ولا يُعلَن في أي مصمّم.
     /// </summary>
     public static Color DisabledFore => ThemePalette.Get(ThemePalette.DisabledForeColor);
+
+    // ---- ألوان الحالة الدلالية (RULE-N172 — مصدر واحد لكل حالة) ----
+    // بيت واحد لكل «حالة» في النظام: لا تُكتب أي من هذه القيم في شاشة ولا في
+    // clsInputFeedback ولا في ReportUiStandardizer. الشاشات تُوصَّل إليها في الموجة W8.
+    /// <summary>حالة نجاح (نص/علم أخضر).</summary>
+    public static Color StatusSuccess { get; } = Color.FromArgb(25, 135, 84);
+
+    /// <summary>حالة خطأ (نص/علم أحمر).</summary>
+    public static Color StatusDanger { get; } = Color.FromArgb(176, 42, 55);
+
+    /// <summary>حالة تحذير (نص/علم كهرماني داكن).</summary>
+    public static Color StatusWarning { get; } = Color.FromArgb(122, 90, 0);
+
+    /// <summary>حالة معلومة (نص/علم أزرق).</summary>
+    public static Color StatusInfo { get; } = Color.FromArgb(13, 110, 253);
+
+    /// <summary>حالة محايدة (نص/علم رمادي داكن).</summary>
+    public static Color StatusNeutral { get; } = Color.FromArgb(52, 73, 94);
+
+    /// <summary>حالة باهتة/مسكوتة (نص ثانوي).</summary>
+    public static Color StatusMuted { get; } = Color.FromArgb(108, 117, 125);
+
+    /// <summary>لون نوع حركة «قيد يومية» في كشوف الحسابات (بنفسجي — لون تصنيف لا لون حالة).</summary>
+    public static Color StatusJournal { get; } = Color.FromArgb(142, 68, 173);
+
+    /// <summary>
+    /// خلفية وميض رفض الإدخال — يستهلكها <c>clsInputFeedback.ShowRejectTooltip</c>
+    /// بدل ثابت محلي عنده (RULE-N169/GAP-09). الحالة الدلالية لا تتغيّر مع اللوحة،
+    /// فهي ثابت دلالي لا لون تصميم.
+    /// </summary>
+    public static Color RejectBackground { get; } = Color.FromArgb(255, 220, 220);
+
+    // ---- خلفيات الحالة الدلالية (RULE-N172) ----
+    // الرفيق الخلفي لكل حالة أعلاه — يُستهلك لخلفية صف/خلية/شريط حالة، ويبقى في
+    // البيت الواحد نفسه فلا يُكتب أي منها داخل شاشة (RULE-N169).
+    /// <summary>خلفية حالة نجاح.</summary>
+    public static Color StatusSuccessBack { get; } = Color.FromArgb(235, 245, 235);
+
+    /// <summary>خلفية حالة خطأ.</summary>
+    public static Color StatusDangerBack  { get; } = Color.FromArgb(255, 200, 200);
+
+    /// <summary>خلفية حالة تحذير.</summary>
+    public static Color StatusWarningBack { get; } = Color.FromArgb(255, 252, 224);
+
+    /// <summary>خلفية حالة معلومة.</summary>
+    public static Color StatusInfoBack    { get; } = Color.FromArgb(222, 235, 247);
+
+    /// <summary>خلفية حالة محايدة.</summary>
+    public static Color StatusNeutralBack { get; } = Color.FromArgb(241, 242, 246);
 
     /// <summary>أسماء شريط العنوان/العنوان التي يُطبَّق عليها <see cref="ApplyHeader"/>.</summary>
     private static readonly HashSet<string> HeaderLabelNames = new(StringComparer.OrdinalIgnoreCase)

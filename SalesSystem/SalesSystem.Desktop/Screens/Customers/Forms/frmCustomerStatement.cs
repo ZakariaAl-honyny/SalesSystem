@@ -51,7 +51,7 @@ public partial class frmCustomerStatement : Form
         // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط (شاشة عرض/كشف: لا تُعاد بنيتها).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
 
         // RULE-N43: مظهر واضح للأزرار عند التعطيل (تحديث معطّل أثناء تنفيذ الكشف).
@@ -270,7 +270,7 @@ public partial class frmCustomerStatement : Form
                         Date = inv.InvoiceDate,
                         Type = "فاتورة بيع",
                         Reference = inv.InvoiceNo.ToString(),
-                        Description = $"فاتورة بيع آجلة [{inv.Items.Count} صنف]",
+                        Description = $"فاتورة بيع آجلة [{clsFormat.Number(inv.Items.Count)} صنف]",
                         Debit = inv.NetTotal,
                         Credit = 0
                     });
@@ -309,7 +309,7 @@ public partial class frmCustomerStatement : Form
                         Date = inv.InvoiceDate,
                         Type = "فاتورة بيع",
                         Reference = inv.InvoiceNo.ToString(),
-                        Description = $"فاتورة بيع — دفع مختلط [{inv.Items.Count} صنف]",
+                        Description = $"فاتورة بيع — دفع مختلط [{clsFormat.Number(inv.Items.Count)} صنف]",
                         Debit = inv.NetTotal,
                         Credit = 0
                     });
@@ -337,7 +337,7 @@ public partial class frmCustomerStatement : Form
                     Date = ret.ReturnDate,
                     Type = "مردود مبيعات",
                     Reference = ret.ReturnNo.ToString(),
-                    Description = $"مردود مبيعات [{ret.Items.Count} صنف]",
+                    Description = $"مردود مبيعات [{clsFormat.Number(ret.Items.Count)} صنف]",
                     Debit = 0,
                     Credit = ret.TotalAmount
                 });
@@ -451,12 +451,12 @@ public partial class frmCustomerStatement : Form
             cardCreditValue.Text = clsFormat.Money(totalCredit);
             cardClosingValue.Text = clsFormat.Money(running);
             cardClosingValue.ForeColor = running > 0
-                ? Color.FromArgb(192, 57, 43)   // مدين (عليه)
+                ? GreenThemeHelper.StatusDanger    // مدين (عليه)
                 : running < 0
-                    ? Color.FromArgb(39, 174, 96) // دائن (له)
-                    : Color.FromArgb(52, 73, 94);
+                    ? GreenThemeHelper.StatusSuccess // دائن (له)
+                    : GreenThemeHelper.StatusNeutral;
 
-            lblRecordsCount.Text = periodMovements.Count.ToString();
+            lblRecordsCount.Text = clsFormat.Number(periodMovements.Count);
 
             // RULE-N22: إشعار «لا توجد بيانات» داخل الشاشة عند خلو الفترة من الحركات.
             lblNoData.Visible = dgvStatement.Rows.Count == 0;
@@ -533,17 +533,17 @@ public partial class frmCustomerStatement : Form
         {
             dgvAging.Rows.Add(
                 b.Label,
-                b.Count.ToString(),
+                clsFormat.Number(b.Count),
                 clsFormat.Money(b.Amount),
-                b.Percentage.ToString("N1") + " %");
+                clsFormat.Percent(b.Percentage));
         }
 
         // صف الإجمالي
         int totalRow = dgvAging.Rows.Add(
             "الإجمالي",
-            creditInvoices.Count.ToString(),
+            clsFormat.Number(creditInvoices.Count),
             clsFormat.Money(totalOverdue),
-            totalOverdue > 0 ? "100 %" : "0 %");
+            clsFormat.Percent(totalOverdue > 0 ? 100m : 0m));
         dgvAging.Rows[totalRow].Tag = "Total";
         dgvAging.Rows[totalRow].DefaultCellStyle.Font = new Font(dgvAging.Font, FontStyle.Bold);
     }
@@ -558,8 +558,8 @@ public partial class frmCustomerStatement : Form
 
         if (isOpeningRow)
         {
-            e.CellStyle.BackColor = Color.FromArgb(241, 242, 246);
-            e.CellStyle.ForeColor = Color.FromArgb(108, 117, 125);
+            e.CellStyle.BackColor = GreenThemeHelper.StatusNeutralBack;
+            e.CellStyle.ForeColor = GreenThemeHelper.StatusMuted;
             e.CellStyle.Font = new Font(dgvStatement.Font, FontStyle.Bold);
             return;
         }
@@ -572,18 +572,18 @@ public partial class frmCustomerStatement : Form
                 e.CellStyle.Font = new Font(dgvStatement.Font, FontStyle.Bold);
                 e.CellStyle.ForeColor = type switch
                 {
-                    "فاتورة بيع" or "فاتورة بيع نقدية" => Color.FromArgb(41, 128, 185),   // أزرق
-                    "سند قبض" or "دفعة مع الفاتورة" or "دفعة مختلطة" => Color.FromArgb(39, 174, 96),    // أخضر
-                    "مردود مبيعات" => Color.FromArgb(211, 84, 0),     // برتقالي
-                    "قيد يومية" => Color.FromArgb(142, 68, 173),      // بنفسجي
-                    _ => Color.FromArgb(52, 73, 94)
+                    "فاتورة بيع" or "فاتورة بيع نقدية" => GreenThemeHelper.StatusInfo,     // أزرق
+                    "سند قبض" or "دفعة مع الفاتورة" or "دفعة مختلطة" => GreenThemeHelper.StatusSuccess,    // أخضر
+                    "مردود مبيعات" => GreenThemeHelper.StatusWarning,   // برتقالي
+                    "قيد يومية" => GreenThemeHelper.StatusJournal,     // بنفسجي — ثابت التصنيف
+                    _ => GreenThemeHelper.StatusNeutral
                 };
                 break;
 
             case "ColDebit":
                 if (e.Value is string debitText && debitText.Length > 0)
                 {
-                    e.CellStyle.ForeColor = Color.FromArgb(192, 57, 43);
+                    e.CellStyle.ForeColor = GreenThemeHelper.StatusDanger;
                     e.CellStyle.Font = new Font(dgvStatement.Font, FontStyle.Bold);
                 }
                 break;
@@ -591,7 +591,7 @@ public partial class frmCustomerStatement : Form
             case "ColCredit":
                 if (e.Value is string creditText && creditText.Length > 0)
                 {
-                    e.CellStyle.ForeColor = Color.FromArgb(39, 174, 96);
+                    e.CellStyle.ForeColor = GreenThemeHelper.StatusSuccess;
                     e.CellStyle.Font = new Font(dgvStatement.Font, FontStyle.Bold);
                 }
                 break;
@@ -601,10 +601,10 @@ public partial class frmCustomerStatement : Form
                 {
                     e.CellStyle.Font = new Font(dgvStatement.Font, FontStyle.Bold);
                     e.CellStyle.ForeColor = balance > 0
-                        ? Color.FromArgb(192, 57, 43)   // مدين
+                        ? GreenThemeHelper.StatusDanger    // مدين
                         : balance < 0
-                            ? Color.FromArgb(39, 174, 96) // دائن
-                            : Color.FromArgb(52, 73, 94);
+                            ? GreenThemeHelper.StatusSuccess // دائن
+                            : GreenThemeHelper.StatusNeutral;
                 }
                 break;
         }
@@ -616,7 +616,7 @@ public partial class frmCustomerStatement : Form
 
         if (dgvAging.Rows[e.RowIndex].Tag as string == "Total")
         {
-            e.CellStyle.BackColor = Color.FromArgb(52, 73, 94);
+            e.CellStyle.BackColor = GreenThemeHelper.StatusNeutral;
             e.CellStyle.ForeColor = Color.White;
             e.CellStyle.Font = new Font(dgvAging.Font, FontStyle.Bold);
         }
@@ -629,7 +629,7 @@ public partial class frmCustomerStatement : Form
         if (cmbCustomer.SelectedIndex >= 0 && cmbCustomer.SelectedIndex < _customers.Count)
         {
             var customer = _customers[cmbCustomer.SelectedIndex];
-            lblCustomerInfo.Text = $"الرصيد الحالي: {customer.CurrentBalance:N2} | الحد الائتماني: {customer.CreditLimit:N2}";
+            lblCustomerInfo.Text = $"الرصيد الحالي: {clsFormat.Money(customer.CurrentBalance)} | الحد الائتماني: {clsFormat.Money(customer.CreditLimit)}";
         }
         _RefreshStatement();
     }

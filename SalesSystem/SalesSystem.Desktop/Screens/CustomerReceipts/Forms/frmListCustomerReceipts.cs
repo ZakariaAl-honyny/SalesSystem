@@ -33,7 +33,7 @@ public partial class frmListCustomerReceipts : Form
         // RULE-N40/RULE-N95: الستة من KeyboardHelper — تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose, btnClearFilters); // RULE-N43
 
@@ -357,7 +357,7 @@ public partial class frmListCustomerReceipts : Form
             int rowIndex = dgvReceipts.Rows.Add(
                 r.Id,
                 r.ReceiptNo,
-                r.ReceiptDate.ToString("yyyy-MM-dd"),
+                clsFormat.DateToDayMonthYear(r.ReceiptDate),
                 r.CustomerName ?? "",
                 clsFormat.Money(r.Amount),
                 r.PaymentMethodName ?? "",
@@ -389,14 +389,14 @@ public partial class frmListCustomerReceipts : Form
         int cancelled = _filteredReceipts.Count(r => r.Status == StatusCancelled);
 
         lblSummary.Text =
-            $"المعروض: {shown} من {_allReceipts.Count} — الإجمالي: {total:N2} · مرحّل: {posted} · ملغى: {cancelled}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_allReceipts.Count)} — الإجمالي: {clsFormat.Money(total)} · مرحّل: {clsFormat.Number(posted)} · ملغى: {clsFormat.Number(cancelled)}";
 
         _UpdateRecordsCount();
     }
 
     private void _UpdateRecordsCount()
     {
-        lblRecordsCount.Text = _filteredReceipts.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(_filteredReceipts.Count);
     }
 
     private int _GetSelectedId()

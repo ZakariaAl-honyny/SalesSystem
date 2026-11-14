@@ -56,7 +56,8 @@ public partial class frmSalesByCategoryReport : Form, IExportableReport
     {
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TotalAmount);
-        lblRecordsCount.Text = $"عدد التصنيفات: {list.Count} | الإجمالي: {total:N2}";
+        // RULE-N179 — كل عدد ومبلغ من البيت الواحد clsFormat
+        lblRecordsCount.Text = $"عدد التصنيفات: {clsFormat.Number(list.Count)} | الإجمالي: {clsFormat.Money(total)}";
     }
 
     private void FormatGrid()

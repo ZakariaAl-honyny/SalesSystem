@@ -113,6 +113,7 @@ partial class frmCashBoxMaster
         // 
         txtCode.Location = new Point(1267, 42);
         txtCode.Name = "txtCode";
+        txtCode.BackColor = Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -142,6 +143,7 @@ partial class frmCashBoxMaster
         // 
         txtName.Location = new Point(885, 42);
         txtName.Name = "txtName";
+        txtName.BackColor = Color.White;
         txtName.Size = new Size(356, 32);
         txtName.TabIndex = 1;
         // 
@@ -159,6 +161,7 @@ partial class frmCashBoxMaster
         txtDescription.Location = new Point(675, 85);
         txtDescription.Multiline = true;
         txtDescription.Name = "txtDescription";
+        txtDescription.BackColor = Color.White;
         txtDescription.Size = new Size(566, 56);
         txtDescription.TabIndex = 2;
         // 
@@ -371,6 +374,7 @@ partial class frmCashBoxMaster
         txtSearch.Location = new Point(460, 26);
         txtSearch.Margin = new Padding(0);
         txtSearch.Name = "txtSearch";
+        txtSearch.BackColor = Color.White;
         txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(412, 32);
         txtSearch.TabIndex = 4;

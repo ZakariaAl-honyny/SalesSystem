@@ -46,7 +46,7 @@ public partial class frmPurchaseItemInfo : Form
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnClose);                         // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
@@ -100,7 +100,7 @@ public partial class frmPurchaseItemInfo : Form
         lblProductName.Text = MockItem.Name;
         lblBarcodeValue.Text = MockItem.Barcode;
         lblCategoryValue.Text = MockItem.Category;
-        lblStockValue.Text = $"{MockItem.CurrentStock:N3} {MockItem.Unit}";
+        lblStockValue.Text = $"{clsFormat.Quantity(MockItem.CurrentStock)} {MockItem.Unit}";
 
         // سجل المشتريات (مرتب زمنياً)
         var ordered = MockHistory.OrderBy(p => p.Date).ToList();
@@ -116,7 +116,7 @@ public partial class frmPurchaseItemInfo : Form
                 clsFormat.Money(purchase.Total));
         }
 
-        lblRecordsCount.Text = ordered.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(ordered.Count);
 
         // RULE-N23 — سطر «لا توجد بيانات» عند خلوّ الشبكة.
         emptyState.Visible = ordered.Count == 0;

@@ -88,7 +88,7 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
         var totalCost = list.Where(x => x.Category == "تكلفة المشتريات" || x.Category == "المصروفات" || x.Category == "تكلفة المبيعات").Sum(x => Math.Abs(x.Amount));
         var netProfit = totalRevenue - totalCost;
 
-        lblRecordsCount.Text = $"إجمالي الإيرادات: {totalRevenue:N2} | إجمالي التكاليف: {totalCost:N2} | صافي الربح: {netProfit:N2}";
+        lblRecordsCount.Text = $"إجمالي الإيرادات: {clsFormat.Money(totalRevenue)} | إجمالي التكاليف: {clsFormat.Money(totalCost)} | صافي الربح: {clsFormat.Money(netProfit)}";
     }
 
     private void FormatGrid()

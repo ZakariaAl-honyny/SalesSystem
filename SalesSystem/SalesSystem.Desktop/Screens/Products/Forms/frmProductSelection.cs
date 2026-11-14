@@ -46,7 +46,7 @@ public partial class frmProductSelection : Form
         // (WireArrowNavigation لا يلمس Enter ولا شبكات البيانات).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
 
         // RULE-N43: زر «اختيار» معطّل بلا سجل محدد، ورمادي باهت عند التعطيل.
@@ -548,5 +548,31 @@ public partial class frmProductSelection : Form
     {
         DialogResult = DialogResult.Cancel;
         Close();
+    }
+
+    // ── Context Menu (RULE-N23) ───────────────────────────────────────────────
+
+    /// <summary>
+    /// «اختيار» من قائمة السياق تستدعي نفس زر «اختيار» (نفس مسار النقر المزدوج/Enter)
+    /// ولا تُنفَّذ إن كان الزر معطّلاً — بلا أي منطق مكرر (RULE-N23).
+    /// </summary>
+    private void cmsSelect_Click(object sender, EventArgs e)
+    {
+        if (btnSelect.Enabled) btnSelect.PerformClick();
+    }
+
+    /// <summary>«تحديث» من قائمة السياق تستدعي نفس معالج F5 الموجود في الشاشة (RULE-N23/RULE-N47).</summary>
+    private void cmsRefresh_Click(object sender, EventArgs e) => _LoadProducts();
+
+    /// <summary>تُلغى القائمة عند عدم وجود سطر محدد في شبكة المنتجات (RULE-N23).</summary>
+    private void cmsRows_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (dgvProducts.CurrentRow?.DataBoundItem is not DataRowView)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        cmsSelect.Enabled = btnSelect.Enabled;
     }
 }

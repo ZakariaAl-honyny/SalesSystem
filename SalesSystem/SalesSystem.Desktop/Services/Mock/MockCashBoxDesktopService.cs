@@ -1,3 +1,4 @@
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
@@ -24,8 +25,20 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
             : Task.FromResult(Result<CashBoxDto>.Success(box));
     }
 
+    // ── تكافؤ الرفض مع الـBLL (RULE-N167): المقارنة النصية في البيت الواحد StringExtensions.SameText ──
+    private static bool _NameExists(string? name, int? exceptId)
+        => !string.IsNullOrWhiteSpace(name) &&
+           MockData.CashBoxes.Any(c => c.Id != exceptId &&
+               c.Name.SameText(name));
+
     public Task<Result<CashBoxDto>> CreateAsync(CreateCashBoxRequest r, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<CashBoxDto>.Failure("اسم الصندوق مطلوب"));
+
+        if (_NameExists(r.Name, null))
+            return Task.FromResult(Result<CashBoxDto>.Failure("اسم الصندوق مستخدم بالفعل"));
+
         var nextId = MockData.CashBoxes.Count > 0 ? MockData.CashBoxes.Max(c => c.Id) + 1 : 1;
         var nextAccountId = MockData.CashBoxes.Count > 0 ? MockData.CashBoxes.Max(c => c.AccountId) + 1 : 200;
         var box = new CashBoxDto(
@@ -50,6 +63,12 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
         var existing = MockData.CashBoxes.FirstOrDefault(c => c.Id == id);
         if (existing is null)
             return Task.FromResult(Result<CashBoxDto>.Failure("الصندوق النقدي غير موجود"));
+
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<CashBoxDto>.Failure("اسم الصندوق مطلوب"));
+
+        if (_NameExists(r.Name, id))
+            return Task.FromResult(Result<CashBoxDto>.Failure("اسم الصندوق مستخدم بالفعل"));
 
         var updated = existing with
         {

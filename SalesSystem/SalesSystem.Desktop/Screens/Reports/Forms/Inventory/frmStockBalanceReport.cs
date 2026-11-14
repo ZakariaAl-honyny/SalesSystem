@@ -56,7 +56,7 @@ public partial class frmStockBalanceReport : Form, IExportableReport
     {
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
         var value = list.Sum(x => x.TotalValue);
-        lblRecordsCount.Text = $"عدد الأصناف: {list.Count} | القيمة الإجمالية: {value:N2}";
+        lblRecordsCount.Text = $"عدد الأصناف: {clsFormat.Number(list.Count)} | القيمة الإجمالية: {clsFormat.Money(value)}";
     }
 
     private void FormatGrid()

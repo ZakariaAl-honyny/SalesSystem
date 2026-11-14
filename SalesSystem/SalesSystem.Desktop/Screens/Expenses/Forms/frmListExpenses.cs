@@ -12,8 +12,8 @@ namespace SalesSystem.Desktop.Screens.Expenses.Forms;
 
 public partial class frmListExpenses : Form
 {
-    /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    /// <summary>RULE-N46 + RULE-N54b: لون الحقل النشط يُقرأ حيّاً من لوحة الثيم (خاصية لا حقل ثابت).</summary>
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
     private List<ExpenseDto> _allExpenses = new();
@@ -250,7 +250,7 @@ public partial class frmListExpenses : Form
             dgvExpenses.Rows.Add(
                 ex.Id,
                 ex.ExpenseNo,
-                ex.ExpenseDate.ToString("yyyy-MM-dd"),
+                clsFormat.DateToShort(ex.ExpenseDate),
                 ex.ExpenseAccountName ?? "",
                 ex.CashBoxName ?? "",
                 clsFormat.Money(ex.Amount),

@@ -91,11 +91,11 @@ public partial class frmStocktakingPrintAdjustment : Form
     private void _BindVoucher()
     {
         lblVoucherNoValue.Text = _voucher.VoucherNo;
-        lblDateValue.Text = _voucher.Date.ToString("dd/MM/yyyy");
+        lblDateValue.Text = clsFormat.DateToDayMonthYear(_voucher.Date);
         lblWarehouseValue.Text = _voucher.Warehouse;
         lblReasonValue.Text = _voucher.Reason;
-        lblItemCountValue.Text = $"{_voucher.ItemCount} أصناف";
-        lblTotalValue.Text = _voucher.TotalValue.ToString("N0") + " ريال يمني";
+        lblItemCountValue.Text = $"{clsFormat.Number(_voucher.ItemCount)} أصناف";
+        lblTotalValue.Text = clsFormat.Money(_voucher.TotalValue) + " ريال يمني";
     }
 
     // ── أحداث الواجهة ─────────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ public partial class frmStocktakingPrintAdjustment : Form
             clsDialogs.Success(
                 $"تمت طباعة سند تسوية الجرد رقم {_voucher.VoucherNo} بنجاح.\n" +
                 $"المستودع: {_voucher.Warehouse} — سبب التسوية: {_voucher.Reason}\n" +
-                $"عدد الأصناف: {_voucher.ItemCount} — إجمالي قيمة التسوية: {_voucher.TotalValue:N0} ريال يمني\n" +
+                $"عدد الأصناف: {clsFormat.Number(_voucher.ItemCount)} — إجمالي قيمة التسوية: {clsFormat.Money(_voucher.TotalValue)} ريال يمني\n" +
                 "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
@@ -125,7 +125,7 @@ public partial class frmStocktakingPrintAdjustment : Form
 
     private void pnlDashedSeparator_Paint(object? sender, PaintEventArgs e)
     {
-        using var pen = new Pen(Color.FromArgb(190, 195, 200), 2) { DashStyle = DashStyle.Dash };
+        using var pen = new Pen(GreenThemeHelper.GridLine, 2) { DashStyle = DashStyle.Dash };
         int y = pnlDashedSeparator.Height / 2;
         e.Graphics.DrawLine(pen, 6, y, pnlDashedSeparator.Width - 6, y);
     }

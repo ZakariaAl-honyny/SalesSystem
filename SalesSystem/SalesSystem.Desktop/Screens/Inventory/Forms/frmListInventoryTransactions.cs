@@ -16,7 +16,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmListInventoryTransactions : Form
 {
     /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
     private readonly CancellationTokenSource _loadCts = new();
@@ -117,22 +117,36 @@ public partial class frmListInventoryTransactions : Form
     //  الشبكة
     // ═════════════════════════════════════════════════════════════════
 
-    private static DataGridViewTextBoxColumn _MakeColumn(string name, string header, int fill, int min, string? format = null)
+    private static DataGridViewTextBoxColumn _MakeColumn(string name, string header, int fill, int min)
     {
-        var column = new DataGridViewTextBoxColumn
+        // RULE-N179: لا صيغة حرفية في العمود — العرض الرقمي/التاريخي يمرّ عبر clsFormat في CellFormatting.
+        return new DataGridViewTextBoxColumn
         {
             Name = name, HeaderText = header, DataPropertyName = name,
             MinimumWidth = min, FillWeight = fill, ReadOnly = true,
         };
+    }
 
-        if (!string.IsNullOrEmpty(format))
+    /// <summary>
+    /// RULE-N179 — التاريخ والكمية المعروضان في الشبكة يأتيان من البيت الواحد <see cref="clsFormat"/>،
+    /// والقيمة الأصلية (DateTime/decimal) تبقى في <c>Value</c> فيحتفظ الترتيب والتصفية بنوعيهما.
+    /// </summary>
+    private void dgvTransactions_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+    {
+        if (e.RowIndex < 0 || e.Value is null or DBNull) return;
+
+        switch (dgvTransactions.Columns[e.ColumnIndex].Name)
         {
-            // FormatProvider ثابت (ميلادي/أرقام لاتينية) حتى لا يتأثر العرض بثقافة جهاز المستخدم.
-            column.DefaultCellStyle.Format = format!;
-            column.DefaultCellStyle.FormatProvider = CultureInfo.InvariantCulture;
-        }
+            case "CreatedAt" when e.Value is DateTime createdAt:
+                e.Value = clsFormat.DateToLong(createdAt);
+                e.FormattingApplied = true;
+                break;
 
-        return column;
+            case "Quantity" when e.Value is decimal quantity:
+                e.Value = clsFormat.Quantity(quantity);
+                e.FormattingApplied = true;
+                break;
+        }
     }
 
     private void _SetupGridColumns()
@@ -146,9 +160,13 @@ public partial class frmListInventoryTransactions : Form
         dgvTransactions.Columns.Add(_MakeColumn("TransactionNo", "رقم الحركة", 8, 100));
         dgvTransactions.Columns.Add(_MakeColumn("MovementTypeDisplay", "نوع الحركة", 12, 120));
         dgvTransactions.Columns.Add(_MakeColumn("WarehouseName", "المستودع", 12, 130));
-        dgvTransactions.Columns.Add(_MakeColumn("CreatedAt", "التاريخ", 10, 130, "yyyy-MM-dd HH:mm"));
-        dgvTransactions.Columns.Add(_MakeColumn("Quantity", "الكمية", 8, 100, "N3"));
+        dgvTransactions.Columns.Add(_MakeColumn("CreatedAt", "التاريخ", 10, 130));
+        dgvTransactions.Columns.Add(_MakeColumn("Quantity", "الكمية", 8, 100));
         dgvTransactions.Columns.Add(_MakeColumn("Notes", "ملاحظات", 15, 200));
+
+        // RULE-N179: عرض التاريخ والكمية من البيت الواحد clsFormat — بلا صيغة حرفية داخل العمود.
+        dgvTransactions.CellFormatting -= dgvTransactions_CellFormatting;
+        dgvTransactions.CellFormatting += dgvTransactions_CellFormatting;
 
         // الشاشة عرض فقط: لا تحرير ولا إضافة أسطر (RULE-N22).
         dgvTransactions.AllowUserToAddRows = false;
@@ -372,9 +390,9 @@ public partial class frmListInventoryTransactions : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {shown} من {_transactionsTable.Rows.Count} — وارد: {inQuantity:N3} · صادر: {outQuantity:N3}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_transactionsTable.Rows.Count)} — وارد: {clsFormat.Quantity(inQuantity)} · صادر: {clsFormat.Quantity(outQuantity)}";
 
-        lblRecordsCount.Text = shown.ToString();
+        lblRecordsCount.Text = clsFormat.Number(shown);
 
         // سطر «لا توجد بيانات» — طبقة نصية فوق الشبكة عند فراغ النتيجة.
         bool empty = shown == 0;
@@ -495,15 +513,15 @@ public partial class frmListInventoryTransactions : Form
             details.AppendLine($"رقم الحركة: {tx.TransactionNo}");
             details.AppendLine($"النوع: {tx.MovementTypeDisplay}");
             details.AppendLine($"المستودع: {tx.WarehouseName ?? "-"}");
-            details.AppendLine($"التاريخ: {tx.CreatedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)}");
+            details.AppendLine($"التاريخ: {clsFormat.DateToLong(tx.CreatedAt)}");
             details.AppendLine($"ملاحظات: {tx.Notes ?? "-"}");
-            details.AppendLine($"--- البنود ({tx.Lines?.Count ?? 0}) ---");
+            details.AppendLine($"--- البنود ({clsFormat.Number(tx.Lines?.Count ?? 0)}) ---");
 
             if (tx.Lines is { Count: > 0 })
             {
                 foreach (var line in tx.Lines)
                 {
-                    details.AppendLine($"- {line.ProductUnitName ?? "?"} | كمية: {line.Quantity:N3} | تكلفة: {line.UnitCost:N2}");
+                    details.AppendLine($"- {line.ProductUnitName ?? "?"} | كمية: {clsFormat.Quantity(line.Quantity)} | تكلفة: {clsFormat.Money(line.UnitCost)}");
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Controls.Common;
 
@@ -30,7 +31,7 @@ public sealed class LoadingOverlayControl : UserControl
         {
             Text = _loadingText,
             Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-            ForeColor = Color.FromArgb(33, 150, 243),
+            ForeColor = GreenThemeHelper.StatusInfo,
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleCenter
         };

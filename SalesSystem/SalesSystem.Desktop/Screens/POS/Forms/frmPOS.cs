@@ -62,7 +62,7 @@ public partial class frmPOS : Form
         // RULE-N95 — الستة من KeyboardHelper (تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnNew, btnSave, btnRemoveLine, btnApplyLine); // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                      // RULE-N47
@@ -431,7 +431,7 @@ public partial class frmPOS : Form
 
         var lblStock = new Label
         {
-            Text = $"المتاح: {product.CurrentStock:0.###}",
+            Text = $"المتاح: {clsFormat.Quantity(product.CurrentStock)}",
             Font = new Font("Tahoma", 9F, FontStyle.Bold),
             ForeColor = GreenThemeHelper.TextStrong,
             Location = new Point(108, 45),
@@ -601,7 +601,7 @@ public partial class frmPOS : Form
         RecalculateTotals();
         SelectCartRow(line);
 
-        _lastAddedInfo = $"{product.Name} — {unit.UnitName} — {unit.SalePrice:N2}";
+        _lastAddedInfo = $"{product.Name} — {unit.UnitName} — {clsFormat.Money(unit.SalePrice)}";
         UpdateInvoiceInfoLabel();
     }
 
@@ -645,9 +645,9 @@ public partial class frmPOS : Form
             decimal invoiceDiscount = Math.Clamp(numInvoiceDiscount.Value, 0m, subTotal);
             decimal netTotal = subTotal - invoiceDiscount;
 
-            lblSubTotal.Text = $"المجموع الفرعي: {subTotal:N2}";
-            lblDiscountTotal.Text = $"إجمالي الخصم: {invoiceDiscount:N2}";
-            lblNetTotal.Text = $"الصافي: {netTotal:N2}";
+            lblSubTotal.Text = $"المجموع الفرعي: {clsFormat.Money(subTotal)}";
+            lblDiscountTotal.Text = $"إجمالي الخصم: {clsFormat.Money(invoiceDiscount)}";
+            lblNetTotal.Text = $"الصافي: {clsFormat.Money(netTotal)}";
 
             // التفقيط الحيّ — نفس نمط شاشة الفاتورة المرجعية
             lblTafqit.Text = netTotal > 0m ? ArabicNumberToWords.ToWords(netTotal) : "—";
@@ -660,7 +660,7 @@ public partial class frmPOS : Form
             decimal remaining = netTotal - paid;
             bool cash = rbtnCash.Checked;
 
-            lblRemaining.Text = cash ? $"الباقي: {remaining:N2}" : $"المتبقي: {remaining:N2}";
+            lblRemaining.Text = cash ? $"الباقي: {clsFormat.Money(remaining)}" : $"المتبقي: {clsFormat.Money(remaining)}";
             lblRemaining.ForeColor = cash && remaining != 0m
                 ? ThemeHelper.Danger
                 : GreenThemeHelper.TextStrong;
@@ -1067,7 +1067,7 @@ public partial class frmPOS : Form
     private void UpdateInvoiceInfoLabel()
     {
         var text =
-            $"{DateTime.Today:yyyy/MM/dd}   |   المخزن: {cbWarehouse.Text}   |   الصندوق: {cbCashBox.Text}   |   العميل: {cbCustomer.Text}";
+            $"{clsFormat.DateToShort(DateTime.Today)}   |   المخزن: {cbWarehouse.Text}   |   الصندوق: {cbCashBox.Text}   |   العميل: {cbCustomer.Text}";
 
         if (!string.IsNullOrWhiteSpace(_lastAddedInfo))
             text += $"   |   آخر صنف: {_lastAddedInfo}";
@@ -1258,6 +1258,7 @@ public partial class frmPOS : Form
         {
             error = "السلة فارغة. أضف صنفاً واحداً على الأقل.";
             errorProvider.SetError(dgvCart, error);
+            clsInputFeedback.ShowRejectTooltip(dgvCart, error!, toolTip);   // GAP-08b — تغذية مرئية بنفس نص الرفض
             return false;
         }
 
@@ -1266,6 +1267,7 @@ public partial class frmPOS : Form
         {
             error = "اختر المخزن أولاً.";
             errorProvider.SetError(cbWarehouse, error);
+            clsInputFeedback.ShowRejectTooltip(cbWarehouse, error!, toolTip);   // GAP-08b
             return false;
         }
 
@@ -1274,6 +1276,7 @@ public partial class frmPOS : Form
         {
             error = "اختر الصندوق النقدي أولاً.";
             errorProvider.SetError(cbCashBox, error);
+            clsInputFeedback.ShowRejectTooltip(cbCashBox, error!, toolTip);   // GAP-08b
             return false;
         }
 
@@ -1285,6 +1288,7 @@ public partial class frmPOS : Form
             {
                 error = $"كمية الصنف «{line.Name}» يجب أن تكون أكبر من صفر.";
                 errorProvider.SetError(dgvCart, error);
+                clsInputFeedback.ShowRejectTooltip(dgvCart, error!, toolTip);   // GAP-08b
                 return false;
             }
 
@@ -1292,6 +1296,7 @@ public partial class frmPOS : Form
             {
                 error = $"سعر الصنف «{line.Name}» لا يمكن أن يكون سالباً.";
                 errorProvider.SetError(dgvCart, error);
+                clsInputFeedback.ShowRejectTooltip(dgvCart, error!, toolTip);   // GAP-08b
                 return false;
             }
 
@@ -1299,6 +1304,7 @@ public partial class frmPOS : Form
             {
                 error = $"خصم الصنف «{line.Name}» يجب أن يكون بين صفر وقيمة السطر.";
                 errorProvider.SetError(dgvCart, error);
+                clsInputFeedback.ShowRejectTooltip(dgvCart, error!, toolTip);   // GAP-08b
                 return false;
             }
         }
@@ -1309,8 +1315,9 @@ public partial class frmPOS : Form
         {
             if (numPaid.Value < 0m || numPaid.Value > netTotal)
             {
-                error = $"المبلغ المدفوع نقداً يجب أن يكون بين 0 و {netTotal:N2}.";
+                error = $"المبلغ المدفوع نقداً يجب أن يكون بين {clsFormat.Money(0m)} و {clsFormat.Money(netTotal)}.";
                 errorProvider.SetError(numPaid, error);
+                clsInputFeedback.ShowRejectTooltip(numPaid, error!, toolTip);   // GAP-08b
                 return false;
             }
         }
@@ -1318,6 +1325,7 @@ public partial class frmPOS : Form
         {
             error = "البيع الآجل يتطلب اختيار عميل.";
             errorProvider.SetError(cbCustomer, error);
+            clsInputFeedback.ShowRejectTooltip(cbCustomer, error!, toolTip);   // GAP-08b
             return false;
         }
 

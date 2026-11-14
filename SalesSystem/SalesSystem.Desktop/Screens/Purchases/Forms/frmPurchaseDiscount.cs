@@ -26,7 +26,7 @@ public partial class frmPurchaseDiscount : Form
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
@@ -158,8 +158,12 @@ public partial class frmPurchaseDiscount : Form
 
             if (DiscountValue < 0)
             {
-                errorProvider.SetError(numDiscount, "لا يمكن أن تكون قيمة الخصم سالبة.");
-                clsDialogs.Warning("لا يمكن أن تكون قيمة الخصم سالبة.");
+                const string negativeDiscountMessage = "لا يمكن أن تكون قيمة الخصم سالبة.";
+
+                // GAP-08b + RULE-N169: رفض واحد يقرن errorProvider بالتغذية البصرية بنفس النص.
+                errorProvider.SetError(numDiscount, negativeDiscountMessage);
+                clsInputFeedback.ShowRejectTooltip(numDiscount, negativeDiscountMessage, toolTip);
+                clsDialogs.Warning(negativeDiscountMessage);
                 numDiscount.Focus();
                 return;
             }
@@ -167,8 +171,11 @@ public partial class frmPurchaseDiscount : Form
             // منع خصم أكبر من المجموع الفرعي عند الخصم بالمبلغ
             if (!IsPercentageDiscount && DiscountValue > Subtotal)
             {
-                errorProvider.SetError(numDiscount, "قيمة الخصم أكبر من المجموع الفرعي للفاتورة.");
-                clsDialogs.Warning("قيمة الخصم أكبر من المجموع الفرعي للفاتورة.");
+                const string exceedsSubtotalMessage = "قيمة الخصم أكبر من المجموع الفرعي للفاتورة.";
+
+                errorProvider.SetError(numDiscount, exceedsSubtotalMessage);
+                clsInputFeedback.ShowRejectTooltip(numDiscount, exceedsSubtotalMessage, toolTip);
+                clsDialogs.Warning(exceedsSubtotalMessage);
                 numDiscount.Focus();
                 return;
             }
@@ -176,8 +183,11 @@ public partial class frmPurchaseDiscount : Form
             // منع خصم بنسبة تتجاوز 100%
             if (IsPercentageDiscount && DiscountValue > 100m)
             {
-                errorProvider.SetError(numDiscount, "نسبة الخصم لا يمكن أن تتجاوز 100%.");
-                clsDialogs.Warning("نسبة الخصم لا يمكن أن تتجاوز 100%.");
+                const string exceedsPercentMessage = "نسبة الخصم لا يمكن أن تتجاوز 100%.";
+
+                errorProvider.SetError(numDiscount, exceedsPercentMessage);
+                clsInputFeedback.ShowRejectTooltip(numDiscount, exceedsPercentMessage, toolTip);
+                clsDialogs.Warning(exceedsPercentMessage);
                 numDiscount.Focus();
                 return;
             }

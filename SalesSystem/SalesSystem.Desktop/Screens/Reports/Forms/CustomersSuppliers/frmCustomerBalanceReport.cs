@@ -3,6 +3,7 @@ using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.Common;
 using SalesSystem.Desktop.Controls.Common;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -131,7 +132,7 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
         var totalSales = list.Sum(x => x.TotalSales);
         var totalPayments = list.Sum(x => x.TotalPayments);
 
-        lblSummary.Text = $"عدد العملاء: {list.Count} | إجمالي المبيعات: {totalSales:N2} | إجمالي المدفوعات: {totalPayments:N2} | الرصيد: {totalBalance:N2}";
+        lblSummary.Text = $"عدد العملاء: {clsFormat.Number(list.Count)} | إجمالي المبيعات: {clsFormat.Money(totalSales)} | إجمالي المدفوعات: {clsFormat.Money(totalPayments)} | الرصيد: {clsFormat.Money(totalBalance)}";
     }
 
     private void FormatGrid()

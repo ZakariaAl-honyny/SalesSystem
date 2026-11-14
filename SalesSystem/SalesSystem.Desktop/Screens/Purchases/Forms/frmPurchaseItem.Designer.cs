@@ -409,6 +409,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             dtpExpiry.Location = new Point(183, 5);
             dtpExpiry.MinDate = DateTime.Today;
             dtpExpiry.Name = "dtpExpiry";
+            dtpExpiry.BackColor = Color.White;
             dtpExpiry.Size = new Size(170, 24);
             dtpExpiry.TabIndex = 1;
             dtpExpiry.Value = DateTime.Today.AddMonths(6);

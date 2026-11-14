@@ -181,6 +181,7 @@
             this.txtFilterValue.Location = new System.Drawing.Point(292, 26);
             this.txtFilterValue.Margin = new System.Windows.Forms.Padding(0);
             this.txtFilterValue.Name = "txtFilterValue";
+            this.txtFilterValue.BackColor = System.Drawing.Color.White;
             this.txtFilterValue.Size = new System.Drawing.Size(236, 30);
             this.txtFilterValue.TabIndex = 2;
             this.txtFilterValue.TextChanged += new System.EventHandler(this.txtFilterValue_TextChanged);
@@ -231,6 +232,7 @@
             this.dtpFrom.Location = new System.Drawing.Point(800, 26);
             this.dtpFrom.Margin = new System.Windows.Forms.Padding(0);
             this.dtpFrom.Name = "dtpFrom";
+            this.dtpFrom.BackColor = System.Drawing.Color.White;
             this.dtpFrom.Size = new System.Drawing.Size(146, 30);
             this.dtpFrom.TabIndex = 6;
             this.dtpFrom.ValueChanged += new System.EventHandler(this.dtpFrom_ValueChanged);
@@ -254,6 +256,7 @@
             this.dtpTo.Location = new System.Drawing.Point(1010, 26);
             this.dtpTo.Margin = new System.Windows.Forms.Padding(0);
             this.dtpTo.Name = "dtpTo";
+            this.dtpTo.BackColor = System.Drawing.Color.White;
             this.dtpTo.Size = new System.Drawing.Size(146, 30);
             this.dtpTo.TabIndex = 8;
             this.dtpTo.ValueChanged += new System.EventHandler(this.dtpTo_ValueChanged);

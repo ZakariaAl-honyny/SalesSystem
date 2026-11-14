@@ -67,7 +67,7 @@ public partial class frmEmployeeMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // الأزرق الفاتح للحقل النشط — RULE-N54b
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
 
         // أزرار الوضع (إضافة/تعديل/حذف) و«مسح التصفية» تتغير حالة تفعيلها حسب الوضع والسجل المحدد،
@@ -461,8 +461,8 @@ public partial class frmEmployeeMaster : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}" +
-            $" · إجمالي رواتب المعروض: {shownSalary:N2}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — نشط: {clsFormat.Number(active)} · معطّل: {clsFormat.Number(inactive)}" +
+            $" · إجمالي رواتب المعروض: {clsFormat.Money(shownSalary)}";
 
         // «لا توجد بيانات» يُعلن في شريط الملخص بدل إضافة صف وهمي إلى الشبكة
         // (الصف الوهمي يُفسد التصدير والتصفية — RULE-N22 / RULE-N61).

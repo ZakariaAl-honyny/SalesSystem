@@ -13,6 +13,11 @@
         private void InitializeComponent()
         {
             // RULE-N134: ألوان المصمّم = ثوابت GreenThemeHelper حرفياً (المصمّم = وقت التشغيل).
+            components = new System.ComponentModel.Container();
+            cmsRows = new ContextMenuStrip(components);
+            cmsSelect = new ToolStripMenuItem();
+            cmsSeparator = new ToolStripSeparator();
+            cmsRefresh = new ToolStripMenuItem();
             txtSearch = new TextBox();
             dgvSuppliers = new DataGridView();
             btnSelect = new Button();
@@ -79,6 +84,7 @@
             dgvSuppliers.Location = new Point(12, 50);
             dgvSuppliers.MultiSelect = false;
             dgvSuppliers.Name = "dgvSuppliers";
+            dgvSuppliers.ContextMenuStrip = cmsRows;
             dgvSuppliers.ReadOnly = true;
             dgvSuppliers.RowHeadersVisible = false;
             dgvSuppliers.RowHeadersWidth = 62;
@@ -125,6 +131,33 @@
             btnCancel.Text = "إلغاء";
             btnCancel.UseVisualStyleBackColor = false;
             btnCancel.Click += btnCancel_Click;
+            // 
+            // cmsRows
+            // 
+            // RULE-N23: قائمة سياق على الشبكة — «اختيار» يستدعي نفس زر الشاشة (بلا منطق مكرر).
+            cmsRows.Items.AddRange(new ToolStripItem[] { cmsSelect, cmsSeparator, cmsRefresh });
+            cmsRows.Name = "cmsRows";
+            cmsRows.Size = new Size(240, 104);
+            cmsRows.Opening += cmsRows_Opening;
+            // 
+            // cmsSelect
+            // 
+            cmsSelect.Name = "cmsSelect";
+            cmsSelect.Size = new Size(239, 30);
+            cmsSelect.Text = "✔ اختيار";
+            cmsSelect.Click += cmsSelect_Click;
+            // 
+            // cmsSeparator
+            // 
+            cmsSeparator.Name = "cmsSeparator";
+            cmsSeparator.Size = new Size(236, 6);
+            // 
+            // cmsRefresh
+            // 
+            cmsRefresh.Name = "cmsRefresh";
+            cmsRefresh.Size = new Size(239, 30);
+            cmsRefresh.Text = "🔄 تحديث (F5)";
+            cmsRefresh.Click += cmsRefresh_Click;
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -185,6 +218,7 @@
             Text = "اختيار مورد";
             Load += frmSupplierSelection_Load;
             ((System.ComponentModel.ISupportInitialize)dgvSuppliers).EndInit();
+            cmsRows.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -194,6 +228,10 @@
         private System.Windows.Forms.Button btnSelect;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label lblNoData;
+        private System.Windows.Forms.ContextMenuStrip cmsRows;
+        private System.Windows.Forms.ToolStripMenuItem cmsSelect;
+        private System.Windows.Forms.ToolStripSeparator cmsSeparator;
+        private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;

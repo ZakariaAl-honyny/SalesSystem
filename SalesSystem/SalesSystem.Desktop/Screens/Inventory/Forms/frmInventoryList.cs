@@ -22,7 +22,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
     public partial class frmInventoryList : Form
     {
         /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-        private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+        private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -132,7 +132,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             var columns = new[]
             {
-                new { Name = "MovementDate",   Header = "التاريخ",        Fill = 12, Min = 150, Format = (string?)"yyyy/MM/dd HH:mm" },
+                new { Name = "MovementDate",   Header = "التاريخ",        Fill = 12, Min = 150, Format = (string?)clsFormat.Get(clsFormat.DateLongPattern) },
                 new { Name = "WarehouseName",  Header = "المستودع",       Fill = 12, Min = 130, Format = (string?)null },
                 new { Name = "MovementType",   Header = "نوع الحركة",     Fill = 12, Min = 120, Format = (string?)null },
                 new { Name = "QuantityChange", Header = "الكمية",         Fill = 10, Min = 100, Format = (string?)"N3" },
@@ -340,10 +340,10 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 else totalOut += change;
             }
 
-            lblRecordsCount.Text = _movementsView.Count.ToString();
-            lblSummary.Text = $"المعروض: {_movementsView.Count} من {_movementsTable.Rows.Count}"
-                            + $" — وارد: {totalIn:N3} · صادر: {Math.Abs(totalOut):N3}"
-                            + $" · صافي: {(totalIn + totalOut):N3}";
+            lblRecordsCount.Text = clsFormat.Number(_movementsView.Count);
+            lblSummary.Text = $"المعروض: {clsFormat.Number(_movementsView.Count)} من {clsFormat.Number(_movementsTable.Rows.Count)}"
+                            + $" — وارد: {clsFormat.Quantity(totalIn)} · صادر: {clsFormat.Quantity(Math.Abs(totalOut))}"
+                            + $" · صافي: {clsFormat.Quantity(totalIn + totalOut)}";
 
             lblEmpty.Visible = _movementsView.Count == 0;
 

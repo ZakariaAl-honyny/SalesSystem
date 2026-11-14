@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -961,5 +962,6 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
 
     private static decimal Money(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
 
-    private static string Format(decimal value) => Money(value).ToString("N2");
+    // العرض من البيت الواحد (clsFormat) فلا منازل مثبّتة هنا — ويطابق ما سيفعله الباك-إند (GAP-11 / RULE-N167 / RULE-N179)
+    private static string Format(decimal value) => clsFormat.Money(Money(value));
 }

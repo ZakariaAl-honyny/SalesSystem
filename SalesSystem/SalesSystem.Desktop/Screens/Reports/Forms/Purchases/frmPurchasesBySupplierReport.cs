@@ -57,7 +57,7 @@ public partial class frmPurchasesBySupplierReport : Form, IExportableReport
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TotalAmount);
         var due = list.Sum(x => x.DueAmount);
-        lblRecordsCount.Text = $"عدد الموردين: {list.Count} | الإجمالي: {total:N2} | المتبقي: {due:N2}";
+        lblRecordsCount.Text = $"عدد الموردين: {clsFormat.Number(list.Count)} | الإجمالي: {clsFormat.Money(total)} | المتبقي: {clsFormat.Money(due)}";
     }
 
     private void FormatGrid()

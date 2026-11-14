@@ -17,8 +17,8 @@ public partial class frmListPurchases : Form
     private const int FilterNotes = 3;
     private const int FilterAmount = 4;
 
-    /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    /// <summary>RULE-N46 + RULE-N54b: لون الحقل النشط الموحّد — تُقرأ حيّاً من اللوحة عند كل استخدام.</summary>
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
     private IPurchaseInvoiceDesktopService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();
@@ -762,9 +762,9 @@ public partial class frmListPurchases : Form
 
         e.CellStyle.ForeColor = e.Value.ToString() switch
         {
-            "مرحل" => Color.FromArgb(25, 135, 84),
-            "ملغي" => Color.FromArgb(176, 42, 55),
-            _ => Color.FromArgb(13, 110, 253)
+            "مرحل" => GreenThemeHelper.StatusSuccess,
+            "ملغي" => GreenThemeHelper.StatusDanger,
+            _ => GreenThemeHelper.StatusInfo
         };
         e.CellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
     }

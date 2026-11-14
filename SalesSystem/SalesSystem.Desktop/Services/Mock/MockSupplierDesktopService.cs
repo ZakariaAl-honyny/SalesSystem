@@ -1,3 +1,4 @@
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -38,8 +39,20 @@ public class MockSupplierDesktopService : ISupplierDesktopService
             : Task.FromResult(Result<SupplierDto>.Success(supplier));
     }
 
+    // ── تكافؤ الرفض مع الـBLL (RULE-N167): المقارنة النصية في البيت الواحد StringExtensions.SameText ──
+    private static bool _NameExists(string? name, int? exceptId)
+        => !string.IsNullOrWhiteSpace(name) &&
+           MockSuppliersData.Suppliers.Any(s => s.Id != exceptId &&
+               s.Name.SameText(name));
+
     public Task<Result<SupplierDto>> CreateAsync(CreateSupplierRequest r, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<SupplierDto>.Failure("اسم المورد مطلوب"));
+
+        if (_NameExists(r.Name, null))
+            return Task.FromResult(Result<SupplierDto>.Failure("اسم المورد مستخدم بالفعل"));
+
         var nextId = MockSuppliersData.Suppliers.Count > 0 ? MockSuppliersData.Suppliers.Max(s => s.Id) + 1 : 1;
         var nextAccountId = MockSuppliersData.Suppliers.Count > 0 ? MockSuppliersData.Suppliers.Max(s => s.AccountId) + 1 : 301;
 
@@ -61,6 +74,12 @@ public class MockSupplierDesktopService : ISupplierDesktopService
         var existing = MockSuppliersData.Suppliers.FirstOrDefault(s => s.Id == id);
         if (existing is null)
             return Task.FromResult(Result<SupplierDto>.Failure("المورد غير موجود"));
+
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<SupplierDto>.Failure("اسم المورد مطلوب"));
+
+        if (_NameExists(r.Name, id))
+            return Task.FromResult(Result<SupplierDto>.Failure("اسم المورد مستخدم بالفعل"));
 
         var updated = existing with
         {

@@ -96,14 +96,14 @@ public partial class frmStocktakingPrint : Form
     private void _BindSession()
     {
         lblDocNoValue.Text = _session.DocNo;
-        lblDateValue.Text = _session.Date.ToString("dd/MM/yyyy");
+        lblDateValue.Text = clsFormat.DateToDayMonthYear(_session.Date);
         lblWarehouseValue.Text = _session.Warehouse;
         lblCommitteeHeadValue.Text = _session.CommitteeHead;
         lblCommitteeMemberValue.Text = _session.CommitteeMember;
         lblStorekeeperValue.Text = _session.Storekeeper;
-        lblItemCountValue.Text = $"{_session.ItemCount} أصناف";
-        lblSurplusValue.Text = _session.TotalSurplus.ToString("N3");
-        lblDeficitValue.Text = _session.TotalDeficit.ToString("N3");
+        lblItemCountValue.Text = $"{clsFormat.Number(_session.ItemCount)} أصناف";
+        lblSurplusValue.Text = clsFormat.Quantity(_session.TotalSurplus);
+        lblDeficitValue.Text = clsFormat.Quantity(_session.TotalDeficit);
     }
 
     // ── أحداث الواجهة ─────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@ public partial class frmStocktakingPrint : Form
             clsDialogs.Success(
                 $"تمت طباعة محضر الجرد رقم {_session.DocNo} بنجاح.\n" +
                 $"المستودع: {_session.Warehouse} — لجنة الجرد: {_session.CommitteeHead} / {_session.CommitteeMember} / {_session.Storekeeper}\n" +
-                $"عدد الأصناف: {_session.ItemCount} — إجمالي الفائض: {_session.TotalSurplus:N3} — إجمالي العجز: {_session.TotalDeficit:N3}\n" +
+                $"عدد الأصناف: {clsFormat.Number(_session.ItemCount)} — إجمالي الفائض: {clsFormat.Quantity(_session.TotalSurplus)} — إجمالي العجز: {clsFormat.Quantity(_session.TotalDeficit)}\n" +
                 "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
@@ -133,7 +133,7 @@ public partial class frmStocktakingPrint : Form
 
     private void pnlDashedSeparator_Paint(object? sender, PaintEventArgs e)
     {
-        using var pen = new Pen(Color.FromArgb(190, 195, 200), 2) { DashStyle = DashStyle.Dash };
+        using var pen = new Pen(GreenThemeHelper.GridLine, 2) { DashStyle = DashStyle.Dash };
         int y = pnlDashedSeparator.Height / 2;
         e.Graphics.DrawLine(pen, 6, y, pnlDashedSeparator.Width - 6, y);
     }

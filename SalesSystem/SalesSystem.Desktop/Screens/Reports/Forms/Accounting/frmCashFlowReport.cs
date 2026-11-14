@@ -74,7 +74,7 @@ public partial class frmCashFlowReport : Form, IExportableReport
 
     private void UpdateSummary(CashFlowReportDto report)
     {
-        lblSummary.Text = $"الإيرادات: {report.TotalIncome:N2} | المصروفات: {report.TotalExpense:N2} | صافي: {report.NetCashFlow:N2}";
+        lblSummary.Text = $"الإيرادات: {clsFormat.Money(report.TotalIncome)} | المصروفات: {clsFormat.Money(report.TotalExpense)} | صافي: {clsFormat.Money(report.NetCashFlow)}";
     }
 
     private void FormatGrid()

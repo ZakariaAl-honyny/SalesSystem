@@ -15,13 +15,41 @@ public static class ThemeHelper
     public static Color Warning => ThemePalette.Get(ThemePalette.BtnWarningButtonColor);   // Amber
     public static Color Neutral => ThemePalette.Get(ThemePalette.BtnCancelButtonColor);    // Gray
     public static Color Secondary => ThemePalette.Get(ThemePalette.BtnSecondaryButtonColor); // Light Gray
-    public static readonly Color BorderColor = ColorTranslator.FromHtml("#DEE2E6");
-    
-    public static readonly Color SidebarBg = Color.FromArgb(33, 43, 54);
-    public static readonly Color ContentBg = Color.White;
-    public static readonly Color TextPrimary = ColorTranslator.FromHtml("#212529");
-    public static readonly Color TextSecondary = Color.FromArgb(108, 117, 125);
-    public static readonly Color TextDarkGray = Color.FromArgb(50, 50, 50);
+
+    // ── الألوان المحيطة (GAP-19): كل لون له مالك واحد فقط ──
+    // ما له مقابل في GreenThemeHelper يُستهلك منه مباشرةً (خاصية حيّة، بلا لون حرفي
+    // هنا)؛ وما لا مفتاح له في ThemePalette بعد يبقى هنا مُعلَناً مرة واحدة بتعليق
+    // ترحيل صريح — ولا تُضاف مفاتيح إلى ThemePalette في هذه الموجة (RULE-N112).
+    /// <summary>حدود الأزرار الثانوية/الشبحية والخط السفلي لأشرطة الأدوات — لون خطوط الثيم الأخضر (RULE-N112).</summary>
+    public static Color BorderColor => GreenThemeHelper.GridLine;
+
+    // ثابت قديم — لا مفتاح في ThemePalette بعد؛ يُرحَّل عند أول مساس (GAP-19)
+    private static readonly Color SidebarDark = Color.FromArgb(33, 43, 54);
+
+    /// <summary>خلفية الشريط الجانبي في الشاشة الرئيسية.</summary>
+    public static readonly Color SidebarBg = SidebarDark;
+
+    /// <summary>خلفية منطقة المحتوى — لون صناديق المجموعات من الثيم الأخضر (RULE-N112).</summary>
+    public static Color ContentBg => GreenThemeHelper.GroupBackground;
+
+    /// <summary>النص الأساسي — لون النص المميّز من الثيم الأخضر (RULE-N112).</summary>
+    public static Color TextPrimary => GreenThemeHelper.TextStrong;
+
+    /// <summary>النص الثانوي (تسميات مساعدة) — لون الحالة الباهتة من الثيم الأخضر (RULE-N112).</summary>
+    public static Color TextSecondary => GreenThemeHelper.StatusMuted;
+
+    // ثابت قديم — لا مفتاح في ThemePalette بعد؛ يُرحَّل عند أول مساس (GAP-19)
+    private static readonly Color TextDark = Color.FromArgb(50, 50, 50);
+
+    /// <summary>نص الخلايا الداكن.</summary>
+    public static readonly Color TextDarkGray = TextDark;
+
+    /// <summary>
+    /// الأبيض النقي: نص الأزرار على الخلفية الصلبة (أزرق/أخضر/أحمر/رمادي) وخلفية
+    /// حقول الإدخال (RULE-N143) — القيمة مُعلنة هنا مرة واحدة فقط، فلا يتكرر أي لون
+    /// في الملف (GAP-19 / RULE-N169).
+    /// </summary>
+    private static readonly Color ButtonForeOnSolid = Color.White;
 
     // Standard Dimensions
     public static readonly int StandardControlHeight = 35;
@@ -32,7 +60,9 @@ public static class ThemeHelper
     public static void ApplyMainFormStyle(Form form)
     {
         form.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
-        form.BackColor = Color.White;
+        // ملاحظة (RULE-N139/RULE-N142): لا تُفرَض خلفية بيضاء على النموذج — كان ذلك
+        // يمحو الخلفية الخضراء التي أعلنها المصمّم فتُظهر الشاشة رمادية وقت التشغيل.
+        // لون خلفية النموذج يبقى مالكه الوحيد: المصمّم ثم GreenThemeHelper.
         form.RightToLeft = RightToLeft.Yes;
         form.RightToLeftLayout = true;
     }
@@ -52,15 +82,15 @@ public static class ThemeHelper
         {
             case ButtonType.Primary:
                 btn.BackColor = Primary;
-                btn.ForeColor = Color.White;
+                btn.ForeColor = ButtonForeOnSolid;
                 break;
             case ButtonType.Success:
                 btn.BackColor = Success;
-                btn.ForeColor = Color.White;
+                btn.ForeColor = ButtonForeOnSolid;
                 break;
             case ButtonType.Danger:
                 btn.BackColor = Danger;
-                btn.ForeColor = Color.White;
+                btn.ForeColor = ButtonForeOnSolid;
                 break;
             case ButtonType.Secondary:
                 btn.BackColor = Secondary;
@@ -76,7 +106,7 @@ public static class ThemeHelper
                 break;
             case ButtonType.Neutral:
                 btn.BackColor = Neutral;
-                btn.ForeColor = Color.White;
+                btn.ForeColor = ButtonForeOnSolid;
                 break;
             default:
                 btn.BackColor = Secondary;
@@ -86,13 +116,17 @@ public static class ThemeHelper
 
         btn.FlatAppearance.MouseOverBackColor = ControlPaint.Light(btn.BackColor, 0.1f);
         if (type == ButtonType.Ghost || type == ButtonType.Secondary)
-            btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+            btn.FlatAppearance.MouseOverBackColor = GhostHoverBack;
     }
+
+    /// <summary>لون تحويم الأزرار الشبحية/الثانوية (بلا مفتاح في اللوحة).</summary>
+    // ثابت قديم — لا مفتاح في ThemePalette بعد؛ يُرحَّل عند أول مساس (GAP-19)
+    private static readonly Color GhostHoverBack = Color.FromArgb(240, 240, 240);
 
     public static void ApplyToolbarStyle(Panel toolbar)
     {
         toolbar.Padding = new Padding(12);
-        toolbar.BackColor = Color.White;
+        toolbar.BackColor = GreenThemeHelper.BarBackground;
         toolbar.Height = 65;
         
         // Use a bottom border for the toolbar
@@ -102,39 +136,14 @@ public static class ThemeHelper
         };
     }
 
+    /// <summary>
+    /// ملاحظة (RULE-N51 / RULE-N112): شكل الشبكة الأخضر مالكه الوحيد
+    /// <see cref="GreenThemeHelper.ApplyGrid"/> — هذا العضو يبقى للتوافق مع النداءات
+    /// القائمة ويُمرِّر إليها، فلا نسخة ثانية من ألوان الشبكة هنا.
+    /// </summary>
     public static void ApplyDataGridViewStyle(DataGridView dgv)
     {
-        dgv.BackgroundColor = Color.White;
-        dgv.BorderStyle = BorderStyle.None;
-        dgv.GridColor = Color.FromArgb(240, 240, 240);
-        dgv.RowHeadersVisible = false;
-        dgv.AllowUserToResizeRows = false;
-        dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgv.MultiSelect = false;
-        dgv.ReadOnly = true;
-        dgv.EnableHeadersVisualStyles = false;
-        dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgv.Margin = new Padding(0);
-
-        // Header Style
-        dgv.ColumnHeadersHeight = 45;
-        dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(248, 249, 250);
-        dgv.ColumnHeadersDefaultCellStyle.ForeColor = TextPrimary;
-        dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-        dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(248, 249, 250);
-
-        // Rows Style
-        dgv.DefaultCellStyle.BackColor = Color.White;
-        dgv.DefaultCellStyle.ForeColor = TextDarkGray; // Replaced bright blue with eye-friendly dark gray
-        dgv.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
-        dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(232, 244, 253);
-        dgv.DefaultCellStyle.SelectionForeColor = Primary;
-        dgv.DefaultCellStyle.Padding = new Padding(5, 0, 5, 0);
-        dgv.RowTemplate.Height = 40;
-
-        dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(252, 253, 254);
+        GreenThemeHelper.ApplyGrid(dgv);
     }
 
     public static void ApplySearchBoxStyle(TextBox txt)
@@ -142,9 +151,10 @@ public static class ThemeHelper
         txt.Height = StandardControlHeight;
         txt.Font = new Font("Segoe UI", 11F);
         txt.BorderStyle = BorderStyle.FixedSingle;
+        txt.BackColor = ButtonForeOnSolid;   // RULE-N143: حقول الإدخال بيضاء (نفس الأبيض المُعلَن مرة واحدة)
+        // لون تظليل التركيز لا يُكتب هنا: مالكه KeyboardHelper.WireFocusHighlight
+        // الذي يقرأ ThemePalette.ActiveFieldColor حيّاً (RULE-N54b) — فلا توصيل مزدوج.
     }
-
-    private static readonly Color FocusHighlight = Color.FromArgb(255, 255, 180);
 
     public static void WireFocusIndicator(params Control[] controls)
     {
@@ -154,7 +164,8 @@ public static class ThemeHelper
             Color originalBack = ctrl.BackColor;
             ctrl.Enter += (s, e) =>
             {
-                if (ctrl.Enabled) ctrl.BackColor = FocusHighlight;
+                // قراءة حيّة من اللوحة في كل دخول (RULE-N46 / RULE-N54b).
+                if (ctrl.Enabled) ctrl.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
             };
             ctrl.Leave += (s, e) => ctrl.BackColor = originalBack;
             ctrl.EnabledChanged += (s, e) =>

@@ -6,6 +6,7 @@ using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
 
@@ -84,7 +85,7 @@ public partial class frmSalesReport : Form, IExportableReport
 
     private void UpdateSummary(List<SalesReportDto> list)
     {
-        lblRecordsCount.Text = list.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
 
         if (list.Count == 0)
         {
@@ -96,7 +97,7 @@ public partial class frmSalesReport : Form, IExportableReport
         var totalPaid = list.Sum(x => x.PaidAmount);
         var totalDue = list.Sum(x => x.DueAmount);
 
-        lblSummary.Text = $"عدد الفواتير: {list.Count} | إجمالي المبيعات: {totalSales:N2} | المدفوع: {totalPaid:N2} | المتبقي: {totalDue:N2}";
+        lblSummary.Text = $"عدد الفواتير: {clsFormat.Number(list.Count)} | إجمالي المبيعات: {clsFormat.Money(totalSales)} | المدفوع: {clsFormat.Money(totalPaid)} | المتبقي: {clsFormat.Money(totalDue)}";
     }
 
     private void FormatGrid()
@@ -126,7 +127,7 @@ public partial class frmSalesReport : Form, IExportableReport
         }
 
         if (dgvReport.Columns.Contains("InvoiceDate"))
-            dgvReport.Columns["InvoiceDate"].DefaultCellStyle.Format = "yyyy-MM-dd";
+            dgvReport.Columns["InvoiceDate"].DefaultCellStyle.Format = clsFormat.Get(clsFormat.DateShortPattern);
     }
 
     private void SetHeader(string col, string text)

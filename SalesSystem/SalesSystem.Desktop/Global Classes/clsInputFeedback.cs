@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Media;
 using System.Windows.Forms;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.GlobalClasses
 {
@@ -22,8 +23,11 @@ namespace SalesSystem.Desktop.GlobalClasses
         /// <summary>إزاحة التلميح رأسياً فوق الحقل.</summary>
         private const int TooltipOffsetY = -60;
 
-        /// <summary>لون وميض الرفض — ثابت واحد يُستهلك في كل الشاشات.</summary>
-        private static readonly Color RejectFlashBack = Color.FromArgb(255, 220, 220);
+        /// <summary>
+        /// لون وميض الرفض — مالكه الوحيد <see cref="GreenThemeHelper.RejectBackground"/>
+        /// في بيت الثيم (RULE-N169/GAP-09)، فلا لون حرفي هنا.
+        /// </summary>
+        private static Color RejectFlashBack => GreenThemeHelper.RejectBackground;
 
         /// <summary>تلميح مشترك واحد لكل حقل (يُنشأ هنا ويُتلف هنا فقط).</summary>
         private static readonly Dictionary<Control, ToolTip> SharedToolTips = new();

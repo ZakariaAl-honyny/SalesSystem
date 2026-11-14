@@ -106,7 +106,7 @@ public sealed class SearchBarControl : UserControl
         base.OnPaint(e);
         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         
-        var borderColor = _txtSearch.Focused ? ThemeHelper.Primary : Color.FromArgb(224, 227, 231);
+        var borderColor = _txtSearch.Focused ? ThemeHelper.Primary : GreenThemeHelper.GridLine;
         using var pen = new Pen(borderColor, 1.5f);
         
         // Draw rounded rectangle border

@@ -30,7 +30,7 @@ public partial class frmImportProductsExcel : Form
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 — الحقل النشط
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnGenerateBarcodes);      // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
@@ -418,6 +418,49 @@ public partial class frmImportProductsExcel : Form
     {
         DialogResult = DialogResult.Cancel;
         Close();
+    }
+
+    // ── قائمة سطر السياق (RULE-N23) ────────────────────────────────────────────
+
+    /// <summary>
+    /// RULE-N23: لا قائمة بلا سطر محدد — تُلغى إذا لم يكن هناك سطر معاينة محدد.
+    /// </summary>
+    private void cmsRows_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+        => e.Cancel = dgvPreview.CurrentRow is null || dgvPreview.CurrentRow.IsNewRow;
+
+    /// <summary>
+    /// «نسخ قيمة الخلية»: نسخ نص الخلية الحالية إلى الحافظة — عرض فقط، لا منطق أعمال ولا كتابة بيانات.
+    /// </summary>
+    private void tsmiCopyCellValue_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            string? value = dgvPreview.CurrentCell?.Value?.ToString();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                clsInputFeedback.ShowInfoTooltip(dgvPreview, "الخلية فارغة — لا يوجد ما يُنسخ.");
+                return;
+            }
+
+            Clipboard.SetText(value);
+            clsInputFeedback.ShowSuccessTooltip(dgvPreview, "تم نسخ القيمة.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر نسخ قيمة خلية من معاينة استيراد الأصناف");
+            clsDialogs.Error("تعذر نسخ القيمة. يرجى إعادة المحاولة.");
+        }
+    }
+
+    /// <summary>
+    /// «توليد الباركود المفقود»: يستدعي زر «توليد باركود للأصناف الفارغة» الموجود نفسه
+    /// (<c>btnGenerateBarcodes</c>) بلا أي منطق مكرّر.
+    /// </summary>
+    private void tsmiGenerateMissingBarcode_Click(object? sender, EventArgs e)
+    {
+        if (btnGenerateBarcodes.Enabled)
+            btnGenerateBarcodes.PerformClick();
     }
 
     // ── الثيم ─────────────────────────────────────────────────────────────────

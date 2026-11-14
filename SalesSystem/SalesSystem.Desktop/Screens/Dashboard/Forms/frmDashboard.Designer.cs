@@ -8,7 +8,7 @@
 
         // المصمّم = وقت التشغيل (RULE-N134 / RULE-N140 / RULE-N141):
         //   كل سطح هنا معلَن بقيمة حرفية مطابقة لثوابت GreenThemeHelper — لا SystemColors،
-        //   ولا UseVisualStyleBackColor = true، ولا مرجع لأي عضو في Helpers/ (RULE-N128).
+        //   ولا تفعيل UseVisualStyleBackColor على النموذج، ولا مرجع لأي عضو في Helpers/ (RULE-N128).
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();

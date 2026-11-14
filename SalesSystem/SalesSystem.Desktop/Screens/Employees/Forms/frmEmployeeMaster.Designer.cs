@@ -125,6 +125,7 @@ partial class frmEmployeeMaster
         // 
         txtCode.Location = new Point(1267, 42);
         txtCode.Name = "txtCode";
+        txtCode.BackColor = Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -154,6 +155,7 @@ partial class frmEmployeeMaster
         // 
         txtName.Location = new Point(845, 42);
         txtName.Name = "txtName";
+        txtName.BackColor = Color.White;
         txtName.Size = new Size(340, 32);
         txtName.TabIndex = 1;
         // 
@@ -170,6 +172,7 @@ partial class frmEmployeeMaster
         // 
         txtJobTitle.Location = new Point(505, 42);
         txtJobTitle.Name = "txtJobTitle";
+        txtJobTitle.BackColor = Color.White;
         txtJobTitle.Size = new Size(280, 32);
         txtJobTitle.TabIndex = 2;
         // 
@@ -186,6 +189,7 @@ partial class frmEmployeeMaster
         // 
         txtNationalId.Location = new Point(1147, 115);
         txtNationalId.Name = "txtNationalId";
+        txtNationalId.BackColor = Color.White;
         txtNationalId.Size = new Size(230, 32);
         txtNationalId.TabIndex = 3;
         // 
@@ -202,6 +206,7 @@ partial class frmEmployeeMaster
         // 
         txtPhone.Location = new Point(847, 115);
         txtPhone.Name = "txtPhone";
+        txtPhone.BackColor = Color.White;
         txtPhone.Size = new Size(240, 32);
         txtPhone.TabIndex = 4;
         // 
@@ -220,6 +225,7 @@ partial class frmEmployeeMaster
         numBasicSalary.Location = new Point(505, 115);
         numBasicSalary.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numBasicSalary.Name = "numBasicSalary";
+        numBasicSalary.BackColor = Color.White;
         numBasicSalary.Size = new Size(220, 32);
         numBasicSalary.TabIndex = 5;
         numBasicSalary.ThousandsSeparator = true;
@@ -238,6 +244,7 @@ partial class frmEmployeeMaster
         dtpHireDate.Format = DateTimePickerFormat.Short;
         dtpHireDate.Location = new Point(175, 115);
         dtpHireDate.Name = "dtpHireDate";
+        dtpHireDate.BackColor = Color.White;
         dtpHireDate.ShowCheckBox = true;
         dtpHireDate.Size = new Size(230, 32);
         dtpHireDate.TabIndex = 6;
@@ -452,6 +459,7 @@ partial class frmEmployeeMaster
         txtFilterValue.Location = new Point(840, 30);
         txtFilterValue.Margin = new Padding(0);
         txtFilterValue.Name = "txtFilterValue";
+        txtFilterValue.BackColor = Color.White;
         txtFilterValue.Size = new Size(200, 32);
         txtFilterValue.TabIndex = 2;
         txtFilterValue.TextChanged += txtSearch_TextChanged;

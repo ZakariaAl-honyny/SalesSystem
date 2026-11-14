@@ -70,7 +70,7 @@ public partial class frmTrialBalanceReport : Form, IExportableReport
         var totalDebit = list.Sum(x => x.ClosingDebit);
         var totalCredit = list.Sum(x => x.ClosingCredit);
         var balanced = Math.Abs(totalDebit - totalCredit) < 0.01m;
-        lblSummary.Text = $"إجمالي المدين: {totalDebit:N2} | إجمالي الدائن: {totalCredit:N2} | {(balanced ? "متوازن" : "غير متوازن")}";
+        lblSummary.Text = $"إجمالي المدين: {clsFormat.Money(totalDebit)} | إجمالي الدائن: {clsFormat.Money(totalCredit)} | {(balanced ? "متوازن" : "غير متوازن")}";
     }
 
     private void FormatGrid()

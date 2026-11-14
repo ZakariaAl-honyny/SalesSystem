@@ -56,7 +56,7 @@ public partial class frmPurchasesByProductReport : Form, IExportableReport
     {
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TotalCost);
-        lblRecordsCount.Text = $"عدد المنتجات: {list.Count} | التكلفة الإجمالية: {total:N2}";
+        lblRecordsCount.Text = $"عدد المنتجات: {clsFormat.Number(list.Count)} | التكلفة الإجمالية: {clsFormat.Money(total)}";
     }
 
     private void FormatGrid()

@@ -4,6 +4,7 @@ using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
 
@@ -119,7 +120,7 @@ public partial class frmProductMovementReport : Form, IExportableReport
 
     private void UpdateSummary(List<ProductMovementReportDto> data)
     {
-        lblRecordsCount.Text = data.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(data.Count);
 
         if (data.Count == 0)
         {
@@ -130,7 +131,7 @@ public partial class frmProductMovementReport : Form, IExportableReport
         var totalIn = data.Where(x => x.QuantityChange > 0).Sum(x => x.QuantityChange);
         var totalOut = data.Where(x => x.QuantityChange < 0).Sum(x => x.QuantityChange);
 
-        lblSummary.Text = $"إجمالي الحركات: {data.Count} | الوارد: {totalIn:N3} | الصادر: {totalOut:N3}";
+        lblSummary.Text = $"إجمالي الحركات: {clsFormat.Number(data.Count)} | الوارد: {clsFormat.Quantity(totalIn)} | الصادر: {clsFormat.Quantity(totalOut)}";
     }
 
     private void DgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
@@ -141,7 +142,7 @@ public partial class frmProductMovementReport : Form, IExportableReport
         if (dgvReport.Columns[e.ColumnIndex].Name == "colBefore"
             && dgvReport.Rows[e.RowIndex].DataBoundItem is ProductMovementReportDto item)
         {
-            e.Value = (item.QuantityAfter - item.QuantityChange).ToString("N3");
+            e.Value = clsFormat.Quantity(item.QuantityAfter - item.QuantityChange);
             e.FormattingApplied = true;
         }
     }

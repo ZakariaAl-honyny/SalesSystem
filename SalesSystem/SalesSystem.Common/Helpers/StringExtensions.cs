@@ -80,5 +80,9 @@ public static class StringExtensions
     /// </example>
     public static string DefaultIfEmpty(this string? value, string defaultValue)
         => string.IsNullOrWhiteSpace(value) ? defaultValue : value;
+
+    /// <summary>مقارنة نصّين بعد التقليم وبلا حساسية لحالة الأحرف — تُستهلك بدل تكرار المقارنة (RULE-N169).</summary>
+    public static bool SameText(this string? value, string? other)
+        => string.Equals(value?.Trim(), other?.Trim(), StringComparison.OrdinalIgnoreCase);
 }
 

@@ -248,6 +248,7 @@
             dtpFrom.Location = new Point(444, 22);
             dtpFrom.Margin = new Padding(0);
             dtpFrom.Name = "dtpFrom";
+            dtpFrom.BackColor = Color.White;
             dtpFrom.Size = new Size(152, 25);
             dtpFrom.TabIndex = 4;
             dtpFrom.ValueChanged += dtpFrom_ValueChanged;
@@ -271,6 +272,7 @@
             dtpTo.Location = new Point(228, 22);
             dtpTo.Margin = new Padding(0);
             dtpTo.Name = "dtpTo";
+            dtpTo.BackColor = Color.White;
             dtpTo.Size = new Size(152, 25);
             dtpTo.TabIndex = 6;
             dtpTo.ValueChanged += dtpTo_ValueChanged;

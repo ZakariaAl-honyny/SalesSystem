@@ -6,6 +6,7 @@ using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
 
@@ -27,6 +28,10 @@ public partial class frmPurchasesReport : Form, IExportableReport
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
         dgvReport.DataSource = _bindingSource;
+
+        // RULE-N179: عرض الأرقام والتواريخ من البيت الواحد clsFormat — بلا صيغة حرفية في العمود.
+        dgvReport.CellFormatting -= dgvReport_CellFormatting;
+        dgvReport.CellFormatting += dgvReport_CellFormatting;
 
         // القيم الابتدائية للفترة كانت تُضبط في تهيئة التبويب — تبقى كما هي.
         dtpTo.Value = DateTime.Today;
@@ -84,7 +89,7 @@ public partial class frmPurchasesReport : Form, IExportableReport
 
     private void UpdateSummary(List<PurchaseReportDto> list)
     {
-        lblRecordsCount.Text = list.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
 
         if (list.Count == 0)
         {
@@ -96,7 +101,7 @@ public partial class frmPurchasesReport : Form, IExportableReport
         var totalPaid = list.Sum(x => x.PaidAmount);
         var totalDue = list.Sum(x => x.DueAmount);
 
-        lblSummary.Text = $"عدد الفواتير: {list.Count} | إجمالي المشتريات: {totalPurchases:N2} | المدفوع: {totalPaid:N2} | المتبقي: {totalDue:N2}";
+        lblSummary.Text = $"عدد الفواتير: {clsFormat.Number(list.Count)} | إجمالي المشتريات: {clsFormat.Money(totalPurchases)} | المدفوع: {clsFormat.Money(totalPaid)} | المتبقي: {clsFormat.Money(totalDue)}";
     }
 
     private void FormatGrid()
@@ -120,13 +125,32 @@ public partial class frmPurchasesReport : Form, IExportableReport
         {
             if (dgvReport.Columns.Contains(col))
             {
-                dgvReport.Columns[col].DefaultCellStyle.Format = "N2";
                 dgvReport.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
         }
+    }
 
-        if (dgvReport.Columns.Contains("InvoiceDate"))
-            dgvReport.Columns["InvoiceDate"].DefaultCellStyle.Format = "yyyy-MM-dd";
+    /// <summary>
+    /// RULE-N179 — كل رقم/تاريخ معروض في الشبكة يمرّ عبر البيت الواحد <see cref="clsFormat"/>،
+    /// فلا تثبيت لصيغة حرفية في العمود. القيمة الأصلية (decimal/DateTime) تبقى في <c>Value</c>
+    /// فيحتفظ الترتيب والتصدير بنوعيهما.
+    /// </summary>
+    private void dgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+    {
+        if (e.RowIndex < 0 || e.Value is null or DBNull) return;
+
+        string column = dgvReport.Columns[e.ColumnIndex].Name;
+
+        if (e.Value is decimal amount && column is "TotalAmount" or "PaidAmount" or "DueAmount")
+        {
+            e.Value = clsFormat.Money(amount);
+            e.FormattingApplied = true;
+        }
+        else if (e.Value is DateTime date && column == "InvoiceDate")
+        {
+            e.Value = clsFormat.DateToShort(date);
+            e.FormattingApplied = true;
+        }
     }
 
     private void SetHeader(string col, string text)

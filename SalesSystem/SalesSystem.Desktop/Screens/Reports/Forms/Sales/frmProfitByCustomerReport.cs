@@ -60,7 +60,8 @@ public partial class frmProfitByCustomerReport : Form, IExportableReport
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
         var sales = list.Sum(x => x.TotalAmount);
         var profit = list.Sum(x => x.TotalAmount - x.PaidAmount);
-        lblRecordsCount.Text = $"إجمالي المبيعات: {sales:N2}";
+        // RULE-N179 — كل مبلغ من البيت الواحد clsFormat
+        lblRecordsCount.Text = $"إجمالي المبيعات: {clsFormat.Money(sales)}";
     }
 
     private void FormatGrid()

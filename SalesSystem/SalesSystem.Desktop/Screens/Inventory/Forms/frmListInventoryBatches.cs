@@ -18,7 +18,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmListInventoryBatches : Form
 {
     /// <summary>لون تظليل الحقل النشط (RULE-N46).</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     /// <summary>عدد الأيام التي تُعدّ الدفعة بعده «قاربت الانتهاء».</summary>
     private const int ExpiryAlertDays = 30;
@@ -432,8 +432,8 @@ public partial class frmListInventoryBatches : Form
         if (_batchesView?.Table is null)
         {
             lblSummary.Text =
-                $"المعروض: 0 من {total} — إجمالي الكمية: 0.000" +
-                " · منتهية: 0 · قاربت الانتهاء: 0 · إجمالي القيمة: 0.00";
+                $"المعروض: 0 من {clsFormat.Number(total)} — إجمالي الكمية: {clsFormat.Quantity(0m)}" +
+                $" · منتهية: 0 · قاربت الانتهاء: 0 · إجمالي القيمة: {clsFormat.Money(0m)}";
 
             _UpdateEmptyState(0);
             return;
@@ -458,9 +458,9 @@ public partial class frmListInventoryBatches : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {shown} من {total} — إجمالي الكمية: {quantity:N3}" +
-            $" · منتهية: {expired} · قاربت الانتهاء: {expiringSoon}" +
-            $" · إجمالي القيمة: {value:N2}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — إجمالي الكمية: {clsFormat.Quantity(quantity)}" +
+            $" · منتهية: {clsFormat.Number(expired)} · قاربت الانتهاء: {clsFormat.Number(expiringSoon)}" +
+            $" · إجمالي القيمة: {clsFormat.Money(value)}";
 
         _UpdateEmptyState(shown);
     }
@@ -575,7 +575,7 @@ public partial class frmListInventoryBatches : Form
         if (e.ColumnIndex == dgvBatches.Columns["ExpiryStatus"].Index && e.Value is string status)
         {
             e.CellStyle.ForeColor = string.Equals(status, "منتهي", StringComparison.Ordinal)
-                ? Color.FromArgb(176, 42, 55)
+                ? GreenThemeHelper.StatusDanger
                 : GreenThemeHelper.TextStrong;
             e.CellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         }

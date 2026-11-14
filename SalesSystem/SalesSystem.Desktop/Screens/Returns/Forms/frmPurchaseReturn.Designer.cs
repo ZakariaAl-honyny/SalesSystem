@@ -247,6 +247,7 @@
             this.dtpDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpDate.Location = new System.Drawing.Point(525, 5);
             this.dtpDate.Name = "dtpDate";
+            this.dtpDate.BackColor = System.Drawing.Color.White;
             this.dtpDate.Size = new System.Drawing.Size(300, 32);
             this.dtpDate.TabIndex = 3;
             // 

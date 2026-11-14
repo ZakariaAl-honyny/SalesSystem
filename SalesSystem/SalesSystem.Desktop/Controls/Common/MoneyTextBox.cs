@@ -9,8 +9,8 @@ public sealed class MoneyTextBox : TextBox
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public decimal DecimalValue
     {
-        get => decimal.TryParse(Text, out var v) ? v : 0m;
-        set => Text = value.ToString("F2");
+        get => clsFormat.TryParseMoney(Text, out var v) ? v : 0m;
+        set => Text = clsFormat.Money(value);
     }
 
     public MoneyTextBox()
@@ -38,14 +38,9 @@ public sealed class MoneyTextBox : TextBox
     protected override void OnLeave(EventArgs e)
     {
         base.OnLeave(e);
-        if (decimal.TryParse(Text, out var value))
-        {
-            Text = value.ToString("F2");
-        }
-        else
-        {
-            Text = "0.00";
-        }
+
+        // العرض وإرجاع الصفر يستهلكان البيت الواحد (clsFormat) فلا منازل مثبّتة ولا قيمة أولية حرفية (GAP-12 / RULE-N179)
+        Text = clsFormat.TryParseMoney(Text, out var value) ? clsFormat.Money(value) : clsFormat.Money(0m);
     }
 }
 

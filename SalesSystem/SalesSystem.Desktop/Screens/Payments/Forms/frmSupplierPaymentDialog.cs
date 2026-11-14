@@ -34,7 +34,7 @@ public partial class frmSupplierPaymentDialog : Form
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));  // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));  // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnCancel);                // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
@@ -199,6 +199,7 @@ public partial class frmSupplierPaymentDialog : Form
         if (cmbSupplier.SelectedValue is not int)
         {
             errorProvider.SetError(cmbSupplier, "يرجى اختيار المورد.");
+            clsInputFeedback.ShowRejectTooltip(cmbSupplier, "يرجى اختيار المورد.", toolTip1);
             isValid = false;
         }
         else
@@ -209,6 +210,7 @@ public partial class frmSupplierPaymentDialog : Form
         if (numAmount.Value <= 0)
         {
             errorProvider.SetError(numAmount, "المبلغ يجب أن يكون أكبر من صفر.");
+            clsInputFeedback.ShowRejectTooltip(numAmount, "المبلغ يجب أن يكون أكبر من صفر.", toolTip1);
             isValid = false;
         }
         else

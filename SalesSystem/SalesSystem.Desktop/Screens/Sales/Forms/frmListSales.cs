@@ -14,7 +14,7 @@ public partial class frmListSales : Form
 
     private const string CashCustomerName = "عميل نقدي";
 
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
     private ISalesInvoiceDesktopService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>();
@@ -381,7 +381,7 @@ public partial class frmListSales : Form
                     row.DefaultCellStyle.BackColor = Color.MistyRose;
                     break;
                 case 1: // مسودة
-                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 230);
+                    row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
                     break;
             }
         }
@@ -753,9 +753,9 @@ public partial class frmListSales : Form
 
         e.CellStyle.ForeColor = e.Value.ToString() switch
         {
-            "مرحل" => Color.FromArgb(25, 135, 84),
-            "ملغي" => Color.FromArgb(176, 42, 55),
-            _ => Color.FromArgb(13, 110, 253)
+            "مرحل" => GreenThemeHelper.StatusSuccess,
+            "ملغي" => GreenThemeHelper.StatusDanger,
+            _ => GreenThemeHelper.StatusInfo
         };
         e.CellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
     }

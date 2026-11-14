@@ -62,7 +62,7 @@ public partial class frmAccounts : Form
         // RULE-N40…RULE-N47 + RULE-N95: الستة من KeyboardHelper في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.F2, () => btnNew.PerformClick()),
@@ -760,15 +760,17 @@ public partial class frmAccounts : Form
         errorProvider.SetError(cbParent, string.Empty);
         errorProvider.SetError(numOpeningBalance, string.Empty);
 
-        if (string.IsNullOrWhiteSpace(txtNameAr.Text))
+        if (!clsValidation.IsRequired(txtNameAr.Text))
         {
             errorProvider.SetError(txtNameAr, "الاسم العربي للحساب مطلوب");
+            clsInputFeedback.ShowRejectTooltip(txtNameAr, "الاسم العربي للحساب مطلوب", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (cbNature.SelectedItem is not NatureOption)
         {
             errorProvider.SetError(cbNature, "يجب اختيار نوع الحساب");
+            clsInputFeedback.ShowRejectTooltip(cbNature, "يجب اختيار نوع الحساب", toolTip);   // GAP-08b
             isValid = false;
         }
 
@@ -778,12 +780,16 @@ public partial class frmAccounts : Form
             && (candidateParentId == editingId || _IsDescendantOf(candidateParentId, editingId)))
         {
             errorProvider.SetError(cbParent, "لا يمكن اختيار الحساب نفسه أو أحد فروعه كحساب أب");
+            clsInputFeedback.ShowRejectTooltip(cbParent,
+                "لا يمكن اختيار الحساب نفسه أو أحد فروعه كحساب أب", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (_editId is null && numOpeningBalance.Value < 0)
         {
             errorProvider.SetError(numOpeningBalance, "الرصيد الافتتاحي لا يمكن أن يكون سالباً");
+            clsInputFeedback.ShowRejectTooltip(numOpeningBalance,
+                "الرصيد الافتتاحي لا يمكن أن يكون سالباً", toolTip);   // GAP-08b
             isValid = false;
         }
 

@@ -63,7 +63,7 @@ public partial class frmGeneralLedgerReport : Form, IExportableReport
                     allItems.Add(new { Date = line.Date, line.EntryNumber, line.Description, line.Debit, line.Credit, line.RunningBalance });
                 allItems.Add(new { Date = dtpTo.Value.Date, EntryNumber = "", Description = "الإجمالي", Debit = ledger.TotalDebit, Credit = ledger.TotalCredit, RunningBalance = ledger.ClosingBalance });
                 _bindingSource.DataSource = allItems;
-                lblSummary.Text = $"الحساب: {ledger.AccountCode} - {ledger.AccountNameAr} | رصيد افتتاحي: {ledger.OpeningBalance:N2} | رصيد ختامي: {ledger.ClosingBalance:N2}";
+                lblSummary.Text = $"الحساب: {ledger.AccountCode} - {ledger.AccountNameAr} | رصيد افتتاحي: {clsFormat.Money(ledger.OpeningBalance)} | رصيد ختامي: {clsFormat.Money(ledger.ClosingBalance)}";
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }

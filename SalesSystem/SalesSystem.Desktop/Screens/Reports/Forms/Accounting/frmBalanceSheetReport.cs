@@ -72,7 +72,7 @@ public partial class frmBalanceSheetReport : Form, IExportableReport
 
     private void UpdateSummary(BalanceSheetDto bs)
     {
-        lblSummary.Text = $"إجمالي الأصول: {bs.TotalAssets:N2} | إجمالي الخصوم: {bs.TotalLiabilities:N2} | حقوق الملكية: {bs.TotalEquity:N2} | {(bs.IsBalanced ? "متوازن" : "غير متوازن")}";
+        lblSummary.Text = $"إجمالي الأصول: {clsFormat.Money(bs.TotalAssets)} | إجمالي الخصوم: {clsFormat.Money(bs.TotalLiabilities)} | حقوق الملكية: {clsFormat.Money(bs.TotalEquity)} | {(bs.IsBalanced ? "متوازن" : "غير متوازن")}";
     }
 
     private void FormatGrid()

@@ -76,7 +76,7 @@ public partial class frmProductMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b — لون الحقل النشط حيّاً من اللوحة
         KeyboardHelper.WireArrowNavigation(this);
 
         // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط) تتغير حالة تفعيلها حسب السجل المحدد،
@@ -92,6 +92,13 @@ public partial class frmProductMaster : Form
 
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // RULE-N97 — التفقيط الحيّ كتلميح على حقول الأسعار فقط (حقول الكميات/الأيام لا تُربط).
+        // مكان واحد للتلميح: نستهلك toolTip المُعلَن في المصمّم بدل إنشاء نسخة ثانية (RULE-N169/RULE-N145).
+        LiveTafqeetHelper.Attach(toolTip,
+            (numMainUnitCostPrice, "سعر التكلفة", LiveTafqeetHelper.ReadMode.Money),
+            (numMainUnitSalePrice, "سعر التجزئة", LiveTafqeetHelper.ReadMode.Money),
+            (numMainUnitMaxDiscount, "الخصم المسموح به", LiveTafqeetHelper.ReadMode.Money));
 
         // طيّ/إظهار صندوق التصفية (RULE-N63) — آخر سطر في المُنشئ.
         FilterPanelHelper.Attach(this, _serviceProvider);
@@ -1296,6 +1303,44 @@ public partial class frmProductMaster : Form
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    // ── Context Menu (RULE-N23) ───────────────────────────────────────────────
+
+    /// <summary>RULE-N23: عناصر القائمة تستدعي نفس أزرار الشاشة — لا منطق مكرر.</summary>
+    private void cmsEdit_Click(object? sender, EventArgs e)
+    {
+        if (btnEdit.Enabled) btnEdit.PerformClick();
+    }
+
+    private void cmsDelete_Click(object? sender, EventArgs e)
+    {
+        if (btnDelete.Enabled) btnDelete.PerformClick();
+    }
+
+    private void cmsReactivate_Click(object? sender, EventArgs e)
+    {
+        if (btnReactivate.Enabled) btnReactivate.PerformClick();
+    }
+
+    private void cmsRefresh_Click(object? sender, EventArgs e) => btnRefresh.PerformClick();
+
+    /// <summary>
+    /// قائمة السياق لا تُعرض بلا سطر محدد (RULE-N23): تُلغى عند خلو الشبكة من الصفوف،
+    /// وتُزامَن حالة العناصر مع أزرار الشاشة نفسها (RULE-N43) — بلا أي منطق جديد.
+    /// </summary>
+    private void cmsRows_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (dgvProducts.CurrentRow?.DataBoundItem is not DataRowView || dgvProducts.SelectedRows.Count == 0)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        cmsEdit.Enabled = btnEdit.Enabled;
+        cmsDelete.Enabled = btnDelete.Enabled;
+        cmsReactivate.Enabled = btnReactivate.Enabled;
+        cmsRefresh.Enabled = btnRefresh.Enabled;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

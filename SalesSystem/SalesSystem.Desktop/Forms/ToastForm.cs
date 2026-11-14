@@ -1,4 +1,5 @@
-﻿using SalesSystem.Desktop.Models;
+﻿using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.Models;
 using System.Drawing.Drawing2D;
 
 namespace SalesSystem.Desktop.Forms;
@@ -33,10 +34,10 @@ public sealed class ToastForm : Form
 
         var accentColor = notification.Type switch
         {
-            NotificationType.Success => Color.FromArgb(46, 204, 113),
-            NotificationType.Error => Color.FromArgb(231, 76, 60),
-            NotificationType.Warning => Color.FromArgb(230, 126, 34),
-            _ => Color.FromArgb(52, 152, 219)
+            NotificationType.Success => GreenThemeHelper.StatusSuccess,
+            NotificationType.Error => GreenThemeHelper.StatusDanger,
+            NotificationType.Warning => GreenThemeHelper.StatusWarning,
+            _ => GreenThemeHelper.StatusInfo
         };
 
         // Custom painting for a modern look
@@ -48,14 +49,14 @@ public sealed class ToastForm : Form
             e.Graphics.FillRectangle(brush, this.Width - 10, 0, 10, this.Height);
             
             // Border
-            using var pen = new Pen(Color.FromArgb(220, 220, 220), 1);
+            using var pen = new Pen(GreenThemeHelper.StatusMuted, 1);
             e.Graphics.DrawRectangle(pen, 0, 0, this.Width - 1, this.Height - 1);
         };
 
         var lbl = new Label
         {
             Text = notification.Message,
-            ForeColor = Color.FromArgb(33, 43, 54),
+            ForeColor = GreenThemeHelper.TextStrong,
             Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,

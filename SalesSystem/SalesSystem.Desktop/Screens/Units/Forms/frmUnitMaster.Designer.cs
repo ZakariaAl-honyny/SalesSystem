@@ -107,6 +107,7 @@ partial class frmUnitMaster
         // 
         txtCode.Location = new Point(700, 41);
         txtCode.Name = "txtCode";
+        txtCode.BackColor = Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(130, 32);
         txtCode.TabIndex = 0;
@@ -136,6 +137,7 @@ partial class frmUnitMaster
         // 
         txtName.Location = new Point(380, 41);
         txtName.Name = "txtName";
+        txtName.BackColor = Color.White;
         txtName.Size = new Size(290, 32);
         txtName.TabIndex = 1;
         // 
@@ -152,6 +154,7 @@ partial class frmUnitMaster
         // 
         txtSymbol.Location = new Point(60, 41);
         txtSymbol.Name = "txtSymbol";
+        txtSymbol.BackColor = Color.White;
         txtSymbol.Size = new Size(290, 32);
         txtSymbol.TabIndex = 2;
         // 
@@ -386,6 +389,7 @@ partial class frmUnitMaster
         txtSearch.Location = new Point(60, 26);
         txtSearch.Margin = new Padding(0);
         txtSearch.Name = "txtSearch";
+        txtSearch.BackColor = Color.White;
         txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 4;

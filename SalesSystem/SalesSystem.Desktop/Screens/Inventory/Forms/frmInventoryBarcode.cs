@@ -43,7 +43,7 @@ public partial class frmInventoryBarcode : Form
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
@@ -144,13 +144,14 @@ public partial class frmInventoryBarcode : Form
     /// <summary>يبحث عن الصنف بالباركود: يُحدَّد فوراً إن وُجد، وإلا رسالة عربية ويُبقى النص للتعديل.</summary>
     private void _FindByBarcode()
     {
-        string code = txtBarcode.Text.Trim();
-
-        if (code.Length == 0)
+        if (!clsValidation.IsRequired(txtBarcode.Text))
         {
             errorProvider.SetError(txtBarcode, "أدخل أو امسح الباركود أولاً");
+            clsInputFeedback.ShowRejectTooltip(txtBarcode, "أدخل أو امسح الباركود أولاً", tooltip);
             return;
         }
+
+        string code = txtBarcode.Text.Trim();
 
         var product = MockProducts.FirstOrDefault(
             p => string.Equals(p.Barcode, code, StringComparison.OrdinalIgnoreCase));
@@ -158,6 +159,7 @@ public partial class frmInventoryBarcode : Form
         if (product is null)
         {
             errorProvider.SetError(txtBarcode, "لا يوجد صنف بهذا الباركود");
+            clsInputFeedback.ShowRejectTooltip(txtBarcode, "لا يوجد صنف بهذا الباركود", tooltip);
             clsDialogs.Warning($"لا يوجد صنف بهذا الباركود: {code}");
             return;
         }

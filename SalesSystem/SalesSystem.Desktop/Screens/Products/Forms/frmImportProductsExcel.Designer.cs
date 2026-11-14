@@ -41,6 +41,9 @@ partial class frmImportProductsExcel
         pnlFooter = new Panel();
         btnSave = new Button();
         btnClose = new Button();
+        cmsRows = new ContextMenuStrip(components);
+        tsmiCopyCellValue = new ToolStripMenuItem();
+        tsmiGenerateMissingBarcode = new ToolStripMenuItem();
         gbFile.SuspendLayout();
         gbOptions.SuspendLayout();
         gbPreview.SuspendLayout();
@@ -48,6 +51,7 @@ partial class frmImportProductsExcel
         pnlPreviewTop.SuspendLayout();
         pnlSummary.SuspendLayout();
         pnlFooter.SuspendLayout();
+        cmsRows.SuspendLayout();
         SuspendLayout();
         // 
         // lblMode
@@ -198,6 +202,7 @@ partial class frmImportProductsExcel
         dataGridViewCellStyle2.SelectionForeColor = Color.White;
         dgvPreview.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvPreview.ColumnHeadersHeight = 45;
+        dgvPreview.ContextMenuStrip = cmsRows;
         dataGridViewCellStyle3.BackColor = Color.White;
         dataGridViewCellStyle3.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
@@ -339,6 +344,31 @@ partial class frmImportProductsExcel
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
+        // cmsRows — RULE-N23: قائمة سطر السياق لشبكة المعاينة (تُعلَن في المصمّم — RULE-N145)
+        // 
+        cmsRows.BackColor = Color.White;
+        cmsRows.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        cmsRows.ImageScalingSize = new Size(24, 24);
+        cmsRows.Items.AddRange(new ToolStripItem[] { tsmiCopyCellValue, tsmiGenerateMissingBarcode });
+        cmsRows.Name = "cmsRows";
+        cmsRows.RightToLeft = RightToLeft.Yes;
+        cmsRows.Size = new Size(240, 68);
+        cmsRows.Opening += cmsRows_Opening;
+        // 
+        // tsmiCopyCellValue
+        // 
+        tsmiCopyCellValue.Name = "tsmiCopyCellValue";
+        tsmiCopyCellValue.Size = new Size(239, 30);
+        tsmiCopyCellValue.Text = "نسخ قيمة الخلية";
+        tsmiCopyCellValue.Click += tsmiCopyCellValue_Click;
+        // 
+        // tsmiGenerateMissingBarcode
+        // 
+        tsmiGenerateMissingBarcode.Name = "tsmiGenerateMissingBarcode";
+        tsmiGenerateMissingBarcode.Size = new Size(239, 30);
+        tsmiGenerateMissingBarcode.Text = "توليد الباركود المفقود";
+        tsmiGenerateMissingBarcode.Click += tsmiGenerateMissingBarcode_Click;
+        // 
         // frmImportProductsExcel
         // 
         AutoScaleMode = AutoScaleMode.None;
@@ -370,6 +400,7 @@ partial class frmImportProductsExcel
         pnlSummary.ResumeLayout(false);
         pnlSummary.PerformLayout();
         pnlFooter.ResumeLayout(false);
+        cmsRows.ResumeLayout(false);
         ResumeLayout(false);
         PerformLayout();
     }
@@ -396,4 +427,7 @@ partial class frmImportProductsExcel
     private Panel pnlFooter;
     private Button btnSave;
     private Button btnClose;
+    private ContextMenuStrip cmsRows;
+    private ToolStripMenuItem tsmiCopyCellValue;
+    private ToolStripMenuItem tsmiGenerateMissingBarcode;
 }

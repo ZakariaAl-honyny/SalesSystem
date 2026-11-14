@@ -13,6 +13,11 @@
         private void InitializeComponent()
         {
             // RULE-N134: ألوان المصمّم = ثوابت GreenThemeHelper حرفياً (المصمّم = وقت التشغيل).
+            this.components = new System.ComponentModel.Container();
+            this.cmsRows = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmsSelect = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmsSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.cmsRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.dgvCustomers = new System.Windows.Forms.DataGridView();
             this.btnSelect = new System.Windows.Forms.Button();
@@ -83,6 +88,7 @@
             this.dgvCustomers.Location = new System.Drawing.Point(12, 50);
             this.dgvCustomers.MultiSelect = false;
             this.dgvCustomers.Name = "dgvCustomers";
+            this.dgvCustomers.ContextMenuStrip = this.cmsRows;
             this.dgvCustomers.ReadOnly = true;
             this.dgvCustomers.RowHeadersVisible = false;
             this.dgvCustomers.RowHeadersWidth = 62;
@@ -128,6 +134,29 @@
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 
+            // cmsRows
+            // RULE-N23: قائمة سياق على الشبكة — «اختيار» يستدعي نفس زر الشاشة (بلا منطق مكرر).
+            this.cmsRows.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.cmsSelect, this.cmsSeparator, this.cmsRefresh });
+            this.cmsRows.Name = "cmsRows";
+            this.cmsRows.Size = new System.Drawing.Size(240, 104);
+            this.cmsRows.Opening += new System.ComponentModel.CancelEventHandler(this.cmsRows_Opening);
+
+            // cmsSelect
+            this.cmsSelect.Name = "cmsSelect";
+            this.cmsSelect.Size = new System.Drawing.Size(239, 30);
+            this.cmsSelect.Text = "✔ اختيار";
+            this.cmsSelect.Click += new System.EventHandler(this.cmsSelect_Click);
+
+            // cmsSeparator
+            this.cmsSeparator.Name = "cmsSeparator";
+            this.cmsSeparator.Size = new System.Drawing.Size(236, 6);
+
+            // cmsRefresh
+            this.cmsRefresh.Name = "cmsRefresh";
+            this.cmsRefresh.Size = new System.Drawing.Size(239, 30);
+            this.cmsRefresh.Text = "🔄 تحديث (F5)";
+            this.cmsRefresh.Click += new System.EventHandler(this.cmsRefresh_Click);
+
             // frmCustomerSelection
             this.AcceptButton = this.btnSelect;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -150,6 +179,7 @@
             this.Text = "\u0627\u062e\u062a\u064a\u0627\u0631 \u0639\u0645\u064a\u0644";
             this.Load += new System.EventHandler(this.frmCustomerSelection_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCustomers)).EndInit();
+            this.cmsRows.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -159,5 +189,9 @@
         private System.Windows.Forms.Button btnSelect;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label lblNoData;
+        private System.Windows.Forms.ContextMenuStrip cmsRows;
+        private System.Windows.Forms.ToolStripMenuItem cmsSelect;
+        private System.Windows.Forms.ToolStripSeparator cmsSeparator;
+        private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
     }
 }

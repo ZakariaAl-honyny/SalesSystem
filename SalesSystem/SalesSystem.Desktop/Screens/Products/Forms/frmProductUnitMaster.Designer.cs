@@ -16,6 +16,11 @@ partial class frmProductUnitMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        cmsRows = new ContextMenuStrip(components);
+        cmsEdit = new ToolStripMenuItem();
+        cmsDelete = new ToolStripMenuItem();
+        cmsSeparator = new ToolStripSeparator();
+        cmsRefresh = new ToolStripMenuItem();
         lblMode = new Label();
         pnlFields = new Panel();
         lblProduct = new Label();
@@ -168,6 +173,7 @@ partial class frmProductUnitMaster
         txtBarcode.Font = new Font("Tahoma", 10F);
         txtBarcode.Location = new Point(650, 65);
         txtBarcode.Name = "txtBarcode";
+        txtBarcode.BackColor = Color.White;
         txtBarcode.Size = new Size(250, 32);
         txtBarcode.TabIndex = 1;
         // 
@@ -189,6 +195,7 @@ partial class frmProductUnitMaster
         numFactor.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numFactor.Minimum = new decimal(new int[] { 1, 0, 0, 196608 });
         numFactor.Name = "numFactor";
+        numFactor.BackColor = Color.White;
         numFactor.Size = new Size(250, 32);
         numFactor.TabIndex = 2;
         numFactor.Value = new decimal(new int[] { 1, 0, 0, 0 });
@@ -210,6 +217,7 @@ partial class frmProductUnitMaster
         numSalePrice.Location = new Point(130, 65);
         numSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numSalePrice.Name = "numSalePrice";
+        numSalePrice.BackColor = Color.White;
         numSalePrice.Size = new Size(250, 32);
         numSalePrice.TabIndex = 3;
         numSalePrice.ThousandsSeparator = true;
@@ -231,6 +239,7 @@ partial class frmProductUnitMaster
         numWholesalePrice.Location = new Point(910, 132);
         numWholesalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numWholesalePrice.Name = "numWholesalePrice";
+        numWholesalePrice.BackColor = Color.White;
         numWholesalePrice.Size = new Size(250, 32);
         numWholesalePrice.TabIndex = 4;
         numWholesalePrice.ThousandsSeparator = true;
@@ -252,6 +261,7 @@ partial class frmProductUnitMaster
         numCostPrice.Location = new Point(650, 132);
         numCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numCostPrice.Name = "numCostPrice";
+        numCostPrice.BackColor = Color.White;
         numCostPrice.Size = new Size(250, 32);
         numCostPrice.TabIndex = 5;
         numCostPrice.ThousandsSeparator = true;
@@ -273,6 +283,7 @@ partial class frmProductUnitMaster
         numMaxDiscount.Location = new Point(390, 132);
         numMaxDiscount.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMaxDiscount.Name = "numMaxDiscount";
+        numMaxDiscount.BackColor = Color.White;
         numMaxDiscount.Size = new Size(250, 32);
         numMaxDiscount.TabIndex = 6;
         numMaxDiscount.ThousandsSeparator = true;
@@ -407,6 +418,7 @@ partial class frmProductUnitMaster
         dgvUnits.Location = new Point(0, 10);
         dgvUnits.MultiSelect = false;
         dgvUnits.Name = "dgvUnits";
+        dgvUnits.ContextMenuStrip = cmsRows;
         dgvUnits.ReadOnly = true;
         dgvUnits.RowHeadersVisible = false;
         dgvUnits.RowHeadersWidth = 62;
@@ -463,6 +475,7 @@ partial class frmProductUnitMaster
         cbFilterBy.Items.AddRange(new object[] { "الكل", "اسم الوحدة", "الباركود", "رقم الوحدة" });
         cbFilterBy.Location = new Point(906, 32);
         cbFilterBy.Name = "cbFilterBy";
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.Size = new Size(180, 28);
         cbFilterBy.TabIndex = 1;
         cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
@@ -481,6 +494,7 @@ partial class frmProductUnitMaster
         txtFilterValue.Font = new Font("Tahoma", 9F);
         txtFilterValue.Location = new Point(556, 32);
         txtFilterValue.Name = "txtFilterValue";
+        txtFilterValue.BackColor = Color.White;
         txtFilterValue.Size = new Size(260, 28);
         txtFilterValue.TabIndex = 3;
         txtFilterValue.TextChanged += txtSearch_TextChanged;
@@ -569,6 +583,40 @@ partial class frmProductUnitMaster
         lblSummary.Text = "المعروض: 0 من 0 — أساسية: 0 · فرعية: 0";
         lblSummary.TextAlign = ContentAlignment.MiddleRight;
         // 
+        // cmsRows
+        //
+        // RULE-N23: قائمة سياق على الشبكة — كل عنصر يستدعي نفس زر الشاشة (بلا منطق مكرر).
+        cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsDelete, cmsSeparator, cmsRefresh });
+        cmsRows.Name = "cmsRows";
+        cmsRows.Size = new Size(240, 104);
+        cmsRows.Opening += cmsRows_Opening;
+        //
+        // cmsEdit
+        //
+        cmsEdit.Name = "cmsEdit";
+        cmsEdit.Size = new Size(239, 30);
+        cmsEdit.Text = "✏️ تعديل";
+        cmsEdit.Click += cmsEdit_Click;
+        //
+        // cmsDelete
+        //
+        cmsDelete.Name = "cmsDelete";
+        cmsDelete.Size = new Size(239, 30);
+        cmsDelete.Text = "🗑 حذف";
+        cmsDelete.Click += cmsDelete_Click;
+        //
+        // cmsSeparator
+        //
+        cmsSeparator.Name = "cmsSeparator";
+        cmsSeparator.Size = new Size(236, 6);
+        //
+        // cmsRefresh
+        //
+        cmsRefresh.Name = "cmsRefresh";
+        cmsRefresh.Size = new Size(239, 30);
+        cmsRefresh.Text = "🔄 تحديث (F5)";
+        cmsRefresh.Click += cmsRefresh_Click;
+        // 
         // errorProvider
         // 
         errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
@@ -610,6 +658,7 @@ partial class frmProductUnitMaster
         gbFilter.ResumeLayout(false);
         gbFilter.PerformLayout();
         pnlSummary.ResumeLayout(false);
+        cmsRows.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -641,6 +690,11 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvUnits;
+    private System.Windows.Forms.ContextMenuStrip cmsRows;
+    private System.Windows.Forms.ToolStripMenuItem cmsEdit;
+    private System.Windows.Forms.ToolStripMenuItem cmsDelete;
+    private System.Windows.Forms.ToolStripSeparator cmsSeparator;
+    private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.GroupBox gbFilter;
     private System.Windows.Forms.Button btnToggleFilters;

@@ -44,7 +44,7 @@ public partial class frmListReturns : Form
         // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         KeyboardHelper.WireButtonDisabledVisual(btnAdd, btnRefresh, btnClose, btnClearFilters);   // RULE-N43
@@ -331,7 +331,7 @@ public partial class frmListReturns : Form
         {
             dgvSales.Rows.Add(
                 r.ReturnNo,
-                r.ReturnDate.ToString("yyyy-MM-dd"),
+                clsFormat.DateToShort(r.ReturnDate),
                 _CustomerText(r),
                 clsFormat.Money(r.TotalAmount),
                 r.StatusDisplay
@@ -351,7 +351,7 @@ public partial class frmListReturns : Form
         {
             dgvPurchases.Rows.Add(
                 r.ReturnNo,
-                r.ReturnDate.ToString("yyyy-MM-dd"),
+                clsFormat.DateToShort(r.ReturnDate.ToDateTime(TimeOnly.MinValue)),   // PurchaseReturnDto.ReturnDate = DateOnly
                 r.SupplierName,
                 clsFormat.Money(r.TotalAmount),
                 r.StatusDisplay
@@ -373,7 +373,7 @@ public partial class frmListReturns : Form
     private void _UpdateRecordsCount()
     {
         int total = _filteredSalesReturns.Count + _filteredPurchaseReturns.Count;
-        lblRecordsCount.Text = total.ToString(CultureInfo.InvariantCulture);
+        lblRecordsCount.Text = clsFormat.Number(total);
     }
 
     /// <summary>RULE-N61 — «المعروض: N من M — مرتجع مبيعات: X N2 · مرتجع مشتريات: Y N2».</summary>
@@ -386,7 +386,7 @@ public partial class frmListReturns : Form
         decimal purchaseTotal = _filteredPurchaseReturns.Sum(r => r.TotalAmount);
 
         lblSummary.Text =
-            $"المعروض: {shown} من {total} — مرتجع مبيعات: {salesTotal.ToString("N2", CultureInfo.CurrentCulture)} · مرتجع مشتريات: {purchaseTotal.ToString("N2", CultureInfo.CurrentCulture)}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — مرتجع مبيعات: {clsFormat.Money(salesTotal)} · مرتجع مشتريات: {clsFormat.Money(purchaseTotal)}";
 
         _UpdateRecordsCount();
     }

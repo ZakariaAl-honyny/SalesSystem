@@ -23,8 +23,8 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// </summary>
 public partial class frmAddUpdateInventoryAdjustment : Form
 {
-    /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    /// <summary>RULE-N46 + RULE-N54b: لون الحقل النشط يُقرأ حيّاً من لوحة الثيم (خاصية لا حقل ثابت).</summary>
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
     private int? _adjustmentId;
@@ -378,7 +378,11 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (cmbWarehouse.SelectedValue is not short warehouseId || warehouseId <= 0)
         {
-            errorProvider.SetError(cmbWarehouse, "يرجى اختيار المستودع");
+            const string warehouseMessage = "يرجى اختيار المستودع";
+
+            // GAP-08b + RULE-N169: كل رفض يقرن errorProvider بتلميح الرفض بنفس النص من البيت الواحد.
+            errorProvider.SetError(cmbWarehouse, warehouseMessage);
+            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, warehouseMessage, toolTip1);
             isValid = false;
         }
         else
@@ -388,7 +392,10 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (cmbAdjustmentType.SelectedValue is null)
         {
-            errorProvider.SetError(cmbAdjustmentType, "يرجى اختيار نوع التسوية");
+            const string typeMessage = "يرجى اختيار نوع التسوية";
+
+            errorProvider.SetError(cmbAdjustmentType, typeMessage);
+            clsInputFeedback.ShowRejectTooltip(cmbAdjustmentType, typeMessage, toolTip1);
             isValid = false;
         }
         else
@@ -396,9 +403,12 @@ public partial class frmAddUpdateInventoryAdjustment : Form
             errorProvider.SetError(cmbAdjustmentType, "");
         }
 
-        if (string.IsNullOrWhiteSpace(txtReason.Text))
+        if (!clsValidation.IsRequired(txtReason.Text))
         {
-            errorProvider.SetError(txtReason, "سبب التعديل مطلوب");
+            const string reasonMessage = "سبب التعديل مطلوب";
+
+            errorProvider.SetError(txtReason, reasonMessage);
+            clsInputFeedback.ShowRejectTooltip(txtReason, reasonMessage, toolTip1);
             isValid = false;
         }
         else
@@ -408,7 +418,10 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (dgvLines.Rows.Count == 0)
         {
-            errorProvider.SetError(dgvLines, "يجب إضافة صنف واحد على الأقل");
+            const string noLinesMessage = "يجب إضافة صنف واحد على الأقل";
+
+            errorProvider.SetError(dgvLines, noLinesMessage);
+            clsInputFeedback.ShowRejectTooltip(dgvLines, noLinesMessage, toolTip1);
             isValid = false;
         }
         else

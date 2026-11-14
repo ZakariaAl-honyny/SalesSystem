@@ -93,8 +93,10 @@ public static class ReportUiStandardizer
     /// <summary>سجل الجذور التي وُصِّل فيها تنقل لوحة المفاتيح (منع التوصيل المزدوج).</summary>
     private static readonly ConditionalWeakTable<Control, object> WiredTrees = new();
 
-    /// <summary>لون تظليل الحقل النشط الموحّد (RULE-N46).</summary>
-    private static readonly Color FocusHighlight = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    // لون تظليل الحقل النشط (RULE-N46) لا يُخزَّن هنا: مالكه الوحيد
+    // ThemePalette.ActiveFieldColor، ويُمرَّر إلى KeyboardHelper.WireFocusHighlight
+    // بالقيمة الافتراضية للمفتاح فيقرأ الحقل القيمة الحيّة عند كل دخول
+    // (RULE-N54b / GAP-09) — فلا لون حرفي في هذا الملف.
 
     /// <summary>أسماء تسميات شريط العنوان المعتمدة.</summary>
     private static readonly string[] HeaderLabelNames = { "lblMode", "lblTitle", "lblHeader", "lblPageTitle" };
@@ -1282,7 +1284,9 @@ public static class ReportUiStandardizer
 
             KeyboardHelper.WireEnterAsTab(root);
             KeyboardHelper.WireSelectAllOnFocus(root);          // RULE-N41
-            KeyboardHelper.WireFocusHighlight(root, FocusHighlight); // RULE-N46
+            // RULE-N46 / RULE-N54b: تُمرَّر القيمة الافتراضية للمفتاح فيقرأ الحقل
+            // القيمة الحيّة من ThemePalette.ActiveFieldColor عند كل دخول.
+            KeyboardHelper.WireFocusHighlight(root, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
             KeyboardHelper.WireArrowNavigation(root);           // RULE-N45
 
             WiredTrees.Add(root, AppliedMarker);

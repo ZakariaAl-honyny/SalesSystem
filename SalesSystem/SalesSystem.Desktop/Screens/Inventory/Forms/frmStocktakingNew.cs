@@ -32,8 +32,8 @@ public partial class frmStocktakingNew : Form
         new("جبنة بيضاء 500 جم",     "6254612008293",  30.000m),
     };
 
-    private static readonly Color SurplusGreen = Color.FromArgb(25, 135, 84);   // فائض +
-    private static readonly Color DeficitRed = Color.FromArgb(220, 53, 69);     // عجز -
+    private static Color SurplusGreen => GreenThemeHelper.StatusSuccess;   // فائض +
+    private static Color DeficitRed => GreenThemeHelper.StatusDanger;      // عجز -
 
     /// <summary>نص شريط العنوان الأساسي — تُضاف إليه حالة المحضر (RULE-N44).</summary>
     private const string FormTitle = "محضر جرد فعلي";
@@ -46,7 +46,7 @@ public partial class frmStocktakingNew : Form
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
@@ -266,6 +266,7 @@ public partial class frmStocktakingNew : Form
         if (cmbWarehouse.SelectedIndex < 0)
         {
             errorProvider.SetError(cmbWarehouse, "يرجى اختيار المستودع");
+            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, "يرجى اختيار المستودع", tooltip);
             clsDialogs.Warning("يرجى اختيار المستودع.");
             cmbWarehouse.Focus();
             return false;

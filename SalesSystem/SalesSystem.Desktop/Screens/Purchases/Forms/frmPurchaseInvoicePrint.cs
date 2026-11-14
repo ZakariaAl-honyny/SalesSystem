@@ -122,7 +122,7 @@ public partial class frmPurchaseInvoicePrint : Form
         {
             clsDialogs.Success(
                 $"تمت طباعة فاتورة المشتريات رقم {_invoice.InvoiceNo} بنجاح.\n" +
-                $"المورد: {_invoice.Supplier} — الإجمالي: {_invoice.Total:N0} ريال يمني\n" +
+                $"المورد: {_invoice.Supplier} — الإجمالي: {clsFormat.Number(_invoice.Total)} ريال يمني\n" +
                 "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
@@ -140,7 +140,7 @@ public partial class frmPurchaseInvoicePrint : Form
 
     private void pnlDashedSeparator_Paint(object? sender, PaintEventArgs e)
     {
-        using var pen = new Pen(Color.FromArgb(190, 195, 200), 2) { DashStyle = DashStyle.Dash };
+        using var pen = new Pen(GreenThemeHelper.GridLine, 2) { DashStyle = DashStyle.Dash };
         int y = pnlDashedSeparator.Height / 2;
         e.Graphics.DrawLine(pen, 6, y, pnlDashedSeparator.Width - 6, y);
     }

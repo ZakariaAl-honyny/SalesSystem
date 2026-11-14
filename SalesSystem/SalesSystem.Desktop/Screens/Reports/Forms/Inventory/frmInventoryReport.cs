@@ -5,6 +5,7 @@ using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
 
@@ -123,7 +124,7 @@ public partial class frmInventoryReport : Form, IExportableReport
 
     private void UpdateSummary(List<StockReportDto> list)
     {
-        lblRecordsCount.Text = list.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
 
         if (list.Count == 0)
         {
@@ -134,7 +135,7 @@ public partial class frmInventoryReport : Form, IExportableReport
         var totalQty = list.Sum(x => x.CurrentStock);
         var lowStockCount = list.Count(x => x.CurrentStock < x.ReorderLevel);
 
-        lblSummary.Text = $"عدد الأصناف: {list.Count} | إجمالي الكمية: {totalQty:N3} | أقل من الحد الأدنى: {lowStockCount}";
+        lblSummary.Text = $"عدد الأصناف: {clsFormat.Number(list.Count)} | إجمالي الكمية: {clsFormat.Quantity(totalQty)} | أقل من الحد الأدنى: {clsFormat.Number(lowStockCount)}";
     }
 
     private void FormatGrid()
@@ -168,8 +169,8 @@ public partial class frmInventoryReport : Form, IExportableReport
             var row = dgvReport.Rows[e.RowIndex];
             if (row.DataBoundItem is StockReportDto item && item.CurrentStock < item.ReorderLevel)
             {
-                e.CellStyle.BackColor = Color.FromArgb(255, 200, 200);
-                e.CellStyle.ForeColor = Color.Red;
+                e.CellStyle.BackColor = GreenThemeHelper.StatusDangerBack;
+                e.CellStyle.ForeColor = GreenThemeHelper.StatusDanger;
                 e.CellStyle.Font = new Font(dgvReport.Font, FontStyle.Bold);
             }
         }

@@ -1,4 +1,5 @@
 using SalesSystem.Common.Enums;
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -64,8 +65,28 @@ public class MockProductDesktopService : IProductDesktopService
             : Task.FromResult(Result<ProductDto>.Success(product));
     }
 
+    // ── تكافؤ الرفض مع الـBLL (RULE-N167): المقارنة النصية في البيت الواحد StringExtensions.SameText ──
+    private static bool _NameExists(string? name, int? exceptId)
+        => !string.IsNullOrWhiteSpace(name) &&
+           MockData.Products.Any(p => p.Id != exceptId &&
+               p.Name.SameText(name));
+
+    private static bool _BarcodeExists(string? barcode, int? exceptId)
+        => !string.IsNullOrWhiteSpace(barcode) &&
+           MockData.Products.Any(p => p.Id != exceptId && !string.IsNullOrWhiteSpace(p.Barcode) &&
+               p.Barcode.SameText(barcode));
+
     public Task<Result<ProductDto>> CreateAsync(CreateProductRequest r, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<ProductDto>.Failure("اسم الصنف مطلوب"));
+
+        if (_NameExists(r.Name, null))
+            return Task.FromResult(Result<ProductDto>.Failure("اسم الصنف مستخدم بالفعل"));
+
+        if (_BarcodeExists(r.Barcode, null))
+            return Task.FromResult(Result<ProductDto>.Failure("الباركود مستخدم بالفعل"));
+
         var nextId = MockData.Products.Count == 0 ? 1 : MockData.Products.Max(p => p.Id) + 1;
 
         // اسم المجموعة يُقرأ من دليل المجموعات (لا من منتج قائم) حتى يظهر صحيحاً للأصناف الجديدة.
@@ -87,6 +108,15 @@ public class MockProductDesktopService : IProductDesktopService
         var existing = MockData.Products.FirstOrDefault(p => p.Id == id);
         if (existing is null)
             return Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود"));
+
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<ProductDto>.Failure("اسم الصنف مطلوب"));
+
+        if (_NameExists(r.Name, id))
+            return Task.FromResult(Result<ProductDto>.Failure("اسم الصنف مستخدم بالفعل"));
+
+        if (_BarcodeExists(r.Barcode, id))
+            return Task.FromResult(Result<ProductDto>.Failure("الباركود مستخدم بالفعل"));
 
         var categoryName = MockLookupsData.Categories.FirstOrDefault(c => c.Id == r.CategoryId)?.Name;
 

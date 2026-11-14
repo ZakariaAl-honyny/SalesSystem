@@ -34,7 +34,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));  // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));  // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnSave);                           // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
@@ -239,6 +239,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         if (!_TryGetSelectedId(cmbCustomer, out _))
         {
             errorProvider.SetError(cmbCustomer, "يرجى اختيار العميل.");
+            clsInputFeedback.ShowRejectTooltip(cmbCustomer, "يرجى اختيار العميل.", toolTip1);   // GAP-08b
             isValid = false;
         }
         else
@@ -249,6 +250,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         if (!_TryGetSelectedId(cmbCashBox, out _))
         {
             errorProvider.SetError(cmbCashBox, "يرجى اختيار الصندوق.");
+            clsInputFeedback.ShowRejectTooltip(cmbCashBox, "يرجى اختيار الصندوق.", toolTip1);   // GAP-08b
             isValid = false;
         }
         else
@@ -259,6 +261,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         if (numAmount.Value <= 0)
         {
             errorProvider.SetError(numAmount, "المبلغ يجب أن يكون أكبر من صفر.");
+            clsInputFeedback.ShowRejectTooltip(numAmount, "المبلغ يجب أن يكون أكبر من صفر.", toolTip1);   // GAP-08b
             isValid = false;
         }
         else

@@ -290,6 +290,7 @@
             cbStatus.Location = new Point(1290, 30);
             cbStatus.Margin = new Padding(0);
             cbStatus.Name = "cbStatus";
+            cbStatus.BackColor = Color.White;
             cbStatus.Size = new Size(124, 32);
             cbStatus.TabIndex = 1;
             cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
@@ -313,6 +314,7 @@
             dtpFrom.Location = new Point(1070, 30);
             dtpFrom.Margin = new Padding(0);
             dtpFrom.Name = "dtpFrom";
+            dtpFrom.BackColor = Color.White;
             dtpFrom.Size = new Size(154, 32);
             dtpFrom.TabIndex = 3;
             dtpFrom.ValueChanged += dtpFrom_ValueChanged;
@@ -336,6 +338,7 @@
             dtpTo.Location = new Point(850, 30);
             dtpTo.Margin = new Padding(0);
             dtpTo.Name = "dtpTo";
+            dtpTo.BackColor = Color.White;
             dtpTo.Size = new Size(154, 32);
             dtpTo.TabIndex = 5;
             dtpTo.ValueChanged += dtpTo_ValueChanged;
@@ -362,6 +365,7 @@
             cbFilterBy.Location = new Point(560, 30);
             cbFilterBy.Margin = new Padding(0);
             cbFilterBy.Name = "cbFilterBy";
+            cbFilterBy.BackColor = Color.White;
             cbFilterBy.Size = new Size(184, 32);
             cbFilterBy.TabIndex = 7;
             cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
@@ -372,6 +376,7 @@
             txtFilterValue.Location = new Point(352, 30);
             txtFilterValue.Margin = new Padding(0);
             txtFilterValue.Name = "txtFilterValue";
+            txtFilterValue.BackColor = Color.White;
             txtFilterValue.Size = new Size(200, 32);
             txtFilterValue.TabIndex = 8;
             txtFilterValue.Visible = false;

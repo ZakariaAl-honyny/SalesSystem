@@ -20,7 +20,7 @@ internal static class MockSecurityData
     internal const string DefaultPassword = "123456";
 
     // ═══════════════════════════════════════════════
-    // المستخدمون — Users (5 مستخدمين)
+    // المستخدمون — Users (6 مستخدمين)
     // ═══════════════════════════════════════════════
     public static List<UserDto> Users { get; } = new()
     {
@@ -63,6 +63,16 @@ internal static class MockSecurityData
             IsLocked: true, IsActive: true,
             LastLoginAt: new DateTime(2026, 8, 30, 10, 0, 0),
             LoginAttempts: 5, DefaultCashBoxId: null),
+
+        // 6. مستخدم تجريبي معطّل — inactive_test
+        //    موجود ليصبح رفض «الحساب معطّل» قابلاً للاختبار من شاشة الدخول (RULE-N167):
+        //    حسابات المسار السعيد كلها نشطة، فبلا هذا السجل لا يُختبر الرفض الرابع إطلاقاً.
+        new UserDto(
+            Id: 6, UserName: "inactive_test",
+            BranchId: 1, MustChangePassword: false,
+            IsLocked: false, IsActive: false,
+            LastLoginAt: new DateTime(2026, 8, 25, 9, 0, 0),
+            LoginAttempts: 0, DefaultCashBoxId: null),
     };
 
     // ═══════════════════════════════════════════════

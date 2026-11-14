@@ -116,6 +116,7 @@ partial class frmWarehouseMaster
         // 
         txtCode.Location = new Point(1267, 42);
         txtCode.Name = "txtCode";
+        txtCode.BackColor = Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -144,6 +145,7 @@ partial class frmWarehouseMaster
         // 
         txtName.Location = new Point(911, 42);
         txtName.Name = "txtName";
+        txtName.BackColor = Color.White;
         txtName.Size = new Size(330, 32);
         txtName.TabIndex = 1;
         // 
@@ -160,6 +162,7 @@ partial class frmWarehouseMaster
         // 
         txtPhone.Location = new Point(675, 42);
         txtPhone.Name = "txtPhone";
+        txtPhone.BackColor = Color.White;
         txtPhone.Size = new Size(210, 32);
         txtPhone.TabIndex = 2;
         // 
@@ -176,6 +179,7 @@ partial class frmWarehouseMaster
         // 
         txtAddress.Location = new Point(390, 42);
         txtAddress.Name = "txtAddress";
+        txtAddress.BackColor = Color.White;
         txtAddress.Size = new Size(265, 32);
         txtAddress.TabIndex = 3;
         // 
@@ -193,6 +197,7 @@ partial class frmWarehouseMaster
         txtNotes.Location = new Point(675, 85);
         txtNotes.Multiline = true;
         txtNotes.Name = "txtNotes";
+        txtNotes.BackColor = Color.White;
         txtNotes.Size = new Size(702, 56);
         txtNotes.TabIndex = 4;
         // 
@@ -445,6 +450,7 @@ partial class frmWarehouseMaster
         txtFilterValue.Location = new Point(460, 26);
         txtFilterValue.Margin = new Padding(0);
         txtFilterValue.Name = "txtFilterValue";
+        txtFilterValue.BackColor = Color.White;
         txtFilterValue.PlaceholderText = "اكتب قيمة التصفية...";
         txtFilterValue.Size = new Size(412, 32);
         txtFilterValue.TabIndex = 4;

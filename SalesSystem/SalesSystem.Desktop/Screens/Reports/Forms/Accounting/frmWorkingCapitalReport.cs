@@ -73,7 +73,9 @@ public partial class frmWorkingCapitalReport : Form, IExportableReport
 
     private void UpdateSummary(WorkingCapitalSummaryDto report)
     {
-        lblSummary.Text = $"الأصول المتداولة: {report.CurrentAssets:N2} | الخصوم المتداولة: {report.CurrentLiabilities:N2} | رأس المال العامل: {report.WorkingCapital:N2} | النسبة: {report.CurrentRatio:N2}";
+        // نسبة التداول معامل (أصول ÷ خصوم) لا نسبة مئوية — تُعرض بمنزلتين عبر منسّق المبالغ،
+        // إذ لا يوجد منسّق «نسبة/معامل» في clsFormat بعد (RULE-N169: لا صيغة مكرّرة هنا).
+        lblSummary.Text = $"الأصول المتداولة: {clsFormat.Money(report.CurrentAssets)} | الخصوم المتداولة: {clsFormat.Money(report.CurrentLiabilities)} | رأس المال العامل: {clsFormat.Money(report.WorkingCapital)} | نسبة التداول: {clsFormat.Money(report.CurrentRatio)}";
     }
 
     private void FormatGrid()

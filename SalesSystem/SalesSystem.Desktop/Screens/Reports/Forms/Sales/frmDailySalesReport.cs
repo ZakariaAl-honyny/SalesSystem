@@ -57,7 +57,8 @@ public partial class frmDailySalesReport : Form, IExportableReport
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TotalAmount);
         var net = list.Sum(x => x.NetAmount);
-        lblRecordsCount.Text = $"عدد الأيام: {list.Count} | الإجمالي: {total:N2} | الصافي: {net:N2}";
+        // RULE-N179 — كل عدد ومبلغ من البيت الواحد clsFormat
+        lblRecordsCount.Text = $"عدد الأيام: {clsFormat.Number(list.Count)} | الإجمالي: {clsFormat.Money(total)} | الصافي: {clsFormat.Money(net)}";
     }
 
     private void FormatGrid()

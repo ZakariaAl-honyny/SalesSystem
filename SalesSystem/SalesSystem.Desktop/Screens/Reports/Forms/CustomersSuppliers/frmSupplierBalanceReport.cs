@@ -6,6 +6,7 @@ using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
 
@@ -78,7 +79,7 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
 
     private void UpdateSummary(List<SupplierBalanceReportDto> list)
     {
-        lblRecordsCount.Text = list.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
         if (list.Count == 0)
         {
             lblSummary.Text = "لا توجد بيانات";
@@ -86,7 +87,7 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
         }
 
         var totalBalance = list.Sum(x => x.CurrentBalance);
-        lblSummary.Text = $"عدد الموردين: {list.Count} | الرصيد الكلي: {totalBalance:N2}";
+        lblSummary.Text = $"عدد الموردين: {clsFormat.Number(list.Count)} | الرصيد الكلي: {clsFormat.Money(totalBalance)}";
     }
 
     private void FormatGrid()

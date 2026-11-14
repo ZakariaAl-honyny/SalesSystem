@@ -45,7 +45,7 @@ public partial class frmPurchaseItem : Form
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
@@ -176,7 +176,11 @@ public partial class frmPurchaseItem : Form
 
         if (numQuantity.Value <= 0)
         {
-            errorProvider.SetError(numQuantity, "الكمية يجب أن تكون أكبر من صفر.");
+            const string quantityMessage = "الكمية يجب أن تكون أكبر من صفر.";
+
+            // GAP-08b + RULE-N169: الرفض يقرن errorProvider بتلميح الرفض من البيت الواحد بنفس النص.
+            errorProvider.SetError(numQuantity, quantityMessage);
+            clsInputFeedback.ShowRejectTooltip(numQuantity, quantityMessage, toolTip);
             isValid = false;
         }
         else
@@ -186,7 +190,10 @@ public partial class frmPurchaseItem : Form
 
         if (numCost.Value < 0)
         {
-            errorProvider.SetError(numCost, "التكلفة يجب أن تكون أكبر من أو تساوي صفر.");
+            const string costMessage = "التكلفة يجب أن تكون أكبر من أو تساوي صفر.";
+
+            errorProvider.SetError(numCost, costMessage);
+            clsInputFeedback.ShowRejectTooltip(numCost, costMessage, toolTip);
             isValid = false;
         }
         else
@@ -196,7 +203,10 @@ public partial class frmPurchaseItem : Form
 
         if (chkExpiry.Checked && dtpExpiry.Value.Date < DateTime.Today)
         {
-            errorProvider.SetError(dtpExpiry, "تاريخ الصلاحية يجب ألا يكون في الماضي.");
+            const string expiryMessage = "تاريخ الصلاحية يجب ألا يكون في الماضي.";
+
+            errorProvider.SetError(dtpExpiry, expiryMessage);
+            clsInputFeedback.ShowRejectTooltip(dtpExpiry, expiryMessage, toolTip);
             isValid = false;
         }
         else

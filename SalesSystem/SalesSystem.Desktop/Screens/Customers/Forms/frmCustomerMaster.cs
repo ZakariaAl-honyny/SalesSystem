@@ -67,7 +67,7 @@ public partial class frmCustomerMaster : Form
         _serviceProvider = serviceProvider;
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
 
         // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط/مسح التصفية) تتغير حالة تفعيلها،
@@ -498,8 +498,8 @@ public partial class frmCustomerMaster : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive} · " +
-            $"المديونية: {balance:N2} · تجاوزوا الحد: {overLimit}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — نشط: {clsFormat.Number(active)} · معطّل: {clsFormat.Number(inactive)} · " +
+            $"المديونية: {clsFormat.Money(balance)} · تجاوزوا الحد: {clsFormat.Number(overLimit)}";
     }
 
     private static decimal _AsDecimal(object? value) => value is decimal d ? d : 0m;

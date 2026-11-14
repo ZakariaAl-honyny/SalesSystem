@@ -16,6 +16,12 @@ partial class frmProductMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        cmsRows = new ContextMenuStrip(components);
+        cmsEdit = new ToolStripMenuItem();
+        cmsDelete = new ToolStripMenuItem();
+        cmsReactivate = new ToolStripMenuItem();
+        cmsSeparator = new ToolStripSeparator();
+        cmsRefresh = new ToolStripMenuItem();
         DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
         DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
         DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
@@ -148,6 +154,7 @@ partial class frmProductMaster
         // 
         txtCode.Location = new Point(1267, 98);
         txtCode.Name = "txtCode";
+        txtCode.BackColor = Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -177,6 +184,7 @@ partial class frmProductMaster
         // 
         txtName.Location = new Point(911, 30);
         txtName.Name = "txtName";
+        txtName.BackColor = Color.White;
         txtName.Size = new Size(240, 32);
         txtName.TabIndex = 2;
         // 
@@ -193,6 +201,7 @@ partial class frmProductMaster
         // 
         txtForeignName.Location = new Point(675, 30);
         txtForeignName.Name = "txtForeignName";
+        txtForeignName.BackColor = Color.White;
         txtForeignName.Size = new Size(230, 32);
         txtForeignName.TabIndex = 3;
         // 
@@ -255,6 +264,7 @@ partial class frmProductMaster
         numReorderLevel.Location = new Point(1106, 99);
         numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numReorderLevel.Name = "numReorderLevel";
+        numReorderLevel.BackColor = Color.White;
         numReorderLevel.Size = new Size(155, 32);
         numReorderLevel.TabIndex = 5;
         // 
@@ -281,6 +291,7 @@ partial class frmProductMaster
         numExpiryAlertDays.Location = new Point(675, 101);
         numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
         numExpiryAlertDays.Name = "numExpiryAlertDays";
+        numExpiryAlertDays.BackColor = Color.White;
         numExpiryAlertDays.Size = new Size(230, 32);
         numExpiryAlertDays.TabIndex = 7;
         // 
@@ -297,6 +308,7 @@ partial class frmProductMaster
         // 
         txtLocationInStore.Location = new Point(914, 161);
         txtLocationInStore.Name = "txtLocationInStore";
+        txtLocationInStore.BackColor = Color.White;
         txtLocationInStore.Size = new Size(463, 32);
         txtLocationInStore.TabIndex = 8;
         // 
@@ -313,6 +325,7 @@ partial class frmProductMaster
         // 
         txtNotes.Location = new Point(675, 161);
         txtNotes.Name = "txtNotes";
+        txtNotes.BackColor = Color.White;
         txtNotes.Size = new Size(233, 32);
         txtNotes.TabIndex = 9;
         // 
@@ -383,6 +396,7 @@ partial class frmProductMaster
         numMainUnitCostPrice.Location = new Point(169, 54);
         numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitCostPrice.Name = "numMainUnitCostPrice";
+        numMainUnitCostPrice.BackColor = Color.White;
         numMainUnitCostPrice.Size = new Size(127, 32);
         numMainUnitCostPrice.TabIndex = 1;
         // 
@@ -400,6 +414,7 @@ partial class frmProductMaster
         numMainUnitSalePrice.Location = new Point(36, 54);
         numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitSalePrice.Name = "numMainUnitSalePrice";
+        numMainUnitSalePrice.BackColor = Color.White;
         numMainUnitSalePrice.Size = new Size(127, 32);
         numMainUnitSalePrice.TabIndex = 2;
         // 
@@ -416,6 +431,7 @@ partial class frmProductMaster
         // 
         txtMainUnitBarcode.Location = new Point(36, 125);
         txtMainUnitBarcode.Name = "txtMainUnitBarcode";
+        txtMainUnitBarcode.BackColor = Color.White;
         txtMainUnitBarcode.Size = new Size(180, 32);
         txtMainUnitBarcode.TabIndex = 4;
         txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
@@ -433,6 +449,7 @@ partial class frmProductMaster
         // 
         numMainUnitMaxDiscount.Location = new Point(282, 125);
         numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
+        numMainUnitMaxDiscount.BackColor = Color.White;
         numMainUnitMaxDiscount.Size = new Size(127, 32);
         numMainUnitMaxDiscount.TabIndex = 3;
         // 
@@ -611,6 +628,7 @@ partial class frmProductMaster
         dgvProducts.Location = new Point(0, 10);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
+        dgvProducts.ContextMenuStrip = cmsRows;
         dgvProducts.ReadOnly = true;
         dgvProducts.RowHeadersVisible = false;
         dgvProducts.RowHeadersWidth = 62;
@@ -695,6 +713,7 @@ partial class frmProductMaster
         // 
         txtSearch.Location = new Point(870, 36);
         txtSearch.Name = "txtSearch";
+        txtSearch.BackColor = Color.White;
         txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 20;
@@ -763,6 +782,47 @@ partial class frmProductMaster
         lblSummary.Text = "المعروض: 0 من 0";
         lblSummary.TextAlign = ContentAlignment.MiddleCenter;
         // 
+        // cmsRows
+        //
+        // RULE-N23: قائمة سياق على الشبكة — كل عنصر يستدعي نفس زر الشاشة (بلا منطق مكرر).
+        cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsDelete, cmsReactivate, cmsSeparator, cmsRefresh });
+        cmsRows.Name = "cmsRows";
+        cmsRows.Size = new Size(240, 134);
+        cmsRows.Opening += cmsRows_Opening;
+        //
+        // cmsEdit
+        //
+        cmsEdit.Name = "cmsEdit";
+        cmsEdit.Size = new Size(239, 30);
+        cmsEdit.Text = "✏️ تعديل";
+        cmsEdit.Click += cmsEdit_Click;
+        //
+        // cmsDelete
+        //
+        cmsDelete.Name = "cmsDelete";
+        cmsDelete.Size = new Size(239, 30);
+        cmsDelete.Text = "🗑 حذف";
+        cmsDelete.Click += cmsDelete_Click;
+        //
+        // cmsReactivate
+        //
+        cmsReactivate.Name = "cmsReactivate";
+        cmsReactivate.Size = new Size(239, 30);
+        cmsReactivate.Text = "↺ إعادة تنشيط";
+        cmsReactivate.Click += cmsReactivate_Click;
+        //
+        // cmsSeparator
+        //
+        cmsSeparator.Name = "cmsSeparator";
+        cmsSeparator.Size = new Size(236, 6);
+        //
+        // cmsRefresh
+        //
+        cmsRefresh.Name = "cmsRefresh";
+        cmsRefresh.Size = new Size(239, 30);
+        cmsRefresh.Text = "🔄 تحديث (F5)";
+        cmsRefresh.Click += cmsRefresh_Click;
+        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -803,6 +863,7 @@ partial class frmProductMaster
         gbFilter.ResumeLayout(false);
         gbFilter.PerformLayout();
         pnlSummary.ResumeLayout(false);
+        cmsRows.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -854,6 +915,12 @@ partial class frmProductMaster
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
     private System.Windows.Forms.DataGridView dgvProducts;
+    private System.Windows.Forms.ContextMenuStrip cmsRows;
+    private System.Windows.Forms.ToolStripMenuItem cmsEdit;
+    private System.Windows.Forms.ToolStripMenuItem cmsDelete;
+    private System.Windows.Forms.ToolStripMenuItem cmsReactivate;
+    private System.Windows.Forms.ToolStripSeparator cmsSeparator;
+    private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Button btnRefresh;

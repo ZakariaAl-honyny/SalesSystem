@@ -32,8 +32,8 @@ public partial class frmWarehouseTransferNew : Form
         new("جبنة بيضاء 500 جم",     "قطعة"),
     };
 
-    private static readonly Color QtyPositive = Color.FromArgb(25, 135, 84);    // كمية موجبة
-    private static readonly Color QtyZero = Color.FromArgb(173, 181, 189);       // بلا كمية
+    private static Color QtyPositive => GreenThemeHelper.StatusSuccess;    // كمية موجبة
+    private static Color QtyZero => GreenThemeHelper.StatusMuted;          // بلا كمية
 
     /// <summary>نص شريط العنوان الأساسي — تُضاف إليه حالة السند (RULE-N44).</summary>
     private const string FormTitle = "سند تحويل مخزني";
@@ -49,7 +49,7 @@ public partial class frmWarehouseTransferNew : Form
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.

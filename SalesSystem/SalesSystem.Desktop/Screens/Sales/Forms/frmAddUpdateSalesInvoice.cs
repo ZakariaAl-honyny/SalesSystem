@@ -77,7 +77,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         // تنقل لوحة المفاتيح الموحّد (RULE-N40…RULE-N47).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45 — أسهم RTL
 
         ApplyUiTheme();          // RULE-N50 — ينتهي بالثيم الأخضر حصراً
@@ -580,8 +580,8 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         clsDialogs.Warning(
             "الكمية غير كافية في المخزون." +
-            $"\nالمتاح بالوحدة المختارة: {availableInUnit:G} — المطلوب: {newQty:G}" +
-            $"\nالمتاح بالوحدة الأساسية: {availableBase:G} — المطلوب: {neededBase:G}");
+            $"\nالمتاح بالوحدة المختارة: {clsFormat.Quantity(availableInUnit)} — المطلوب: {clsFormat.Quantity(newQty)}" +
+            $"\nالمتاح بالوحدة الأساسية: {clsFormat.Quantity(availableBase)} — المطلوب: {clsFormat.Quantity(neededBase)}");
         return false;
     }
 
@@ -697,7 +697,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtPaid.Text = "0";
         txtNotes.Clear();
         txtExpenses.Text = "0";
-        lblLineTotal.Text = "0.00";
+        lblLineTotal.Text = clsFormat.Money(0m);
         lblTafqitValue.Text = string.Empty;
         ClearEntryPanel();
     }
@@ -938,7 +938,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (e.KeyCode == Keys.Enter)
         {
             e.SuppressKeyPress = true;
-            if (!decimal.TryParse(txtQuantity.Text, out decimal qty) || qty <= 0)
+            if (!clsValidation.IsPositiveDecimal(txtQuantity.Text))   // GAP-08b — بيت التحقق الواحد (RULE-N169)
             {
                 clsDialogs.Warning("الرجاء إدخال كمية صحيحة (أكبر من صفر).");
                 txtQuantity.Focus();
@@ -960,7 +960,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (e.KeyCode == Keys.Enter)
         {
             e.SuppressKeyPress = true;
-            if (!decimal.TryParse(txtUnitPrice.Text, out decimal price) || price < 0)
+            if (!clsValidation.TryParseDecimal(txtUnitPrice.Text, out decimal price) || price < 0)
             {
                 clsDialogs.Warning("الرجاء إدخال سعر صحيح.");
                 txtUnitPrice.Focus();
@@ -1043,9 +1043,9 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void RecalculateLineTotal(object? sender, EventArgs? e)
     {
-        decimal qty = decimal.TryParse(txtQuantity.Text, out decimal q) ? q : 0m;
-        decimal price = decimal.TryParse(txtUnitPrice.Text, out decimal p) ? p : 0m;
-        decimal discount = decimal.TryParse(txtLineDiscount.Text, out decimal d) ? d : 0m;
+        decimal qty = clsValidation.TryParseDecimal(txtQuantity.Text, out decimal q) ? q : 0m;
+        decimal price = clsValidation.TryParseDecimal(txtUnitPrice.Text, out decimal p) ? p : 0m;
+        decimal discount = clsValidation.TryParseDecimal(txtLineDiscount.Text, out decimal d) ? d : 0m;
         decimal total = (qty * price) - discount;
         if (total < 0m) total = 0m;
         lblLineTotal.Text = clsFormat.Money(total);
@@ -1189,9 +1189,11 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         int productId = Convert.ToInt32(cmbUnit.Tag!);
         int productUnitId = Convert.ToInt32(cmbUnit.SelectedValue!);
-        decimal quantity = decimal.Parse(txtQuantity.Text);
-        decimal unitPrice = decimal.TryParse(txtUnitPrice.Text, out decimal up) ? up : 0m;
-        decimal lineDiscount = decimal.TryParse(txtLineDiscount.Text, out decimal ld) ? ld : 0m;
+        // القراءة من بيت التحقق نفسه الذي حكم في ValidateEntryFields (RULE-N169) —
+        // فلا يمرّ حقل قرأه محرّك التحقق ويرفضه decimal.Parse بلغة أخرى.
+        decimal quantity = clsValidation.TryParseDecimal(txtQuantity.Text, out decimal parsedQty) ? parsedQty : 0m;
+        decimal unitPrice = clsValidation.TryParseDecimal(txtUnitPrice.Text, out decimal up) ? up : 0m;
+        decimal lineDiscount = clsValidation.TryParseDecimal(txtLineDiscount.Text, out decimal ld) ? ld : 0m;
         decimal conversionFactor = GetSelectedConversionFactor();
         string barcode = txtBarcode.Text.Trim();
         string productName = lblProductName.Text;
@@ -1310,7 +1312,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtQuantity.Text = "1";
         txtUnitPrice.Clear();
         txtLineDiscount.Text = "0";
-        lblLineTotal.Text = "0.00";
+        lblLineTotal.Text = clsFormat.Money(0m);
 
         // تاريخ الانتهاء: غير محدد افتراضياً (بدون تاريخ انتهاء)
         dtpLineExpiry.Checked = false;
@@ -1340,7 +1342,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             return false;
         }
 
-        if (!decimal.TryParse(txtQuantity.Text, out decimal qty) || qty <= 0)
+        if (!clsValidation.IsPositiveDecimal(txtQuantity.Text))   // GAP-08b — بيت التحقق الواحد (RULE-N169)
         {
             clsDialogs.Warning("الرجاء إدخال كمية صحيحة (أكبر من صفر).");
             txtQuantity.Focus();
@@ -1348,7 +1350,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             return false;
         }
 
-        if (!decimal.TryParse(txtUnitPrice.Text, out decimal price) || price < 0)
+        if (!clsValidation.TryParseDecimal(txtUnitPrice.Text, out decimal price) || price < 0)
         {
             clsDialogs.Warning("الرجاء إدخال سعر صحيح.");
             txtUnitPrice.Focus();
@@ -1875,7 +1877,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal maxDiscount = Math.Max(0m, line.Quantity * line.UnitPrice);
 
         string raw = (cell.Value?.ToString() ?? string.Empty).Trim();
-        if (!TryParseDecimal(raw, out decimal value) || value < 0m)
+        if (!clsValidation.TryParseDecimal(raw, out decimal value) || value < 0m)
         {
             line.DiscountAmount = Math.Max(0m, _discountBeforeEdit);
             cell.Value = line.DiscountAmount;
@@ -1895,35 +1897,21 @@ public partial class frmAddUpdateSalesInvoice : Form
         line.DiscountAmount = value;
         cell.Value = value; // التنسيق N2 يُطبَّق من نمط العمود
         cell.ToolTipText = clamped
-            ? $"تم تقييد الخصم إلى {maxDiscount:N2} (الكمية × السعر)"
+            ? $"تم تقييد الخصم إلى {clsFormat.Money(maxDiscount)} (الكمية × السعر)"
             : string.Empty;
 
         if (clamped)
         {
-            clsDialogs.Info($"لا يمكن أن يتجاوز الخصم قيمة السطر ({maxDiscount:N2}).\nتم تقييد الخصم إلى {maxDiscount:N2}.");
+            clsDialogs.Info($"لا يمكن أن يتجاوز الخصم قيمة السطر ({clsFormat.Money(maxDiscount)}).\nتم تقييد الخصم إلى {clsFormat.Money(maxDiscount)}.");
         }
 
         CalculateTotals();
     }
 
-    /// <summary>قراءة رقم من قيمة خلية (تقبل الأرقام مع الفواصل).</summary>
+    /// <summary>قراءة رقم من قيمة خلية (تقبل الأرقام مع الفواصل) — عبر بيت القراءة الواحد.</summary>
     private static decimal TryParseCellDecimal(object? value)
         => value == null || value == DBNull.Value ? 0m
-            : TryParseDecimal(value.ToString(), out decimal parsed) ? parsed : 0m;
-
-    /// <summary>تحليل رقم عشري بلغتين (الحالية ثم الثابتة) مع إزالة الفواصل.</summary>
-    private static bool TryParseDecimal(string? text, out decimal value)
-    {
-        value = 0m;
-        if (string.IsNullOrWhiteSpace(text)) return false;
-
-        string cleaned = text.Trim();
-        if (decimal.TryParse(cleaned, out value)) return true;
-
-        cleaned = cleaned.Replace(",", "").Replace("٬", "").Replace("٫", ".");
-        return decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
-            System.Globalization.CultureInfo.InvariantCulture, out value);
-    }
+            : clsValidation.TryParseDecimal(value.ToString(), out decimal parsed) ? parsed : 0m;
 
     private void dgvItems_KeyDown(object? sender, KeyEventArgs e)
     {
@@ -2481,7 +2469,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         decimal inUnit = factor > 0m ? baseQty / factor : baseQty;
         string unitLabel = string.IsNullOrWhiteSpace(unitName) ? baseUnitName : unitName.Trim();
-        lblAvailable.Text = $"المتوفر في المخزن: {inUnit:G} {unitLabel} ({baseQty:G} {baseUnitName})";
+        lblAvailable.Text = $"المتوفر في المخزن: {clsFormat.Quantity(inUnit)} {unitLabel} ({clsFormat.Quantity(baseQty)} {baseUnitName})";
     }
 
     private async void cmbUnit_SelectedIndexChanged(object? sender, EventArgs e)
@@ -2540,6 +2528,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (cmbCustomer.SelectedValue == null || Convert.ToInt32(cmbCustomer.SelectedValue) <= 0)
         {
             errorProvider.SetError(cmbCustomer, "يجب اختيار العميل");
+            clsInputFeedback.ShowRejectTooltip(cmbCustomer, "يجب اختيار العميل", tooltip);   // GAP-08b
             cmbCustomer.Focus();
             clsDialogs.Warning("يجب اختيار العميل");
             return false;
@@ -2549,6 +2538,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (cmbWarehouse.SelectedValue == null || Convert.ToInt32(cmbWarehouse.SelectedValue) <= 0)
         {
             errorProvider.SetError(cmbWarehouse, "يجب اختيار المستودع");
+            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, "يجب اختيار المستودع", tooltip);   // GAP-08b
             cmbWarehouse.Focus();
             clsDialogs.Warning("يجب اختيار المستودع");
             return false;
@@ -2558,6 +2548,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (!_lines.Any(l => l.ProductId > 0))
         {
             errorProvider.SetError(dgvItems, "لم يتم إضافة أي منتج إلى الفاتورة");
+            clsInputFeedback.ShowRejectTooltip(dgvItems, "لم يتم إضافة أي منتج إلى الفاتورة", tooltip);   // GAP-08b
             dgvItems.Focus();
             clsDialogs.Warning("أضف منتج واحد على الأقل");
             return false;
@@ -2600,8 +2591,9 @@ public partial class frmAddUpdateSalesInvoice : Form
             if (totalPaid < totalAmount)
             {
                 errorProvider.SetError(txtPaid, "المبلغ المدفوع أقل من الإجمالي");
+                clsInputFeedback.ShowRejectTooltip(txtPaid, "المبلغ المدفوع أقل من الإجمالي", tooltip);   // GAP-08b
                 txtPaid.Focus();
-                clsDialogs.Warning($"البيع النقدي يتطلب دفع كامل المبلغ.\nالإجمالي: {totalAmount:N2} — المدفوع: {totalPaid:N2}\nالمتبقي: {totalAmount - totalPaid:N2}");
+                clsDialogs.Warning($"البيع النقدي يتطلب دفع كامل المبلغ.\nالإجمالي: {clsFormat.Money(totalAmount)} — المدفوع: {clsFormat.Money(totalPaid)}\nالمتبقي: {clsFormat.Money(totalAmount - totalPaid)}");
                 return false;
             }
             // Cash 
@@ -2615,12 +2607,14 @@ public partial class frmAddUpdateSalesInvoice : Form
             if (creditCustomerId <= 0 || cmbCustomer.SelectedIndex <= 0)
             {
                 errorProvider.SetError(cmbCustomer, "البيع الآجل يتطلب اختيار عميل");
+                clsInputFeedback.ShowRejectTooltip(cmbCustomer, "البيع الآجل يتطلب اختيار عميل", tooltip);   // GAP-08b
                 cmbCustomer.Focus();
                 errors.Add("البيع الآجل يتطلب اختيار عميل.");
             }
             else if (totalPaid > totalAmount)
             {
                 errorProvider.SetError(txtPaid, "المبلغ المدفوع يتجاوز إجمالي الفاتورة");
+                clsInputFeedback.ShowRejectTooltip(txtPaid, "المبلغ المدفوع يتجاوز إجمالي الفاتورة", tooltip);   // GAP-08b
                 txtPaid.Focus();
                 errors.Add("المبلغ المدفوع لا يمكن أن يتجاوز إجمالي الفاتورة في البيع الآجل.");
             }
@@ -2630,7 +2624,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         // Paid amount > total → warn (overpayment, allowed only on confirmation for cash/mixed edge cases)
         if (totalPaid > 0 && totalPaid > totalAmount && errors.Count == 0)
         {
-            if (!clsDialogs.Confirm($"المبلغ المدفوع ({totalPaid:N2}) أكبر من الإجمالي ({totalAmount:N2}). هل تريد المتابعة؟"))
+            if (!clsDialogs.Confirm($"المبلغ المدفوع ({clsFormat.Money(totalPaid)}) أكبر من الإجمالي ({clsFormat.Money(totalAmount)}). هل تريد المتابعة؟"))
             {
                 txtPaid.Focus();
                 return false;
@@ -2719,7 +2713,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                     : null;
             var paymentType = (SalesSystem.DTO.Enums.PaymentType)(rbtnPaymentTypeCash.Checked == true ? SalesSystem.DTO.Enums.PaymentType.Cash : SalesSystem.DTO.Enums.PaymentType.Credit);
             decimal paidAmount = txtPaid.DecimalValue;
-            decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp2) ? exp2 : 0m;
+            decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp2) ? exp2 : 0m;
             string notes = txtNotes.Text;
             int? taxId = null; // أُزيلت وحدة الضرائب (V2)
 
@@ -2896,7 +2890,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal taxableAmount = subTotal - invoiceDiscount;
         decimal taxAmount = CalculateTaxAmount(taxableAmount);
 
-        decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp) ? exp : 0m;
+        decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp) ? exp : 0m;
 
         return taxableAmount + taxAmount + expenses;
     }
@@ -2913,7 +2907,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         decimal taxableAmount = subTotal - invoiceDiscount;
         decimal taxAmount = CalculateTaxAmount(taxableAmount);
-        decimal expenses = decimal.TryParse(txtExpenses.Text, out decimal exp) ? exp : 0m;
+        decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp) ? exp : 0m;
 
         // دستور الحسابات: NetTotal = SubTotal - InvoiceDiscount + Tax + OtherCharges
         decimal netTotal = subTotal - invoiceDiscount + taxAmount + expenses;
@@ -2926,7 +2920,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal totalQuantity = _lines.Where(l => l.ProductId > 0).Sum(l => l.Quantity);
 
         lblQuickInfo.Text =
-            $"عدد الأصناف: {itemCount} | إجمالي الكمية: {totalQuantity:G} | الإجمالي: {netTotal:N2} | المدفوع: {totalPaid:N2} | المتبقي: {dueAmount:N2}";
+            $"عدد الأصناف: {clsFormat.Number(itemCount)} | إجمالي الكمية: {clsFormat.Quantity(totalQuantity)} | الإجمالي: {clsFormat.Money(netTotal)} | المدفوع: {clsFormat.Money(totalPaid)} | المتبقي: {clsFormat.Money(dueAmount)}";
 
         // ── التفقيط: المبلغ الصافي كتابةً ──
         try
@@ -3016,10 +3010,11 @@ public partial class frmAddUpdateSalesInvoice : Form
     private void _ValidateEmptyTextBox(object sender, CancelEventArgs e)
     {
         TextBox Temp = ((TextBox)sender);
-        if (string.IsNullOrEmpty(Temp.Text.Trim()))
+        if (!clsValidation.IsRequired(Temp.Text))   // GAP-08b — بيت التحقق الواحد (RULE-N169)
         {
             e.Cancel = true;
             errorProvider.SetError(Temp, "هذا الحقل مطلوب");
+            clsInputFeedback.ShowRejectTooltip(Temp, "هذا الحقل مطلوب", tooltip);   // GAP-08b
         }
         else
         {

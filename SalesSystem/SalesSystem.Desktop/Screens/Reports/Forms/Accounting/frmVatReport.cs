@@ -69,7 +69,7 @@ public partial class frmVatReport : Form, IExportableReport
     {
         if (list.Count == 0) { lblSummary.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TaxAmount);
-        lblSummary.Text = $"عدد الفواتير: {list.Count} | إجمالي الضريبة: {total:N2}";
+        lblSummary.Text = $"عدد الفواتير: {clsFormat.Number(list.Count)} | إجمالي الضريبة: {clsFormat.Money(total)}";
     }
 
     private void FormatGrid()

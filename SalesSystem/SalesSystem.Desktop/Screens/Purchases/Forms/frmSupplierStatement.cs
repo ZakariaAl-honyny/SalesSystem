@@ -18,7 +18,7 @@ public partial class frmSupplierStatement : Form
     private readonly IServiceProvider _serviceProvider;
 
     /// <summary>RULE-N46: لون الحقل النشط — القيمة المعتمدة في §2.21.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private const string RowKindOpening = "Opening";
     private const string RowKindNormal = "Normal";
@@ -410,7 +410,7 @@ public partial class frmSupplierStatement : Form
 
         if (!any) closing = 0m;
 
-        lblSummary.Text = $"عدد الحركات: {moves} · مدين: {debit:N2} · دائن: {credit:N2}";
+        lblSummary.Text = $"عدد الحركات: {clsFormat.Number(moves)} · مدين: {clsFormat.Money(debit)} · دائن: {clsFormat.Money(credit)}";
         txtClosingBalance.Text = clsFormat.Money(closing);
 
         emptyState.Visible = _view is null || _view.Count == 0;

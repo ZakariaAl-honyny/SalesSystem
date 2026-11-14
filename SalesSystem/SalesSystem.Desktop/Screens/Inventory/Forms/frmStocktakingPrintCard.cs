@@ -117,7 +117,7 @@ public partial class frmStocktakingPrintCard : Form
         lblProductNameValue.Text = _card.ProductName;
         lblBarcodeValue.Text = _card.Barcode;
         lblWarehouseValue.Text = _card.Warehouse;
-        lblBalanceValue.Text = _card.CurrentBalance.ToString("N3");
+        lblBalanceValue.Text = clsFormat.Quantity(_card.CurrentBalance);
     }
 
     private void _BindMovements()
@@ -135,7 +135,7 @@ public partial class frmStocktakingPrintCard : Form
             clsDialogs.Success(
                 $"تمت طباعة كرت صنف «{_card.ProductName}» بنجاح.\n" +
                 $"الباركود: {_card.Barcode} — المستودع: {_card.Warehouse}\n" +
-                $"الرصيد الحالي: {_card.CurrentBalance:N3} — عدد الحركات: {_movements.Count}\n" +
+                $"الرصيد الحالي: {clsFormat.Quantity(_card.CurrentBalance)} — عدد الحركات: {clsFormat.Number(_movements.Count)}\n" +
                 "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
@@ -153,7 +153,7 @@ public partial class frmStocktakingPrintCard : Form
 
     private void pnlDashedSeparator_Paint(object? sender, PaintEventArgs e)
     {
-        using var pen = new Pen(Color.FromArgb(190, 195, 200), 2) { DashStyle = DashStyle.Dash };
+        using var pen = new Pen(GreenThemeHelper.GridLine, 2) { DashStyle = DashStyle.Dash };
         int y = pnlDashedSeparator.Height / 2;
         e.Graphics.DrawLine(pen, 6, y, pnlDashedSeparator.Width - 6, y);
     }

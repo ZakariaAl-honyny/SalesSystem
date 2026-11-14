@@ -58,7 +58,7 @@ public partial class frmPurchaseCurrency : Form
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel, btnRestore);     // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
@@ -229,7 +229,7 @@ public partial class frmPurchaseCurrency : Form
         if (opt.IsLocal || opt.RangePercent == 0m) return "—";
         decimal min = opt.OfficialRate * (1m - opt.RangePercent / 100m);
         decimal max = opt.OfficialRate * (1m + opt.RangePercent / 100m);
-        return $"{min:N2} – {max:N2}";
+        return $"{clsFormat.Money(min)} – {clsFormat.Money(max)}";
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -240,11 +240,11 @@ public partial class frmPurchaseCurrency : Form
         var opt = Currencies[_selected];
         if (opt.IsLocal)
         {
-            lblEquivValue.Text = "عملة محلية — 1 ريال يمني = 1.000 ريال يمني (لا يتطلب تحويلاً)";
+            lblEquivValue.Text = $"عملة محلية — 1 ريال يمني = {clsFormat.Money(1m)} ريال يمني (لا يتطلب تحويلاً)";
         }
         else
         {
-            lblEquivValue.Text = $"1 {opt.Name} = {_currentRate:N2} ريال يمني";
+            lblEquivValue.Text = $"1 {opt.Name} = {clsFormat.Money(_currentRate)} ريال يمني";
         }
     }
 
@@ -262,11 +262,14 @@ public partial class frmPurchaseCurrency : Form
             // للعملات الأجنبية: تحقق من النطاق المسموح قبل الاعتماد
             if (!opt.IsLocal && !IsWithinRange(opt, _currentRate))
             {
-                errorProvider.SetError(numRate,
-                    $"السعر المُدخل خارج النطاق المسموح ({RangeText(opt)}).");
+                string rangeMessage = $"السعر المُدخل خارج النطاق المسموح ({RangeText(opt)}).";
+
+                // GAP-08b + RULE-N169: الرفض يبقى على errorProvider ويُقرن بتغذية بصرية من البيت الواحد.
+                errorProvider.SetError(numRate, rangeMessage);
+                clsInputFeedback.ShowRejectTooltip(numRate, rangeMessage, toolTip);
 
                 if (clsDialogs.Confirm(
-                    $"السعر المُدخل ({_currentRate:N2}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({opt.OfficialRate:N2})؟"))
+                    $"السعر المُدخل ({clsFormat.Money(_currentRate)}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({clsFormat.Money(opt.OfficialRate)})؟"))
                 {
                     _currentRate = opt.OfficialRate;
 

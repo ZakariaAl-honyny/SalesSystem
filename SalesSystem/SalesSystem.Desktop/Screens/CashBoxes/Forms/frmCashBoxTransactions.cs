@@ -65,7 +65,7 @@ public partial class frmCashBoxTransactions : Form
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));  // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));  // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose, btnClearFilters); // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
@@ -175,7 +175,7 @@ public partial class frmCashBoxTransactions : Form
         _AddColumn("RunningBalance", "الرصيد الجاري", 110, 9, "N2");
         _AddColumn("Description", "البيان", 200, 20);
         _AddColumn("StatusName", "الحالة", 90, 7);
-        _AddColumn("MovementDate", "التاريخ", 110, 9, "yyyy-MM-dd");
+        _AddColumn("MovementDate", "التاريخ", 110, 9, clsFormat.Get(clsFormat.DateShortPattern));
     }
 
     private void _AddColumn(string property, string header, int minWidth, int fillWeight, string? format = null)

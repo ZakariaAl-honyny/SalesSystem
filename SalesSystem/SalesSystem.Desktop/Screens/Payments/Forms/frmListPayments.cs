@@ -38,7 +38,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
             KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
             KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+            KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46
             KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
             KeyboardHelper.WireButtonDisabledVisual(btnAddCustomerPayment, btnAddSupplierPayment, btnClearFilters, btnRefresh); // RULE-N43
             KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
@@ -347,18 +347,18 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 Serilog.Log.Error(ex, "فشل حساب ملخص المقبوضات والمدفوعات");
             }
 
-            lblCustomerCount.Text = _customerView.Table != null ? _customerView.Count.ToString() : "0";
-            lblSupplierCount.Text = _supplierView.Table != null ? _supplierView.Count.ToString() : "0";
+            lblCustomerCount.Text = _customerView.Table != null ? clsFormat.Number(_customerView.Count) : clsFormat.Number(0);
+            lblSupplierCount.Text = _supplierView.Table != null ? clsFormat.Number(_supplierView.Count) : clsFormat.Number(0);
 
             // RULE-N22: سطر «لا توجد بيانات» لكل تبويب بعد كل تصفية.
             _UpdateEmptyState(lblCustomerEmpty, _customerView);
             _UpdateEmptyState(lblSupplierEmpty, _supplierView);
 
-            string summary = $"المعروض: {shown:N0} من {total:N0} — الإجمالي: {sum:N2}";
+            string summary = $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — الإجمالي: {clsFormat.Money(sum)}";
 
             // سندات الصرف بلا حقل حالة في العقد — لا نعرض عدّادات حالة غير موجودة.
             if (!isSupplierTab)
-                summary += $" · مرحّل: {posted:N0} · ملغى: {cancelled:N0}";
+                summary += $" · مرحّل: {clsFormat.Number(posted)} · ملغى: {clsFormat.Number(cancelled)}";
 
             lblSummary.Text = summary;
         }

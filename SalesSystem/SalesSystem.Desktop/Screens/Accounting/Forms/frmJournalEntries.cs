@@ -107,7 +107,7 @@ public partial class frmJournalEntries : Form
         // RULE-N40…RULE-N47 + RULE-N95: الستة من KeyboardHelper.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.F2, () => btnNew.PerformClick()),
@@ -556,8 +556,8 @@ public partial class frmJournalEntries : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {shown} — مسودات: {draft} · مُرحَّلة: {posted} · ملغاة: {cancelled} · " +
-            $"إجمالي مدين: {totalDebit:N2} · إجمالي دائن: {totalCredit:N2}";
+            $"المعروض: {clsFormat.Number(shown)} — مسودات: {clsFormat.Number(draft)} · مُرحَّلة: {clsFormat.Number(posted)} · ملغاة: {clsFormat.Number(cancelled)} · " +
+            $"إجمالي مدين: {clsFormat.Money(totalDebit)} · إجمالي دائن: {clsFormat.Money(totalCredit)}";
     }
 
     private void _UpdateEmptyState()
@@ -1025,9 +1025,9 @@ public partial class frmJournalEntries : Form
         switch (row["Status"] is int status ? status : 0)
         {
             case StatusDraft:
-                e.CellStyle.BackColor = Color.FromArgb(255, 252, 224);
-                e.CellStyle.ForeColor = Color.FromArgb(122, 90, 0);
-                e.CellStyle.SelectionForeColor = Color.FromArgb(122, 90, 0);
+                e.CellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
+                e.CellStyle.ForeColor = GreenThemeHelper.StatusWarning;
+                e.CellStyle.SelectionForeColor = GreenThemeHelper.StatusWarning;
                 break;
 
             case StatusCancelled:
@@ -1038,8 +1038,8 @@ public partial class frmJournalEntries : Form
 
             default:
                 e.CellStyle.BackColor = Color.White;
-                e.CellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-                e.CellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+                e.CellStyle.ForeColor = GreenThemeHelper.StatusNeutral;
+                e.CellStyle.SelectionForeColor = GreenThemeHelper.StatusNeutral;
                 break;
         }
     }
@@ -1070,6 +1070,7 @@ public partial class frmJournalEntries : Form
         if (cbLineAccount.SelectedItem is not AccountOption account)
         {
             errorProvider.SetError(cbLineAccount, "يجب اختيار الحساب");
+            clsInputFeedback.ShowRejectTooltip(cbLineAccount, "يجب اختيار الحساب", toolTip);   // GAP-08b
             clsDialogs.Warning("يرجى اختيار الحساب أولاً قبل إضافة البند.");
             cbLineAccount.Focus();
             return;
@@ -1082,6 +1083,10 @@ public partial class frmJournalEntries : Form
         {
             errorProvider.SetError(numLineDebit, "لا يجوز أن يكون البند مديناً ودائناً معاً");
             errorProvider.SetError(numLineCredit, "لا يجوز أن يكون البند مديناً ودائناً معاً");
+            clsInputFeedback.ShowRejectTooltip(numLineDebit,
+                "لا يجوز أن يكون البند مديناً ودائناً معاً", toolTip);   // GAP-08b
+            clsInputFeedback.ShowRejectTooltip(numLineCredit,
+                "لا يجوز أن يكون البند مديناً ودائناً معاً", toolTip);   // GAP-08b
             clsDialogs.Warning("لا يمكن أن يحتوي البند على مبلغ مدين ومبلغ دائن في الوقت نفسه.");
             numLineDebit.Focus();
             return;
@@ -1090,6 +1095,7 @@ public partial class frmJournalEntries : Form
         if (debit <= 0m && credit <= 0m)
         {
             errorProvider.SetError(numLineDebit, "أدخل مبلغ المدين أو الدائن");
+            clsInputFeedback.ShowRejectTooltip(numLineDebit, "أدخل مبلغ المدين أو الدائن", toolTip);   // GAP-08b
             clsDialogs.Warning("يجب إدخال مبلغ مدين أو مبلغ دائن أكبر من صفر.");
             numLineDebit.Focus();
             return;
@@ -1137,11 +1143,11 @@ public partial class frmJournalEntries : Form
         decimal difference = debit - credit;
 
         lblTotals.Text =
-            $"مجموع المدين: {debit:N2} · مجموع الدائن: {credit:N2} · الفرق: {difference:N2}";
+            $"مجموع المدين: {clsFormat.Money(debit)} · مجموع الدائن: {clsFormat.Money(credit)} · الفرق: {clsFormat.Money(difference)}";
 
         lblTotals.ForeColor = difference == 0m
             ? GreenThemeHelper.TextStrong
-            : Color.FromArgb(192, 0, 0);
+            : GreenThemeHelper.StatusDanger;
     }
 
     // ── التحقق (RULE-N28/N29) ────────────────────────────────────────────────
@@ -1154,39 +1160,48 @@ public partial class frmJournalEntries : Form
 
         bool isValid = true;
 
-        if (string.IsNullOrWhiteSpace(txtEntryDescription.Text))
+        if (!clsValidation.IsRequired(txtEntryDescription.Text))
         {
             errorProvider.SetError(txtEntryDescription, "بيان القيد مطلوب");
+            clsInputFeedback.ShowRejectTooltip(txtEntryDescription, "بيان القيد مطلوب", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (_lines.Count < 2)
         {
             errorProvider.SetError(dgvLines, "القيد المحاسبي المزدوج يتطلب بندين على الأقل");
+            clsInputFeedback.ShowRejectTooltip(dgvLines,
+                "القيد المحاسبي المزدوج يتطلب بندين على الأقل", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (_lines.Any(l => l.AccountId <= 0))
         {
             errorProvider.SetError(dgvLines, "كل بند يجب أن يحمل حساباً");
+            clsInputFeedback.ShowRejectTooltip(dgvLines, "كل بند يجب أن يحمل حساباً", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (_lines.Any(l => l.Debit < 0m || l.Credit < 0m))
         {
             errorProvider.SetError(dgvLines, "لا يمكن أن يكون مبلغ المدين أو الدائن سالباً");
+            clsInputFeedback.ShowRejectTooltip(dgvLines,
+                "لا يمكن أن يكون مبلغ المدين أو الدائن سالباً", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (_lines.Any(l => l.Debit > 0m && l.Credit > 0m))
         {
             errorProvider.SetError(dgvLines, "لا يمكن أن يكون البند مديناً ودائناً في الوقت نفسه");
+            clsInputFeedback.ShowRejectTooltip(dgvLines,
+                "لا يمكن أن يكون البند مديناً ودائناً في الوقت نفسه", toolTip);   // GAP-08b
             isValid = false;
         }
 
         if (_lines.Any(l => l.Debit == 0m && l.Credit == 0m))
         {
             errorProvider.SetError(dgvLines, "لا يمكن أن يكون البند بلا مبلغ");
+            clsInputFeedback.ShowRejectTooltip(dgvLines, "لا يمكن أن يكون البند بلا مبلغ", toolTip);   // GAP-08b
             isValid = false;
         }
 
@@ -1195,8 +1210,11 @@ public partial class frmJournalEntries : Form
 
         if (Math.Abs(totalDebit - totalCredit) > 0.001m)
         {
-            errorProvider.SetError(lblTotals,
-                $"القيد غير متوازن — مجموع المدين {totalDebit:N2} لا يساوي مجموع الدائن {totalCredit:N2}");
+            string balanceMessage =
+                $"القيد غير متوازن — مجموع المدين {clsFormat.Money(totalDebit)} لا يساوي مجموع الدائن {clsFormat.Money(totalCredit)}";
+
+            errorProvider.SetError(lblTotals, balanceMessage);
+            clsInputFeedback.ShowRejectTooltip(lblTotals, balanceMessage, toolTip);   // GAP-08b
             isValid = false;
         }
 

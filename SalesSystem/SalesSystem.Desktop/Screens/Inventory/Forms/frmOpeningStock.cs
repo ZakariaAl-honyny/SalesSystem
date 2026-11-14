@@ -38,7 +38,7 @@ public partial class frmOpeningStock : Form
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
@@ -379,10 +379,11 @@ public partial class frmOpeningStock : Form
 
     private void _ValidateEmptyTextBox(object sender, CancelEventArgs e)
     {
-        if (sender is TextBox txt && string.IsNullOrEmpty(txt.Text.Trim()))
+        if (sender is TextBox txt && !clsValidation.IsRequired(txt.Text))
         {
             e.Cancel = true;
             errorProvider.SetError(txt, "هذا الحقل مطلوب");
+            clsInputFeedback.ShowRejectTooltip(txt, "هذا الحقل مطلوب", tooltip);
         }
         else
         {
@@ -398,6 +399,7 @@ public partial class frmOpeningStock : Form
         if (cmbWarehouse.SelectedValue == null)
         {
             errorProvider.SetError(cmbWarehouse, "يرجى اختيار المخزن");
+            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, "يرجى اختيار المخزن", tooltip);
             isValid = false;
         }
         else

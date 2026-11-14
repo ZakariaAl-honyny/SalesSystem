@@ -48,11 +48,14 @@ partial class frmInventoryAddProduct
         lblNote = new Label();
         btnSave = new Button();
         btnCancel = new Button();
+        cmsRows = new ContextMenuStrip(components);
+        tsmiDeleteUnitRow = new ToolStripMenuItem();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         ((System.ComponentModel.ISupportInitialize)nudReorderLevel).BeginInit();
         ((System.ComponentModel.ISupportInitialize)dgvUnits).BeginInit();
         grpOpeningStock.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)nudOpeningQty).BeginInit();
+        cmsRows.SuspendLayout();
         SuspendLayout();
         // 
         // errorProvider
@@ -213,6 +216,7 @@ partial class frmInventoryAddProduct
         dgvUnits.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         dgvUnits.ColumnHeadersHeight = 40;
         dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colUnit, colFactor, colBarcode, colSellPrice, colCost });
+        dgvUnits.ContextMenuStrip = cmsRows;
         dgvUnits.DefaultCellStyle.BackColor = Color.White;
         dgvUnits.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
         dgvUnits.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
@@ -433,6 +437,24 @@ partial class frmInventoryAddProduct
         btnCancel.UseVisualStyleBackColor = false;
         btnCancel.Click += btnCancel_Click;
         // 
+        // cmsRows — RULE-N23: قائمة سطر السياق لشبكة الوحدات (تُعلَن في المصمّم — RULE-N145)
+        // 
+        cmsRows.BackColor = Color.White;
+        cmsRows.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        cmsRows.ImageScalingSize = new Size(24, 24);
+        cmsRows.Items.AddRange(new ToolStripItem[] { tsmiDeleteUnitRow });
+        cmsRows.Name = "cmsRows";
+        cmsRows.RightToLeft = RightToLeft.Yes;
+        cmsRows.Size = new Size(200, 34);
+        cmsRows.Opening += cmsRows_Opening;
+        // 
+        // tsmiDeleteUnitRow
+        // 
+        tsmiDeleteUnitRow.Name = "tsmiDeleteUnitRow";
+        tsmiDeleteUnitRow.Size = new Size(199, 30);
+        tsmiDeleteUnitRow.Text = "حذف السطر";
+        tsmiDeleteUnitRow.Click += tsmiDeleteUnitRow_Click;
+        // 
         // frmInventoryAddProduct
         // 
         AcceptButton = btnSave;
@@ -472,6 +494,7 @@ partial class frmInventoryAddProduct
         grpOpeningStock.ResumeLayout(false);
         grpOpeningStock.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)nudOpeningQty).EndInit();
+        cmsRows.ResumeLayout(false);
         ResumeLayout(false);
         PerformLayout();
     }
@@ -508,4 +531,6 @@ partial class frmInventoryAddProduct
     private Label lblNote;
     private Button btnSave;
     private Button btnCancel;
+    private ContextMenuStrip cmsRows;
+    private ToolStripMenuItem tsmiDeleteUnitRow;
 }

@@ -124,6 +124,7 @@ partial class frmUserMaster
         // 
         txtCode.Location = new Point(1267, 42);
         txtCode.Name = "txtCode";
+        txtCode.BackColor = Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -151,6 +152,7 @@ partial class frmUserMaster
         // 
         txtUserName.Location = new Point(960, 42);
         txtUserName.Name = "txtUserName";
+        txtUserName.BackColor = Color.White;
         txtUserName.Size = new Size(300, 32);
         txtUserName.TabIndex = 1;
         // 
@@ -186,6 +188,7 @@ partial class frmUserMaster
         // 
         txtPassword.Location = new Point(950, 122);
         txtPassword.Name = "txtPassword";
+        txtPassword.BackColor = Color.White;
         txtPassword.PasswordChar = '●';
         txtPassword.Size = new Size(257, 32);
         txtPassword.TabIndex = 4;
@@ -466,6 +469,7 @@ partial class frmUserMaster
         txtSearch.Location = new Point(460, 18);
         txtSearch.Margin = new Padding(0);
         txtSearch.Name = "txtSearch";
+        txtSearch.BackColor = Color.White;
         txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(330, 26);
         txtSearch.TabIndex = 5;

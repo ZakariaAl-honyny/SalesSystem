@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmListInventoryAdjustments : Form
 {
     /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
 
@@ -313,9 +313,9 @@ public partial class frmListInventoryAdjustments : Form
         int total = _adjustmentsTable.Rows.Count;
 
         lblSummary.Text =
-            $"المعروض: {shown} من {total} — مسودات: {draft} · مُرحَّلة: {posted} · ملغاة: {cancelled}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — مسودات: {clsFormat.Number(draft)} · مُرحَّلة: {clsFormat.Number(posted)} · ملغاة: {clsFormat.Number(cancelled)}";
 
-        lblRecordsCount.Text = shown.ToString();
+        lblRecordsCount.Text = clsFormat.Number(shown);
 
         // سطر «لا توجد بيانات» — طبقة نصية فوق الشبكة عند فراغ النتيجة (RULE-N22).
         bool empty = shown == 0;

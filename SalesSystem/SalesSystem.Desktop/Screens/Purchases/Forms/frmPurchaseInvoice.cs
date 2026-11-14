@@ -43,7 +43,7 @@ public partial class frmPurchaseInvoice : Form
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (4 من 6).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
@@ -408,7 +408,10 @@ public partial class frmPurchaseInvoice : Form
 
         if (cmbSupplier.SelectedValue == null || (int)cmbSupplier.SelectedValue <= 0)
         {
-            errorProvider.SetError(cmbSupplier, "يرجى اختيار المورد");
+            const string supplierMessage = "يرجى اختيار المورد";
+            errorProvider.SetError(cmbSupplier, supplierMessage);
+            // GAP-08b — كل رفض errorProvider مقرون بتغذية بصرية من البيت الواحد (RULE-N169).
+            clsInputFeedback.ShowRejectTooltip(cmbSupplier, supplierMessage, toolTip);
             isValid = false;
         }
         else
@@ -418,7 +421,9 @@ public partial class frmPurchaseInvoice : Form
 
         if (cmbWarehouse.SelectedValue == null || (int)cmbWarehouse.SelectedValue <= 0)
         {
-            errorProvider.SetError(cmbWarehouse, "يرجى اختيار المستودع");
+            const string warehouseMessage = "يرجى اختيار المستودع";
+            errorProvider.SetError(cmbWarehouse, warehouseMessage);
+            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, warehouseMessage, toolTip);
             isValid = false;
         }
         else
@@ -428,7 +433,9 @@ public partial class frmPurchaseInvoice : Form
 
         if (!_lines.Any(l => l.ProductId > 0))
         {
-            errorProvider.SetError(dgvItems, "يجب إضافة صنف واحد على الأقل للفاتورة");
+            const string itemsMessage = "يجب إضافة صنف واحد على الأقل للفاتورة";
+            errorProvider.SetError(dgvItems, itemsMessage);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, itemsMessage, toolTip);
             isValid = false;
         }
         else

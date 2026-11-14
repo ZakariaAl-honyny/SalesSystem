@@ -12,8 +12,8 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms;
 
 public partial class frmListSupplierPayments : Form
 {
-    /// <summary>لون تظليل الحقل النشط (RULE-N46).</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    /// <summary>لون تظليل الحقل النشط (RULE-N46 + RULE-N54b) — يُقرأ حيّاً من اللوحة عند كل استخدام.</summary>
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
 

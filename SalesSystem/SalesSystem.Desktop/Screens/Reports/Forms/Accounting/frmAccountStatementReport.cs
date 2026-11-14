@@ -118,7 +118,7 @@ public partial class frmAccountStatementReport : Form, IExportableReport
         var balance = debit - credit;
 
         lblRecordsCount.Text = $"عدد الحركات: {list.Count}";
-        lblSummary.Text = $"مدين: {debit:N2}    |    دائن: {credit:N2}    |    الرصيد: {balance:N2}";
+        lblSummary.Text = $"مدين: {clsFormat.Money(debit)}    |    دائن: {clsFormat.Money(credit)}    |    الرصيد: {clsFormat.Money(balance)}";
 
         try { _summaryTip.SetToolTip(lblSummary, "الرصيد تفقيطاً: " + ArabicNumberToWords.ToWords(balance)); }
         catch (Exception ex) { Log.Error(ex, "خطأ في تفقيط رصيد كشف حساب الطرف"); }

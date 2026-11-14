@@ -19,7 +19,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmInventoryAddProduct : Form
 {
     /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
     private readonly IServiceProvider _serviceProvider;
 
@@ -166,6 +166,38 @@ public partial class frmInventoryAddProduct : Form
              LiveTafqeetHelper.ReadMode.Money));
     }
 
+    // ── قائمة سطر السياق (RULE-N23) ────────────────────────────────────────────
+
+    /// <summary>
+    /// RULE-N23: لا قائمة بلا سطر محدد — تُلغى إذا لم يكن هناك سطر وحدة حقيقي محدد
+    /// (سطر الإضافة الجديد ليس سطراً قابلاً للحذف).
+    /// </summary>
+    private void cmsRows_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+        => e.Cancel = dgvUnits.CurrentRow is null || dgvUnits.CurrentRow.IsNewRow;
+
+    /// <summary>
+    /// «حذف السطر»: يحذف سطر الوحدة المحدد من شبكة الإدخال — قدرة الشبكة المُعلنة أصلاً
+    /// في المصمّم (<c>AllowUserToDeleteRows = true</c>)، ولا يحتاج الإضافة لأن سطر الإضافة
+    /// السفلي متاح أصلاً (<c>AllowUserToAddRows = true</c>).
+    /// </summary>
+    private void tsmiDeleteUnitRow_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            dgvUnits.EndEdit();
+
+            var row = dgvUnits.CurrentRow;
+            if (row is null || row.IsNewRow) return;
+
+            dgvUnits.Rows.Remove(row);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر حذف سطر الوحدة في حوار إضافة صنف");
+            clsDialogs.Error("تعذر حذف السطر. يرجى إعادة المحاولة.");
+        }
+    }
+
     // ── الزر الأساسي للوضع (RULE-N147) ─────────────────────────────────────────
 
     /// <summary>
@@ -189,9 +221,10 @@ public partial class frmInventoryAddProduct : Form
     {
         bool isValid = true;
 
-        if (string.IsNullOrWhiteSpace(txtName.Text))
+        if (!clsValidation.IsRequired(txtName.Text))
         {
             errorProvider.SetError(txtName, "اسم الصنف مطلوب");
+            clsInputFeedback.ShowRejectTooltip(txtName, "اسم الصنف مطلوب", toolTip1);
             isValid = false;
         }
         else
@@ -199,9 +232,10 @@ public partial class frmInventoryAddProduct : Form
             errorProvider.SetError(txtName, "");
         }
 
-        if (string.IsNullOrWhiteSpace(txtBarcode.Text))
+        if (!clsValidation.IsRequired(txtBarcode.Text))
         {
             errorProvider.SetError(txtBarcode, "الباركود مطلوب");
+            clsInputFeedback.ShowRejectTooltip(txtBarcode, "الباركود مطلوب", toolTip1);
             isValid = false;
         }
         else
@@ -214,7 +248,7 @@ public partial class frmInventoryAddProduct : Form
         {
             if (row.IsNewRow) continue;
             string? unit = row.Cells["colUnit"].Value as string;
-            if (!string.IsNullOrWhiteSpace(unit))
+            if (clsValidation.IsRequired(unit))
             {
                 hasUnitRow = true;
                 break;
@@ -224,6 +258,7 @@ public partial class frmInventoryAddProduct : Form
         if (!hasUnitRow)
         {
             errorProvider.SetError(dgvUnits, "يجب إضافة وحدة واحدة على الأقل");
+            clsInputFeedback.ShowRejectTooltip(dgvUnits, "يجب إضافة وحدة واحدة على الأقل", toolTip1);
             isValid = false;
         }
         else
@@ -234,6 +269,7 @@ public partial class frmInventoryAddProduct : Form
         if (nudOpeningQty.Value < 0)
         {
             errorProvider.SetError(nudOpeningQty, "الكمية الافتتاحية يجب أن تكون أكبر من أو تساوي صفر");
+            clsInputFeedback.ShowRejectTooltip(nudOpeningQty, "الكمية الافتتاحية يجب أن تكون أكبر من أو تساوي صفر", toolTip1);
             isValid = false;
         }
         else

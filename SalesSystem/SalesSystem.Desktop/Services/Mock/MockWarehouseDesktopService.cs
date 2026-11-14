@@ -1,3 +1,4 @@
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -47,8 +48,20 @@ public class MockWarehouseDesktopService : IWarehouseDesktopService
         return Task.FromResult(Result<IReadOnlyList<WarehouseStockDto>>.Success(stocks));
     }
 
+    // ── تكافؤ الرفض مع الـBLL (RULE-N167): المقارنة النصية في البيت الواحد StringExtensions.SameText ──
+    private static bool _NameExists(string? name, short? exceptId)
+        => !string.IsNullOrWhiteSpace(name) &&
+           MockData.Warehouses.Any(w => w.Id != exceptId &&
+               w.Name.SameText(name));
+
     public Task<Result<WarehouseDto>> CreateAsync(CreateWarehouseRequest r, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<WarehouseDto>.Failure("اسم المخزن مطلوب"));
+
+        if (_NameExists(r.Name, null))
+            return Task.FromResult(Result<WarehouseDto>.Failure("اسم المخزن مستخدم بالفعل"));
+
         var nextId = (short)(MockData.Warehouses.Max(w => w.Id) + 1);
         var warehouse = new WarehouseDto(
             Id: nextId, Name: r.Name, Phone: r.Phone,
@@ -63,6 +76,12 @@ public class MockWarehouseDesktopService : IWarehouseDesktopService
         var existing = MockData.Warehouses.FirstOrDefault(w => w.Id == (short)id);
         if (existing is null)
             return Task.FromResult(Result<WarehouseDto>.Failure("المخزن غير موجود"));
+
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<WarehouseDto>.Failure("اسم المخزن مطلوب"));
+
+        if (_NameExists(r.Name, (short)id))
+            return Task.FromResult(Result<WarehouseDto>.Failure("اسم المخزن مستخدم بالفعل"));
 
         var updated = existing with
         {

@@ -19,6 +19,10 @@
             components = new System.ComponentModel.Container();
             // RULE-N134: ألوان المصمّم = ثوابت GreenThemeHelper حرفياً (المصمّم = وقت التشغيل).
             tooltip = new ToolTip(components);
+            cmsRows = new ContextMenuStrip(components);
+            cmsSelect = new ToolStripMenuItem();
+            cmsSeparator = new ToolStripSeparator();
+            cmsRefresh = new ToolStripMenuItem();
             dgvProducts = new DataGridView();
             colId = new DataGridViewTextBoxColumn();
             colName = new DataGridViewTextBoxColumn();
@@ -73,6 +77,7 @@
             dgvProducts.Location = new Point(12, 96);
             dgvProducts.MultiSelect = false;
             dgvProducts.Name = "dgvProducts";
+            dgvProducts.ContextMenuStrip = cmsRows;
             dgvProducts.ReadOnly = true;
             dgvProducts.RowHeadersVisible = false;
             dgvProducts.RowHeadersWidth = 62;
@@ -337,6 +342,33 @@
             lblNoData.Text = "لا توجد بيانات";
             lblNoData.Visible = false;
             // 
+            // cmsRows
+            // 
+            // RULE-N23: قائمة سياق على الشبكة — «اختيار» يستدعي نفس زر الشاشة (بلا منطق مكرر).
+            cmsRows.Items.AddRange(new ToolStripItem[] { cmsSelect, cmsSeparator, cmsRefresh });
+            cmsRows.Name = "cmsRows";
+            cmsRows.Size = new Size(240, 104);
+            cmsRows.Opening += cmsRows_Opening;
+            // 
+            // cmsSelect
+            // 
+            cmsSelect.Name = "cmsSelect";
+            cmsSelect.Size = new Size(239, 30);
+            cmsSelect.Text = "✔ اختيار";
+            cmsSelect.Click += cmsSelect_Click;
+            // 
+            // cmsSeparator
+            // 
+            cmsSeparator.Name = "cmsSeparator";
+            cmsSeparator.Size = new Size(236, 6);
+            // 
+            // cmsRefresh
+            // 
+            cmsRefresh.Name = "cmsRefresh";
+            cmsRefresh.Size = new Size(239, 30);
+            cmsRefresh.Text = "🔄 تحديث (F5)";
+            cmsRefresh.Click += cmsRefresh_Click;
+            // 
             // frmProductSelection
             // 
             AcceptButton = btnSelect;
@@ -367,6 +399,7 @@
             Load += frmProductSelection_Load;
             ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvUnits).EndInit();
+            cmsRows.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -376,6 +409,10 @@
         private System.Windows.Forms.DataGridView dgvUnits;
         private System.Windows.Forms.Button btnSelect;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.ContextMenuStrip cmsRows;
+        private System.Windows.Forms.ToolStripMenuItem cmsSelect;
+        private System.Windows.Forms.ToolStripSeparator cmsSeparator;
+        private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
         private DataGridViewTextBoxColumn colId;
         private DataGridViewTextBoxColumn colName;
         private DataGridViewTextBoxColumn colCategory;

@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -74,7 +75,7 @@ public class MockJournalEntryDesktopService : IJournalEntryDesktopService
 
         if (Math.Abs(totalDebit - totalCredit) > 0.001m)
             return Task.FromResult(Result<int>.Failure(
-                $"القيد غير متوازن — مجموع المدين ({totalDebit:N2}) لا يساوي مجموع الدائن ({totalCredit:N2})"));
+                $"القيد غير متوازن — مجموع المدين ({clsFormat.Money(totalDebit)}) لا يساوي مجموع الدائن ({clsFormat.Money(totalCredit)})"));
 
         foreach (var line in request.Lines)
         {
@@ -180,7 +181,7 @@ public class MockJournalEntryDesktopService : IJournalEntryDesktopService
 
         if (Math.Abs(totalDebit - totalCredit) > 0.001m)
             return Task.FromResult(Result<JournalEntryDetailDto>.Failure(
-                $"القيد غير متوازن — مجموع المدين ({totalDebit:N2}) لا يساوي مجموع الدائن ({totalCredit:N2})"));
+                $"القيد غير متوازن — مجموع المدين ({clsFormat.Money(totalDebit)}) لا يساوي مجموع الدائن ({clsFormat.Money(totalCredit)})"));
 
         foreach (var line in request.Lines)
         {

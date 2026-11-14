@@ -69,7 +69,8 @@ public partial class frmSalesByProductReport : Form, IExportableReport
         if (list.Count == 0) { lblSummary.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TotalAmount);
         var profit = list.Sum(x => x.TotalProfit);
-        lblSummary.Text = $"عدد المنتجات: {list.Count} | الإجمالي: {total:N2} | الربح: {profit:N2}";
+        // RULE-N179 — كل عدد ومبلغ من البيت الواحد clsFormat
+        lblSummary.Text = $"عدد المنتجات: {clsFormat.Number(list.Count)} | الإجمالي: {clsFormat.Money(total)} | الربح: {clsFormat.Money(profit)}";
     }
 
     private void FormatGrid()

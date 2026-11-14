@@ -26,7 +26,7 @@ public partial class frmCalculator : Form
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 — الحقل النشط
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
         KeyboardHelper.WireButtonDisabledVisual(btnClose, btnClear);                // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47

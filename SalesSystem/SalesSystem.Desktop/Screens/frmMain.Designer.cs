@@ -942,7 +942,7 @@
             ClientSize = new Size(1378, 944);
             Controls.Add(msMainMenu);
             Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            ForeColor = SystemColors.ControlText;
+            ForeColor = Color.FromArgb(33, 37, 41); // نص صريح من لوحة الثيم (GridCellTextColor) — لا SystemColors (RULE-N141/N134)
             IsMdiContainer = true;
             MainMenuStrip = msMainMenu;
             Margin = new Padding(4, 3, 4, 3);

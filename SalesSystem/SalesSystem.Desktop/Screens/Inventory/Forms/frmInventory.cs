@@ -21,7 +21,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
     public partial class frmInventory : Form
     {
         /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-        private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+        private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
 
         // ── ثوابت الحالات (RULE-N60: تُقارن بثوابت داخل الكود، لا بنص المستخدم) ─────
         private const string StockOut = "نفد";
@@ -291,7 +291,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             var columns = new[]
             {
                 new { Name = "CountNo",       Header = "رقم المحضر", Fill = 10, Min = 110, Format = (string?)null },
-                new { Name = "CountDate",     Header = "التاريخ",     Fill = 10, Min = 100, Format = (string?)"yyyy/MM/dd" },
+                new { Name = "CountDate",     Header = "التاريخ",     Fill = 10, Min = 100, Format = (string?)clsFormat.Get(clsFormat.DateShortPattern) },
                 new { Name = "WarehouseName", Header = "المستودع",    Fill = 12, Min = 100, Format = (string?)null },
                 new { Name = "Committee",     Header = "لجنة الجرد",  Fill = 34, Min = 260, Format = (string?)null },
                 new { Name = "Status",        Header = "الحالة",      Fill = 10, Min = 80,  Format = (string?)null },
@@ -323,7 +323,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             var columns = new[]
             {
                 new { Name = "TransferNo",    Header = "رقم السند",  Fill = 10, Min = 110, Format = (string?)null },
-                new { Name = "TransferDate",  Header = "التاريخ",    Fill = 10, Min = 100, Format = (string?)"yyyy/MM/dd" },
+                new { Name = "TransferDate",  Header = "التاريخ",    Fill = 10, Min = 100, Format = (string?)clsFormat.Get(clsFormat.DateShortPattern) },
                 new { Name = "FromWarehouse", Header = "من مستودع",  Fill = 12, Min = 110, Format = (string?)null },
                 new { Name = "ToWarehouse",   Header = "إلى مستودع", Fill = 12, Min = 110, Format = (string?)null },
                 new { Name = "DriverName",    Header = "السائق",     Fill = 12, Min = 100, Format = (string?)null },
@@ -584,15 +584,15 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             }
 
             var builder = new System.Text.StringBuilder();
-            builder.Append($"المعروض: {view.Count}");
+            builder.Append($"المعروض: {clsFormat.Number(view.Count)}");
 
             for (int i = 0; i < statuses.Length; i++)
-                builder.Append($" · {statuses[i].Caption}: {counts[i]}");
+                builder.Append($" · {statuses[i].Caption}: {clsFormat.Number(counts[i])}");
 
             return builder.ToString();
         }
 
-        /// <summary>ملخص الأرصدة: النافد/المحدود/المتوفر + قيمة المخزون (N2).</summary>
+        /// <summary>ملخص الأرصدة: النافد/المحدود/المتوفر + قيمة المخزون (RULE-N179: من <c>clsFormat</c>).</summary>
         private string _SummarizeProducts()
         {
             int outOfStock = 0, low = 0, available = 0;
@@ -611,9 +611,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 stockValue += stock * cost;
             }
 
-            return $"المعروض: {_productsView.Count} من {_productsTable.Rows.Count}"
-                 + $" · نفد: {outOfStock} · محدود: {low} · متوفر: {available}"
-                 + $" · قيمة المخزون: {stockValue:N2}";
+            return $"المعروض: {clsFormat.Number(_productsView.Count)} من {clsFormat.Number(_productsTable.Rows.Count)}"
+                 + $" · نفد: {clsFormat.Number(outOfStock)} · محدود: {clsFormat.Number(low)} · متوفر: {clsFormat.Number(available)}"
+                 + $" · قيمة المخزون: {clsFormat.Money(stockValue)}";
         }
 
         /// <summary>سطر «لا توجد بيانات» لكل تبويب (RULE-N22/N23).</summary>
