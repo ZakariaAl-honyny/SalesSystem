@@ -14,6 +14,8 @@ Turn the owner's request into **small verifiable slices**, give each slice to **
 
 ## 2) What the Orchestrator never does
 
+> **Enforcement:** this role is registered as the `orchestrator` agent in `.opencode/agents/orchestrator.md` (`mode: primary`, `model: opencode-go/deepseek-v4.1-flash`). Its prompt is a condensed version of this playbook and points here for the full detail. Its permissions deny `edit` everywhere except `AGENTS.md` / `docs/**` / `opencode.json` — so the Orchestrator cannot implement code even by accident — and deny `dotnet test` (`RULE-N115`/`RULE-N117`). Every other rule is enforced by the brief templates (§6) and the gates in §8.
+
 | Never | Instead |
 |---|---|
 | Write/Edit screen or service files by hand | Delegate to `ui-agent` · `implement-agent` · `backend-architect` · `database-engineer` · `printing` · `fast-agent` |
@@ -274,3 +276,5 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 |---|---|
 | 2026-11-14 | Created (v1.0, Arabic) bound to `AGENTS.md §2.37` (`RULE-N155`…`RULE-N164`). |
 | 2026-11-14 | v1.1 — translated to English for better agent comprehension; content unchanged apart from wording; Arabic kept only for user-facing requirements (Arabic messages, Arabic manual-test checklist, mandatory final line). |
+| 2026-11-14 | v1.2 — registered as the `orchestrator` agent (`mode: primary`, `system` = this file) with two enforced denials (`dotnet test`, `SalesSystem.Tests/**`); §2 gained an enforcement note. |
+| 2026-11-14 | v1.3 — the role now lives in `.opencode/agents/orchestrator.md` (V2 frontmatter: `mode: primary`, `model: opencode-go/deepseek-v4.1-flash`, `permissions` array). The agent prompt is a condensed mirror of this playbook and carries the S/M/L law, the per-screen invariant, the 8-file S-batch cap, the 7-field brief, the waves and the commit gates; `edit` is denied outside `AGENTS.md`/`docs/**`/`opencode.json` and `dotnet test` is denied. `opencode.json` keeps only the schema and the MCP server (no duplicate agent definition). |
