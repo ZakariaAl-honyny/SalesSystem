@@ -20,12 +20,14 @@ partial class frmPasswordChange
         components = new System.ComponentModel.Container();
         lblMode = new Label();
         gbPassword = new GroupBox();
+        lblHint = new Label();
         lblCurrentPassword = new Label();
         txtCurrentPassword = new TextBox();
-        label1 = new Label();
+        lblNewPassword = new Label();
         txtNewPassword = new TextBox();
-        label2 = new Label();
+        lblConfirmPassword = new Label();
         txtConfirmPassword = new TextBox();
+        lblError = new Label();
         pnlFooter = new Panel();
         btnSave = new Button();
         btnClose = new Button();
@@ -51,86 +53,111 @@ partial class frmPasswordChange
         // gbPassword
         // 
         gbPassword.BackColor = Color.FromArgb(235, 245, 235);
+        gbPassword.Controls.Add(lblHint);
         gbPassword.Controls.Add(lblCurrentPassword);
         gbPassword.Controls.Add(txtCurrentPassword);
-        gbPassword.Controls.Add(label1);
+        gbPassword.Controls.Add(lblNewPassword);
         gbPassword.Controls.Add(txtNewPassword);
-        gbPassword.Controls.Add(label2);
+        gbPassword.Controls.Add(lblConfirmPassword);
         gbPassword.Controls.Add(txtConfirmPassword);
         gbPassword.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         gbPassword.ForeColor = Color.FromArgb(14, 82, 52);
         gbPassword.Location = new Point(12, 58);
         gbPassword.Name = "gbPassword";
         gbPassword.Padding = new Padding(8);
-        gbPassword.Size = new Size(596, 200);
+        gbPassword.Size = new Size(596, 232);
         gbPassword.TabIndex = 1;
         gbPassword.TabStop = false;
         gbPassword.Text = "بيانات كلمة المرور";
+        // 
+        // lblHint
+        // 
+        lblHint.AutoSize = true;
+        lblHint.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        lblHint.ForeColor = Color.FromArgb(14, 82, 52);
+        lblHint.Location = new Point(16, 28);
+        lblHint.Name = "lblHint";
+        lblHint.Size = new Size(316, 19);
+        lblHint.TabIndex = 0;
+        lblHint.Text = "يجب إدخال كلمة المرور الحالية لتأكيد التغيير.";
+        lblHint.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblCurrentPassword
         // 
         lblCurrentPassword.AutoSize = true;
         lblCurrentPassword.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCurrentPassword.Location = new Point(390, 40);
+        lblCurrentPassword.Location = new Point(390, 66);
         lblCurrentPassword.Name = "lblCurrentPassword";
         lblCurrentPassword.Size = new Size(186, 24);
-        lblCurrentPassword.TabIndex = 0;
+        lblCurrentPassword.TabIndex = 1;
         lblCurrentPassword.Text = "كلمة المرور الحالية:";
-        lblCurrentPassword.Visible = false;
         // 
         // txtCurrentPassword
         // 
         txtCurrentPassword.BackColor = Color.White;
         txtCurrentPassword.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        txtCurrentPassword.Location = new Point(94, 38);
+        txtCurrentPassword.Location = new Point(94, 64);
         txtCurrentPassword.Name = "txtCurrentPassword";
         txtCurrentPassword.PasswordChar = '*';
         txtCurrentPassword.RightToLeft = RightToLeft.Yes;
         txtCurrentPassword.Size = new Size(286, 32);
-        txtCurrentPassword.TabIndex = 1;
-        txtCurrentPassword.Visible = false;
+        txtCurrentPassword.TabIndex = 2;
+        txtCurrentPassword.TextChanged += _OnPasswordTextChanged;
         // 
-        // label1
+        // lblNewPassword
         // 
-        label1.AutoSize = true;
-        label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label1.Location = new Point(390, 98);
-        label1.Name = "label1";
-        label1.Size = new Size(193, 24);
-        label1.TabIndex = 2;
-        label1.Text = "كلمة المرور الجديدة:";
+        lblNewPassword.AutoSize = true;
+        lblNewPassword.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblNewPassword.Location = new Point(390, 124);
+        lblNewPassword.Name = "lblNewPassword";
+        lblNewPassword.Size = new Size(193, 24);
+        lblNewPassword.TabIndex = 3;
+        lblNewPassword.Text = "كلمة المرور الجديدة:";
         // 
         // txtNewPassword
         // 
         txtNewPassword.BackColor = Color.White;
         txtNewPassword.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        txtNewPassword.Location = new Point(94, 96);
+        txtNewPassword.Location = new Point(94, 122);
         txtNewPassword.Name = "txtNewPassword";
         txtNewPassword.PasswordChar = '*';
         txtNewPassword.RightToLeft = RightToLeft.Yes;
         txtNewPassword.Size = new Size(286, 32);
-        txtNewPassword.TabIndex = 3;
+        txtNewPassword.TabIndex = 4;
+        txtNewPassword.TextChanged += _OnPasswordTextChanged;
         // 
-        // label2
+        // lblConfirmPassword
         // 
-        label2.AutoSize = true;
-        label2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label2.Location = new Point(390, 156);
-        label2.Name = "label2";
-        label2.Size = new Size(168, 24);
-        label2.TabIndex = 4;
-        label2.Text = "تأكيد كلمة المرور:";
+        lblConfirmPassword.AutoSize = true;
+        lblConfirmPassword.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblConfirmPassword.Location = new Point(390, 182);
+        lblConfirmPassword.Name = "lblConfirmPassword";
+        lblConfirmPassword.Size = new Size(168, 24);
+        lblConfirmPassword.TabIndex = 5;
+        lblConfirmPassword.Text = "تأكيد كلمة المرور:";
         // 
         // txtConfirmPassword
         // 
         txtConfirmPassword.BackColor = Color.White;
         txtConfirmPassword.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        txtConfirmPassword.Location = new Point(94, 154);
+        txtConfirmPassword.Location = new Point(94, 180);
         txtConfirmPassword.Name = "txtConfirmPassword";
         txtConfirmPassword.PasswordChar = '*';
         txtConfirmPassword.RightToLeft = RightToLeft.Yes;
         txtConfirmPassword.Size = new Size(286, 32);
-        txtConfirmPassword.TabIndex = 5;
+        txtConfirmPassword.TabIndex = 6;
+        txtConfirmPassword.TextChanged += _OnPasswordTextChanged;
+        // 
+        // lblError
+        // 
+        lblError.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblError.ForeColor = Color.FromArgb(220, 53, 69);
+        lblError.Location = new Point(12, 298);
+        lblError.Name = "lblError";
+        lblError.Size = new Size(596, 26);
+        lblError.TabIndex = 3;
+        lblError.TextAlign = ContentAlignment.MiddleCenter;
+        lblError.Visible = false;
         // 
         // pnlFooter
         // 
@@ -138,7 +165,7 @@ partial class frmPasswordChange
         pnlFooter.Controls.Add(btnSave);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Dock = DockStyle.Bottom;
-        pnlFooter.Location = new Point(0, 272);
+        pnlFooter.Location = new Point(0, 342);
         pnlFooter.Name = "pnlFooter";
         pnlFooter.Padding = new Padding(10);
         pnlFooter.Size = new Size(620, 68);
@@ -186,13 +213,15 @@ partial class frmPasswordChange
         AutoScaleMode = AutoScaleMode.None;
         BackColor = Color.FromArgb(170, 220, 170);
         CancelButton = btnClose;
-        ClientSize = new Size(620, 340);
+        ClientSize = new Size(620, 410);
         Controls.Add(gbPassword);
+        Controls.Add(lblError);
         Controls.Add(pnlFooter);
         Controls.Add(lblMode);
         Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
+        MinimumSize = new Size(620, 410);
         MinimizeBox = false;
         Name = "frmPasswordChange";
         RightToLeft = RightToLeft.Yes;
@@ -212,12 +241,14 @@ partial class frmPasswordChange
 
     private Label lblMode;
     private GroupBox gbPassword;
+    private Label lblHint;
     private Label lblCurrentPassword;
     private TextBox txtCurrentPassword;
-    private Label label1;
+    private Label lblNewPassword;
     private TextBox txtNewPassword;
-    private Label label2;
+    private Label lblConfirmPassword;
     private TextBox txtConfirmPassword;
+    private Label lblError;
     private Panel pnlFooter;
     private Button btnSave;
     private Button btnClose;

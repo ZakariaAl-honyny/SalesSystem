@@ -1,153 +1,299 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
+using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
-using SalesSystem.Desktop.Helpers;
-using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Users.Forms;
 
 /// <summary>
 /// شاشة تغيير/إعادة تعيين كلمة المرور — تُفتح نمطياً (RULE-N09).
+/// <para>
+/// الحالة الافتراضية **خدمة ذاتية**: صفّ «كلمة المرور الحالية» ظاهر وإلزامي، والمستخدم يُقرأ من
+/// <see cref="ISessionService"/> — فلا تُغيَّر كلمة المرور بلا إثبات الحالية، ولا يُرسَل
+/// <c>userId = 0</c> أبداً (يُرفض محلياً برسالة عربية).
+/// </para>
+/// <para>
+/// الاستثناء الموثّق: إعادة التعيين الإدارية عبر <see cref="_SetUpdateMode"/> — المدير لا يعرف
+/// كلمة مرور غيره، فيُخفى الصفّ وتُعاد الصفوف المتبقية بلا فجوة.
+/// </para>
 /// لا تحتوي أي منطق تشفير: تُمرّر الطلب إلى <see cref="IAuthDesktopService"/> وحدها (RULE-N06).
 /// </summary>
 public partial class frmPasswordChange : Form
 {
-    /// <summary>الحد الأدنى لطول كلمة المرور الجديدة (سياسة موحّدة مع خدمة المصادقة — RULE-N36).</summary>
-    private const int MinPasswordLength = 6;
+    // ── رسائل التحقق العربية — مصدر واحد داخل الشاشة (يُستهلك في التحقق وفي إبراز أول حقل ناقص) ──
+    private const string CurrentRequiredMessage = "كلمة المرور الحالية مطلوبة";
+    private const string NewRequiredMessage = "كلمة المرور الجديدة مطلوبة";
+    private const string ConfirmRequiredMessage = "تأكيد كلمة المرور مطلوب";
+    private const string MismatchMessage = "كلمة المرور غير متطابقة";
+    private const string SamePasswordMessage = "كلمة المرور الجديدة يجب أن تختلف عن الحالية";
+    private const string UnknownUserMessage = "تعذر تحديد المستخدم الحالي. يرجى إعادة تسجيل الدخول.";
+    private const string ValidationSummaryMessage = "يرجى تصحيح الحقول المعلَّمة.";
+    private const string SaveFailedMessage = "تعذر تغيير كلمة المرور. يرجى إعادة المحاولة.";
+
+    /// <summary>
+    /// رسالة حدّ الطول — تُبنى من البيت الواحد <see cref="clsValidation.PasswordMinLength"/>
+    /// (سياسة موحّدة مع خدمة المصادقة — RULE-N36/RULE-N172)، فلا يُكتب الرقم حرفياً في الشاشة.
+    /// </summary>
+    private static string MinLengthMessage =>
+        $"كلمة المرور الجديدة يجب ألا تقل عن {clsValidation.PasswordMinLength} خانات";
 
     private readonly IServiceProvider _serviceProvider;
+
+    // ── مواضع المصمّم الأصلية للصفوف — تُلتقط مرة واحدة (لا أرقام تخطيط مكرّرة في المنطق) ──
+    private Point _newPasswordOrigin;
+    private Point _newPasswordLabelOrigin;
+    private Point _confirmPasswordOrigin;
+    private Point _confirmPasswordLabelOrigin;
+    private int _groupHeight;
+    private int _errorTop;
+
     private int _UserId;
-    private bool _isSelfService; // true when called from login (MustChangePassword flow)
+    private bool _isSelfService = true;   // الافتراضي: خدمة ذاتية — كلمة المرور الحالية مطلوبة
+    private bool _isBusy;                 // حارس إعادة الدخول أثناء الحفظ
 
     public frmPasswordChange(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+        _CaptureDesignerLayout();
+
+        // الحالة الافتراضية = خدمة ذاتية، والمستخدم من الجلسة — فلا يبقى _UserId = 0 ولا يُغيَّر
+        // شيء بلا إدخال كلمة المرور الحالية (العيب: كان الفتح من frmMain يترك الشاشة بلا وضع).
+        _SetSelfServiceMode(SessionService.Current?.UserId ?? 0);
 
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
-        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45 — أسهم RTL
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnClose);                 // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
             (Keys.F2, () => btnSave.PerformClick()),
             (Keys.Escape, () => btnClose.PerformClick()));
+        KeyboardHelper.WireModeEnter(this, () => btnSave.Enabled ? btnSave : null);  // RULE-N147
+
+        AcceptButton = btnSave;
+        CancelButton = btnClose;
     }
+
+    // ── الخدمات (RULE-N03/N04) ────────────────────────────────────────────────
+
+    private IAuthDesktopService AuthService => _serviceProvider.GetRequiredService<IAuthDesktopService>();
+    private ISessionService SessionService => _serviceProvider.GetRequiredService<ISessionService>();
 
     // ── التحقق ────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// تحقق كامل قبل الحفظ: الحالية مطلوبة (في الخدمة الذاتية) · الجديدة ≥ الحد الأدنى ·
-    /// الجديدة ≠ الحالية · التأكيد مطابق. الرسائل عربية عبر errorProvider (RULE-N28).
+    /// رفض حقل واحد: أيقونة/رسالة <c>errorProvider</c> **مقرونةً** بتغذية بصرية موحّدة من البيت الواحد
+    /// <see cref="clsInputFeedback.ShowRejectTooltip"/> بنفس نص الرفض — فلا رفض صامت (GAP-08b / RULE-N169).
+    /// </summary>
+    private void _Reject(Control field, string message)
+    {
+        errorProvider.SetError(field, message);
+        clsInputFeedback.ShowRejectTooltip(field, message);
+    }
+
+    /// <summary>
+    /// تحقق كامل بأسلوب <c>frmProductMaster</c>: يضبط/يمسح <c>errorProvider</c> لكل حقل بالترتيب،
+    /// ويعيد النتيجة بلا أي MessageBox. قواعد التحقق نفسها لم تتغيّر — الإلزام يُقرأ من
+    /// <see cref="clsValidation.IsRequired"/> وتلميح الرفض من <see cref="clsInputFeedback"/>.
     /// </summary>
     private bool _ValidateForm()
     {
         bool isValid = true;
 
-        // كلمة المرور الحالية مطلوبة في وضع الخدمة الذاتية فقط (شاشة الدخول).
-        if (_isSelfService && string.IsNullOrWhiteSpace(txtCurrentPassword.Text))
+        // كلمة المرور الحالية مطلوبة في وضع الخدمة الذاتية فقط (في الإعادة الإدارية الصف مخفي).
+        if (_isSelfService && !clsValidation.IsRequired(txtCurrentPassword.Text))
         {
-            errorProvider.SetError(txtCurrentPassword, "كلمة المرور الحالية مطلوبة");
+            _Reject(txtCurrentPassword, CurrentRequiredMessage);
             isValid = false;
         }
         else
         {
-            errorProvider.SetError(txtCurrentPassword, "");
+            errorProvider.SetError(txtCurrentPassword, string.Empty);
         }
 
-        if (string.IsNullOrWhiteSpace(txtNewPassword.Text))
+        if (!clsValidation.IsRequired(txtNewPassword.Text))
         {
-            errorProvider.SetError(txtNewPassword, "كلمة المرور الجديدة مطلوبة");
+            _Reject(txtNewPassword, NewRequiredMessage);
             isValid = false;
         }
-        else if (txtNewPassword.Text.Length < MinPasswordLength)
+        else if (txtNewPassword.Text.Length < clsValidation.PasswordMinLength)
         {
-            errorProvider.SetError(txtNewPassword, $"كلمة المرور الجديدة يجب ألا تقل عن {MinPasswordLength} خانات");
+            _Reject(txtNewPassword, MinLengthMessage);
             isValid = false;
         }
-        else if (_isSelfService
-                 && !string.IsNullOrWhiteSpace(txtCurrentPassword.Text)
-                 && txtNewPassword.Text == txtCurrentPassword.Text)
+        else if (_isSelfService && txtNewPassword.Text == txtCurrentPassword.Text)
         {
-            errorProvider.SetError(txtNewPassword, "كلمة المرور الجديدة يجب أن تختلف عن الحالية");
+            _Reject(txtNewPassword, SamePasswordMessage);
             isValid = false;
         }
         else
         {
-            errorProvider.SetError(txtNewPassword, "");
+            errorProvider.SetError(txtNewPassword, string.Empty);
         }
 
-        if (string.IsNullOrWhiteSpace(txtConfirmPassword.Text))
+        if (!clsValidation.IsRequired(txtConfirmPassword.Text))
         {
-            errorProvider.SetError(txtConfirmPassword, "تأكيد كلمة المرور مطلوب");
+            _Reject(txtConfirmPassword, ConfirmRequiredMessage);
             isValid = false;
         }
-        else if (!string.IsNullOrWhiteSpace(txtNewPassword.Text) &&
-                 txtNewPassword.Text != txtConfirmPassword.Text)
+        else if (txtNewPassword.Text != txtConfirmPassword.Text)
         {
-            errorProvider.SetError(txtConfirmPassword, "كلمة المرور غير متطابقة");
+            _Reject(txtConfirmPassword, MismatchMessage);
             isValid = false;
         }
         else
         {
-            errorProvider.SetError(txtConfirmPassword, "");
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            errorProvider.SetError(txtConfirmPassword, string.Empty);
         }
 
         return isValid;
     }
 
+    /// <summary>
+    /// ينقل المؤشر إلى **أول** حقل غير صالح بالترتيب البصري (الحالية ← الجديدة ← التأكيد) ويضع
+    /// أيقونة الخطأ عليه — ويتخطّى حقل كلمة المرور الحالية في وضع الإعادة الإدارية لأنه مخفي.
+    /// </summary>
+    private void _FocusFirstInvalidField()
+    {
+        if (_isSelfService && !clsValidation.IsRequired(txtCurrentPassword.Text))
+        {
+            _Reject(txtCurrentPassword, CurrentRequiredMessage);
+            txtCurrentPassword.Focus();
+            return;
+        }
+
+        if (!clsValidation.IsRequired(txtNewPassword.Text))
+        {
+            _Reject(txtNewPassword, NewRequiredMessage);
+            txtNewPassword.Focus();
+            return;
+        }
+
+        if (txtNewPassword.Text.Length < clsValidation.PasswordMinLength)
+        {
+            _Reject(txtNewPassword, MinLengthMessage);
+            txtNewPassword.Focus();
+            return;
+        }
+
+        if (_isSelfService && txtNewPassword.Text == txtCurrentPassword.Text)
+        {
+            _Reject(txtNewPassword, SamePasswordMessage);
+            txtNewPassword.Focus();
+            return;
+        }
+
+        if (!clsValidation.IsRequired(txtConfirmPassword.Text))
+        {
+            _Reject(txtConfirmPassword, ConfirmRequiredMessage);
+            txtConfirmPassword.Focus();
+            return;
+        }
+
+        if (txtNewPassword.Text != txtConfirmPassword.Text)
+        {
+            _Reject(txtConfirmPassword, MismatchMessage);
+            txtConfirmPassword.Focus();
+        }
+    }
+
+    // ── رسائل الخطأ داخل الشاشة (بلا MessageBox للتحقق — نمط frmLogin/frmProductMaster) ──
+
+    private void ShowError(string message)
+    {
+        lblError.Text = message;
+        lblError.Visible = true;
+    }
+
+    private void HideError()
+    {
+        lblError.Text = string.Empty;
+        lblError.Visible = false;
+    }
+
+    /// <summary>
+    /// «المسح عند الكتابة»: أول تعديل على أي حقل يمسح خطأه ويُخفي رسالة الشاشة — بلا إلحاح.
+    /// </summary>
+    private void _OnPasswordTextChanged(object? sender, EventArgs e)
+    {
+        if (sender is Control field)
+            errorProvider.SetError(field, string.Empty);
+
+        HideError();
+    }
+
     // ── الحفظ ─────────────────────────────────────────────────────────────────
 
-    private async void btnSave_Click(object sender, EventArgs e)
+    private async void btnSave_Click(object? sender, EventArgs e)
     {
-        if (!_ValidateForm()) return;
+        if (_isBusy) return;
 
+        // حارس الهوية: لا يُرسَل userId = 0 أبداً في وضع الخدمة الذاتية.
+        if (_isSelfService && _UserId <= 0)
+        {
+            ShowError(UnknownUserMessage);
+            _Reject(txtCurrentPassword, UnknownUserMessage);
+            txtCurrentPassword.Focus();
+            return;
+        }
+
+        if (!_ValidateForm())
+        {
+            _FocusFirstInvalidField();
+            ShowError(ValidationSummaryMessage);
+            return;
+        }
+
+        _isBusy = true;
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
 
         try
         {
             // الخدمة هي المسؤولة عن التشفير والتحقق النهائي — الشاشة لا تعرف BCrypt إطلاقاً.
-            var authService = _serviceProvider.GetRequiredService<IAuthDesktopService>();
             var request = new ChangePasswordRequest(
                 txtCurrentPassword.Text,
                 txtNewPassword.Text,
                 txtConfirmPassword.Text);
 
-            var result = await authService.ChangePasswordAsync(request, _UserId);
+            var result = await AuthService.ChangePasswordAsync(request, _UserId);
 
             if (result.IsSuccess)
             {
                 clsDialogs.Success("تم تغيير كلمة المرور بنجاح.");
                 DialogResult = DialogResult.OK;
                 Close();
+                return;
             }
-            else
-            {
-                clsDialogs.Error(result.Error ?? "فشل في تغيير كلمة المرور.");
-            }
+
+            // رفض الخدمة (رسالة عربية): في الشاشة لا في صندوق رسالة، وتُفرَّغ حقول الإدخال.
+            // الترتيب مقصود: التفريغ أولاً (يُطلق TextChanged الذي يمسح الخطأ) ثم الرسالة والأيقونة.
+            string error = string.IsNullOrWhiteSpace(result.Error) ? SaveFailedMessage : result.Error;
+            txtNewPassword.Clear();
+            txtConfirmPassword.Clear();
+            ShowError(error);
+            _Reject(txtNewPassword, error);
+            txtNewPassword.Focus();
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "فشل تغيير كلمة المرور للمستخدم {UserId}", _UserId);
-            clsDialogs.Error("تعذر تغيير كلمة المرور. يرجى إعادة المحاولة.");
+            ShowError(SaveFailedMessage);
         }
         finally
         {
             btnSave.Enabled = true;
             Cursor = Cursors.Default;
+            _isBusy = false;
         }
     }
 
-    private void btnClose_Click(object sender, EventArgs e)
+    private void btnClose_Click(object? sender, EventArgs e)
     {
         DialogResult = DialogResult.Cancel;
         Close();
@@ -156,30 +302,90 @@ public partial class frmPasswordChange : Form
     // ── أوضاع الفتح ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Sets the editor to Update mode for the given user ID (فتح من الدليل — إعادة تعيين إدارية).
+    /// إعادة تعيين إدارية من دليل المستخدمين: تُخفى كلمة المرور الحالية (المدير لا يعرفها —
+    /// استثناء موثّق) وتُعاد الصفوف المتبقية إلى أعلى بلا فجوة تخطيط.
     /// </summary>
     public void _SetUpdateMode(int userId)
     {
-        _UserId = userId;
         _isSelfService = false;
+        _UserId = userId;
         lblMode.Text = "إعادة تعيين كلمة المرور";
         Text = "إعادة تعيين كلمة المرور";
-        // إعادة التعيين الإدارية لا تطلب ولا تستهلك كلمة المرور الحالية.
-        lblCurrentPassword.Visible = false;
-        txtCurrentPassword.Visible = false;
+
+        _SetCurrentPasswordRowVisible(false);
+        _ResetInputs();
     }
 
     /// <summary>
-    /// Sets the editor to self-service mode (called from login when MustChangePassword is true).
+    /// وضع الخدمة الذاتية (فتح من شاشة الدخول عند <c>MustChangePassword</c>، أو الحالة الافتراضية
+    /// عند الفتح من <c>frmMain</c>): صفّ كلمة المرور الحالية ظاهر وإلزامي.
     /// </summary>
     public void _SetSelfServiceMode(int userId)
     {
-        _UserId = userId;
         _isSelfService = true;
+        _UserId = userId;
         lblMode.Text = "تغيير كلمة المرور";
         Text = "تغيير كلمة المرور";
-        lblCurrentPassword.Visible = true;
-        txtCurrentPassword.Visible = true;
+
+        _SetCurrentPasswordRowVisible(true);
+        _ResetInputs();
+    }
+
+    // ── تخطيط صف كلمة المرور الحالية ──────────────────────────────────────────
+
+    /// <summary>
+    /// يلتقط مواضع المصمّم مرة واحدة، فتُستعاد الصفوف بدقة بلا تكرار أرقام التخطيط في المنطق
+    /// (وإن تغيّر المصمّم تبعها الكود — RULE-N134).
+    /// </summary>
+    private void _CaptureDesignerLayout()
+    {
+        _newPasswordOrigin = txtNewPassword.Location;
+        _newPasswordLabelOrigin = lblNewPassword.Location;
+        _confirmPasswordOrigin = txtConfirmPassword.Location;
+        _confirmPasswordLabelOrigin = lblConfirmPassword.Location;
+        _groupHeight = gbPassword.Height;
+        _errorTop = lblError.Top;
+    }
+
+    /// <summary>
+    /// إظهار/إخفاء الصف الأول (كلمة المرور الحالية + التلميح) ونقل الصفّين المتبقيين لأعلى عند
+    /// الإخفاء، مع تقصير صندوق المجموعة وتقريب رسالة الخطأ — فلا تبقى فجوة مكان الصف المخفي.
+    /// </summary>
+    private void _SetCurrentPasswordRowVisible(bool visible)
+    {
+        lblHint.Visible = visible;
+        lblCurrentPassword.Visible = visible;
+        txtCurrentPassword.Visible = visible;
+
+        // فرق صفّين متتاليين مقروء من المصمّم (58 بكسل) — لا رقم مكرّر هنا.
+        int rowGap = _confirmPasswordOrigin.Y - _newPasswordOrigin.Y;
+        int shift = visible ? 0 : -rowGap;
+
+        txtNewPassword.Top = _newPasswordOrigin.Y + shift;
+        lblNewPassword.Top = _newPasswordLabelOrigin.Y + shift;
+        txtConfirmPassword.Top = _confirmPasswordOrigin.Y + shift;
+        lblConfirmPassword.Top = _confirmPasswordLabelOrigin.Y + shift;
+        gbPassword.Height = _groupHeight + shift;
+        lblError.Top = _errorTop + shift;
+    }
+
+    /// <summary>تفريغ الحقول ومسح كل آثار الخطأ (يُستهلك عند تغيير الوضع).</summary>
+    private void _ResetInputs()
+    {
+        txtCurrentPassword.Clear();
+        txtNewPassword.Clear();
+        txtConfirmPassword.Clear();
+        errorProvider.Clear();
+        HideError();
+    }
+
+    /// <summary>أول حقل ظاهر يُركَّز عليه (الحالية في الخدمة الذاتية، والجديدة في الإعادة الإدارية).</summary>
+    private void _FocusFirstField()
+    {
+        if (_isSelfService && txtCurrentPassword.Visible)
+            txtCurrentPassword.Focus();
+        else
+            txtNewPassword.Focus();
     }
 
     // ── التحميل والثيم ─────────────────────────────────────────────────────────
@@ -188,7 +394,8 @@ public partial class frmPasswordChange : Form
     {
         try
         {
-            ApplyUiTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
+            ApplyUiTheme();     // RULE-N50 — آخر خطوة في مسار التحميل
+            _FocusFirstField(); // المؤشر يبدأ على كلمة المرور الحالية
         }
         catch (Exception ex)
         {

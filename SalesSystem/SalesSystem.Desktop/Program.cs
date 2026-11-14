@@ -100,14 +100,12 @@ static class Program
                     // المالك الصريحة على المرحلة B (RULE-N165/RULE-N166).
                     services.AddTransient<IFormatSettingsDesktopService, MockFormatSettingsDesktopService>();
 
-                    // Interfaces with NO mock — always Direct:
-                    services.AddTransient<IAuthDesktopService, DirectAuthService>();
-                    services.AddTransient<IBackupDesktopService, DirectBackupService>();
-                    
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
                         services.AddTransient<IAccountDesktopService, MockAccountDesktopService>();
+                        services.AddTransient<IAuthDesktopService, MockAuthDesktopService>();
+                        services.AddTransient<IBackupDesktopService, MockBackupDesktopService>();
                         services.AddTransient<IBranchDesktopService, MockBranchDesktopService>();
                         services.AddTransient<ICashBoxDesktopService, MockCashBoxDesktopService>();
                         services.AddTransient<ICashBoxReportDesktopService, MockCashBoxReportDesktopService>();
@@ -140,6 +138,8 @@ static class Program
                     else
                     {
                         services.AddTransient<IAccountDesktopService, DirectAccountService>();
+                        services.AddTransient<IAuthDesktopService, DirectAuthService>();
+                        services.AddTransient<IBackupDesktopService, DirectBackupService>();
                         services.AddTransient<IBranchDesktopService, DirectBranchService>();
                         services.AddTransient<ICashBoxDesktopService, DirectCashBoxService>();
                         services.AddTransient<ICashBoxReportDesktopService, DirectCashBoxReportService>();

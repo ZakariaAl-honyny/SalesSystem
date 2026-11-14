@@ -10,6 +10,13 @@ namespace SalesSystem.Desktop.GlobalClasses
     /// </summary>
     public static class clsValidation
     {
+        /// <summary>
+        /// الحد الأدنى لطول كلمة المرور في النظام (سياسة موحّدة — <c>RULE-N36</c>).
+        /// البيت الواحد للرقم: تستهلكه خدمة المصادقة الوهمية وشاشة تغيير كلمة المرور معاً،
+        /// فلا يُكتب الرقم حرفياً في أي منهما (<c>RULE-N172</c>).
+        /// </summary>
+        public const int PasswordMinLength = 6;
+
         /// <summary>نمط البريد الإلكتروني المعتمد في النظام.</summary>
         private static readonly Regex EmailRegex = new(
             @"^[a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$",
