@@ -3,7 +3,7 @@
 > **المرجع الملزم:** `AGENTS.md` §2.16 (الوضع التجريبي) · §2.37 (`RULE-N165`…`RULE-N168` مرحلتا التسليم · **`RULE-N173`…`RULE-N178`** تغطية الوضع التجريبي وقفل الباك-إند).
 > **مالك التصديق:** وكيل `mock-qa` (سجل `.opencode/agents/mock-qa.md`) — **قراءة فقط**: يفحص ويُصدر الحكم، ولا يعدّل ملفاً ولا يبني ولا يُشغّل التطبيق.
 > **مالك التحديث:** الـOrchestrator مع الموجة التي تغيّر أي `Mock*DesktopService` أو أي تسجيل في فرع Mock داخل `Program.cs`.
-> **النسخة:** 1.1 — 2026-11-14 — الأساس الأول مبني على عدّ فعلي للملفات (لا ادّعاء) + §7 قفل الباك-إند.
+> **النسخة:** 1.2 — 2026-11-14 — موجة Auth/Backup: إغلاق ف-1 وف-2 (`MockAuthDesktopService` + `MockBackupDesktopService`) ⇒ **0 عقد غير مؤهل** · فتح ف-6 (`IUserDesktopService`) · تحديث العدّ والحكم (تدقيق `mock-qa`).
 
 ---
 
@@ -35,7 +35,7 @@
 cd SalesSystem
 dotnet build .\SalesSystem.slnx
 
-# 3) تشغيل التطبيق — الدخول في وضع التجربة يقبل أي بيانات
+# 3) تشغيل التطبيق — اختر الحساب من القائمة واكتب كلمة المرور التجريبية 123456
 #    عنوان النافذة يظهر وفيه: «وضع التجربة (Mock)» — هذا دليل الوضع
 ```
 
@@ -52,8 +52,8 @@ dotnet build .\SalesSystem.slnx
 | # | العقد | الوحدة | التنفيذ الوهمي | بيانات أولية (seeds) | التسجيل | الحكم | ما ينقص |
 |---|---|---|---|---|---|---|---|
 | 1 | `IAccountDesktopService` | Accounting | `MockAccountDesktopService` (8) | `MockAccountsData` | فرع Mock | `مؤهل للمراجعة` | — |
-| 2 | `IAuthDesktopService` | Login / Users | ❌ لا `MockAuthDesktopService` | `MockSecurityData` (عبر `MockAuthService`) | `DirectAuthService` دائماً | **`غير مؤهل — فجوة تغطية` (ف-1)** | Mock مستقل + رفض عربي (كلمة سر خاطئة/قفل) |
-| 3 | `IBackupDesktopService` | Users (`frmBackup`) | ❌ لا Mock | — | `DirectBackupService` دائماً | **`غير مؤهل — فجوة تغطية` (ف-2)** | Mock كامل — الشاشة لا تُفتح بلا قاعدة بيانات |
+| 2 | `IAuthDesktopService` | Login / Users | `MockAuthDesktopService` (16) | `MockSecurityData` (5 حسابات + كلمة المرور التجريبية `123456`) | فرع Mock | `مؤهل للمراجعة` | — |
+| 3 | `IBackupDesktopService` | Users (`frmBackup`) | `MockBackupDesktopService` (6) | `MockBackupData` (6 نسخ بالاصطلاح + اسم قديم) | فرع Mock | `مؤهل للمراجعة` | 3 رفض دفاعية لا تصلها الواجهة (لا خطوة رفض في `frmBackup`) |
 | 4 | `IBranchDesktopService` | Users | `MockBranchDesktopService` (0 — قراءة) | قائمة داخل الملف | فرع Mock | `مؤهل للمراجعة` | — |
 | 5 | `ICashBoxDesktopService` | CashBoxes | `MockCashBoxDesktopService` (4) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار اسم الصندوق |
 | 6 | `ICashBoxReportDesktopService` | Reports / CashBox | `MockCashBoxReportDesktopService` (0 — قراءة) | `MockData` + `MockCustomerReceiptsData` + `MockExpensesData` | فرع Mock | `مؤهل للمراجعة` | — |
@@ -82,12 +82,12 @@ dotnet build .\SalesSystem.slnx
 | 29 | `ISupplierPaymentDesktopService` | Payments | `MockSupplierPaymentDesktopService` (3) | `MockSupplierPaymentsData` + `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | المدفوع > المتبقي (ف-4) · إلغاء بدل حذف صلب |
 | 30 | `IThemeColorDesktopService` | Settings | `MockThemeColorDesktopService` (9) | افتراضيات `ThemePalette` | Mock-only by design (المرحلة أ) | `مؤهل للمراجعة` | — |
 | 31 | `IUnitDesktopService` | Units | `MockUnitDesktopService` (6) | `MockLookupsData` | فرع Mock | `مؤهل للمراجعة` | — |
-| 32 | `IUserDesktopService` | Users | `MockUserDesktopService` (7) | `MockSecurityData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 32 | `IUserDesktopService` | Users | `MockUserDesktopService` (7) | `MockSecurityData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | لا رفض «اسم مستخدم مطلوب» في `CreateAsync`/`UpdateAsync`، و`Password` يتجاهله الـMock ⇒ كلمة المرور المكتوبة في `frmUserMaster` لا تعمل في الدخول (ف-6) |
 | 33 | `IWarehouseDesktopService` | Warehouses / Inventory | `MockWarehouseDesktopService` (4) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الاسم |
 
-**الخلاصة (عدّ فعلي 2026-11-14):** **37** واجهة `I*` في `Services/Interfaces/` · منها **33 عقد بيانات** (المستثنى 4 عقود تحتية: `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` — وعقود الطباعة في `Printing/`) · **31** عقداً له `Mock*DesktopService` موزَّعة: **28** مسجَّلة داخل `if (appSettings.UseMockData)` + **3** Mock-only by design (`IEmployee` · `IThemeColor` · `IFormatSettings`) · **2** موصولان دائماً بـ`Direct*` (`IAuthDesktopService` · `IBackupDesktopService`) · **45** ملفاً في `Services/Mock/` = 31 `Mock*DesktopService` + `MockAuthService` + **12** `Mock*Data.cs` + `MockData.cs`.
+**الخلاصة (عدّ فعلي 2026-11-14، بعد موجة Auth/Backup — تدقيق `mock-qa`):** **37** واجهة `I*` في `Services/Interfaces/` · منها **33 عقد بيانات** (المستثنى 4 عقود تحتية: `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` — وعقود الطباعة في `Printing/`) · **33** عقداً له `Mock*DesktopService`: **30** مسجَّلة داخل `if (appSettings.UseMockData)` + **3** Mock-only by design (`IEmployee` · `IThemeColor` · `IFormatSettings`) · **0** موصول دائماً بـ`Direct*` · **48** ملفاً في `Services/Mock/` = **33** `Mock*DesktopService` + `MockAuthService` (غير قابل للحل في وضع التجربة — مرشَّح للحذف) + **13** `Mock*Data.cs` + `MockData.cs`.
 
-> **الحكم الإجمالي للسجل: `مؤهل جزئياً — تكافؤ الرفض ناقص`** — **18** عقداً `مؤهل للمراجعة` و**13** `مؤهل جزئياً` و**2** `غير مؤهل`. وبهذا الحكم **الباك-إند مقفل لكل الوحدات** (`RULE-N177`) حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً، ثم يراجع سلوك الـMock ويوافق كتابةً.
+> **الحكم الإجمالي للسجل: `مؤهل جزئياً — تكافؤ الرفض ناقص`** — **19** عقداً `مؤهل للمراجعة` و**14** `مؤهل جزئياً` و**0** `غير مؤهل`. لم يبقَ عقد يمنع مراجعة المالك (بوابة 0c)، لكن **الباك-إند مقفل لكل الوحدات** لسببين: نقص التكافؤ في 14 عقداً، و**سجل الموافقات المكتوبة الفارغ** (§7) — `RULE-N177`.
 
 ---
 
@@ -117,11 +117,11 @@ dotnet build .\SalesSystem.slnx
 | Suppliers | 2 | `frmSupplierMaster` · `frmSupplierSelection` | `ISupplierDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Tools | 1 | `frmCalculator` | — (لا مسار بيانات) | لا ينطبق |
 | Units | 1 | `frmUnitMaster` | `IUnitDesktopService` | ✅ مؤهل |
-| Users | 3 | `frmUserMaster` · `frmPasswordChange` · `frmBackup` | `IUserDesktopService` · `IBranchDesktopService` · `IAuthDesktopService` · `IBackupDesktopService` | ⚠️ **جزئي** — `frmBackup` غير مؤهل (ف-2) |
+| Users | 3 | `frmUserMaster` · `frmPasswordChange` · `frmBackup` | `IUserDesktopService` · `IBranchDesktopService` · `IAuthDesktopService` · `IBackupDesktopService` | ⚠️ جزئي — تكافؤ الرفض (`IUserDesktopService` — ف-6) · و`frmBackup` و`frmPasswordChange` مؤهلان |
 | Warehouses | 1 | `frmWarehouseMaster` | `IWarehouseDesktopService` | ⚠️ جزئي — تكرار الاسم |
-| الهيكل (root) | 2 | `frmLogin` · `frmMain` | `IAuthDesktopService` | ❌ غير مؤهل — فجوة تغطية (ف-1) |
+| الهيكل (root) | 2 | `frmLogin` · `frmMain` | `IAuthDesktopService` | ✅ مؤهل — الدخول بالحساب + `123456` (`MockAuthDesktopService`) |
 
-**الإجمالي (عدّ فعلي):** **95 نموذج `frm*`** في `Screens/**` (منها 31 تقريراً) · **89** ذات مسار بيانات، منها **88** تُفتح وتُحفظ بلا قاعدة بيانات و**1** غير مؤهلة (`frmBackup`) · **6** بلا مسار بيانات (`frmCalculator` + خمس نوافذ طباعة/معاينة: `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` · `frmPurchaseInvoicePrint`).
+**الإجمالي (عدّ فعلي):** **95 نموذج `frm*`** في `Screens/**` (منها 31 تقريراً) · **89** ذات مسار بيانات، منها **89** تُفتح وتُحفظ بلا قاعدة بيانات و**0** غير مؤهلة · **6** بلا مسار بيانات (`frmCalculator` + خمس نوافذ طباعة/معاينة: `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` · `frmPurchaseInvoicePrint`).
 
 ---
 
@@ -129,7 +129,7 @@ dotnet build .\SalesSystem.slnx
 
 | # | الخطوة | النتيجة المتوقعة |
 |---|---|---|
-| 1 | شغّل التطبيق بـ`UseMockData = true` وسجّل الدخول بأي اسم/كلمة سر | تدخل `frmMain` وعنوانها يحوي «وضع التجربة (Mock)» |
+| 1 | شغّل التطبيق بـ`UseMockData = true`، اختر الحساب من القائمة واكتب `123456` (الحسابات: `admin` · `cashier1` · `accountant1` · `warehouse1` · `locked_test`) | تدخل `frmMain` وعنوانها يحوي «وضع التجربة (Mock)» · `locked_test` يُرفض بحكم القفل |
 | 2 | افتح شاشة الدليل/الماستر في الوحدة | تُفتح في **وضع العرض**، الحقول معطّلة، `lblMode` = «وضع العرض» |
 | 3 | اضغط «جديد» (أو `F2`) | الحقول تُفعّل وتُفرَّغ، `lblMode` = «إضافة … جديد»، «حفظ» مفعّل |
 | 4 | احفظ بلا تعبئة حقل إلزامي | رفض عربي من الـMock (تكافؤ `RULE-N167`) — لا استثناء صامت |
@@ -150,11 +150,12 @@ dotnet build .\SalesSystem.slnx
 
 | البند | الفجوة | الملف/الموضع | المالك المقترح | الحالة |
 |---|---|---|---|---|
-| ف-1 | `IAuthDesktopService` بلا `MockAuthDesktopService` مستقل — يُسند دائماً إلى `DirectAuthService` الذي يستدعي `MockAuthService`؛ و`MockAuthService` نفسه **بلا أي رفض** (دخول/تغيير كلمة سر = نجاح دائماً) | `Services/Interfaces/IAuthDesktopService.cs` · `Services/Mock/MockAuthService.cs` · `Program.cs` | `ui-agent` (نفس عقد الشاشة) | **غير مؤهل — مجمِّد لباك-إند المستخدمين/المصادقة** |
-| ف-2 | `frmBackup` بلا Mock إطلاقاً — يعمل على قاعدة البيانات الحقيقية فقط | `IBackupDesktopService` · `DirectBackupService` · `frmBackup.cs` · `Program.cs` | `ui-agent` | **مانع للمراجعة · مجمِّد لباك-إند النسخ الاحتياطي** |
+| ف-1 | ✅ **مغلقة (موجة Auth/Backup 2026-11-14):** `MockAuthDesktopService` يطبّق `IAuthDesktopService` بالكامل (دخول + تغييرا كلمة المرور)، مسجَّل في فرع Mock، ويستهلك `MockSecurityData` (5 حسابات + كلمة مرور تجريبية `123456`)، ويرفض: اسم مستخدم فارغ/غير موجود · حساب مقفل · حساب معطّل · كلمة مرور فارغة/خاطئة · قفل بعد 5 محاولات · كلمة حالية فارغة/خاطئة · جديدة فارغة/قصيرة/مطابقة للحالية · تأكيد غير متطابق — كلها عربية، والنجاح يخزّن الكلمة الجديدة و`MustChangePassword = false` | `Services/Mock/MockAuthDesktopService.cs` · `MockSecurityData.cs` · `Program.cs` (فرعا Mock/Real) | — | ✅ **مغلقة** |
+| ف-2 | ✅ **مغلقة (موجة Auth/Backup 2026-11-14):** `MockBackupDesktopService` + `MockBackupData` (6 أسماء بالاصطلاح الرسمي عبر `BackupFileNameHelper` + اسم قديم) مسجَّل في فرع Mock — `frmBackup` تُفتح وتُنشئ وتستعيد بلا قاعدة بيانات. رفض «يجب تحديد ملف النسخة الاحتياطية.» مطابق حرفياً لحرّاس `DirectBackupService` | `Services/Mock/MockBackupDesktopService.cs` · `MockBackupData.cs` · `Program.cs` | `ui-agent` | ✅ **مغلقة** |
 | ف-3 | **مغلقة بالتدقيق (2026-11-14):** `MockInventoryDesktopService` فيه 5 رفض، ولا شاشة تكتب مخزوناً عبر هذا العقد (`frmAddUpdateSalesInvoice` · `frmProductSelection` · `frmListInventoryTransactions` تقرأ فقط، و`frmOpeningStock` يحفظ عبر `IInventoryAdjustmentDesktopService`) | `Services/Mock/MockInventoryDesktopService.cs` | — | ✅ **مغلقة** |
 | ف-4 | `MockSupplierPaymentDesktopService`: لا رفض «المدفوع > المتبقي»، و`CancelAsync` **تحذف السند** بدل حالة إلغاء (`RULE-004`)، و`PostAsync`/`CancelAsync` خارج الواجهة | `Services/Mock/MockSupplierPaymentDesktopService.cs` | `ui-agent` | **مفتوح — تكافؤ (مجمِّد لباك-إند المدفوعات)** |
 | ف-5 | **تكافؤ الرفض ناقص في 13 عقداً** — التفصيل عمود «ما ينقص» في §3 (البيع/الشراء/المرتجعات: كمية `0` · مدفوع > الإجمالي · مخزون سالب · إفراط في الإرجاع؛ والماسترات: تكرار الباركود/الاسم/الهاتف) | ملفات `Services/Mock/Mock*DesktopService.cs` المعلَّمة `مؤهل جزئياً` | `ui-agent` (وكيل واحد لكل ملف) | **مفتوح — موجة تكافؤ** |
+| ف-6 | `MockUserDesktopService`: `CreateAsync` لا يرفض اسماً فارغاً، و`CreateAsync`/`UpdateAsync` **يتجاهلان `Password`** — فحقل كلمة المرور في `frmUserMaster` يُحفظ بلا أثر ويعمل الدخول بالافتراضية `123456`؛ ورسالة `ResetPasswordAsync` تذكر «(12345678)» وهي قيمة لا وجود لها | `Services/Mock/MockUserDesktopService.cs` · `Screens/Users/Forms/frmUserMaster.cs` | `ui-agent` | **مفتوح — تكافؤ (مجمِّد لحكم Users الكامل)** |
 
 > **قاعدة:** فجوة `RULE-N173` لا تُغلق بتعديل الشاشة — تُغلق بإضافة الـMock/seeds/التسجيل/التكافؤ، ولا يُعلن أي module «مؤهلاً» في هذا السجل قبل ذلك، و**لا يُلمس باك-إند الوحدة** أثناء إغلاق فجوته (`RULE-N177`/`RULE-N178`).
 
@@ -185,8 +186,8 @@ dotnet build .\SalesSystem.slnx
 
 **ملاحظات القفل:**
 - القفل **لا يُعيد فتح وحدة مغلقة** ولا يُلغي عملاً مكتملاً؛ يحكم **التغيير التالي** على وحدتها (`RULE-N178`).
-- **الوحدات المجمَّدة تغطيةً** (لا تُسلَّم للمالك): **Users/Backup** (ف-1: `IAuthDesktopService` بلا Mock · ف-2: `frmBackup` بلا Mock) والهيكل (`frmLogin`/`frmMain` عبر العقد نفسه). و**كل وحدة أخرى مقفلة الباك-إند** لأن حكمها `مؤهل جزئياً` (16 عقداً) أو بلا موافقة مكتوبة.
-- صف `IAuthDesktopService` في §3 حكمه الآن **`غير مؤهل — فجوة تغطية`** ولا يُعامَل بأي حكم مخفَّف: بوابة 0c وقفل الباك-إند يقرآن المفردات الثلاث فقط (`RULE-N175`).
+- **لا وحدة مجمَّدة تغطيةً بعد 2026-11-14:** ف-1 وف-2 مغلقتان و**0** عقد `غير مؤهل` ⇒ كل الشاشات قابلة لمراجعة المالك (بوابة 0c). **وكل الوحدات مقفلة الباك-إند** لسبب واحد: **سجل الموافقات المكتوبة فارغ** — ويُضاف شرط إغلاق ف-6 (أو قبول مكتوب بالنقص) قبل رفع `IUserDesktopService` إلى `مؤهل للمراجعة`.
+- صف `IAuthDesktopService` في §3 حكمه الآن **`مؤهل للمراجعة`** (كان `غير مؤهل`) — ولا يُقلب الحكم إلا بتدقيق `mock-qa`؛ بوابة 0c وقفل الباك-إند يقرآن المفردات الثلاث فقط (`RULE-N175`).
 - الاستثناءات الثلاثة المنصوصة في `RULE-N178` (خطأ بناء يمنع الترجمة · أمن عاجل معلَّن للمالك · تصحيح يفرضه `AGENTS.md` بلا تغيير سلوك مالي) تُدوَّن في تقرير التسليم.
 - **قاعدة الفحص للـOrchestrator:** أي حزمة عمل (brief) تحمل ملفاً من `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` تُرفض ما لم تذكر حكم هذا السجل للوحدة + نص الموافقة وتاريخها (`RULE-N160`/`RULE-N177`) — وهذه هي **بوابة 0d** في `docs/prompts/ORCHESTRATOR.md` §8.
 
