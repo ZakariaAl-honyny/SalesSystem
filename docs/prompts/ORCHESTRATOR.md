@@ -2,7 +2,7 @@
 
 > **Role:** the Orchestrator never writes forms or services itself. It reads, classifies, partitions, delegates, builds, reviews, documents and reports to the owner.
 > **Read first:** `AGENTS.md` — especially §2.30 (code doctrine) · §2.31 (testing) · §2.37 (agent governance).
-> **Version:** 1.4 (English) — 2026-11-14 — bound to `AGENTS.md §2.37` (`RULE-N155`…`RULE-N168`).
+> **Version:** 1.7 (English) — 2026-11-14 — bound to `AGENTS.md §2.37` (`RULE-N155`…`RULE-N178`).
 
 ---
 
@@ -26,6 +26,7 @@ Turn the owner's request into **small verifiable slices**, give each slice to **
 | Commit before a green build + one review | Gate `RULE-N162` |
 | Assign the same file to two agents in one wave | One owner per file (`RULE-N158`) |
 | Start the backend (BLL · EF · migration · `Direct*Service` · real DB save) before the owner approved Stage A | Stage gate — see §2.5 (`RULE-N165`/`RULE-N166`) |
+| Hand a Stage A screen to the owner for a module with no mock, or with a mock that always succeeds | `mock-qa` certifies coverage **before** the handover — gate 0c (`RULE-N173`…`RULE-N175`) |
 
 ---
 
@@ -36,7 +37,7 @@ Every new screen or feature **with a data path** is delivered in two stages. Sta
 ```
 STAGE A — mock (UI & UX QA)
   frm*.cs + frm*.Designer.cs + I<Entity>DesktopService + Mock<Entity>DesktopService + MockData seeds
-  UseMockData = true · dotnet build 0 Errors · handed to the owner
+  UseMockData = true · dotnet build 0 Errors · mock-qa coverage verdict · handed to the owner
   FORBIDDEN: Business/** · DataAccess/** (except nothing at all) · Models/** · Services/Direct/** ·
              Migrations · seeders · any real save path
         │
@@ -55,7 +56,9 @@ dotnet build 0 Errors → one code-reviewer pass → documentation → commit + 
 - **Approval is explicit and recorded.** "looks fine" during an unrelated review, silence, or a bug report is **not** approval. The brief for Stage B must quote the owner's approval with its date, or the agent refuses (`RULE-N166`).
 - **Mock parity (`RULE-N167`).** The mock enforces the same refusals the BLL will enforce — required fields, duplicates, quantity `0`, paid > total, editing a `Posted` invoice, negative stock — returning Arabic `Result.Failure`. A mock that always succeeds makes the owner's checklist worthless and is rejected in review.
 - **No broken mode (`RULE-N168`).** Stage A leaves `UseMockData = true` and registers only `Mock*`; Stage B registers `Direct*` and keeps both branches (`RULE-N10`). Never commit a config that points at a real path that does not exist yet.
+- **Coverage before handover (`RULE-N173`…`RULE-N176`).** Before any Stage A screen reaches the owner, `mock-qa` certifies that the module has its `Mock*DesktopService`, its mock-DI registration, its Arabic seeds and its parity refusals, and the verdict is copied into `docs/MOCK-COVERAGE.md`. A module with `غير مؤهل — فجوة تغطية` is **not handed over**; the gap goes to its file owner (`ui-agent`, or `fast-agent` for a one-line DI/`using`), never to the auditor.
 - **A pure UI/UX fix or an S-batch on an existing slice is one stage only** — the stage gate applies to *new data paths*, not to polish, layout, colours, keyboard wiring or bug fixes inside an existing screen.
+- **Backend freeze across the whole system (`RULE-N177`/`RULE-N178`) — the owner's 2026-11-14 rule.** The two-stage order is **not** limited to new screens: **no module's backend is edited** (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders · its `.csproj`) **until that module's mock coverage is certified in `docs/MOCK-COVERAGE.md` *and* the owner has approved the mock behaviour in writing.** The order is fixed for every module, old or new: *close mock coverage → hand the mock build to the owner → record the written approval → only then touch the backend.* A module whose verdict is `غير مؤهل — فجوة تغطية` is **backend-frozen**; the request is routed to close its gap first (`RULE-N173` work), not to open the backend. A closed module is **not reopened** by this rule — it governs the **next change**, not completed work; the only exceptions are a compile-blocking fix (`RULE-N159`), a declared urgent security fix, and a correction forced by `AGENTS.md` itself, each recorded by name in the delivery report.
 - **Why it pays off (owner's rule):** fewer edits to production files · one review pass instead of many · fewer errors and no red builds on `master` · a safe, disposable place to try a new feature and drop it if the owner rejects it.
 
 ---
@@ -78,6 +81,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 
 1. **Identify the slice** the owner asked for (one screen · one layer · one repeated fix · one review).
 1b. **Decide the stage first:** does this slice create a new data path? ⇒ **Stage A (mock)** unless the owner's recorded approval for Stage B is in this conversation (`RULE-N165`/`RULE-N166`). A UI/UX fix inside an existing slice is one stage only.
+1c. **Check the backend freeze before listing any backend file (`RULE-N177`/`RULE-N178`):** if the slice touches `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders — read that module's row in `docs/MOCK-COVERAGE.md` first. Verdict not `مؤهل للمراجعة`, or no written approval in the conversation ⇒ **the backend files are not in scope**; deliver Stage A (or the coverage fix) and report why. A `غير مؤهل — فجوة تغطية` module is frozen: route it to closing the gap.
 2. **List the expected files**: `frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · `I*DesktopService` · `Direct*` · `Mock*` · `Program.cs` (DI) · `AGENTS.md`.
 2b. **Search before you write:** every helper/behaviour the slice needs is looked up first in `Desktop/Helpers/` → `Desktop/Global Classes/` → `Common/Helpers/` → `Business/Helpers/`; consume it or extend it **in its home**, never copy it into a screen (`RULE-N170`). If a fix would touch several screens, the behaviour is not in one place yet — move it first (`RULE-N171`).
 3. **Classify S/M/L** using §3.
@@ -103,6 +107,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 | `Models/**` · `DataAccess/Configurations/**` · `Migrations/**` · `Seeders/**` | `database-engineer` | — |
 | `Printing/**` · `Services/Printing/**` | `printing` | — |
 | `Program.cs` · `appsettings.json` · `*.csproj` · `SalesSystem.slnx` · `AGENTS.md` · `docs/**` | **the Orchestrator** (or one named agent) | everyone reports, nobody edits |
+| Mock coverage certification (`docs/MOCK-COVERAGE.md` verdicts) | `mock-qa` — **read-only**, produces the verdict + gap table + Arabic runbook | nobody else certifies; gaps go to the file owner |
 
 **Stage ownership (§2.5):** **Stage A** ⇒ `ui-agent` owns the screen files + the `I*DesktopService` contract + `Mock*DesktopService` + `MockData` seeds + the mock branch in `Program.cs`; it never opens `Business/**`, `DataAccess/**`, `Models/**` or `Services/Direct/**`. **Stage B** (after approval) ⇒ `database-engineer` (entity · config · migration) → `backend-architect` (BLL + DTO + `Direct*`) → `ui-agent` (real DI branch + any screen binding change). Stage A and Stage B are **always different waves**.
 
@@ -126,6 +131,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 **Single home** — which existing helper/global class the slice consumes (`Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`), and the exact path + member of anything new that must be created there once (`RULE-N169`/`RULE-N170`). No helper inside a screen.
 **Definition of done** — verifiable output (behaviour / signature / text).
 **Mock parity** — (Stage A only) the refusals the mock must enforce with Arabic `Result.Failure`.
+**Mock coverage** — (Stage A only) the contract, its `Mock*DesktopService`, the seed source, and the `docs/MOCK-COVERAGE.md` row this slice must update; the `mock-qa` verdict is gate 0c (`RULE-N173`…`RULE-N176`).
 **Validation** — "do NOT build; the Orchestrator builds. No automated tests, no `dotnet test`."
 **Report back** — files touched · decisions · risks · Arabic manual-test table (screen · step · expected result)
                   + the exact line: لم يُكتب أي اختبار آلي — الاختبار مسؤولية المالك (AGENTS.md §2.31)
@@ -196,6 +202,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 | `code-reviewer` | **once** on the finished slice | AGENTS.md violations · money/stock integrity · scope violations · dead code · broken control names — no writes |
 | `security-auditor` | when touching auth, secrets, deactivation, deletion, backup | prioritized risk report (never report §2.29 deferred items — `RULE-N107`) |
 | `test-engineer` (Verification Planner) | when a wider checklist is needed | Arabic manual-test table only |
+| `mock-qa` (Mock Coverage & UI/UX QA Auditor) | **before every Stage A handover** — and whenever a `Mock*`/`MockData`/mock-DI change lands | coverage verdict (`مؤهل` / `جزئي` / `غير مؤهل`) · gap table with file owners · Arabic UI & UX runbook · registry delta — **no writes, no build, no run** (`RULE-N175`) |
 
 ---
 
@@ -203,7 +210,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 
 ```
 STAGE A (mock · UI & UX QA)
-   ui-agent(s) ──► dotnet build ──► 0 Errors ──► hand to the owner
+   ui-agent(s) ──► dotnet build ──► 0 Errors ──► mock-qa coverage verdict ──► hand to the owner
                                                 │
                           rejected (fix in Stage A, no DB touched)
                                                 │
@@ -217,6 +224,7 @@ STAGE B (real backend) — only after the written approval
 ```
 
 - **Stage A is one wave** (≤ 4 `ui-agent`s, one per screen) and it never touches the layers beneath the desktop.
+- **A Stage A wave is not finished at a green build:** it ends with `mock-qa`'s coverage verdict. `غير مؤهل — فجوة تغطية` blocks the handover; the gap is routed to its file owner, never to the auditor (`RULE-N175`/`RULE-N176`).
 - **Stage B runs only after the approval is written down**; its waves follow **DB → BLL → Desktop** (`RULE-N159`).
 - **Never build a layer before the contract of the layer beneath it exists.**
 - An agent never builds and never fixes another project's error — the error goes to the **file owner**.
@@ -231,6 +239,8 @@ STAGE B (real backend) — only after the written approval
 |---|---|---|
 | 0 | **Stage gate** | Stage A touches **only** `Screens/**` · `Services/Mock/**` · `Services/Interfaces/**` · the mock DI branch · `appsettings.json` (`UseMockData = true`) — and **no** Stage B file exists before the approval is recorded with its date (`RULE-N165`/`RULE-N166`) |
 | 0b | **Mock parity** | the mock enforces the same refusals the BLL will enforce (Arabic `Result.Failure`) and its seeds cover happy path + rejection + money/stock (`RULE-N167`) |
+| 0c | **Mock coverage certified (`mock-qa`)** | every data contract of the module has its `Mock*` + mock-DI registration + Arabic seeds; verdict = `مؤهل للمراجعة`; `docs/MOCK-COVERAGE.md` row updated in the same wave (`RULE-N173`/`RULE-N174`/`RULE-N175`) |
+| 0d | **Backend freeze honoured (`RULE-N177`/`RULE-N178`)** | if the slice touches **any** module backend (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders), the module's `docs/MOCK-COVERAGE.md` verdict is `مؤهل للمراجعة` **and** the owner's written approval (date + wording) is quoted in the brief — otherwise the backend files are out of scope and the slice is returned to Stage A |
 | 1 | Green build | `dotnet build` = **0 Errors** |
 | 2 | Zero scope creep | `git status` contains no file outside the brief |
 | 3 | Zero dead code | no declared control without `Controls.Add` (`RULE-N130`) · no unreferenced member |
@@ -243,7 +253,7 @@ STAGE B (real backend) — only after the written approval
 | 9 | Test checklist | Arabic table (screen · step · expected result) + the mandatory final line |
 | 10 | Clean repo | `git status --porcelain` empty · `local == origin` |
 
-**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`) · **a shared helper/behaviour copied into a screen instead of its single home** (`RULE-N169`…`RULE-N172`).
+**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`) · **a Stage A handover without a `mock-qa` `مؤهل للمراجعة` verdict** (`RULE-N175`) · **a data contract with no mock, or a mock branch pointed at `Direct*` to "make it open"** (`RULE-N173`/`RULE-N176`) · **any edit to a module's backend while its coverage verdict is not `مؤهل للمراجعة` or its written owner approval is missing** (`RULE-N177`) · **opening work on a `غير مؤهل — فجوة تغطية` module instead of closing its coverage gap first** (`RULE-N178`) · **a shared helper/behaviour copied into a screen instead of its single home** (`RULE-N169`…`RULE-N172`).
 
 ---
 
@@ -272,6 +282,10 @@ STAGE B (real backend) — only after the written approval
 | 19 | **New screen / new feature with a data path** | L | **Stage A** mock first → owner UI & UX QA → written approval → **Stage B** (DB → BLL → UI) | Stage A: 1 · Stage B: 3 |
 | 20 | **UI/UX polish or a bug fix on an existing screen** | S/M | one stage only — the stage gate does **not** apply | by size |
 | 21 | **Owner asks for the backend of an approved Stage A** | L | quote the approval+date in every brief, then DB → BLL → UI | 3 |
+| 22 | **"Every module must have mock data — I want to review UI & UX"** | L (system-wide) | `mock-qa` certifies all modules **read-only** → gap list is split into S/M slices, each to its file owner → build → `mock-qa` re-certifies → `docs/MOCK-COVERAGE.md` updated | 1 auditor + N fixers (waves of ≤ 4) |
+| 23 | **A new module/screen joins the system** | L | its Stage A brief carries **gate 0c**: `Mock*` + Arabic seeds + parity refusals + `UseMockData = true` + `mock-qa` verdict **before** the owner sees it | Stage A: 1 `ui-agent` + 1 `mock-qa` |
+| 24 | **Owner asks to change the backend of an old/closed module** | L | **gate 0d first**: read the module row in `docs/MOCK-COVERAGE.md` — coverage certified + written approval ⇒ Stage B waves; otherwise deliver the mock/coverage slice and ask for review | 1 (mock slice) or 3 (Stage B) |
+| 25 | **A module is `غير مؤهل — فجوة تغطية` and the owner asks for work on it** | L | backend **frozen** (`RULE-N178`): split the gap into S/M slices, each to its file owner, build, `mock-qa` re-certify — then the original request resumes through Stage A | 1 auditor + N fixers |
 
 > If no row matches: classify S/M/L, then apply §3/§4. Never invent a new split without stating the reason in the delivery report.
 
@@ -325,6 +339,8 @@ STAGE B (real backend) — only after the written approval
 - [ ] **Single home:** nothing shared was written inside a screen; anything new was created once in its declared home and named in the report (`RULE-N169`…`RULE-N172`).
 - [ ] Build green after **each** wave (not only once at the end).
 - [ ] Stage A left `UseMockData = true` and registered only `Mock*`; the mock enforces the real refusals (`RULE-N167`/`RULE-N168`).
+- [ ] **Mock coverage:** `mock-qa` returned `مؤهل للمراجعة` for every module in the slice **before** the handover, and the `docs/MOCK-COVERAGE.md` rows were updated in the same wave (`RULE-N173`…`RULE-N175`).
+- [ ] **Backend freeze (`RULE-N177`/`RULE-N178`):** no backend file (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders) was written for a module whose coverage verdict is not `مؤهل للمراجعة` or whose written approval is missing; a `غير مؤهل` module was routed to closing its gap, not to a backend slice.
 - [ ] Stage B briefs quote the owner's approval verbatim with its date.
 - [ ] One review (`code-reviewer`) on the slice; its notes closed or explicitly deferred.
 - [ ] `AGENTS.md` updated for any status/rule change.
@@ -344,3 +360,5 @@ STAGE B (real backend) — only after the written approval
 | 2026-11-14 | v1.3 — the role now lives in `.opencode/agents/orchestrator.md` (V2 frontmatter: `mode: primary`, `model: opencode-go/deepseek-v4.1-flash`, `permissions` array). The agent prompt is a condensed mirror of this playbook and carries the S/M/L law, the per-screen invariant, the 8-file S-batch cap, the 7-field brief, the waves and the commit gates; `edit` is denied outside `AGENTS.md`/`docs/**`/`opencode.json` and `dotnet test` is denied. `opencode.json` keeps only the schema and the MCP server (no duplicate agent definition). |
 | 2026-11-14 | v1.5 — **single-home law** added (`RULE-N169`…`RULE-N172`): shared code lives once in a declared home (`Desktop/Helpers/` · `Desktop/Global Classes/` · `Common/Helpers/` · `Business/Helpers/` · `DTO/Common/`), is searched before being written, and is fixed in one file for all consumers. New step 2b in the partition algorithm, `**Single home**` field in §6.0, gate 3b in §8, an anti-pattern in §12, a checklist item in §13. |
 | 2026-11-14 | v1.4 — **two-stage law** added (`RULE-N165`…`RULE-N168`): Stage A is the owner's UI & UX QA round on mock data (no BLL/EF/migration/`Direct*`), and Stage B (real backend + real DB save) starts only after the owner's explicit written approval, quoted with its date in every Stage B brief. New §2.5, stage step in the partition algorithm, stage ownership in §5, `**Stage**` + `**Mock parity**` fields in the brief, two-stage wave diagram in §7, gates 0/0b in §8, scenarios 19–21 in §9, two anti-patterns in §12, and pre-delivery checklist items in §13. |
+| 2026-11-14 | v1.6 — **mock coverage law** added (`RULE-N173`…`RULE-N176`): every data contract must have a `Mock*DesktopService`, a mock-DI registration and Arabic seeds, or its module is **not reviewable** and is never handed to the owner; `docs/MOCK-COVERAGE.md` is the single source of truth (`AGENTS.md` §2.16 · §2.20 item 17 · §2.37 · §9); the new read-only `mock-qa` agent (`.opencode/agents/mock-qa.md`) issues `مؤهل للمراجعة` / `مؤهل جزئياً` / `غير مؤهل` with a gap table + Arabic UI & UX runbook, and its verdict is **gate 0c**. Added: a row in the §2 never-table, the coverage bullet in §2.5, a §5 ownership row, a §6.7 reviewer row, a `**Mock coverage**` field in §6.0, the certification step in the §7 diagram, gate 0c + two rejection reasons in §8, scenarios 22–23 in §9, and a §13 checklist item. |
+| 2026-11-14 | v1.7 — **system-wide backend freeze** added (`RULE-N177`/`RULE-N178`): the mock-before-backend order now applies to **every module, old or new** — no `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migration · seeder edit until that module's `docs/MOCK-COVERAGE.md` verdict is `مؤهل للمراجعة` **and** the owner's written approval is recorded; a `غير مؤهل — فجوة تغطية` module is backend-frozen and is routed to closing its gap. Added: the freeze bullet in §2.5, partition step 1c (check coverage before listing any backend file), gate **0d** + two rejection reasons in §8, scenarios 24–25 in §9, a §13 checklist item, and `docs/MOCK-COVERAGE.md` §7 (freeze/unlock sequence + module states). |
