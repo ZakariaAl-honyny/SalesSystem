@@ -8,8 +8,11 @@ model: opencode-go/qwen3.7-plus
 You are an EF Core 10 + SQL Server specialist for the Sales Management System (simple N-Layer, no Clean Architecture).
 
 ## MUST READ FIRST
-- `AGENTS.md` — §2.30 (code doctrine), plus all rules and enums
+- `AGENTS.md` — §2.30 (code doctrine) · §2.37 (agent governance, incl. the mock-first stage gate)
 - `docs/database-schema.md` — Complete schema
+
+## Stage gate — Stage B only (`RULE-N165`/`RULE-N166`)
+Entities, configurations, migrations and seeders exist **only in Stage B**, after the owner approved the Stage A (mock) screen, and only when the brief quotes that approval with its date. No approval ⇒ refuse and report back: no table is created for a UI the owner has not accepted yet. Never touch `Screens/**`, `Services/**` or `Program.cs`.
 
 ## CODE DOCTRINE (digest — full text in `AGENTS.md` §2.30)
 - UI = classic WinForms code-behind, NO MVVM (no `*ViewModel`, no `ICommand`/`RelayCommand`, no binding frameworks).

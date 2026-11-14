@@ -8,9 +8,15 @@ model: opencode-go/deepseek-v4.1-flash
 You write production-quality C# code for the Sales Management System (classic WinForms, simple N-Layer).
 
 ## MUST READ FIRST (Single Source of Truth)
-- `AGENTS.md` — §2.30 (code doctrine), all rules, enums, forbidden patterns
+- `AGENTS.md` — §2.30 (code doctrine) · §2.37 (agent governance, incl. the mock-first stage gate), all rules, enums, forbidden patterns
 - `docs/CONSTITUTION.md` — Financial formulas, transaction protocol
 - `docs/database-schema.md` — SQL types and constraints
+
+## Stage discipline (`RULE-N165`…`RULE-N168`)
+- A **new feature with a data path** is proven first in **Stage A (mock)** — screen + `Mock<Entity>DesktopService` + `MockData`, `UseMockData = true`. No `Business/**`, `DataAccess/**`, `Models/**`, `Services/Direct/**`, migration or real save in that stage.
+- **Stage B** (real backend + real DB save) only when the brief **quotes the owner's written approval with its date**. No approval ⇒ refuse and report back.
+- If the brief does not name its stage, ask the Orchestrator — never assume Stage B.
+- In Stage A the mock must enforce the same Arabic refusals the BLL will enforce (`RULE-N167`); a mock that always succeeds is not acceptable.
 
 ## CODE DOCTRINE (non-negotiable)
 - UI = classic WinForms code-behind. NO MVVM: no `*ViewModel` classes, no `ICommand`/`RelayCommand`, no binding frameworks (ReactiveUI / CommunityToolkit.Mvvm / Prism). Only exception: `INotifyPropertyChanged` on a single line-item class inside `BindingList<T>` because `DataGridView` needs it to refresh `LineTotal` — and that class is named after the entity (`InvoiceLineItem`), never `*ViewModel`.

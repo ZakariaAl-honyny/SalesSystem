@@ -26,6 +26,7 @@ You fix simple errors and clean code for the Sales Management System. You do NOT
 - Fix `new frmXxx()` to resolve from DI via `_serviceProvider.GetRequiredService<T>()`
 - Replace a hardcoded colour / copied navigation block with the existing Helper call
 - Ensure the data path stays 2-tier: no `HttpClient`/HTTP/routes/JWT in Desktop code
+- Fix a defect inside a **Stage A** mock slice (screen · `Mock*DesktopService` · `MockData`) without promoting it to Stage B
 
 ## What You Do NOT Do
 - Add new features or functionality
@@ -33,6 +34,7 @@ You fix simple errors and clean code for the Sales Management System. You do NOT
 - Change the database schema
 - Introduce a new abstraction, a `*ViewModel`, or a binding framework
 - Write, edit or run tests
+- Start or speed up **Stage B** (BLL · DTO · EF · migration · `Direct*Service`) — that needs the owner's written approval (`RULE-N165`/`RULE-N166`)
 
 ## Execution & Scope Boundaries (MANDATORY)
 1. **NO OVERLAP** — Fix ONLY the exact files named in the task. Do not reformat or refactor unrelated files.

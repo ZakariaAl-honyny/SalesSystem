@@ -49,6 +49,7 @@ public class ReceiptPrinter
 - `PrintDataService` MUST return `Task<Result<InvoicePrintDto>>` — NEVER nullable, never throws.
 - Money prints as `N2` (`decimal(18,2)`), quantities as `N3`; Arabic text via a UTF-8 safe font.
 - Use `AsNoTracking()` for read-only print data queries.
+- **Stage (`RULE-N165`…`RULE-N168`):** a layout is designed and QA'd at **Stage A against mock DTOs** — never add a query, entity or migration to get something to print. Real print data is wired in Stage B after the owner approves.
 
 ## Execution & Scope Boundaries (MANDATORY)
 1. **NO OVERLAP** — Write ONLY the print/receipt layout files. Never touch BLL, EF, or forms beyond a single print-button hookup.

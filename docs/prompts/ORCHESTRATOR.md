@@ -2,7 +2,7 @@
 
 > **Role:** the Orchestrator never writes forms or services itself. It reads, classifies, partitions, delegates, builds, reviews, documents and reports to the owner.
 > **Read first:** `AGENTS.md` — especially §2.30 (code doctrine) · §2.31 (testing) · §2.37 (agent governance).
-> **Version:** 1.1 (English) — 2026-11-14 — bound to `AGENTS.md §2.37` (`RULE-N155`…`RULE-N164`).
+> **Version:** 1.4 (English) — 2026-11-14 — bound to `AGENTS.md §2.37` (`RULE-N155`…`RULE-N168`).
 
 ---
 
@@ -25,6 +25,38 @@ Turn the owner's request into **small verifiable slices**, give each slice to **
 | Let an agent edit `AGENTS.md` / `docs/**` | The Orchestrator owns them (`RULE-N114`) |
 | Commit before a green build + one review | Gate `RULE-N162` |
 | Assign the same file to two agents in one wave | One owner per file (`RULE-N158`) |
+| Start the backend (BLL · EF · migration · `Direct*Service` · real DB save) before the owner approved Stage A | Stage gate — see §2.5 (`RULE-N165`/`RULE-N166`) |
+
+---
+
+## 2.5) Two-stage law — mock first, backend after approval (`RULE-N165`…`RULE-N168`)
+
+Every new screen or feature **with a data path** is delivered in two stages. Stage A is the owner's **UI & UX QA round** — and it is the **sandbox where the feature is proven before any production file is touched**: the existing working code, schema and database stay intact while the feature is shaped, and the real files are edited once, reviewed once, broken never.
+
+```
+STAGE A — mock (UI & UX QA)
+  frm*.cs + frm*.Designer.cs + I<Entity>DesktopService + Mock<Entity>DesktopService + MockData seeds
+  UseMockData = true · dotnet build 0 Errors · handed to the owner
+  FORBIDDEN: Business/** · DataAccess/** (except nothing at all) · Models/** · Services/Direct/** ·
+             Migrations · seeders · any real save path
+        │
+        ▼
+OWNER REVIEW  ──►  rejected / change requested  ⇒  back to Stage A (no schema was ever touched)
+        │
+        ▼  explicit written approval (date + exact wording, quoted in the report)
+STAGE B — real backend
+  entity + Fluent config + migration → BLL service + DTO → Direct<Entity>Service → DI both branches → real DB save
+        │
+        ▼
+dotnet build 0 Errors → one code-reviewer pass → documentation → commit + push
+```
+
+**Non-negotiables**
+- **Approval is explicit and recorded.** "looks fine" during an unrelated review, silence, or a bug report is **not** approval. The brief for Stage B must quote the owner's approval with its date, or the agent refuses (`RULE-N166`).
+- **Mock parity (`RULE-N167`).** The mock enforces the same refusals the BLL will enforce — required fields, duplicates, quantity `0`, paid > total, editing a `Posted` invoice, negative stock — returning Arabic `Result.Failure`. A mock that always succeeds makes the owner's checklist worthless and is rejected in review.
+- **No broken mode (`RULE-N168`).** Stage A leaves `UseMockData = true` and registers only `Mock*`; Stage B registers `Direct*` and keeps both branches (`RULE-N10`). Never commit a config that points at a real path that does not exist yet.
+- **A pure UI/UX fix or an S-batch on an existing slice is one stage only** — the stage gate applies to *new data paths*, not to polish, layout, colours, keyboard wiring or bug fixes inside an existing screen.
+- **Why it pays off (owner's rule):** fewer edits to production files · one review pass instead of many · fewer errors and no red builds on `master` · a safe, disposable place to try a new feature and drop it if the owner rejects it.
 
 ---
 
@@ -45,6 +77,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 ## 4) Partition algorithm (run it in this exact order)
 
 1. **Identify the slice** the owner asked for (one screen · one layer · one repeated fix · one review).
+1b. **Decide the stage first:** does this slice create a new data path? ⇒ **Stage A (mock)** unless the owner's recorded approval for Stage B is in this conversation (`RULE-N165`/`RULE-N166`). A UI/UX fix inside an existing slice is one stage only.
 2. **List the expected files**: `frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · `I*DesktopService` · `Direct*` · `Mock*` · `Program.cs` (DI) · `AGENTS.md`.
 3. **Classify S/M/L** using §3.
 4. **Fill the ownership table**: one file ↔ one agent. No duplicate rows.
@@ -70,6 +103,8 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 | `Printing/**` · `Services/Printing/**` | `printing` | — |
 | `Program.cs` · `appsettings.json` · `*.csproj` · `SalesSystem.slnx` · `AGENTS.md` · `docs/**` | **the Orchestrator** (or one named agent) | everyone reports, nobody edits |
 
+**Stage ownership (§2.5):** **Stage A** ⇒ `ui-agent` owns the screen files + the `I*DesktopService` contract + `Mock*DesktopService` + `MockData` seeds + the mock branch in `Program.cs`; it never opens `Business/**`, `DataAccess/**`, `Models/**` or `Services/Direct/**`. **Stage B** (after approval) ⇒ `database-engineer` (entity · config · migration) → `backend-architect` (BLL + DTO + `Direct*`) → `ui-agent` (real DI branch + any screen binding change). Stage A and Stage B are **always different waves**.
+
 **Parallelism is allowed only when:** path intersection = ∅ · no shared `.cs` · no shared `.resx` · every agent knows its out-of-scope list by name.
 
 **Stop signals (kill the wave immediately):** two agents on one screen · two agents on `Program.cs` · an agent building · an agent opening `AGENTS.md` to edit it.
@@ -82,11 +117,13 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 
 ```
 **Goal** — one sentence, one slice.
+**Stage** — A (mock · UI & UX QA) or B (real backend). Stage B requires the owner's approval quoted here with its date.
 **Read first** — the AGENTS.md sections that actually govern this slice + the reference screen/service.
 **In scope** — explicit closed list of file paths (nothing else).
 **Out of scope** — "do not touch: ..." by folder/file name.
 **Contract** — names/signatures consumed or exposed.
 **Definition of done** — verifiable output (behaviour / signature / text).
+**Mock parity** — (Stage A only) the refusals the mock must enforce with Arabic `Result.Failure`.
 **Validation** — "do NOT build; the Orchestrator builds. No automated tests, no `dotnet test`."
 **Report back** — files touched · decisions · risks · Arabic manual-test table (screen · step · expected result)
                   + the exact line: لم يُكتب أي اختبار آلي — الاختبار مسؤولية المالك (AGENTS.md §2.31)
@@ -163,11 +200,22 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 ## 7) Waves and build gates
 
 ```
-Wave 1 (DB + BLL)   ──► dotnet build ──► 0 errors? yes ⇒ Wave 2
-Wave 2 (Desktop/UI) ──► dotnet build ──► 0 errors? yes ⇒ review
-Review (code-reviewer) ──► resolve notes ──► build ──► document ──► commit + push
+STAGE A (mock · UI & UX QA)
+   ui-agent(s) ──► dotnet build ──► 0 Errors ──► hand to the owner
+                                                │
+                          rejected (fix in Stage A, no DB touched)
+                                                │
+                          approved (explicit, dated, quoted)
+                                                ▼
+STAGE B (real backend) — only after the written approval
+   Wave 1  DB   entity · Fluent config · migration          ──► build
+   Wave 2  BLL  service · DTO · Direct<Entity>Service       ──► build
+   Wave 3  UI   real DI branch · screen binding             ──► build
+   ──► code-reviewer (once) ──► document ──► commit + push
 ```
 
+- **Stage A is one wave** (≤ 4 `ui-agent`s, one per screen) and it never touches the layers beneath the desktop.
+- **Stage B runs only after the approval is written down**; its waves follow **DB → BLL → Desktop** (`RULE-N159`).
 - **Never build a layer before the contract of the layer beneath it exists.**
 - An agent never builds and never fixes another project's error — the error goes to the **file owner**.
 - Expected commands: `dotnet build .\SalesSystem.slnx` or a single project (`SalesSystem.Desktop.csproj`).
@@ -179,6 +227,8 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 
 | # | Gate | How it is measured |
 |---|---|---|
+| 0 | **Stage gate** | Stage A touches **only** `Screens/**` · `Services/Mock/**` · `Services/Interfaces/**` · the mock DI branch · `appsettings.json` (`UseMockData = true`) — and **no** Stage B file exists before the approval is recorded with its date (`RULE-N165`/`RULE-N166`) |
+| 0b | **Mock parity** | the mock enforces the same refusals the BLL will enforce (Arabic `Result.Failure`) and its seeds cover happy path + rejection + money/stock (`RULE-N167`) |
 | 1 | Green build | `dotnet build` = **0 Errors** |
 | 2 | Zero scope creep | `git status` contains no file outside the brief |
 | 3 | Zero dead code | no declared control without `Controls.Add` (`RULE-N130`) · no unreferenced member |
@@ -190,7 +240,7 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 | 9 | Test checklist | Arabic table (screen · step · expected result) + the mandatory final line |
 | 10 | Clean repo | `git status --porcelain` empty · `local == origin` |
 
-**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`).
+**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`).
 
 ---
 
@@ -202,7 +252,7 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 | 2 | 10 screens × heavy change (state machine / rebuild) | L | one agent per screen, waves of ≤ 4 | 10 |
 | 3 | 30 files × identical touch (shortcut / colour / position) | S | batches of ≤ 8 files per agent | 4 |
 | 4 | 12 screens × a different change each | M | one agent per screen (never batch) | 12 |
-| 5 | Service + two screens (new slice) | L | DB → BLL → UI, sequential | 3 |
+| 5 | Service + two screens (new slice, **Stage B** after approval) | L | DB → BLL → UI, sequential | 3 |
 | 6 | One build error in one project | S | one `fast-agent` | 1 |
 | 7 | 5 build errors in 5 separate files | S | 5 parallel agents (disjoint files) or one sequential `fast-agent` | 1–5 |
 | 8 | Review a finished slice | — | one `code-reviewer` (read-only) | 1 |
@@ -216,6 +266,9 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 | 16 | Theme/colour unification wave | M | one agent per screen if the designer changes · S-batches if it is one helper call | by case |
 | 17 | Global disabled/enabled behaviour in the helpers | M | one agent for the helper + build + do not touch screens | 1 |
 | 18 | Closing a list of open items | mixed | split the items into S/M slices and batch them | by items |
+| 19 | **New screen / new feature with a data path** | L | **Stage A** mock first → owner UI & UX QA → written approval → **Stage B** (DB → BLL → UI) | Stage A: 1 · Stage B: 3 |
+| 20 | **UI/UX polish or a bug fix on an existing screen** | S/M | one stage only — the stage gate does **not** apply | by size |
+| 21 | **Owner asks for the backend of an approved Stage A** | L | quote the approval+date in every brief, then DB → BLL → UI | 3 |
 
 > If no row matches: classify S/M/L, then apply §3/§4. Never invent a new split without stating the reason in the delivery report.
 
@@ -234,7 +287,8 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 ## 11) Final report to the owner (mandatory shape)
 
 1. **Two-line summary** of what was delivered.
-2. **What was done** table (item · detail).
+2. **What was done** table (item · detail) + the size classification used.
+2b. **Stage** — `A (mock · UI & UX QA)` or `B (real backend)`, and for Stage B the owner's approval quote + date.
 3. **Build & commit** table (build command · result · commit hash · push range · sync state · file count).
 4. **Arabic manual-test checklist**, numbered: `#` · screen · step · expected result (happy path + rejection + financial/stock effect).
 5. **Open items / caveats** — stated plainly, no polishing.
@@ -254,14 +308,19 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 | Fixing a layer defect inside another layer | breaks `RULE-N12`/`RULE-N14` | route it to the file owner |
 | Reviewing after every file | cost with no value | one review pass on the finished slice |
 | Committing without a checklist or docs | violates `RULE-N119` / `RULE-N120` | gates in §8 |
+| Writing BLL/EF/migration for a screen the owner has not accepted | schema churn and a half-migrated DB for a UI that will change | Stage A mock first, Stage B only after the written approval (`RULE-N166`) |
+| A mock that returns success for everything | the owner's manual QA verifies nothing and the BLL later rejects real input | enforce the same Arabic refusals in `Mock*DesktopService` (`RULE-N167`) |
 
 ---
 
 ## 13) Orchestrator pre-delivery checklist
 
 - [ ] Request split into S/M/L slices with a non-overlapping ownership table.
-- [ ] Every brief carried §6.0 in full (closed scope + out-of-scope + DoD).
+- [ ] **Stage decided before the brief:** Stage A (mock) unless the owner's written approval for Stage B is on record (`RULE-N165`/`RULE-N166`).
+- [ ] Every brief carried §6.0 in full (stage + closed scope + out-of-scope + DoD).
 - [ ] Build green after **each** wave (not only once at the end).
+- [ ] Stage A left `UseMockData = true` and registered only `Mock*`; the mock enforces the real refusals (`RULE-N167`/`RULE-N168`).
+- [ ] Stage B briefs quote the owner's approval verbatim with its date.
 - [ ] One review (`code-reviewer`) on the slice; its notes closed or explicitly deferred.
 - [ ] `AGENTS.md` updated for any status/rule change.
 - [ ] Arabic manual-test checklist ready + the mandatory final line.
@@ -278,3 +337,4 @@ Review (code-reviewer) ──► resolve notes ──► build ──► documen
 | 2026-11-14 | v1.1 — translated to English for better agent comprehension; content unchanged apart from wording; Arabic kept only for user-facing requirements (Arabic messages, Arabic manual-test checklist, mandatory final line). |
 | 2026-11-14 | v1.2 — registered as the `orchestrator` agent (`mode: primary`, `system` = this file) with two enforced denials (`dotnet test`, `SalesSystem.Tests/**`); §2 gained an enforcement note. |
 | 2026-11-14 | v1.3 — the role now lives in `.opencode/agents/orchestrator.md` (V2 frontmatter: `mode: primary`, `model: opencode-go/deepseek-v4.1-flash`, `permissions` array). The agent prompt is a condensed mirror of this playbook and carries the S/M/L law, the per-screen invariant, the 8-file S-batch cap, the 7-field brief, the waves and the commit gates; `edit` is denied outside `AGENTS.md`/`docs/**`/`opencode.json` and `dotnet test` is denied. `opencode.json` keeps only the schema and the MCP server (no duplicate agent definition). |
+| 2026-11-14 | v1.4 — **two-stage law** added (`RULE-N165`…`RULE-N168`): Stage A is the owner's UI & UX QA round on mock data (no BLL/EF/migration/`Direct*`), and Stage B (real backend + real DB save) starts only after the owner's explicit written approval, quoted with its date in every Stage B brief. New §2.5, stage step in the partition algorithm, stage ownership in §5, `**Stage**` + `**Mock parity**` fields in the brief, two-stage wave diagram in §7, gates 0/0b in §8, scenarios 19–21 in §9, two anti-patterns in §12, and pre-delivery checklist items in §13. |
