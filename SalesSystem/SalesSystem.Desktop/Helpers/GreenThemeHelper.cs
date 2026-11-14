@@ -19,6 +19,10 @@
 //   ReadOnly · AllowUserToAddRows · SelectionMode · MultiSelect · DataSource
 //   وحالة أزرار الشاشة وآلة الحالة، وربط الأحداث، والخطوط الفردية لكل عنصر.
 //
+// حالة التعطيل (RULE-N43): Apply(container) تُوصِّل بعد Walk مظهر التعطيل الموحّد
+//   KeyboardHelper.WireDisabledVisuals — كل حقل إدخال/زر معطّل يأخذ DisabledBack
+//   و DisabledFore ويعود للونه الطبيعي عند التفعيل، بلا أي كود داخل الشاشة.
+//
 // الاستخدام النموذجي:
 //     KeyboardHelper.WireEnterAsTab(this);
 //     ...
@@ -74,6 +78,27 @@ public static class GreenThemeHelper
     /// <summary>خلفية إجراء محايد (رمادي) — زر «إغلاق» (زر الخروج في الشاشة المرجعية).</summary>
     public static readonly Color ActionNeutralBackground = Color.FromArgb(108, 117, 125);
 
+    // ── ألوان حالة التعطيل (RULE-N43) — الاستثناء الوحيد لألوان وقت التشغيل ─────
+    /// <summary>
+    /// خلفية العنصر **المعطّل** (حقل إدخال أو زر) — رمادية موحّدة لكل النظام.
+    /// <para>
+    /// هذا اللون وهزيله <see cref="DisabledFore"/> هما **الاستثناء الوحيد** لقاعدة
+    /// «التشغيل = المصمّم» (RULE-N140/RULE-N142): يُطبَّقان وقت التشغيل **فقط** ما دام
+    /// <c>Enabled == false</c>، ولا يُعلَنان في أي <c>*.Designer.cs</c> لأن المصمّم لا
+    /// يحفظ حالة التعطيل أصلاً (RULE-N134)، ولا يُنسخان داخل أي شاشة (RULE-N112).
+    /// </para>
+    /// <para>المستهلك الوحيد: <c>KeyboardHelper.WireDisabledVisual</c> عبر
+    /// <c>KeyboardHelper.WireDisabledVisuals</c> الذي يُوصَّل تلقائياً من
+    /// <see cref="Apply(Control)"/>.</para>
+    /// </summary>
+    public static readonly Color DisabledBack = Color.FromArgb(224, 224, 224);
+
+    /// <summary>
+    /// نص العنصر **المعطّل** (باهت) — رفيق <see cref="DisabledBack"/>، يُطبَّق معه
+    /// وقت التشغيل فقط أثناء <c>Enabled == false</c> ولا يُعلَن في أي مصمّم.
+    /// </summary>
+    public static readonly Color DisabledFore = Color.FromArgb(150, 150, 150);
+
     /// <summary>أسماء شريط العنوان/العنوان التي يُطبَّق عليها <see cref="ApplyHeader"/>.</summary>
     private static readonly HashSet<string> HeaderLabelNames = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -117,6 +142,11 @@ public static class GreenThemeHelper
             }
 
             Walk(container);
+
+            // RULE-N43: مظهر التعطيل الموحّد (خلفية رمادية + نص باهت) لكل حقل إدخال
+            // وزر في الشجرة — يُوصَّل مرة واحدة من هنا، فأي شاشة تنتهي بـ Apply(this)
+            // تحصل عليه بلا كود داخلها وبلا لون مكرر (RULE-N112 / RULE-N98).
+            KeyboardHelper.WireDisabledVisuals(container);
         }
         catch (Exception ex)
         {

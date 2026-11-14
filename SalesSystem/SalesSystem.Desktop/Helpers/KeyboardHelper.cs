@@ -25,6 +25,9 @@ public static class KeyboardHelper
     /// <summary>سجل النماذج التي وُصِّل فيها زر الوضع مع Enter (منع التوصيل المزدوج).</summary>
     private static readonly ConditionalWeakTable<Control, object> ModeEnterWired = new();
 
+    /// <summary>سجل العناصر التي وُصِّل لها مظهر التعطيل الموحّد (منع التوصيل المزدوج).</summary>
+    private static readonly ConditionalWeakTable<Control, object> DisabledVisualWired = new();
+
     /// <summary>علامة مشتركة تُخزَّن في جدولي التوصيل (قيمة واحدة لكل مفتاح).</summary>
     private static readonly object WiredMarker = new();
 
@@ -536,22 +539,179 @@ public static class KeyboardHelper
 
     /// <summary>
     /// يمنح الأزرار شكلاً واضحاً عند تعطيلها (خلفية رمادية + نص باهت) بدلاً من المظهر الافتراضي غير الواضح.
+    /// <para>
+    /// التوقيع باقٍ كما هو لأن أكثر من 60 شاشة تستدعيه؛ والتنفيذ موحَّد في
+    /// <see cref="WireDisabledVisual"/> حتى لا تتكرر قيم الألوان (RULE-N112 / RULE-N98).
+    /// </para>
     /// </summary>
     public static void WireButtonDisabledVisual(params Button[] buttons)
     {
-        foreach (var btn in buttons)
+        if (buttons is null) return;
+
+        // Button : ButtonBase : Control — نفس التوصيل الموحّد بلا ألوان مكررة هنا.
+        WireDisabledVisual(buttons);
+    }
+
+    /// <summary>
+    /// يوصّل مظهر التعطيل الموحّد (RULE-N43) لعنصر إدخال أو زر واحد أو أكثر:
+    /// خلفية <see cref="GreenThemeHelper.DisabledBack"/> ونص <see cref="GreenThemeHelper.DisabledFore"/>
+    /// أثناء <c>Enabled == false</c>، واللونان الطبيعيان عند التفعيل — تماماً كما في الأزرار.
+    /// <para>
+    /// اللونان من <see cref="GreenThemeHelper"/> وحدهما (RULE-N112)، واللونان الطبيعيان
+    /// يُلتقطان لحظة التوصيل ويُحدَّثان لحظة كل تعطيل (لأن الثيم قد يلوّن العنصر بعد التوصيل).
+    /// </para>
+    /// <para>
+    /// <c>CheckBox</c>/<c>RadioButton</c> يُباهت نصّها فقط ولا تُلوَّن خلفيتها رمادياً (المربع نفسه
+    /// يُعطَّل أصلياً) — بخلاف <c>Button</c> الذي يأخذ الخلفية الرمادية كاملة.
+    /// </para>
+    /// <para>آمن للاستدعاء المتكرر: التوصيل مرة واحدة لكل عنصر، والتوصيل المزدوج لا يُضاعف المعالجات.</para>
+    /// </summary>
+    /// <param name="controls">عناصر الإدخال/الأزرار المطلوب توصيلها.</param>
+    public static void WireDisabledVisual(params Control[] controls)
+    {
+        if (controls is null) return;
+
+        foreach (var control in controls)
         {
-            var normalBack = btn.BackColor;
-            var normalFore = btn.ForeColor;
+            if (control is null) continue;
 
-            void Apply()
+            try
             {
-                btn.BackColor = btn.Enabled ? normalBack : Color.FromArgb(224, 224, 224);
-                btn.ForeColor = btn.Enabled ? normalFore : Color.FromArgb(150, 150, 150);
-            }
+                if (!MarkWired(DisabledVisualWired, control)) continue;
 
-            btn.EnabledChanged += (s, e) => Apply();
-            Apply();
+                // الخلفية الشفافة (طبقة التحميل) لا تُعاد تلوينها إطلاقاً (RULE-N129).
+                if (control.BackColor.A < 255) continue;
+
+                var normalBack = control.BackColor;
+                var normalFore = control.ForeColor;
+                bool wasEnabled = IsEffectivelyEnabled(control);
+
+                // CheckBox/RadioButton يرسمان BackColor كمستطيل خلف النص، فتعطيلهما
+                // يُباهت النص فقط بلا مسحة رمادية (المربع الصغير يُعطَّل أصلياً).
+                bool paintsBacking = control is not CheckBox && control is not RadioButton;
+
+                void Apply()
+                {
+                    try
+                    {
+                        bool nowEnabled = IsEffectivelyEnabled(control);
+
+                        // التقاط اللون الطبيعي لحظة التعطيل الفعلي فقط: لا يُلتقط الرمادي
+                        // كلون طبيعي عند تعطيل حاوية فوق عنصر معطّل أصلاً، ولا يُستعاد
+                        // لون قديم غيّره الثيم بعد لحظة التوصيل.
+                        if (wasEnabled && !nowEnabled)
+                        {
+                            // الخلفية تُلتقط لما يرسم خلفية فقط، فلا يتذكّر مربع الاختيار
+                            // لوناً رمادياً أبداً ويبقى نصّه وحده هو المتغيّر.
+                            if (paintsBacking) normalBack = control.BackColor;
+                            normalFore = control.ForeColor;
+                        }
+
+                        wasEnabled = nowEnabled;
+
+                        if (paintsBacking)
+                            control.BackColor = nowEnabled ? normalBack : GreenThemeHelper.DisabledBack;
+
+                        control.ForeColor = nowEnabled ? normalFore : GreenThemeHelper.DisabledFore;
+                    }
+                    catch
+                    {
+                        // تجاهل — لون لا يُسقط شاشة.
+                    }
+                }
+
+                control.EnabledChanged += (s, e) => Apply();
+
+                // تعطيل حاوية كاملة (gbEntry / pnlFooter / pnlHeader) لا يُغيّر Enabled
+                // المحلي للأبناء، فلا بدّ من الاستماع لكل حاوية أعلى العنصر أيضاً (RULE-N43).
+                for (var ancestor = control.Parent; ancestor is not null; ancestor = ancestor.Parent)
+                    ancestor.EnabledChanged += (s, e) => Apply();
+
+                Apply();
+            }
+            catch
+            {
+                // تجاهل — عنصر غير قابل لإعادة التلوين يُترك كما هو.
+            }
         }
     }
+
+    /// <summary>
+    /// هل العنصر مفعّل فعلياً؟ (تعطيل الحاوية يمنع أبناءها من العمل دون تغيير
+    /// <c>Enabled</c> المحلي لكل ابن — فالصعود إلى الجذر هو القياس الصحيح.)
+    /// </summary>
+    private static bool IsEffectivelyEnabled(Control control)
+    {
+        for (Control? node = control; node is not null; node = node.Parent)
+        {
+            if (!node.Enabled) return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// يوصّل مظهر التعطيل الموحّد (<see cref="WireDisabledVisual(Control[])"/>) لكل حقول
+    /// الإدخال والأزرار داخل شجرة العناصر recursively — يُستدعى تلقائياً من
+    /// <see cref="GreenThemeHelper.Apply(Control)"/> فتغطيه كل شاشة بلا كود داخلها (RULE-N112).
+    /// <para>
+    /// يُوصَّل: <c>TextBox</c>/<c>MaskedTextBox</c>/<c>RichTextBox</c> (TextBoxBase) ·
+    /// <c>ComboBox</c> · <c>NumericUpDown</c> · <c>DateTimePicker</c> ·
+    /// <c>Button</c>/<c>CheckBox</c>/<c>RadioButton</c> (ButtonBase) · <c>DomainUpDown</c> · <c>ListBox</c>.
+    /// </para>
+    /// <para>
+    /// لا يُوصَّل ولا يُنزَل داخله: <c>Label</c> · <c>Panel</c>/<c>TableLayoutPanel</c>/
+    /// <c>FlowLayoutPanel</c> · <c>GroupBox</c> · <c>DataGridView</c> · <c>PictureBox</c> ·
+    /// <c>ProgressBar</c> · <c>TabControl</c> (يُنزَل إلى أبنائها) · <c>UserControl</c> (يُنزَل
+    /// إلى أبنائه) — كما لا يُنزَل داخل <c>NumericUpDown</c>/<c>ComboBox</c> لأن محرّرهما
+    /// الداخلي ليس حقلاً مستقلاً، ولا يُلمس أي عنصر بخلفية شفافة (RULE-N129).
+    /// </para>
+    /// </summary>
+    /// <param name="root">جذر الشجرة (النموذج أو أي حاوية).</param>
+    public static void WireDisabledVisuals(Control root)
+    {
+        if (root is null) return;
+
+        foreach (Control child in root.Controls)
+        {
+            if (child is null) continue;
+
+            if (IsDisabledVisualTarget(child))
+            {
+                WireDisabledVisual(child);
+                continue;   // لا ننزل داخل الحقل نفسه (محرر NumericUpDown/ComboBox الداخلي)
+            }
+
+            if (child.HasChildren)
+                WireDisabledVisuals(child);
+        }
+    }
+
+    /// <summary>
+    /// هل هذا العنصر من حقول الإدخال/الأزرار التي يجب أن تأخذ مظهر التعطيل؟
+    /// (الحاويات والتسميات والشبكات وغيرها لا تُوصَّل — ويُنزَل إلى أبنائها بدلاً من ذلك.)
+    /// </summary>
+    private static bool IsDisabledVisualTarget(Control ctrl) => ctrl switch
+    {
+        // حاويات وكتل عرض: لا تُوصَّل (ننزل إلى أبنائها).
+        DataGridView => false,
+        PictureBox => false,
+        ProgressBar => false,
+        TabControl => false,
+        UserControl => false,
+        GroupBox => false,
+        Panel => false,          // يشمل FlowLayoutPanel / TableLayoutPanel
+        Label => false,
+
+        // حقول الإدخال والأزرار: تُوصَّل.
+        TextBoxBase => true,     // TextBox / MaskedTextBox / RichTextBox
+        ComboBox => true,
+        NumericUpDown => true,
+        DateTimePicker => true,
+        ButtonBase => true,      // Button / CheckBox / RadioButton
+        DomainUpDown => true,
+        ListBox => true,
+
+        _ => false,
+    };
 }
