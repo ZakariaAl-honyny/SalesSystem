@@ -87,7 +87,7 @@ dotnet build .\SalesSystem.slnx
 
 **الخلاصة (عدّ فعلي 2026-11-14):** **37** واجهة `I*` في `Services/Interfaces/` · منها **33 عقد بيانات** (المستثنى 4 عقود تحتية: `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` — وعقود الطباعة في `Printing/`) · **31** عقداً له `Mock*DesktopService` موزَّعة: **28** مسجَّلة داخل `if (appSettings.UseMockData)` + **3** Mock-only by design (`IEmployee` · `IThemeColor` · `IFormatSettings`) · **2** موصولان دائماً بـ`Direct*` (`IAuthDesktopService` · `IBackupDesktopService`) · **45** ملفاً في `Services/Mock/` = 31 `Mock*DesktopService` + `MockAuthService` + **12** `Mock*Data.cs` + `MockData.cs`.
 
-> **الحكم الإجمالي للسجل: `مؤهل جزئياً — تكافؤ الرفض ناقص`** — 16 عقداً `مؤهل للمراجعة` و14 `مؤهل جزئياً` و2 `غير مؤهل`. وبهذا الحكم **الباك-إند مقفل لكل الوحدات** (`RULE-N177`) حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً، ثم يراجع سلوك الـMock ويوافق كتابةً.
+> **الحكم الإجمالي للسجل: `مؤهل جزئياً — تكافؤ الرفض ناقص`** — **18** عقداً `مؤهل للمراجعة` و**13** `مؤهل جزئياً` و**2** `غير مؤهل`. وبهذا الحكم **الباك-إند مقفل لكل الوحدات** (`RULE-N177`) حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً، ثم يراجع سلوك الـMock ويوافق كتابةً.
 
 ---
 
@@ -154,7 +154,7 @@ dotnet build .\SalesSystem.slnx
 | ف-2 | `frmBackup` بلا Mock إطلاقاً — يعمل على قاعدة البيانات الحقيقية فقط | `IBackupDesktopService` · `DirectBackupService` · `frmBackup.cs` · `Program.cs` | `ui-agent` | **مانع للمراجعة · مجمِّد لباك-إند النسخ الاحتياطي** |
 | ف-3 | **مغلقة بالتدقيق (2026-11-14):** `MockInventoryDesktopService` فيه 5 رفض، ولا شاشة تكتب مخزوناً عبر هذا العقد (`frmAddUpdateSalesInvoice` · `frmProductSelection` · `frmListInventoryTransactions` تقرأ فقط، و`frmOpeningStock` يحفظ عبر `IInventoryAdjustmentDesktopService`) | `Services/Mock/MockInventoryDesktopService.cs` | — | ✅ **مغلقة** |
 | ف-4 | `MockSupplierPaymentDesktopService`: لا رفض «المدفوع > المتبقي»، و`CancelAsync` **تحذف السند** بدل حالة إلغاء (`RULE-004`)، و`PostAsync`/`CancelAsync` خارج الواجهة | `Services/Mock/MockSupplierPaymentDesktopService.cs` | `ui-agent` | **مفتوح — تكافؤ (مجمِّد لباك-إند المدفوعات)** |
-| ف-5 | **تكافؤ الرفض ناقص في 14 عقداً** — التفصيل عمود «ما ينقص» في §3 (البيع/الشراء/المرتجعات: كمية `0` · مدفوع > الإجمالي · مخزون سالب · إفراط في الإرجاع؛ والماسترات: تكرار الباركود/الاسم/الهاتف) | ملفات `Services/Mock/Mock*DesktopService.cs` المعلَّمة `مؤهل جزئياً` | `ui-agent` (وكيل واحد لكل ملف) | **مفتوح — موجة تكافؤ** |
+| ف-5 | **تكافؤ الرفض ناقص في 13 عقداً** — التفصيل عمود «ما ينقص» في §3 (البيع/الشراء/المرتجعات: كمية `0` · مدفوع > الإجمالي · مخزون سالب · إفراط في الإرجاع؛ والماسترات: تكرار الباركود/الاسم/الهاتف) | ملفات `Services/Mock/Mock*DesktopService.cs` المعلَّمة `مؤهل جزئياً` | `ui-agent` (وكيل واحد لكل ملف) | **مفتوح — موجة تكافؤ** |
 
 > **قاعدة:** فجوة `RULE-N173` لا تُغلق بتعديل الشاشة — تُغلق بإضافة الـMock/seeds/التسجيل/التكافؤ، ولا يُعلن أي module «مؤهلاً» في هذا السجل قبل ذلك، و**لا يُلمس باك-إند الوحدة** أثناء إغلاق فجوته (`RULE-N177`/`RULE-N178`).
 
