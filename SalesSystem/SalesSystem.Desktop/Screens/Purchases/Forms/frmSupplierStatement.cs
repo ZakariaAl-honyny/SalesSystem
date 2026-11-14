@@ -18,7 +18,7 @@ public partial class frmSupplierStatement : Form
     private readonly IServiceProvider _serviceProvider;
 
     /// <summary>RULE-N46: لون الحقل النشط — القيمة المعتمدة في §2.21.</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private const string RowKindOpening = "Opening";
     private const string RowKindNormal = "Normal";

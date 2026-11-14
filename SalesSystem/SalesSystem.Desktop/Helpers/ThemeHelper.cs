@@ -153,7 +153,7 @@ public static class ThemeHelper
         txt.BorderStyle = BorderStyle.FixedSingle;
         txt.BackColor = ButtonForeOnSolid;   // RULE-N143: حقول الإدخال بيضاء (نفس الأبيض المُعلَن مرة واحدة)
         // لون تظليل التركيز لا يُكتب هنا: مالكه KeyboardHelper.WireFocusHighlight
-        // الذي يقرأ ThemePalette.ActiveFieldColor حيّاً (RULE-N54b) — فلا توصيل مزدوج.
+        // الذي يقرأ ThemePalette.SelectionRowColor حيّاً (RULE-N54b) — فلا توصيل مزدوج.
     }
 
     public static void WireFocusIndicator(params Control[] controls)

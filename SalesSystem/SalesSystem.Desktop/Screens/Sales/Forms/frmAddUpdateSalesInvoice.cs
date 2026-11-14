@@ -77,7 +77,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         // تنقل لوحة المفاتيح الموحّد (RULE-N40…RULE-N47).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45 — أسهم RTL
 
         ApplyUiTheme();          // RULE-N50 — ينتهي بالثيم الأخضر حصراً

@@ -33,7 +33,7 @@ public partial class frmListCustomerReceipts : Form
         // RULE-N40/RULE-N95: الستة من KeyboardHelper — تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose, btnClearFilters); // RULE-N43
 

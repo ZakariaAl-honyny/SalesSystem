@@ -14,7 +14,7 @@ public partial class frmListSales : Form
 
     private const string CashCustomerName = "عميل نقدي";
 
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
     private ISalesInvoiceDesktopService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>();

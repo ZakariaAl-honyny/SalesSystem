@@ -43,7 +43,7 @@ public partial class frmPurchaseInvoice : Form
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (4 من 6).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.

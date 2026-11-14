@@ -31,7 +31,7 @@ public partial class frmAddUpdateExpense : Form
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));  // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));  // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnSave);                           // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47

@@ -65,7 +65,7 @@ public partial class frmCashBoxTransactions : Form
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));  // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));  // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose, btnClearFilters); // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47

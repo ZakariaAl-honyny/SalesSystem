@@ -16,7 +16,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmListInventoryTransactions : Form
 {
     /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
     private readonly CancellationTokenSource _loadCts = new();

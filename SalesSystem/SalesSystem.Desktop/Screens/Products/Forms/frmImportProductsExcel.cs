@@ -30,7 +30,7 @@ public partial class frmImportProductsExcel : Form
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 — الحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 — الحقل النشط
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnGenerateBarcodes);      // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47

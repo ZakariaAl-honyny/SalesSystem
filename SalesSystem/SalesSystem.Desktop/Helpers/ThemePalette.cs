@@ -106,16 +106,13 @@ public static class ThemePalette
     /// <summary>نص خلايا الشبكة.</summary>
     public const string GridCellTextColor = "gridCellTextColor";
 
-    /// <summary>لون السطر المحدد.</summary>
-    public const string SelectionRowColor = "selectionRowColor";
-
     /// <summary>
-    /// لون الحقل النشط (تظليل التركيز). قيمته الافتراضية هي نفس اللون الحرفي الذي
-    /// تستخدمه كل الشاشات عبر <c>KeyboardHelper.WireFocusHighlight</c> —
-    /// <c>(0xD6,0xE4,0xF0)</c> = (214,228,240) — فيبقى «المصمّم = التشغيل» صحيحاً.
-    /// الشاشات لا تحتاج أي تعديل: التوصيل يقرأ القيمة الحيّة من هنا (RULE-N54a).
+    /// لون التحديد والحقل النشط — **مفتاح واحد لاستخدامين** (قرار المالك 2026-11-15):
+    /// سطر/خلية الشبكة المحددة (<c>GreenThemeHelper.ApplyGrid</c>) وحقل الإدخال المركَّز
+    /// (<c>KeyboardHelper.WireFocusHighlight</c>) يتشاركان القيمة نفسها.
+    /// الافتراضي <c>#FFFFB4</c> = (255,255,180).
     /// </summary>
-    public const string ActiveFieldColor = "activeFieldColor";
+    public const string SelectionRowColor = "selectionRowColor";
 
     /// <summary>خلفية العنصر المعطّل.</summary>
     public const string DisabledBackColor = "disabledBackColor";
@@ -160,9 +157,8 @@ public static class ThemePalette
         new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(245, 252, 245)),
         new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,      Color.White),
         new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(33, 37, 41)),
-        // ── التحديد والحقل النشط (2) ──
-        new(SelectionRowColor,       "لون السطر المحدد",      GroupSelection, Color.FromArgb(255, 255, 180)),
-        new(ActiveFieldColor,        "لون الحقل النشط",       GroupSelection, Color.FromArgb(214, 228, 240)),
+        // ── التحديد والحقل النشط (1) ──
+        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(255, 255, 180)),
         // ── حالات العرض (2) ──
         new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(224, 224, 224)),
         new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(150, 150, 150)),
@@ -203,7 +199,7 @@ public static class ThemePalette
     //  القراءة والكتابة
     // ═════════════════════════════════════════════════════════════════
 
-    /// <summary>تعريفات اللوحة (24 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
+    /// <summary>تعريفات اللوحة (23 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
     public static IReadOnlyList<ThemeColorDefinition> Definitions => DefinitionsReadOnly;
 
     /// <summary>فهرس التعريفات بالمفتاح (تطابق ترتيبي — نفس أسماء الثوابت).</summary>

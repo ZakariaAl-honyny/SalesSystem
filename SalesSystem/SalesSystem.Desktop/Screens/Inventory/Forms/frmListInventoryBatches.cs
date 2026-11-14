@@ -18,7 +18,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmListInventoryBatches : Form
 {
     /// <summary>لون تظليل الحقل النشط (RULE-N46).</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     /// <summary>عدد الأيام التي تُعدّ الدفعة بعده «قاربت الانتهاء».</summary>
     private const int ExpiryAlertDays = 30;

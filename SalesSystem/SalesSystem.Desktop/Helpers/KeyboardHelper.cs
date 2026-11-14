@@ -223,8 +223,9 @@ public static class KeyboardHelper
     /// <para>
     /// <b>اللون حيّ (RULE-N54a):</b> الشاشات تُمرّر اللون الحرفي القديم
     /// <c>(214,228,240)</c> — أي <see cref="ThemePalette.DefaultFor"/> لمفتاح
-    /// <see cref="ThemePalette.ActiveFieldColor"/> — أو <see cref="Color.Empty"/>،
-    /// فيُستبدل عند كل <c>Enter</c> بالقيمة الحيّة من <see cref="ThemePalette.Get(string)"/>.
+    /// <see cref="ThemePalette.SelectionRowColor"/> — أو <see cref="Color.Empty"/>،
+    /// فيُستبدل عند كل <c>Enter</c> بالقيمة الحيّة من <see cref="ThemePalette.Get(string)"/>؛
+    /// والقيمة الحيّة الافتراضية هي <c>#FFFFB4</c> = (255,255,180) — لون واحد للتحديد والحقل النشط.
     /// وأي لون مخصّص تمرّره شاشة يبقى كما هو (لا نُعيد كتابة اختيار الشاشة).
     /// </para>
     /// </summary>
@@ -256,7 +257,7 @@ public static class KeyboardHelper
 
             if (focused is null || !focused.Enabled || !IsFocusHighlightTarget(focused)) return;
 
-            focused.BackColor = ThemePalette.Get(ThemePalette.ActiveFieldColor);
+            focused.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
         }
         catch
         {
@@ -321,19 +322,20 @@ public static class KeyboardHelper
 
     /// <summary>
     /// يحسم لون التظليل عند كل <c>Enter</c>: اللون الحرفي القديم
-    /// <c>(214,228,240)</c> = <see cref="ThemePalette.DefaultFor"/> لمفتاح الحقل النشط،
-    /// أو <see cref="Color.Empty"/> ⇒ القيمة الحيّة من اللوحة؛ وأي لون آخر (اختيار
-    /// الشاشة المخصّص) يُحترم كما هو. لا لون حرفي هنا — المصدر <see cref="ThemePalette"/>.
+    /// <c>(214,228,240)</c> = <see cref="ThemePalette.DefaultFor"/> لمفتاح
+    /// <see cref="ThemePalette.SelectionRowColor"/>،
+    /// أو <see cref="Color.Empty"/> ⇒ القيمة الحيّة من اللوحة (الافتراضي <c>#FFFFB4</c>)؛ وأي لون آخر
+    /// (اختيار الشاشة المخصّص) يُحترم كما هو. لا لون حرفي هنا — المصدر <see cref="ThemePalette"/>.
     /// </summary>
     private static Color ResolveFocusHighlightColor(Color requested)
     {
         if (requested.IsEmpty)
-            return ThemePalette.Get(ThemePalette.ActiveFieldColor);
+            return ThemePalette.Get(ThemePalette.SelectionRowColor);
 
         int requestedArgb = requested.ToArgb();
 
-        return requestedArgb == ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor).ToArgb()
-            ? ThemePalette.Get(ThemePalette.ActiveFieldColor)
+        return requestedArgb == ThemePalette.DefaultFor(ThemePalette.SelectionRowColor).ToArgb()
+            ? ThemePalette.Get(ThemePalette.SelectionRowColor)
             : requested;
     }
 

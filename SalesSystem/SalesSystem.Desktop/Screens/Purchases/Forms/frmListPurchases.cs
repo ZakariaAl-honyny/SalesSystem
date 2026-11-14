@@ -18,7 +18,7 @@ public partial class frmListPurchases : Form
     private const int FilterAmount = 4;
 
     /// <summary>RULE-N46 + RULE-N54b: لون الحقل النشط الموحّد — تُقرأ حيّاً من اللوحة عند كل استخدام.</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
     private IPurchaseInvoiceDesktopService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();

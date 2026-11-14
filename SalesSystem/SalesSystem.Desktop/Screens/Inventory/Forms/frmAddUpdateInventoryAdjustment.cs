@@ -24,7 +24,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmAddUpdateInventoryAdjustment : Form
 {
     /// <summary>RULE-N46 + RULE-N54b: لون الحقل النشط يُقرأ حيّاً من لوحة الثيم (خاصية لا حقل ثابت).</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
     private int? _adjustmentId;

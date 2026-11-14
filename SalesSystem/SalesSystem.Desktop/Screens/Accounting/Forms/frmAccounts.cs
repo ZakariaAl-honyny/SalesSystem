@@ -62,7 +62,7 @@ public partial class frmAccounts : Form
         // RULE-N40…RULE-N47 + RULE-N95: الستة من KeyboardHelper في المُنشئ.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.F2, () => btnNew.PerformClick()),

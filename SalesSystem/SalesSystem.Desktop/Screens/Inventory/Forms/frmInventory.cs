@@ -21,7 +21,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
     public partial class frmInventory : Form
     {
         /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-        private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+        private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
         // ── ثوابت الحالات (RULE-N60: تُقارن بثوابت داخل الكود، لا بنص المستخدم) ─────
         private const string StockOut = "نفد";

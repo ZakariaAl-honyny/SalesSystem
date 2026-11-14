@@ -300,8 +300,8 @@ public static class ColorSuggestionHelper
             or ThemePalette.GridCellTextColor
             or ThemePalette.TextStrongColor => TextPool,
 
-        // التحديد والحقل النشط: ناعمة تُبقي النص مقروءاً.
-        ThemePalette.SelectionRowColor or ThemePalette.ActiveFieldColor => SelectionPool,
+        // التحديد والحقل النشط: ناعمة تُبقي النص مقروءاً (مفتاح واحد للاستخدامين).
+        ThemePalette.SelectionRowColor => SelectionPool,
 
         // حالات التعطيل: رمادي فاتح للخلفية، ورمادي داكن للنص.
         ThemePalette.DisabledBackColor => DisabledBackPool,

@@ -19,7 +19,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 public partial class frmInventoryAddProduct : Form
 {
     /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
 
@@ -75,6 +75,10 @@ public partial class frmInventoryAddProduct : Form
 
         GreenThemeHelper.ApplyHeader(lblMode);          // RULE-N53
         GreenThemeHelper.ApplyGrid(dgvUnits);           // RULE-N51/N52
+
+        // RULE-N179 — دلالة كل عمود رقمي من البيت الواحد، فيتبع النمط إعدادات التنسيق الحيّة.
+        GridFormatHelper.ApplyColumns(dgvUnits, GridFormatKind.Money, "colSellPrice", "colCost");
+        GridFormatHelper.ApplyColumn(dgvUnits, "colFactor", GridFormatKind.Quantity);
 
         // شبكة إدخال سطور (تُدخَل فيها الوحدات والأسعار مباشرةً): تعلن سلوكها بنفسها،
         // و ApplyGrid لا يلمس ReadOnly/SelectionMode/AllowUserToAddRows (RULE-N52).

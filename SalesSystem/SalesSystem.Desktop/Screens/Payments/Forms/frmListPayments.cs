@@ -38,7 +38,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
             KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
             KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
-            KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46
+            KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46
             KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
             KeyboardHelper.WireButtonDisabledVisual(btnAddCustomerPayment, btnAddSupplierPayment, btnClearFilters, btnRefresh); // RULE-N43
             KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
@@ -563,10 +563,11 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                     ReadOnly = true,
                 };
 
-                if (c.Name == "Amount")
-                    column.DefaultCellStyle.Format = "N2";   // RULE-001: عرض المال N2
-
                 dgvCustomerPayments.Columns.Add(column);
+
+                // RULE-001: عرض المال N2 — الدلالة من البيت الواحد فيتبع النمط إعدادات التنسيق الحيّة (RULE-N179).
+                if (c.Name == "Amount")
+                    GridFormatHelper.ApplyColumn(dgvCustomerPayments, column.Name, GridFormatKind.Money);
             }
         }
 
@@ -595,10 +596,11 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                     ReadOnly = true,
                 };
 
-                if (c.Name == "Amount")
-                    column.DefaultCellStyle.Format = "N2";   // RULE-001: عرض المال N2
-
                 dgvSupplierPayments.Columns.Add(column);
+
+                // RULE-001: عرض المال N2 — الدلالة من البيت الواحد فيتبع النمط إعدادات التنسيق الحيّة (RULE-N179).
+                if (c.Name == "Amount")
+                    GridFormatHelper.ApplyColumn(dgvSupplierPayments, column.Name, GridFormatKind.Money);
             }
         }
 

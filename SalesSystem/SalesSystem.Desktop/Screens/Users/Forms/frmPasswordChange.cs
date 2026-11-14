@@ -66,7 +66,7 @@ public partial class frmPasswordChange : Form
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45 — أسهم RTL
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnClose);                 // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47

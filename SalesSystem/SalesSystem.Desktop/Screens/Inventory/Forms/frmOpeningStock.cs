@@ -38,7 +38,7 @@ public partial class frmOpeningStock : Form
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
@@ -81,6 +81,11 @@ public partial class frmOpeningStock : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvLines);
+
+        // RULE-N179 — تنسيق الأعمدة وقت التشغيل من البيت الواحد (يتبع إعدادات التنسيق الحيّة).
+        // المصمّم يحمل القيمة التصميمية فقط (RULE-N134)، وهذه السطور تجعلها حيّة.
+        GridFormatHelper.ApplyColumn(dgvLines, "colQuantity", GridFormatKind.Quantity);
+        GridFormatHelper.ApplyColumns(dgvLines, GridFormatKind.Money, "colUnitCost", "colTotalCost");
 
         lblItemCountCaption.ForeColor = GreenThemeHelper.TextStrong;
         lblTotalCostCaption.ForeColor = GreenThemeHelper.TextStrong;

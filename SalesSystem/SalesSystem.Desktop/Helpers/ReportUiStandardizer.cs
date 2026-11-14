@@ -94,7 +94,7 @@ public static class ReportUiStandardizer
     private static readonly ConditionalWeakTable<Control, object> WiredTrees = new();
 
     // لون تظليل الحقل النشط (RULE-N46) لا يُخزَّن هنا: مالكه الوحيد
-    // ThemePalette.ActiveFieldColor، ويُمرَّر إلى KeyboardHelper.WireFocusHighlight
+    // ThemePalette.SelectionRowColor، ويُمرَّر إلى KeyboardHelper.WireFocusHighlight
     // بالقيمة الافتراضية للمفتاح فيقرأ الحقل القيمة الحيّة عند كل دخول
     // (RULE-N54b / GAP-09) — فلا لون حرفي في هذا الملف.
 
@@ -1285,8 +1285,8 @@ public static class ReportUiStandardizer
             KeyboardHelper.WireEnterAsTab(root);
             KeyboardHelper.WireSelectAllOnFocus(root);          // RULE-N41
             // RULE-N46 / RULE-N54b: تُمرَّر القيمة الافتراضية للمفتاح فيقرأ الحقل
-            // القيمة الحيّة من ThemePalette.ActiveFieldColor عند كل دخول.
-            KeyboardHelper.WireFocusHighlight(root, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
+            // القيمة الحيّة من ThemePalette.SelectionRowColor عند كل دخول.
+            KeyboardHelper.WireFocusHighlight(root, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
             KeyboardHelper.WireArrowNavigation(root);           // RULE-N45
 
             WiredTrees.Add(root, AppliedMarker);

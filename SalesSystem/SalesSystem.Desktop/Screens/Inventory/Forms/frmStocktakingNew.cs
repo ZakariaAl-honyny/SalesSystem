@@ -46,7 +46,7 @@ public partial class frmStocktakingNew : Form
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
@@ -72,6 +72,11 @@ public partial class frmStocktakingNew : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvLines);
+
+        // RULE-N179 — تنسيق أعمدة الكميات وقت التشغيل من البيت الواحد.
+        // المصمّم يحمل القيمة التصميمية فقط (RULE-N134)، وهذه السطور تجعلها حيّة.
+        GridFormatHelper.ApplyColumns(dgvLines, GridFormatKind.Quantity,
+            "colBookQty", "colActualQty", "colDifference");
 
         lblSurplusLabel.ForeColor = GreenThemeHelper.TextStrong;
         lblDeficitLabel.ForeColor = GreenThemeHelper.TextStrong;

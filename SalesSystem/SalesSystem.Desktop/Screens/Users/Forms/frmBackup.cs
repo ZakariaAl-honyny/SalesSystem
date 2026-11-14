@@ -87,7 +87,7 @@ public partial class frmBackup : Form
         // RULE-N40…RULE-N47 · RULE-N95 — الستة كاملة من KeyboardHelper
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N54b — لون حيّ
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N54b — لون حيّ
         KeyboardHelper.WireArrowNavigation(this);                                                        // RULE-N45 — أسهم RTL
         KeyboardHelper.WireButtonDisabledVisual(btnCreateBackup, btnRestoreBackup, btnRefresh, btnClearFilters); // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                                         // RULE-N47

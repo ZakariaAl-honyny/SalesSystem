@@ -13,7 +13,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms;
 public partial class frmListSupplierPayments : Form
 {
     /// <summary>لون تظليل الحقل النشط (RULE-N46 + RULE-N54b) — يُقرأ حيّاً من اللوحة عند كل استخدام.</summary>
-    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor);
+    private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
 
@@ -127,14 +127,14 @@ public partial class frmListSupplierPayments : Form
                 ReadOnly = true,
             };
 
-            // RULE-001: المال يُعرض دائماً N2.
+            dgvSupplierPayments.Columns.Add(column);
+
+            // RULE-001: المال يُعرض دائماً N2 — الدلالة من البيت الواحد فيتبع النمط إعدادات التنسيق الحيّة (RULE-N179).
             if (c.Name == "Amount")
             {
-                column.DefaultCellStyle.Format = "N2";
+                GridFormatHelper.ApplyColumn(dgvSupplierPayments, column.Name, GridFormatKind.Money);
                 column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
-
-            dgvSupplierPayments.Columns.Add(column);
         }
     }
 

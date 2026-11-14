@@ -44,7 +44,7 @@ public partial class frmListReturns : Form
         // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         KeyboardHelper.WireButtonDisabledVisual(btnAdd, btnRefresh, btnClose, btnClearFilters);   // RULE-N43

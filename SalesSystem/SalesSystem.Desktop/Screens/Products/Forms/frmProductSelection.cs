@@ -46,7 +46,7 @@ public partial class frmProductSelection : Form
         // (WireArrowNavigation لا يلمس Enter ولا شبكات البيانات).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));   // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
 
         // RULE-N43: زر «اختيار» معطّل بلا سجل محدد، ورمادي باهت عند التعطيل.
@@ -86,6 +86,7 @@ public partial class frmProductSelection : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvProducts);
+        GridFormatHelper.ApplyColumn(dgvUnits, "colSalePrice", GridFormatKind.Money);   // RULE-N179 — تنسيق العمود يتبع إعدادات التنسيق الحيّة
 
         // RULE-N22/RULE-N52: سلوك الشبكتين تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
         dgvProducts.ReadOnly = true;

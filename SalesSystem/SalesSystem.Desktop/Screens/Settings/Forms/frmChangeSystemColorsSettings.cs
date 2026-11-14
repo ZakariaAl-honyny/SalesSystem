@@ -66,7 +66,7 @@ public partial class frmChangeSystemColorsSettings : Form
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (اللون من اللوحة القابلة للتخصيص)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر التعطيل الموحّد لأزرار الحالة

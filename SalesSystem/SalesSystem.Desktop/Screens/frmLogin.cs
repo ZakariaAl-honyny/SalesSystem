@@ -63,7 +63,7 @@ public partial class frmLogin : Form
         // RULE-N40…N46 — تنقل وتحديد القيمة وتظليل الحقل النشط
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnLogin);                         // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this, (Keys.Escape, Close));            // RULE-N47
