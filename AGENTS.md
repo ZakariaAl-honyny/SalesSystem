@@ -819,6 +819,35 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 
 > **قاعدة:** أي `frm*Master` لا تلتزم بـ§2.36 تُعدّ غير مكتملة (`RULE-N55`)، وتُنفَّذ شاشة بشاشة — وكيل واحد لكل شاشة. ✅ **مكتمل 10/10 ماسترات (2026-11-14)**.
 
+---
+
+### 2.37 Agent Orchestration & Task Partitioning — mandatory
+
+The **Orchestrator** is the only agent that partitions work; an agent never delegates to another agent. This section is the **partitioning law**. The operative playbook — brief templates per agent, quality gates, 18-row scenario map, commit protocol, anti-patterns — lives in `docs/prompts/ORCHESTRATOR.md` and is written in English for best agent comprehension.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N155 | **The unit of delegation is a slice — never a file, never "all screens":** every task is sized **S/M/L** (table below) *before* delegation, and the **number of agents is decided by the size**, not by convenience. A delivery without a written size classification is incomplete |
+| RULE-N156 | **Heavy work ⇒ one agent per screen (no exception):** rebuilding a screen · an `EntryMode` state machine · converting to a Master screen · a UX wave — each screen is its own slice owned by one agent that reads its designer + code-behind in full. Never put two heavy screens in one agent even if they look similar, and never split one screen across two agents (designer + code-behind are a single contract) |
+| RULE-N157 | **Small-fix batches (S-Batches):** an identical touch on many screens ⇒ **one agent per batch**, max **8 files (up to 4 screens × their two files)**; the batch must be **literally identical in pattern** and its files listed in a **closed list**. Any file that needs judgement (behaviour · money · grid · contract) leaves the batch and gets its own agent. "Inspect the screens and fix them" is forbidden |
+| RULE-N158 | **One owner per file:** a file belongs to exactly one agent per wave; parallelism is allowed only across **fully disjoint** file sets. Shared files (`Program.cs` · `appsettings.json` · any `.csproj` · `SalesSystem.slnx` · `AGENTS.md` · `docs/**`) have **one named owner** in the brief; everyone else reports the need and does not edit (`RULE-N114`) |
+| RULE-N159 | **Waves and builds:** max **4 agents per wave**; agents **never build and never run** — the Orchestrator runs `dotnet build` after every wave. A slice is built in **DB → BLL → Desktop** order (never build a layer before the contract of the layer beneath it) |
+| RULE-N160 | **Mandatory brief template (seven fields, no exception):** Goal (one sentence) · In scope (explicit paths) · **Out of scope** (what must not be touched, by name) · Contract (names/signatures) · Definition of done (verifiable output) · Validation ("do not build — the Orchestrator builds · no tests") · Report back + an **Arabic manual-test checklist** at the end |
+| RULE-N161 | **Failure and escalation:** an agent failing twice on the same file ⇒ the Orchestrator stops, splits smaller, or does it itself; an agent touching a file outside its scope ⇒ **its diff is rejected** and the brief is reissued with tighter bounds; a request needing more than 3 new abstractions ⇒ stop and escalate to the owner (`RULE-N113`) |
+| RULE-N162 | **Commit gates:** no commit before (1) a green build with **0 Errors** (2) **one code review** of the finished slice — not of every file (3) zero out-of-scope files in `git status` (4) `AGENTS.md` updated (§2.20 · §2.37 · §9) when a status changes (`RULE-N120`) (5) an Arabic manual-test checklist in the delivery (`RULE-N119`) (6) a clean tree and `local == origin` after the push |
+| RULE-N163 | **The scenario map is binding:** the ready-made partition decision for every recurring scenario (one screen · N screens · a full slice · red build · review · printing · report · docs) lives in `docs/prompts/ORCHESTRATOR.md` §9 — read it before partitioning, and never invent a new split when a matching scenario exists |
+| RULE-N164 | **The Orchestrator playbook is an operative reference:** `docs/prompts/ORCHESTRATOR.md` (S/M/L sizing · partition algorithm · file ownership · brief templates · waves · quality gates · 18-scenario map · commit protocol · report shape · anti-patterns) is read first by any agent taking the Orchestrator role, and is updated in the same wave as any change to this section |
+
+**Size classification and agent count (read before every delegation):**
+
+| Size | Definition | Mandatory split | Repo example |
+|---|---|---|---|
+| **S — small patch** | ≤ 8 files · **identical** edit · no logic, no money | one batch, one agent (up to 4 screens) | add `WireModeEnter` to a screen · fix a `using` · a button outside `Padding` |
+| **M — medium change** | one screen (designer + code-behind) with no contract change · or two files in one layer | one agent per screen (+ one service agent if the contract changes) | new button + handler + designer block + state machine · fix `gbFilter` geometry |
+| **L — full screen / slice** | rebuild a screen · or a full service slice (Entity + Config + Migration + DTO + BLL + Direct + Mock + UI) | **one agent per screen**, sequential across layers | a new `frm*Master` · an entity reactivation cycle · a new report · `ctrlDashboard` |
+
+**Forbidden delegation patterns (rejected in review):** two agents on one screen · two agents on `Program.cs` · an agent that builds, runs the app, or writes automated tests · an agent editing `AGENTS.md` or `docs/**` · a brief without an out-of-scope list · a brief without a closed file list · "fix all screens" · fixing a layer defect inside another layer (route it to the file owner).
+
 ## 3. Enums
 
 ```csharp
@@ -1021,6 +1050,7 @@ SalesSystem.slnx
 | Priority | File | What it contains |
 |----------|------|------------------|
 | 1 (MUST) | `AGENTS.md` | Architecture, rules, patterns, enums, forbidden list |
+| 1a (MUST before delegating) | `docs/prompts/ORCHESTRATOR.md` | **Agent orchestration law (English):** S/M/L sizing · partition algorithm · one-owner-per-file · brief templates per agent · waves and build gates · quality gates · 18-scenario map · commit protocol · report shape · anti-patterns |
 | 2 | `docs/CONSTITUTION.md` | Financial formulas, transaction protocol, non-negotiable rules |
 | 3 | `docs/BUSINESS-RULES.md` | Domain-specific business logic rules |
 | 4 | `docs/database-schema.md` | SQL table definitions, CHECK constraints, indexes |
