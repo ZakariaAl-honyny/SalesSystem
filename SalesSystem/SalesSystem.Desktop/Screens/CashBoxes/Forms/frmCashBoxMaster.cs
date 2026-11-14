@@ -290,15 +290,7 @@ public partial class frmCashBoxMaster : Form
 
     private void _ApplyRowColoring()
     {
-        foreach (DataGridViewRow row in dgvCashBoxes.Rows)
-        {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvCashBoxes, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
@@ -868,10 +860,10 @@ public partial class frmCashBoxMaster : Form
     {
         foreach (DataGridViewRow row in dgvCashBoxes.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == cashBoxId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == cashBoxId)
             {
                 row.Selected = true;
-                dgvCashBoxes.CurrentCell = row.Cells["Name"];
+                if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvCashBoxes.CurrentCell = nameCell;
                 break;
             }
         }

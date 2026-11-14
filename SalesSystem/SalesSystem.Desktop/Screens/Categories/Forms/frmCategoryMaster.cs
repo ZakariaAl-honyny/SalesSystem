@@ -271,15 +271,7 @@ public partial class frmCategoryMaster : Form
 
     private void _ApplyRowColoring()
     {
-        foreach (DataGridViewRow row in dgvCategories.Rows)
-        {
-            bool isActive = row.Cells["IsActive"].Value is bool b && b;
-            if (!isActive)
-            {
-                row.DefaultCellStyle.BackColor = Color.MistyRose;
-                row.DefaultCellStyle.ForeColor = Color.DarkRed;
-            }
-        }
+        GridRowHelper.ApplyInactiveRowStyle(dgvCategories, "IsActive");
     }
 
     // ── Search / Filter (DataView.RowFilter) ──────────────────────────────────
@@ -855,10 +847,10 @@ public partial class frmCategoryMaster : Form
     {
         foreach (DataGridViewRow row in dgvCategories.Rows)
         {
-            if (row.Cells["Id"].Value is int id && id == categoryId)
+            if (GridRowHelper.TryGetInt(row, "Id", out var id) && id == categoryId)
             {
                 row.Selected = true;
-                dgvCategories.CurrentCell = row.Cells["Name"];
+                if (GridRowHelper.Cell(row, "Name") is { } nameCell) dgvCategories.CurrentCell = nameCell;
                 break;
             }
         }
