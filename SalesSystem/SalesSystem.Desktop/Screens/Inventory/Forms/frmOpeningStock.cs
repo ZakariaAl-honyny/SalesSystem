@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
@@ -10,12 +11,20 @@ using System.ComponentModel;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
+/// <summary>
+/// «بضاعة أول المدة» — مستند إدخال أرصدة افتتاحية.
+/// الهيكل (RULE-N79 / RULE-N135…N138): العنوان ← أوامر المستند ← بيانات المستند ← الأصناف ← الإجماليات.
+/// منطق الترحيل (تسوية افتتاحية + اعتمادها) لم يُمسّ إطلاقاً.
+/// </summary>
 public partial class frmOpeningStock : Form
 {
     private readonly IServiceScope _scope;
     private IServiceProvider ServiceProvider => _scope.ServiceProvider;
     private DataTable _dtLines = new();
     private Dictionary<int, List<ProductUnitDto>> _productUnitsCache = [];
+
+    /// <summary>نص شريط العنوان الأساسي — يُحدَّث بعدّاد الأصناف لإظهار وضع المستند (RULE-N44).</summary>
+    private const string FormTitle = "بضاعة أول المدة";
 
     public frmOpeningStock(IServiceScopeFactory scopeFactory)
     {
@@ -24,6 +33,38 @@ public partial class frmOpeningStock : Form
         AutoValidate = AutoValidate.EnableAllowFocusChange;
         KeyPreview = true;
         KeyDown += frmOpeningStock_KeyDown;
+
+        // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);
+
+        // RULE-N43 — مظهر واضح للأزرار المعطّلة.
+        KeyboardHelper.WireButtonDisabledVisual(btnAddProduct, btnRemoveProduct, btnSave);
+
+        // RULE-N47 — الاختصارات الموجودة فعلاً على هذه الشاشة فقط.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnAddProduct.PerformClick()),
+            (Keys.F4, _SaveIfReady));
+
+        // RULE-N147 — Enter = الزر الأساسي للوضع الحالي («حفظ وترحيل»)، ولا يعمل داخل شبكة السطور.
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
+
+        // الزر الافتراضي لا يُطلق الترحيل من داخل الشبكة (Enter هناك تنقّل بين الخلايا — RULE-N40).
+        dgvLines.Enter += (s, e) => AcceptButton = null;
+        dgvLines.Leave += (s, e) => AcceptButton = _PrimaryActionButton();
+
+        // RULE-N97 — التفقيط الحيّ لقيمة الإجمالي المالي.
+        LiveTafqeetHelper.Attach(liveTip,
+            (txtTotalCost, "إجمالي التكلفة", LiveTafqeetHelper.ReadMode.Money));
+
+        // خطأ تحرير خلية (مثل وحدة غير صالحة) لا يُسقط الشاشة.
+        dgvLines.DataError += (s, e) => e.ThrowException = false;
+        dgvLines.SelectionChanged += (s, e) => _UpdateButtonsState();
+
+        ApplyUiTheme();
     }
 
     protected override void OnShown(EventArgs e)
@@ -32,11 +73,59 @@ public partial class frmOpeningStock : Form
         errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
     }
 
+    // ── الثيم (RULE-N50…RULE-N54) ─────────────────────────────────────
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply(this)</c> آخر سطر دائماً.</summary>
+    private void ApplyUiTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvLines);
+
+        lblItemCountCaption.ForeColor = GreenThemeHelper.TextStrong;
+        lblTotalCostCaption.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
+    }
+
+    // ── Shortcuts ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// RULE-N147 — الزر الأساسي للوضع الحالي: «حفظ وترحيل».
+    /// يرجع <c>null</c> عندما يكون التركيز داخل شبكة السطور (<c>dgvLines</c>) حتى يبقى
+    /// <c>Enter</c> تنقلاً بين الخلايا ولا يُرحّل المستند سهواً.
+    /// </summary>
+    private Button? _PrimaryActionButton()
+        => dgvLines.ContainsFocus ? null : btnSave;
+
+    /// <summary>F4 — ترحيل المستند إن كان جاهزاً.</summary>
+    private void _SaveIfReady()
+    {
+        if (btnSave.Enabled) btnSave.PerformClick();
+    }
+
+    // ── التحميل ───────────────────────────────────────────────────────
+
     private async void frmOpeningStock_Load(object sender, EventArgs e)
     {
-        await LoadWarehousesAsync();
-        dtpDate.Value = DateTime.Today;
-        SetupLinesGrid();
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            await LoadWarehousesAsync();
+            dtpDate.Value = DateTime.Today;
+            SetupLinesGrid();
+            _UpdateButtonsState();
+            _UpdateModeHeader();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة بضاعة أول المدة");
+            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
     }
 
     private async Task LoadWarehousesAsync()
@@ -50,10 +139,17 @@ public partial class frmOpeningStock : Form
                 cmbWarehouse.ValueMember = "Id";
                 cmbWarehouse.DataSource = new List<WarehouseDto>(result.Value);
             }
+            else
+            {
+                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة المخازن.",
+                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل المخازن");
+            MessageBox.Show("تعذر تحميل قائمة المخازن. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -69,7 +165,50 @@ public partial class frmOpeningStock : Form
         _dtLines.Columns.Add("TotalCost", typeof(decimal));
 
         dgvLines.DataSource = new DataView(_dtLines);
+        _UpdateTotals();
     }
+
+    // ── مؤشر الوضع + آلة حالة الأزرار (RULE-N43/RULE-N44) ─────────────
+
+    /// <summary>مؤشر الوضع: مستند جديد + عدد الأصناف المدخلة.</summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = $"{FormTitle} — مستند جديد (عدد الأصناف: {_dtLines.Rows.Count})";
+    }
+
+    /// <summary>«حذف السطر» يحتاج سطراً محدّداً، و«حفظ وترحيل» يحتاج صنفاً واحداً على الأقل.</summary>
+    private void _UpdateButtonsState()
+    {
+        bool hasLines = _dtLines.Rows.Count > 0;
+        bool hasSelectedLine = dgvLines.CurrentRow is { IsNewRow: false };
+
+        btnRemoveProduct.Enabled = hasLines && hasSelectedLine;
+        btnSave.Enabled = hasLines;
+        miRemoveLine.Enabled = btnRemoveProduct.Enabled;
+
+        // RULE-N147 — الزر الافتراضي يتبع الزر الأساسي الحالي (وnull داخل شبكة السطور).
+        AcceptButton = _PrimaryActionButton();
+    }
+
+    /// <summary>شريط الإجماليات: عدد الأصناف + إجمالي التكلفة (N2).</summary>
+    private void _UpdateTotals()
+    {
+        decimal total = 0m;
+
+        foreach (DataRow row in _dtLines.Rows)
+        {
+            if (row.IsNull("TotalCost")) continue;
+            total += Convert.ToDecimal(row["TotalCost"]);
+        }
+
+        lblItemCountValue.Text = _dtLines.Rows.Count.ToString("N0");
+        txtTotalCost.Text = total.ToString("N2");
+
+        _UpdateButtonsState();
+        _UpdateModeHeader();
+    }
+
+    // ── إضافة/حذف الأصناف ─────────────────────────────────────────────
 
     private async void btnAddProduct_Click(object? sender, EventArgs e)
     {
@@ -99,6 +238,8 @@ public partial class frmOpeningStock : Form
                 1m,
                 0m,
                 0m);
+
+            _UpdateTotals();
         }
         catch (Exception ex)
         {
@@ -202,6 +343,8 @@ public partial class frmOpeningStock : Form
         decimal qty = Convert.ToDecimal(row["Quantity"]);
         decimal cost = Convert.ToDecimal(row["UnitCost"]);
         row["TotalCost"] = qty * cost;
+
+        _UpdateTotals();
     }
 
     private void UpdateUnitDisplay(int rowIndex)
@@ -226,6 +369,15 @@ public partial class frmOpeningStock : Form
     {
         if (dgvLines.CurrentRow?.DataBoundItem is not DataRowView row) return;
         _dtLines.Rows.Remove(row.Row);
+        _UpdateTotals();
+    }
+
+    private void miAddProduct_Click(object? sender, EventArgs e)
+        => btnAddProduct.PerformClick();
+
+    private void miRemoveLine_Click(object? sender, EventArgs e)
+    {
+        if (btnRemoveProduct.Enabled) btnRemoveProduct.PerformClick();
     }
 
     private void _ValidateEmptyTextBox(object sender, CancelEventArgs e)
@@ -372,6 +524,7 @@ public partial class frmOpeningStock : Form
         {
             Cursor = Cursors.Default;
             btnSave.Enabled = true;
+            _UpdateButtonsState();
         }
     }
 

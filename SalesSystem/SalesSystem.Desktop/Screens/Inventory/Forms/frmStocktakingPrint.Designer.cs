@@ -55,7 +55,8 @@ partial class frmStocktakingPrint
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.FromArgb(33, 43, 54);
+        // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
+        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
@@ -66,6 +67,7 @@ partial class frmStocktakingPrint
         // 
         // lblTitle
         // 
+        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTitle.ForeColor = Color.White;
@@ -90,7 +92,7 @@ partial class frmStocktakingPrint
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = Color.FromArgb(13, 116, 119);
+        lblAccent.BackColor = Color.FromArgb(14, 82, 52);
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Height = 4;
         lblAccent.Name = "lblAccent";
@@ -123,7 +125,7 @@ partial class frmStocktakingPrint
         // lblStoreName
         // 
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(23, 87, 129);
+        lblStoreName.ForeColor = Color.FromArgb(14, 82, 52);
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(398, 30);
@@ -134,7 +136,7 @@ partial class frmStocktakingPrint
         // lblStocktakingTitle
         // 
         lblStocktakingTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStocktakingTitle.ForeColor = Color.FromArgb(13, 116, 119);
+        lblStocktakingTitle.ForeColor = Color.FromArgb(14, 82, 52);
         lblStocktakingTitle.Location = new Point(0, 30);
         lblStocktakingTitle.Name = "lblStocktakingTitle";
         lblStocktakingTitle.Size = new Size(398, 40);
@@ -202,7 +204,7 @@ partial class frmStocktakingPrint
         lblDocNoValue.AutoSize = true;
         lblDocNoValue.Dock = DockStyle.Fill;
         lblDocNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDocNoValue.ForeColor = Color.FromArgb(13, 116, 119);
+        lblDocNoValue.ForeColor = Color.FromArgb(14, 82, 52);
         lblDocNoValue.Location = new Point(125, 7);
         lblDocNoValue.Name = "lblDocNoValue";
         lblDocNoValue.Size = new Size(258, 20);
@@ -443,7 +445,7 @@ partial class frmStocktakingPrint
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(248, 249, 250);
+        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
@@ -454,7 +456,7 @@ partial class frmStocktakingPrint
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
+        lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Height = 2;
         lblFooterLine.Name = "lblFooterLine";
@@ -479,13 +481,12 @@ partial class frmStocktakingPrint
         // btnClose
         // 
         btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        btnClose.BackColor = Color.White;
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.DialogResult = DialogResult.Cancel;
-        btnClose.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
-        btnClose.FlatAppearance.BorderSize = 1;
+        btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.FromArgb(52, 73, 94);
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -497,7 +498,7 @@ partial class frmStocktakingPrint
         // frmStocktakingPrint
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.WhiteSmoke;
+        BackColor = Color.FromArgb(170, 220, 170);
         CancelButton = btnClose;
         ClientSize = new Size(440, 600);
         Controls.Add(pnlFooter);

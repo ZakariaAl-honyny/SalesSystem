@@ -16,6 +16,7 @@ partial class frmCashBoxMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        toolTip = new ToolTip(components);
         lblMode = new Label();
         pnlFields = new Panel();
         lblCode = new Label();
@@ -30,10 +31,12 @@ partial class frmCashBoxMaster
         btnSave = new Button();
         btnEdit = new Button();
         btnDelete = new Button();
+        btnReactivate = new Button();
         btnRefresh = new Button();
         btnClose = new Button();
         pnlFilters = new Panel();
         gbFilter = new GroupBox();
+        btnToggleFilters = new Button();
         label2 = new Label();
         cbFilterBy = new ComboBox();
         txtSearch = new TextBox();
@@ -41,6 +44,7 @@ partial class frmCashBoxMaster
         cbStatus = new ComboBox();
         chkShowInactive = new CheckBox();
         chkOnlyWithAccount = new CheckBox();
+        btnClearFilters = new Button();
         pnlSummary = new Panel();
         lblSummary = new Label();
         pnlGrid = new Panel();
@@ -50,6 +54,12 @@ partial class frmCashBoxMaster
         colDescription = new DataGridViewTextBoxColumn();
         colAccountName = new DataGridViewTextBoxColumn();
         colIsActive = new DataGridViewTextBoxColumn();
+        cmsGrid = new ContextMenuStrip(components);
+        mnuEdit = new ToolStripMenuItem();
+        mnuDeactivate = new ToolStripMenuItem();
+        mnuRefresh = new ToolStripMenuItem();
+        mnuSeparator = new ToolStripSeparator();
+        mnuExport = new ToolStripMenuItem();
         errorProvider = new ErrorProvider(components);
         pnlFields.SuspendLayout();
         pnlButtons.SuspendLayout();
@@ -58,6 +68,7 @@ partial class frmCashBoxMaster
         pnlSummary.SuspendLayout();
         pnlGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvCashBoxes).BeginInit();
+        cmsGrid.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
@@ -158,6 +169,7 @@ partial class frmCashBoxMaster
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
         pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnReactivate);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnClose);
         pnlButtons.Dock = DockStyle.Top;
@@ -223,13 +235,33 @@ partial class frmCashBoxMaster
         btnDelete.UseVisualStyleBackColor = false;
         btnDelete.Click += btnDelete_Click;
         // 
+        // btnReactivate
+        // 
+        // RULE-N90…N94 / RULE-N134: القيم حرفية مطابقة لثوابت GreenThemeHelper (ActionInfoBackground)
+        // ولسلوك وقت التشغيل — الزر معطّل افتراضياً ولا يُفعَّل إلا على سجل معطّل محدد.
+        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.Cursor = Cursors.Hand;
+        btnReactivate.Enabled = false;
+        btnReactivate.FlatAppearance.BorderSize = 0;
+        btnReactivate.FlatStyle = FlatStyle.Flat;
+        btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReactivate.ForeColor = Color.White;
+        btnReactivate.Location = new Point(689, 13);
+        btnReactivate.Name = "btnReactivate";
+        btnReactivate.Size = new Size(160, 35);
+        btnReactivate.TabIndex = 16;
+        btnReactivate.Text = "↺ إعادة تنشيط";
+        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
+        btnReactivate.UseVisualStyleBackColor = false;
+        btnReactivate.Click += btnReactivate_Click;
+        // 
         // btnRefresh
         // 
         btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnRefresh.ForeColor = Color.White;
-        btnRefresh.Location = new Point(719, 13);
+        btnRefresh.Location = new Point(553, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
         btnRefresh.TabIndex = 14;
@@ -243,7 +275,7 @@ partial class frmCashBoxMaster
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(583, 13);
+        btnClose.Location = new Point(417, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
         btnClose.TabIndex = 15;
@@ -255,6 +287,7 @@ partial class frmCashBoxMaster
         // pnlFilters
         // 
         pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
         pnlFilters.Location = new Point(0, 260);
         pnlFilters.Margin = new Padding(0);
@@ -272,6 +305,7 @@ partial class frmCashBoxMaster
         gbFilter.Controls.Add(cbStatus);
         gbFilter.Controls.Add(chkShowInactive);
         gbFilter.Controls.Add(chkOnlyWithAccount);
+        gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         gbFilter.Location = new Point(6, 4);
@@ -283,6 +317,27 @@ partial class frmCashBoxMaster
         gbFilter.TabIndex = 0;
         gbFilter.TabStop = false;
         gbFilter.Text = "بحث وتصفية";
+        // 
+        // btnToggleFilters
+        // 
+        // RULE-N145: زر «إخفاء/إظهار التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لِما يُطبَّق
+        // وقت التشغيل، والسلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله
+        // FilterPanelHelper.Attach — لا يُنشأ الزر وقت التشغيل.
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderSize = 1;
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.Location = new Point(6, 4);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 104);
+        btnToggleFilters.TabIndex = 25;
+        btnToggleFilters.Text = "إخفاء التصفية";
+        btnToggleFilters.UseVisualStyleBackColor = false;
         // 
         // label2
         // 
@@ -297,6 +352,7 @@ partial class frmCashBoxMaster
         // 
         // cbFilterBy
         // 
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F);
@@ -335,6 +391,7 @@ partial class frmCashBoxMaster
         // 
         // cbStatus
         // 
+        cbStatus.BackColor = Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
         cbStatus.Font = new Font("Tahoma", 10F);
@@ -357,7 +414,6 @@ partial class frmCashBoxMaster
         chkShowInactive.Size = new Size(170, 28);
         chkShowInactive.TabIndex = 5;
         chkShowInactive.Text = "عرض غير النشط";
-        chkShowInactive.UseVisualStyleBackColor = true;
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
         // 
         // chkOnlyWithAccount
@@ -370,8 +426,26 @@ partial class frmCashBoxMaster
         chkOnlyWithAccount.Size = new Size(212, 28);
         chkOnlyWithAccount.TabIndex = 6;
         chkOnlyWithAccount.Text = "المربوط بالحسابات فقط";
-        chkOnlyWithAccount.UseVisualStyleBackColor = true;
         chkOnlyWithAccount.CheckedChanged += chkOnlyWithAccount_CheckedChanged;
+        // 
+        // btnClearFilters
+        // 
+        // RULE-N148: «مسح التصفية» يمسح أدوات التصفية فقط بلا إعادة تحميل (RULE-N134 — القيم حرفية).
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.Cursor = Cursors.Hand;
+        btnClearFilters.Enabled = false;
+        btnClearFilters.FlatAppearance.BorderSize = 0;
+        btnClearFilters.FlatStyle = FlatStyle.Flat;
+        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.Location = new Point(867, 62);
+        btnClearFilters.Name = "btnClearFilters";
+        btnClearFilters.Size = new Size(145, 32);
+        btnClearFilters.TabIndex = 7;
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+        toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+        btnClearFilters.UseVisualStyleBackColor = false;
+        btnClearFilters.Click += btnClearFilters_Click;
         // 
         // pnlSummary
         // 
@@ -387,6 +461,7 @@ partial class frmCashBoxMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -406,24 +481,40 @@ partial class frmCashBoxMaster
         // 
         // dgvCashBoxes
         // 
+        // RULE-N134: نفس قيم ثيم GreenThemeHelper حرفياً — ليتساوى المصمّم ووقت التشغيل.
         dgvCashBoxes.AllowUserToAddRows = false;
         dgvCashBoxes.AllowUserToDeleteRows = false;
+        dgvCashBoxes.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
         dgvCashBoxes.AutoGenerateColumns = false;
         dgvCashBoxes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvCashBoxes.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvCashBoxes.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dgvCashBoxes.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvCashBoxes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+        dgvCashBoxes.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dgvCashBoxes.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         dgvCashBoxes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvCashBoxes.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colDescription, colAccountName, colIsActive });
+        dgvCashBoxes.ContextMenuStrip = cmsGrid;
+        dgvCashBoxes.DefaultCellStyle.BackColor = Color.White;
+        dgvCashBoxes.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+        dgvCashBoxes.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dgvCashBoxes.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dgvCashBoxes.Dock = DockStyle.Fill;
+        dgvCashBoxes.EnableHeadersVisualStyles = false;
+        dgvCashBoxes.GridColor = Color.FromArgb(205, 225, 205);
         dgvCashBoxes.Location = new Point(10, 10);
         dgvCashBoxes.MultiSelect = false;
         dgvCashBoxes.Name = "dgvCashBoxes";
         dgvCashBoxes.ReadOnly = true;
         dgvCashBoxes.RowHeadersVisible = false;
         dgvCashBoxes.RowHeadersWidth = 62;
+        dgvCashBoxes.RowTemplate.Height = 32;
         dgvCashBoxes.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvCashBoxes.Size = new Size(1412, 396);
         dgvCashBoxes.TabIndex = 0;
         dgvCashBoxes.CellClick += dgvCashBoxes_CellClick;
+        dgvCashBoxes.CellDoubleClick += dgvCashBoxes_CellDoubleClick;
         // 
         // colId
         // 
@@ -470,6 +561,50 @@ partial class frmCashBoxMaster
         colIsActive.Name = "colIsActive";
         colIsActive.ReadOnly = true;
         // 
+        // cmsGrid (RULE-N23)
+        // 
+        cmsGrid.BackColor = Color.White;
+        cmsGrid.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        cmsGrid.ImageScalingSize = new Size(24, 24);
+        cmsGrid.Items.AddRange(new ToolStripItem[] { mnuEdit, mnuDeactivate, mnuRefresh, mnuSeparator, mnuExport });
+        cmsGrid.Name = "cmsGrid";
+        cmsGrid.RightToLeft = RightToLeft.Yes;
+        cmsGrid.Size = new Size(220, 130);
+        cmsGrid.Opening += cmsGrid_Opening;
+        // 
+        // mnuEdit
+        // 
+        mnuEdit.Name = "mnuEdit";
+        mnuEdit.Size = new Size(219, 30);
+        mnuEdit.Text = "✏️ تعديل السطر المحدد";
+        mnuEdit.Click += mnuEdit_Click;
+        // 
+        // mnuDeactivate
+        // 
+        mnuDeactivate.Name = "mnuDeactivate";
+        mnuDeactivate.Size = new Size(219, 30);
+        mnuDeactivate.Text = "🗑 تعطيل السطر المحدد";
+        mnuDeactivate.Click += mnuDeactivate_Click;
+        // 
+        // mnuRefresh
+        // 
+        mnuRefresh.Name = "mnuRefresh";
+        mnuRefresh.Size = new Size(219, 30);
+        mnuRefresh.Text = "🔄 تحديث البيانات (F5)";
+        mnuRefresh.Click += mnuRefresh_Click;
+        // 
+        // mnuSeparator
+        // 
+        mnuSeparator.Name = "mnuSeparator";
+        mnuSeparator.Size = new Size(216, 6);
+        // 
+        // mnuExport
+        // 
+        mnuExport.Name = "mnuExport";
+        mnuExport.Size = new Size(219, 30);
+        mnuExport.Text = "📊 تصدير إلى Excel";
+        mnuExport.Click += mnuExport_Click;
+        // 
         // errorProvider
         // 
         errorProvider.ContainerControl = this;
@@ -505,6 +640,7 @@ partial class frmCashBoxMaster
         pnlSummary.ResumeLayout(false);
         pnlGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)dgvCashBoxes).EndInit();
+        cmsGrid.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
     }
@@ -523,6 +659,7 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnEdit;
     private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnReactivate;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlGrid;
@@ -534,6 +671,7 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.GroupBox gbFilter;
+    private System.Windows.Forms.Button btnToggleFilters;
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.ComboBox cbFilterBy;
     private System.Windows.Forms.TextBox txtSearch;
@@ -541,7 +679,15 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.ComboBox cbStatus;
     private System.Windows.Forms.CheckBox chkShowInactive;
     private System.Windows.Forms.CheckBox chkOnlyWithAccount;
+    private System.Windows.Forms.Button btnClearFilters;
+    private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.Panel pnlSummary;
     private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.ContextMenuStrip cmsGrid;
+    private System.Windows.Forms.ToolStripMenuItem mnuEdit;
+    private System.Windows.Forms.ToolStripMenuItem mnuDeactivate;
+    private System.Windows.Forms.ToolStripMenuItem mnuRefresh;
+    private System.Windows.Forms.ToolStripSeparator mnuSeparator;
+    private System.Windows.Forms.ToolStripMenuItem mnuExport;
 }

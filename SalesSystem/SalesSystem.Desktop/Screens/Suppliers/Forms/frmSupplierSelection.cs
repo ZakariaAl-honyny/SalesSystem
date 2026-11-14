@@ -1,30 +1,50 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
-using SalesSystem.DTO.Common;
 using System.Data;
-using SalesSystem.Desktop.Helpers;
+using Serilog;
 
 namespace SalesSystem.Desktop.Suppliers.Forms;
 
+/// <summary>
+/// منتقي المورد — شاشة اختيار للقراءة تُفتح نمطياً وتُرجع <see cref="SelectedSupplier"/>
+/// مع <see cref="DialogResult.OK"/> (RULE-N09 · RULE-N100).
+/// </summary>
 public partial class frmSupplierSelection : Form
 {
-    private readonly IServiceProvider _serviceProvider;
-    private DataTable _suppliersTable;
-    private DataView _suppliersView;
+    private readonly IServiceProvider? _serviceProvider;
 
+    private DataTable? _suppliersTable;
+    private DataView? _suppliersView;
+
+    /// <summary>المورد المختار — العقد الذي تقرأه الشاشات المستدعية (لا يُغيَّر).</summary>
     public SupplierDto? SelectedSupplier { get; private set; }
 
-        public frmSupplierSelection()
-        {
-            InitializeComponent();
-            KeyboardHelper.WireEnterAsTab(this);
-            KeyboardHelper.WireSelectAllOnFocus(this);
-            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
-            KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
-        }
+    private ISupplierDesktopService Service
+        => _serviceProvider!.GetRequiredService<ISupplierDesktopService>();
 
-        public frmSupplierSelection(IServiceProvider serviceProvider) : this()
+    public frmSupplierSelection()
+    {
+        InitializeComponent();
+
+        // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط والأسهم.
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
+
+        // RULE-N43: «تحديد» معطّل بلا سطر محدد + مظهر رمادي باهت عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSelect);
+
+        // RULE-N47: F5 تحديث. Enter/Esc يُديرهما AcceptButton/CancelButton ومعالج الشبكة — بلا تكرار.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F5, () => _LoadSuppliers()));
+
+        _UpdateButtonsState();
+    }
+
+    public frmSupplierSelection(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
     }
@@ -35,7 +55,7 @@ public partial class frmSupplierSelection : Form
         ApplyGreenTheme();
     }
 
-    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — ينتهي بـ Apply(this) دائماً.</summary>
     private void ApplyGreenTheme()
     {
         GreenThemeHelper.ApplyGrid(dgvSuppliers);
@@ -49,68 +69,110 @@ public partial class frmSupplierSelection : Form
         GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
+    // ── التحميل ───────────────────────────────────────────────────────────────
+
     private async void _LoadSuppliers()
     {
+        if (_serviceProvider is null) return;
+
         Cursor = dgvSuppliers.Cursor = Cursors.WaitCursor;
-
-        _suppliersTable = new DataTable();
-        _suppliersTable.Columns.Add("Id", typeof(int));
-        _suppliersTable.Columns.Add("Name", typeof(string));
-        _suppliersTable.Columns.Add("Phone", typeof(string));
-        _suppliersTable.Columns.Add("Email", typeof(string));
-
-        var result = await _serviceProvider.GetRequiredService<ISupplierDesktopService>().GetAllAsync();
-
-        if (result.IsSuccess && result.Value != null)
+        try
         {
-            foreach (var s in result.Value)
+            var result = await Service.GetAllAsync();
+
+            if (!result.IsSuccess || result.Value is null)
             {
-                _suppliersTable.Rows.Add(s.Id, s.Name, s.Phone ?? string.Empty, s.Email ?? string.Empty);
+                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الموردين. يرجى المحاولة مرة أخرى.",
+                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
+
+            _suppliersTable = new DataTable();
+            _suppliersTable.Columns.Add("Id", typeof(int));
+            _suppliersTable.Columns.Add("Name", typeof(string));
+            _suppliersTable.Columns.Add("Phone", typeof(string));
+            _suppliersTable.Columns.Add("Email", typeof(string));
+
+            foreach (var s in result.Value)
+                _suppliersTable.Rows.Add(s.Id, s.Name, s.Phone ?? string.Empty, s.Email ?? string.Empty);
+
+            _suppliersView = new DataView(_suppliersTable);
+            dgvSuppliers.DataSource = _suppliersView;
+
+            _ApplyFilter();   // يحترم نص البحث المكتوب قبل التحديث
         }
-
-        _suppliersView = new DataView(_suppliersTable);
-        dgvSuppliers.DataSource = _suppliersView;
-
-        Cursor = dgvSuppliers.Cursor = Cursors.Default;
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تحميل قائمة الموردين");
+            MessageBox.Show("تعذر تحميل قائمة الموردين. يرجى المحاولة مرة أخرى.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = dgvSuppliers.Cursor = Cursors.Default;
+            _UpdateButtonsState();
+        }
     }
 
-    private void txtSearch_TextChanged(object sender, EventArgs e)
+    // ── البحث الفوري (RULE-N24/RULE-N59/RULE-N60) ────────────────────────────
+
+    private void txtSearch_TextChanged(object sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>Enter في حقل البحث = اختيار أفضل نتيجة فوراً (RULE-N42/RULE-N47).</summary>
+    private void txtSearch_KeyDown(object sender, KeyEventArgs e)
     {
+        if (e.KeyCode != Keys.Enter) return;
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+        _SelectCurrent();
+    }
+
+    private void _ApplyFilter()
+    {
+        if (_suppliersView is null) return;
+
         string search = txtSearch.Text.Trim();
 
-        if (string.IsNullOrEmpty(search))
-        {
-            _suppliersView.RowFilter = string.Empty;
-        }
-        else
-        {
-            string safeSearch = search.Replace("'", "''");
-            _suppliersView.RowFilter = string.Format(
-                "Name LIKE '%{0}%' OR Phone LIKE '%{0}%'",
-                safeSearch);
-        }
+        // القيمة تُهرَّب عبر RowFilterHelper — لا إدراج خام في RowFilter.
+        _suppliersView.RowFilter = string.IsNullOrEmpty(search)
+            ? string.Empty
+            : RowFilterHelper.Like("Name", search) + " OR " + RowFilterHelper.Like("Phone", search);
+
+        lblNoData.Visible = _suppliersView.Count == 0;
+        _UpdateButtonsState();
     }
 
-    private void dgvSuppliers_DoubleClick(object sender, EventArgs e)
+    // ── الاختيار ─────────────────────────────────────────────────────────────
+
+    private void dgvSuppliers_SelectionChanged(object sender, EventArgs e) => _UpdateButtonsState();
+
+    private void dgvSuppliers_KeyDown(object sender, KeyEventArgs e)
     {
+        if (e.KeyCode != Keys.Enter) return;
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;   // يمنع تنفيذ AcceptButton مرة ثانية
         _SelectCurrent();
     }
 
-    private void btnSelect_Click(object sender, EventArgs e)
+    private void dgvSuppliers_DoubleClick(object sender, EventArgs e) => _SelectCurrent();
+
+    private void btnSelect_Click(object sender, EventArgs e) => _SelectCurrent();
+
+    /// <summary>آلة حالة الأزرار (RULE-N43).</summary>
+    private void _UpdateButtonsState()
     {
-        _SelectCurrent();
+        btnSelect.Enabled = dgvSuppliers.CurrentRow is not null && dgvSuppliers.Rows.Count > 0;
     }
 
     private void _SelectCurrent()
     {
-        if (dgvSuppliers.CurrentRow == null)
-        {
-            return;
-        }
+        if (dgvSuppliers.CurrentRow?.DataBoundItem is not DataRowView row) return;
 
-        DataRowView row = (DataRowView)dgvSuppliers.CurrentRow.DataBoundItem;
-        int id = (int)row["Id"];
+        int id = row["Id"] == DBNull.Value ? 0 : Convert.ToInt32(row["Id"]);
+        if (id <= 0) return;
+
         string name = row["Name"] as string ?? string.Empty;
         string phone = row["Phone"] as string ?? string.Empty;
         string email = row["Email"] as string ?? string.Empty;

@@ -39,6 +39,28 @@ public partial class frmProductUnitMaster : Form
     /// <summary>يمنع معالجات الأحداث من إعادة تعبئة النموذج أثناء الربط البرمجي.</summary>
     private bool _isBinding;
 
+    /// <summary>
+    /// حالة الشاشة (آلة الحالة): تبدأ دائماً بوضع العرض <see cref="EntryMode.Browsing"/>
+    /// حيث كل حقول الإدخال **معطّلة**، ولا تُفعَّل إلا بزر «جديد» أو باختيار سجل من الشبكة (RULE-N149).
+    /// </summary>
+    private EntryMode _mode = EntryMode.Browsing;
+
+    /// <summary>نص شريط العنوان الأساسي، تُضاف إليه لاحقة الوضع الحالي.</summary>
+    private const string FormTitle = "(( وحدات الصنف ))";
+
+    /// <summary>أوضاع شاشة الإدخال — آلة الحالة التي تحكم تفعيل الحقول والأزرار (RULE-N43/RULE-N44/RULE-N150).</summary>
+    private enum EntryMode
+    {
+        /// <summary>عرض فقط: كل حقول الإدخال معطّلة حتى يضغط المستخدم «جديد» أو يحدّد سجلاً (RULE-N149).</summary>
+        Browsing,
+
+        /// <summary>إضافة وحدة جديدة: الحقول مفعّلة وزر «إضافة» متاح فقط.</summary>
+        Adding,
+
+        /// <summary>تعديل وحدة محددة: الحقول مفعّلة وأزرار «تعديل/حذف» متاحة.</summary>
+        Editing
+    }
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmProductUnitMaster()
     {
@@ -54,11 +76,11 @@ public partial class frmProductUnitMaster : Form
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this);                                  // RTL: يمين/أعلى = السابق، يسار/أسفل = التالي
 
-        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // أزرار الوضع (إضافة/تعديل/حذف) وزر «مسح التصفية» تتغير حالة تفعيلها،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnClearFilters); // RULE-N43
 
-        // اختصارات موحّدة (RULE-N47): F2 = جديد · F5 = تحديث · Delete = حذف السجل المحدد · Esc = مسح التصفية.
+        // اختصارات موحّدة (RULE-N47): F2 = جديد · F5 = تحديث · Delete = حذف السجل المحدد · Esc = مسح التصفية/إلغاء.
         // Delete لا يعمل أثناء الكتابة داخل حقل حتى لا يُحذف سجل بالخطأ.
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F2, () => btnNew.PerformClick()),
@@ -68,7 +90,10 @@ public partial class frmProductUnitMaster : Form
                 if (btnDelete.Enabled && !_IsTextEditingFocused())
                     btnDelete.PerformClick();
             }),
-            (Keys.Escape, _ClearFilters));
+            (Keys.Escape, _GlobalEscape));
+
+        // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة» · تعديل ⇒ «تعديل» (RULE-N147).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
 
         // الفهرس الافتراضي «الكل» = نفس سلوك البحث السابق (RULE-N60).
         _isBinding = true;
@@ -98,6 +123,18 @@ public partial class frmProductUnitMaster : Form
         }
 
         return focus is TextBoxBase or NumericUpDown or ComboBox or IDataGridViewEditingControl;
+    }
+
+    /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج والعودة لوضع العرض (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();   // ينهي الإدخال ويعيد الحقول إلى وضع العرض
     }
 
     // ── Public API (يستدعيه frmProductMaster) ─────────────────────────────────
@@ -187,7 +224,7 @@ public partial class frmProductUnitMaster : Form
         // نص شريط الملخص: أخضر داكن مميّز (RULE-N53) — القيمة من الـ Helper لا من الشاشة (RULE-N54)
         lblSummary.ForeColor = GreenThemeHelper.TextStrong;
 
-        GreenThemeHelper.Apply(this); // ← الأخير دائماً
+        GreenThemeHelper.Apply(this); // الثيم الأخضر آخر سطر دائماً (RULE-N50)
     }
 
     private async Task _LoadUnitLookupAsync()
@@ -351,14 +388,21 @@ public partial class frmProductUnitMaster : Form
 
     private void chkOnlyWithBarcode_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
-    /// <summary>Enter في حقل التصفية يطبّق فوراً (RULE-N59).</summary>
+    /// <summary>Enter في حقل التصفية يطبّق فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
     private void txtFilterValue_KeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.KeyCode != Keys.Enter) return;
-
-        _ApplyFilter();
-        e.Handled = true;
-        e.SuppressKeyPress = true;
+        if (e.KeyCode == Keys.Enter)
+        {
+            _ApplyFilter();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+        else if (e.KeyCode == Keys.Escape)
+        {
+            _ClearAllFilters();
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
     }
 
     /// <summary>
@@ -381,7 +425,7 @@ public partial class frmProductUnitMaster : Form
     {
         if (_unitsView is null) return;
 
-        string text = _EscapeFilterValue(txtFilterValue.Text.Trim());
+        string text = txtFilterValue.Text.Trim();
 
         var conditions = new List<string>();
 
@@ -390,20 +434,21 @@ public partial class frmProductUnitMaster : Form
             switch (cbFilterBy.SelectedIndex)
             {
                 case 1: // اسم الوحدة
-                    conditions.Add($"UnitName LIKE '%{text}%'");
+                    conditions.Add(RowFilterHelper.Like("UnitName", text));
                     break;
 
                 case 2: // الباركود
-                    conditions.Add($"Barcode LIKE '%{text}%'");
+                    conditions.Add(RowFilterHelper.Like("Barcode", text));
                     break;
 
-                case 3: // رقم الوحدة
-                    conditions.Add($"CONVERT(Id, 'System.String') LIKE '{text}%'");
+                case 3: // رقم الوحدة — بحث بادئي على الرقم (نفس السلوك السابق، بقيمة مُهرَّبة)
+                    conditions.Add($"CONVERT(Id, 'System.String') LIKE '{RowFilterHelper.Escape(text)}%'");
                     break;
 
                 default: // الكل — نفس سلوك البحث السابق
-                    conditions.Add($"(UnitName LIKE '%{text}%' OR Barcode LIKE '%{text}%' " +
-                                   $"OR CONVERT(Id, 'System.String') LIKE '{text}%')");
+                    conditions.Add("(" + RowFilterHelper.Like("UnitName", text)
+                                   + " OR " + RowFilterHelper.Like("Barcode", text)
+                                   + " OR CONVERT(Id, 'System.String') LIKE '" + RowFilterHelper.Escape(text) + "%')");
                     break;
             }
         }
@@ -414,38 +459,55 @@ public partial class frmProductUnitMaster : Form
         if (chkOnlyWithBarcode.Checked)
             conditions.Add("Barcode <> ''");
 
-        _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _unitsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : "";
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية وحدات الصنف — أُبقيت التصفية السابقة كما هي");
+        }
 
         _UpdateSummary();
+        _UpdateClearFiltersState();
     }
 
     /// <summary>
-    /// يهرّب قيمة التصفية قبل حقنها في <see cref="DataView.RowFilter"/>:
-    /// حذف الأقواس المربعة (رموز خاصة في RowFilter) وتضعيف علامة الاقتباس (RULE-N60).
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للمحرر (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
     /// </summary>
-    private static string _EscapeFilterValue(string value)
-        => value
-            .Replace("[", "")
-            .Replace("]", "")
-            .Replace("'", "''");
-
-    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة كاملة (Esc — RULE-N59).</summary>
-    private void _ClearFilters()
+    private void btnClearFilters_Click(object? sender, EventArgs e)
     {
-        _isBinding = true;
-        try
-        {
-            cbFilterBy.SelectedIndex = 0;
-            txtFilterValue.Clear();
-            chkOnlyBaseUnit.Checked = false;
-            chkOnlyWithBarcode.Checked = false;
-        }
-        finally
-        {
-            _isBinding = false;
-        }
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث» (RULE-N148).</summary>
+    private void _ClearFilterInputs()
+    {
+        txtFilterValue.Clear();
+        chkOnlyBaseUnit.Checked = false;
+        chkOnlyWithBarcode.Checked = false;
+        cbFilterBy.SelectedIndex = 0;
+    }
+
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة كاملة (Esc — RULE-N59/RULE-N148).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
 
         _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43: زر «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || chkOnlyBaseUnit.Checked
+            || chkOnlyWithBarcode.Checked
+            || cbFilterBy.SelectedIndex > 0;
     }
 
     /// <summary>
@@ -516,11 +578,7 @@ public partial class frmProductUnitMaster : Form
             return Task.CompletedTask;
 
         _editId = unit.Id;
-
-        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
-        btnSave.Enabled = false;
-        btnEdit.Enabled = true;
-        btnDelete.Enabled = true;
+        _mode = EntryMode.Editing;   // RULE-N151: اختيار سجل من الشبكة = وضع التعديل
 
         _isBinding = true;
         try
@@ -544,26 +602,101 @@ public partial class frmProductUnitMaster : Form
         }
 
         errorProvider.Clear();
-        _UpdateModeHeader();
+
+        // بعد تعبئة الحقول: تفعيلها + ضبط الأزرار + تحديث شريط الوضع (آلة حالة واحدة).
+        _ApplyModeState();
         return Task.CompletedTask;
+    }
+
+    // ── Actions state (RULE-N43 / RULE-N44 / RULE-N150) ───────────────────────
+
+    /// <summary>
+    /// آلة الحالة المركزية للشاشة: تفعيل/تعطيل حقول الإدخال، وحالة كل زر، ونص شريط الوضع،
+    /// والزر الافتراضي للشاشة (`AcceptButton`). تُستدعى بعد **كل** انتقال حالة:
+    /// تحميل · «جديد» · اختيار سجل · حفظ ناجح · حذف · «تحديث» · Esc (RULE-N150).
+    /// الحقول تبدأ معطّلة، ولا تُفعَّل إلا في وضعي الإضافة والتعديل (RULE-N149).
+    /// </summary>
+    private void _ApplyModeState()
+    {
+        bool editingSession = _mode != EntryMode.Browsing;
+
+        _SetEditorEnabled(editingSession);
+
+        // معامل التحويل يُعدَّل في وضع الإضافة فقط (لا يتغيّر بعد الإضافة) — للعرض عند التعديل.
+        numFactor.Enabled = _mode == EntryMode.Adding;
+
+        // آلة حالة الأزرار (RULE-N43): «جديد/إضافة» في الإضافة، «تعديل/حذف» عند وجود سجل محدد.
+        btnNew.Enabled = true;
+        btnRefresh.Enabled = true;
+        btnClose.Enabled = true;
+        btnSave.Enabled = _mode == EntryMode.Adding;
+        btnEdit.Enabled = _mode == EntryMode.Editing;
+        btnDelete.Enabled = _mode == EntryMode.Editing;
+
+        _UpdateModeHeader();   // RULE-N44
+
+        // RULE-N147: Enter يُنفِّذ الزر الأساسي للوضع الحالي (ويُبرزه كزر افتراضي للشاشة).
+        AcceptButton = _PrimaryActionButton();
+    }
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي (RULE-N147): عرض ⇒ «جديد» · إضافة ⇒ «إضافة» · تعديل ⇒ «تعديل».
+    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة.
+    /// </summary>
+    private Button? _PrimaryActionButton() => _mode switch
+    {
+        EntryMode.Adding => btnSave,
+        EntryMode.Editing => btnEdit,
+        _ => btnNew
+    };
+
+    /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
+    private Control[] _EditorInputs() => new Control[]
+    {
+        cmbUnit, txtBarcode, numFactor,
+        numSalePrice, numWholesalePrice, numCostPrice, numMaxDiscount
+    };
+
+    /// <summary>تفعيل أو تعطيل كل حقول المحرر دفعة واحدة.</summary>
+    private void _SetEditorEnabled(bool enabled)
+    {
+        foreach (var input in _EditorInputs())
+            input.Enabled = enabled;
     }
 
     // ── Mode header / Reset ───────────────────────────────────────────────────
 
-    private void _UpdateModeHeader()
-        => lblMode.Text = _editId.HasValue
-            ? $"(( وحدات الصنف )) — {_productName} — تعديل وحدة"
-            : $"(( وحدات الصنف )) — {_productName} — إضافة وحدة جديدة";
+    /// <summary>عنوان الشاشة الأساسي مع اسم الصنف (إن كان معروفاً).</summary>
+    private string _Title => string.IsNullOrWhiteSpace(_productName)
+        ? FormTitle
+        : $"{FormTitle} — {_productName}";
 
+    private string _CurrentUnitName()
+        => _editId is int id && _unitsById.TryGetValue(id, out var unit)
+            ? unit.UnitName ?? ""
+            : cmbUnit.Text ?? "";
+
+    /// <summary>
+    /// شريط الوضع (RULE-N44): «وضع العرض» افتراضياً · «إضافة وحدة جديدة» · «تعديل وحدة: &lt;الاسم&gt;».
+    /// </summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = _mode switch
+        {
+            EntryMode.Adding => $"{_Title} — إضافة وحدة جديدة",
+            EntryMode.Editing => $"{_Title} — تعديل وحدة: {_CurrentUnitName()}",
+            _ => $"{_Title} — وضع العرض"
+        };
+    }
+
+    /// <summary>
+    /// إعادة الشاشة إلى **وضع العرض** (الحالة الافتراضية): تفريغ الحقول، تعطيل كل حقول الإدخال،
+    /// وإتاحة زر «جديد» فقط (RULE-N149).
+    /// </summary>
     private void _ResetForm()
     {
         _editId = null;
-
-        // وضع الإضافة: زر الإضافة متاح، وزرّا التعديل والحذف معطّلان لعدم وجود سجل محدد.
-        // نصوص الأزرار ثابتة في المصمم — لا تُبدَّل حسب الوضع.
-        btnSave.Enabled = true;
-        btnEdit.Enabled = false;
-        btnDelete.Enabled = false;
+        _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
 
@@ -595,7 +728,21 @@ public partial class frmProductUnitMaster : Form
             _isBinding = false;
         }
 
-        _UpdateModeHeader();
+        _ApplyModeState();   // الحقول معطّلة + «جديد» فقط + شريط الوضع = وضع العرض
+        btnNew.Focus();
+    }
+
+    /// <summary>
+    /// بدء إدخال وحدة جديدة (زر «جديد» / F2): تفريغ الحقول ثم **تفعيلها** وتحويل شريط الوضع
+    /// إلى «إضافة وحدة جديدة» (RULE-N151).
+    /// </summary>
+    private void _StartNewEntry()
+    {
+        _ResetForm();
+
+        _mode = EntryMode.Adding;
+        _ApplyModeState();
+
         cmbUnit.Focus();
     }
 
@@ -674,7 +821,7 @@ public partial class frmProductUnitMaster : Form
 
     // ── Buttons ───────────────────────────────────────────────────────────────
 
-    private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
+    private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
 
     /// <summary>زر الخروج: إغلاق شاشة وحدات الصنف.</summary>
     private void btnClose_Click(object? sender, EventArgs e)
@@ -689,14 +836,19 @@ public partial class frmProductUnitMaster : Form
     /// <summary>زر التعديل: يُحدّث الوحدة المحددة فقط.</summary>
     private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync(edit: true);
 
-    /// <summary>تحديث يدوي لقائمة وحدات الصنف مع الإبقاء على نص البحث الحالي.</summary>
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← الدلائل (الوحدات) ← وحدات الصنف ← المحرر ووضع العرض.
+    /// </summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
     {
         Cursor = Cursors.WaitCursor;
         try
         {
-            await _LoadUnitsAsync();
-            _ResetForm(); // تفريغ الحقول + وضع الاستعداد بعد التحديث
+            _ClearFilterInputs();          // التصفية تعود للافتراضي
+            await _LoadUnitLookupAsync();  // قد تتغيّر من شاشة الوحدات
+            await _LoadUnitsAsync();       // إعادة قراءة وحدات الصنف (يعيد تطبيق التصفية والملخّص)
+            _ResetForm();                  // تفريغ المحرر + وضع العرض + الحقول معطّلة
         }
         catch (Exception ex)
         {
@@ -709,12 +861,6 @@ public partial class frmProductUnitMaster : Form
             Cursor = Cursors.Default;
         }
     }
-
-    /// <summary>اسم الوحدة الحالية لعرضه في رسالة التأكيد.</summary>
-    private string _CurrentUnitName()
-        => _editId is int id && _unitsById.TryGetValue(id, out var unit)
-            ? unit.UnitName ?? ""
-            : cmbUnit.Text ?? "";
 
     /// <summary>
     /// حفظ وحدة الصنف: <paramref name="edit"/> = false → إضافة جديدة، true → تعديل السجل المحدد (<c>_editId</c>).
@@ -801,16 +947,15 @@ public partial class frmProductUnitMaster : Form
                 MessageBox.Show(edit ? "تم تعديل وحدة الصنف بنجاح." : "تمت إضافة وحدة الصنف بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
-                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
+                // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
+                // ثم تحديث الشبكة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي — RULE-N151).
                 _editId = result.Value.Id;
-                btnSave.Enabled = false;
-                btnEdit.Enabled = true;
-                btnDelete.Enabled = true;
+                _mode = EntryMode.Editing;
 
                 await _LoadUnitsAsync();
+                await _FillFormAsync(result.Value.Id);   // يعبّئ الحقول ويضبط الأزرار وشريط الوضع
+                _ApplyModeState();                       // ضمان الحالة حتى لو لم يُعثر على السطر
                 _SelectGridRow(result.Value.Id);
-                _UpdateModeHeader();
             }
             else
             {
@@ -826,20 +971,8 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
-            if (_editId is null)
-            {
-                btnSave.Enabled = true;
-                btnEdit.Enabled = false;
-                btnDelete.Enabled = false;
-            }
-            else
-            {
-                btnSave.Enabled = false;
-                btnEdit.Enabled = true;
-                btnDelete.Enabled = true;
-            }
-
+            // استعادة الحالة الكاملة (حقول + أزرار + شريط الوضع) حسب الوضع الحالي للنموذج.
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
     }
@@ -880,8 +1013,10 @@ public partial class frmProductUnitMaster : Form
                 MessageBox.Show("تم حذف وحدة الصنف بنجاح.", "تم الحذف",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // بعد الحذف: الرجوع إلى وضع العرض (الحقول معطّلة) ثم تحديث الشبكة تلقائياً.
                 _ResetForm();
                 await _LoadUnitsAsync();
+                _ApplyModeState();   // يضمن بقاء الحقول معطّلة بعد إعادة التحميل
             }
             else
             {
@@ -897,9 +1032,8 @@ public partial class frmProductUnitMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا الحذف والتعديل معطّلين.
-            btnDelete.Enabled = _editId.HasValue;
-            btnEdit.Enabled = _editId.HasValue;
+            // بعد الحذف الناجح يعود النموذج إلى وضع العرض → «جديد» فقط هو المتاح.
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
     }

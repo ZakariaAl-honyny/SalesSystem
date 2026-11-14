@@ -13,5 +13,6 @@ public interface IWarehouseDesktopService
     Task<Result<WarehouseDto>> CreateAsync(CreateWarehouseRequest r, CancellationToken ct = default);
     Task<Result<WarehouseDto>> UpdateAsync(int id, UpdateWarehouseRequest r, CancellationToken ct = default);
     Task<Result> SetDefaultAsync(int id, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }
 

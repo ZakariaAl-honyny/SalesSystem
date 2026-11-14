@@ -104,6 +104,18 @@ public class DirectCategoryService : ICategoryDesktopService
         }
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.ReactivateAsync(id, ct);
+        }
+        catch (Exception)
+        {
+            return Result.Failure("تعذر إعادة تنشيط التصنيف", ErrorCodes.InvalidOperation);
+        }
+    }
+
     // ─── مابر ────────────────────────────────────────────────────────────────
 
     private static CategoryDto MapToDto(ProductCategoryDto p) =>

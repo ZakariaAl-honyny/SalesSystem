@@ -11,5 +11,6 @@ public interface ICategoryDesktopService
     Task<Result<CategoryDto>> CreateAsync(CreateCategoryRequest r, CancellationToken ct = default);
     Task<Result<CategoryDto>> UpdateAsync(int id, UpdateCategoryRequest r, CancellationToken ct = default);
     Task<Result> DeleteAsync(int id, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }
 

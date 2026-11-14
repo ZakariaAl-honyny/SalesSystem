@@ -105,4 +105,17 @@ public class DirectCashBoxService : ICashBoxDesktopService
             return Result.Failure("حدث خطأ غير متوقع أثناء تنفيذ التحويل بين الصناديق.");
         }
     }
+
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.RestoreAsync(id, ct);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "DirectCashBoxService.ReactivateAsync failed for id {Id}", id);
+            return Result.Failure("حدث خطأ غير متوقع أثناء إعادة تنشيط الصندوق.");
+        }
+    }
 }

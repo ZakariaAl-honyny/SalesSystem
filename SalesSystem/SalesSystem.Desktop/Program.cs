@@ -32,6 +32,7 @@ using SalesSystem.Desktop.Suppliers.Forms;
 using SalesSystem.Desktop.Screens;
 using SalesSystem.Desktop.Screens.Dashboard.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
+using SalesSystem.Desktop.Screens.Tools.Forms;
 using Microsoft.EntityFrameworkCore;
 using SalesSystem.DTO.Common;
 using SalesSystem.DataAccess;
@@ -337,6 +338,37 @@ static class Program
 
                     // Newly-built module hub screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmInventory>();
+
+                    // ─────────────────────────────────────────────────────────────────────
+                    // شاشات موجودة في Screens/** ولم تكن مُسجَّلة في الحاوية (RULE-N10).
+                    // RULE-N02: تُفتح من الحاوية فقط — لا إنشاء يدوي لأي نموذج في أي شاشة.
+                    // ─────────────────────────────────────────────────────────────────────
+                    // الأصناف
+                    services.AddTransient<frmImportProductsExcel>();
+                    // المخزون — تحويل · جرد · دفعات · باركود (وملفات الطباعة التابعة لها)
+                    services.AddTransient<frmWarehouseTransferNew>();
+                    services.AddTransient<frmWarehouseTransferPrint>();
+                    services.AddTransient<frmStocktakingNew>();
+                    services.AddTransient<frmStocktakingPrint>();
+                    services.AddTransient<frmStocktakingPrintAdjustment>();
+                    services.AddTransient<frmStocktakingPrintCard>();
+                    services.AddTransient<frmInventoryFifo>();
+                    services.AddTransient<frmInventoryBarcode>();
+                    services.AddTransient<frmInventoryAddProduct>();
+                    // المشتريات — حوارات سطور/خصم/عملة/تفاصيل وطباعة الفاتورة
+                    services.AddTransient<frmPurchaseInvoicePrint>();
+                    services.AddTransient<frmPurchaseItem>();
+                    services.AddTransient<frmPurchaseItemInfo>();
+                    services.AddTransient<frmPurchaseDiscount>();
+                    services.AddTransient<frmPurchaseCurrency>();
+                    services.AddTransient<frmPurchaseOtherDetails>();
+                    // العملاء والموردون — اختيار وكشف حساب
+                    services.AddTransient<frmCustomerSelection>();
+                    services.AddTransient<frmCustomerStatement>();
+                    services.AddTransient<frmSupplierSelection>();
+                    services.AddTransient<frmSupplierStatement>();
+                    // الأدوات
+                    services.AddTransient<frmCalculator>();
                 })
                 .Build();
 

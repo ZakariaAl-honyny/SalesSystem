@@ -1,11 +1,11 @@
-using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
-/// نافذة إدخال صنف مشتريات (تشغيلة + صلاحية) — واجهة أولية ببيانات تجريبية فقط (Mock).
-/// تُعرض عبر ShowDialog وتُرجع قيم الصنف عبر الخصائص العامة عند الموافقة.
+/// حوار إدخال صنف مشتريات (تشغيلة + صلاحية + كمية/تكلفة/خصم) — واجهة أولية ببيانات تجريبية (Mock).
+/// يُعرض عبر <c>ShowDialog</c> ويُرجع قيم الصنف عبر الخصائص العامة عند الموافقة.
+/// <para>RULE-N40…RULE-N47 / RULE-N50…RULE-N54 / RULE-N97 — التنقل والثيم والتفقيط الحيّ.</para>
 /// </summary>
 public partial class frmPurchaseItem : Form
 {
@@ -40,7 +40,23 @@ public partial class frmPurchaseItem : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
+            (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N97 — التفقيط الحيّ على حقول المال والكمية.
+        LiveTafqeetHelper.Attach(tipTafqeet,
+            (numQuantity, "الكمية", LiveTafqeetHelper.ReadMode.Quantity),
+            (numCost, "التكلفة", LiveTafqeetHelper.ReadMode.Money),
+            (numDiscount, "الخصم", LiveTafqeetHelper.ReadMode.Money));
+
+        ApplyUiTheme(); // RULE-N50 — آخر خطوة في تهيئة المظهر
 
         numQuantity.Value = 1;
         LoadMockData();
@@ -48,7 +64,44 @@ public partial class frmPurchaseItem : Form
     }
 
     // ═══════════════════════════════════════════════════════════
-    // نتائج النافذة — يقرأها النموذج الأب بعد ShowDialog
+    // الثيم (RULE-N50…RULE-N54)
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// يطبّق الثيم الأخضر: تنسيق النموذج والأزرار أولاً ثم الثيم الأخضر **آخراً** (RULE-N50).
+    /// لا يغيّر أي منطق حساب.
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+
+        ThemeHelper.ApplyButtonStyle(btnOk, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnCancel, ThemeHelper.ButtonType.Secondary);
+
+        // ThemeHelper يفرض Segoe UI ويوسّع الأزرار ⇒ نثبّت Tahoma والأحجام (RULE-N21).
+        foreach (var btn in new[] { btnOk, btnCancel })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btn.Size = new Size(130, 40);
+        }
+
+        btnOk.ForeColor = Color.White;
+        btnOk.Size = new Size(130, 40);
+        btnOk.Margin = new Padding(0, 0, 10, 0);
+        btnCancel.Size = new Size(107, 40);
+        btnCancel.Margin = new Padding(0);
+
+        toolTip.SetToolTip(btnOk, "موافق — حفظ قيم الصنف وإغلاق الحوار (Enter)");
+        toolTip.SetToolTip(btnCancel, "إلغاء وإغلاق الحوار بلا حفظ (Esc)");
+
+        GreenThemeHelper.ApplyHeader(lblTitle);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // نتائج الحوار — يقرأها النموذج الأب بعد ShowDialog
     // ═══════════════════════════════════════════════════════════
     public string ProductName => SelectedProduct?.Name ?? "";
     public string Barcode => lblBarcodeValue.Text;
@@ -59,6 +112,8 @@ public partial class frmPurchaseItem : Form
     public string BatchNumber => txtBatch.Text.Trim();
     public bool HasExpiry => chkExpiry.Checked;
     public DateTime? ExpiryDate => chkExpiry.Checked ? dtpExpiry.Value.Date : null;
+
+    /// <summary>RULE-002: إجمالي السطر = (الكمية × التكلفة) − الخصم — منطق الحساب لم يتغيّر.</summary>
     public decimal Total => (numQuantity.Value * numCost.Value) - numDiscount.Value;
 
     // ═══════════════════════════════════════════════════════════
@@ -112,7 +167,7 @@ public partial class frmPurchaseItem : Form
     }
 
     // ═══════════════════════════════════════════════════════════
-    // التحقق من صحة البيانات
+    // التحقق من صحة البيانات — errorProvider + رسائل عربية (RULE-N28)
     // ═══════════════════════════════════════════════════════════
     private bool ValidateForm()
     {
@@ -167,7 +222,7 @@ public partial class frmPurchaseItem : Form
         }
         catch (Exception ex)
         {
-            // واجهة تجريبية: لا يوجد اتصال بالخادم بعد — يظهر رسالة عامة فقط
+            Serilog.Log.Error(ex, "خطأ في حوار صنف المشتريات");
             MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }

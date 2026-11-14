@@ -5,11 +5,9 @@ using SalesSystem.Desktop.Helpers;
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
 /// <summary>
-/// UI SHAPE — "محضر جرد فعلي" (New Stocktaking Session) dialog.
-/// Mock data only (in-memory). No backend / API calls yet.
-/// Demonstrates: header (رقم/تاريخ/مستودع), counting committee row,
-/// editable count grid with auto-computed difference (الفرق),
-/// surplus/deficit/item-count totals, and draft/post/cancel actions.
+/// «محضر جرد فعلي» — شاشة إدخال كميات الجرد الفعلية.
+/// الهيكل (RULE-N79 / RULE-N135…N138): العنوان ← أوامر المحضر ← بيانات المحضر ← لجنة الجرد ← الأصناف ← ملخص الجرد.
+/// سلوك إدخال الكميات وحساب الفروق بقي كما هو حرفياً.
 /// </summary>
 public partial class frmStocktakingNew : Form
 {
@@ -36,12 +34,49 @@ public partial class frmStocktakingNew : Form
     private static readonly Color SurplusGreen = Color.FromArgb(25, 135, 84);   // فائض +
     private static readonly Color DeficitRed = Color.FromArgb(220, 53, 69);     // عجز -
 
+    /// <summary>نص شريط العنوان الأساسي — تُضاف إليه حالة المحضر (RULE-N44).</summary>
+    private const string FormTitle = "محضر جرد فعلي";
+
     public frmStocktakingNew(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);
+
+        // RULE-N43 — مظهر واضح للأزرار المعطّلة.
+        KeyboardHelper.WireButtonDisabledVisual(btnSaveDraft, btnPost, btnCancel);
+
+        // RULE-N47 — الاختصارات الموجودة فعلاً (F4 = اعتماد الجرد؛ Esc يغلقه CancelButton).
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F4, () => btnPost.PerformClick()));
+
+        // RULE-N147 — Enter = الزر الأساسي للوضع (اعتماد الجرد)، ومحجوب داخل شبكة العدّ.
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // خطأ تحرير خلية لا يُسقط الشاشة.
         dgvLines.DataError += (s, e) => e.ThrowException = false;
+
+        ApplyUiTheme();
+    }
+
+    // ── الثيم (RULE-N50…RULE-N54) ─────────────────────────────────────
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply(this)</c> آخر سطر دائماً.</summary>
+    private void ApplyUiTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+        GreenThemeHelper.ApplyGrid(dgvLines);
+
+        lblSurplusLabel.ForeColor = GreenThemeHelper.TextStrong;
+        lblDeficitLabel.ForeColor = GreenThemeHelper.TextStrong;
+        lblItemCountLabel.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -149,8 +184,34 @@ public partial class frmStocktakingNew : Form
 
         lblSurplusValue.Text = surplus.ToString("N3");
         lblDeficitValue.Text = deficit.ToString("N3");
-        lblItemCountValue.Text = counted.ToString();
+        lblItemCountValue.Text = counted.ToString("N0");
+
+        _UpdateModeHeader();
     }
+
+    /// <summary>مؤشر الوضع (RULE-N44): محضر جديد + عدد الأصناف المعدودة.</summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = $"{FormTitle} — جرد جديد (عدد الأصناف المعدودة: {lblItemCountValue.Text})";
+
+        // RULE-N147 — مفتاح Enter الافتراضي يتبع الوضع، ويتحرّر تلقائياً عندما تكون شبكة العدّ نشطة.
+        AcceptButton = _PrimaryActionButton();
+    }
+
+    // ── RULE-N147 — Enter = الزر الأساسي للوضع ────────────────────────
+
+    /// <summary>
+    /// الزر الأساسي لضغطة <c>Enter</c> حسب وضع الشاشة (RULE-N147).
+    /// يُرجع <c>null</c> عندما تكون شبكة العدّ في التركيز أو خليةٌ قيد التحرير بداخلها،
+    /// لأن <c>Enter</c> داخل شبكة الجرد = تثبيت الخلية والانتقال للتالي — لا اعتماد المحضر
+    /// (حماية سلامة الجرد — §2.7).
+    /// </summary>
+    private Button? _PrimaryActionButton()
+        => _IsCountGridActive() ? null : btnPost;
+
+    /// <summary>شبكة العدّ تحمل التركيز (أو خلية قيد التحرير داخلها).</summary>
+    private bool _IsCountGridActive()
+        => dgvLines is { IsDisposed: false } && (dgvLines.Focused || dgvLines.ContainsFocus);
 
     // ═════════════════════════════════════════════════════════════════
     //  FOOTER ACTIONS — save draft / post / cancel (mock only)
@@ -185,6 +246,19 @@ public partial class frmStocktakingNew : Form
         Close();
     }
 
+    // ── Context menu (RULE-N23) ───────────────────────────────────────
+
+    private void miPost_Click(object? sender, EventArgs e)
+        => btnPost.PerformClick();
+
+    private void miDeleteRow_Click(object? sender, EventArgs e)
+    {
+        if (dgvLines.CurrentRow is not { IsNewRow: false } row) return;
+
+        dgvLines.Rows.Remove(row);
+        _RecalculateTotals();
+    }
+
     // ═════════════════════════════════════════════════════════════════
     //  VALIDATION
     // ═════════════════════════════════════════════════════════════════
@@ -193,11 +267,14 @@ public partial class frmStocktakingNew : Form
     {
         if (cmbWarehouse.SelectedIndex < 0)
         {
+            errorProvider.SetError(cmbWarehouse, "يرجى اختيار المستودع");
             MessageBox.Show("يرجى اختيار المستودع.", "بيانات غير مكتملة",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
             cmbWarehouse.Focus();
             return false;
         }
+
+        errorProvider.SetError(cmbWarehouse, "");
         return true;
     }
 

@@ -81,4 +81,16 @@ public class DirectUnitService : IUnitDesktopService
             return Result.Failure("تعذر حذف الوحدة", ErrorCodes.InvalidOperation);
         }
     }
+
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.ReactivateAsync(id, ct);
+        }
+        catch (Exception)
+        {
+            return Result.Failure("تعذر إعادة تنشيط الوحدة", ErrorCodes.InvalidOperation);
+        }
+    }
 }

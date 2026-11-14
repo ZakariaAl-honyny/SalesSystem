@@ -19,6 +19,11 @@ public partial class frmListExpenses : Form
     private List<ExpenseDto> _allExpenses = new();
     private List<ExpenseDto> _filteredExpenses = new();
 
+    // RULE-N148: الوضع الافتراضي لأدوات التصفية («هذا الشهر») — يُلتقط مرة عند الإنشاء
+    // وتُعاد إليه أدوات التصفية عند «مسح التصفية» وعند «تحديث».
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     // يبدأ true حتى لا تنطلق تصفية من داخل المنشئ قبل اكتمال تهيئة أدوات التصفية.
     private bool _isInitializing = true;
 
@@ -27,6 +32,10 @@ public partial class frmListExpenses : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
+        var today = DateTime.Today;
+        _defaultFrom = new DateTime(today.Year, today.Month, 1);
+        _defaultTo = today;
+
         // RULE-N40…N46 — تنقل وتحديد وتظليل وأسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
@@ -34,7 +43,7 @@ public partial class frmListExpenses : Form
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — الأزرار المعطّلة تظهر رمادية باهتة.
-        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose);
+        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose, btnClearFilters);
 
         // RULE-N47 — اختصارات الشاشة: F2 جديد · F5 تحديث · Delete حذف السطر · Esc مسح التصفية.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -45,14 +54,18 @@ public partial class frmListExpenses : Form
                 if (dgvExpenses.ContainsFocus)
                     deleteToolStripMenuItem.PerformClick();
             }),
-            (Keys.Escape, _ClearAllFilters));
+            (Keys.Escape, _GlobalEscape));
 
-        // RULE-N97 — التفقيط الحيّ كتلميح على حقل المبلغ في التصفية.
-        LiveTafqeetHelper.Attach(liveTip, (txtSearch, "المبلغ", LiveTafqeetHelper.ReadMode.Money));
+        // RULE-N147: Enter = الزر الأساسي للشاشة («جديد») — شاشة قائمة بلا آلة حالة إدخال (RULE-N101).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
 
         _SetupToolTips();
         FilterPanelHelper.Attach(this, _serviceProvider);
     }
+
+    /// <summary>RULE-N147: الزر الأساسي للشاشة — «جديد» (لا آلة حالة إدخال في شاشة القائمة).</summary>
+    private Button? _PrimaryActionButton() => btnAddNew;
 
     /// <summary>تلميحات الأزرار مع اختصاراتها (RULE-N47).</summary>
     private void _SetupToolTips()
@@ -135,6 +148,9 @@ public partial class frmListExpenses : Form
             }
 
             _ApplyFilter();
+
+            // RULE-N148: إعادة التحميل تُصفّر الاختيار (الملخص يُعاد حسابه داخل _ApplyFilter).
+            dgvExpenses.ClearSelection();
         }
         catch (Exception ex)
         {
@@ -200,6 +216,7 @@ public partial class frmListExpenses : Form
         _filteredExpenses = query.ToList();
         _PopulateGrid();
         _UpdateSummary();
+        _UpdateClearFiltersState();   // RULE-N148: الزر مفعّل فقط عند وجود تصفية نشطة
     }
 
     /// <summary>تصفية المبلغ: مطابقة رقمية إن أمكن، وإلا مطابقة نصية منسّقة.</summary>
@@ -310,11 +327,8 @@ public partial class frmListExpenses : Form
         _isInitializing = true;
         try
         {
-            cbFilterBy.SelectedIndex = 0;
-            cbStatus.SelectedIndex = 0;
-            chkOnlyCancelled.Checked = false;
-            txtSearch.Clear();
-            _SetDateRangeThisMonth();
+            // الشاشة تفتح على الوضع الافتراضي لأدوات التصفية (RULE-N148).
+            _ClearFilterInputs();
         }
         finally
         {
@@ -322,7 +336,8 @@ public partial class frmListExpenses : Form
         }
 
         _ReloadForm();
-        ApplyGreenTheme();   // RULE-N50 — الأخير في مسار التحميل
+        _UpdateClearFiltersState();   // RULE-N148: حالة الزر بعد التحميل مباشرة
+        ApplyGreenTheme();            // RULE-N50 — الأخير في مسار التحميل
     }
 
     private void btnClose_Click(object sender, EventArgs e)
@@ -333,8 +348,16 @@ public partial class frmListExpenses : Form
         _OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateExpense>());
     }
 
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاع إعدادات التصفية للافتراضي (RULE-N148):
+    /// أدوات التصفية ← (لا دلائل/قوائم منسدلة في هذه الشاشة) ← المصروفات من الخدمة ← الملخص والاختيار.
+    /// «مسح التصفية» هو المسؤول عن مسح التصفية فقط بلا إعادة تحميل.
+    /// </summary>
     private void btnRefresh_Click(object sender, EventArgs e)
-        => _ReloadForm();
+    {
+        _ClearFilterInputs();
+        _ReloadForm();
+    }
 
     // ── أحداث التصفية الفورية ──────────────────────────────────────────────────
 
@@ -406,6 +429,16 @@ public partial class frmListExpenses : Form
     private void btnRange30_Click(object sender, EventArgs e)
         => _SetDateRange(DateTime.Today.AddDays(-29), DateTime.Today);
 
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للبيانات (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
+    {
+        _ClearAllFilters();
+        txtSearch.Focus();
+    }
+
     // ── أدوات التصفية ──────────────────────────────────────────────────────────
 
     /// <summary>يضبط النطاق بلا إطلاق أحداث وسيطة ثم يُصفّي مرة واحدة.</summary>
@@ -425,7 +458,7 @@ public partial class frmListExpenses : Form
         _ApplyFilter();
     }
 
-    /// <summary>«هذا الشهر» = من أول الشهر الحالي حتى اليوم (الافتراضي ومسح Esc).</summary>
+    /// <summary>«هذا الشهر» = من أول الشهر الحالي حتى اليوم (زر النطاق السريع).</summary>
     private void _SetDateRangeThisMonth()
     {
         var today = DateTime.Today;
@@ -436,25 +469,60 @@ public partial class frmListExpenses : Form
             _ApplyFilter();
     }
 
-    /// <summary>Esc: مسح كل أدوات التصفية وإعادة النطاق إلى «هذا الشهر».</summary>
-    private void _ClearAllFilters()
+    /// <summary>
+    /// تفريغ أدوات التصفية وحدها إلى الوضع الافتراضي (بلا تطبيق ولا إعادة تحميل) — RULE-N148.
+    /// تُستهلك من «مسح التصفية» و«تحديث» وعند فتح الشاشة.
+    /// </summary>
+    private void _ClearFilterInputs()
     {
+        bool wasInitializing = _isInitializing;
+
+        // منع تصفية وسيطة عند كل ضبط حقل — تُطبَّق مرة واحدة بعد التفريغ.
         _isInitializing = true;
         try
         {
+            txtSearch.Clear();
             cbFilterBy.SelectedIndex = 0;
             cbStatus.SelectedIndex = 0;
             chkOnlyCancelled.Checked = false;
-            txtSearch.Clear();
-            _SetDateRangeThisMonth();
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
-            _isInitializing = false;
+            _isInitializing = wasInitializing;
+        }
+    }
+
+    /// <summary>RULE-N148: يمسح أدوات التصفية ثم يعيد تطبيق التصفية الافتراضية على البيانات المحمَّلة (بلا تحميل).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
+        _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الوضع الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtSearch.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbStatus.SelectedIndex > 0
+            || chkOnlyCancelled.Checked
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
+    }
+
+    /// <summary>RULE-N47 + RULE-N59: Esc داخل صندوق التصفية = مسحها، وخارجه = إغلاق الشاشة.</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
         }
 
-        _ApplyFilter();
-        txtSearch.Focus();
+        Close();
     }
 
     // ── قائمة السياق والإجراءات ────────────────────────────────────────────────

@@ -1,10 +1,11 @@
+using SalesSystem.Desktop.Helpers;
+
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
-/// نافذة "عملة المشتريات" — نموذج واجهة (UI Shape) يعمل ببيانات وهمية في الذاكرة فقط
-/// دون أي اتصال بالخادم أو قاعدة البيانات (وضع التجربة / UI-First).
-/// تُعرض عبر ShowDialog وتُعيد العملة المختارة وسعر الصرف المعتمد إلى النموذج الأب
-/// عبر خصائص عامة بعد الضغط على "تأكيد واعتماد".
+/// حوار «عملة المشتريات» — واجهة أولية ببيانات وهمية في الذاكرة (وضع التجربة / UI-First).
+/// يُعرض عبر <c>ShowDialog</c> ويُعيد العملة المختارة وسعر الصرف المعتمد إلى النموذج الأب.
+/// <para>RULE-N40…RULE-N47 / RULE-N50…RULE-N54 / RULE-N97 — التنقل والثيم والتفقيط الحيّ.</para>
 /// </summary>
 public partial class frmPurchaseCurrency : Form
 {
@@ -43,7 +44,7 @@ public partial class frmPurchaseCurrency : Form
             [CurrencyKey.Sar] = new("الريال السعودي", "SAR", false, 66.00m, 5m),
         };
 
-    // ─── حالة النافذة الحالية ───
+    // ─── حالة الحوار الحالية ───
     private CurrencyKey _selected = CurrencyKey.Yer;
     private decimal _currentRate = 1.000m;
     private bool _isUpdatingUi; // يمنع التكرار عند تعيين قيم عناصر التحكم برمجياً
@@ -53,12 +54,73 @@ public partial class frmPurchaseCurrency : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
+        // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel, btnRestore);     // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
+            (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N97 — التفقيط الحيّ على سعر الصرف.
+        LiveTafqeetHelper.Attach(tipTafqeet,
+            (numRate, "سعر الصرف", LiveTafqeetHelper.ReadMode.Money));
+
+        ApplyUiTheme(); // RULE-N50
+
         // تهيئة الحالة الافتراضية: العملة المحلية (الريال اليمني)
         SelectCurrency(CurrencyKey.Yer);
     }
 
     // ═══════════════════════════════════════════════════════════
-    // نتائج النافذة — يقرأها النموذج الأب بعد ShowDialog
+    // الثيم (RULE-N50…RULE-N54)
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply</c> آخر سطر (RULE-N50).</summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+
+        ThemeHelper.ApplyButtonStyle(btnOk, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnCancel, ThemeHelper.ButtonType.Secondary);
+        ThemeHelper.ApplyButtonStyle(btnRestore, ThemeHelper.ButtonType.Secondary);
+
+        // ThemeHelper يفرض Segoe UI ويوسّع الأزرار ⇒ نثبّت Tahoma والأحجام (RULE-N21).
+        foreach (var btn in new[] { btnOk, btnCancel })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        }
+
+        btnOk.Size = new Size(140, 40);
+        btnOk.ForeColor = Color.White;
+        btnOk.Margin = new Padding(0, 0, 8, 0);
+        btnCancel.Size = new Size(92, 40);
+        btnCancel.Margin = new Padding(0);
+
+        btnRestore.AutoSize = false;
+        btnRestore.UseVisualStyleBackColor = false;
+        btnRestore.MinimumSize = Size.Empty;
+        btnRestore.Font = new Font("Tahoma", 9.5F, FontStyle.Bold);
+
+        lblRangeStatus.ForeColor = ThemeHelper.Danger; // تنبيه أحمر صريح (RULE-N54: من الـHelper)
+
+        toolTip.SetToolTip(btnOk, "تأكيد واعتماد العملة وسعر الصرف (Enter)");
+        toolTip.SetToolTip(btnCancel, "إلغاء وإغلاق الحوار بلا اعتماد (Esc)");
+        toolTip.SetToolTip(btnRestore, "استعادة السعر الرسمي للعملة المختارة");
+        toolTip.SetToolTip(numRate, "سعر الصرف مقابل الريال اليمني — للعملات الأجنبية فقط");
+        toolTip.SetToolTip(pnlYer, "الريال اليمني — العملة المحلية (معامل 1)");
+        toolTip.SetToolTip(pnlUsd, "الدولار الأمريكي — السعر الرسمي 250.00 ر.ي");
+        toolTip.SetToolTip(pnlSar, "الريال السعودي — السعر الرسمي 66.00 ر.ي");
+
+        GreenThemeHelper.ApplyHeader(lblTitle);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // نتائج الحوار — يقرأها النموذج الأب بعد ShowDialog
     // ═══════════════════════════════════════════════════════════
     public string SelectedCurrencyCode => Currencies[_selected].Code;
     public string SelectedCurrencyName => Currencies[_selected].Name;
@@ -117,12 +179,17 @@ public partial class frmPurchaseCurrency : Form
         _isUpdatingUi = false;
     }
 
+    /// <summary>
+    /// تلوين البطاقة المختارة من ثوابت الثيم فقط (RULE-N54) — بلا قيمة لونية مكرّرة هنا.
+    /// </summary>
     private void UpdateCardBackColors()
     {
-        Color selected = Color.FromArgb(232, 244, 253); // أزرق فاتح للبطاقة المختارة
-        pnlYer.BackColor = _selected == CurrencyKey.Yer ? selected : Color.White;
-        pnlUsd.BackColor = _selected == CurrencyKey.Usd ? selected : Color.White;
-        pnlSar.BackColor = _selected == CurrencyKey.Sar ? selected : Color.White;
+        Color selected = GreenThemeHelper.SelectionBack;
+        Color normal = Color.White;
+
+        pnlYer.BackColor = _selected == CurrencyKey.Yer ? selected : normal;
+        pnlUsd.BackColor = _selected == CurrencyKey.Usd ? selected : normal;
+        pnlSar.BackColor = _selected == CurrencyKey.Sar ? selected : normal;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -187,11 +254,16 @@ public partial class frmPurchaseCurrency : Form
     {
         try
         {
+            errorProvider.SetError(numRate, "");
+
             var opt = Currencies[_selected];
 
             // للعملات الأجنبية: تحقق من النطاق المسموح قبل الاعتماد
             if (!opt.IsLocal && !IsWithinRange(opt, _currentRate))
             {
+                errorProvider.SetError(numRate,
+                    $"السعر المُدخل خارج النطاق المسموح ({RangeText(opt)}).");
+
                 var confirm = MessageBox.Show(
                     $"السعر المُدخل ({_currentRate:N2}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({opt.OfficialRate:N2})؟",
                     "سعر الصرف خارج النطاق",
@@ -201,9 +273,16 @@ public partial class frmPurchaseCurrency : Form
                 if (confirm == DialogResult.Yes)
                 {
                     _currentRate = opt.OfficialRate;
+
+                    _isUpdatingUi = true;
+                    numRate.Value = opt.OfficialRate;
+                    _isUpdatingUi = false;
+
+                    errorProvider.SetError(numRate, "");
                 }
                 else
                 {
+                    numRate.Focus();
                     return; // يبقى المستخدم لتصحيح السعر
                 }
             }
@@ -211,9 +290,9 @@ public partial class frmPurchaseCurrency : Form
             DialogResult = DialogResult.OK;
             Close();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // واجهة تجريبية: لا يوجد اتصال بالخادم بعد — رسالة عامة فقط
+            Serilog.Log.Error(ex, "خطأ في حوار عملة المشتريات");
             MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }

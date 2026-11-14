@@ -70,4 +70,16 @@ public class MockCategoryDesktopService : ICategoryDesktopService
 
         return Task.FromResult(Result.Success());
     }
+
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockLookupsData.Categories.FirstOrDefault(c => c.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("التصنيف غير موجود"));
+
+        var index = MockLookupsData.Categories.IndexOf(existing);
+        MockLookupsData.Categories[index] = existing with { IsActive = true };
+
+        return Task.FromResult(Result.Success());
+    }
 }

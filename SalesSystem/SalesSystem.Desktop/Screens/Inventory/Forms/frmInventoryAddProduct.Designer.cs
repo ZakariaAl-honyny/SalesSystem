@@ -17,6 +17,8 @@ partial class frmInventoryAddProduct
     {
         components = new System.ComponentModel.Container();
         errorProvider = new ErrorProvider(components);
+        toolTip1 = new ToolTip(components);
+        liveTip = new ToolTip(components);
         lblMode = new Label();
         lblName = new Label();
         txtName = new TextBox();
@@ -53,13 +55,30 @@ partial class frmInventoryAddProduct
         ((System.ComponentModel.ISupportInitialize)nudOpeningQty).BeginInit();
         SuspendLayout();
         // 
+        // errorProvider
+        // 
+        errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+        errorProvider.ContainerControl = this;
+        errorProvider.RightToLeft = true;
+        // 
+        // toolTip1
+        // 
+        toolTip1.AutomaticDelay = 300;
+        toolTip1.BackColor = Color.White;
+        toolTip1.ForeColor = Color.Black;
+        // 
+        // liveTip
+        // 
+        liveTip.AutomaticDelay = 300;
+        liveTip.BackColor = Color.White;
+        liveTip.ForeColor = Color.Black;
+        // 
         // lblMode
         // 
-        lblMode.BackColor = Color.WhiteSmoke;
+        lblMode.BackColor = Color.FromArgb(14, 165, 103);
         lblMode.Dock = DockStyle.Top;
-        lblMode.FlatStyle = FlatStyle.Flat;
         lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-        lblMode.ForeColor = Color.Firebrick;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(640, 39);
@@ -71,6 +90,7 @@ partial class frmInventoryAddProduct
         // 
         lblName.AutoSize = true;
         lblName.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblName.ForeColor = Color.FromArgb(14, 82, 52);
         lblName.Location = new Point(20, 57);
         lblName.Name = "lblName";
         lblName.Size = new Size(108, 24);
@@ -79,6 +99,7 @@ partial class frmInventoryAddProduct
         // 
         // txtName
         // 
+        txtName.BackColor = Color.White;
         txtName.Font = new Font("Tahoma", 10F);
         txtName.Location = new Point(140, 54);
         txtName.Name = "txtName";
@@ -89,6 +110,7 @@ partial class frmInventoryAddProduct
         // 
         lblBarcode.AutoSize = true;
         lblBarcode.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblBarcode.ForeColor = Color.FromArgb(14, 82, 52);
         lblBarcode.Location = new Point(20, 102);
         lblBarcode.Name = "lblBarcode";
         lblBarcode.Size = new Size(87, 24);
@@ -97,6 +119,7 @@ partial class frmInventoryAddProduct
         // 
         // txtBarcode
         // 
+        txtBarcode.BackColor = Color.White;
         txtBarcode.Font = new Font("Tahoma", 10F);
         txtBarcode.Location = new Point(140, 99);
         txtBarcode.Name = "txtBarcode";
@@ -107,6 +130,7 @@ partial class frmInventoryAddProduct
         // 
         lblCategory.AutoSize = true;
         lblCategory.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblCategory.ForeColor = Color.FromArgb(14, 82, 52);
         lblCategory.Location = new Point(20, 150);
         lblCategory.Name = "lblCategory";
         lblCategory.Size = new Size(85, 24);
@@ -115,7 +139,9 @@ partial class frmInventoryAddProduct
         // 
         // cmbCategory
         // 
+        cmbCategory.BackColor = Color.White;
         cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbCategory.FlatStyle = FlatStyle.Flat;
         cmbCategory.Font = new Font("Tahoma", 10F);
         cmbCategory.FormattingEnabled = true;
         cmbCategory.Location = new Point(140, 147);
@@ -127,6 +153,7 @@ partial class frmInventoryAddProduct
         // 
         lblReorderLevel.AutoSize = true;
         lblReorderLevel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblReorderLevel.ForeColor = Color.FromArgb(14, 82, 52);
         lblReorderLevel.Location = new Point(390, 150);
         lblReorderLevel.Name = "lblReorderLevel";
         lblReorderLevel.Size = new Size(83, 24);
@@ -135,6 +162,7 @@ partial class frmInventoryAddProduct
         // 
         // nudReorderLevel
         // 
+        nudReorderLevel.BackColor = Color.White;
         nudReorderLevel.DecimalPlaces = 0;
         nudReorderLevel.Font = new Font("Tahoma", 10F);
         nudReorderLevel.Location = new Point(490, 147);
@@ -147,20 +175,22 @@ partial class frmInventoryAddProduct
         // chkTrackExpiry
         // 
         chkTrackExpiry.AutoSize = true;
+        chkTrackExpiry.BackColor = Color.FromArgb(170, 220, 170);
         chkTrackExpiry.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        chkTrackExpiry.ForeColor = Color.FromArgb(14, 82, 52);
         chkTrackExpiry.Location = new Point(20, 192);
         chkTrackExpiry.Name = "chkTrackExpiry";
         chkTrackExpiry.Size = new Size(195, 28);
         chkTrackExpiry.TabIndex = 9;
         chkTrackExpiry.Text = "يتبع تاريخ صلاحية";
-        chkTrackExpiry.UseVisualStyleBackColor = true;
+        chkTrackExpiry.UseVisualStyleBackColor = false;
         chkTrackExpiry.CheckedChanged += chkTrackExpiry_CheckedChanged;
         // 
         // lblUnitsHeader
         // 
         lblUnitsHeader.AutoSize = true;
         lblUnitsHeader.Font = new Font("Tahoma", 11F, FontStyle.Bold);
-        lblUnitsHeader.ForeColor = Color.DimGray;
+        lblUnitsHeader.ForeColor = Color.FromArgb(14, 82, 52);
         lblUnitsHeader.Location = new Point(20, 232);
         lblUnitsHeader.Name = "lblUnitsHeader";
         lblUnitsHeader.Size = new Size(176, 27);
@@ -169,15 +199,27 @@ partial class frmInventoryAddProduct
         // 
         // dgvUnits
         // 
+        // شبكة إدخال سطور (RULE-N22a): تُدخَل فيها الوحدات والأسعار مباشرةً داخل الخلية.
         dgvUnits.AllowUserToAddRows = true;
         dgvUnits.AllowUserToDeleteRows = true;
+        dgvUnits.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
         dgvUnits.AutoGenerateColumns = false;
         dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvUnits.BackgroundColor = Color.White;
-        dgvUnits.BorderStyle = BorderStyle.Fixed3D;
-        dgvUnits.ColumnHeadersHeight = 36;
+        dgvUnits.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvUnits.BorderStyle = BorderStyle.None;
+        dgvUnits.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvUnits.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+        dgvUnits.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dgvUnits.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvUnits.ColumnHeadersHeight = 40;
         dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colUnit, colFactor, colBarcode, colSellPrice, colCost });
+        dgvUnits.DefaultCellStyle.BackColor = Color.White;
+        dgvUnits.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+        dgvUnits.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dgvUnits.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dgvUnits.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
+        dgvUnits.EnableHeadersVisualStyles = false;
+        dgvUnits.GridColor = Color.FromArgb(205, 225, 205);
         dgvUnits.Location = new Point(12, 266);
         dgvUnits.Name = "dgvUnits";
         dgvUnits.ReadOnly = false;
@@ -186,12 +228,13 @@ partial class frmInventoryAddProduct
         dgvUnits.SelectionMode = DataGridViewSelectionMode.CellSelect;
         dgvUnits.Size = new Size(616, 160);
         dgvUnits.TabIndex = 11;
+        dgvUnits.EditingControlShowing += dgvUnits_EditingControlShowing;
         // 
         // colUnit
         // 
         colUnit.DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox;
-        colUnit.FlatStyle = FlatStyle.Flat;
         colUnit.FillWeight = 22F;
+        colUnit.FlatStyle = FlatStyle.Flat;
         colUnit.HeaderText = "الوحدة";
         colUnit.Items.AddRange(new object[] { "كيس", "كرتون", "عبوة", "قطعة" });
         colUnit.MinimumWidth = 80;
@@ -235,6 +278,7 @@ partial class frmInventoryAddProduct
         // 
         // grpOpeningStock
         // 
+        grpOpeningStock.BackColor = Color.FromArgb(235, 245, 235);
         grpOpeningStock.Controls.Add(lblExpiry);
         grpOpeningStock.Controls.Add(dtpExpiry);
         grpOpeningStock.Controls.Add(lblBatchNo);
@@ -244,6 +288,7 @@ partial class frmInventoryAddProduct
         grpOpeningStock.Controls.Add(lblWarehouse);
         grpOpeningStock.Controls.Add(cmbWarehouse);
         grpOpeningStock.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        grpOpeningStock.ForeColor = Color.FromArgb(14, 82, 52);
         grpOpeningStock.Location = new Point(12, 440);
         grpOpeningStock.Name = "grpOpeningStock";
         grpOpeningStock.RightToLeft = RightToLeft.Yes;
@@ -256,6 +301,7 @@ partial class frmInventoryAddProduct
         // 
         lblWarehouse.AutoSize = true;
         lblWarehouse.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblWarehouse.ForeColor = Color.FromArgb(14, 82, 52);
         lblWarehouse.Location = new Point(15, 25);
         lblWarehouse.Name = "lblWarehouse";
         lblWarehouse.Size = new Size(84, 24);
@@ -264,7 +310,9 @@ partial class frmInventoryAddProduct
         // 
         // cmbWarehouse
         // 
+        cmbWarehouse.BackColor = Color.White;
         cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbWarehouse.FlatStyle = FlatStyle.Flat;
         cmbWarehouse.Font = new Font("Tahoma", 10F);
         cmbWarehouse.FormattingEnabled = true;
         cmbWarehouse.Location = new Point(130, 22);
@@ -276,6 +324,7 @@ partial class frmInventoryAddProduct
         // 
         lblOpeningQty.AutoSize = true;
         lblOpeningQty.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblOpeningQty.ForeColor = Color.FromArgb(14, 82, 52);
         lblOpeningQty.Location = new Point(370, 25);
         lblOpeningQty.Name = "lblOpeningQty";
         lblOpeningQty.Size = new Size(121, 24);
@@ -284,6 +333,7 @@ partial class frmInventoryAddProduct
         // 
         // nudOpeningQty
         // 
+        nudOpeningQty.BackColor = Color.White;
         nudOpeningQty.DecimalPlaces = 3;
         nudOpeningQty.Font = new Font("Tahoma", 10F);
         nudOpeningQty.Location = new Point(500, 22);
@@ -297,6 +347,7 @@ partial class frmInventoryAddProduct
         // 
         lblBatchNo.AutoSize = true;
         lblBatchNo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblBatchNo.ForeColor = Color.FromArgb(14, 82, 52);
         lblBatchNo.Location = new Point(15, 80);
         lblBatchNo.Name = "lblBatchNo";
         lblBatchNo.Size = new Size(105, 24);
@@ -305,6 +356,7 @@ partial class frmInventoryAddProduct
         // 
         // txtBatchNo
         // 
+        txtBatchNo.BackColor = Color.White;
         txtBatchNo.Font = new Font("Tahoma", 10F);
         txtBatchNo.Location = new Point(130, 77);
         txtBatchNo.Name = "txtBatchNo";
@@ -315,6 +367,7 @@ partial class frmInventoryAddProduct
         // 
         lblExpiry.AutoSize = true;
         lblExpiry.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblExpiry.ForeColor = Color.FromArgb(14, 82, 52);
         lblExpiry.Location = new Point(370, 80);
         lblExpiry.Name = "lblExpiry";
         lblExpiry.Size = new Size(107, 24);
@@ -335,7 +388,7 @@ partial class frmInventoryAddProduct
         // 
         lblNote.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         lblNote.Font = new Font("Tahoma", 10F, FontStyle.Italic);
-        lblNote.ForeColor = Color.SteelBlue;
+        lblNote.ForeColor = Color.FromArgb(14, 82, 52);
         lblNote.Location = new Point(12, 600);
         lblNote.Name = "lblNote";
         lblNote.Size = new Size(616, 26);
@@ -346,13 +399,13 @@ partial class frmInventoryAddProduct
         // btnSave
         // 
         btnSave.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-        btnSave.BackColor = Color.FromArgb(25, 135, 84);
+        btnSave.BackColor = Color.FromArgb(40, 167, 69);
         btnSave.Cursor = Cursors.Hand;
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSave.ForeColor = Color.White;
-        btnSave.Location = new Point(250, 632);
+        btnSave.Location = new Point(390, 632);
         btnSave.MinimumSize = new Size(100, 35);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(130, 40);
@@ -371,7 +424,7 @@ partial class frmInventoryAddProduct
         btnCancel.FlatStyle = FlatStyle.Flat;
         btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnCancel.ForeColor = Color.White;
-        btnCancel.Location = new Point(390, 632);
+        btnCancel.Location = new Point(250, 632);
         btnCancel.MinimumSize = new Size(100, 35);
         btnCancel.Name = "btnCancel";
         btnCancel.Size = new Size(130, 40);
@@ -384,7 +437,7 @@ partial class frmInventoryAddProduct
         // 
         AcceptButton = btnSave;
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.WhiteSmoke;
+        BackColor = Color.FromArgb(170, 220, 170);
         CancelButton = btnCancel;
         ClientSize = new Size(640, 680);
         Controls.Add(btnCancel);
@@ -403,14 +456,14 @@ partial class frmInventoryAddProduct
         Controls.Add(txtName);
         Controls.Add(lblName);
         Controls.Add(lblMode);
-        Font = new Font("Tahoma", 12F);
+        Font = new Font("Tahoma", 10F, FontStyle.Regular);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
         Name = "frmInventoryAddProduct";
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
-        StartPosition = FormStartPosition.CenterScreen;
+        StartPosition = FormStartPosition.CenterParent;
         Text = "إضافة صنف";
         Load += frmInventoryAddProduct_Load;
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
@@ -424,6 +477,8 @@ partial class frmInventoryAddProduct
     }
 
     private ErrorProvider errorProvider;
+    private ToolTip toolTip1;
+    private ToolTip liveTip;
     private Label lblMode;
     private Label lblName;
     private TextBox txtName;

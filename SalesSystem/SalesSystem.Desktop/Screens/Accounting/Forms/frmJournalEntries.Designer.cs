@@ -18,6 +18,7 @@ partial class frmJournalEntries
         components = new System.ComponentModel.Container();
         pnlHeader = new Panel();
         lblMode = new Label();
+        gbCommands = new GroupBox();
         pnlToolbar = new FlowLayoutPanel();
         btnNew = new Button();
         btnSave = new Button();
@@ -29,6 +30,7 @@ partial class frmJournalEntries
         btnClose = new Button();
         pnlFilters = new Panel();
         gbFilter = new GroupBox();
+        btnToggleFilters = new Button();
         lblFilterBy = new Label();
         cbFilterBy = new ComboBox();
         txtFilterValue = new TextBox();
@@ -43,7 +45,8 @@ partial class frmJournalEntries
         btnRangeMonth = new Button();
         chkOnlyCancelled = new CheckBox();
         chkOnlyDraft = new CheckBox();
-        pnlSummary = new Panel();
+        btnClearFilters = new Button();
+        pnlSummary = new GroupBox();
         lblSummary = new Label();
         pnlEditor = new Panel();
         gbLines = new GroupBox();
@@ -65,7 +68,7 @@ partial class frmJournalEntries
         txtLineDescription = new TextBox();
         btnAddLine = new Button();
         btnRemoveLine = new Button();
-        pnlEntryHeader = new Panel();
+        pnlEntryHeader = new GroupBox();
         lblEntryInfo = new Label();
         lblEntryDate = new Label();
         dtpEntryDate = new DateTimePicker();
@@ -75,7 +78,7 @@ partial class frmJournalEntries
         txtEntryDescription = new TextBox();
         lblReferenceNumber = new Label();
         txtReferenceNumber = new TextBox();
-        pnlGrid = new Panel();
+        pnlGrid = new GroupBox();
         lblEmptyState = new Label();
         dgvEntries = new DataGridView();
         colEntryNumber = new DataGridViewTextBoxColumn();
@@ -96,6 +99,7 @@ partial class frmJournalEntries
         toolTip = new ToolTip(components);
         liveTip = new ToolTip(components);
         pnlHeader.SuspendLayout();
+        gbCommands.SuspendLayout();
         pnlToolbar.SuspendLayout();
         pnlFilters.SuspendLayout();
         gbFilter.SuspendLayout();
@@ -136,6 +140,19 @@ partial class frmJournalEntries
         lblMode.Text = "قيد محاسبي جديد";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
+        // gbCommands — «أوامر الشاشة»: صندوق عنوان حول شريط الأزرار (RULE-N136)
+        // 
+        gbCommands.BackColor = Color.FromArgb(235, 240, 235);
+        gbCommands.Controls.Add(pnlToolbar);
+        gbCommands.Dock = DockStyle.Top;
+        gbCommands.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbCommands.Location = new Point(0, 56);
+        gbCommands.Name = "gbCommands";
+        gbCommands.Size = new Size(1440, 82);
+        gbCommands.TabIndex = 1;
+        gbCommands.TabStop = false;
+        gbCommands.Text = "أوامر الشاشة";
+        // 
         // pnlToolbar
         // 
         pnlToolbar.BackColor = Color.FromArgb(235, 240, 235);
@@ -147,13 +164,13 @@ partial class frmJournalEntries
         pnlToolbar.Controls.Add(btnDeleteDraft);
         pnlToolbar.Controls.Add(btnRefresh);
         pnlToolbar.Controls.Add(btnClose);
-        pnlToolbar.Dock = DockStyle.Top;
+        pnlToolbar.Dock = DockStyle.Fill;
         pnlToolbar.FlowDirection = FlowDirection.RightToLeft;
-        pnlToolbar.Location = new Point(0, 56);
+        pnlToolbar.Location = new Point(3, 22);
         pnlToolbar.Name = "pnlToolbar";
-        pnlToolbar.Padding = new Padding(8, 0, 8, 0);
-        pnlToolbar.Size = new Size(1440, 60);
-        pnlToolbar.TabIndex = 1;
+        pnlToolbar.Padding = new Padding(8, 4, 8, 0);
+        pnlToolbar.Size = new Size(1434, 57);
+        pnlToolbar.TabIndex = 0;
         pnlToolbar.WrapContents = false;
         // 
         // btnNew
@@ -233,7 +250,7 @@ partial class frmJournalEntries
         // 
         // btnDeleteDraft
         // 
-        btnDeleteDraft.BackColor = Color.FromArgb(180, 40, 55);
+        btnDeleteDraft.BackColor = Color.FromArgb(220, 53, 69);
         btnDeleteDraft.FlatStyle = FlatStyle.Flat;
         btnDeleteDraft.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnDeleteDraft.ForeColor = Color.White;
@@ -280,8 +297,9 @@ partial class frmJournalEntries
         // 
         pnlFilters.BackColor = Color.FromArgb(235, 240, 235);
         pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
-        pnlFilters.Location = new Point(0, 116);
+        pnlFilters.Location = new Point(0, 138);
         pnlFilters.Name = "pnlFilters";
         pnlFilters.Padding = new Padding(8, 4, 8, 4);
         pnlFilters.Size = new Size(1440, 112);
@@ -304,15 +322,34 @@ partial class frmJournalEntries
         gbFilter.Controls.Add(btnRangeMonth);
         gbFilter.Controls.Add(chkOnlyCancelled);
         gbFilter.Controls.Add(chkOnlyDraft);
+        gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 10F);
-        gbFilter.Location = new Point(8, 4);
+        gbFilter.Location = new Point(148, 4);
         gbFilter.Name = "gbFilter";
         gbFilter.Padding = new Padding(8);
-        gbFilter.Size = new Size(1424, 104);
+        gbFilter.Size = new Size(1284, 104);
         gbFilter.TabIndex = 0;
         gbFilter.TabStop = false;
         gbFilter.Text = "بحث وتصفية";
+        // 
+        // btnToggleFilters — RULE-N145/RULE-N63: يُعلَن في المصمّم ويتبنّاه FilterPanelHelper
+        // 
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderSize = 1;
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.Location = new Point(8, 4);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 104);
+        btnToggleFilters.TabIndex = 20;
+        btnToggleFilters.Text = "إخفاء التصفية";
+        btnToggleFilters.UseVisualStyleBackColor = false;
         // 
         // lblFilterBy
         // 
@@ -325,20 +362,23 @@ partial class frmJournalEntries
         // 
         // cbFilterBy
         // 
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.Font = new Font("Tahoma", 10F);
-        cbFilterBy.Location = new Point(100, 26);
+        cbFilterBy.Location = new Point(101, 26);
         cbFilterBy.Name = "cbFilterBy";
-        cbFilterBy.Size = new Size(150, 28);
+        cbFilterBy.Size = new Size(140, 28);
         cbFilterBy.TabIndex = 1;
         cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
         // 
         // txtFilterValue
         // 
-        txtFilterValue.Location = new Point(258, 26);
+        txtFilterValue.BackColor = Color.White;
+        txtFilterValue.Font = new Font("Tahoma", 10F);
+        txtFilterValue.Location = new Point(247, 26);
         txtFilterValue.Name = "txtFilterValue";
         txtFilterValue.PlaceholderText = "بحث فوري — Esc يمسح التصفية...";
-        txtFilterValue.Size = new Size(280, 28);
+        txtFilterValue.Size = new Size(250, 28);
         txtFilterValue.TabIndex = 2;
         txtFilterValue.TextChanged += txtFilterValue_TextChanged;
         txtFilterValue.KeyDown += txtFilterValue_KeyDown;
@@ -346,7 +386,7 @@ partial class frmJournalEntries
         // lblEntryTypeFilter
         // 
         lblEntryTypeFilter.AutoSize = true;
-        lblEntryTypeFilter.Location = new Point(548, 30);
+        lblEntryTypeFilter.Location = new Point(503, 30);
         lblEntryTypeFilter.Name = "lblEntryTypeFilter";
         lblEntryTypeFilter.Size = new Size(55, 24);
         lblEntryTypeFilter.TabIndex = 3;
@@ -354,18 +394,19 @@ partial class frmJournalEntries
         // 
         // cbEntryTypeFilter
         // 
+        cbEntryTypeFilter.BackColor = Color.White;
         cbEntryTypeFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         cbEntryTypeFilter.Font = new Font("Tahoma", 10F);
-        cbEntryTypeFilter.Location = new Point(608, 26);
+        cbEntryTypeFilter.Location = new Point(564, 26);
         cbEntryTypeFilter.Name = "cbEntryTypeFilter";
-        cbEntryTypeFilter.Size = new Size(180, 28);
+        cbEntryTypeFilter.Size = new Size(165, 28);
         cbEntryTypeFilter.TabIndex = 4;
         cbEntryTypeFilter.SelectedIndexChanged += cbEntryTypeFilter_SelectedIndexChanged;
         // 
         // lblStatusFilter
         // 
         lblStatusFilter.AutoSize = true;
-        lblStatusFilter.Location = new Point(798, 30);
+        lblStatusFilter.Location = new Point(735, 30);
         lblStatusFilter.Name = "lblStatusFilter";
         lblStatusFilter.Size = new Size(62, 24);
         lblStatusFilter.TabIndex = 5;
@@ -373,18 +414,19 @@ partial class frmJournalEntries
         // 
         // cbStatusFilter
         // 
+        cbStatusFilter.BackColor = Color.White;
         cbStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatusFilter.Font = new Font("Tahoma", 10F);
-        cbStatusFilter.Location = new Point(868, 26);
+        cbStatusFilter.Location = new Point(803, 26);
         cbStatusFilter.Name = "cbStatusFilter";
-        cbStatusFilter.Size = new Size(160, 28);
+        cbStatusFilter.Size = new Size(140, 28);
         cbStatusFilter.TabIndex = 6;
         cbStatusFilter.SelectedIndexChanged += cbStatusFilter_SelectedIndexChanged;
         // 
         // lblFrom
         // 
         lblFrom.AutoSize = true;
-        lblFrom.Location = new Point(1038, 30);
+        lblFrom.Location = new Point(949, 30);
         lblFrom.Name = "lblFrom";
         lblFrom.Size = new Size(40, 24);
         lblFrom.TabIndex = 7;
@@ -392,19 +434,20 @@ partial class frmJournalEntries
         // 
         // dtpFrom
         // 
+        dtpFrom.BackColor = Color.White;
         dtpFrom.CustomFormat = "yyyy-MM-dd";
         dtpFrom.Font = new Font("Tahoma", 10F);
         dtpFrom.Format = DateTimePickerFormat.Custom;
-        dtpFrom.Location = new Point(1086, 26);
+        dtpFrom.Location = new Point(995, 26);
         dtpFrom.Name = "dtpFrom";
-        dtpFrom.Size = new Size(130, 28);
+        dtpFrom.Size = new Size(120, 28);
         dtpFrom.TabIndex = 8;
         dtpFrom.ValueChanged += dtpFrom_ValueChanged;
         // 
         // lblTo
         // 
         lblTo.AutoSize = true;
-        lblTo.Location = new Point(1224, 30);
+        lblTo.Location = new Point(1121, 30);
         lblTo.Name = "lblTo";
         lblTo.Size = new Size(35, 24);
         lblTo.TabIndex = 9;
@@ -412,12 +455,13 @@ partial class frmJournalEntries
         // 
         // dtpTo
         // 
+        dtpTo.BackColor = Color.White;
         dtpTo.CustomFormat = "yyyy-MM-dd";
         dtpTo.Font = new Font("Tahoma", 10F);
         dtpTo.Format = DateTimePickerFormat.Custom;
-        dtpTo.Location = new Point(1267, 26);
+        dtpTo.Location = new Point(1162, 26);
         dtpTo.Name = "dtpTo";
-        dtpTo.Size = new Size(130, 28);
+        dtpTo.Size = new Size(110, 28);
         dtpTo.TabIndex = 10;
         dtpTo.ValueChanged += dtpTo_ValueChanged;
         // 
@@ -443,7 +487,7 @@ partial class frmJournalEntries
         chkOnlyCancelled.Size = new Size(150, 24);
         chkOnlyCancelled.TabIndex = 12;
         chkOnlyCancelled.Text = "الملغاة فقط";
-        chkOnlyCancelled.UseVisualStyleBackColor = true;
+        chkOnlyCancelled.UseVisualStyleBackColor = false;
         chkOnlyCancelled.CheckedChanged += chkOnlyCancelled_CheckedChanged;
         // 
         // chkOnlyDraft
@@ -454,26 +498,49 @@ partial class frmJournalEntries
         chkOnlyDraft.Size = new Size(155, 24);
         chkOnlyDraft.TabIndex = 13;
         chkOnlyDraft.Text = "المسودات فقط";
-        chkOnlyDraft.UseVisualStyleBackColor = true;
+        chkOnlyDraft.UseVisualStyleBackColor = false;
         chkOnlyDraft.CheckedChanged += chkOnlyDraft_CheckedChanged;
         // 
-        // pnlSummary
+        // btnClearFilters — RULE-N148: «مسح التصفية» يمسح أدوات التصفية فقط بلا إعادة تحميل
+        // 
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.Cursor = Cursors.Hand;
+        btnClearFilters.Enabled = false;
+        btnClearFilters.FlatAppearance.BorderSize = 0;
+        btnClearFilters.FlatStyle = FlatStyle.Flat;
+        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.Location = new Point(480, 62);
+        btnClearFilters.Name = "btnClearFilters";
+        btnClearFilters.Size = new Size(145, 32);
+        btnClearFilters.TabIndex = 14;
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+        toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+        btnClearFilters.UseVisualStyleBackColor = false;
+        btnClearFilters.Click += btnClearFilters_Click;
+        // 
+        // pnlSummary — «الإجماليات» (RULE-N136)
         // 
         pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
-        pnlSummary.Location = new Point(0, 930);
+        pnlSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        pnlSummary.Location = new Point(0, 908);
         pnlSummary.Name = "pnlSummary";
-        pnlSummary.Size = new Size(1440, 30);
+        pnlSummary.Padding = new Padding(8, 18, 8, 4);
+        pnlSummary.Size = new Size(1440, 52);
         pnlSummary.TabIndex = 3;
+        pnlSummary.TabStop = false;
+        pnlSummary.Text = "الإجماليات";
         // 
         // lblSummary
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.Location = new Point(0, 0);
+        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.Location = new Point(8, 18);
         lblSummary.Name = "lblSummary";
-        lblSummary.Size = new Size(1440, 30);
+        lblSummary.Size = new Size(1424, 26);
         lblSummary.TabIndex = 0;
         lblSummary.Text = "المعروض: 0";
         lblSummary.TextAlign = ContentAlignment.MiddleCenter;
@@ -484,7 +551,7 @@ partial class frmJournalEntries
         pnlEditor.Controls.Add(gbLines);
         pnlEditor.Controls.Add(pnlEntryHeader);
         pnlEditor.Dock = DockStyle.Bottom;
-        pnlEditor.Location = new Point(0, 550);
+        pnlEditor.Location = new Point(0, 528);
         pnlEditor.Name = "pnlEditor";
         pnlEditor.Padding = new Padding(8);
         pnlEditor.Size = new Size(1440, 380);
@@ -498,23 +565,31 @@ partial class frmJournalEntries
         gbLines.Controls.Add(pnlLineEntry);
         gbLines.Dock = DockStyle.Fill;
         gbLines.Font = new Font("Tahoma", 10F);
-        gbLines.Location = new Point(8, 92);
+        gbLines.Location = new Point(8, 104);
         gbLines.Name = "gbLines";
         gbLines.Padding = new Padding(8, 6, 8, 6);
-        gbLines.Size = new Size(1424, 280);
+        gbLines.Size = new Size(1424, 268);
         gbLines.TabIndex = 1;
         gbLines.TabStop = false;
         gbLines.Text = "بنود القيد";
         // 
         // dgvLines
         // 
+        // RULE-N134: نفس ألوان GreenThemeHelper حرفياً في المصمّم ووقت التشغيل.
         dgvLines.AllowUserToAddRows = false;
         dgvLines.AllowUserToDeleteRows = false;
         dgvLines.AllowUserToOrderColumns = true;
+        dgvLines.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
         dgvLines.AutoGenerateColumns = false;
         dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvLines.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvLines.BorderStyle = BorderStyle.None;
+        dgvLines.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dgvLines.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvLines.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+        dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         dgvLines.ColumnHeadersHeight = 40;
         dgvLines.Columns.AddRange(new DataGridViewColumn[] {
         colLineAccount,
@@ -522,15 +597,22 @@ partial class frmJournalEntries
         colLineDebit,
         colLineCredit,
         colLineDescription});
+        dgvLines.DefaultCellStyle.BackColor = Color.White;
+        dgvLines.DefaultCellStyle.Font = new Font("Tahoma", 10F);
+        dgvLines.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+        dgvLines.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dgvLines.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dgvLines.Dock = DockStyle.Fill;
-        dgvLines.Location = new Point(8, 70);
+        dgvLines.EnableHeadersVisualStyles = false;
+        dgvLines.GridColor = Color.FromArgb(205, 225, 205);
+        dgvLines.Location = new Point(8, 58);
         dgvLines.MultiSelect = false;
         dgvLines.Name = "dgvLines";
         dgvLines.ReadOnly = true;
         dgvLines.RowHeadersVisible = false;
         dgvLines.RowTemplate.Height = 30;
         dgvLines.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvLines.Size = new Size(1408, 178);
+        dgvLines.Size = new Size(1408, 166);
         dgvLines.TabIndex = 2;
         // 
         // colLineAccount
@@ -585,7 +667,7 @@ partial class frmJournalEntries
         lblTotals.BackColor = Color.FromArgb(235, 240, 235);
         lblTotals.Dock = DockStyle.Bottom;
         lblTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotals.Location = new Point(8, 248);
+        lblTotals.Location = new Point(8, 236);
         lblTotals.Name = "lblTotals";
         lblTotals.Size = new Size(1408, 26);
         lblTotals.TabIndex = 1;
@@ -622,6 +704,7 @@ partial class frmJournalEntries
         // 
         // cbLineAccount
         // 
+        cbLineAccount.BackColor = Color.White;
         cbLineAccount.DropDownStyle = ComboBoxStyle.DropDownList;
         cbLineAccount.Font = new Font("Tahoma", 10F);
         cbLineAccount.Location = new Point(95, 8);
@@ -684,6 +767,8 @@ partial class frmJournalEntries
         // 
         // txtLineDescription
         // 
+        txtLineDescription.BackColor = Color.White;
+        txtLineDescription.Font = new Font("Tahoma", 10F);
         txtLineDescription.Location = new Point(830, 8);
         txtLineDescription.Name = "txtLineDescription";
         txtLineDescription.PlaceholderText = "بيان البند (اختياري)";
@@ -718,9 +803,9 @@ partial class frmJournalEntries
         btnRemoveLine.UseVisualStyleBackColor = false;
         btnRemoveLine.Click += btnRemoveLine_Click;
         // 
-        // pnlEntryHeader
+        // pnlEntryHeader — «بيانات القيد» (RULE-N136)
         // 
-        pnlEntryHeader.BackColor = Color.FromArgb(235, 240, 235);
+        pnlEntryHeader.BackColor = Color.FromArgb(235, 245, 235);
         pnlEntryHeader.Controls.Add(lblEntryInfo);
         pnlEntryHeader.Controls.Add(lblEntryDate);
         pnlEntryHeader.Controls.Add(dtpEntryDate);
@@ -731,16 +816,19 @@ partial class frmJournalEntries
         pnlEntryHeader.Controls.Add(lblReferenceNumber);
         pnlEntryHeader.Controls.Add(txtReferenceNumber);
         pnlEntryHeader.Dock = DockStyle.Top;
+        pnlEntryHeader.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         pnlEntryHeader.Location = new Point(8, 8);
         pnlEntryHeader.Name = "pnlEntryHeader";
-        pnlEntryHeader.Size = new Size(1424, 84);
+        pnlEntryHeader.Size = new Size(1424, 96);
         pnlEntryHeader.TabIndex = 0;
+        pnlEntryHeader.TabStop = false;
+        pnlEntryHeader.Text = "بيانات القيد";
         // 
         // lblEntryInfo
         // 
         lblEntryInfo.AutoSize = true;
         lblEntryInfo.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblEntryInfo.Location = new Point(20, 2);
+        lblEntryInfo.Location = new Point(20, 22);
         lblEntryInfo.Name = "lblEntryInfo";
         lblEntryInfo.Size = new Size(300, 22);
         lblEntryInfo.TabIndex = 0;
@@ -749,7 +837,7 @@ partial class frmJournalEntries
         // lblEntryDate
         // 
         lblEntryDate.AutoSize = true;
-        lblEntryDate.Location = new Point(20, 30);
+        lblEntryDate.Location = new Point(20, 50);
         lblEntryDate.Name = "lblEntryDate";
         lblEntryDate.Size = new Size(58, 24);
         lblEntryDate.TabIndex = 1;
@@ -757,10 +845,11 @@ partial class frmJournalEntries
         // 
         // dtpEntryDate
         // 
+        dtpEntryDate.BackColor = Color.White;
         dtpEntryDate.CustomFormat = "yyyy-MM-dd";
         dtpEntryDate.Font = new Font("Tahoma", 10F);
         dtpEntryDate.Format = DateTimePickerFormat.Custom;
-        dtpEntryDate.Location = new Point(90, 26);
+        dtpEntryDate.Location = new Point(90, 46);
         dtpEntryDate.Name = "dtpEntryDate";
         dtpEntryDate.Size = new Size(140, 28);
         dtpEntryDate.TabIndex = 2;
@@ -768,7 +857,7 @@ partial class frmJournalEntries
         // lblEntryType
         // 
         lblEntryType.AutoSize = true;
-        lblEntryType.Location = new Point(250, 30);
+        lblEntryType.Location = new Point(250, 50);
         lblEntryType.Name = "lblEntryType";
         lblEntryType.Size = new Size(78, 24);
         lblEntryType.TabIndex = 3;
@@ -776,9 +865,10 @@ partial class frmJournalEntries
         // 
         // cbEntryType
         // 
+        cbEntryType.BackColor = Color.White;
         cbEntryType.DropDownStyle = ComboBoxStyle.DropDownList;
         cbEntryType.Font = new Font("Tahoma", 10F);
-        cbEntryType.Location = new Point(340, 26);
+        cbEntryType.Location = new Point(340, 46);
         cbEntryType.Name = "cbEntryType";
         cbEntryType.Size = new Size(170, 28);
         cbEntryType.TabIndex = 4;
@@ -786,7 +876,7 @@ partial class frmJournalEntries
         // lblEntryDescription
         // 
         lblEntryDescription.AutoSize = true;
-        lblEntryDescription.Location = new Point(530, 30);
+        lblEntryDescription.Location = new Point(530, 50);
         lblEntryDescription.Name = "lblEntryDescription";
         lblEntryDescription.Size = new Size(55, 24);
         lblEntryDescription.TabIndex = 5;
@@ -794,7 +884,9 @@ partial class frmJournalEntries
         // 
         // txtEntryDescription
         // 
-        txtEntryDescription.Location = new Point(595, 26);
+        txtEntryDescription.BackColor = Color.White;
+        txtEntryDescription.Font = new Font("Tahoma", 10F);
+        txtEntryDescription.Location = new Point(595, 46);
         txtEntryDescription.Name = "txtEntryDescription";
         txtEntryDescription.PlaceholderText = "بيان القيد المحاسبي (مطلوب)";
         txtEntryDescription.Size = new Size(470, 28);
@@ -803,7 +895,7 @@ partial class frmJournalEntries
         // lblReferenceNumber
         // 
         lblReferenceNumber.AutoSize = true;
-        lblReferenceNumber.Location = new Point(1080, 30);
+        lblReferenceNumber.Location = new Point(1080, 50);
         lblReferenceNumber.Name = "lblReferenceNumber";
         lblReferenceNumber.Size = new Size(58, 24);
         lblReferenceNumber.TabIndex = 7;
@@ -811,31 +903,38 @@ partial class frmJournalEntries
         // 
         // txtReferenceNumber
         // 
-        txtReferenceNumber.Location = new Point(1145, 26);
+        txtReferenceNumber.BackColor = Color.White;
+        txtReferenceNumber.Font = new Font("Tahoma", 10F);
+        txtReferenceNumber.Location = new Point(1145, 46);
         txtReferenceNumber.Name = "txtReferenceNumber";
         txtReferenceNumber.PlaceholderText = "رقم المستند المرجعي (اختياري)";
         txtReferenceNumber.Size = new Size(250, 28);
         txtReferenceNumber.TabIndex = 8;
         // 
-        // pnlGrid
+        // pnlGrid — «البيانات» (RULE-N136)
         // 
-        pnlGrid.BackColor = Color.FromArgb(220, 240, 220);
+        pnlGrid.BackColor = Color.FromArgb(235, 245, 235);
         pnlGrid.Controls.Add(lblEmptyState);
         pnlGrid.Controls.Add(dgvEntries);
         pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 228);
+        pnlGrid.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        pnlGrid.Location = new Point(0, 250);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(8);
-        pnlGrid.Size = new Size(1440, 322);
+        pnlGrid.Size = new Size(1440, 278);
         pnlGrid.TabIndex = 5;
+        pnlGrid.TabStop = false;
+        pnlGrid.Text = "البيانات";
         // 
         // lblEmptyState
         // 
+        lblEmptyState.BackColor = Color.White;
         lblEmptyState.Dock = DockStyle.Fill;
         lblEmptyState.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+        lblEmptyState.ForeColor = Color.FromArgb(14, 82, 52);
         lblEmptyState.Location = new Point(8, 8);
         lblEmptyState.Name = "lblEmptyState";
-        lblEmptyState.Size = new Size(1424, 306);
+        lblEmptyState.Size = new Size(1424, 262);
         lblEmptyState.TabIndex = 1;
         lblEmptyState.Text = "لا توجد بيانات";
         lblEmptyState.TextAlign = ContentAlignment.MiddleCenter;
@@ -843,13 +942,21 @@ partial class frmJournalEntries
         // 
         // dgvEntries
         // 
+        // RULE-N134: نفس ألوان GreenThemeHelper حرفياً في المصمّم ووقت التشغيل.
         dgvEntries.AllowUserToAddRows = false;
         dgvEntries.AllowUserToDeleteRows = false;
         dgvEntries.AllowUserToOrderColumns = true;
+        dgvEntries.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
         dgvEntries.AutoGenerateColumns = false;
         dgvEntries.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvEntries.BackgroundColor = Color.FromArgb(220, 240, 220);
         dgvEntries.BorderStyle = BorderStyle.None;
+        dgvEntries.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dgvEntries.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvEntries.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        dgvEntries.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+        dgvEntries.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dgvEntries.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         dgvEntries.ColumnHeadersHeight = 45;
         dgvEntries.Columns.AddRange(new DataGridViewColumn[] {
         colEntryNumber,
@@ -861,7 +968,14 @@ partial class frmJournalEntries
         colTotalCredit,
         colStatus});
         dgvEntries.ContextMenuStrip = cmsGrid;
+        dgvEntries.DefaultCellStyle.BackColor = Color.White;
+        dgvEntries.DefaultCellStyle.Font = new Font("Tahoma", 10F);
+        dgvEntries.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+        dgvEntries.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dgvEntries.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dgvEntries.Dock = DockStyle.Fill;
+        dgvEntries.EnableHeadersVisualStyles = false;
+        dgvEntries.GridColor = Color.FromArgb(205, 225, 205);
         dgvEntries.Location = new Point(8, 8);
         dgvEntries.MultiSelect = false;
         dgvEntries.Name = "dgvEntries";
@@ -869,7 +983,7 @@ partial class frmJournalEntries
         dgvEntries.RowHeadersVisible = false;
         dgvEntries.RowTemplate.Height = 32;
         dgvEntries.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvEntries.Size = new Size(1424, 306);
+        dgvEntries.Size = new Size(1424, 262);
         dgvEntries.TabIndex = 0;
         dgvEntries.CellDoubleClick += dgvEntries_CellDoubleClick;
         dgvEntries.CellFormatting += dgvEntries_CellFormatting;
@@ -1009,7 +1123,7 @@ partial class frmJournalEntries
         Controls.Add(pnlEditor);
         Controls.Add(pnlSummary);
         Controls.Add(pnlFilters);
-        Controls.Add(pnlToolbar);
+        Controls.Add(gbCommands);
         Controls.Add(pnlHeader);
         Font = new Font("Tahoma", 10F);
         KeyPreview = true;
@@ -1020,6 +1134,7 @@ partial class frmJournalEntries
         Text = "القيود المحاسبية";
         Load += frmJournalEntries_Load;
         pnlHeader.ResumeLayout(false);
+        gbCommands.ResumeLayout(false);
         pnlToolbar.ResumeLayout(false);
         pnlFilters.ResumeLayout(false);
         gbFilter.ResumeLayout(false);
@@ -1043,6 +1158,7 @@ partial class frmJournalEntries
 
     private System.Windows.Forms.Panel pnlHeader;
     private System.Windows.Forms.Label lblMode;
+    private System.Windows.Forms.GroupBox gbCommands;
     private System.Windows.Forms.FlowLayoutPanel pnlToolbar;
     private System.Windows.Forms.Button btnNew;
     private System.Windows.Forms.Button btnSave;
@@ -1054,6 +1170,7 @@ partial class frmJournalEntries
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.GroupBox gbFilter;
+    private System.Windows.Forms.Button btnToggleFilters;
     private System.Windows.Forms.Label lblFilterBy;
     private System.Windows.Forms.ComboBox cbFilterBy;
     private System.Windows.Forms.TextBox txtFilterValue;
@@ -1068,7 +1185,8 @@ partial class frmJournalEntries
     private System.Windows.Forms.Button btnRangeMonth;
     private System.Windows.Forms.CheckBox chkOnlyCancelled;
     private System.Windows.Forms.CheckBox chkOnlyDraft;
-    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Button btnClearFilters;
+    private System.Windows.Forms.GroupBox pnlSummary;
     private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.Panel pnlEditor;
     private System.Windows.Forms.GroupBox gbLines;
@@ -1090,7 +1208,7 @@ partial class frmJournalEntries
     private System.Windows.Forms.TextBox txtLineDescription;
     private System.Windows.Forms.Button btnAddLine;
     private System.Windows.Forms.Button btnRemoveLine;
-    private System.Windows.Forms.Panel pnlEntryHeader;
+    private System.Windows.Forms.GroupBox pnlEntryHeader;
     private System.Windows.Forms.Label lblEntryInfo;
     private System.Windows.Forms.Label lblEntryDate;
     private System.Windows.Forms.DateTimePicker dtpEntryDate;
@@ -1100,7 +1218,7 @@ partial class frmJournalEntries
     private System.Windows.Forms.TextBox txtEntryDescription;
     private System.Windows.Forms.Label lblReferenceNumber;
     private System.Windows.Forms.TextBox txtReferenceNumber;
-    private System.Windows.Forms.Panel pnlGrid;
+    private System.Windows.Forms.GroupBox pnlGrid;
     private System.Windows.Forms.Label lblEmptyState;
     private System.Windows.Forms.DataGridView dgvEntries;
     private System.Windows.Forms.DataGridViewTextBoxColumn colEntryNumber;

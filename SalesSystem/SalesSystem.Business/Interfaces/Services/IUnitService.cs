@@ -12,4 +12,5 @@ public interface IUnitService
     Task<Result<UnitDto>> UpdateAsync(int id, UpdateUnitRequest request, CancellationToken ct);
     Task<Result> DeleteAsync(int id, CancellationToken ct);
     Task<Result> PermanentDeleteAsync(int id, CancellationToken ct);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct);
 }

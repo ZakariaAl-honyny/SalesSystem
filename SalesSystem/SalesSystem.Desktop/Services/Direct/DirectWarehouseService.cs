@@ -101,4 +101,16 @@ public class DirectWarehouseService : IWarehouseDesktopService
             return Result.Failure("تعذر تعيين المستودع الافتراضي", ErrorCodes.InvalidOperation);
         }
     }
+
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _warehouses.ReactivateAsync(id, ct);
+        }
+        catch (Exception)
+        {
+            return Result.Failure("تعذر إعادة تنشيط المستودع", ErrorCodes.InvalidOperation);
+        }
+    }
 }

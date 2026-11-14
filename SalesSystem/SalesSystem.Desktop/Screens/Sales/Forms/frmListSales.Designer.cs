@@ -1,6 +1,4 @@
-﻿using SalesSystem.Desktop.Helpers;
-
-namespace SalesSystem.Desktop.Screens.Sales.Forms
+﻿namespace SalesSystem.Desktop.Screens.Sales.Forms
 {
     partial class frmListSales
     {
@@ -42,6 +40,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnRangeToday = new Button();
             btnRangeMonth = new Button();
             btnRange30 = new Button();
+            btnClearFilters = new Button();
+            btnToggleFilters = new Button();
             pnlSummary = new Panel();
             flpSummary = new FlowLayoutPanel();
             lblCountCaption = new Label();
@@ -141,65 +141,98 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnAdd
             // 
+            btnAdd.BackColor = Color.FromArgb(13, 110, 253);
+            btnAdd.FlatStyle = FlatStyle.Flat;
+            btnAdd.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnAdd.ForeColor = Color.White;
             btnAdd.Location = new Point(1421, 13);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(140, 40);
             btnAdd.TabIndex = 0;
             btnAdd.Text = "فاتورة جديدة";
+            btnAdd.UseVisualStyleBackColor = false;
             btnAdd.Click += btnAdd_Click;
             // 
             // btnView
             // 
+            btnView.BackColor = Color.FromArgb(248, 249, 250);
             btnView.Enabled = false;
+            btnView.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnView.FlatAppearance.BorderSize = 1;
+            btnView.FlatStyle = FlatStyle.Flat;
+            btnView.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnView.ForeColor = Color.FromArgb(33, 37, 41);
             btnView.Location = new Point(1275, 13);
             btnView.Name = "btnView";
             btnView.Size = new Size(140, 40);
             btnView.TabIndex = 1;
             btnView.Text = "عرض / تعديل";
+            btnView.UseVisualStyleBackColor = false;
             btnView.Click += btnView_Click;
             // 
             // btnPost
             // 
+            btnPost.BackColor = Color.FromArgb(25, 135, 84);
             btnPost.Enabled = false;
+            btnPost.FlatStyle = FlatStyle.Flat;
+            btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnPost.ForeColor = Color.White;
             btnPost.Location = new Point(1129, 13);
             btnPost.Name = "btnPost";
             btnPost.Size = new Size(140, 40);
             btnPost.TabIndex = 2;
             btnPost.Text = "ترحيل";
+            btnPost.UseVisualStyleBackColor = false;
             btnPost.Click += btnPost_Click;
             // 
             // btnCancel
             // 
+            btnCancel.BackColor = Color.FromArgb(220, 53, 69);
             btnCancel.Enabled = false;
+            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancel.ForeColor = Color.White;
             btnCancel.Location = new Point(983, 13);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(140, 40);
             btnCancel.TabIndex = 3;
             btnCancel.Text = "إلغاء الفاتورة";
+            btnCancel.UseVisualStyleBackColor = false;
             btnCancel.Click += btnCancel_Click;
             // 
             // btnRefresh
             // 
+            btnRefresh.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefresh.FlatStyle = FlatStyle.Flat;
+            btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRefresh.ForeColor = Color.White;
             btnRefresh.Location = new Point(837, 13);
             btnRefresh.Name = "btnRefresh";
             btnRefresh.Size = new Size(140, 40);
             btnRefresh.TabIndex = 4;
             btnRefresh.Text = "تحديث";
+            btnRefresh.UseVisualStyleBackColor = false;
             btnRefresh.Click += btnRefresh_Click;
             // 
             // btnClose
             // 
+            btnClose.BackColor = Color.FromArgb(108, 117, 125);
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnClose.ForeColor = Color.White;
             btnClose.Location = new Point(691, 13);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(140, 40);
             btnClose.TabIndex = 5;
             btnClose.Text = "خروج";
+            btnClose.UseVisualStyleBackColor = false;
             btnClose.Click += btnClose_Click;
             // 
             // pnlFilters
             // 
-            pnlFilters.BackColor = Color.FromArgb(235, 245, 235);
+            pnlFilters.BackColor = Color.FromArgb(235, 240, 235);
             pnlFilters.Controls.Add(gbFilter);
+            pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
             pnlFilters.Location = new Point(0, 120);
             pnlFilters.Margin = new Padding(0);
@@ -224,6 +257,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbFilter.Controls.Add(btnRangeToday);
             gbFilter.Controls.Add(btnRangeMonth);
             gbFilter.Controls.Add(btnRange30);
+            gbFilter.Controls.Add(btnClearFilters);
             gbFilter.Dock = DockStyle.Fill;
             gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             gbFilter.Location = new Point(6, 4);
@@ -359,36 +393,94 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnRangeToday
             // 
+            btnRangeToday.BackColor = Color.FromArgb(108, 117, 125);
+            btnRangeToday.FlatStyle = FlatStyle.Flat;
+            btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRangeToday.ForeColor = Color.White;
             btnRangeToday.Location = new Point(1124, 65);
             btnRangeToday.Name = "btnRangeToday";
-            btnRangeToday.Size = new Size(100, 34);
+            btnRangeToday.Size = new Size(100, 30);
             btnRangeToday.TabIndex = 10;
             btnRangeToday.Text = "اليوم";
+            btnRangeToday.UseVisualStyleBackColor = false;
             btnRangeToday.Click += btnRangeToday_Click;
             // 
             // btnRangeMonth
             // 
+            btnRangeMonth.BackColor = Color.FromArgb(108, 117, 125);
+            btnRangeMonth.FlatStyle = FlatStyle.Flat;
+            btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRangeMonth.ForeColor = Color.White;
             btnRangeMonth.Location = new Point(850, 65);
             btnRangeMonth.Name = "btnRangeMonth";
-            btnRangeMonth.Size = new Size(131, 34);
+            btnRangeMonth.Size = new Size(100, 30);
             btnRangeMonth.TabIndex = 11;
             btnRangeMonth.Text = "هذا الشهر";
+            btnRangeMonth.UseVisualStyleBackColor = false;
             btnRangeMonth.Click += btnRangeMonth_Click;
             // 
             // btnRange30
             // 
+            btnRange30.BackColor = Color.FromArgb(108, 117, 125);
+            btnRange30.FlatStyle = FlatStyle.Flat;
+            btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRange30.ForeColor = Color.White;
             btnRange30.Location = new Point(987, 65);
             btnRange30.Name = "btnRange30";
-            btnRange30.Size = new Size(131, 34);
+            btnRange30.Size = new Size(128, 30);
             btnRange30.TabIndex = 12;
             btnRange30.Text = "آخر 30 يوماً";
+            btnRange30.UseVisualStyleBackColor = false;
             btnRange30.Click += btnRange30_Click;
+            // 
+            // btnClearFilters
+            // 
+            // RULE-N148: «مسح التصفية» — يمسح أدوات التصفية وحدها بلا إعادة تحميل،
+            // ومُعلَن في المصمّم بقيم حرفية مطابقة لِما يُطبَّق وقت التشغيل (RULE-N134/RULE-N145):
+            // ActionNeutralBackground (108,117,125) + نص أبيض + Tahoma 9 Bold + معطّل افتراضياً.
+            btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+            btnClearFilters.Cursor = Cursors.Hand;
+            btnClearFilters.Enabled = false;
+            btnClearFilters.FlatAppearance.BorderSize = 0;
+            btnClearFilters.FlatStyle = FlatStyle.Flat;
+            btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnClearFilters.ForeColor = Color.White;
+            btnClearFilters.Location = new Point(20, 64);
+            btnClearFilters.Name = "btnClearFilters";
+            btnClearFilters.Size = new Size(145, 32);
+            btnClearFilters.TabIndex = 13;
+            btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+            toolTip1.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+            btnClearFilters.UseVisualStyleBackColor = false;
+            btnClearFilters.Click += btnClearFilters_Click;
+            // 
+            // btnToggleFilters
+            // 
+            // RULE-N145: زر «إخفاء/إظهار التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لما يُطبَّق
+            // وقت التشغيل (نمط الزر الثانوي + عرض 140 + Tahoma 9 Bold)؛ والسلوك
+            // (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
+            btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+            btnToggleFilters.Cursor = Cursors.Hand;
+            btnToggleFilters.Dock = DockStyle.Left;
+            btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnToggleFilters.FlatAppearance.BorderSize = 1;
+            btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+            btnToggleFilters.FlatStyle = FlatStyle.Popup;
+            btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+            btnToggleFilters.Location = new Point(6, 4);
+            btnToggleFilters.Name = "btnToggleFilters";
+            btnToggleFilters.Size = new Size(140, 102);
+            btnToggleFilters.TabIndex = 13;
+            btnToggleFilters.Text = "إخفاء التصفية";
+            btnToggleFilters.UseVisualStyleBackColor = false;
             // 
             // pnlSummary
             // 
             pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
             pnlSummary.Controls.Add(flpSummary);
-            pnlSummary.Dock = DockStyle.Top;
+            // RULE-N135: الإجماليات بعد المحتوى (أسفل الشبكة) وقبل شريط الأسفل.
+            pnlSummary.Dock = DockStyle.Bottom;
             pnlSummary.Location = new Point(0, 230);
             pnlSummary.Margin = new Padding(0);
             pnlSummary.Name = "pnlSummary";
@@ -538,7 +630,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // pnlGrid
             // 
-            pnlGrid.BackColor = Color.FromArgb(220, 240, 220);
+            pnlGrid.BackColor = Color.FromArgb(235, 240, 235);
             pnlGrid.Controls.Add(emptyState);
             pnlGrid.Controls.Add(dgvSales);
             pnlGrid.Dock = DockStyle.Fill;
@@ -568,11 +660,22 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             dgvSales.AllowUserToAddRows = false;
             dgvSales.AllowUserToDeleteRows = false;
             dgvSales.AllowUserToOrderColumns = true;
+            dgvSales.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
             dgvSales.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvSales.BackgroundColor = Color.FromArgb(220, 240, 220);
             dgvSales.BorderStyle = BorderStyle.None;
+            dgvSales.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvSales.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvSales.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+            dgvSales.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
             dgvSales.ColumnHeadersHeight = 45;
             dgvSales.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvSales.DefaultCellStyle.BackColor = Color.White;
+            dgvSales.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvSales.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+            dgvSales.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvSales.EnableHeadersVisualStyles = false;
+            dgvSales.GridColor = Color.FromArgb(205, 225, 205);
             dgvSales.Columns.AddRange(new DataGridViewColumn[] { colInvoiceNo, colDate, colCustomer, colTotal, colPaid, colDue, colStatus, colNotes });
             dgvSales.ContextMenuStrip = ctxMenu;
             dgvSales.Dock = DockStyle.Fill;
@@ -710,11 +813,12 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             AutoScaleMode = AutoScaleMode.None;
             BackColor = Color.FromArgb(170, 220, 170);
-            CancelButton = btnClose;
             ClientSize = new Size(1584, 861);
             Controls.Add(pnlGrid);
-            Controls.Add(pnlFooter);
+            // RULE-N135: الإجماليات قبل شريط الأسفل ⇒ يُضاف pnlSummary قبل pnlFooter
+            // (يُرسى آخر عنصر مُضاف أولاً، فيأخذ pnlFooter الحافة السفلية ويجلس الملخص فوقه).
             Controls.Add(pnlSummary);
+            Controls.Add(pnlFooter);
             Controls.Add(pnlFilters);
             Controls.Add(pnlToolbar);
             Controls.Add(pnlHeader);
@@ -770,6 +874,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
         private System.Windows.Forms.Button btnRangeToday;
         private System.Windows.Forms.Button btnRangeMonth;
         private System.Windows.Forms.Button btnRange30;
+        private System.Windows.Forms.Button btnClearFilters;
+        private System.Windows.Forms.Button btnToggleFilters;
         private System.Windows.Forms.Panel pnlSummary;
         private System.Windows.Forms.FlowLayoutPanel flpSummary;
         private System.Windows.Forms.Label lblCountCaption;

@@ -16,7 +16,10 @@ partial class frmProductMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
-        lblTitle = new Label();
+        DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+        lblMode = new Label();
         pnlFields = new Panel();
         lblCode = new Label();
         txtCode = new TextBox();
@@ -65,9 +68,11 @@ partial class frmProductMaster
         gbFilter = new GroupBox();
         lblSearch = new Label();
         chkShowInactive = new CheckBox();
+        btnClearFilters = new Button();
         txtSearch = new TextBox();
         chkOnlyOutOfStock = new CheckBox();
         chkOnlyLowStock = new CheckBox();
+        btnToggleFilters = new Button();
         pnlSummary = new Panel();
         lblSummary = new Label();
         errorProvider = new ErrorProvider(components);
@@ -88,18 +93,18 @@ partial class frmProductMaster
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
-        // lblTitle
+        // lblMode
         // 
-        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
-        lblTitle.Dock = DockStyle.Top;
-        lblTitle.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblTitle.ForeColor = Color.White;
-        lblTitle.Location = new Point(0, 0);
-        lblTitle.Name = "lblTitle";
-        lblTitle.Size = new Size(1432, 50);
-        lblTitle.TabIndex = 0;
-        lblTitle.Text = "(( دليل الأصناف ))";
-        lblTitle.TextAlign = ContentAlignment.MiddleCenter;
+        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.Dock = DockStyle.Top;
+        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
+        lblMode.ForeColor = Color.White;
+        lblMode.Location = new Point(0, 0);
+        lblMode.Name = "lblMode";
+        lblMode.Size = new Size(1432, 50);
+        lblMode.TabIndex = 0;
+        lblMode.Text = "(( دليل الأصناف ))";
+        lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlFields
         // 
@@ -513,14 +518,13 @@ partial class frmProductMaster
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnReactivate.ForeColor = Color.White;
         btnReactivate.Location = new Point(689, 13);
-        btnReactivate.Margin = new Padding(3, 3, 3, 3);
         btnReactivate.Name = "btnReactivate";
         btnReactivate.Size = new Size(160, 35);
         btnReactivate.TabIndex = 23;
         btnReactivate.Text = "↺ إعادة تنشيط";
+        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
         btnReactivate.UseVisualStyleBackColor = false;
         btnReactivate.Click += btnReactivate_Click;
-        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
         // 
         // btnRefresh
         // 
@@ -579,16 +583,38 @@ partial class frmProductMaster
         // 
         dgvProducts.AllowUserToAddRows = false;
         dgvProducts.AllowUserToDeleteRows = false;
+        dataGridViewCellStyle4.BackColor = Color.FromArgb(245, 252, 245);
+        dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle5.BackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle5.ForeColor = Color.White;
+        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle5.SelectionForeColor = Color.White;
+        dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
+        dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
         dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle6.BackColor = Color.White;
+        dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle6.ForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+        dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
         dgvProducts.Dock = DockStyle.Fill;
+        dgvProducts.EnableHeadersVisualStyles = false;
+        dgvProducts.GridColor = Color.FromArgb(205, 225, 205);
         dgvProducts.Location = new Point(0, 10);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
         dgvProducts.ReadOnly = true;
         dgvProducts.RowHeadersVisible = false;
         dgvProducts.RowHeadersWidth = 62;
+        dgvProducts.RowTemplate.Height = 32;
         dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvProducts.Size = new Size(1432, 282);
         dgvProducts.TabIndex = 0;
@@ -598,6 +624,7 @@ partial class frmProductMaster
         // pnlFilters
         // 
         pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
         pnlFilters.Location = new Point(0, 310);
         pnlFilters.Margin = new Padding(0);
@@ -610,16 +637,18 @@ partial class frmProductMaster
         // 
         gbFilter.Controls.Add(lblSearch);
         gbFilter.Controls.Add(chkShowInactive);
+        gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Controls.Add(txtSearch);
         gbFilter.Controls.Add(chkOnlyOutOfStock);
         gbFilter.Controls.Add(chkOnlyLowStock);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 10F);
-        gbFilter.Location = new Point(6, 4);
+        gbFilter.Location = new Point(146, 4);
         gbFilter.Margin = new Padding(0);
         gbFilter.Name = "gbFilter";
         gbFilter.Padding = new Padding(8);
-        gbFilter.Size = new Size(1420, 104);
+        gbFilter.RightToLeft = RightToLeft.Yes;
+        gbFilter.Size = new Size(1280, 104);
         gbFilter.TabIndex = 22;
         gbFilter.TabStop = false;
         gbFilter.Text = "محرك البحث";
@@ -627,7 +656,7 @@ partial class frmProductMaster
         // lblSearch
         // 
         lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(501, 32);
+        lblSearch.Location = new Point(1176, 40);
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(56, 24);
         lblSearch.TabIndex = 1;
@@ -637,30 +666,49 @@ partial class frmProductMaster
         // 
         chkShowInactive.AutoSize = true;
         chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(13, 24);
+        chkShowInactive.Location = new Point(688, 38);
         chkShowInactive.Name = "chkShowInactive";
         chkShowInactive.Size = new Size(166, 28);
         chkShowInactive.TabIndex = 21;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
         // 
+        // btnClearFilters
+        // 
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.Cursor = Cursors.Hand;
+        btnClearFilters.Enabled = false;
+        btnClearFilters.FlatAppearance.BorderSize = 0;
+        btnClearFilters.FlatStyle = FlatStyle.Flat;
+        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.Location = new Point(322, 36);
+        btnClearFilters.Name = "btnClearFilters";
+        btnClearFilters.Size = new Size(178, 32);
+        btnClearFilters.TabIndex = 26;
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+        toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+        btnClearFilters.UseVisualStyleBackColor = false;
+        btnClearFilters.Click += btnClearFilters_Click;
+        // 
         // txtSearch
         // 
-        txtSearch.Location = new Point(195, 24);
+        txtSearch.Location = new Point(870, 36);
         txtSearch.Name = "txtSearch";
+        txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 20;
         txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
         txtSearch.KeyDown += txtSearch_KeyDown;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // chkOnlyOutOfStock
         // 
         chkOnlyOutOfStock.AutoSize = true;
         chkOnlyOutOfStock.FlatStyle = FlatStyle.Flat;
-        chkOnlyOutOfStock.Location = new Point(580, 24);
+        chkOnlyOutOfStock.Location = new Point(370, 38);
         chkOnlyOutOfStock.Name = "chkOnlyOutOfStock";
-        chkOnlyOutOfStock.Size = new Size(126, 28);
+        chkOnlyOutOfStock.Size = new Size(112, 28);
         chkOnlyOutOfStock.TabIndex = 23;
         chkOnlyOutOfStock.Text = "النافد فقط";
         chkOnlyOutOfStock.CheckedChanged += chkOnlyOutOfStock_CheckedChanged;
@@ -669,12 +717,29 @@ partial class frmProductMaster
         // 
         chkOnlyLowStock.AutoSize = true;
         chkOnlyLowStock.FlatStyle = FlatStyle.Flat;
-        chkOnlyLowStock.Location = new Point(720, 24);
+        chkOnlyLowStock.Location = new Point(510, 38);
         chkOnlyLowStock.Name = "chkOnlyLowStock";
-        chkOnlyLowStock.Size = new Size(152, 28);
+        chkOnlyLowStock.Size = new Size(157, 28);
         chkOnlyLowStock.TabIndex = 24;
         chkOnlyLowStock.Text = "تحت حد الطلب";
         chkOnlyLowStock.CheckedChanged += chkOnlyLowStock_CheckedChanged;
+        // 
+        // btnToggleFilters
+        // 
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.Location = new Point(6, 4);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 104);
+        btnToggleFilters.TabIndex = 25;
+        btnToggleFilters.Text = "إخفاء التصفية";
+        btnToggleFilters.UseVisualStyleBackColor = false;
         // 
         // pnlSummary
         // 
@@ -690,12 +755,13 @@ partial class frmProductMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
         lblSummary.TabIndex = 0;
         lblSummary.Text = "المعروض: 0 من 0";
-        lblSummary.TextAlign = ContentAlignment.MiddleRight;
+        lblSummary.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // errorProvider
         // 
@@ -713,7 +779,7 @@ partial class frmProductMaster
         Controls.Add(pnlFilters);
         Controls.Add(pnlButtons);
         Controls.Add(pnlFields);
-        Controls.Add(lblTitle);
+        Controls.Add(lblMode);
         Font = new Font("Tahoma", 10F);
         Name = "frmProductMaster";
         RightToLeft = RightToLeft.Yes;
@@ -741,7 +807,7 @@ partial class frmProductMaster
         ResumeLayout(false);
     }
 
-    private System.Windows.Forms.Label lblTitle;
+    private System.Windows.Forms.Label lblMode;
     private System.Windows.Forms.Panel pnlFields;
     private System.Windows.Forms.Label lblCode;
     private System.Windows.Forms.TextBox txtCode;
@@ -800,5 +866,7 @@ partial class frmProductMaster
     private System.Windows.Forms.ErrorProvider errorProvider;
     private System.Windows.Forms.ToolTip toolTip;
     private GroupBox gbFilter;
+    private Button btnToggleFilters;
+    private Button btnClearFilters;
 }
 

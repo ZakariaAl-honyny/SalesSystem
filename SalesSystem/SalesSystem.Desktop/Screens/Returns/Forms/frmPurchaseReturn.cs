@@ -24,7 +24,7 @@ public partial class frmPurchaseReturn : Form
     private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
     private INotificationService _notification => _serviceProvider.GetRequiredService<INotificationService>();
     private IEventBus _eventBus => _serviceProvider.GetRequiredService<IEventBus>();
-    
+
     private PurchaseReturnDto? _invoice;
     private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
@@ -34,13 +34,34 @@ public partial class frmPurchaseReturn : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (4 من 6).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
-        KeyboardHelper.WireArrowNavigation(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+
+        // RULE-N43 — مظهر واضح للأزرار المعطّلة.
+        KeyboardHelper.WireButtonDisabledVisual(btnAddItem, btnRemoveItem, btnSaveDraft, btnPost, btnClose);
+
+        // RULE-N47 — الاختصارات الموحّدة على الأزرار الموجودة فعلاً في الشاشة.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnAddItem.PerformClick()),        // جديد = سطر صنف جديد
+            (Keys.F3, () => btnSaveDraft.PerformClick()),      // حفظ/عرض المسودة
+            (Keys.F4, () => btnPost.PerformClick()),           // ترحيل
+            (Keys.F5, _RefreshAsync),                          // تحديث
+            (Keys.Delete, _GlobalDelete),                      // حذف السطر المحدد
+            (Keys.Escape, _GlobalEscape));                     // خروج
+
+        // RULE-N147 — Enter = الزر الأساسي للوضع الحالي (يُقرأ عند كل ضغطة لا مرة واحدة).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
+
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
+
         SetupGrid();
+        ApplyUiTheme();   // ينتهي بالثيم الأخضر (RULE-N50)
     }
 
     public void LoadData(PurchaseReturnDto? invoice)
@@ -51,6 +72,103 @@ public partial class frmPurchaseReturn : Form
         UpdateUIState();
     }
 
+    // ── الاختصارات العامة (RULE-N47) ─────────────────────────────────────────
+
+    /// <summary>Delete: حذف السطر المحدد — يعمل فقط عندما تكون الشبكة هي صاحبة التركيز،
+    /// ولا يحذف أثناء تحرير خلية داخلها (RULE-N22a — نفس حارس معالج Esc).</summary>
+    private void _GlobalDelete()
+    {
+        if (dgvItems.IsCurrentCellInEditMode) return;
+
+        if (dgvItems.ContainsFocus && btnRemoveItem.Enabled) btnRemoveItem.PerformClick();
+    }
+
+    /// <summary>Esc: يُلغي تحرير الخلية أولاً، وإلا يُغلق النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (dgvItems.IsCurrentCellInEditMode)
+        {
+            dgvItems.CancelEdit();
+            return;
+        }
+
+        btnClose.PerformClick();
+    }
+
+    /// <summary>
+    /// الزر الأساسي الذي ينفّذه <c>Enter</c> في الوضع الحالي (RULE-N147):
+    /// مرتجع جديد أو مسودة قابلة للتحرير ⇒ «ترحيل» (ولا يُرحَّل شيء قبل تأكيد المستخدم في نافذة التأكيد)،
+    /// والوضع المقروء (مرحّل/ملغي) ⇒ لا زر أساسي فلا يفعل Enter شيئاً.
+    /// <para>
+    /// ويُعاد <c>null</c> إلزامياً عندما يكون التركيز داخل شبكة الأصناف حتى يبقى <c>Enter</c> فيها
+    /// انتقالاً بين السطور/إتمام تحرير الخلية ولا يُرحّل المرتجع أثناء إدخال الأصناف (RULE-N22a).
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton()
+    {
+        // حماية شبكة إدخال السطور — قبل أي اعتبار آخر.
+        if (dgvItems.ContainsFocus) return null;
+
+        // وضع العرض (مرتجع مرحّل أو ملغي): الشاشة للقراءة فقط ⇒ لا زر أساسي.
+        if (_invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft) return null;
+
+        return btnPost.Enabled ? btnPost : null;
+    }
+
+    /// <summary>F5: إعادة تحميل القوائم وإعادة حساب الإجماليات (RULE-N47).</summary>
+    private async void _RefreshAsync()
+    {
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+
+            // نحفظ الاختيارات قبل إعادة الربط حتى لا تتغير بيانات المرتجع الحالي.
+            int supplierId = Convert.ToInt32(cmbSupplier.SelectedValue ?? 0);
+            int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
+
+            await LoadLookups();
+
+            if (supplierId > 0) cmbSupplier.SelectedValue = supplierId;
+            if (warehouseId > 0) cmbWarehouse.SelectedValue = warehouseId;
+
+            CalculateTotals();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تحديث بيانات مرتجع المشتريات");
+            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>مؤشر الوضع في شريط العنوان (RULE-N44).</summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = _invoice == null
+            ? "(( مرتجع مشتريات جديد ))"
+            : $"(( مرتجع مشتريات — {_invoice.ReturnNo} ))";
+    }
+
+    /// <summary>المظهر: ThemeHelper أولاً ثم الثيم الأخضر أخيراً (RULE-N50).</summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+
+        // الأزرار: ألوانها وخط Tahoma معلنة حرفياً في المصمّم بقيم مطابقة لثوابت الثيم
+        // (RULE-N134 / RULE-N144) — فلا يُعاد تنسيقها وقت التشغيل، وتبقى حالة التعطيل
+        // المرسومة بـ WireButtonDisabledVisual (RULE-N43) سليمة دون أن يمحوها الثيم.
+
+        GreenThemeHelper.ApplyHeader(lblMode);   // RULE-N53
+        GreenThemeHelper.ApplyGrid(dgvItems);    // RULE-N51/N52
+
+        GreenThemeHelper.Apply(this);            // ← الأخير دائماً (RULE-N50)
+
+        // RULE-N97 — لا يوجد حقل مالي في الشاشة بعد إسقاط حقول الضريبة (قرار المالك: MVP V1 بلا ضريبة).
+    }
+
     protected override async void OnLoad(EventArgs e)
     {
         try
@@ -58,7 +176,13 @@ public partial class frmPurchaseReturn : Form
             base.OnLoad(e);
             await LoadLookups();
             if (_invoice == null) ResetForm(); // Default state
-            ApplyGreenTheme();
+            ApplyUiTheme();
+
+            // RULE-N22a — الشبكة شبكة إدخال: التحرير والصف الجديد مملوكان للشاشة (RULE-N52).
+            dgvItems.AllowUserToAddRows = true;
+            dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
+            dgvItems.MultiSelect = true;
+            dgvItems.ReadOnly = _invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft;
         }
         catch (Exception ex)
         {
@@ -120,6 +244,8 @@ public partial class frmPurchaseReturn : Form
         }
         _isUpdating = false;
         CalculateTotals();
+
+        _UpdateModeHeader();
     }
 
     private void ResetForm()
@@ -129,6 +255,8 @@ public partial class frmPurchaseReturn : Form
         dtpDate.Value = DateTime.Now;
         _lines.Clear();
         txtNotes.Clear();
+
+        _UpdateModeHeader();
     }
 
     private void SetupGrid()
@@ -152,23 +280,7 @@ public partial class frmPurchaseReturn : Form
         };
     }
 
-    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
-    private void ApplyGreenTheme()
-    {
-        GreenThemeHelper.ApplyHeader(lblStatus);
-        GreenThemeHelper.ApplyGrid(dgvItems);
-
-        // RULE-N22a — شبكة إدخال: تحرير داخل الخلية
-        // القيم الأصلية (وقت التصميم): AllowUserToAddRows=true · ReadOnly=false ·
-        // SelectionMode=RowHeaderSelect · MultiSelect=true — تُعاد صراحةً بعد ApplyGrid.
-        dgvItems.AllowUserToAddRows = true;
-        dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
-        dgvItems.MultiSelect = true;
-        // ReadOnly تابع لحالة المستند كما في UpdateUIState (مسودة ⇔ قابل للتحرير) — لا يُثبَّت
-        dgvItems.ReadOnly = _invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft;
-
-        GreenThemeHelper.Apply(this);   // ← الأخير
-    }
+    // ── أحداث الحقول (كما كانت مربوطة في المصمّم) ────────────────────────────
 
     private void CalculateTotals()
     {
@@ -187,6 +299,20 @@ public partial class frmPurchaseReturn : Form
         btnSaveDraft.Visible = editable;
         btnPost.Visible = editable;
         lblStatus.Text = _invoice?.Status switch { 1 => "مسودة", 2 => "مرحل", 3 => "ملغي", _ => "جديد" };
+
+        // ألوان الحالة من ثوابت ThemeHelper (لا أرقام لون داخل الشاشة) — مطابقة لقيمة المصمّم.
+        lblStatus.BackColor = _invoice?.Status switch
+        {
+            1 => ThemeHelper.Neutral,
+            2 => ThemeHelper.Success,
+            3 => ThemeHelper.Danger,
+            _ => ThemeHelper.Danger
+        };
+
+        // RULE-N147 — الزر الافتراضي لـ Enter يتبع الوضع (مرحّل/ملغي ⇒ لا زر أساسي).
+        AcceptButton = _PrimaryActionButton();
+
+        _UpdateModeHeader();
     }
 
     private void btnAddItem_Click(object sender, EventArgs e) { _lines.Add(new InvoiceLineItem()); dgvItems.Focus(); }
@@ -244,6 +370,8 @@ public partial class frmPurchaseReturn : Form
 
         if (post && MessageBox.Show("ترحيل المرتجع؟ سيتم تقليل المخزون وتقليل رصيد المورد.", "تأكيد", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
 
+        btnSaveDraft.Enabled = btnPost.Enabled = false;
+        Cursor = Cursors.WaitCursor;
         try {
             var items = _lines.Where(l => l.ProductId > 0).Select(l => new CreatePurchaseReturnItemRequest(
                 0, l.ProductId, 1, l.Quantity, l.UnitCost, l.LineTotal)).ToList();
@@ -274,6 +402,11 @@ public partial class frmPurchaseReturn : Form
         {
             Log.Error(ex, "حدث خطأ في حفظ مرتجع المشتريات");
             _notification.ShowError("خطأ في حفظ المرتجع. تم تسجيل التفاصيل للدعم الفني.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+            btnSaveDraft.Enabled = btnPost.Enabled = true;
         }
     }
 

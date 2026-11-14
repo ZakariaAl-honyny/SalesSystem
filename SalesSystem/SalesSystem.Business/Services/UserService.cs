@@ -194,6 +194,32 @@ public class UserService : IUserService
             ErrorCodes.InvalidOperation);
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct)
+    {
+        try
+        {
+            var user = await _uow.Users.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
+            if (user == null)
+                return Result.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
+
+            user.Restore();
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("User reactivated: {UserName} (ID: {Id})", user.UserName, id);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain rule violation reactivating user {Id}: {Message}", id, ex.Message);
+            return Result.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reactivating user {Id}", id);
+            return Result.Failure("حدث خطأ أثناء إعادة تنشيط المستخدم");
+        }
+    }
+
     public async Task<Result<ResetPasswordResponse>> ResetPasswordAsync(int id, CancellationToken ct = default)
     {
         try

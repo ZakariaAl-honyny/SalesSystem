@@ -26,6 +26,10 @@ public partial class frmListSales : Form
 
     private int? _selectedInvoiceId;
 
+    // النطاق الزمني الافتراضي للشاشة — يُحفظ مرة واحدة ويُعاد إليه عند «مسح التصفية»/«تحديث» (RULE-N148).
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     // يبدأ true حتى لا ينطلق أي تحميل من داخل المنشئ قبل اكتمال تهيئة الفلاتر.
     private bool _isInitializing = true;
     private bool _toolbarStyled;
@@ -33,11 +37,18 @@ public partial class frmListSales : Form
     public frmListSales(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        _defaultFrom = DateTime.Today.AddMonths(-1);
+        _defaultTo = DateTime.Today;
         InitializeComponent();
         _InitializeKeyboard();
         _ApplyUiTheme();
         _LoadStatusOptions();
         _WireShortcuts();
+
+        // RULE-N147: Enter = الزر الأساسي للشاشة («فاتورة جديدة») — والزر الافتراضي للنموذج نفسه.
+        KeyboardHelper.WireModeEnter(this, () => btnAdd);
+        AcceptButton = btnAdd;
+
         FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
@@ -132,7 +143,7 @@ public partial class frmListSales : Form
         toolTip1.SetToolTip(btnRange30, "آخر 30 يوماً");
 
         // RULE-N43: الأزرار المعطّلة تظهر رمادية باهتة وليس مجرّد Enabled = false.
-        KeyboardHelper.WireButtonDisabledVisual(btnView, btnPost, btnCancel);
+        KeyboardHelper.WireButtonDisabledVisual(btnView, btnPost, btnCancel, btnClearFilters);
     }
 
     /// <summary>قائمة الحالة: «الكل» (null) ثم قيم enum الحقيقية 1/2/3.</summary>
@@ -165,7 +176,73 @@ public partial class frmListSales : Form
                     btnCancel.PerformClick();
             }),
             (Keys.F5, () => btnRefresh.PerformClick()),
-            (Keys.Escape, Close));
+            (Keys.Escape, _GlobalEscape));
+    }
+
+    /// <summary>
+    /// Esc — RULE-N59: المؤشر داخل صندوق التصفية ⇒ مسح كل أدوات التصفية (بلا إعادة تحميل — RULE-N148)؛
+    /// وخارجها ⇒ إغلاق الشاشة (RULE-N47 — Esc خروج).
+    /// </summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        Close();
+    }
+
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل (RULE-N148). «تحديث» (F5) هو المسؤول عن إعادة قراءة البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object? sender, EventArgs e)
+    {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث» (RULE-N148).</summary>
+    private void _ClearFilterInputs()
+    {
+        cbFilterBy.SelectedIndex = 0;          // «لا شيئ»
+        txtFilterValue.Clear();
+        txtFilterValue.Visible = false;        // يُخفيها المعالج فقط عند عدم التهيئة
+        if (cbStatus.Items.Count > 0)
+            cbStatus.SelectedIndex = 0;        // «الكل»
+        chkOnlyDue.Checked = false;
+        dtpFrom.Value = _defaultFrom;           // النطاق الافتراضي (من تاريخ الإنشاء)
+        dtpTo.Value = _defaultTo;
+    }
+
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية بلا إعادة تحميل (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        _isInitializing = true;
+        try
+        {
+            _ClearFilterInputs();
+        }
+        finally
+        {
+            _isInitializing = false;
+        }
+
+        _ApplyFilters();
+    }
+
+    /// <summary>RULE-N148/RULE-N43: زر «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            cbFilterBy.SelectedIndex > 0
+            || !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbStatus.SelectedIndex > 0
+            || chkOnlyDue.Checked
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
     }
 
     // ── Data Loading ───────────────────────────────────────────────────────────
@@ -272,6 +349,7 @@ public partial class frmListSales : Form
         _filteredInvoices = query.ToList();
         _PopulateGrid();
         _UpdateRecordsCount();
+        _UpdateClearFiltersState();   // RULE-N148: حالة زر «مسح التصفية» تتبع التصفية النشطة
     }
 
     private void _PopulateGrid()
@@ -528,8 +606,8 @@ public partial class frmListSales : Form
         _isInitializing = true;
         try
         {
-            dtpFrom.Value = DateTime.Today.AddMonths(-1);
-            dtpTo.Value = DateTime.Today;
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
             cbStatus.SelectedIndex = 0;
             cbFilterBy.SelectedIndex = 0;
             txtFilterValue.Visible = false;
@@ -540,12 +618,36 @@ public partial class frmListSales : Form
         }
 
         _ApplyUiTheme();
+        _UpdateClearFiltersState();   // RULE-N148: الشاشة تُفتح على التصفية الافتراضية ⇒ الزر معطّل
         _RefreshSalesList();
     }
 
     private void btnClose_Click(object sender, EventArgs e) => Close();
 
-    private void btnRefresh_Click(object sender, EventArgs e) => _RefreshSalesList();
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← أدلة الشاشة (قائمة الحالة) ← الفواتير ← الملخص والتحديد.
+    /// وليس بديلاً عن «مسح التصفية» الذي لا يُعيد التحميل.
+    /// </summary>
+    private void btnRefresh_Click(object? sender, EventArgs e)
+    {
+        if (_isInitializing)
+            return;
+
+        _isInitializing = true;
+        try
+        {
+            _ClearFilterInputs();   // التصفية تعود للافتراضي
+            _LoadStatusOptions();   // إعادة بناء دليل الحالة (قد تتغيّر إعداداته)
+        }
+        finally
+        {
+            _isInitializing = false;
+        }
+
+        _selectedInvoiceId = null;  // التحديد يعود إلى الافتراضي
+        _RefreshSalesList();        // إعادة قراءة الفواتير (تطبّق التصفية والملخص)
+    }
 
     // ── Filter Events ──────────────────────────────────────────────────────────
 

@@ -3,10 +3,9 @@ using SalesSystem.Desktop.Helpers;
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
-/// نافذة "تفاصيل وتكاليف إضافية" لمشتريات — نموذج واجهة (UI Shape) يعمل ببيانات
-/// وهمية في الذاكرة فقط دون أي اتصال بالخادم (وضع التجربة / UI-First).
-/// تُعرض عبر ShowDialog وتُعيد قيم التكاليف الإضافية (الشحن / الجمارك / أخرى + بيان)
-/// والملاحظات إلى النموذج الأب عبر خصائص عامة بعد الموافقة.
+/// حوار «تفاصيل وتكاليف إضافية» للمشتريات — واجهة أولية ببيانات وهمية في الذاكرة (وضع التجربة).
+/// يُعرض عبر <c>ShowDialog</c> ويُعيد التكاليف الإضافية (شحن / جمارك / أخرى + بيان) والملاحظات.
+/// <para>RULE-N40…RULE-N47 / RULE-N50…RULE-N54 / RULE-N97 — التنقل والثيم والتفقيط الحيّ.</para>
 /// </summary>
 public partial class frmPurchaseOtherDetails : Form
 {
@@ -26,20 +25,74 @@ public partial class frmPurchaseOtherDetails : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
+            (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N97 — التفقيط الحيّ على التكاليف الثلاث.
+        LiveTafqeetHelper.Attach(tipTafqeet,
+            (numShipping, "تكلفة الشحن", LiveTafqeetHelper.ReadMode.Money),
+            (numCustoms, "رسوم الجمارك", LiveTafqeetHelper.ReadMode.Money),
+            (numOther, "تكاليف أخرى", LiveTafqeetHelper.ReadMode.Money));
+
+        ApplyUiTheme(); // RULE-N50
 
         LoadMockData();
         Recalculate();
     }
 
     // ═══════════════════════════════════════════════════════════
-    // نتائج النافذة — يقرأها النموذج الأب بعد ShowDialog
+    // الثيم (RULE-N50…RULE-N54)
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply</c> آخر سطر (RULE-N50).</summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+
+        ThemeHelper.ApplyButtonStyle(btnOk, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnCancel, ThemeHelper.ButtonType.Secondary);
+
+        // ThemeHelper يفرض Segoe UI ويوسّع الأزرار ⇒ نثبّت Tahoma والأحجام (RULE-N21).
+        foreach (var btn in new[] { btnOk, btnCancel })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        }
+
+        btnOk.Size = new Size(140, 40);
+        btnOk.ForeColor = Color.White;
+        btnOk.Margin = new Padding(0, 0, 8, 0);
+        btnCancel.Size = new Size(92, 40);
+        btnCancel.Margin = new Padding(0);
+
+        toolTip.SetToolTip(btnOk, "موافق — اعتماد التكاليف الإضافية (Enter)");
+        toolTip.SetToolTip(btnCancel, "إلغاء وإغلاق الحوار بلا حفظ (Esc)");
+        toolTip.SetToolTip(numShipping, "تكلفة الشحن المضافة على الفاتورة");
+        toolTip.SetToolTip(numCustoms, "رسوم الجمارك والتخليص");
+        toolTip.SetToolTip(numOther, "أي تكاليف أخرى — مع بيانها في الحقل المجاور");
+
+        GreenThemeHelper.ApplyHeader(lblTitle);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // نتائج الحوار — يقرأها النموذج الأب بعد ShowDialog
     // ═══════════════════════════════════════════════════════════
     public decimal ShippingCost => numShipping.Value;
     public decimal CustomsCost => numCustoms.Value;
     public decimal OtherCost => numOther.Value;
     public string OtherStatement => txtStatement.Text.Trim();
     public string Notes => txtNotes.Text.Trim();
+
+    /// <summary>مجموع التكاليف الإضافية — منطق الحساب محفوظ كما هو.</summary>
     public decimal TotalAdditionalCosts => numShipping.Value + numCustoms.Value + numOther.Value;
 
     // ═══════════════════════════════════════════════════════════
@@ -79,13 +132,13 @@ public partial class frmPurchaseOtherDetails : Form
                 return;
             }
 
-            // في النسخة النهائية تُعاد القيم إلى فاتورة الشراء عبر خصائص النافذة
+            // في النسخة النهائية تُعاد القيم إلى فاتورة الشراء عبر خصائص الحوار
             DialogResult = DialogResult.OK;
             Close();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // واجهة تجريبية: لا يوجد اتصال بالخادم بعد — رسالة عامة فقط
+            Serilog.Log.Error(ex, "خطأ في حوار التكاليف الإضافية للمشتريات");
             MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }

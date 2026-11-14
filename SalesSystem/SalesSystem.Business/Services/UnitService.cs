@@ -148,6 +148,32 @@ public class UnitService : IUnitService
         }
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct)
+    {
+        try
+        {
+            var unit = await _uow.Units.FirstOrDefaultIgnoreFiltersAsync(u => u.Id == id, ct);
+            if (unit == null)
+                return Result.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
+
+            unit.Restore();
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Unit reactivated: {Name} (ID: {Id})", unit.Name, id);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            _logger.LogWarning(ex, "Domain rule violation reactivating unit {Id}: {Message}", id, ex.Message);
+            return Result.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reactivating unit {Id}", id);
+            return Result.Failure("حدث خطأ أثناء إعادة تنشيط الوحدة");
+        }
+    }
+
     private static UnitDto MapToDto(Unit u)
     {
         return new UnitDto(u.Id, u.Name, u.Symbol, u.IsActive);

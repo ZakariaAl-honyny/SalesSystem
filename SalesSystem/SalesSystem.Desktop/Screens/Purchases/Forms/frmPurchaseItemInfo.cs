@@ -1,10 +1,12 @@
+using SalesSystem.Desktop.Helpers;
+
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
-/// نافذة "معلومات صنف مشتريات" — نموذج واجهة (UI Shape) يعمل ببيانات وهمية في الذاكرة
-/// دون أي اتصال بالخادم (وضع التجربة / UI-First).
-/// تُعرض عبر ShowDialog وتعرض: بيانات الصنف، بطاقات أسعار الشراء المقترحة
-/// (متوسط/آخر/أدنى — محسوبة من سجل المشتريات)، وسجل المشتريات السابقة للصنف.
+/// حوار «معلومات صنف مشتريات» — نموذج واجهة (UI Shape) يعمل ببيانات وهمية في الذاكرة
+/// دون أي اتصال بقاعدة البيانات (وضع التجربة / UI-First).
+/// يعرض: بيانات الصنف · بطاقات أسعار الشراء المقترحة (متوسط/آخر/أدنى) · سجل المشتريات السابقة.
+/// <para>RULE-N40…RULE-N47 / RULE-N50…RULE-N54 — التنقل والثيم الموحّد.</para>
 /// </summary>
 public partial class frmPurchaseItemInfo : Form
 {
@@ -39,15 +41,61 @@ public partial class frmPurchaseItemInfo : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper.
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnClose);                         // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
+            (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        ApplyUiTheme(); // RULE-N50
+
         InitializeGridColumns();
         LoadMockData();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // الثيم (RULE-N50…RULE-N54)
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply</c> آخر سطر (RULE-N50).</summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // ThemeHelper يفرض Segoe UI ويوسّع الأزرار ⇒ نثبّت Tahoma والأحجام (RULE-N21).
+        btnClose.AutoSize = false;
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.Size = new Size(120, 38);
+        btnClose.ForeColor = Color.White;
+
+        toolTip.SetToolTip(btnClose, "إغلاق نافذة معلومات الصنف (Esc)");
+        toolTip.SetToolTip(dgvHistory, "سجل المشتريات السابقة — زر الفأرة الأيمن للتصدير أو التحديث");
+
+        GreenThemeHelper.ApplyHeader(lblTitle);
+        GreenThemeHelper.ApplyGrid(dgvHistory);
+
+        // RULE-N22/RULE-N52 — سلوك شبكة العرض تعلنه الشاشة نفسها.
+        dgvHistory.ReadOnly = true;
+        dgvHistory.AllowUserToAddRows = false;
+        dgvHistory.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvHistory.MultiSelect = false;
+
+        emptyState.BringToFront();
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ── تحميل البيانات التجريبية (Mock) ──────────────────────────────────────
 
     private void LoadMockData()
     {
-        // رأس النافذة: اسم الصنف + الباركود + التصنيف + الرصيد الحالي
+        // رأس الحوار: اسم الصنف + الباركود + التصنيف + الرصيد الحالي
         lblProductName.Text = MockItem.Name;
         lblBarcodeValue.Text = MockItem.Barcode;
         lblCategoryValue.Text = MockItem.Category;
@@ -69,6 +117,10 @@ public partial class frmPurchaseItemInfo : Form
 
         lblRecordsCount.Text = ordered.Count.ToString();
 
+        // RULE-N23 — سطر «لا توجد بيانات» عند خلوّ الشبكة.
+        emptyState.Visible = ordered.Count == 0;
+        if (emptyState.Visible) emptyState.BringToFront();
+
         // بطاقات أسعار الشراء المقترحة — محسوبة من سجل المشتريات
         decimal totalQuantity = ordered.Sum(p => p.Quantity);
         decimal totalCost = ordered.Sum(p => p.Total);
@@ -84,21 +136,22 @@ public partial class frmPurchaseItemInfo : Form
 
     // ── تنسيق الشبكة: إبراز عمود الإجمالي وأعمدة الكميات/التكلفة ─────────────
 
-    private void dgvHistory_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    private void dgvHistory_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
         if (e.RowIndex < 0 || e.RowIndex >= dgvHistory.Rows.Count) return;
+        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvHistory.Columns.Count) return;
 
         switch (dgvHistory.Columns[e.ColumnIndex].Name)
         {
             case "ColQty":
             case "ColUnitCost":
                 e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
-                e.CellStyle.ForeColor = Color.FromArgb(52, 73, 94);
+                e.CellStyle.ForeColor = GreenThemeHelper.TextStrong;
                 break;
 
             case "ColTotal":
                 e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
-                e.CellStyle.ForeColor = Color.FromArgb(41, 128, 185);   // أزرق للمبالغ
+                e.CellStyle.ForeColor = ThemeHelper.Primary;
                 break;
         }
     }
@@ -118,6 +171,89 @@ public partial class frmPurchaseItemInfo : Form
     }
 
     // ── أحداث الواجهة ────────────────────────────────────────────────────────
+
+    /// <summary>نقر مزدوج على سطر: عرض تفاصيل عملية الشراء (قراءة فقط).</summary>
+    private void dgvHistory_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0) return;
+
+        try
+        {
+            var row = dgvHistory.Rows[e.RowIndex];
+
+            MessageBox.Show(
+                $"التاريخ: {row.Cells["ColDate"].Value}\n" +
+                $"المورد: {row.Cells["ColSupplier"].Value}\n" +
+                $"الكمية: {row.Cells["ColQty"].Value}\n" +
+                $"تكلفة الوحدة: {row.Cells["ColUnitCost"].Value}\n" +
+                $"الإجمالي: {row.Cells["ColTotal"].Value}",
+                "تفاصيل عملية الشراء",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر عرض تفاصيل عملية شراء سابقة");
+        }
+    }
+
+    /// <summary>تصدير سجل المشتريات المعروض إلى Excel عبر <see cref="ExportHelper"/> (RULE-N112).</summary>
+    private void tsmiExport_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (dgvHistory.Rows.Count == 0)
+            {
+                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "Excel (*.xlsx)|*.xlsx",
+                FileName = $"سجل_مشتريات_الصنف_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+                Title = "تصدير سجل المشتريات إلى Excel"
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+            Cursor = Cursors.WaitCursor;
+            ExportHelper.ExportToExcel(dgvHistory, "سجل المشتريات", dialog.FileName);
+
+            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "خطأ أثناء تصدير سجل مشتريات الصنف إلى Excel");
+            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>تحديث بيانات الحوار (وضع التجربة: إعادة بناء البيانات الوهمية).</summary>
+    private void tsmiRefresh_Click(object? sender, EventArgs e)
+    {
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            LoadMockData();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تحديث بيانات معلومات الصنف");
+            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
+        }
+    }
 
     private void btnClose_Click(object sender, EventArgs e)
     {

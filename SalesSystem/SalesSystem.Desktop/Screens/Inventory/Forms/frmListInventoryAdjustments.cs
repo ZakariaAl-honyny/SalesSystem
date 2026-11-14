@@ -20,9 +20,19 @@ public partial class frmListInventoryAdjustments : Form
     // يبدأ true حتى لا تنطلق تصفية من داخل المنشئ قبل اكتمال تهيئة أدوات التصفية.
     private bool _isInitializing = true;
 
+    /// <summary>RULE-N148: المدى الزمني الافتراضي وقت الإنشاء («هذا الشهر») — يعيده «مسح التصفية» و«تحديث».</summary>
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     public frmListInventoryAdjustments(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+
+        // RULE-N148 — القيم الافتراضية لأدوات التصفية تُلتقط وقت الإنشاء: من أول الشهر الحالي حتى اليوم.
+        var today = DateTime.Today;
+        _defaultFrom = new DateTime(today.Year, today.Month, 1);
+        _defaultTo = today;
+
         InitializeComponent();
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل وأسهم RTL.
@@ -31,8 +41,8 @@ public partial class frmListInventoryAdjustments : Form
         KeyboardHelper.WireFocusHighlight(this, FocusColor);
         KeyboardHelper.WireArrowNavigation(this);
 
-        // RULE-N43 — الأزرار المعطّلة تظهر رمادية باهتة.
-        KeyboardHelper.WireButtonDisabledVisual(btnAdd, btnView, btnPost, btnCancelAdjustment, btnRefresh);
+        // RULE-N43 — الأزرار المعطّلة تظهر رمادية باهتة (ومسح التصفية معطّل ما لم توجد تصفية نشطة).
+        KeyboardHelper.WireButtonDisabledVisual(btnAdd, btnView, btnPost, btnCancelAdjustment, btnRefresh, btnClearFilters);
 
         // RULE-N47 — F2 جديد · F5 تحديث · Delete إلغاء · Esc مسح التصفية.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -45,9 +55,26 @@ public partial class frmListInventoryAdjustments : Form
             }),
             (Keys.Escape, _ClearAllFilters));
 
+        // RULE-N147: Enter = الزر الأساسي للشاشة («تسوية جديدة») خارج حقول الإدخال.
+        KeyboardHelper.WireModeEnter(this, () => btnAdd);
+        AcceptButton = btnAdd;
+
         _SetupToolTips();
         ApplyUiTheme();
         FilterPanelHelper.Attach(this, _serviceProvider);
+    }
+
+    /// <summary>
+    /// RULE-N147 + RULE-N40: «Enter» يُشغّل الزر الأساسي عبر <c>AcceptButton</c>،
+    /// **إلا** داخل «بحث وتصفية» فيبقى سلوك العنصر نفسه (تطبيق التصفية فوراً / فتح القائمة / الحقل التالي)،
+    /// وعلى أي زر = تنفيذ الزر نفسه. (AcceptButton في WinForms يسبق KeyDown ويلتقط Enter).
+    /// </summary>
+    protected override bool ProcessDialogKey(Keys keyData)
+    {
+        if (keyData == Keys.Enter && gbFilter.ContainsFocus && ActiveControl is not ButtonBase)
+            return false;   // غير مُعالج ⇒ يمرّ إلى KeyDown فتعمل قواعد التصفية/التنقل القائمة.
+
+        return base.ProcessDialogKey(keyData);
     }
 
     /// <summary>RULE-N04 — الخدمة تُحل من الحاوية ولا تُنشأ يدوياً.</summary>
@@ -230,14 +257,17 @@ public partial class frmListInventoryAdjustments : Form
         string text = txtFilterValue.Text.Trim();
         if (text.Length > 0)
         {
-            string like = $"%{_EscapeLike(text)}%";
+            // RULE-N60: القيمة تُهرَّب في RowFilterHelper، وأسماء الأعمدة ثابتة داخل الشاشة.
+            string adjustmentNo = RowFilterHelper.Like("AdjustmentNo", text);
+            string warehouse = RowFilterHelper.Like("WarehouseName", text);
+            string reason = RowFilterHelper.Like("Reason", text);
 
             parts.Add(cbFilterBy.SelectedIndex switch
             {
-                1 => $"AdjustmentNo LIKE '{like}'",
-                2 => $"WarehouseName LIKE '{like}'",
-                3 => $"Reason LIKE '{like}'",
-                _ => $"(AdjustmentNo LIKE '{like}' OR WarehouseName LIKE '{like}' OR Reason LIKE '{like}')",
+                1 => adjustmentNo,
+                2 => warehouse,
+                3 => reason,
+                _ => $"({adjustmentNo} OR {warehouse} OR {reason})",
             });
         }
 
@@ -253,33 +283,7 @@ public partial class frmListInventoryAdjustments : Form
 
         _UpdateSummary();
         _UpdateButtonsState();
-    }
-
-    /// <summary>تهريب محارف LIKE الخاصة بتعبير DataView حتى لا يفسد إدخال المستخدم التعبير.</summary>
-    private static string _EscapeLike(string value)
-    {
-        var sb = new System.Text.StringBuilder(value.Length + 8);
-
-        foreach (char c in value)
-        {
-            switch (c)
-            {
-                case '\'':
-                    sb.Append("''");
-                    break;
-                case '%':
-                case '*':
-                case '[':
-                case ']':
-                    sb.Append('[').Append(c).Append(']');
-                    break;
-                default:
-                    sb.Append(c);
-                    break;
-            }
-        }
-
-        return sb.ToString();
+        _UpdateClearFiltersState();   // RULE-N148 — حالة زر «مسح التصفية» بعد كل تطبيق تصفية
     }
 
     /// <summary>قيمة الحالة المختارة — null = الكل.</summary>
@@ -313,6 +317,13 @@ public partial class frmListInventoryAdjustments : Form
             $"المعروض: {shown} من {total} — مسودات: {draft} · مُرحَّلة: {posted} · ملغاة: {cancelled}";
 
         lblRecordsCount.Text = shown.ToString();
+
+        // سطر «لا توجد بيانات» — طبقة نصية فوق الشبكة عند فراغ النتيجة (RULE-N22).
+        bool empty = shown == 0;
+        lblEmpty.Visible = empty;
+
+        if (empty)
+            lblEmpty.BringToFront();
     }
 
     /// <summary>RULE-N43: أزرار الإجراءات مفعّلة فقط عند وجود سجل محدد.</summary>
@@ -468,12 +479,8 @@ public partial class frmListInventoryAdjustments : Form
         _isInitializing = true;
         try
         {
-            cbFilterBy.SelectedIndex = 0;
-            cbStatus.SelectedIndex = 0;
-            chkOnlyCancelled.Checked = false;
-            chkIncludeCancelled.Checked = false;
-            txtFilterValue.Clear();
-            _SetDateRangeThisMonth();
+            _ClearFilterInputs();               // التصفية تبدأ على القيم الافتراضية (RULE-N148)
+            chkIncludeCancelled.Checked = false; // نطاق التحميل الافتراضي (بلا الملغاة)
         }
         finally
         {
@@ -481,6 +488,7 @@ public partial class frmListInventoryAdjustments : Form
         }
 
         _ReloadForm();
+        _UpdateClearFiltersState();   // RULE-N148 — الشاشة تُفتح على التصفية الافتراضية ⇒ الزر معطّل
     }
 
     private void btnClose_Click(object sender, EventArgs e)
@@ -510,8 +518,37 @@ public partial class frmListInventoryAdjustments : Form
 
     private void btnRefresh_Click(object sender, EventArgs e)
     {
-        txtFilterValue.Clear();
-        _ReloadForm();
+        _FullRefresh();
+    }
+
+    /// <summary>
+    /// RULE-N148: «تحديث» (F5) = إعادة تحميل **كاملة**: تصفية افتراضية ← نطاق التحميل الافتراضي
+    /// ← إعادة قراءة الشبكة من الخدمة ← ملخص وتحديد افتراضي.
+    /// وليس بديلاً عن «مسح التصفية» الذي يمسح أدوات التصفية وحدها بلا إعادة تحميل.
+    /// (هذه الشاشة لا تحتوي دليل مستودعات في المحرر — المستودع عمود عرض يأتي جاهزاً من الخدمة.)
+    /// </summary>
+    private void _FullRefresh()
+    {
+        if (_isInitializing)
+            return;
+
+        bool wasInitializing = _isInitializing;
+        _isInitializing = true;
+        try
+        {
+            _ClearFilterInputs();               // أدوات التصفية تعود للافتراضي
+            chkIncludeCancelled.Checked = false; // نطاق التحميل يعود للافتراضي
+        }
+        finally
+        {
+            _isInitializing = wasInitializing;
+        }
+
+        _selectedAdjustment = null;      // التحديد يعود إلى الافتراضي
+        dgvAdjustments.ClearSelection();
+
+        _ReloadForm();                   // إعادة قراءة البيانات ثم تطبيق التصفية والملخص
+        _UpdateClearFiltersState();
     }
 
     // ── أحداث التصفية الفورية ──────────────────────────────────────────────────────
@@ -630,33 +667,61 @@ public partial class frmListInventoryAdjustments : Form
     /// <summary>«هذا الشهر» = من أول الشهر الحالي حتى اليوم (الافتراضي ومسح Esc).</summary>
     private void _SetDateRangeThisMonth()
     {
-        var today = DateTime.Today;
-        dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-        dtpTo.Value = today;
-
-        if (!_isInitializing)
-            _ApplyFilter();
+        _SetDateRange(_defaultFrom, _defaultTo);
     }
 
-    /// <summary>Esc: مسح كل أدوات التصفية وإعادة النطاق إلى «هذا الشهر».</summary>
-    private void _ClearAllFilters()
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للبيانات (RULE-N148). «تحديث» هو المسؤول عن إعادة التحميل.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
     {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>
+    /// تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح التصفية» و«تحديث» (RULE-N148).
+    /// ملاحظة: «عرض الملغاة» ليس أداة تصفية بل نطاق تحميل من الخدمة (معالجه يُعيد التحميل)،
+    /// فلا يُعاد ضبطه هنا حتى لا يُمسح بالزر ما لا يستطيع الزر إعادة تحميله بلا خدمة.
+    /// </summary>
+    private void _ClearFilterInputs()
+    {
+        bool wasInitializing = _isInitializing;
         _isInitializing = true;
         try
         {
-            cbFilterBy.SelectedIndex = 0;
-            cbStatus.SelectedIndex = 0;
-            chkOnlyCancelled.Checked = false;
+            cbFilterBy.SelectedIndex = 0;           // «لا شيء» ⇒ البحث في كل الحقول
             txtFilterValue.Clear();
-            _SetDateRangeThisMonth();
+            cbStatus.SelectedIndex = 0;             // «الكل»
+            chkOnlyCancelled.Checked = false;       // «الملغاة فقط»
+            dtpFrom.Value = _defaultFrom;           // النطاق الافتراضي (هذا الشهر)
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
-            _isInitializing = false;
+            _isInitializing = wasInitializing;
         }
+    }
 
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية بلا إعادة تحميل (RULE-N148).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
         _ApplyFilter();
         txtFilterValue.Focus();
+    }
+
+    /// <summary>RULE-N43/RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            cbFilterBy.SelectedIndex > 0
+            || cbStatus.SelectedIndex > 0
+            || chkOnlyCancelled.Checked
+            || !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
     }
 
     // ── الشبكة وقائمة السياق ───────────────────────────────────────────────────────

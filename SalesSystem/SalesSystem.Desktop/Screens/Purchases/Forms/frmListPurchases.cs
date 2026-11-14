@@ -30,6 +30,10 @@ public partial class frmListPurchases : Form
     private List<PurchaseInvoiceDto> _filteredInvoices = new();
     private int? _selectedInvoiceId;
 
+    /// <summary>RULE-N148: النطاق الزمني الافتراضي — يُلتقط عند الإنشاء ويعيده «مسح التصفية» بلا إعادة تحميل.</summary>
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     private bool _isInitializing = true;
     private bool _toolbarStyled;
 
@@ -37,6 +41,12 @@ public partial class frmListPurchases : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N148: النطاق الافتراضي (بداية الشهر الحالي ← اليوم) يُلتقط عند الإنشاء،
+        // ليعيده «مسح التصفية» بلا إعادة تحميل ولتُقارن به حالة تفعيل الزر.
+        var today = DateTime.Today;
+        _defaultFrom = new DateTime(today.Year, today.Month, 1);
+        _defaultTo = today;
 
         // RULE-N40 / RULE-N45 / RULE-N46 — تنقل وتحديد وتظليل الحقل النشط.
         KeyboardHelper.WireEnterAsTab(this);
@@ -55,7 +65,14 @@ public partial class frmListPurchases : Form
         ApplyUiTheme();         // RULE-N50 — ينتهي بالثيم الأخضر
 
         // RULE-N43 — بعد تلوين الأزرار حتى يلتقط الـ Helper لون الثيم الصحيح.
-        KeyboardHelper.WireButtonDisabledVisual(btnView, btnPost, btnCancel);
+        // btnClearFilters تُضاف لأنها معطّلة افتراضياً وتُفعَّل عند وجود تصفية نشطة (RULE-N148).
+        KeyboardHelper.WireButtonDisabledVisual(btnView, btnPost, btnCancel, btnClearFilters);
+
+        // RULE-N147 — Enter = الزر الأساسي للشاشة («فاتورة مشتريات»): هذه شاشة قوائم/مستندات
+        // بلا آلة حالة إدخال (RULE-N101)، فالأساسي ثابت ولا يتغير.
+        KeyboardHelper.WireModeEnter(this, () => btnAdd);
+        AcceptButton = btnAdd;
+
         FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
@@ -73,8 +90,20 @@ public partial class frmListPurchases : Form
                 if (dgvPurchases.ContainsFocus && btnCancel.Enabled)
                     btnCancel.PerformClick();
             }),
-            (Keys.F5, () => _RefreshPurchasesList()),
-            (Keys.Escape, _ClearFilters));
+            (Keys.F5, () => btnRefresh.PerformClick()),   // RULE-N148: تحديث = إعادة تحميل كاملة
+            (Keys.Escape, _GlobalEscape));
+    }
+
+    /// <summary>RULE-N47 + RULE-N59: Esc داخل صندوق التصفية = مسحها (بلا إعادة تحميل)، وخارجه = إغلاق الشاشة.</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        Close();
     }
 
     /// <summary>الثيم الأخضر — ينتهي بـ <c>GreenThemeHelper.Apply(this)</c> كآخر سطر (RULE-N50).</summary>
@@ -267,6 +296,8 @@ public partial class frmListPurchases : Form
 
         _filteredInvoices = query.ToList();
         _PopulateGrid();
+
+        _UpdateClearFiltersState();   // RULE-N148 — بعد كل تطبيق تصفية
     }
 
     private void _PopulateGrid()
@@ -422,29 +453,59 @@ public partial class frmListPurchases : Form
         _RefreshPurchasesList();
     }
 
-    /// <summary>Esc: يمسح كل أدوات التصفية ويعيد النطاق إلى «هذا الشهر» (RULE-N59).</summary>
-    private void _ClearFilters()
+    /// <summary>
+    /// تفريغ أدوات التصفية وحدها بلا تطبيق ولا إعادة تحميل (RULE-N148):
+    /// نص التصفية · الحقل/الحالة إلى الفهرس الافتراضي · مربعات الاختيار · النطاق الزمني الافتراضي.
+    /// </summary>
+    private void _ClearFilterInputs()
     {
+        // منع المعالجات من إعادة تحميل الشبكة أثناء إرجاع القيم إلى الافتراضي.
         _isInitializing = true;
         try
         {
             cbFilterBy.SelectedIndex = FilterNone;
             txtFilterValue.Clear();
-            txtFilterValue.Visible = false;
+            txtFilterValue.Visible = false;   // المعالج لا يُحدّث الرؤية أثناء التهيئة
             cbStatus.SelectedIndex = 0;
             chkOnlyDue.Checked = false;
             chkOnlyCancelled.Checked = false;
-
-            var today = DateTime.Today;
-            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-            dtpTo.Value = today;
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
             _isInitializing = false;
         }
+    }
 
-        _RefreshPurchasesList();
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية — بلا أي إعادة تحميل (RULE-N148).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
+        _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43 + RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            cbFilterBy.SelectedIndex != FilterNone
+            || !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbStatus.SelectedIndex != 0
+            || chkOnlyDue.Checked
+            || chkOnlyCancelled.Checked
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
+    }
+
+    /// <summary>
+    /// «مسح التصفية» — يمسح أدوات التصفية فقط ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object? sender, EventArgs e)
+    {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
     }
 
     private void _OpenForm(Form form)
@@ -552,9 +613,8 @@ public partial class frmListPurchases : Form
         _isInitializing = true;
         try
         {
-            var today = DateTime.Today;
-            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-            dtpTo.Value = today;
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
             cbFilterBy.SelectedIndex = FilterNone;
             txtFilterValue.Visible = false;
             cbStatus.SelectedIndex = 0;
@@ -568,13 +628,22 @@ public partial class frmListPurchases : Form
 
         ApplyUiTheme();          // RULE-N50 — آمن للاستدعاء المتكرر (idempotent)
         _RefreshPurchasesList();
+        _UpdateClearFiltersState();   // RULE-N148 — حالة الزر الافتراضية بعد التحميل
     }
 
     private void btnClose_Click(object sender, EventArgs e)
         => Close();
 
-    private void btnRefresh_Click(object sender, EventArgs e)
-        => _RefreshPurchasesList();
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← القوائم المرجعية ← الشبكة ← الملخص والتحديد. ليس مسحاً للتصفية وحدها.
+    /// </summary>
+    private void btnRefresh_Click(object? sender, EventArgs e)
+    {
+        _ClearFilterInputs();          // التصفية تعود للافتراضي
+        _selectedInvoiceId = null;     // التحديد يعود للسطر الأول لا للفاتورة السابقة
+        _ReloadForm();                 // إعادة تحميل الشبكة (والقوائم المرجعية تُهيَّأ في _SetupGridColumns)
+    }
 
     // ── أحداث التصفية ──────────────────────────────────────────────────────────
 

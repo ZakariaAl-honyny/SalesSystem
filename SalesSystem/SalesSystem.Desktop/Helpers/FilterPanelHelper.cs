@@ -9,8 +9,9 @@
 //
 // ما تفعله الأداة:
 //   1) تجد حاوية التصفية: pnlFilters، وإلا اللوحة التي تضم gbFilter مباشرةً.
-//   2) تُضيف زر btnToggleFilters (Dock = Left) بعد gbFilter فيمجموعة Controls،
-//      فيُقتطع عرض الزر أولاً ويملأ gbFilter (Dock = Fill) الباقي.
+//   2) تتبنّى زر btnToggleFilters **المُعلَن في المصمّم** (RULE-N145) وتُوصِّل سلوكه فقط
+//      (نقرة + F9 + التلميح) دون تغيير شكله أو موضعه؛ وإن لم يكن معلناً تُنشئه وقت التشغيل
+//      كبديل احتياطي (Dock = Left) بعد gbFilter فيُقتطع عرض الزر أولاً ويملأ gbFilter الباقي.
 //   3) تطوي/توسّع: gbFilter.Visible + ارتفاع اللوحة (34 عند الطي)، وتُحدّث نص الزر
 //      وتلميحه. تحفظ الارتفاع الأصلي كما هو في المصمّم (لا رقم ثابت: 112/68/…).
 //   4) تحفظ الحالة في SystemSettings، وتقرأها عند form.Load (لا تُعطّل المُنشئ).
@@ -24,6 +25,7 @@
 // -----------------------------------------------------------------------------
 
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Services.Interfaces;
 
@@ -46,6 +48,9 @@ public static class FilterPanelHelper
 
     /// <summary>ارتفاع لوحة التصفية المطوية — يكفي لزر واحد (RULE-N63).</summary>
     private const int CollapsedPanelHeight = 34;
+
+    /// <summary>السجلات المُوصَّلة — يمنع توصيل زر واحد مرتين بلا تلويث <c>Tag</c> (RULE-N63).</summary>
+    private static readonly ConditionalWeakTable<Button, string> WiredButtons = new();
 
     /// <summary>عرض زر التبديل.</summary>
     private const int ToggleButtonWidth = 140;
@@ -86,10 +91,7 @@ public static class FilterPanelHelper
 
         try
         {
-            // (1) idempotent — البحث بالاسم في الشجرة كلها (RULE-N63).
-            if (FindControl(form, ToggleButtonName) is not null) return;
-
-            // (2) الحاوية: pnlFilters، وإلا اللوحة التي تضم gbFilter مباشرةً.
+            // (1) الحاوية: pnlFilters، وإلا اللوحة التي تضم gbFilter مباشرةً.
             var host = FindFilterHost(form);
             if (host is null || host.IsDisposed)
             {
@@ -106,28 +108,41 @@ public static class FilterPanelHelper
                 return;
             }
 
-            // (4) ارتفاع اللوحة الحالي كما ضبطه المصمّم (112/68/…) — لا رقم ثابت.
+            // (2) الزر: يُتبنّى من المصمّم إن كان مُعلَناً هناك (RULE-N145) فيتساوى
+            //     المصمّم ووقت التشغيل، وإلا يُنشأ هنا كبديل احتياطي للشاشات غير المرحَّلة.
+            var existing = FindControl(form, ToggleButtonName) as Button;
+            bool createdHere = existing is null;
+            var button = existing ?? CreateToggleButton();
+
+            // idempotent — نفس الشاشة لا تُوصِّل الزر مرتين (RULE-N63).
+            if (WiredButtons.TryGetValue(button, out _)) return;
+            WiredButtons.Add(button, ToggleButtonName);
+
+            // (3) ارتفاع اللوحة الحالي كما ضبطه المصمّم (112/68/…) — لا رقم ثابت.
             var state = new FilterPanelState
             {
                 Host = host,
                 Group = group,
+                Button = button,
                 ExpandedHeight = host.Height
             };
 
             CaptureRowStyle(state);
 
-            // (3) الزر + تلميحه.
-            var button = CreateToggleButton();
+            // (4) التلميح + النقرة.
             var tip = new ToolTip { InitialDelay = 300, ReshowDelay = 100 };
             tip.SetToolTip(button, TipToggle);
 
-            state.Button = button;
             state.Tip = tip;
 
             button.Click += (_, _) => Toggle(state, serviceProvider);
 
-            // يُضاف بعد gbFilter (نهاية Controls) فيُقتطع الزر أولاً ويملأ gbFilter الباقي.
-            host.Controls.Add(button);
+            // زر المصمّم يحتفظ بإرسائه/شكله كما هو؛ ولا يُضاف إلى الحاوية إلا إن أُنشئ هنا.
+            if (createdHere)
+            {
+                // يُضاف بعد gbFilter (نهاية Controls) فيُقتطع الزر أولاً ويملأ gbFilter الباقي.
+                host.Controls.Add(button);
+            }
 
             // (5) اختصار F9 — عبر الأداة الموحّدة (RULE-N47)، بلا تكرار منطق مفاتيح هنا.
             KeyboardHelper.WireGlobalShortcuts(form, (Keys.F9, () => Toggle(state, serviceProvider)));

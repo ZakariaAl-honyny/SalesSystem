@@ -23,13 +23,25 @@ public partial class frmListInventoryTransactions : Form
     private DataTable _transactionsTable = new();
     private DataView _transactionsView = new();
 
+    // RULE-N148: الوضع الافتراضي لأدوات التصفية («هذا الشهر») — يُلتقط مرة عند الإنشاء
+    // وتُعاد إليه أدوات التصفية عند «مسح التصفية» وعند «تحديث».
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     // يبدأ true حتى لا تنطلق تصفية من داخل المنشئ/التحميل قبل اكتمال تهيئة أدوات التصفية.
     private bool _isInitializing = true;
+
+    // حارس بسيط ضد التنفيذ المزدوج لعرض التفاصيل (نقر مزدوج + قائمة سياق أثناء الانتظار).
+    private bool _isViewingDetails;
 
     public frmListInventoryTransactions(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        var today = DateTime.Today;
+        _defaultFrom = new DateTime(today.Year, today.Month, 1);
+        _defaultTo = today;
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل وأسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
@@ -38,12 +50,16 @@ public partial class frmListInventoryTransactions : Form
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — الأزرار المعطّلة تظهر رمادية باهتة.
-        KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose);
+        KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose, btnClearFilters);
 
         // RULE-N47 — F5 تحديث · Esc مسح كل التصفية وإرجاع «هذا الشهر» (لا يوجد زر بحث: RULE-N59).
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Escape, _ClearAllFilters));
+
+        // RULE-N147: شاشة قائمة بلا «جديد» ⇒ Enter = الزر الأساسي «تحديث» (لا آلة حالة إدخال).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
 
         FormClosing += (s, e) =>
         {
@@ -58,6 +74,10 @@ public partial class frmListInventoryTransactions : Form
 
     private IInventoryDesktopService DesktopService
         => _serviceProvider.GetRequiredService<IInventoryDesktopService>();
+
+    /// <summary>RULE-N147: الزر الأساسي للشاشة — «تحديث» (لا زر «جديد» ولا آلة حالة إدخال في شاشة القائمة).</summary>
+    private Button? _PrimaryActionButton() => btnRefresh;
+
 
     /// <summary>تلميحات الأزرار مع اختصاراتها (RULE-N47).</summary>
     private void _SetupToolTips()
@@ -214,6 +234,10 @@ public partial class frmListInventoryTransactions : Form
     {
         _SetupGridColumns();
         await _RefreshListAsync();
+
+        // إعادة ضبط الاختيار بعد كل تحميل (RULE-N148: «تحديث» يُرجع الاختيار للافتراضي).
+        if (!IsDisposed)
+            dgvTransactions.ClearSelection();
     }
 
     /// <summary>أسماء الأصناف في الحركة (من سطور المستند) — تُستخدم في التصفية والبيان.</summary>
@@ -318,20 +342,14 @@ public partial class frmListInventoryTransactions : Form
                 _ => "Products",
             };
 
-            conditions.Add($"{column} LIKE '%{_EscapeLikeValue(text)}%'");
+            conditions.Add(RowFilterHelper.Like(column, text));
         }
 
         _transactionsView.RowFilter = conditions.Count == 0 ? string.Empty : string.Join(" AND ", conditions);
 
         _UpdateSummary();
+        _UpdateClearFiltersState();   // RULE-N148: حالة زر «مسح التصفية» بعد كل تطبيق
     }
-
-    /// <summary>تهريب قيمة البحث حتى لا تُفسد صيغة RowFilter (علامة اقتباس/حروف البدل).</summary>
-    private static string _EscapeLikeValue(string text)
-        => text.Replace("'", "''")
-               .Replace("[", "[[]")
-               .Replace("%", "[%]")
-               .Replace("*", "[*]");
 
     /// <summary>RULE-N61: شريط الملخص — المعروض من الكل + كميات الوارد والصادر (3 منازل).</summary>
     private void _UpdateSummary()
@@ -381,74 +399,130 @@ public partial class frmListInventoryTransactions : Form
         _ApplyFilter();
     }
 
-    /// <summary>«هذا الشهر» = من أول الشهر الحالي حتى اليوم (الافتراضي ومسح Esc).</summary>
+    /// <summary>«هذا الشهر» = النطاق الافتراضي (من أول الشهر الحالي حتى اليوم) — زر النطاق السريع.</summary>
     private void _SetDateRangeThisMonth()
-    {
-        var today = DateTime.Today;
+        => _SetDateRange(_defaultFrom, _defaultTo);
 
-        dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-        dtpTo.Value = today;
-    }
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل (RULE-N148)، ويُعيد التركيز إلى حقل التصفية.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
+        => _ClearAllFilters();
 
-    /// <summary>Esc: مسح كل أدوات التصفية وإعادة النطاق إلى «هذا الشهر».</summary>
-    private void _ClearAllFilters()
+    /// <summary>
+    /// تفريغ أدوات التصفية وحدها إلى الوضع الافتراضي (بلا تطبيق ولا إعادة تحميل) — RULE-N148.
+    /// تُستهلك من «مسح التصفية» و«تحديث» وعند فتح الشاشة.
+    /// </summary>
+    private void _ClearFilterInputs()
     {
+        bool wasInitializing = _isInitializing;
+
+        // منع تصفية وسيطة عند كل ضبط حقل — تُطبَّق مرة واحدة بعد التفريغ.
         _isInitializing = true;
         try
         {
+            txtFilterValue.Clear();
             cbFilterBy.SelectedIndex = 0;
-            cbMovementType.SelectedIndex = 0;
+            cbMovementType.SelectedIndex = 0;   // «الكل»
             chkOnlyIn.Checked = false;
             chkOnlyOut.Checked = false;
-            txtFilterValue.Clear();
-            _SetDateRangeThisMonth();
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
-            _isInitializing = false;
+            _isInitializing = wasInitializing;
         }
+    }
 
+    /// <summary>RULE-N148: يمسح أدوات التصفية ثم يعيد تطبيق التصفية الافتراضية على المحمَّل (بلا تحميل).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
         _ApplyFilter();
         txtFilterValue.Focus();
+    }
+
+    /// <summary>RULE-N43/RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الوضع الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbMovementType.SelectedIndex > 0
+            || chkOnlyIn.Checked
+            || chkOnlyOut.Checked
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
     }
 
     // ═════════════════════════════════════════════════════════════════
     //  التفاصيل
     // ═════════════════════════════════════════════════════════════════
 
-    private void _ViewDetails()
+    /// <summary>
+    /// عرض تفاصيل الحركة المحددة — async (RULE-N25/N26/N29): انتظار غير متزامن بلا
+    /// <c>GetAwaiter().GetResult()</c>، مع مؤشر انتظار واستعادته في <c>finally</c>،
+    /// وحارس ضد التنفيذ المزدوج، ورسالة عربية عند الفشل (بلا <c>ex.Message</c>).
+    /// </summary>
+    private async void _ViewDetails()
     {
+        if (_isViewingDetails) return;   // حارس: لا تنفيذ مزدوج أثناء الانتظار
         if (dgvTransactions.SelectedRows.Count == 0) return;
         var row = dgvTransactions.SelectedRows[0];
         if (row.DataBoundItem is not DataRowView drv) return;
 
         int id = Convert.ToInt32(drv["Id"]);
-        var result = DesktopService.GetInventoryTransactionByIdAsync(id).GetAwaiter().GetResult();
 
-        if (!result.IsSuccess || result.Value is null)
+        _isViewingDetails = true;
+        Cursor = Cursors.WaitCursor;
+        dgvTransactions.Cursor = Cursors.WaitCursor;
+
+        try
         {
-            MessageBox.Show("تعذر تحميل تفاصيل الحركة", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return;
-        }
+            var result = await DesktopService.GetInventoryTransactionByIdAsync(id);
 
-        var tx = result.Value;
-        var details = new System.Text.StringBuilder();
-        details.AppendLine($"رقم الحركة: {tx.TransactionNo}");
-        details.AppendLine($"النوع: {tx.MovementTypeDisplay}");
-        details.AppendLine($"المستودع: {tx.WarehouseName ?? "-"}");
-        details.AppendLine($"التاريخ: {tx.CreatedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)}");
-        details.AppendLine($"ملاحظات: {tx.Notes ?? "-"}");
-        details.AppendLine($"--- البنود ({tx.Lines?.Count ?? 0}) ---");
-
-        if (tx.Lines is { Count: > 0 })
-        {
-            foreach (var line in tx.Lines)
+            if (!result.IsSuccess || result.Value is null)
             {
-                details.AppendLine($"- {line.ProductUnitName ?? "?"} | كمية: {line.Quantity:N3} | تكلفة: {line.UnitCost:N2}");
+                MessageBox.Show("تعذر تحميل تفاصيل الحركة", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var tx = result.Value;
+            var details = new System.Text.StringBuilder();
+            details.AppendLine($"رقم الحركة: {tx.TransactionNo}");
+            details.AppendLine($"النوع: {tx.MovementTypeDisplay}");
+            details.AppendLine($"المستودع: {tx.WarehouseName ?? "-"}");
+            details.AppendLine($"التاريخ: {tx.CreatedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)}");
+            details.AppendLine($"ملاحظات: {tx.Notes ?? "-"}");
+            details.AppendLine($"--- البنود ({tx.Lines?.Count ?? 0}) ---");
+
+            if (tx.Lines is { Count: > 0 })
+            {
+                foreach (var line in tx.Lines)
+                {
+                    details.AppendLine($"- {line.ProductUnitName ?? "?"} | كمية: {line.Quantity:N3} | تكلفة: {line.UnitCost:N2}");
+                }
+            }
+
+            MessageBox.Show(details.ToString(), "تفاصيل الحركة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "فشل عرض تفاصيل حركة المخزون {TransactionId}", id);
+            MessageBox.Show("تعذر تحميل تفاصيل الحركة. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _isViewingDetails = false;
+
+            if (!IsDisposed)
+            {
+                Cursor = Cursors.Default;
+                dgvTransactions.Cursor = Cursors.Default;
             }
         }
-
-        MessageBox.Show(details.ToString(), "تفاصيل الحركة", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -460,12 +534,8 @@ public partial class frmListInventoryTransactions : Form
         _isInitializing = true;
         try
         {
-            cbFilterBy.SelectedIndex = 0;
-            cbMovementType.SelectedIndex = 0;
-            chkOnlyIn.Checked = false;
-            chkOnlyOut.Checked = false;
-            txtFilterValue.Clear();
-            _SetDateRangeThisMonth();
+            // الشاشة تفتح على الوضع الافتراضي لأدوات التصفية (RULE-N148).
+            _ClearFilterInputs();
         }
         catch (Exception ex)
         {
@@ -479,6 +549,7 @@ public partial class frmListInventoryTransactions : Form
         try
         {
             await _ReloadFormAsync();
+            _UpdateClearFiltersState();   // RULE-N148: حالة الزر بعد التحميل مباشرة
         }
         catch (Exception ex)
         {
@@ -488,11 +559,17 @@ public partial class frmListInventoryTransactions : Form
 
     private void btnClose_Click(object sender, EventArgs e) { Close(); }
 
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة (RULE-N148): أدوات التصفية إلى الافتراضي
+    /// ← الشبكة من الخدمة ← الملخص والاختيار. «مسح التصفية» وحده يمسح التصفية بلا إعادة تحميل.
+    /// </summary>
     private async void btnRefresh_Click(object sender, EventArgs e)
     {
         try
         {
+            _ClearFilterInputs();
             await _ReloadFormAsync();
+            _UpdateClearFiltersState();
         }
         catch (Exception ex)
         {
@@ -575,7 +652,7 @@ public partial class frmListInventoryTransactions : Form
         => _SetDateRange(DateTime.Today, DateTime.Today);
 
     private void btnRangeMonth_Click(object sender, EventArgs e)
-        => _SetDateRange(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1), DateTime.Today);
+        => _SetDateRangeThisMonth();
 
     private void btnRange30_Click(object sender, EventArgs e)
         => _SetDateRange(DateTime.Today.AddDays(-29), DateTime.Today);

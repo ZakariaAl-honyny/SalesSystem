@@ -8,6 +8,7 @@ using SalesSystem.DTO.Responses;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Services;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens;
 
@@ -44,6 +45,39 @@ public partial class frmLogin : Form
         this.RightToLeftLayout = true;
         this.AcceptButton = btnLogin;
         this.AutoValidate = AutoValidate.EnableAllowFocusChange;
+
+        // §2.21/2: Enter في حقل كلمة المرور = تسجيل الدخول فوراً.
+        // يُوصَّل **قبل** WireEnterAsTab حتى لا يُحوِّل Enter إلى انتقال تركيز (RULE-N42).
+        txtPin.KeyDown += txtPin_KeyDown;
+
+        // RULE-N40…N46 — تنقل وتحديد القيمة وتظليل الحقل النشط
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireButtonDisabledVisual(btnLogin);                        // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this, (Keys.Escape, Close));           // RULE-N47
+
+        ApplyUiTheme();   // RULE-N50 — آخر خطوة في تهيئة المظهر
+    }
+
+    // ── المظهر (RULE-N50…RULE-N54) ───────────────────────────────────────────
+
+    /// <summary>
+    /// ثيم الشاشة: شريط عنوان أخضر وزر الدخول من لوحة الثيم، وتنتهي الدالة بـ
+    /// <see cref="GreenThemeHelper.Apply(Form)"/> كآخر سطر (RULE-N50).
+    /// <para>
+    /// لا يُستدعى <see cref="ThemeHelper"/> هنا لأنه يفرض خط Segoe UI وخلفية بيضاء
+    /// فيمحو الثيم الأخضر (RULE-N21/RULE-N50).
+    /// </para>
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblTitle);                 // RULE-N53
+
+        btnLogin.BackColor = GreenThemeHelper.HeaderBackground; // RULE-N54 — لا قيم جديدة
+        btnLogin.ForeColor = GreenThemeHelper.HeaderForeground;
+
+        GreenThemeHelper.Apply(this);                           // ← الأخير دائماً (RULE-N50)
     }
 
     // ── خصائص مساعدة ────────────────────────────────────────────────────────
@@ -91,6 +125,22 @@ public partial class frmLogin : Form
         // ونمنع فقط محارف التحكم غير المسموحة في TextBox أحادي السطر.
         if (char.IsControl(e.KeyChar) && e.KeyChar != '\b')
             e.Handled = true;
+    }
+
+    /// <summary>
+    /// Enter في حقل كلمة المرور = تسجيل الدخول مباشرة (بدل تحويله إلى انتقال تركيز).
+    /// يُوصَّل قبل <see cref="KeyboardHelper.WireEnterAsTab"/> في المُنشئ ليسبقه في التنفيذ.
+    /// </summary>
+    private void txtPin_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter || e.Modifiers != Keys.None)
+            return;
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+
+        if (btnLogin.Enabled && btnLogin.Visible)
+            btnLogin.PerformClick();
     }
 
     private async void btnLogin_Click(object sender, EventArgs e)

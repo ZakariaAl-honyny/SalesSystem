@@ -65,18 +65,28 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     // المنتجات — Products
     // ═══════════════════════════════════════════════
+    // معرّفات المجموعات تطابق MockLookupsData.Categories (1..8) حتى تظهر «مجموعة الصنف» صحيحة.
+    // الأصناف 11–13 مضافة خصيصاً لاختبار آلة الحالة والتصفية في دليل الأصناف:
+    //   11 = صنف معطّل (اختبار «إعادة التنشيط» + «عرض غير النشط»)
+    //   12 = صنف نافد (اختبار «النافد فقط»)
+    //   13 = صنف تحت حد الطلب (اختبار «تحت حد الطلب»)
     public static List<ProductDto> Products { get; } = new()
     {
-        new ProductDto(1,  "شاي ليبتون 250غ",          1, "مشروبات", null,  10m, false, null, true, "102030", 240m),
-        new ProductDto(2,  "زيت نباتي 1 لتر",          2, "زيوت",    null,  20m, false, null, true, "102031",  80m),
-        new ProductDto(3,  "أرز بسمتي 5 كغ",           3, "حبوب",    null,  15m, false, null, true, "102032",  60m),
-        new ProductDto(4,  "سكر أبيض 1 كغ",            3, "حبوب",    null,  25m, false, null, true, "102033", 480m),
-        new ProductDto(5,  "دقيق فاخر 2 كغ",           3, "حبوب",    null,  10m, false, null, true, "102034", 120m),
-        new ProductDto(6,  "معجون طماطم 400غ",         4, "معلبات",  null,  30m, true,  null, true, "102035",  90m),
-        new ProductDto(7,  "تونا معلبة 185غ",           4, "معلبات",  null,  20m, true,  null, true, "102036",  45m),
-        new ProductDto(8,  "حليب مجفف 900غ",           5, "ألبان",   null,  10m, true,  null, true, "102037",  30m),
-        new ProductDto(9,  "مناديل ورقية 150 ورقة",    6, "منظفات",  null,  50m, false, null, true, "102038", 200m),
-        new ProductDto(10, "صابون غسيل 1 كغ",          6, "منظفات",  null,  30m, false, null, true, "102039",  75m)
+        new ProductDto(1,  "شاي ليبتون 250غ",          1, "مشروبات ومياه",   null,  10m, false, null, true, "102030", 240m),
+        new ProductDto(2,  "زيت نباتي 1 لتر",          4, "مواد غذائية",     null,  20m, false, null, true, "102031",  80m),
+        new ProductDto(3,  "أرز بسمتي 5 كغ",           4, "مواد غذائية",     null,  15m, false, null, true, "102032",  60m),
+        new ProductDto(4,  "سكر أبيض 1 كغ",            4, "مواد غذائية",     null,  25m, false, null, true, "102033", 480m),
+        new ProductDto(5,  "دقيق فاخر 2 كغ",           4, "مواد غذائية",     null,  10m, false, null, true, "102034", 120m),
+        new ProductDto(6,  "معجون طماطم 400غ",         5, "معلبات",          null,  30m, true,  null, true, "102035",  90m),
+        new ProductDto(7,  "تونا معلبة 185غ",          5, "معلبات",          null,  20m, true,  null, true, "102036",  45m),
+        new ProductDto(8,  "حليب مجفف 900غ",           2, "منتجات ألبان",    null,  10m, true,  null, true, "102037",  30m),
+        new ProductDto(9,  "مناديل ورقية 150 ورقة",    6, "منظفات",          null,  50m, false, null, true, "102038", 200m),
+        new ProductDto(10, "صابون غسيل 1 كغ",          6, "منظفات",          null,  30m, false, null, true, "102039",  75m),
+
+        // ── أصناف الاختبار ──
+        new ProductDto(11, "بسكويت شاي 100غ",          3, "حلويات وبسكويتات", "صنف معطّل لاختبار إعادة التنشيط", 15m, false, null, false, "102040", 40m),
+        new ProductDto(12, "مياه معدنية 1.5 لتر",      1, "مشروبات ومياه",   "صنف نافد لاختبار تصفية النافد",   30m, false, null, true,  "102041",  0m),
+        new ProductDto(13, "عصير برتقال 1 لتر",        1, "مشروبات ومياه",   "صنف تحت حد الطلب",                20m, true,  null, true,  "102042",  8m)
     };
 
     // ═══════════════════════════════════════════════
@@ -113,7 +123,15 @@ internal static class MockData
         new ProductUnitDto(12, 4,  2, "كرتون", 24m, false,
             "6200000004411", 4500m, 4400m, 4000m, 100m),
         new ProductUnitDto(13, 9,  2, "كرتون", 10m, false,
-            "6200000009911", 1800m, 1750m, 1600m, 40m)
+            "6200000009911", 1800m, 1750m, 1600m, 40m),
+
+        // ── وحدات الأصناف المضافة للاختبار (11 معطّل · 12 نافد · 13 تحت حد الطلب) ──
+        new ProductUnitDto(14, 11, 5, "علبة", 1m, true,
+            "6200000011011",  50m, null,  40m, null),
+        new ProductUnitDto(15, 12, 1, "حبة",  1m, true,
+            "6200000012018",  25m, null,  18m, null),
+        new ProductUnitDto(16, 13, 1, "حبة",  1m, true,
+            "6200000013015",  60m, null,  45m, null)
     };
 
     // ═══════════════════════════════════════════════
@@ -130,7 +148,12 @@ internal static class MockData
         new ProductPriceDto(7,  7,  "علبة",  1000m, DateTime.UtcNow.AddMonths(-3), null),
         new ProductPriceDto(8,  8,  "علبة",  4500m, DateTime.UtcNow.AddMonths(-3), null),
         new ProductPriceDto(9,  9,  "علبة",  500m,  DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(10, 10, "كيس",   700m,  DateTime.UtcNow.AddMonths(-3), null)
+        new ProductPriceDto(10, 10, "كيس",   700m,  DateTime.UtcNow.AddMonths(-3), null),
+
+        // ── أسعار الأصناف المضافة للاختبار ──
+        new ProductPriceDto(11, 14, "علبة",   50m,  DateTime.UtcNow.AddMonths(-1), null),
+        new ProductPriceDto(12, 15, "حبة",    25m,  DateTime.UtcNow.AddMonths(-1), null),
+        new ProductPriceDto(13, 16, "حبة",    60m,  DateTime.UtcNow.AddMonths(-1), null)
     };
 
     // ═══════════════════════════════════════════════

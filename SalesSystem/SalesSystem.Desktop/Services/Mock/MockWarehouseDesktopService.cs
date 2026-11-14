@@ -87,4 +87,16 @@ public class MockWarehouseDesktopService : IWarehouseDesktopService
         // في المحاكاة، لا نحتاج لتعديل شيء — نعيد نجاح فقط
         return Task.FromResult(Result.Success());
     }
+
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockData.Warehouses.FirstOrDefault(w => w.Id == (short)id);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("المخزن غير موجود"));
+
+        var index = MockData.Warehouses.IndexOf(existing);
+        MockData.Warehouses[index] = existing with { IsActive = true };
+
+        return Task.FromResult(Result.Success());
+    }
 }

@@ -1,3 +1,4 @@
+using Serilog;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -24,6 +25,7 @@ using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
 using SalesSystem.Desktop.Screens.Dashboard.Forms;
+using SalesSystem.Desktop.Screens.Tools.Forms;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Configuration;
  
@@ -47,6 +49,26 @@ public partial class frmMain : Form
 
         // MVP: إخفاء شاشات النسخة الثانية (V2) — الكود سليم ومحفوظ لإعادة التفعيل لاحقاً
         ApplyMvpMenuVisibility();
+
+        ApplyUiTheme();   // RULE-N50 — آخر خطوة في تهيئة المظهر
+    }
+
+    // ── المظهر (RULE-N50/N53/N54) ─────────────────────────────────────────────
+
+    /// <summary>
+    /// مظهر الهيكل: شريط القوائم من لوحة الثيم الأخضر (لا قيم لونية جديدة هنا)،
+    /// وتنتهي الدالة بـ <see cref="GreenThemeHelper.Apply(Form)"/> كآخر سطر (RULE-N50).
+    /// <para>
+    /// <c>frmMain</c> حاوية MDI للتنقّل لا شاشة بيانات: أسطح المحتوى (منطقة MDI)
+    /// تُترك كما ضبطها المصمّم (RULE-N139/RULE-N140) ولا تُعاد تلوينها.
+    /// </para>
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        msMainMenu.BackColor = GreenThemeHelper.BarBackground;   // RULE-N54
+        msMainMenu.ForeColor = GreenThemeHelper.TextStrong;      // RULE-N53
+
+        GreenThemeHelper.Apply(this);                            // ← الأخير دائماً (RULE-N50)
     }
 
     /// <summary>
@@ -76,10 +98,10 @@ public partial class frmMain : Form
         // Store reference for clsGlobal._OpenForm()
         clsGlobal.frmMdiMain = this;
 
-        // Set MdiClient background to WhiteSmoke
+        // لون منطقة MDI = خلفية النموذج المصمَّمة (RULE-N139/RULE-N140: التشغيل = المصمّم)
         var MdiContainerPage = this.Controls.OfType<MdiClient>().FirstOrDefault();
         if (MdiContainerPage != null)
-            MdiContainerPage.BackColor = Color.WhiteSmoke;
+            MdiContainerPage.BackColor = GreenThemeHelper.FormBackground;
 
         // MVP: إخفاء شاشات V2 (يُطبَّق أيضاً في المنشئ — إبقاء العناصر المؤجلة مخفية بعد التحميل)
         ApplyMvpMenuVisibility();
@@ -91,85 +113,135 @@ public partial class frmMain : Form
         }
     }
 
+    // ── فتح الشاشات (RULE-N02 / RULE-N132 / RULE-N133) ────────────────────────
+
+    /// <summary>
+    /// يفتح الشاشة المطلوبة من حاوية DI حصراً — ممنوع إنشاء النماذج يدوياً (RULE-N02).
+    /// يفحص النوافذ المفتوحة **قبل** إنشاء النسخة فلا تُنشأ نسخة مهملة (RULE-N133)،
+    /// ثم يفوّض الفتح إلى النمط المعتمد <see cref="clsGlobal._OpenForm"/> (RULE-N132).
+    /// </summary>
+    private void OpenScreen<T>() where T : Form
+    {
+        string screenName = typeof(T).Name;
+
+        foreach (Form openForm in Application.OpenForms)
+        {
+            if (!string.Equals(openForm.Name, screenName, StringComparison.Ordinal))
+                continue;
+
+            // النافذة مفتوحة: إعادة تنشيطها بدل تكرارها
+            openForm.WindowState = FormWindowState.Normal;
+            openForm.Activate();
+            return;
+        }
+
+        try
+        {
+            clsGlobal._OpenForm(_serviceProvider.GetRequiredService<T>());
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر فتح الشاشة {Screen}", screenName);
+            MessageBox.Show("تعذر فتح الشاشة المطلوبة. يرجى المحاولة مرة أخرى.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
     // ── لوحة التحكم (Dashboard) ───────────────────────────────────────────────
 
     private void msbtnDashboard_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDashboard>());
+        => OpenScreen<frmDashboard>();
 
     // ── المنتجات (Products) ───────────────────────────────────────────────────
 
     private void msbtnManageProducts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductMaster>());
+        => OpenScreen<frmProductMaster>();
 
-    private void msbtnManageCustomers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCustomerMaster>());
-
-    private void msbtnManageSuppliers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSupplierMaster>());
+    private void msbtnImportProducts_Click(object sender, EventArgs e)
+        => OpenScreen<frmImportProductsExcel>();
 
     private void msbtnManageCategories_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCategoryMaster>());
+        => OpenScreen<frmCategoryMaster>();
 
     private void msbtnManageUnits_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUnitMaster>());
+        => OpenScreen<frmUnitMaster>();
+
+    // ── العملاء والموردون ────────────────────────────────────────────────────
+
+    private void msbtnManageCustomers_Click(object sender, EventArgs e)
+        => OpenScreen<frmCustomerMaster>();
+
+    private void msbtnManageSuppliers_Click(object sender, EventArgs e)
+        => OpenScreen<frmSupplierMaster>();
 
     // ── المخزون (Warehouse / Stock Transfers / Inventory) ────────────────────
 
     private void msbtnManageWarehouses_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWarehouseMaster>());
+        => OpenScreen<frmWarehouseMaster>();
 
     private void msbtnInventoryMovement_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventoryList>());
+        => OpenScreen<frmInventoryList>();
 
     private void msbtnInventoryTransactions_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryTransactions>());
+        => OpenScreen<frmListInventoryTransactions>();
 
     private void msbtnInventoryBatches_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryBatches>());
+        => OpenScreen<frmListInventoryBatches>();
 
     private void msbtnInventoryAdjustments_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListInventoryAdjustments>());
+        => OpenScreen<frmListInventoryAdjustments>();
 
     private void msbtnOpeningStock_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmOpeningStock>());
+        => OpenScreen<frmOpeningStock>();
 
+    /// <summary>جرد المخزون — كان معالجاً فارغاً في MVP، والشاشة <c>frmStocktakingNew</c> موجودة.</summary>
     private void msbtnInventoryCounts_Click(object sender, EventArgs e)
-    {
-        // MVP: شاشة الجرد المخزني (V2) أُزيلت مع الوحدة — لا إجراء.
-    }
+        => OpenScreen<frmStocktakingNew>();
+
+    /// <summary>تحويل مخزني بين المستودعات.</summary>
+    private void msbtnInventoryTransfer_Click(object sender, EventArgs e)
+        => OpenScreen<frmWarehouseTransferNew>();
+
+    /// <summary>عرض توزيع الدفعات (FIFO / FEFO).</summary>
+    private void msbtnInventoryFifo_Click(object sender, EventArgs e)
+        => OpenScreen<frmInventoryFifo>();
+
+    /// <summary>طباعة باركود الأصناف.</summary>
+    private void msbtnInventoryBarcode_Click(object sender, EventArgs e)
+        => OpenScreen<frmInventoryBarcode>();
 
     private void msbtnInventory_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventory>());
+        => OpenScreen<frmInventory>();
 
     // ── المشتريات (Purchases) ────────────────────────────────────────────────
 
     private void msbtnManagePurchases_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListPurchases>());
+        => OpenScreen<frmListPurchases>();
 
     private void msbtnPurchaseInvoice_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchaseInvoice>());
+        => OpenScreen<frmPurchaseInvoice>();
 
     private void msbtnPurchaseReturn_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchaseReturn>());
+        => OpenScreen<frmPurchaseReturn>();
 
     // ── المبيعات (Sales) ─────────────────────────────────────────────────────
 
     private void msbtnManageSales_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListSales>());
+        => OpenScreen<frmListSales>();
 
     private void msbtnSalesInvoice_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateSalesInvoice>());
+        => OpenScreen<frmAddUpdateSalesInvoice>();
 
     private void msbtnSalesReturn_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesReturn>());
+        => OpenScreen<frmSalesReturn>();
 
     private void msbtnReturnsList_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListReturns>());
+        => OpenScreen<frmListReturns>();
 
     // ── المبيعات — نقطة البيع وأدوات الفاتورة (جديد) ────────────────
 
     private void msbtnPOS_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPOS>());
+        => OpenScreen<frmPOS>();
 
     private void msbtnCurrencySelection_Click(object sender, EventArgs e)
         => MessageBox.Show("وحدة العملات غير متوفرة في نسخة MVP الحالية؛ العملة الافتراضية هي الريال اليمني.",
@@ -178,140 +250,145 @@ public partial class frmMain : Form
     // ── الخزينة (Treasury) ───────────────────────────────────────────────────
 
     private void msbtnManagePayments_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListPayments>());
+        => OpenScreen<frmListPayments>();
 
     private void msbtnCashBoxes_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxMaster>());
+        => OpenScreen<frmCashBoxMaster>();
 
     private void msbtnCashBoxTransactions_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxTransactions>());
+        => OpenScreen<frmCashBoxTransactions>();
 
     private void msbtnExpenses_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListExpenses>());
+        => OpenScreen<frmListExpenses>();
 
     private void msbtnCustomerReceipts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListCustomerReceipts>());
+        => OpenScreen<frmListCustomerReceipts>();
 
     private void msbtnSupplierPayments_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmListSupplierPayments>());
+        => OpenScreen<frmListSupplierPayments>();
 
     // ── بيانات (Data / Users) ────────────────────────────────────────────────
 
     private void msbtnManageUsers_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmUserMaster>());
+        => OpenScreen<frmUserMaster>();
 
     private void msbtnEmployees_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmEmployeeMaster>());
+        => OpenScreen<frmEmployeeMaster>();
 
     // ── المحاسبة (Accounting) ────────────────────────────────────────────────
 
     private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccounts>());
+        => OpenScreen<frmAccounts>();
 
     private void msbtnJournalEntries_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmJournalEntries>());
+        => OpenScreen<frmJournalEntries>();
 
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
     // RULE-N70/N71/N72: تقرير واحد = شاشة واحدة، كل تقرير يُفتح من عنصره في تصنيفه.
 
     // تقارير المبيعات
     private void msReportSalesReport_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesReport>());
+        => OpenScreen<frmSalesReport>();
 
     private void msReportDailySales_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDailySalesReport>());
+        => OpenScreen<frmDailySalesReport>();
 
     private void msReportSalesByCustomer_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesByCustomerReport>());
+        => OpenScreen<frmSalesByCustomerReport>();
 
     private void msReportSalesByProduct_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesByProductReport>());
+        => OpenScreen<frmSalesByProductReport>();
 
     private void msReportSalesByCategory_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSalesByCategoryReport>());
+        => OpenScreen<frmSalesByCategoryReport>();
 
     private void msReportProfitByCustomer_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProfitByCustomerReport>());
+        => OpenScreen<frmProfitByCustomerReport>();
 
     private void msReportProductProfitability_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductProfitabilityReport>());
+        => OpenScreen<frmProductProfitabilityReport>();
 
     private void msReportReturns_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmReturnsReport>());
+        => OpenScreen<frmReturnsReport>();
 
     // تقارير المشتريات
     private void msReportPurchasesReport_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchasesReport>());
+        => OpenScreen<frmPurchasesReport>();
 
     private void msReportPurchasesBySupplier_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchasesBySupplierReport>());
+        => OpenScreen<frmPurchasesBySupplierReport>();
 
     private void msReportPurchasesByProduct_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmPurchasesByProductReport>());
+        => OpenScreen<frmPurchasesByProductReport>();
 
     // تقارير المخزون
     private void msReportInventoryReport_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmInventoryReport>());
+        => OpenScreen<frmInventoryReport>();
 
     private void msReportStockBalance_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmStockBalanceReport>());
+        => OpenScreen<frmStockBalanceReport>();
 
     private void msReportWarehouseMovement_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWarehouseMovementReport>());
+        => OpenScreen<frmWarehouseMovementReport>();
 
     private void msReportDetailedStockLedger_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDetailedStockLedgerReport>());
+        => OpenScreen<frmDetailedStockLedgerReport>();
 
     private void msReportProductMovement_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmProductMovementReport>());
+        => OpenScreen<frmProductMovementReport>();
 
     private void msReportLowStock_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmLowStockReport>());
+        => OpenScreen<frmLowStockReport>();
 
     private void msReportExpiredProducts_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmExpiredProductsReport>());
+        => OpenScreen<frmExpiredProductsReport>();
 
     // التقارير المالية والمحاسبية
     private void msReportTrialBalance_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmTrialBalanceReport>());
+        => OpenScreen<frmTrialBalanceReport>();
 
     private void msReportGeneralLedger_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmGeneralLedgerReport>());
+        => OpenScreen<frmGeneralLedgerReport>();
 
     private void msReportIncomeStatement_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmIncomeStatementReport>());
+        => OpenScreen<frmIncomeStatementReport>();
 
     private void msReportBalanceSheet_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmBalanceSheetReport>());
+        => OpenScreen<frmBalanceSheetReport>();
 
     private void msReportCashFlow_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashFlowReport>());
+        => OpenScreen<frmCashFlowReport>();
 
     private void msReportWorkingCapital_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmWorkingCapitalReport>());
+        => OpenScreen<frmWorkingCapitalReport>();
 
     private void msReportVat_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmVatReport>());
+        => OpenScreen<frmVatReport>();
 
     private void msReportAccountStatement_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccountStatementReport>());
+        => OpenScreen<frmAccountStatementReport>();
 
     // تقارير العملاء والموردين
     private void msReportCustomerBalance_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCustomerBalanceReport>());
+        => OpenScreen<frmCustomerBalanceReport>();
 
     private void msReportSupplierBalance_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmSupplierBalanceReport>());
+        => OpenScreen<frmSupplierBalanceReport>();
 
     private void msReportAging_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAgingReport>());
+        => OpenScreen<frmAgingReport>();
 
     // تقارير الصندوق
     private void msReportCashBoxSummary_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmCashBoxSummaryReport>());
+        => OpenScreen<frmCashBoxSummaryReport>();
 
     private void msReportDailyClosure_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmDailyClosureReport>());
+        => OpenScreen<frmDailyClosureReport>();
+
+    // ── أدوات (Tools) ────────────────────────────────────────────────────────
+
+    private void msbtnCalculator_Click(object sender, EventArgs e)
+        => OpenScreen<frmCalculator>();
 
     // ── الإعدادات (Settings) ──────────────────────────────────────────────────
     // الإعدادات العامة وإعدادات الشركة أُزيلتا من الواجهة — المعالجات تبقى فارغة
@@ -331,7 +408,7 @@ public partial class frmMain : Form
         { /* V2: update-check removed */ }
 
     private void msbtnBackup_Click(object sender, EventArgs e)
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmBackup>());
+        => OpenScreen<frmBackup>();
 
     // ── إعدادات الحساب (Logout) ──────────────────────────────────────────────
 

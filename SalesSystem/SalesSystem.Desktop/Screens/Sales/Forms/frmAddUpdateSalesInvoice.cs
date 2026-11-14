@@ -73,15 +73,33 @@ public partial class frmAddUpdateSalesInvoice : Form
         KeyPreview = true;
         KeyDown += frmAddUpdateSalesInvoice_KeyDown;
 
-        // Unified keyboard behaviour (Enter = Tab, select-all on focus, focus highlight).
-        // NOTE: no arrow navigation — the grid owns the arrow keys.
+        // تنقل لوحة المفاتيح الموحّد (RULE-N40…RULE-N47).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
-        KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45 — أسهم RTL: يمين/أعلى = السابق، يسار/أسفل = التالي
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45 — أسهم RTL
 
-        ApplyStyles();
-        ApplyGreenGridStyle();
+        ApplyUiTheme();          // RULE-N50 — ينتهي بالثيم الأخضر حصراً
+        ApplyGridBehaviour();    // RULE-N22a/N52 — سلوك شبكة السطور تعلنه الشاشة
+
+        // RULE-N43 — آلة حالة الأزرار (بعد تثبيت ألوان المصمّم ليسجّل اللون السليم للاستعادة).
+        KeyboardHelper.WireButtonDisabledVisual(
+            btnSaveDraft, btnPost, btnCancelInvoice, btnCancelLine,
+            btnAddLine, btnEditRow, btnDeleteRow, btnRefreshCatalog, btnPrintA4, btnPrintReceipt);
+
+        // RULE-N47 — اختصارات الشاشة (F4 داخل حقول الأصناف يبقى «بحث عن صنف» — RULE-N42).
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnNew.PerformClick()),          // جديد
+            (Keys.F4, HandlePostShortcut),                   // حفظ وترحيل
+            (Keys.F5, () => btnRefreshCatalog.PerformClick()),// تحديث بيانات الأصناف
+            (Keys.Delete, HandleCancelInvoiceShortcut),       // إلغاء الفاتورة
+            (Keys.Escape, HandleEscapeShortcut));             // خروج
+
+        // RULE-N147 — Enter = الزر الأساسي للوضع الحالي (داخل حقل إدخال = الحقل التالي — RULE-N40،
+        // وداخل شبكة الأصناف يبقى Enter لإدخال السطر — RULE-N22a).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        _SyncAcceptButton();   // الزر الافتراضي الابتدائي = الزر الأساسي الحالي
+
         dgvItems.AutoGenerateColumns = false;
         dgvItems.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
         dgvItems.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -161,6 +179,10 @@ public partial class frmAddUpdateSalesInvoice : Form
         dgvItems.Scroll += (s, e) => HideCellExpiryPicker();
         dgvItems.Leave += (s, e) => HideCellExpiryPicker();
 
+        // RULE-N147 — لا يبقى Enter مرتبطاً بزر الحفظ ما دام التركيز داخل شبكة الأصناف (RULE-N22a).
+        dgvItems.Enter += (s, e) => _SyncAcceptButton();
+        dgvItems.Leave += (s, e) => _SyncAcceptButton();
+
         // Context Menu
         tsmiEditRow.Click += (s, e) => { if (dgvItems.CurrentRow?.Index >= 0 && dgvItems.CurrentRow.Index < _lines.Count) LoadRowForEditing(dgvItems.CurrentRow.Index); };
         tsmiCancelEdit.Click += (s, e) => CancelEdit();
@@ -197,7 +219,9 @@ public partial class frmAddUpdateSalesInvoice : Form
         cmbUnit.SelectedIndexChanged += cmbUnit_SelectedIndexChanged;
         cmbWarehouse.SelectedIndexChanged += cmbWarehouse_SelectedIndexChanged_RefreshAvailable;
 
-        // تفقيط حيّ: تلميح يظهر بجوار الحقل عند كل تغيير، فيقرأ المستخدم الرقم وعدد الأصفار
+        // ── تفقيط حيّ (RULE-N97): كل حقول المال في الشاشة ──
+        // (المدفوع · الخصم · المصاريف · خصم السطر · السعر · الكمية)
+        // الإجمالي والمتبقي حقول عرض (lblTafqitValue / lblQuickInfo) لا إدخال ⇒ يُفقيطان نصاً في CalculateTotals.
         LiveTafqeetHelper.Attach(
             liveTip,
             (txtQuantity, "الكمية", LiveTafqeetHelper.ReadMode.Quantity),
@@ -266,15 +290,27 @@ public partial class frmAddUpdateSalesInvoice : Form
     public void LoadData(SalesInvoiceDto? invoice)
     {
         _invoice = invoice;
-        ApplyStyles();
+        ApplyUiTheme();
+        _SyncAcceptButton();   // RULE-N147 — الزر الافتراضي يتبع وضع الفاتورة المحمَّلة
     }
 
     // ═════════════════════════════════════════════════════════════════
     //  STYLES
     // ═════════════════════════════════════════════════════════════════
 
-    private void ApplyStyles()
+    /// <summary>
+    /// تهيئة المظهر (RULE-N50): <see cref="ThemeHelper"/> يفرض خلفية بيضاء وخط Segoe UI،
+    /// ثم يُفرض الثيم الأخضر <b>آخر خطوة حصراً</b> ليردّ ألوان المصمّم.
+    /// وألوان المصمّم هي المرجع البصري — تُلتقط قبل ThemeHelper ثم تُعاد حرفياً (RULE-N134/N139/N140).
+    /// </summary>
+    private void ApplyUiTheme()
     {
+        // (1) ألوان المصمّم حرفياً — تُلتقط قبل أن يفرض ThemeHelper أبيض/Segoe UI.
+        var designerLook = new Dictionary<Button, (Color Back, Color Fore)>();
+        foreach (var btn in ActionButtons)
+            designerLook[btn] = (btn.BackColor, btn.ForeColor);
+
+        // (2) ThemeHelper — أبيض/Segoe UI، ويُستدعى قبل الثيم الأخضر دائماً.
         ThemeHelper.ApplyMainFormStyle(this);
         lblMode.Text = _invoice == null ? "فاتورة بيع جديدة" : $"فاتورة بيع - {_invoice.InvoiceNo}";
 
@@ -283,153 +319,42 @@ public partial class frmAddUpdateSalesInvoice : Form
         ThemeHelper.ApplyButtonStyle(btnCancelInvoice, ThemeHelper.ButtonType.Danger);
         ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
 
-        ApplyUiPolish();
-        ApplyGreenTheme();
-    }
-
-    /// <summary>
-    /// Visual polish applied on top of the base theme — totals emphasis,
-    /// the two action bars (أوامر الفاتورة + أوامر الأصناف), quick-info bar and group headers.
-    /// </summary>
-    private void ApplyUiPolish()
-    {
-        // ── أوامر الأصناف (الشريط أعلى شبكة الأصناف) ──
-        ThemeHelper.ApplyButtonStyle(btnAddLine, ThemeHelper.ButtonType.Success);
-        btnAddLine.Text = "➕ إضافة";
-        btnAddLine.BackColor = Color.FromArgb(25, 135, 84);
-
-        ThemeHelper.ApplyButtonStyle(btnEditRow, ThemeHelper.ButtonType.Warning);
-        btnEditRow.BackColor = Color.FromArgb(255, 193, 7);              // أمبر — مثل btnCancelLine
-        btnEditRow.ForeColor = Color.FromArgb(60, 45, 5);                // نص داكن مقروء على الأمبر
-
-        ThemeHelper.ApplyButtonStyle(btnDeleteRow, ThemeHelper.ButtonType.Danger);
-
-        ThemeHelper.ApplyButtonStyle(btnCancelLine, ThemeHelper.ButtonType.Warning);
-        btnCancelLine.ForeColor = Color.FromArgb(60, 45, 5); // readable text on amber
-        btnCancelLine.Enabled = false;
-
-        // ── شريط أوامر الفاتورة ──
-        ThemeHelper.ApplyButtonStyle(btnRefreshCatalog, ThemeHelper.ButtonType.Secondary);
-        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Secondary);
-
-        // ── Print / cancel invoice buttons ──
-        ThemeHelper.ApplyButtonStyle(btnPrintA4, ThemeHelper.ButtonType.Secondary);
-        btnPrintA4.ForeColor = ThemeHelper.TextPrimary;
-        ThemeHelper.ApplyButtonStyle(btnPrintReceipt, ThemeHelper.ButtonType.Secondary);
-        btnPrintReceipt.ForeColor = ThemeHelper.TextPrimary;
-
-        // ── خيار "طباعة فاتورة إجمالية" ──
-        chkPrintSummary.Font = new Font("Tahoma", 8.25F, FontStyle.Bold);
-        chkPrintSummary.ForeColor = ThemeHelper.TextPrimary;
-        chkPrintSummary.BackColor = Color.Transparent;
-
-        // ── Group headers ──
-        foreach (var gb in new[] { gbInvoiceInfo, gbEntry, gbItems, gbTotals })
-        {
-            gb.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            gb.ForeColor = ThemeHelper.TextPrimary;
-        }
-
-        // ── Totals area emphasis ──
-        //lblTotalVal.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
-        //lblTotalVal.ForeColor = ThemeHelper.Primary;
-        //lblDueVal.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
-        //lblSubTotalVal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        //lblDiscountAmountVal.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-        lblLineTotal.Font = new Font("Tahoma", 11F, FontStyle.Bold);
-        lblLineTotal.ForeColor = ThemeHelper.Primary;
-
-        // ── Quick info bar ──
-        lblQuickInfo.BackColor = Color.FromArgb(235, 245, 235);
-        lblQuickInfo.ForeColor = Color.FromArgb(14, 82, 52);
-        lblQuickInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblQuickInfo.Padding = new Padding(8, 6, 8, 6);
-
-        // ── Status badge ──
-        lblStatus.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblStatus.ForeColor = Color.White;
-        lblStatus.Padding = new Padding(10, 4, 10, 4);
-        lblStatus.TextAlign = ContentAlignment.MiddleCenter;
-        lblStatus.AutoSize = true;
-
-        // ── Action buttons — bold Tahoma 10, white text, distinct colours ──
-        StyleActionButton(btnNew, Color.FromArgb(40, 167, 69));            // أخضر
-        StyleActionButton(btnSaveDraft, Color.FromArgb(0, 123, 255));      // أزرق
-        StyleActionButton(btnPost, Color.FromArgb(25, 135, 84));           // أخضر داكن
-        StyleActionButton(btnCancelInvoice, Color.FromArgb(220, 53, 69));  // أحمر
-        StyleActionButton(btnPrintA4, Color.FromArgb(255, 152, 0));        // برتقالي
-        StyleActionButton(btnPrintReceipt, Color.FromArgb(23, 162, 184));  // تركوازي
-        StyleActionButton(btnSalesReturn, Color.FromArgb(111, 66, 193));   // بنفسجي
-        StyleActionButton(btnClose, Color.FromArgb(108, 117, 125));        // رمادي
-        StyleActionButton(btnDeleteRow, Color.FromArgb(220, 53, 69));      // أحمر
-
-        // ── توحيد مقاسات أزرار شريطي الأوامر (AutoSize=false كما في المصمّم) ──
-        // ApplyButtonStyle يفرض AutoSize=true وFont=Segoe UI — نُعيد Tahoma (العرض من المصمّم).
-        foreach (var btn in new[]
-                 {
-                     btnNew, btnSaveDraft, btnPost, btnPrintA4, btnPrintReceipt,
-                     btnAddLine, btnEditRow, btnDeleteRow, btnCancelLine,
-                     btnClose, btnSalesReturn, btnCancelInvoice, btnRefreshCatalog
-                 })
+        // (3) استعادة شكل المصمّم على أزرار الشاشة (Tahoma 10 Bold · ارتفاع 36 · بلا AutoSize).
+        foreach (var btn in ActionButtons)
         {
             btn.AutoSize = false;
-            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btn.Height = 36;
             btn.Padding = Padding.Empty;
+            btn.UseVisualStyleBackColor = false;
+            btn.Cursor = Cursors.Hand;
+            btn.BackColor = designerLook[btn].Back;
+            btn.ForeColor = designerLook[btn].Fore;
         }
 
-        // ── توحيد خط عناوين الشريطين ──
-        gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbToolbar.ForeColor = ThemeHelper.TextPrimary;
-        gbItemActions.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbItemActions.ForeColor = ThemeHelper.TextPrimary;
-    }
-
-    /// <summary>
-    /// الثيم الأخضر — يُطبَّق أخيراً لأن <see cref="ThemeHelper"/> يفرض خلفية بيضاء ويُلغي ألوان المصمّم.
-    /// القيم والألوان كلها من <see cref="GreenThemeHelper"/> (RULE-N50 / RULE-N54).
-    /// </summary>
-    private void ApplyGreenTheme()
-    {
-        GreenThemeHelper.Apply(this);
-
-        // ── فروق هذه الشاشة عن المساعد العام (نفس قيم المصمّم الأصلية حرفياً) ──
-        // المساعد يجعل كل GroupBox بلون صناديق المجموعات وكل Panel بلون الأشرطة؛
-        // وهذه الشاشة تميّز: شريطا الأدوات أفتح (235,240,235)، ولوحة الإدخال أغمق (235,245,235).
-        gbToolbar.BackColor = GreenThemeHelper.BarBackground;
-        gbItemActions.BackColor = GreenThemeHelper.BarBackground;
-        pnlEntry.BackColor = GreenThemeHelper.GroupBackground;
-
-        // شريط المعلومات السريعة ليس شريط عنوان (اسمه ليس في قائمة المساعد) ⇒ يُلوَّن هنا.
-        lblQuickInfo.BackColor = GreenThemeHelper.GroupBackground;
-        lblQuickInfo.ForeColor = GreenThemeHelper.TextStrong;
-    }
-
-    /// <summary>
-    /// نمط شبكة الأصناف — يُفوَّض إلى <see cref="GreenThemeHelper.ApplyGrid"/>
-    /// (بديل <see cref="ThemeHelper.ApplyDataGridViewStyle"/>)، مع الإبقاء على
-    /// التحرير داخل الخلية (CellSelect) الذي تتطلبه شاشة الإدخال (RULE-N22a / RULE-N52).
-    /// </summary>
-    private void ApplyGreenGridStyle()
-    {
+        // (4) الثيم الأخضر — آخر خطوة حصراً (RULE-N50).
+        GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvItems);
+        GreenThemeHelper.Apply(this);
+    }
 
-        // سلوك الشبكة مملوك للشاشة — المساعد لا يلمس SelectionMode ولا MultiSelect.
+    /// <summary>أزرار الشاشة (شريطا الأوامر) — مصدر واحد لتوحيد الشكل وحفظ ألوان المصمّم.</summary>
+    private Button[] ActionButtons => new[]
+    {
+        btnNew, btnSaveDraft, btnPost, btnPrintA4, btnPrintReceipt, btnSalesReturn,
+        btnCancelInvoice, btnClose,
+        btnAddLine, btnEditRow, btnDeleteRow, btnRefreshCatalog, btnCancelLine
+    };
+
+    /// <summary>
+    /// سلوك شبكة الأصناف (RULE-N22a / RULE-N52): المساعد <see cref="GreenThemeHelper.ApplyGrid"/>
+    /// لا يلمس <c>SelectionMode</c> ولا <c>MultiSelect</c> — الشاشة تُعلن سلوكها هنا:
+    /// تحرير داخل الخلية (CellSelect) وإضافة سطر جديد مسموحة.
+    /// </summary>
+    private void ApplyGridBehaviour()
+    {
         dgvItems.MultiSelect = false;
         dgvItems.SelectionMode = DataGridViewSelectionMode.CellSelect;   // تحرير داخل الخلية
-    }
-
-    /// <summary>
-    /// Unified look for the footer action buttons (bold Tahoma 10, white text).
-    /// </summary>
-    private static void StyleActionButton(Button btn, Color backColor)
-    {
-        btn.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btn.ForeColor = Color.White;
-        btn.BackColor = backColor;
-        btn.FlatStyle = FlatStyle.Flat;
-        btn.FlatAppearance.BorderSize = 0;
-        btn.UseVisualStyleBackColor = false;
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -1039,7 +964,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    private async void txtUnitPrice_KeyDown(object? sender, KeyEventArgs e)
+    private void txtUnitPrice_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode == Keys.Enter)
         {
@@ -1122,9 +1047,9 @@ public partial class frmAddUpdateSalesInvoice : Form
         foreach (DataGridViewRow r in dgvItems.Rows)
             r.DefaultCellStyle.BackColor = Color.White;
         btnAddLine.Text = "➕ إضافة";
-        btnAddLine.BackColor = Color.FromArgb(25, 135, 84);
+        btnAddLine.BackColor = ThemeHelper.Success;    // حالة الإضافة — نفس لون المصمّم (RULE-N134)
         btnCancelLine.Enabled = false;
-        gbEntry.Text = "إدخال الأصناف";
+        gbEntry.Text = "إضافة صنف";
     }
 
     private void RecalculateLineTotal(object? sender, EventArgs? e)
@@ -1553,7 +1478,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             {
                 cmb.FlatStyle = FlatStyle.Flat;
                 cmb.DropDownStyle = ComboBoxStyle.DropDownList;
-                cmb.BackColor = Color.FromArgb(255, 255, 180); // Visible yellow focus
+                cmb.BackColor = GreenThemeHelper.SelectionBack; // خلفية الخلية النشطة أثناء التحرير (RULE-N54)
             }
         }
         else if (dgvItems.CurrentCell.ColumnIndex == colQuantity.Index
@@ -2077,7 +2002,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         var bmp = new Bitmap(20, 20);
         using var g = Graphics.FromImage(bmp);
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        using var pen = new Pen(Color.FromArgb(220, 53, 69), 2f);
+        using var pen = new Pen(ThemeHelper.Danger, 2f);   // نفس لون أزرار الحذف (RULE-N54)
 
         float cx = 10, top = 3, bot = 17;
         float lidW = 7, lidH = 2;
@@ -2165,9 +2090,9 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (keyData == Keys.F5)
         {
-            txtPaid.Focus();
-            BeginInvoke(() => txtPaid.SelectAll());
-            return true;
+            // F5 = تحديث بيانات الأصناف — يُنفَّذ عبر الاختصار الموحّد (RULE-N47)
+            // (كان سابقاً ينقل التركيز إلى «المدفوع» — أُزيل لصالح معيار الاختصارات).
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         if (keyData == Keys.F12)
@@ -2327,7 +2252,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             // Set editing mode
             btnAddLine.Text = "✏️ تعديل";
-            btnAddLine.BackColor = Color.FromArgb(255, 193, 7);
+            btnAddLine.BackColor = ThemeHelper.Warning;    // وضع التعديل — نفس لون المصمّم (RULE-N134)
             btnCancelLine.Enabled = true;
             tsmiCancelEdit.Enabled = true;
             gbEntry.Text = $"تعديل السطر #{rowIndex + 1} — {productName}";
@@ -2336,7 +2261,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             {
                 r.DefaultCellStyle.BackColor = Color.White;
             }
-            dgvItems.Rows[rowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 255, 180);
+            dgvItems.Rows[rowIndex].DefaultCellStyle.BackColor = GreenThemeHelper.SelectionBack;
 
             txtBarcode.Focus();
             txtBarcode.SelectAll();
@@ -2960,6 +2885,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         finally
         {
             btnSaveDraft.Enabled = btnPost.Enabled = true;
+            _SyncAcceptButton();   // RULE-N147 — يُعاد ربط Enter بالزر الأساسي بعد انتهاء الحفظ
             Cursor = Cursors.Default;
         }
     }
@@ -3128,12 +3054,16 @@ public partial class frmAddUpdateSalesInvoice : Form
             (byte)InvoiceStatus.Draft => Color.Gray,
             (byte)InvoiceStatus.Posted => Color.Green,
             (byte)InvoiceStatus.Cancelled => Color.Red,
-            _ => Color.Blue
+            _ => ThemeHelper.Primary   // «جديد» — نفس لون المصمّم (RULE-N134)
         };
 
         if (btnPrintA4 != null) btnPrintA4.Visible = _invoice != null;
         if (btnPrintReceipt != null) btnPrintReceipt.Visible = _invoice != null;
         if (chkPrintSummary != null) chkPrintSummary.Visible = _invoice != null;
+
+        // RULE-N147 — الزر الافتراضي (Enter) يتبع الوضع الحالي بعد كل انتقال حالة
+        // (تحميل · جديد · حفظ/ترحيل · قفل) — بلا آلة حالة إضافية.
+        _SyncAcceptButton();
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -3159,6 +3089,51 @@ public partial class frmAddUpdateSalesInvoice : Form
     //  KEYBOARD SHORTCUTS (Form-level)
     // ═════════════════════════════════════════════════════════════════
 
+    /// <summary>
+    /// هل التركيز داخل حقل إدخال؟ عندها تُترك F4/Esc/Delete لسلوك الحقل نفسه
+    /// (بحث عن صنف · إلغاء الحقل · حذف حرف) ولا تُسحب لاختصار الشاشة (RULE-N47).
+    /// </summary>
+    private bool IsInputFocused()
+        => txtBarcode.Focused || txtItemCode.Focused || txtQuantity.Focused || txtUnitPrice.Focused
+           || txtLineDiscount.Focused || txtPaid.Focused || txtExpenses.Focused || txtNotes.Focused
+           || cmbUnit.Focused || cmbCustomer.Focused || cmbWarehouse.Focused || cmbCashBox.Focused
+           || cmbAccount.Focused || cmbDiscountType.Focused || numInvoiceDiscount.Focused
+           || dtpDate.Focused || dtpLineExpiry.Focused || dgvItems.ContainsFocus;
+
+    /// <summary>F4 = حفظ وترحيل — لا يُسحب من «بحث عن صنف» داخل حقول الأصناف (RULE-N42).</summary>
+    private void HandlePostShortcut()
+    {
+        if (IsInputFocused()) return;
+        if (btnPost is { Visible: true, Enabled: true }) btnPost.PerformClick();
+    }
+
+    /// <summary>Delete = إلغاء الفاتورة المرحّلة — لا يُسحب من حذف سطر الشبكة (RULE-N22a).</summary>
+    private void HandleCancelInvoiceShortcut()
+    {
+        if (IsInputFocused()) return;
+        if (btnCancelInvoice is { Visible: true, Enabled: true }) btnCancelInvoice.PerformClick();
+    }
+
+    /// <summary>Esc = إلغاء التعديل الجاري، وإلا خروج — وداخل حقل إدخال يُترك للحقل (RULE-N47).</summary>
+    private void HandleEscapeShortcut()
+    {
+        if (_editingLineKey.HasValue)
+        {
+            CancelEdit();
+            return;
+        }
+
+        if (IsInputFocused()) return;
+
+        // حماية من الفقدان: فاتورة جديدة فيها أصناف غير محفوظة ⇒ تأكيد قبل الإغلاق.
+        if (_invoice == null && _lines.Any(l => l.ProductId > 0)
+            && MessageBox.Show("سيتم إغلاق الشاشة وفقدان الأصناف غير المحفوظة. هل تريد المتابعة؟",
+                "تأكيد الخروج", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            return;
+
+        btnClose.PerformClick();
+    }
+
     private void frmAddUpdateSalesInvoice_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Control && e.KeyCode == Keys.Enter)
@@ -3172,6 +3147,39 @@ public partial class frmAddUpdateSalesInvoice : Form
             _ = SaveInvoiceAsync(false);
         }
     }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  ENTER = الزر الأساسي للوضع الحالي (RULE-N147)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// الزر الأساسي الذي يستقبله <c>Enter</c> (RULE-N147) — يُقرأ عند كل ضغطة لا مرة واحدة:
+    /// فاتورة جديدة أو مسودة قابلة للتحرير ⇒ «حفظ كمسودة» (حفظ غير مُتلِف يبقيها قابلة للتعديل).
+    /// <para>
+    /// الترحيل لا يُربط بـ<c>Enter</c> إطلاقاً: يبقى على زرّه و<c>F4</c> لأنه يخصم المخزون ويُرحّل
+    /// القيد المحاسبي ويقفل الفاتورة نهائياً (§2.4) — فالمفتاح العابر لا يُرحّل مستنداً مالياً.
+    /// </para>
+    /// <para>
+    /// حارس إلزامي: التركيز داخل شبكة الأصناف (أو محرّر خليتها أو منتقي تاريخ الانتهاء المغمور فيها)
+    /// ⇒ <c>null</c>، فيبقى <c>Enter</c> لإدخال السطر داخل الشبكة ولا يحفظ/يرحّل من الشبكة أبداً (RULE-N22a).
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton()
+    {
+        if (dgvItems.ContainsFocus || dgvItems.IsCurrentCellInEditMode) return null;
+
+        // مرحّلة أو ملغاة (مقفلة) ⇒ لا إجراء لـEnter: لا حفظ ولا ترحيل ولا بدء فاتورة جديدة بالخطأ.
+        if (IsLocked) return null;
+
+        // أثناء الحفظ الجاري الزر معطّل ⇒ لا Enter مزدوج.
+        return btnSaveDraft.Enabled ? btnSaveDraft : null;
+    }
+
+    /// <summary>
+    /// يزامن <see cref="Form.AcceptButton"/> مع الزر الأساسي للوضع الحالي (RULE-N147)، ويُفرّغه ما دام
+    /// التركيز داخل شبكة الأصناف حتى لا يخطف <c>Enter</c> من تحرير الخلية (RULE-N22a).
+    /// </summary>
+    private void _SyncAcceptButton() => AcceptButton = _PrimaryActionButton();
 
     // ═════════════════════════════════════════════════════════════════
     //  NAVIGATION (Enter → Next Field)

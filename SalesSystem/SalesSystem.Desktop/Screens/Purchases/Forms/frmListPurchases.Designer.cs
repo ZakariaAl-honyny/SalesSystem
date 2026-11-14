@@ -41,6 +41,8 @@
             btnRangeToday = new Button();
             btnRange30 = new Button();
             btnRangeMonth = new Button();
+            btnClearFilters = new Button();
+            btnToggleFilters = new Button();
             pnlSummary = new Panel();
             lblSummary = new Label();
             label1 = new Label();
@@ -68,6 +70,7 @@
             // 
             // pnlHeader
             // 
+            pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
             pnlHeader.Controls.Add(lblMode);
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
@@ -78,8 +81,10 @@
             // 
             // lblMode
             // 
+            lblMode.BackColor = Color.FromArgb(14, 165, 103);
             lblMode.Dock = DockStyle.Fill;
             lblMode.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblMode.ForeColor = Color.White;
             lblMode.Location = new Point(0, 0);
             lblMode.Margin = new Padding(0);
             lblMode.Name = "lblMode";
@@ -90,6 +95,7 @@
             // 
             // pnlToolbar
             // 
+            pnlToolbar.BackColor = Color.FromArgb(235, 240, 235);
             pnlToolbar.Controls.Add(flpToolbar);
             pnlToolbar.Dock = DockStyle.Top;
             pnlToolbar.Location = new Point(0, 56);
@@ -100,6 +106,7 @@
             // 
             // flpToolbar
             // 
+            flpToolbar.BackColor = Color.FromArgb(235, 240, 235);
             flpToolbar.Controls.Add(btnAdd);
             flpToolbar.Controls.Add(btnView);
             flpToolbar.Controls.Add(btnPost);
@@ -117,65 +124,100 @@
             // 
             // btnAdd
             // 
+            btnAdd.BackColor = Color.FromArgb(13, 110, 253);
+            btnAdd.FlatStyle = FlatStyle.Flat;
+            btnAdd.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnAdd.ForeColor = Color.White;
             btnAdd.Location = new Point(1421, 13);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(140, 40);
             btnAdd.TabIndex = 0;
             btnAdd.Text = "فاتورة مشتريات";
+            btnAdd.UseVisualStyleBackColor = false;
             btnAdd.Click += btnAdd_Click;
             // 
             // btnView
             // 
+            btnView.BackColor = Color.FromArgb(248, 249, 250);
             btnView.Enabled = false;
+            btnView.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnView.FlatAppearance.BorderSize = 1;
+            btnView.FlatStyle = FlatStyle.Flat;
+            btnView.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnView.ForeColor = Color.FromArgb(33, 37, 41);
             btnView.Location = new Point(1275, 13);
             btnView.Name = "btnView";
             btnView.Size = new Size(140, 40);
             btnView.TabIndex = 1;
             btnView.Text = "عرض / تعديل";
+            btnView.UseVisualStyleBackColor = false;
             btnView.Click += btnView_Click;
             // 
             // btnPost
             // 
+            btnPost.BackColor = Color.FromArgb(25, 135, 84);
             btnPost.Enabled = false;
+            btnPost.FlatStyle = FlatStyle.Flat;
+            btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnPost.ForeColor = Color.White;
             btnPost.Location = new Point(1129, 13);
             btnPost.Name = "btnPost";
             btnPost.Size = new Size(140, 40);
             btnPost.TabIndex = 2;
             btnPost.Text = "ترحيل";
+            btnPost.UseVisualStyleBackColor = false;
             btnPost.Click += btnPost_Click;
             // 
             // btnCancel
             // 
+            btnCancel.BackColor = Color.FromArgb(220, 53, 69);
             btnCancel.Enabled = false;
+            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancel.ForeColor = Color.White;
             btnCancel.Location = new Point(983, 13);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(140, 40);
             btnCancel.TabIndex = 3;
             btnCancel.Text = "إلغاء";
+            btnCancel.UseVisualStyleBackColor = false;
             btnCancel.Click += btnCancel_Click;
             // 
             // btnRefresh
             // 
+            btnRefresh.BackColor = Color.FromArgb(248, 249, 250);
+            btnRefresh.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnRefresh.FlatAppearance.BorderSize = 1;
+            btnRefresh.FlatStyle = FlatStyle.Flat;
+            btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRefresh.ForeColor = Color.FromArgb(33, 37, 41);
             btnRefresh.Location = new Point(837, 13);
             btnRefresh.Name = "btnRefresh";
             btnRefresh.Size = new Size(140, 40);
             btnRefresh.TabIndex = 4;
             btnRefresh.Text = "تحديث";
+            btnRefresh.UseVisualStyleBackColor = false;
             btnRefresh.Click += btnRefresh_Click;
             // 
             // btnClose
             // 
-            btnClose.DialogResult = DialogResult.Cancel;
+            btnClose.BackColor = Color.FromArgb(108, 117, 125);
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnClose.ForeColor = Color.White;
             btnClose.Location = new Point(691, 13);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(140, 40);
             btnClose.TabIndex = 5;
             btnClose.Text = "إغلاق";
+            btnClose.UseVisualStyleBackColor = false;
             btnClose.Click += btnClose_Click;
             // 
             // pnlFilters
             // 
+            pnlFilters.BackColor = Color.FromArgb(235, 240, 235);
             pnlFilters.Controls.Add(gbFilter);
+            pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
             pnlFilters.Location = new Point(0, 120);
             pnlFilters.Margin = new Padding(0);
@@ -186,6 +228,7 @@
             // 
             // gbFilter
             // 
+            gbFilter.BackColor = Color.FromArgb(235, 245, 235);
             gbFilter.Controls.Add(label5);
             gbFilter.Controls.Add(cbStatus);
             gbFilter.Controls.Add(label3);
@@ -200,6 +243,7 @@
             gbFilter.Controls.Add(btnRangeToday);
             gbFilter.Controls.Add(btnRange30);
             gbFilter.Controls.Add(btnRangeMonth);
+            gbFilter.Controls.Add(btnClearFilters);
             gbFilter.Dock = DockStyle.Fill;
             gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             gbFilter.Location = new Point(6, 4);
@@ -215,6 +259,7 @@
             // label5
             // 
             label5.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label5.ForeColor = Color.FromArgb(14, 82, 52);
             label5.Location = new Point(1420, 26);
             label5.Margin = new Padding(0);
             label5.Name = "label5";
@@ -240,6 +285,7 @@
             // label3
             // 
             label3.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.ForeColor = Color.FromArgb(14, 82, 52);
             label3.Location = new Point(1230, 26);
             label3.Margin = new Padding(0);
             label3.Name = "label3";
@@ -262,6 +308,7 @@
             // label4
             // 
             label4.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label4.ForeColor = Color.FromArgb(14, 82, 52);
             label4.Location = new Point(1010, 26);
             label4.Margin = new Padding(0);
             label4.Name = "label4";
@@ -284,6 +331,7 @@
             // label2
             // 
             label2.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.ForeColor = Color.FromArgb(14, 82, 52);
             label2.Location = new Point(750, 26);
             label2.Margin = new Padding(0);
             label2.Name = "label2";
@@ -321,6 +369,7 @@
             // chkOnlyDue
             // 
             chkOnlyDue.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            chkOnlyDue.ForeColor = Color.FromArgb(14, 82, 52);
             chkOnlyDue.Location = new Point(180, 62);
             chkOnlyDue.Margin = new Padding(0);
             chkOnlyDue.Name = "chkOnlyDue";
@@ -333,6 +382,7 @@
             // chkOnlyCancelled
             // 
             chkOnlyCancelled.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            chkOnlyCancelled.ForeColor = Color.FromArgb(14, 82, 52);
             chkOnlyCancelled.Location = new Point(352, 62);
             chkOnlyCancelled.Margin = new Padding(0);
             chkOnlyCancelled.Name = "chkOnlyCancelled";
@@ -344,33 +394,89 @@
             // 
             // btnRangeToday
             // 
+            btnRangeToday.BackColor = Color.FromArgb(108, 117, 125);
+            btnRangeToday.FlatStyle = FlatStyle.Flat;
+            btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRangeToday.ForeColor = Color.White;
             btnRangeToday.Location = new Point(1124, 64);
             btnRangeToday.Name = "btnRangeToday";
             btnRangeToday.Size = new Size(100, 30);
             btnRangeToday.TabIndex = 11;
             btnRangeToday.Text = "اليوم";
+            btnRangeToday.UseVisualStyleBackColor = false;
             btnRangeToday.Click += btnRangeToday_Click;
             // 
             // btnRange30
             // 
+            btnRange30.BackColor = Color.FromArgb(108, 117, 125);
+            btnRange30.FlatStyle = FlatStyle.Flat;
+            btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRange30.ForeColor = Color.White;
             btnRange30.Location = new Point(987, 64);
             btnRange30.Name = "btnRange30";
             btnRange30.Size = new Size(128, 30);
             btnRange30.TabIndex = 12;
             btnRange30.Text = "آخر 30 يوماً";
+            btnRange30.UseVisualStyleBackColor = false;
             btnRange30.Click += btnRange30_Click;
             // 
             // btnRangeMonth
             // 
+            btnRangeMonth.BackColor = Color.FromArgb(108, 117, 125);
+            btnRangeMonth.FlatStyle = FlatStyle.Flat;
+            btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnRangeMonth.ForeColor = Color.White;
             btnRangeMonth.Location = new Point(850, 64);
             btnRangeMonth.Name = "btnRangeMonth";
             btnRangeMonth.Size = new Size(100, 30);
             btnRangeMonth.TabIndex = 13;
             btnRangeMonth.Text = "هذا الشهر";
+            btnRangeMonth.UseVisualStyleBackColor = false;
             btnRangeMonth.Click += btnRangeMonth_Click;
+            // 
+            // btnClearFilters
+            // 
+            // RULE-N148 / RULE-N134: مُعلَن في المصمّم بقيم حرفية مطابقة لثوابت الثيم
+            // (ActionNeutralBackground = 108,117,125) — معطّل ما لم توجد تصفية نشطة.
+            btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+            btnClearFilters.Cursor = Cursors.Hand;
+            btnClearFilters.Enabled = false;
+            btnClearFilters.FlatAppearance.BorderSize = 0;
+            btnClearFilters.FlatStyle = FlatStyle.Flat;
+            btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnClearFilters.ForeColor = Color.White;
+            btnClearFilters.Location = new Point(27, 62);
+            btnClearFilters.Name = "btnClearFilters";
+            btnClearFilters.Size = new Size(145, 32);
+            btnClearFilters.TabIndex = 15;
+            btnClearFilters.Text = "🧹 مسح التصفية";
+            toolTip1.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+            btnClearFilters.UseVisualStyleBackColor = false;
+            btnClearFilters.Click += btnClearFilters_Click;
+            // 
+            // btnToggleFilters
+            // 
+            // RULE-N145: مُعلَن في المصمّم بقيم حرفية مطابقة لما يُطبَّق وقت التشغيل.
+            // السلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
+            btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+            btnToggleFilters.Cursor = Cursors.Hand;
+            btnToggleFilters.Dock = DockStyle.Left;
+            btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnToggleFilters.FlatAppearance.BorderSize = 1;
+            btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+            btnToggleFilters.FlatStyle = FlatStyle.Popup;
+            btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+            btnToggleFilters.Location = new Point(6, 4);
+            btnToggleFilters.Name = "btnToggleFilters";
+            btnToggleFilters.Size = new Size(140, 104);
+            btnToggleFilters.TabIndex = 14;
+            btnToggleFilters.Text = "إخفاء التصفية";
+            btnToggleFilters.UseVisualStyleBackColor = false;
             // 
             // pnlSummary
             // 
+            pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
             pnlSummary.Controls.Add(lblSummary);
             pnlSummary.Controls.Add(label1);
             pnlSummary.Controls.Add(lblRecordsCount);
@@ -386,6 +492,7 @@
             // 
             lblSummary.Dock = DockStyle.Fill;
             lblSummary.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
             lblSummary.Location = new Point(164, 0);
             lblSummary.Margin = new Padding(0, 0, 8, 0);
             lblSummary.Name = "lblSummary";
@@ -398,6 +505,7 @@
             // 
             label1.Dock = DockStyle.Right;
             label1.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.ForeColor = Color.FromArgb(14, 82, 52);
             label1.Location = new Point(68, 0);
             label1.Margin = new Padding(0);
             label1.Name = "label1";
@@ -410,6 +518,7 @@
             // 
             lblRecordsCount.Dock = DockStyle.Right;
             lblRecordsCount.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblRecordsCount.ForeColor = Color.FromArgb(14, 82, 52);
             lblRecordsCount.Location = new Point(8, 0);
             lblRecordsCount.Margin = new Padding(0);
             lblRecordsCount.Name = "lblRecordsCount";
@@ -420,6 +529,7 @@
             // 
             // pnlGrid
             // 
+            pnlGrid.BackColor = Color.FromArgb(235, 240, 235);
             pnlGrid.Controls.Add(emptyState);
             pnlGrid.Controls.Add(dgvPurchases);
             pnlGrid.Dock = DockStyle.Fill;
@@ -434,6 +544,7 @@
             emptyState.BackColor = Color.Transparent;
             emptyState.Dock = DockStyle.Fill;
             emptyState.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            emptyState.ForeColor = Color.FromArgb(14, 82, 52);
             emptyState.Location = new Point(0, 0);
             emptyState.Margin = new Padding(0);
             emptyState.Name = "emptyState";
@@ -448,11 +559,23 @@
             dgvPurchases.AllowUserToAddRows = false;
             dgvPurchases.AllowUserToDeleteRows = false;
             dgvPurchases.AllowUserToOrderColumns = true;
+            dgvPurchases.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+            dgvPurchases.BackgroundColor = Color.FromArgb(220, 240, 220);
             dgvPurchases.BorderStyle = BorderStyle.None;
+            dgvPurchases.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvPurchases.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvPurchases.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+            dgvPurchases.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
             dgvPurchases.ColumnHeadersHeight = 45;
             dgvPurchases.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvPurchases.ContextMenuStrip = ctxMenu;
+            dgvPurchases.DefaultCellStyle.BackColor = Color.White;
+            dgvPurchases.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvPurchases.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+            dgvPurchases.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
             dgvPurchases.Dock = DockStyle.Fill;
+            dgvPurchases.EnableHeadersVisualStyles = false;
+            dgvPurchases.GridColor = Color.FromArgb(205, 225, 205);
             dgvPurchases.Location = new Point(0, 0);
             dgvPurchases.Margin = new Padding(0);
             dgvPurchases.MultiSelect = false;
@@ -573,6 +696,8 @@
         private System.Windows.Forms.Button btnRangeToday;
         private System.Windows.Forms.Button btnRange30;
         private System.Windows.Forms.Button btnRangeMonth;
+        private System.Windows.Forms.Button btnClearFilters;
+        private System.Windows.Forms.Button btnToggleFilters;
         private System.Windows.Forms.Panel pnlSummary;
         private System.Windows.Forms.Label lblSummary;
         private System.Windows.Forms.Label label1;

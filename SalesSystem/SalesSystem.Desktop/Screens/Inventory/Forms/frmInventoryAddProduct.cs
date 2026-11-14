@@ -1,18 +1,29 @@
-using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.CompilerServices;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
 /// <summary>
-/// UI SHAPE — "إضافة صنف" (Add Product) dialog.
-/// Mock data only (in-memory). No backend / API calls yet.
-/// Demonstrates: multi-unit + multi-barcode grid, price/cost per unit,
-/// expiry tracking toggle and opening-stock (FIFO/FEFO) block.
+/// حوار «إضافة صنف» (إدخال): بيانات الصنف + شبكة الوحدات والأسعار + المخزون الافتتاحي.
+/// <para>
+/// المعيار المطبَّق: §2.27 (الستة من KeyboardHelper) + §2.19/§2.35 (الثيم والمصمّم = وقت التشغيل)
+/// + تحقق <c>errorProvider</c> برسائل عربية (RULE-N28) + Esc إلغاء (RULE-N47)
+/// + التفقيط الحيّ على حقول المبلغ (RULE-N97). شاشة حوار إدخال: بلا <c>gbFilter</c>/<c>pnlSummary</c>.
+/// </para>
+/// <para>
+/// البيانات تجريبية في الذاكرة (UI-First) — لا استدعاء لأي خدمة.
+/// </para>
 /// </summary>
 public partial class frmInventoryAddProduct : Form
 {
+    /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
+    private static readonly Color FocusColor = Color.FromArgb(0xD6, 0xE4, 0xF0);
+
     private readonly IServiceProvider _serviceProvider;
+
+    /// <summary>محررات خلايا المبالغ التي وُصِّل بها التفقيط الحيّ (تمنع التوصيل المزدوج).</summary>
+    private readonly ConditionalWeakTable<Control, object> _tafqeetWiredEditors = new();
 
     // ── Mock data (in-memory, Arabic) ─────────────────────────────────────────────
     private readonly string[] _categories = { "مواد غذائية", "مشروبات", "تنظيف", "أخرى" };
@@ -22,12 +33,86 @@ public partial class frmInventoryAddProduct : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط وأسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, FocusColor);
+        KeyboardHelper.WireArrowNavigation(this);
+
+        // RULE-N43 — مظهر واضح للأزرار المعطّلة.
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnCancel);
+
+        // RULE-N47 — Esc إلغاء وإغلاق الحوار.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.Escape, () => btnCancel.PerformClick()));
+
+        // RULE-N147 — Enter = الزر الأساسي للوضع (حفظ/إضافة)، و AcceptButton هو الزر نفسه.
+        // ملاحظة أمان: الدالة تُرجع null عند تركيز شبكة الوحدات أو حقل الباركود (أدناه).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
+
+        // RULE-N97 — التفقيط الحيّ على الحقول الرقمية (الكمية الافتتاحية).
+        LiveTafqeetHelper.Attach(liveTip,
+            (nudOpeningQty, "الكمية الافتتاحية", LiveTafqeetHelper.ReadMode.Quantity));
+
+        _SetupToolTips();
+
+        ApplyUiTheme();   // RULE-N50 — ينتهي بالثيم الأخضر
+    }
+
+    // ── الثيم ──────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// الثيم الأخضر (RULE-N50…RULE-N53): يبدأ بـ ThemeHelper وينتهي بـ
+    /// <c>GreenThemeHelper.Apply(this)</c> **كآخر سطر**، والقيم النهائية مطابقة حرفياً
+    /// لما أُعلن في <c>frmInventoryAddProduct.Designer.cs</c> (RULE-N134/N140…N144).
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);   // يفرض أبيض/Segoe UI ⇒ يردّه الثيم الأخضر أدناه
+
+        GreenThemeHelper.ApplyHeader(lblMode);          // RULE-N53
+        GreenThemeHelper.ApplyGrid(dgvUnits);           // RULE-N51/N52
+
+        // شبكة إدخال سطور (تُدخَل فيها الوحدات والأسعار مباشرةً): تعلن سلوكها بنفسها،
+        // و ApplyGrid لا يلمس ReadOnly/SelectionMode/AllowUserToAddRows (RULE-N52).
+        dgvUnits.ReadOnly = false;
+        dgvUnits.AllowUserToAddRows = true;
+        dgvUnits.SelectionMode = DataGridViewSelectionMode.CellSelect;
+
+        GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
+    }
+
+    /// <summary>تلميحات الحقول والأزرار مع اختصاراتها (RULE-N47).</summary>
+    private void _SetupToolTips()
+    {
+        toolTip1.SetToolTip(txtName, "اسم الصنف كما سيظهر في الفواتير");
+        toolTip1.SetToolTip(txtBarcode, "باركود الوحدة الرئيسية — يُقرأ بالماسح الضوئي");
+        toolTip1.SetToolTip(cmbCategory, "مجموعة الصنف");
+        toolTip1.SetToolTip(nudReorderLevel, "حد الطلب: عند بلوغ الرصيد هذا الحد يظهر تنبيه");
+        toolTip1.SetToolTip(chkTrackExpiry, "تفعيل متابعة تاريخ الصلاحية وتشغيل FEFO");
+        toolTip1.SetToolTip(dgvUnits, "أضف وحدة واحدة على الأقل مع سعر البيع والتكلفة");
+        toolTip1.SetToolTip(cmbWarehouse, "المستودع الذي يُسجَّل فيه المخزون الافتتاحي");
+        toolTip1.SetToolTip(nudOpeningQty, "الكمية الافتتاحية بالوحدة الأساسية (تظهر بالحروف أسفلها)");
+        toolTip1.SetToolTip(txtBatchNo, "رقم التشغيلة (Batch) — يُستخدم مع متابعة الصلاحية");
+        toolTip1.SetToolTip(dtpExpiry, "تاريخ صلاحية التشغيلة");
+        toolTip1.SetToolTip(btnSave, "حفظ الصنف (Enter)");
+        toolTip1.SetToolTip(btnCancel, "إلغاء وإغلاق (Esc)");
     }
 
     private void frmInventoryAddProduct_Load(object sender, EventArgs e)
     {
-        _LoadMockData();
+        try
+        {
+            _LoadMockData();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تهيئة حقول حوار إضافة صنف");
+            MessageBox.Show("تعذر تهيئة شاشة إضافة الصنف. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     /// <summary>
@@ -58,6 +143,46 @@ public partial class frmInventoryAddProduct : Form
         dtpExpiry.Enabled = chkTrackExpiry.Checked;
         if (chkTrackExpiry.Checked)
             dtpExpiry.Value = DateTime.Today;
+    }
+
+    // ── التفقيط الحيّ داخل خلايا المبالغ (RULE-N97) ────────────────────────────
+
+    /// <summary>
+    /// يوصِّل التفقيط الحيّ بمحرر الخلية عند تحرير «سعر البيع» أو «التكلفة»، مرة واحدة لكل محرر.
+    /// </summary>
+    private void dgvUnits_EditingControlShowing(object? sender, DataGridViewEditingControlShowingEventArgs e)
+    {
+        if (dgvUnits.CurrentCell is null || e.Control is not Control editor) return;
+
+        string columnName = dgvUnits.CurrentCell.OwningColumn?.Name ?? string.Empty;
+        if (columnName is not ("colSellPrice" or "colCost")) return;
+
+        if (_tafqeetWiredEditors.TryGetValue(editor, out _)) return;
+        _tafqeetWiredEditors.Add(editor, new object());
+
+        LiveTafqeetHelper.Attach(liveTip,
+            (editor,
+             columnName == "colCost" ? "التكلفة" : "سعر البيع",
+             LiveTafqeetHelper.ReadMode.Money));
+    }
+
+    // ── الزر الأساسي للوضع (RULE-N147) ─────────────────────────────────────────
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي — في هذا الحوار زر التأكيد/الإضافة فقط
+    /// (<c>btnSave</c>). تُقرأ الدالة عند كل ضغطة <c>Enter</c> لا مرة واحدة.
+    /// <para>
+    /// <b>حماية إلزامية:</b> تُرجع <c>null</c> عند تركيز شبكة الوحدات (<c>dgvUnits</c>)
+    /// أو حقل الباركود (<c>txtBarcode</c>) — لأن <c>Enter</c> هناك يجب أن يبقى لسلوك
+    /// العنصر نفسه (تحرير/انتقال داخل الشبكة، وقراءة الباركود)، فلا يُضاف الصنف بالخطأ.
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton()
+    {
+        if (dgvUnits.Focused || dgvUnits.ContainsFocus) return null;   // الشبكة: Enter = تنقل/تحرير خلية
+        if (txtBarcode.Focused || txtBarcode.ContainsFocus) return null; // الباركود: Enter = قراءة/تحقق
+
+        return btnSave;
     }
 
     private bool _ValidateForm()

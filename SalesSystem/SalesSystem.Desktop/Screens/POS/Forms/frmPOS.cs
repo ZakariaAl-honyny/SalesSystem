@@ -19,6 +19,9 @@ namespace SalesSystem.Desktop.Screens.POS.Forms;
 /// <summary>
 /// نقطة بيع تجزئة (§2.25 / RULE-N80…N85): اختيار سريع للأصناف + باركود ← سلة قابلة للتحرير
 /// ← مجاميع وتفقيط ← دفع ← إنشاء وترحيل <c>SalesInvoice</c> ذرّياً.
+/// الكتل مرتّبة ومجمّعة حسب §2.34: العنوان ← «أوامر البيع» ← «العميل والدفع» ← «سلة الأصناف»
+/// ← «الإجماليات» ← الشريط السفلي (RULE-N135…N137) — بلا <c>gbFilter</c>/<c>pnlSummary</c>
+/// لأن الشاشة بيع سريع (RULE-N81).
 /// لا تصل الشاشة إلى قاعدة البيانات ولا إلى BLL مباشرةً؛ كل شيء عبر <c>I*DesktopService</c>
 /// (Mock في وضع التجربة و Direct في الوضع الحقيقي) — RULE-N82.
 /// </summary>
@@ -66,10 +69,27 @@ public partial class frmPOS : Form
             (Keys.F4, () => btnSave.PerformClick()),
             (Keys.F5, () => btnRefreshCatalog.PerformClick()),
             (Keys.Escape, () => btnClose.PerformClick()),
-            (Keys.Delete, DeleteSelectedLine));
+            (Keys.Delete, DeleteSelectedLineIfAllowed));
+
+        // RULE-N147 — Enter = الزر الأساسي للشاشة («حفظ وترحيل»)، ولا يعمل داخل حقل أو شبكة
+        // (Enter في الباركود = بحث فوري RULE-N42، وفي السلة = تنقّل بين السطور RULE-N80/N85).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
 
         WireEvents();
         SetupGrid();
+    }
+
+    /// <summary>
+    /// الزر الأساسي لـ <c>Enter</c> (RULE-N147): «حفظ وترحيل» — ويعود <c>null</c> عندما يكون
+    /// التركيز داخل حقل الباركود أو شبكة السلة حتى يبقى <c>Enter</c> هناك للعنصر نفسه:
+    /// بحث فوري بالباركود (RULE-N42) وتنقّل داخل السلة بلا ترحيل صامت (RULE-N80/N85).
+    /// </summary>
+    private Button? _PrimaryActionButton()
+    {
+        if (txtBarcode.ContainsFocus || dgvCart.ContainsFocus) return null;
+
+        return btnSave;
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -125,8 +145,8 @@ public partial class frmPOS : Form
         toolTip.SetToolTip(numUnitPrice, "سعر بيع الوحدة للسطر المحدد");
         toolTip.SetToolTip(numLineDiscount, "خصم السطر المحدد (مبلغ)");
 
-        // الألوان كلها من الـ Helper فقط (RULE-N54)
-        GreenThemeHelper.ApplyHeader(lblMode);                                     // RULE-N53
+        // الألوان من الـ Helper فقط، وقيمها مطابقة حرفياً لما أُعلن في المصمّم
+        // (RULE-N54 / RULE-N134 / RULE-N140…N144): المصمّم = وقت التشغيل.
         lblInvoiceInfo.BackColor = GreenThemeHelper.HeaderBackground;
         lblInvoiceInfo.ForeColor = GreenThemeHelper.HeaderForeground;
         lblSelectedProduct.ForeColor = GreenThemeHelper.TextStrong;
@@ -134,7 +154,9 @@ public partial class frmPOS : Form
         lblTafqit.ForeColor = GreenThemeHelper.TextStrong;
         lblRemaining.ForeColor = GreenThemeHelper.TextStrong;
 
-        GreenThemeHelper.ApplyGrid(dgvCart);                                       // RULE-N51/N52
+        // RULE-N50 — الترتيب الأخير إلزامي: العنوان ← الشبكة ← الشاشة كاملة
+        GreenThemeHelper.ApplyHeader(lblMode);                                     // RULE-N53
+        GreenThemeHelper.ApplyGrid(dgvCart);                                       // RULE-N51/N52 — لا يمسّ ReadOnly/SelectionMode/AllowUserToAddRows (RULE-N83)
         GreenThemeHelper.Apply(this);                                              // RULE-N50 — الأخير دائماً
     }
 
@@ -484,6 +506,19 @@ public partial class frmPOS : Form
         return base.ProcessCmdKey(ref msg, keyData);
     }
 
+    /// <summary>
+    /// RULE-N147 + RULE-N80: <c>AcceptButton</c> في WinForms يسبق <c>KeyDown</c> ويلتقط <c>Enter</c>،
+    /// فنمنعه داخل حقل الباركود وشبكة السلة وبقية حقول الإدخال كي يبقى <c>Enter</c> هناك للعنصر نفسه
+    /// (بحث باركود · تنقّل بين السطور · الحقل التالي — `RULE-N40`) ولا يُرحَّل بيع من داخل حقل.
+    /// </summary>
+    protected override bool ProcessDialogKey(Keys keyData)
+    {
+        if (keyData == Keys.Enter && (IsInputFocused() || dgvCart.ContainsFocus))
+            return false;   // غير مُعالج ⇒ يمرّ إلى KeyDown فيُطبَّق سلوك العنصر الحالي
+
+        return base.ProcessDialogKey(keyData);
+    }
+
     private async void txtBarcode_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode != Keys.Enter) return;
@@ -683,6 +718,7 @@ public partial class frmPOS : Form
             EndUpdate();
         }
 
+        errorProvider.Clear();                 // لا تبقى أيقونات تحقق من بيع سابق
         RecalculateTotals();
         UpdateButtonState();
         UpdateModeHeader();
@@ -770,6 +806,28 @@ public partial class frmPOS : Form
     }
 
     private void btnRemoveLine_Click(object? sender, EventArgs e) => DeleteSelectedLine();
+
+    /// <summary>
+    /// Delete كاختصار على الشاشة: يُهمل داخل أي حقل إدخال خارج <c>dgvCart</c>
+    /// (باركود · بحث · قوائم · حقول رقمية) فيبقى للحقل نفسه (حذف حرف) ولا يُسحب
+    /// لحذف سطر السلة صامتاً — نمط <c>IsInputFocused</c> في frmAddUpdateSalesInvoice (RULE-N47).
+    /// </summary>
+    private void DeleteSelectedLineIfAllowed()
+    {
+        if (IsInputFocused()) return;
+        DeleteSelectedLine();
+    }
+
+    /// <summary>
+    /// هل التركيز داخل حقل إدخال خارج الشبكة؟ يُستخدم <see cref="Control.ContainsFocus"/>
+    /// لأن الحقول الرقمية والقوائم قد تكون التركيز في محرّرها الداخلي لا فيها نفسها.
+    /// </summary>
+    private bool IsInputFocused()
+        => txtBarcode.ContainsFocus || txtProductSearch.ContainsFocus
+           || cbCategory.ContainsFocus || cbCustomer.ContainsFocus
+           || cbWarehouse.ContainsFocus || cbCashBox.ContainsFocus
+           || numQty.ContainsFocus || numUnitPrice.ContainsFocus || numLineDiscount.ContainsFocus
+           || numInvoiceDiscount.ContainsFocus || numPaid.ContainsFocus;
 
     private void DeleteSelectedLine()
     {
@@ -1210,9 +1268,13 @@ public partial class frmPOS : Form
         paymentType = rbtnCash.Checked ? DtoPaymentType.Cash : DtoPaymentType.Credit;
         error = null;
 
+        // رسائل عربية على الحقل المخالف (RULE-N28 + §2.21 بند 17)
+        errorProvider.Clear();
+
         if (_cart.Count == 0)
         {
             error = "السلة فارغة. أضف صنفاً واحداً على الأقل.";
+            errorProvider.SetError(dgvCart, error);
             return false;
         }
 
@@ -1220,6 +1282,7 @@ public partial class frmPOS : Form
         if (warehouseId <= 0)
         {
             error = "اختر المخزن أولاً.";
+            errorProvider.SetError(cbWarehouse, error);
             return false;
         }
 
@@ -1227,6 +1290,7 @@ public partial class frmPOS : Form
         if (cashBoxId is null or <= 0)
         {
             error = "اختر الصندوق النقدي أولاً.";
+            errorProvider.SetError(cbCashBox, error);
             return false;
         }
 
@@ -1237,18 +1301,21 @@ public partial class frmPOS : Form
             if (line.Quantity <= 0m)
             {
                 error = $"كمية الصنف «{line.Name}» يجب أن تكون أكبر من صفر.";
+                errorProvider.SetError(dgvCart, error);
                 return false;
             }
 
             if (line.UnitPrice < 0m)
             {
                 error = $"سعر الصنف «{line.Name}» لا يمكن أن يكون سالباً.";
+                errorProvider.SetError(dgvCart, error);
                 return false;
             }
 
             if (line.Discount < 0m || line.Discount > line.Quantity * line.UnitPrice)
             {
                 error = $"خصم الصنف «{line.Name}» يجب أن يكون بين صفر وقيمة السطر.";
+                errorProvider.SetError(dgvCart, error);
                 return false;
             }
         }
@@ -1260,12 +1327,14 @@ public partial class frmPOS : Form
             if (numPaid.Value < 0m || numPaid.Value > netTotal)
             {
                 error = $"المبلغ المدفوع نقداً يجب أن يكون بين 0 و {netTotal:N2}.";
+                errorProvider.SetError(numPaid, error);
                 return false;
             }
         }
         else if (customerId <= 0)
         {
             error = "البيع الآجل يتطلب اختيار عميل.";
+            errorProvider.SetError(cbCustomer, error);
             return false;
         }
 

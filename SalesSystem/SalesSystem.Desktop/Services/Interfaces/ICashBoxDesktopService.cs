@@ -14,4 +14,5 @@ public interface ICashBoxDesktopService
     Task<Result<CashBoxDto>> UpdateAsync(int id, UpdateCashBoxRequest request, CancellationToken ct = default);
     Task<Result> DeactivateAsync(int id, CancellationToken ct = default);
     Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }

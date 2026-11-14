@@ -68,6 +68,12 @@ public static class GreenThemeHelper
     /// <summary>خلفية الخلية/السطر المحدد.</summary>
     public static readonly Color SelectionBack = Color.FromArgb(255, 255, 180);
 
+    /// <summary>خلفية إجراء معلوماتي (تركوازي) — زر «تصدير» في الشاشة المرجعية.</summary>
+    public static readonly Color ActionInfoBackground = Color.FromArgb(23, 162, 184);
+
+    /// <summary>خلفية إجراء محايد (رمادي) — زر «إغلاق» (زر الخروج في الشاشة المرجعية).</summary>
+    public static readonly Color ActionNeutralBackground = Color.FromArgb(108, 117, 125);
+
     /// <summary>أسماء شريط العنوان/العنوان التي يُطبَّق عليها <see cref="ApplyHeader"/>.</summary>
     private static readonly HashSet<string> HeaderLabelNames = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -124,20 +130,27 @@ public static class GreenThemeHelper
     {
         foreach (Control child in parent.Controls)
         {
+            // لوحة التحميل الشفافة (Color.FromArgb(100,255,255,255)) تُترك كما هي:
+            // إعادة رسمها بلون الشريط المعتم تُلغي الشفافية وتُحوّلها إلى طبقة صلبة
+            // تحجب الشبكة. القاعدة على الخلفيات المعتمة فقط، ولا تمسّ RULE-N52/N54.
+            bool translucent = child.BackColor.A < 255;
+
             // ترتيب الحالات مشروط: الأكثر تخصيصاً أولاً (FlowLayoutPanel قبل Panel).
+            // ولا تُعاد تلوين حاوية لم يلوّنها المصمّم — وإلا صار التشغيل رمادياً بخلاف
+            // المصمّم (RULE-N134 / RULE-N139).
             switch (child)
             {
                 case FlowLayoutPanel:
                 case TableLayoutPanel:
-                    child.BackColor = BarBackground;
+                    if (!translucent && ShouldRepaint(child)) child.BackColor = BarBackground;
                     break;
 
                 case Panel:
-                    child.BackColor = BarBackground;
+                    if (!translucent && ShouldRepaint(child)) child.BackColor = BarBackground;
                     break;
 
                 case GroupBox:
-                    child.BackColor = GroupBackground;
+                    if (!translucent && ShouldRepaint(child)) child.BackColor = GroupBackground;
                     break;
 
                 case DataGridView grid:
@@ -151,6 +164,43 @@ public static class GreenThemeHelper
             if (child.HasChildren)
                 Walk(child);
         }
+    }
+
+    /// <summary>
+    /// هل يجوز للثيم إعادة تلوين هذه الحاوية؟ (RULE-N51a / RULE-N139)
+    /// <para>
+    /// لا — في ثلاث حالات: (1) الحاوية **ترث** خلفية أبيها لأن المصمّم لم يضبط لها لوناً
+    /// («Ambient»)، (2) الحاوية معطّلة، (3) المصمّم لوّنها بلونٍ خاص خارج لوحة الثيم.
+    /// </para>
+    /// <para>
+    /// السبب: فرض <c>BarBackground</c>/<c>GroupBackground</c> على حاوية ورثت الأخضر من
+    /// النموذج يحوّل الشاشة وقت التشغيل إلى درجات رمادية باهتة، بينما المصمّم يبدو أخضر
+    /// — وهو عيب «المصمّم ≠ وقت التشغيل» بعينه.
+    /// </para>
+    /// </summary>
+    private static bool ShouldRepaint(Control child)
+    {
+        if (!child.Enabled) return false;
+
+        var parent = child.Parent;
+        if (parent is null) return false;
+
+        // Control.BackColor يُعيد لون الأب ما لم تُضبط الخاصية (Ambient) → تُترك للتوريث.
+        if (child.BackColor.ToArgb() == parent.BackColor.ToArgb()) return false;
+
+        // لون خاص من المصمّم (ليس من لوحة الثيم) → يُترك كما هو.
+        return IsThemeColor(child.BackColor);
+    }
+
+    /// <summary>هل اللون من لوحة الثيم الرسمية؟ (RULE-N54: المصدر الوحيد للقيم)</summary>
+    private static bool IsThemeColor(Color color)
+    {
+        int argb = color.ToArgb();
+        return argb == FormBackground.ToArgb()
+            || argb == BarBackground.ToArgb()
+            || argb == GroupBackground.ToArgb()
+            || argb == GridBackground.ToArgb()
+            || argb == HeaderBackground.ToArgb();
     }
 
     private static bool IsHeaderLabel(Label label)

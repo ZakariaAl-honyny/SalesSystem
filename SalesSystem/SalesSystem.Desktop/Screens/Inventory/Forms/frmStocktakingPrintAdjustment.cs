@@ -16,12 +16,6 @@ public partial class frmStocktakingPrintAdjustment : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    // لون سندات تسوية الجرد (نيلي) — يميزها عن محضر الجرد (تركواز) وسند التحويل (برتقالي)
-    private static readonly Color AdjustmentColor = Color.FromArgb(108, 92, 231);
-
-    // لون سبب التسوية «تلف» (أحمر) — إشارة إلى نقص/تلف يخفض قيمة المخزون
-    private static readonly Color DamageRed = Color.FromArgb(220, 53, 69);
-
     // ── بيانات سند التسوية الوهمية (Mock) ──────────────────────────────────────
 
     private sealed class AdjustmentVoucher
@@ -51,36 +45,78 @@ public partial class frmStocktakingPrintAdjustment : Form
         InitializeComponent();
         KeyboardHelper.WireGlobalShortcuts(this, (Keys.F10, () => btnPrint.PerformClick()));
         _BindVoucher();
+        ApplyUiTheme();   // RULE-N50 — الثيم الأخضر آخر خطوة في تهيئة المظهر
+    }
+
+    // ── الثيم الأخضر (RULE-N50…RULE-N54 / RULE-N134 / RULE-N140…N144) ──────────
+
+    /// <summary>
+    /// يبدأ بـ <see cref="ThemeHelper"/> وينتهي بـ <see cref="GreenThemeHelper.Apply(Form)"/>
+    /// **كآخر سطر** — والقيم النهائية مطابقة حرفياً لما هو معلن في <c>*.Designer.cs</c>
+    /// حتى يتساوى المصمّم ووقت التشغيل.
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+        ThemeHelper.ApplyButtonStyle(btnPrint, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // يُعاد ضبط ما فرضه ThemeHelper (خط Segoe UI/حجم مرن) إلى قيم المصمّم حرفياً.
+        foreach (var btn in new[] { btnPrint, btnClose })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+        }
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.ForeColor = Color.White;
+        btnClose.Size = new Size(100, 42);
+        btnClose.ForeColor = Color.White;
+
+        // عنوان البطاقة ورقم السند وإجمالي التسوية: نص مميّز من لوحة الثيم فقط (RULE-N54).
+        lblAccent.BackColor = GreenThemeHelper.TextStrong;
+        lblAdjustmentTitle.ForeColor = GreenThemeHelper.TextStrong;
+        lblVoucherNoValue.ForeColor = GreenThemeHelper.TextStrong;
+        lblTotalValue.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.ApplyHeader(lblTitle);   // RULE-N53
+        GreenThemeHelper.Apply(this);             // ← الأخير دائماً (RULE-N50)
     }
 
     // ── ربط بيانات سند التسوية ببطاقة المعاينة ─────────────────────────────────
 
     private void _BindVoucher()
     {
-        lblAdjustmentTitle.ForeColor = AdjustmentColor;
-        lblAccent.BackColor = AdjustmentColor;
-
         lblVoucherNoValue.Text = _voucher.VoucherNo;
-        lblVoucherNoValue.ForeColor = AdjustmentColor;
         lblDateValue.Text = _voucher.Date.ToString("dd/MM/yyyy");
         lblWarehouseValue.Text = _voucher.Warehouse;
         lblReasonValue.Text = _voucher.Reason;
-        lblReasonValue.ForeColor = DamageRed;
         lblItemCountValue.Text = $"{_voucher.ItemCount} أصناف";
         lblTotalValue.Text = _voucher.TotalValue.ToString("N0") + " ريال يمني";
-        lblTotalValue.ForeColor = AdjustmentColor;
     }
 
     // ── أحداث الواجهة ─────────────────────────────────────────────────────────
 
     private void btnPrint_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            $"تمت طباعة سند تسوية الجرد رقم {_voucher.VoucherNo} بنجاح.\n" +
-            $"المستودع: {_voucher.Warehouse} — سبب التسوية: {_voucher.Reason}\n" +
-            $"عدد الأصناف: {_voucher.ItemCount} — إجمالي قيمة التسوية: {_voucher.TotalValue:N0} ريال يمني\n" +
-            "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-            "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        try
+        {
+            MessageBox.Show(
+                $"تمت طباعة سند تسوية الجرد رقم {_voucher.VoucherNo} بنجاح.\n" +
+                $"المستودع: {_voucher.Warehouse} — سبب التسوية: {_voucher.Reason}\n" +
+                $"عدد الأصناف: {_voucher.ItemCount} — إجمالي قيمة التسوية: {_voucher.TotalValue:N0} ريال يمني\n" +
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
+                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
+            Serilog.Log.Error(ex, "تعذرت طباعة سند تسوية الجرد {VoucherNo}", _voucher.VoucherNo);
+            MessageBox.Show("تعذر طباعة سند تسوية الجرد. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnClose_Click(object sender, EventArgs e)

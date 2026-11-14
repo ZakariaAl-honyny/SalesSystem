@@ -42,10 +42,21 @@ public partial class frmListInventoryBatches : Form
     /// </summary>
     private bool _dateRangeActive;
 
+    /// <summary>قيمة «من» الافتراضية لتاريخ التصفية كما تُفتح بها الشاشة — تُعاد بها «مسح التصفية» (RULE-N148).</summary>
+    private DateTime _defaultRangeFrom;
+
+    /// <summary>قيمة «إلى» الافتراضية لتاريخ التصفية كما تُفتح بها الشاشة — تُعاد بها «مسح التصفية» (RULE-N148).</summary>
+    private DateTime _defaultRangeTo;
+
     public frmListInventoryBatches(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // قيمتا تاريخ التصفية الافتراضيتان تُلتقطان عند البناء (قبل أي تفاعل) — RULE-N148.
+        _SetRangeToThisMonth();
+        _defaultRangeFrom = dtpFrom.Value;
+        _defaultRangeTo = dtpTo.Value;
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط وأسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
@@ -56,10 +67,15 @@ public partial class frmListInventoryBatches : Form
         _ApplyUiTheme();
 
         // RULE-N43 / RULE-N47 — مظهر التعطيل واختصارات الشاشة.
-        KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose);
+        KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose, btnClearFilters);
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F5, () => btnRefresh.PerformClick()),
-            (Keys.Escape, () => _ClearFilters()));
+            (Keys.Escape, () => _ClearAllFilters()));
+
+        // RULE-N147 — Enter = الزر الأساسي؛ شاشة عرض بلا «جديد» ⇒ «تحديث».
+        KeyboardHelper.WireModeEnter(this, () => btnRefresh);
+        AcceptButton = btnRefresh;
+
         FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
@@ -170,6 +186,7 @@ public partial class frmListInventoryBatches : Form
             }
 
             await _ReloadFormAsync();
+            _UpdateClearFiltersState();
         }
         catch (Exception ex)
         {
@@ -342,22 +359,26 @@ public partial class frmListInventoryBatches : Form
         if (_batchesView is null || _batchesView.Table is null)
         {
             _UpdateSummary();
+            _UpdateClearFiltersState();
             return;
         }
 
         var conditions = new List<string>();
 
-        // (1) البحث النصي — يُهرَّب قبل بناء التعبير (RULE-N60).
+        // (1) البحث النصي — يُهرَّب عبر RowFilterHelper قبل بناء التعبير (RULE-N60/N112).
         string text = txtFilterValue.Text.Trim();
         if (text.Length > 0)
         {
-            string like = $"%{_EscapeFilterValue(text)}%";
+            string productName = RowFilterHelper.Like("ProductName", text);
+            string batchNo = RowFilterHelper.Like("BatchNo", text);
+            string warehouse = RowFilterHelper.Like("WarehouseName", text);
+
             conditions.Add(cbFilterBy.SelectedIndex switch
             {
-                1 => $"ProductName LIKE '{like}'",
-                2 => $"BatchNo LIKE '{like}'",
-                3 => $"WarehouseName LIKE '{like}'",
-                _ => $"(ProductName LIKE '{like}' OR BatchNo LIKE '{like}' OR WarehouseName LIKE '{like}')"
+                1 => productName,
+                2 => batchNo,
+                3 => warehouse,
+                _ => $"({productName} OR {batchNo} OR {warehouse})"
             });
         }
 
@@ -398,11 +419,8 @@ public partial class frmListInventoryBatches : Form
         }
 
         _UpdateSummary();
+        _UpdateClearFiltersState();
     }
-
-    /// <summary>تهريب قيمة البحث من محارف RowFilter الخاصة.</summary>
-    private static string _EscapeFilterValue(string value)
-        => value.Replace("'", "''").Replace("[", "[[]").Replace("%", "[%]").Replace("*", "[*]");
 
     /// <summary>شريط الملخص (RULE-N61): المعروض من الإجمالي + الكميات + حالات الانتهاء + القيمة.</summary>
     private void _UpdateSummary()
@@ -419,6 +437,8 @@ public partial class frmListInventoryBatches : Form
             lblSummary.Text =
                 $"المعروض: 0 من {total} — إجمالي الكمية: 0.000" +
                 " · منتهية: 0 · قاربت الانتهاء: 0 · إجمالي القيمة: 0.00";
+
+            _UpdateEmptyState(0);
             return;
         }
 
@@ -444,6 +464,19 @@ public partial class frmListInventoryBatches : Form
             $"المعروض: {shown} من {total} — إجمالي الكمية: {quantity:N3}" +
             $" · منتهية: {expired} · قاربت الانتهاء: {expiringSoon}" +
             $" · إجمالي القيمة: {value:N2}";
+
+        _UpdateEmptyState(shown);
+    }
+
+    /// <summary>سطر «لا توجد بيانات» فوق الشبكة عند فراغ النتيجة (RULE-N22).</summary>
+    private void _UpdateEmptyState(int shown)
+    {
+        bool empty = shown == 0;
+
+        lblEmpty.Visible = empty;
+
+        if (empty)
+            lblEmpty.BringToFront();
     }
 
     private static bool _IsExpired(string expiryIso)
@@ -455,9 +488,25 @@ public partial class frmListInventoryBatches : Form
            && string.CompareOrdinal(expiryIso, _TodayIso) > 0
            && string.CompareOrdinal(expiryIso, _SoonIso) <= 0;
 
-    /// <summary>Esc — يمسح كل أدوات التصفية ويعيد النطاق إلى «هذا الشهر» مع إيقاف تطبيقه.</summary>
-    private void _ClearFilters()
+    // ── Filter reset (RULE-N148) ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس لبيانات المصدر (RULE-N148). «تحديث» هو المسؤول عن إعادة التحميل.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
     {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>
+    /// تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح التصفية» و«تحديث» (RULE-N148).
+    /// التاريخان يعودان إلى قيمتهما الافتراضية الملتقطة عند البناء، والنطاق الزمني يعود غير مفعّل.
+    /// </summary>
+    private void _ClearFilterInputs()
+    {
+        bool previous = _isInitializing;
         _isInitializing = true;
         try
         {
@@ -466,15 +515,33 @@ public partial class frmListInventoryBatches : Form
             cbStatus.SelectedIndex = 0;
             chkOnlyExpiringSoon.Checked = false;
             chkOnlyExpired.Checked = false;
-            _SetRangeToThisMonth();
+            dtpFrom.Value = _defaultRangeFrom;
+            dtpTo.Value = _defaultRangeTo;
             _dateRangeActive = false;
         }
         finally
         {
-            _isInitializing = false;
+            _isInitializing = previous;
         }
+    }
 
+    /// <summary>يمسح كل أدوات التصفية ثم يُعيد تطبيق الوضع الافتراضي على الشبكة — بلا أي إعادة تحميل (RULE-N148).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
         _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43 / RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تخالف الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbStatus.SelectedIndex > 0
+            || chkOnlyExpiringSoon.Checked
+            || chkOnlyExpired.Checked
+            || _dateRangeActive;
     }
 
     private void _SetRangeToThisMonth()
@@ -600,17 +667,30 @@ public partial class frmListInventoryBatches : Form
 
     // ── Toolbar Events ─────────────────────────────────────────────────────────────
 
-    private void btnRefresh_Click(object sender, EventArgs e)
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← الدلائل (الأصناف) ← الشبكة ← الملخص والتحديد.
+    /// </summary>
+    private async void btnRefresh_Click(object sender, EventArgs e)
     {
+        Cursor = Cursors.WaitCursor;
         try
         {
-            _ = _RefreshListAsync();
+            _ClearFilterInputs();          // التصفية تعود للافتراضي — بلا تحميل
+            await _ReloadFormAsync();      // الدلائل + الشبكة + الملخص
+            dgvBatches.ClearSelection();
+            _UpdateClearFiltersState();
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحديث دفعات المخزون");
             MessageBox.Show("تعذر تحديث دفعات المخزون. يرجى إعادة المحاولة.",
                 "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            if (!IsDisposed)
+                Cursor = Cursors.Default;
         }
     }
 
@@ -622,5 +702,112 @@ public partial class frmListInventoryBatches : Form
             return;
 
         _ = _RefreshListAsync();
+    }
+
+    // ── قائمة السياق والنقر المزدوج (RULE-N23) ────────────────────────────────────
+
+    /// <summary>نقر يمين على الشبكة = تحديد السطر تحت المؤشر ثم إظهار قائمة السياق.</summary>
+    private void dgvBatches_MouseDown(object sender, MouseEventArgs e)
+    {
+        if (e.Button != MouseButtons.Right) return;
+
+        var hit = dgvBatches.HitTest(e.X, e.Y);
+        if (hit.RowIndex < 0) return;
+
+        dgvBatches.ClearSelection();
+        dgvBatches.Rows[hit.RowIndex].Selected = true;
+        dgvBatches.CurrentCell = dgvBatches.Rows[hit.RowIndex].Cells[0];
+    }
+
+    private void dgvBatches_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0) return;
+
+        _ShowSelectedBatchDetails();
+    }
+
+    private void tsmiView_Click(object sender, EventArgs e) => _ShowSelectedBatchDetails();
+
+    private void tsmiRefresh_Click(object sender, EventArgs e) => btnRefresh_Click(sender, e);
+
+    private void tsmiExport_Click(object sender, EventArgs e) => _ExportToExcel();
+
+    /// <summary>تفاصيل الدفعة المحددة من صفوف الشبكة — بلا استدعاء خدمة جديدة.</summary>
+    private void _ShowSelectedBatchDetails()
+    {
+        try
+        {
+            if (dgvBatches.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("يرجى اختيار دفعة من القائمة أولاً.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var row = dgvBatches.SelectedRows[0];
+
+            string Cell(string columnName)
+                => row.Cells[columnName]?.Value?.ToString() ?? NoExpiryToken;
+
+            var details = new System.Text.StringBuilder();
+            details.AppendLine($"المنتج: {Cell("ProductName")}");
+            details.AppendLine($"رقم الدفعة: {Cell("BatchNo")}");
+            details.AppendLine($"المستودع: {Cell("WarehouseName")}");
+            details.AppendLine($"الكمية المستلمة: {Cell("QuantityReceived")}");
+            details.AppendLine($"الكمية المتبقية: {Cell("QuantityRemaining")}");
+            details.AppendLine($"تكلفة الوحدة: {Cell("UnitCost")}");
+            details.AppendLine($"القيمة الإجمالية: {Cell("TotalValue")}");
+            details.AppendLine($"تاريخ الانتهاء: {Cell("ExpiryDate")}");
+            details.AppendLine($"حالة الصلاحية: {Cell("ExpiryStatus")}");
+
+            MessageBox.Show(details.ToString(), "تفاصيل الدفعة",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "فشل عرض تفاصيل دفعة المخزون");
+            MessageBox.Show("تعذر عرض تفاصيل الدفعة. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>تصدير الشبكة عبر الأداة الموحّدة <see cref="ExportHelper"/> (RULE-N112).</summary>
+    private void _ExportToExcel()
+    {
+        try
+        {
+            if (dgvBatches.Rows.Count == 0)
+            {
+                MessageBox.Show("لا توجد بيانات للتصدير.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx",
+                FileName = $"دفعات_المخزون_{DateTime.Now:yyyyMMdd}.xlsx",
+                Title = "تصدير دفعات المخزون إلى Excel"
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+            Cursor = Cursors.WaitCursor;
+
+            ExportHelper.ExportToExcel(dgvBatches, "دفعات المخزون", dialog.FileName);
+
+            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "فشل تصدير دفعات المخزون إلى Excel");
+            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
     }
 }

@@ -16,10 +16,6 @@ public partial class frmStocktakingPrintCard : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    // لون كروت الأصناف (أزرق) — يميزها عن محاضر الجرد (تركواز) وسندات التحويل (برتقالي)
-    private static readonly Color CardColor = Color.FromArgb(41, 128, 185);
-    private static readonly Color BalanceGreen = Color.FromArgb(25, 135, 84);
-
     // ── بيانات كرت الصنف الوهمية (Mock) ──────────────────────────────────────
 
     private sealed class ProductCard
@@ -65,15 +61,58 @@ public partial class frmStocktakingPrintCard : Form
         KeyboardHelper.WireGlobalShortcuts(this, (Keys.F10, () => btnPrint.PerformClick()));
         _BindCard();
         _BindMovements();
+        ApplyUiTheme();   // RULE-N50 — الثيم الأخضر آخر خطوة في تهيئة المظهر
+    }
+
+    // ── الثيم الأخضر (RULE-N50…RULE-N54 / RULE-N134 / RULE-N140…N144) ──────────
+
+    /// <summary>
+    /// يبدأ بـ <see cref="ThemeHelper"/> وينتهي بـ <see cref="GreenThemeHelper.Apply(Form)"/>
+    /// **كآخر سطر** — والقيم النهائية مطابقة حرفياً لما هو معلن في <c>*.Designer.cs</c>
+    /// حتى يتساوى المصمّم ووقت التشغيل.
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+        ThemeHelper.ApplyButtonStyle(btnPrint, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // يُعاد ضبط ما فرضه ThemeHelper (خط Segoe UI/حجم مرن) إلى قيم المصمّم حرفياً.
+        foreach (var btn in new[] { btnPrint, btnClose })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+        }
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.ForeColor = Color.White;
+        btnClose.Size = new Size(100, 42);
+        btnClose.ForeColor = Color.White;
+
+        // عنوان الكرت وشريط التمييز: نص مميّز من لوحة الثيم فقط (RULE-N54).
+        lblAccent.BackColor = GreenThemeHelper.TextStrong;
+        lblCardTitle.ForeColor = GreenThemeHelper.TextStrong;
+        lblMovementsTitle.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.ApplyHeader(lblTitle);   // RULE-N53
+        GreenThemeHelper.ApplyGrid(dgvMovements); // RULE-N51/N52 — لا يلمس ReadOnly/SelectionMode
+
+        // الكرت الورقي يحتاج صفوفاً مضغوطة لتظهر الحركات الخمس كاملة داخل مساحة المعاينة
+        // (القيم نفسها المعلنة في المصمّم — RULE-N134).
+        dgvMovements.ColumnHeadersHeight = 32;
+        dgvMovements.RowTemplate.Height = 25;
+        foreach (DataGridViewRow row in dgvMovements.Rows)
+            row.Height = 25;
+
+        GreenThemeHelper.Apply(this);             // ← الأخير دائماً (RULE-N50)
     }
 
     // ── ربط بيانات الكرت ببطاقة المعاينة ─────────────────────────────────────
 
     private void _BindCard()
     {
-        lblCardTitle.ForeColor = CardColor;
-        lblAccent.BackColor = CardColor;
-
         lblProductNameValue.Text = _card.ProductName;
         lblBarcodeValue.Text = _card.Barcode;
         lblWarehouseValue.Text = _card.Warehouse;
@@ -90,12 +129,22 @@ public partial class frmStocktakingPrintCard : Form
 
     private void btnPrint_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            $"تمت طباعة كرت صنف «{_card.ProductName}» بنجاح.\n" +
-            $"الباركود: {_card.Barcode} — المستودع: {_card.Warehouse}\n" +
-            $"الرصيد الحالي: {_card.CurrentBalance:N3} — عدد الحركات: {_movements.Count}\n" +
-            "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-            "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        try
+        {
+            MessageBox.Show(
+                $"تمت طباعة كرت صنف «{_card.ProductName}» بنجاح.\n" +
+                $"الباركود: {_card.Barcode} — المستودع: {_card.Warehouse}\n" +
+                $"الرصيد الحالي: {_card.CurrentBalance:N3} — عدد الحركات: {_movements.Count}\n" +
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
+                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
+            Serilog.Log.Error(ex, "تعذرت طباعة كرت الصنف {ProductName}", _card.ProductName);
+            MessageBox.Show("تعذر طباعة كرت الصنف. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnClose_Click(object sender, EventArgs e)

@@ -71,10 +71,15 @@ public partial class frmAccounts : Form
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
 
+        // RULE-N147: Enter = الزر الأساسي — لا وضع إدخال في هذه الشاشة، فالأساسي «جديد» دائماً.
+        KeyboardHelper.WireModeEnter(this, () => btnNew);
+        AcceptButton = btnNew;
+
         ApplyUiTheme();
 
         // RULE-N43: يُوصَّل بعد الثيم حتى يلتقط ألوان الأزرار النهائية.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnPermanentDelete);
+        KeyboardHelper.WireButtonDisabledVisual(
+            btnSave, btnEdit, btnDelete, btnPermanentDelete, btnClearFilters);
 
         _LoadNatureOptions();
         _SetupToolTips();
@@ -188,12 +193,20 @@ public partial class frmAccounts : Form
         }
     }
 
+    /// <summary>
+    /// «تحديث» (F5) — تحديث **كامل** (RULE-N148): تُمسح أدوات التصفية أولاً، ثم تُعاد قراءة
+    /// الحسابات من الخدمة (ومنها تُبنى خيارات الحساب الأب) وتُعاد الشبكة والملخص، ويُعاد
+    /// التحديد والمحرر إلى الحالة الافتراضية — ولا يقتصر على مسح التصفية.
+    /// </summary>
     private async Task _RefreshAsync()
     {
         Cursor = Cursors.WaitCursor;
         try
         {
-            await _LoadAsync();
+            _ClearFilterInputs();   // التصفية تعود للافتراضي
+            _editId = null;         // إعادة ضبط التحديد قبل إعادة القراءة
+            await _LoadAsync();     // إعادة بناء الشبكة والدلائل والملخص من الخدمة
+            _ResetForm();           // محرر فارغ + بلا تحديد + شريط الوضع والأزرار
         }
         catch (Exception ex)
         {
@@ -307,6 +320,7 @@ public partial class frmAccounts : Form
 
         _UpdateModeHeader();
         _UpdateActionButtons();
+        _UpdateClearFiltersState(); // RULE-N148: حالة «مسح التصفية» بعد التحميل
     }
 
     /// <summary>إبراز التسلسل الهرمي في عمود الاسم العربي دون TreeView (RULE: عرض هرمي).</summary>
@@ -565,24 +579,41 @@ public partial class frmAccounts : Form
     {
         if (e.KeyCode != Keys.Escape) return;
 
-        _ClearFilters();
+        _ClearAllFilters();
         e.Handled = true;
         e.SuppressKeyPress = true;
     }
 
-    /// <summary>Esc في صندوق التصفية = مسح كل أدوات التصفية والعودة لعرض كامل.</summary>
-    private void _ClearFilters()
+    /// <summary>
+    /// Esc في صندوق التصفية = مسح كل أدوات التصفية والعودة لعرض كامل (RULE-N59).
+    /// يبقى المعالج باسمه القديم ويستهلك منطق «مسح التصفية» نفسه (RULE-N148).
+    /// </summary>
+    private void _ClearFilters() => _ClearAllFilters();
+
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للمحرر (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object? sender, EventArgs e)
     {
-        _loadingSelection = true; // لا علاقة للتصفية بالتحديد، لكن نمنع إعادة الدخول
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح التصفية» و«تحديث».</summary>
+    private void _ClearFilterInputs()
+    {
+        bool wasLoadingSelection = _loadingSelection;
+        _loadingSelection = true; // التصفية لا تلمس المحرر: نمنع مزامنة التحديد أثناء المسح
         try
         {
             txtFilterValue.Clear();
 
             if (cbFilterBy.Items.Count > 0)
-                cbFilterBy.SelectedIndex = 0;
+                cbFilterBy.SelectedIndex = 0;       // «الكود» = القيمة الافتراضية
 
             if (cbNatureFilter.Items.Count > 0)
-                cbNatureFilter.SelectedIndex = 0;
+                cbNatureFilter.SelectedIndex = 0;   // «كل الأنواع» = القيمة الافتراضية
 
             chkShowInactive.Checked = false;
             chkOnlyLeaf.Checked = false;
@@ -591,10 +622,29 @@ public partial class frmAccounts : Form
         }
         finally
         {
-            _loadingSelection = false;
+            _loadingSelection = wasLoadingSelection;
         }
+    }
+
+    /// <summary>يمسح كل أدوات التصفية ثم يعيد تطبيق التصفية على نفس البيانات (بلا إعادة تحميل).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
 
         _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43/RULE-N148: «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbNatureFilter.SelectedIndex > 0
+            || chkShowInactive.Checked
+            || chkOnlyLeaf.Checked
+            || chkOnlySystem.Checked
+            || chkOnlyParents.Checked;
     }
 
     private void _ApplyFilter()
@@ -603,6 +653,7 @@ public partial class frmAccounts : Form
         {
             _UpdateSummary();
             _UpdateEmptyState();
+            _UpdateClearFiltersState();
             return;
         }
 
@@ -624,8 +675,8 @@ public partial class frmAccounts : Form
             conditions.Add($"NatureValue = {nature.Value}");
 
         // RULE-N60: العمود يُحدَّد بالـ SelectedIndex لا بمقارنة نص عربي،
-        // والمدخل يُهرَّب من علامات الاقتباس التي تُفسد DataView.RowFilter.
-        string text = txtFilterValue.Text.Trim().Replace("'", "''");
+        // والقيمة تُهرَّب في RowFilterHelper لا داخل الشاشة (RULE-N112).
+        string text = txtFilterValue.Text.Trim();
         if (text.Length > 0)
         {
             string column = cbFilterBy.SelectedIndex switch
@@ -635,7 +686,7 @@ public partial class frmAccounts : Form
                 _ => "AccountCode"
             };
 
-            conditions.Add($"{column} LIKE '%{text}%'");
+            conditions.Add(RowFilterHelper.Like(column, text));
         }
 
         try
@@ -660,6 +711,7 @@ public partial class frmAccounts : Form
 
         _UpdateSummary();
         _UpdateEmptyState();
+        _UpdateClearFiltersState(); // RULE-N148: حالة زر «مسح التصفية» بعد كل تطبيق
     }
 
     /// <summary>RULE-N61: شريط الملخص — عدد المعروض من الإجمالي + توزيع الأنواع.</summary>
@@ -780,24 +832,7 @@ public partial class frmAccounts : Form
 
     private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync();
 
-    private async void btnRefresh_Click(object? sender, EventArgs e)
-    {
-        Cursor = Cursors.WaitCursor;
-        try
-        {
-            await _LoadAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تحديث دليل الحسابات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        finally
-        {
-            Cursor = Cursors.Default;
-        }
-    }
+    private async void btnRefresh_Click(object? sender, EventArgs e) => await _RefreshAsync();
 
     /// <summary>
     /// حفظ الحساب: <c>_editId == null</c> ⇒ <c>CreateAsync</c>، وإلا <c>UpdateAsync</c>.
@@ -1030,24 +1065,7 @@ public partial class frmAccounts : Form
 
     private void cmsDelete_Click(object? sender, EventArgs e) => btnDelete.PerformClick();
 
-    private async void cmsRefresh_Click(object? sender, EventArgs e)
-    {
-        Cursor = Cursors.WaitCursor;
-        try
-        {
-            await _LoadAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تحديث دليل الحسابات من قائمة السياق");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        finally
-        {
-            Cursor = Cursors.Default;
-        }
-    }
+    private async void cmsRefresh_Click(object? sender, EventArgs e) => await _RefreshAsync();
 
     private async void cmsTree_Click(object? sender, EventArgs e)
     {

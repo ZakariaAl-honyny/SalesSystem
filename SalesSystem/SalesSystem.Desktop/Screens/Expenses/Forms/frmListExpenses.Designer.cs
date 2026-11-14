@@ -42,6 +42,8 @@ partial class frmListExpenses
         btnRange30 = new Button();
         btnRangeMonth = new Button();
         chkOnlyCancelled = new CheckBox();
+        btnClearFilters = new Button();
+        btnToggleFilters = new Button();
         pnlGrid = new Panel();
         lblEmpty = new Label();
         pnlSummary = new Panel();
@@ -102,18 +104,31 @@ partial class frmListExpenses
         // 
         dgvExpenses.AllowUserToAddRows = false;
         dgvExpenses.AllowUserToDeleteRows = false;
-        dgvExpenses.BackgroundColor = SystemColors.Window;
-        dgvExpenses.BorderStyle = BorderStyle.Fixed3D;
-        dgvExpenses.ColumnHeadersHeight = 50;
+        dgvExpenses.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvExpenses.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvExpenses.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvExpenses.BorderStyle = BorderStyle.None;
+        dgvExpenses.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvExpenses.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+        dgvExpenses.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dgvExpenses.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvExpenses.ColumnHeadersHeight = 45;
         dgvExpenses.ContextMenuStrip = cmsExpenses;
+        dgvExpenses.DefaultCellStyle.BackColor = Color.White;
+        dgvExpenses.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+        dgvExpenses.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dgvExpenses.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dgvExpenses.Dock = DockStyle.Fill;
+        dgvExpenses.EnableHeadersVisualStyles = false;
+        dgvExpenses.GridColor = Color.FromArgb(205, 225, 205);
         dgvExpenses.Location = new Point(6, 6);
         dgvExpenses.Margin = new Padding(4);
         dgvExpenses.MultiSelect = false;
         dgvExpenses.Name = "dgvExpenses";
         dgvExpenses.ReadOnly = true;
+        dgvExpenses.RowHeadersVisible = false;
         dgvExpenses.RowHeadersWidth = 62;
-        dgvExpenses.RowTemplate.Height = 28;
+        dgvExpenses.RowTemplate.Height = 32;
         dgvExpenses.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvExpenses.Size = new Size(1188, 447);
         dgvExpenses.TabIndex = 0;
@@ -122,7 +137,7 @@ partial class frmListExpenses
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.WhiteSmoke;
+        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -134,10 +149,10 @@ partial class frmListExpenses
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.WhiteSmoke;
+        lblMode.BackColor = Color.FromArgb(14, 165, 103);
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = Color.Firebrick;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(4, 4);
         lblMode.Margin = new Padding(0);
         lblMode.Name = "lblMode";
@@ -148,7 +163,7 @@ partial class frmListExpenses
         // 
         // pnlToolbar
         // 
-        pnlToolbar.BackColor = Color.WhiteSmoke;
+        pnlToolbar.BackColor = Color.FromArgb(235, 240, 235);
         pnlToolbar.Controls.Add(btnAddNew);
         pnlToolbar.Controls.Add(btnRefresh);
         pnlToolbar.Controls.Add(btnClose);
@@ -161,11 +176,10 @@ partial class frmListExpenses
         // 
         // btnAddNew
         // 
-        btnAddNew.BackColor = Color.White;
-        btnAddNew.FlatAppearance.BorderColor = Color.Black;
-        btnAddNew.FlatAppearance.BorderSize = 2;
-        btnAddNew.FlatStyle = FlatStyle.Popup;
+        btnAddNew.BackColor = Color.FromArgb(40, 167, 69);
+        btnAddNew.FlatStyle = FlatStyle.Flat;
         btnAddNew.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnAddNew.ForeColor = Color.White;
         btnAddNew.Location = new Point(1056, 9);
         btnAddNew.Margin = new Padding(4);
         btnAddNew.Name = "btnAddNew";
@@ -177,11 +191,10 @@ partial class frmListExpenses
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.White;
-        btnRefresh.FlatAppearance.BorderColor = Color.Black;
-        btnRefresh.FlatAppearance.BorderSize = 2;
-        btnRefresh.FlatStyle = FlatStyle.Popup;
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnRefresh.ForeColor = Color.White;
         btnRefresh.Location = new Point(912, 9);
         btnRefresh.Margin = new Padding(4);
         btnRefresh.Name = "btnRefresh";
@@ -193,10 +206,10 @@ partial class frmListExpenses
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.White;
-        btnClose.DialogResult = DialogResult.Cancel;
-        btnClose.FlatStyle = FlatStyle.Popup;
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(768, 9);
         btnClose.Margin = new Padding(4);
         btnClose.Name = "btnClose";
@@ -208,8 +221,9 @@ partial class frmListExpenses
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = Color.WhiteSmoke;
+        pnlFilters.BackColor = Color.FromArgb(235, 240, 235);
         pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
         pnlFilters.Location = new Point(0, 120);
         pnlFilters.Margin = new Padding(0);
@@ -220,6 +234,7 @@ partial class frmListExpenses
         // 
         // gbFilter
         // 
+        gbFilter.BackColor = Color.FromArgb(235, 245, 235);
         gbFilter.Controls.Add(label1);
         gbFilter.Controls.Add(cbStatus);
         gbFilter.Controls.Add(label3);
@@ -233,6 +248,7 @@ partial class frmListExpenses
         gbFilter.Controls.Add(btnRange30);
         gbFilter.Controls.Add(btnRangeMonth);
         gbFilter.Controls.Add(chkOnlyCancelled);
+        gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
         gbFilter.Location = new Point(6, 4);
@@ -248,6 +264,7 @@ partial class frmListExpenses
         // label1
         // 
         label1.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label1.ForeColor = Color.FromArgb(14, 82, 52);
         label1.Location = new Point(1104, 28);
         label1.Margin = new Padding(0);
         label1.Name = "label1";
@@ -260,6 +277,7 @@ partial class frmListExpenses
         // 
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
+        cbStatus.BackColor = Color.White;
         cbStatus.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbStatus.FormattingEnabled = true;
         cbStatus.Items.AddRange(new object[] { "الكل", "مسودة", "مرحّل", "ملغى" });
@@ -273,6 +291,7 @@ partial class frmListExpenses
         // label3
         // 
         label3.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label3.ForeColor = Color.FromArgb(14, 82, 52);
         label3.Location = new Point(926, 28);
         label3.Margin = new Padding(0);
         label3.Name = "label3";
@@ -295,6 +314,7 @@ partial class frmListExpenses
         // label4
         // 
         label4.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label4.ForeColor = Color.FromArgb(14, 82, 52);
         label4.Location = new Point(740, 28);
         label4.Margin = new Padding(0);
         label4.Name = "label4";
@@ -317,6 +337,7 @@ partial class frmListExpenses
         // label2
         // 
         label2.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label2.ForeColor = Color.FromArgb(14, 82, 52);
         label2.Location = new Point(517, 28);
         label2.Margin = new Padding(0);
         label2.Name = "label2";
@@ -329,6 +350,7 @@ partial class frmListExpenses
         // 
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbFilterBy.FormattingEnabled = true;
         cbFilterBy.Items.AddRange(new object[] { "لا شيء", "رقم السند", "البيان", "حساب المصروف", "الصندوق", "المبلغ" });
@@ -341,6 +363,7 @@ partial class frmListExpenses
         // 
         // txtSearch
         // 
+        txtSearch.BackColor = Color.White;
         txtSearch.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtSearch.Location = new Point(129, 26);
         txtSearch.Margin = new Padding(0);
@@ -353,9 +376,12 @@ partial class frmListExpenses
         // 
         // btnRangeToday
         // 
-        btnRangeToday.BackColor = Color.White;
-        btnRangeToday.FlatStyle = FlatStyle.Popup;
+        btnRangeToday.BackColor = Color.FromArgb(248, 249, 250);
+        btnRangeToday.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRangeToday.FlatAppearance.BorderSize = 1;
+        btnRangeToday.FlatStyle = FlatStyle.Flat;
         btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnRangeToday.ForeColor = Color.FromArgb(33, 37, 41);
         btnRangeToday.Location = new Point(1074, 62);
         btnRangeToday.Margin = new Padding(0);
         btnRangeToday.Name = "btnRangeToday";
@@ -367,9 +393,12 @@ partial class frmListExpenses
         // 
         // btnRange30
         // 
-        btnRange30.BackColor = Color.White;
-        btnRange30.FlatStyle = FlatStyle.Popup;
+        btnRange30.BackColor = Color.FromArgb(248, 249, 250);
+        btnRange30.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRange30.FlatAppearance.BorderSize = 1;
+        btnRange30.FlatStyle = FlatStyle.Flat;
         btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnRange30.ForeColor = Color.FromArgb(33, 37, 41);
         btnRange30.Location = new Point(945, 62);
         btnRange30.Margin = new Padding(0);
         btnRange30.Name = "btnRange30";
@@ -381,9 +410,12 @@ partial class frmListExpenses
         // 
         // btnRangeMonth
         // 
-        btnRangeMonth.BackColor = Color.White;
-        btnRangeMonth.FlatStyle = FlatStyle.Popup;
+        btnRangeMonth.BackColor = Color.FromArgb(248, 249, 250);
+        btnRangeMonth.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRangeMonth.FlatAppearance.BorderSize = 1;
+        btnRangeMonth.FlatStyle = FlatStyle.Flat;
         btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnRangeMonth.ForeColor = Color.FromArgb(33, 37, 41);
         btnRangeMonth.Location = new Point(831, 62);
         btnRangeMonth.Margin = new Padding(0);
         btnRangeMonth.Name = "btnRangeMonth";
@@ -396,6 +428,7 @@ partial class frmListExpenses
         // chkOnlyCancelled
         // 
         chkOnlyCancelled.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        chkOnlyCancelled.ForeColor = Color.FromArgb(14, 82, 52);
         chkOnlyCancelled.Location = new Point(683, 64);
         chkOnlyCancelled.Margin = new Padding(0);
         chkOnlyCancelled.Name = "chkOnlyCancelled";
@@ -405,8 +438,49 @@ partial class frmListExpenses
         chkOnlyCancelled.UseVisualStyleBackColor = false;
         chkOnlyCancelled.CheckedChanged += chkOnlyCancelled_CheckedChanged;
         // 
+        // btnClearFilters
+        // 
+        // RULE-N148: «مسح التصفية» يمسح أدوات التصفية فقط ولا يعيد تحميل البيانات — مُعلَن في المصمّم بقيم حرفية.
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.Cursor = Cursors.Hand;
+        btnClearFilters.Enabled = false;
+        btnClearFilters.FlatAppearance.BorderSize = 0;
+        btnClearFilters.FlatStyle = FlatStyle.Flat;
+        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.Location = new Point(530, 62);
+        btnClearFilters.Margin = new Padding(0);
+        btnClearFilters.Name = "btnClearFilters";
+        btnClearFilters.Size = new Size(145, 32);
+        btnClearFilters.TabIndex = 13;
+        btnClearFilters.Text = "🧹 مسح التصفية";
+        toolTip1.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+        btnClearFilters.UseVisualStyleBackColor = false;
+        btnClearFilters.Click += btnClearFilters_Click;
+        // 
+        // btnToggleFilters
+        // 
+        // RULE-N145: مُعلَن في المصمّم بقيم حرفية مطابقة لما يُطبَّق وقت التشغيل.
+        // السلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderSize = 1;
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.Location = new Point(6, 4);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 104);
+        btnToggleFilters.TabIndex = 13;
+        btnToggleFilters.Text = "إخفاء التصفية";
+        btnToggleFilters.UseVisualStyleBackColor = false;
+        // 
         // pnlGrid
         // 
+        pnlGrid.BackColor = Color.FromArgb(235, 240, 235);
         pnlGrid.Controls.Add(dgvExpenses);
         pnlGrid.Controls.Add(lblEmpty);
         pnlGrid.Dock = DockStyle.Fill;
@@ -422,6 +496,7 @@ partial class frmListExpenses
         lblEmpty.BackColor = Color.Transparent;
         lblEmpty.Dock = DockStyle.Fill;
         lblEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblEmpty.ForeColor = Color.FromArgb(14, 82, 52);
         lblEmpty.Location = new Point(6, 6);
         lblEmpty.Margin = new Padding(0);
         lblEmpty.Name = "lblEmpty";
@@ -433,6 +508,7 @@ partial class frmListExpenses
         // 
         // pnlSummary
         // 
+        pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Controls.Add(lblRecordsCount);
         pnlSummary.Dock = DockStyle.Bottom;
@@ -446,6 +522,7 @@ partial class frmListExpenses
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
         lblSummary.Location = new Point(90, 0);
         lblSummary.Margin = new Padding(0);
         lblSummary.Name = "lblSummary";
@@ -459,6 +536,7 @@ partial class frmListExpenses
         // 
         lblRecordsCount.Dock = DockStyle.Right;
         lblRecordsCount.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblRecordsCount.ForeColor = Color.FromArgb(14, 82, 52);
         lblRecordsCount.Location = new Point(1110, 0);
         lblRecordsCount.Margin = new Padding(0);
         lblRecordsCount.Name = "lblRecordsCount";
@@ -482,7 +560,7 @@ partial class frmListExpenses
         // frmListExpenses
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.WhiteSmoke;
+        BackColor = Color.FromArgb(170, 220, 170);
         ClientSize = new Size(1200, 723);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);
@@ -535,6 +613,8 @@ partial class frmListExpenses
     private Button btnRange30;
     private Button btnRangeMonth;
     private CheckBox chkOnlyCancelled;
+    private Button btnClearFilters;
+    private Button btnToggleFilters;
     private Panel pnlGrid;
     private Label lblEmpty;
     private Panel pnlSummary;

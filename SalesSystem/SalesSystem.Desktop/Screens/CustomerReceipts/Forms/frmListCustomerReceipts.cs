@@ -17,6 +17,10 @@ public partial class frmListCustomerReceipts : Form
     /// <summary>يمنع التصفية الفورية أثناء التهيئة الأولية (RULE-N59).</summary>
     private bool _isInitializing = true;
 
+    /// <summary>المدى الافتراضي وقت الإنشاء — يعيده «مسح التصفية» و«تحديث» (RULE-N148).</summary>
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     private const byte StatusDraft = 1;
     private const byte StatusPosted = 2;
     private const byte StatusCancelled = 3;
@@ -31,7 +35,7 @@ public partial class frmListCustomerReceipts : Form
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
-        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose);     // RULE-N43
+        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClose, btnClearFilters); // RULE-N43
 
         KeyboardHelper.WireGlobalShortcuts(this,                                      // RULE-N47
             (Keys.F2, () => btnAddNew.PerformClick()),
@@ -41,16 +45,35 @@ public partial class frmListCustomerReceipts : Form
                     cancelToolStripMenuItem.PerformClick();
             }),
             (Keys.F5, () => btnRefresh.PerformClick()),
-            (Keys.Escape, () => _ClearFilters()));
+            (Keys.Escape, _GlobalEscape));
 
         // Enter في حقل التصفية = تطبيق فوري (RULE-N59).
         KeyboardHelper.WireEnterToClick(txtFilterValue, () => _ApplyFilter());
 
+        // RULE-N147: Enter = الزر الأساسي للشاشة («سند جديد») — ولا يعمل داخل حقول الإدخال.
+        KeyboardHelper.WireModeEnter(this, () => btnAddNew);
+        AcceptButton = btnAddNew;
+
         _LoadStatusOptions();
-        _SetDateRange(_StartOfCurrentMonth(), DateTime.Today);   // «هذا الشهر» افتراضياً
+        _defaultFrom = _StartOfCurrentMonth();
+        _defaultTo = DateTime.Today;
+        _SetDateRange(_defaultFrom, _defaultTo);   // «هذا الشهر» افتراضياً
         _SetupToolTips();
         _isInitializing = false;
         FilterPanelHelper.Attach(this, _serviceProvider);
+    }
+
+    /// <summary>
+    /// RULE-N147 + RULE-N40: «Enter» يعمل زرَّ الوضع الأساسي («سند جديد») عبر <c>AcceptButton</c>،
+    /// **إلا** داخل حقول «بحث وتصفية» فيبقى سلوك العنصر نفسه: تطبيق التصفية فوراً أو الانتقال للحقل التالي،
+    /// وعلى أزرار التصفية = تنفيذ الزر. (AcceptButton في WinForms يسبق KeyDown ويلتقط Enter).
+    /// </summary>
+    protected override bool ProcessDialogKey(Keys keyData)
+    {
+        if (keyData == Keys.Enter && gbFilter.ContainsFocus && ActiveControl is not ButtonBase)
+            return false;   // غير مُعالج ⇒ يمرّ إلى KeyDown فتُنفَّذ قواعد التنقل/التصفية القائمة.
+
+        return base.ProcessDialogKey(keyData);
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
@@ -246,6 +269,7 @@ public partial class frmListCustomerReceipts : Form
         _filteredReceipts = query.ToList();
         _PopulateGrid();
         _UpdateSummary();
+        _UpdateClearFiltersState();   // RULE-N148: حالة زر «مسح التصفية» تتبع وجود تصفية نشطة
     }
 
     private static bool _MatchesText(CustomerReceiptDto r, int filterBy, string text) => filterBy switch
@@ -263,9 +287,20 @@ public partial class frmListCustomerReceipts : Form
     private static decimal _GetUnappliedAmount(CustomerReceiptDto r)
         => Math.Max(0m, r.Amount - _GetAppliedAmount(r));
 
-    /// <summary>مسح كل أدوات التصفية وإعادة المدى إلى «هذا الشهر» (Esc — RULE-N59).</summary>
-    private void _ClearFilters()
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للبيانات (RULE-N148). «تحديث» هو المسؤول عن إعادة التحميل.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
     {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث» (RULE-N148).</summary>
+    private void _ClearFilterInputs()
+    {
+        bool wasInitializing = _isInitializing;
         _isInitializing = true;
         try
         {
@@ -273,14 +308,44 @@ public partial class frmListCustomerReceipts : Form
             txtFilterValue.Clear();
             cbStatus.SelectedIndex = 0;
             chkOnlyUnapplied.Checked = false;
-            _SetDateRange(_StartOfCurrentMonth(), DateTime.Today);
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
-            _isInitializing = false;
+            _isInitializing = wasInitializing;
+        }
+    }
+
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية بلا إعادة تحميل (RULE-N59).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
+        _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43/RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            cbFilterBy.SelectedIndex > 0
+            || cbStatus.SelectedIndex > 0
+            || chkOnlyUnapplied.Checked
+            || !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
+    }
+
+    /// <summary>RULE-N47 + RULE-N59: Esc داخل صندوق التصفية = مسحها، وخارجه = إغلاق الشاشة.</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
         }
 
-        _ApplyFilter();
+        Close();
     }
 
     private void _PopulateGrid()
@@ -358,6 +423,7 @@ public partial class frmListCustomerReceipts : Form
     {
         _isInitializing = false;
         _ReloadForm();
+        _UpdateClearFiltersState();   // RULE-N148 — حالة الزر بعد أول تحميل
         ApplyGreenTheme();   // RULE-N50 — آخر خطوة في مسار التحميل
     }
 
@@ -428,7 +494,29 @@ public partial class frmListCustomerReceipts : Form
     }
 
     private void btnRefresh_Click(object sender, EventArgs e)
-        => _ReloadForm();
+        => _FullRefresh();
+
+    /// <summary>
+    /// RULE-N148: «تحديث» = إعادة تحميل كاملة — تصفية افتراضية ← إعادة ضبط الخيارات
+    /// ← تحميل الشبكة من الخدمة ← ملخص/تحديد افتراضي. لا يمسح التصفية وحدها أبداً.
+    /// </summary>
+    private void _FullRefresh()
+    {
+        // تُنفَّذ إعادة الضبط بصمت حتى لا تُطبَّق تصفية وسيطة على بيانات قديمة قبل التحميل.
+        bool wasInitializing = _isInitializing;
+        _isInitializing = true;
+        try
+        {
+            _ClearFilterInputs();   // أدوات التصفية تعود للافتراضي
+            _LoadStatusOptions();   // خيارات الحالة تُعاد بناؤها
+        }
+        finally
+        {
+            _isInitializing = wasInitializing;
+        }
+
+        _ReloadForm();          // إعادة تحميل الشبكة والملخص وتحديد السطر
+    }
 
     private void editToolStripMenuItem_Click(object sender, EventArgs e)
     {

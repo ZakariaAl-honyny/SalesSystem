@@ -5,6 +5,11 @@ using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Users.Forms;
 
+/// <summary>
+/// إدارة النسخ الاحتياطي: عرض النسخ + إنشاء + استعادة.
+/// الشاشة عرض وتنظيم فقط — لا تحتوي أي منطق نسخ/استعادة (RULE-N11): كل شيء عبر
+/// <see cref="IBackupDesktopService"/>.
+/// </summary>
 public partial class frmBackup : Form
 {
     private readonly IServiceProvider _serviceProvider;
@@ -12,15 +17,23 @@ public partial class frmBackup : Form
 
     public frmBackup(IServiceProvider serviceProvider)
     {
-            _serviceProvider = serviceProvider;
-            InitializeComponent();
-            KeyboardHelper.WireEnterAsTab(this);
-            KeyboardHelper.WireSelectAllOnFocus(this);
-            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
-            KeyboardHelper.WireArrowNavigation(this); // RULE-N45 — أسهم RTL: يمين=رجوع، يسار=تالي
-        }
+        _serviceProvider = serviceProvider;
+        InitializeComponent();
 
-        private void _SetupGridColumns()
+        // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
+        KeyboardHelper.WireButtonDisabledVisual(btnCreateBackup, btnRestoreBackup, btnRefresh); // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Escape, () => btnClose.PerformClick()));
+    }
+
+    // ── الشبكة ────────────────────────────────────────────────────────────────
+
+    private void _SetupGridColumns()
     {
         dgvBackups.Columns.Clear();
 
@@ -45,6 +58,29 @@ public partial class frmBackup : Form
         }
     }
 
+    private void _PopulateGrid()
+    {
+        dgvBackups.AutoGenerateColumns = false;
+        dgvBackups.Rows.Clear();
+
+        foreach (string fileName in _backupList)
+        {
+            string datePart = "";
+            string sizePart = "";
+
+            int dashIndex = fileName.LastIndexOf('-');
+            if (dashIndex > 0 && dashIndex + 1 < fileName.Length)
+            {
+                datePart = fileName.Substring(0, dashIndex);
+                sizePart = fileName.Substring(dashIndex + 1);
+            }
+
+            dgvBackups.Rows.Add(fileName, datePart, sizePart);
+        }
+    }
+
+    // ── التحميل ───────────────────────────────────────────────────────────────
+
     private async void _RefreshBackupList()
     {
         Cursor = Cursors.WaitCursor;
@@ -66,38 +102,13 @@ public partial class frmBackup : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "خطأ في تحميل قائمة النسخ الاحتياطية");
-            MessageBox.Show("خطأ في تحميل قائمة النسخ الاحتياطية", "خطأ",
+            MessageBox.Show("تعذر تحميل قائمة النسخ الاحتياطية. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
             btnRefresh.Enabled = true;
             Cursor = Cursors.Default;
-        }
-    }
-
-    private void _PopulateGrid()
-    {
-        dgvBackups.AutoGenerateColumns = false;
-        dgvBackups.Rows.Clear();
-
-        foreach (string fileName in _backupList)
-        {
-            string datePart = "";
-            string sizePart = "";
-
-            int dashIndex = fileName.LastIndexOf('-');
-            if (dashIndex > 0 && dashIndex + 1 < fileName.Length)
-            {
-                datePart = fileName.Substring(0, dashIndex);
-                sizePart = fileName.Substring(dashIndex + 1);
-            }
-
-            dgvBackups.Rows.Add(
-                fileName,
-                datePart,
-                sizePart
-            );
         }
     }
 
@@ -124,13 +135,13 @@ public partial class frmBackup : Form
         ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
     }
 
-    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستهلك من الـHelper فقط (RULE-N112).</summary>
     private void ApplyGreenTheme()
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvBackups);
 
-        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه)
+        // RULE-N22 — شبكة عرض: السلوك تعلنه الشاشة نفسها (ApplyGrid لا يلمسه — RULE-N52)
         dgvBackups.ReadOnly = true;
         dgvBackups.AllowUserToAddRows = false;
         dgvBackups.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -138,6 +149,8 @@ public partial class frmBackup : Form
 
         GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
+
+    // ── الإجراءات ─────────────────────────────────────────────────────────────
 
     private async void btnCreateBackup_Click(object sender, EventArgs e)
     {
@@ -156,15 +169,16 @@ public partial class frmBackup : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في إنشاء النسخة الاحتياطية.", "خطأ",
+                MessageBox.Show(result.Error ?? "تعذر إنشاء النسخة الاحتياطية.", "خطأ",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
-            Serilog.Log.Error(ex, "خطأ");
-            MessageBox.Show("خطأ", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Serilog.Log.Error(ex, "خطأ في إنشاء النسخة الاحتياطية");
+            MessageBox.Show("تعذر إنشاء النسخة الاحتياطية. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -207,15 +221,16 @@ public partial class frmBackup : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في استعادة النسخة الاحتياطية.", "خطأ في الاستعادة",
+                MessageBox.Show(result.Error ?? "تعذر استعادة النسخة الاحتياطية.", "خطأ في الاستعادة",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
-            Serilog.Log.Error(ex, "خطأ");
-            MessageBox.Show("خطأ", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Serilog.Log.Error(ex, "خطأ في استعادة النسخة الاحتياطية");
+            MessageBox.Show("تعذر استعادة النسخة الاحتياطية. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -231,7 +246,17 @@ public partial class frmBackup : Form
 
     private void btnClose_Click(object sender, EventArgs e)
     {
-        this.Close();
+        DialogResult = DialogResult.Cancel;
+        Close();
+    }
+
+    // ── الشبكة: قائمة السياق والنقر المزدوج ────────────────────────────────────
+
+    /// <summary>RULE-N23 — النقر المزدوج على سطر نسخة يفتح تأكيد الاستعادة لنفس السطر المحدد.</summary>
+    private void dgvBackups_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0) return;
+        btnRestoreBackup_Click(sender, EventArgs.Empty);
     }
 
     private void refreshToolStripMenuItem_Click(object sender, EventArgs e)

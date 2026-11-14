@@ -107,7 +107,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             tsmiEditRow = new ToolStripMenuItem();
             tsmiCancelEdit = new ToolStripMenuItem();
             tsmiDeleteRow = new ToolStripMenuItem();
-            gbItemActions = new GroupBox();
+            pnlItemActions = new Panel();
             flpItemActions = new FlowLayoutPanel();
             lblLockIndicator = new Label();
             gbTotals = new GroupBox();
@@ -126,7 +126,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbItems.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvItems).BeginInit();
             cmsGridContext.SuspendLayout();
-            gbItemActions.SuspendLayout();
+            pnlItemActions.SuspendLayout();
             flpItemActions.SuspendLayout();
             gbTotals.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numInvoiceDiscount).BeginInit();
@@ -158,23 +158,24 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnCancelLine
             // 
-            btnCancelLine.BackColor = Color.FromArgb(108, 117, 125);
+            btnCancelLine.BackColor = Color.FromArgb(255, 193, 7);
             btnCancelLine.FlatAppearance.BorderSize = 0;
             btnCancelLine.FlatStyle = FlatStyle.Flat;
             btnCancelLine.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancelLine.ForeColor = Color.White;
+            btnCancelLine.ForeColor = Color.FromArgb(60, 45, 5);
             btnCancelLine.Location = new Point(847, 3);
             btnCancelLine.Name = "btnCancelLine";
             btnCancelLine.Size = new Size(197, 36);
             btnCancelLine.TabIndex = 3;
             btnCancelLine.Text = "✖ إلغاء التعديل";
-            toolTip1.SetToolTip(btnCancelLine, "إلغاء وضع التعديل والعودة للإضافة");
+            toolTip1.SetToolTip(btnCancelLine, "إلغاء وضع التعديل والعودة للإضافة (Esc)");
             btnCancelLine.UseVisualStyleBackColor = false;
+            btnCancelLine.Enabled = false;
             btnCancelLine.Click += btnCancelLine_Click;
             // 
             // btnSaveDraft
             // 
-            btnSaveDraft.BackColor = Color.FromArgb(25, 135, 84);
+            btnSaveDraft.BackColor = Color.FromArgb(0, 123, 255);
             btnSaveDraft.FlatAppearance.BorderSize = 0;
             btnSaveDraft.FlatStyle = FlatStyle.Flat;
             btnSaveDraft.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -190,7 +191,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnPost
             // 
-            btnPost.BackColor = Color.FromArgb(13, 110, 253);
+            btnPost.BackColor = Color.FromArgb(25, 135, 84);
             btnPost.FlatAppearance.BorderSize = 0;
             btnPost.FlatStyle = FlatStyle.Flat;
             btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -199,8 +200,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnPost.Name = "btnPost";
             btnPost.Size = new Size(183, 36);
             btnPost.TabIndex = 2;
-            btnPost.Text = "✅ حفظ وترحيل (F5)";
-            toolTip1.SetToolTip(btnPost, "حفظ وترحيل (F5): يحفظ الفاتورة ويُرحّلها فوراً.\nيخصم الكميات من المخزن ويُرحّل القيد المحاسبي،\nوبعدها تُقفل الفاتورة نهائياً ولا يمكن تعديلها.");
+            btnPost.Text = "✅ حفظ وترحيل (F4)";
+            toolTip1.SetToolTip(btnPost, "حفظ وترحيل (F4): يحفظ الفاتورة ويُرحّلها فوراً.\nيخصم الكميات من المخزن ويُرحّل القيد المحاسبي،\nوبعدها تُقفل الفاتورة نهائياً ولا يمكن تعديلها.");
             btnPost.UseVisualStyleBackColor = false;
             btnPost.Click += btnPost_Click;
             // 
@@ -222,7 +223,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnPrintA4
             // 
-            btnPrintA4.BackColor = Color.FromArgb(73, 80, 87);
+            btnPrintA4.BackColor = Color.FromArgb(255, 152, 0);
             btnPrintA4.FlatAppearance.BorderSize = 0;
             btnPrintA4.FlatStyle = FlatStyle.Flat;
             btnPrintA4.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -238,7 +239,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnPrintReceipt
             // 
-            btnPrintReceipt.BackColor = Color.FromArgb(108, 117, 125);
+            btnPrintReceipt.BackColor = Color.FromArgb(23, 162, 184);
             btnPrintReceipt.FlatAppearance.BorderSize = 0;
             btnPrintReceipt.FlatStyle = FlatStyle.Flat;
             btnPrintReceipt.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -254,8 +255,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // chkPrintSummary
             // 
+            chkPrintSummary.BackColor = Color.Transparent;
             chkPrintSummary.CheckAlign = ContentAlignment.MiddleRight;
-            chkPrintSummary.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            chkPrintSummary.Font = new Font("Tahoma", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             chkPrintSummary.ForeColor = Color.FromArgb(33, 37, 41);
             chkPrintSummary.Location = new Point(640, 3);
             chkPrintSummary.Name = "chkPrintSummary";
@@ -263,7 +265,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             chkPrintSummary.TabIndex = 5;
             chkPrintSummary.Text = "طباعة فاتورة إجمالية";
             toolTip1.SetToolTip(chkPrintSummary, "طباعة نسخة إجمالية مختصرة (صنف/وحدة/كمية فقط)");
-            chkPrintSummary.UseVisualStyleBackColor = true;
+            chkPrintSummary.UseVisualStyleBackColor = false;
             // 
             // btnClose
             // 
@@ -277,7 +279,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnClose.Size = new Size(100, 36);
             btnClose.TabIndex = 4;
             btnClose.Text = "✖ خروج";
-            toolTip1.SetToolTip(btnClose, "إغلاق الشاشة بدون حفظ");
+            toolTip1.SetToolTip(btnClose, "إغلاق الشاشة بدون حفظ (Esc)");
             btnClose.UseVisualStyleBackColor = false;
             btnClose.Click += btnClose_Click;
             // 
@@ -347,7 +349,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnRefreshCatalog
             // 
-            btnRefreshCatalog.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefreshCatalog.BackColor = Color.FromArgb(23, 162, 184);
             btnRefreshCatalog.FlatAppearance.BorderSize = 0;
             btnRefreshCatalog.FlatStyle = FlatStyle.Flat;
             btnRefreshCatalog.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -357,7 +359,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnRefreshCatalog.Size = new Size(175, 36);
             btnRefreshCatalog.TabIndex = 7;
             btnRefreshCatalog.Text = "🔄 تحديث بيانات الأصناف";
-            toolTip1.SetToolTip(btnRefreshCatalog, "إعادة تحميل بيانات الأصناف والوحدات والأسعار والأرصدة");
+            toolTip1.SetToolTip(btnRefreshCatalog, "إعادة تحميل بيانات الأصناف والوحدات والأسعار والأرصدة (F5)");
             btnRefreshCatalog.UseVisualStyleBackColor = false;
             btnRefreshCatalog.Click += btnRefreshCatalog_Click;
             // 
@@ -390,6 +392,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtBarcode
             // 
+            txtBarcode.BackColor = Color.White;
             txtBarcode.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtBarcode.Location = new Point(1324, 33);
             txtBarcode.Name = "txtBarcode";
@@ -425,6 +428,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // cmbUnit
             // 
+            cmbUnit.BackColor = Color.White;
             cmbUnit.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbUnit.FlatStyle = FlatStyle.Flat;
             cmbUnit.Font = new Font("Tahoma", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -436,6 +440,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtQuantity
             // 
+            txtQuantity.BackColor = Color.White;
             txtQuantity.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtQuantity.Location = new Point(660, 31);
             txtQuantity.Name = "txtQuantity";
@@ -447,6 +452,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtUnitPrice
             // 
+            txtUnitPrice.BackColor = Color.White;
             txtUnitPrice.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtUnitPrice.Location = new Point(534, 31);
             txtUnitPrice.Name = "txtUnitPrice";
@@ -461,7 +467,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblLineTotal.BackColor = Color.White;
             lblLineTotal.BorderStyle = BorderStyle.FixedSingle;
             lblLineTotal.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblLineTotal.ForeColor = Color.FromArgb(25, 135, 84);
+            lblLineTotal.ForeColor = Color.FromArgb(14, 82, 52);
             lblLineTotal.Location = new Point(63, 31);
             lblLineTotal.Name = "lblLineTotal";
             lblLineTotal.Size = new Size(142, 34);
@@ -472,6 +478,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtLineDiscount
             // 
+            txtLineDiscount.BackColor = Color.White;
             txtLineDiscount.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtLineDiscount.Location = new Point(418, 31);
             txtLineDiscount.Name = "txtLineDiscount";
@@ -496,7 +503,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // cmbCashBox
             // 
+            cmbCashBox.BackColor = Color.White;
             cmbCashBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCashBox.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbCashBox.Location = new Point(215, 31);
             cmbCashBox.Name = "cmbCashBox";
             cmbCashBox.Size = new Size(230, 32);
@@ -505,7 +514,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // cmbDiscountType
             // 
+            cmbDiscountType.BackColor = Color.White;
             cmbDiscountType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDiscountType.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbDiscountType.Items.AddRange(new object[] { "مبلغ", "نسبة" });
             cmbDiscountType.Location = new Point(1110, 27);
             cmbDiscountType.Name = "cmbDiscountType";
@@ -518,7 +529,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblTafqitValue.BackColor = Color.White;
             lblTafqitValue.BorderStyle = BorderStyle.FixedSingle;
             lblTafqitValue.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTafqitValue.ForeColor = Color.FromArgb(73, 80, 87);
+            lblTafqitValue.ForeColor = Color.FromArgb(33, 37, 41);
             lblTafqitValue.Location = new Point(143, 45);
             lblTafqitValue.Name = "lblTafqitValue";
             lblTafqitValue.Padding = new Padding(4);
@@ -529,10 +540,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // lblAvailable
             // 
-            lblAvailable.BackColor = Color.FromArgb(233, 245, 233);
+            lblAvailable.BackColor = Color.FromArgb(235, 245, 235);
             lblAvailable.BorderStyle = BorderStyle.FixedSingle;
             lblAvailable.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblAvailable.ForeColor = Color.FromArgb(25, 135, 84);
+            lblAvailable.ForeColor = Color.FromArgb(14, 82, 52);
             lblAvailable.Location = new Point(588, 66);
             lblAvailable.Name = "lblAvailable";
             lblAvailable.Padding = new Padding(4, 0, 4, 0);
@@ -553,6 +564,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             lblNotes.BackColor = Color.Transparent;
             lblNotes.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblNotes.ForeColor = Color.FromArgb(33, 37, 41);
             lblNotes.Location = new Point(1520, 118);
             lblNotes.Name = "lblNotes";
             lblNotes.Size = new Size(64, 24);
@@ -563,6 +575,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblCashBox
             // 
             lblCashBox.AutoSize = true;
+            lblCashBox.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblCashBox.ForeColor = Color.FromArgb(33, 37, 41);
             lblCashBox.Location = new Point(455, 33);
             lblCashBox.Name = "lblCashBox";
             lblCashBox.Size = new Size(101, 24);
@@ -603,38 +617,47 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbInvoiceInfo.Controls.Add(lblNotes);
             gbInvoiceInfo.Dock = DockStyle.Top;
             gbInvoiceInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbInvoiceInfo.Location = new Point(0, 39);
+            gbInvoiceInfo.ForeColor = Color.FromArgb(33, 37, 41);
+            gbInvoiceInfo.Location = new Point(0, 122);
             gbInvoiceInfo.Name = "gbInvoiceInfo";
             gbInvoiceInfo.Size = new Size(1600, 175);
             gbInvoiceInfo.TabIndex = 0;
             gbInvoiceInfo.TabStop = false;
-            gbInvoiceInfo.Text = "معلومات الفاتورة";
+            gbInvoiceInfo.Text = "بيانات الفاتورة";
             // 
             // rbtnPaymentTypeCredit
             // 
             rbtnPaymentTypeCredit.AutoSize = true;
+            rbtnPaymentTypeCredit.BackColor = Color.FromArgb(235, 245, 235);
+            rbtnPaymentTypeCredit.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rbtnPaymentTypeCredit.ForeColor = Color.FromArgb(33, 37, 41);
             rbtnPaymentTypeCredit.Location = new Point(573, 33);
             rbtnPaymentTypeCredit.Name = "rbtnPaymentTypeCredit";
             rbtnPaymentTypeCredit.Size = new Size(72, 28);
             rbtnPaymentTypeCredit.TabIndex = 16;
-            rbtnPaymentTypeCredit.Text = "اجل";
-            rbtnPaymentTypeCredit.UseVisualStyleBackColor = true;
+            rbtnPaymentTypeCredit.Text = "آجل";
+            rbtnPaymentTypeCredit.UseVisualStyleBackColor = false;
             // 
             // rbtnPaymentTypeCash
             // 
             rbtnPaymentTypeCash.AutoSize = true;
+            rbtnPaymentTypeCash.BackColor = Color.FromArgb(235, 245, 235);
             rbtnPaymentTypeCash.Checked = true;
+            rbtnPaymentTypeCash.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            rbtnPaymentTypeCash.ForeColor = Color.FromArgb(33, 37, 41);
             rbtnPaymentTypeCash.Location = new Point(651, 32);
             rbtnPaymentTypeCash.Name = "rbtnPaymentTypeCash";
             rbtnPaymentTypeCash.Size = new Size(65, 28);
             rbtnPaymentTypeCash.TabIndex = 15;
             rbtnPaymentTypeCash.TabStop = true;
             rbtnPaymentTypeCash.Text = "نقد";
-            rbtnPaymentTypeCash.UseVisualStyleBackColor = true;
+            rbtnPaymentTypeCash.UseVisualStyleBackColor = false;
             // 
             // lblCustomer
             // 
             lblCustomer.AutoSize = true;
+            lblCustomer.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblCustomer.ForeColor = Color.FromArgb(33, 37, 41);
             lblCustomer.Location = new Point(1454, 78);
             lblCustomer.Name = "lblCustomer";
             lblCustomer.Size = new Size(79, 24);
@@ -646,6 +669,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             cmbCustomer.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             cmbCustomer.AutoCompleteSource = AutoCompleteSource.ListItems;
+            cmbCustomer.BackColor = Color.White;
+            cmbCustomer.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbCustomer.Location = new Point(1178, 75);
             cmbCustomer.Name = "cmbCustomer";
             cmbCustomer.Size = new Size(270, 32);
@@ -654,6 +679,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblWarehouse
             // 
             lblWarehouse.AutoSize = true;
+            lblWarehouse.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
             lblWarehouse.Location = new Point(1060, 33);
             lblWarehouse.Name = "lblWarehouse";
             lblWarehouse.Size = new Size(110, 24);
@@ -663,7 +690,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // cmbWarehouse
             // 
+            cmbWarehouse.BackColor = Color.White;
             cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbWarehouse.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbWarehouse.Location = new Point(845, 31);
             cmbWarehouse.Name = "cmbWarehouse";
             cmbWarehouse.Size = new Size(195, 32);
@@ -672,6 +701,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblPaymentType
             // 
             lblPaymentType.AutoSize = true;
+            lblPaymentType.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblPaymentType.ForeColor = Color.FromArgb(33, 37, 41);
             lblPaymentType.Location = new Point(722, 31);
             lblPaymentType.Name = "lblPaymentType";
             lblPaymentType.Size = new Size(105, 24);
@@ -682,6 +713,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblInvoiceNoLabel
             // 
             lblInvoiceNoLabel.AutoSize = true;
+            lblInvoiceNoLabel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblInvoiceNoLabel.ForeColor = Color.FromArgb(33, 37, 41);
             lblInvoiceNoLabel.Location = new Point(1454, 38);
             lblInvoiceNoLabel.Name = "lblInvoiceNoLabel";
             lblInvoiceNoLabel.Size = new Size(127, 24);
@@ -692,6 +725,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblDate
             // 
             lblDate.AutoSize = true;
+            lblDate.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblDate.ForeColor = Color.FromArgb(33, 37, 41);
             lblDate.Location = new Point(1060, 78);
             lblDate.Name = "lblDate";
             lblDate.Size = new Size(77, 24);
@@ -713,7 +748,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // dtpDate
             // 
+            dtpDate.BackColor = Color.White;
             dtpDate.CustomFormat = "yyyy/MM/dd";
+            dtpDate.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             dtpDate.Format = DateTimePickerFormat.Custom;
             dtpDate.Location = new Point(845, 75);
             dtpDate.Name = "dtpDate";
@@ -729,7 +766,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblStatus.Location = new Point(636, 76);
             lblStatus.MinimumSize = new Size(80, 24);
             lblStatus.Name = "lblStatus";
-            lblStatus.Padding = new Padding(4, 2, 4, 2);
+            lblStatus.Padding = new Padding(10, 4, 10, 4);
             lblStatus.Size = new Size(80, 28);
             lblStatus.TabIndex = 4;
             lblStatus.Text = "جديد";
@@ -738,6 +775,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblExpensesLabel
             // 
             lblExpensesLabel.AutoSize = true;
+            lblExpensesLabel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblExpensesLabel.ForeColor = Color.FromArgb(33, 37, 41);
             lblExpensesLabel.Location = new Point(1321, 69);
             lblExpensesLabel.Name = "lblExpensesLabel";
             lblExpensesLabel.Size = new Size(107, 24);
@@ -747,6 +786,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtExpenses
             // 
+            txtExpenses.BackColor = Color.White;
+            txtExpenses.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtExpenses.Location = new Point(926, 64);
             txtExpenses.Name = "txtExpenses";
             txtExpenses.Size = new Size(178, 32);
@@ -757,7 +798,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // cmbAccount
             // 
+            cmbAccount.BackColor = Color.White;
             cmbAccount.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbAccount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbAccount.Location = new Point(1110, 65);
             cmbAccount.Name = "cmbAccount";
             cmbAccount.Size = new Size(205, 32);
@@ -769,12 +812,13 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbEntry.Controls.Add(pnlEntry);
             gbEntry.Dock = DockStyle.Top;
             gbEntry.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbEntry.ForeColor = Color.FromArgb(33, 37, 41);
             gbEntry.Location = new Point(0, 297);
             gbEntry.Name = "gbEntry";
             gbEntry.Size = new Size(1600, 125);
             gbEntry.TabIndex = 15;
             gbEntry.TabStop = false;
-            gbEntry.Text = "إدخال الأصناف";
+            gbEntry.Text = "إضافة صنف";
             // 
             // pnlEntry
             // 
@@ -909,9 +953,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             gbItems.BackColor = Color.FromArgb(235, 245, 235);
             gbItems.Controls.Add(dgvItems);
-            gbItems.Controls.Add(gbItemActions);
+            gbItems.Controls.Add(pnlItemActions);
             gbItems.Dock = DockStyle.Fill;
             gbItems.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbItems.ForeColor = Color.FromArgb(33, 37, 41);
             gbItems.Location = new Point(0, 422);
             gbItems.Name = "gbItems";
             gbItems.Size = new Size(1600, 319);
@@ -923,6 +968,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             dgvItems.AllowUserToDeleteRows = false;
             dgvItems.AllowUserToResizeRows = false;
+            dgvItems.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
             dgvItems.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvItems.BackgroundColor = Color.FromArgb(220, 240, 220);
             dgvItems.BorderStyle = BorderStyle.None;
@@ -933,7 +979,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             dataGridViewCellStyle1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = Color.White;
             dataGridViewCellStyle1.SelectionBackColor = Color.FromArgb(14, 165, 103);
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.SelectionForeColor = Color.White;
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             dgvItems.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgvItems.ColumnHeadersHeight = 45;
@@ -951,15 +997,15 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             dgvItems.Dock = DockStyle.Fill;
             dgvItems.EditMode = DataGridViewEditMode.EditOnEnter;
             dgvItems.EnableHeadersVisualStyles = false;
-            dgvItems.GridColor = Color.FromArgb(222, 226, 230);
-            dgvItems.Location = new Point(3, 98);
+            dgvItems.GridColor = Color.FromArgb(205, 225, 205);
+            dgvItems.Location = new Point(3, 80);
             dgvItems.MultiSelect = false;
             dgvItems.Name = "dgvItems";
             dgvItems.RowHeadersVisible = false;
             dgvItems.RowHeadersWidth = 62;
             dgvItems.RowTemplate.Height = 32;
             dgvItems.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            dgvItems.Size = new Size(1594, 218);
+            dgvItems.Size = new Size(1594, 236);
             dgvItems.TabIndex = 16;
             // 
             // colDelete
@@ -1101,18 +1147,15 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             tsmiDeleteRow.Size = new Size(212, 32);
             tsmiDeleteRow.Text = "🗑️ حذف السطر";
             // 
-            // gbItemActions
+            // pnlItemActions — شريط أوامر الأصناف داخل صندوق «الأصناف» (RULE-N137: لا صندوق داخل صندوق)
             // 
-            gbItemActions.BackColor = Color.FromArgb(235, 240, 235);
-            gbItemActions.Controls.Add(flpItemActions);
-            gbItemActions.Dock = DockStyle.Top;
-            gbItemActions.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbItemActions.Location = new Point(3, 28);
-            gbItemActions.Name = "gbItemActions";
-            gbItemActions.Size = new Size(1594, 70);
-            gbItemActions.TabIndex = 0;
-            gbItemActions.TabStop = false;
-            gbItemActions.Text = "أوامر الأصناف";
+            pnlItemActions.BackColor = Color.FromArgb(235, 240, 235);
+            pnlItemActions.Controls.Add(flpItemActions);
+            pnlItemActions.Dock = DockStyle.Top;
+            pnlItemActions.Location = new Point(3, 28);
+            pnlItemActions.Name = "pnlItemActions";
+            pnlItemActions.Size = new Size(1594, 52);
+            pnlItemActions.TabIndex = 0;
             // 
             // flpItemActions
             // 
@@ -1124,10 +1167,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             flpItemActions.Controls.Add(btnCancelLine);
             flpItemActions.Controls.Add(lblLockIndicator);
             flpItemActions.Dock = DockStyle.Fill;
-            flpItemActions.Location = new Point(3, 28);
+            flpItemActions.Location = new Point(0, 0);
             flpItemActions.Name = "flpItemActions";
-            flpItemActions.Padding = new Padding(6, 0, 6, 0);
-            flpItemActions.Size = new Size(1588, 39);
+            flpItemActions.Padding = new Padding(6, 6, 6, 6);
+            flpItemActions.Size = new Size(1594, 52);
             flpItemActions.TabIndex = 0;
             flpItemActions.WrapContents = false;
             // 
@@ -1161,17 +1204,20 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbTotals.Controls.Add(lblTafqitValue);
             gbTotals.Dock = DockStyle.Bottom;
             gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbTotals.ForeColor = Color.FromArgb(33, 37, 41);
             gbTotals.Location = new Point(0, 741);
             gbTotals.Name = "gbTotals";
             gbTotals.Size = new Size(1600, 107);
             gbTotals.TabIndex = 17;
             gbTotals.TabStop = false;
-            gbTotals.Text = "إجماليات الفاتورة";
+            gbTotals.Text = "الإجماليات";
             gbTotals.Enter += gbTotals_Enter;
             // 
             // label1
             // 
             label1.AutoSize = true;
+            label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.ForeColor = Color.FromArgb(33, 37, 41);
             label1.Location = new Point(1321, 30);
             label1.Name = "label1";
             label1.Size = new Size(80, 24);
@@ -1181,7 +1227,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // numInvoiceDiscount
             // 
+            numInvoiceDiscount.BackColor = Color.White;
             numInvoiceDiscount.DecimalPlaces = 2;
+            numInvoiceDiscount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             numInvoiceDiscount.Location = new Point(926, 26);
             numInvoiceDiscount.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numInvoiceDiscount.Name = "numInvoiceDiscount";
@@ -1194,6 +1242,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // lblPaid
             // 
             lblPaid.AutoSize = true;
+            lblPaid.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblPaid.ForeColor = Color.FromArgb(33, 37, 41);
             lblPaid.Location = new Point(813, 68);
             lblPaid.Name = "lblPaid";
             lblPaid.Size = new Size(91, 24);
@@ -1203,6 +1253,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtPaid
             // 
+            txtPaid.BackColor = Color.White;
+            txtPaid.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtPaid.Location = new Point(624, 64);
             txtPaid.Name = "txtPaid";
             txtPaid.Size = new Size(178, 32);
@@ -1220,7 +1272,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblQuickInfo.ForeColor = Color.FromArgb(14, 82, 52);
             lblQuickInfo.Location = new Point(0, 848);
             lblQuickInfo.Name = "lblQuickInfo";
-            lblQuickInfo.Padding = new Padding(5);
+            lblQuickInfo.Padding = new Padding(8, 6, 8, 6);
             lblQuickInfo.Size = new Size(1600, 41);
             lblQuickInfo.TabIndex = 12;
             lblQuickInfo.Text = "عدد الأصناف: 0 | إجمالي الكمية: 0 | الإجمالي: 0.00 | المدفوع: 0.00 | المتبقي: 0.00";
@@ -1232,7 +1284,8 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbToolbar.Controls.Add(flpToolbar);
             gbToolbar.Dock = DockStyle.Top;
             gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbToolbar.Location = new Point(0, 214);
+            gbToolbar.ForeColor = Color.FromArgb(33, 37, 41);
+            gbToolbar.Location = new Point(0, 39);
             gbToolbar.Name = "gbToolbar";
             gbToolbar.Size = new Size(1600, 83);
             gbToolbar.TabIndex = 1;
@@ -1283,10 +1336,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             Controls.Add(gbTotals);
             Controls.Add(lblQuickInfo);
             Controls.Add(gbEntry);
-            Controls.Add(gbToolbar);
             Controls.Add(gbInvoiceInfo);
+            Controls.Add(gbToolbar);
             Controls.Add(lblMode);
-            Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -1304,7 +1357,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbItems.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvItems).EndInit();
             cmsGridContext.ResumeLayout(false);
-            gbItemActions.ResumeLayout(false);
+            pnlItemActions.ResumeLayout(false);
             flpItemActions.ResumeLayout(false);
             gbTotals.ResumeLayout(false);
             gbTotals.PerformLayout();
@@ -1368,9 +1421,9 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
         private System.Windows.Forms.Button btnAddLine;
         private System.Windows.Forms.Button btnCancelLine;
 
-        // Items GroupBox (wraps dgvItems + gbItemActions)
+        // Items GroupBox (wraps dgvItems + pnlItemActions)
         private System.Windows.Forms.GroupBox gbItems;
-        private System.Windows.Forms.GroupBox gbItemActions;
+        private System.Windows.Forms.Panel pnlItemActions;
         private System.Windows.Forms.FlowLayoutPanel flpItemActions;
         private System.Windows.Forms.Button btnEditRow;
         private System.Windows.Forms.Button btnDeleteRow;

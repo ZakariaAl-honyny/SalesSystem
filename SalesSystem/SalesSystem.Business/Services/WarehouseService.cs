@@ -158,6 +158,27 @@ public class WarehouseService : IWarehouseService
         return Result.Success();
     }
 
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct)
+    {
+        try
+        {
+            var warehouse = await _uow.Warehouses.FirstOrDefaultIgnoreFiltersAsync(w => w.Id == id, ct);
+            if (warehouse == null)
+                return Result.Failure("المخزن غير موجود", ErrorCodes.NotFound);
+
+            warehouse.Restore();
+            await _uow.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Warehouse reactivated: {Name} (ID: {Id})", warehouse.Name, id);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reactivating warehouse {Id}", id);
+            return Result.Failure("حدث خطأ أثناء إعادة تنشيط المخزن");
+        }
+    }
+
     private static WarehouseDto MapToDto(Warehouse w)
     {
         return new WarehouseDto(

@@ -16,9 +16,6 @@ public partial class frmWarehouseTransferPrint : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    // لون سندات التحويل (برتقالي) — يميزها عن سندات القبض/الصرف
-    private static readonly Color TransferColor = Color.FromArgb(230, 126, 34);
-
     // ── بيانات سند التحويل الوهمية (Mock) ──────────────────────────────────────
 
     private sealed class WarehouseTransfer
@@ -52,15 +49,50 @@ public partial class frmWarehouseTransferPrint : Form
         InitializeComponent();
         KeyboardHelper.WireGlobalShortcuts(this, (Keys.F10, () => btnPrint.PerformClick()));
         _BindTransfer();
+        ApplyUiTheme();   // RULE-N50 — الثيم الأخضر آخر خطوة في تهيئة المظهر
+    }
+
+    // ── الثيم الأخضر (RULE-N50…RULE-N54 / RULE-N134 / RULE-N140…N144) ──────────
+
+    /// <summary>
+    /// يبدأ بـ <see cref="ThemeHelper"/> وينتهي بـ <see cref="GreenThemeHelper.Apply(Form)"/>
+    /// **كآخر سطر** — والقيم النهائية مطابقة حرفياً لما هو معلن في <c>*.Designer.cs</c>
+    /// حتى يتساوى المصمّم ووقت التشغيل.
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+        ThemeHelper.ApplyButtonStyle(btnPrint, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // يُعاد ضبط ما فرضه ThemeHelper (خط Segoe UI/حجم مرن) إلى قيم المصمّم حرفياً.
+        foreach (var btn in new[] { btnPrint, btnClose })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+        }
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.ForeColor = Color.White;
+        btnClose.Size = new Size(100, 42);
+        btnClose.ForeColor = Color.White;
+
+        // عنوان السند ورقمه وملاحظة الاستلام: نص مميّز من لوحة الثيم فقط (RULE-N54).
+        lblAccent.BackColor = GreenThemeHelper.TextStrong;
+        lblTransferTitle.ForeColor = GreenThemeHelper.TextStrong;
+        lblTransferNoValue.ForeColor = GreenThemeHelper.TextStrong;
+        lblNoteValue.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.ApplyHeader(lblTitle);   // RULE-N53
+        GreenThemeHelper.Apply(this);             // ← الأخير دائماً (RULE-N50)
     }
 
     // ── ربط بيانات سند التحويل ببطاقة المعاينة ─────────────────────────────────
 
     private void _BindTransfer()
     {
-        lblTransferTitle.ForeColor = TransferColor;
-        lblAccent.BackColor = TransferColor;
-
         lblTransferNoValue.Text = _transfer.TransferNo;
         lblDateValue.Text = _transfer.Date.ToString("dd/MM/yyyy");
         lblFromWarehouseValue.Text = _transfer.FromWarehouse;
@@ -75,12 +107,22 @@ public partial class frmWarehouseTransferPrint : Form
 
     private void btnPrint_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            $"تمت طباعة سند التحويل رقم {_transfer.TransferNo} بنجاح.\n" +
-            $"من: {_transfer.FromWarehouse} — إلى: {_transfer.ToWarehouse}\n" +
-            $"السائق: {_transfer.Driver} — عدد الأصناف: {_transfer.ItemCount}\n" +
-            "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-            "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        try
+        {
+            MessageBox.Show(
+                $"تمت طباعة سند التحويل رقم {_transfer.TransferNo} بنجاح.\n" +
+                $"من: {_transfer.FromWarehouse} — إلى: {_transfer.ToWarehouse}\n" +
+                $"السائق: {_transfer.Driver} — عدد الأصناف: {_transfer.ItemCount}\n" +
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
+                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
+            Serilog.Log.Error(ex, "تعذرت طباعة سند التحويل {TransferNo}", _transfer.TransferNo);
+            MessageBox.Show("تعذر طباعة سند التحويل المخزني. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnClose_Click(object sender, EventArgs e)

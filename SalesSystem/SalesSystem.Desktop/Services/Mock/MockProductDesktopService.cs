@@ -66,8 +66,11 @@ public class MockProductDesktopService : IProductDesktopService
 
     public Task<Result<ProductDto>> CreateAsync(CreateProductRequest r, CancellationToken ct = default)
     {
-        var nextId = MockData.Products.Max(p => p.Id) + 1;
-        var categoryName = MockData.Products.FirstOrDefault(p => p.CategoryId == r.CategoryId)?.CategoryName;
+        var nextId = MockData.Products.Count == 0 ? 1 : MockData.Products.Max(p => p.Id) + 1;
+
+        // اسم المجموعة يُقرأ من دليل المجموعات (لا من منتج قائم) حتى يظهر صحيحاً للأصناف الجديدة.
+        var categoryName = MockLookupsData.Categories.FirstOrDefault(c => c.Id == r.CategoryId)?.Name;
+
         var product = new ProductDto(
             Id: nextId, Name: r.Name, CategoryId: r.CategoryId,
             CategoryName: categoryName, Description: r.Description,
@@ -85,7 +88,8 @@ public class MockProductDesktopService : IProductDesktopService
         if (existing is null)
             return Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود"));
 
-        var categoryName = MockData.Products.FirstOrDefault(p => p.CategoryId == r.CategoryId)?.CategoryName;
+        var categoryName = MockLookupsData.Categories.FirstOrDefault(c => c.Id == r.CategoryId)?.Name;
+
         var updated = existing with
         {
             Name = r.Name,

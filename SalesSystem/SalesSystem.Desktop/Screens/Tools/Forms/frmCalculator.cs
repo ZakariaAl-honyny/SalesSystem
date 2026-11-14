@@ -1,4 +1,5 @@
 using System.Globalization;
+using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Tools.Forms;
 
@@ -21,6 +22,26 @@ public partial class frmCalculator : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
+        KeyboardHelper.WireButtonDisabledVisual(btnClose, btnClear);                // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
+            (Keys.Escape, () => btnClose.PerformClick()),
+            (Keys.Delete, () => btnClear.PerformClick()));
+
+        ApplyUiTheme(); // RULE-N50
+    }
+
+    /// <summary>الثيم الأخضر (RULE-N53) — يُستهلك من الـHelper فقط (RULE-N112).</summary>
+    private void ApplyUiTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblTitle);
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ---- أزرار الأرقام ----
@@ -162,9 +183,7 @@ public partial class frmCalculator : Form
             case Keys.Divide: OperatorPress("÷"); e.Handled = true; e.SuppressKeyPress = true; break;
             case Keys.Enter: Equals_Click(null, EventArgs.Empty); e.Handled = true; e.SuppressKeyPress = true; break;
             case Keys.Back: Backspace_Click(null, EventArgs.Empty); e.Handled = true; e.SuppressKeyPress = true; break;
-            case Keys.Delete:
             case Keys.C when e.Modifiers == Keys.None: Clear_Click(null, EventArgs.Empty); e.Handled = true; e.SuppressKeyPress = true; break;
-            case Keys.Escape: Close(); e.Handled = true; e.SuppressKeyPress = true; break;
         }
     }
 

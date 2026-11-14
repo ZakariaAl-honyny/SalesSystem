@@ -2,32 +2,50 @@
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
-using SalesSystem.Desktop.Screens.Users;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Users.Forms;
 
-    public partial class frmPasswordChange : Form
+/// <summary>
+/// شاشة تغيير/إعادة تعيين كلمة المرور — تُفتح نمطياً (RULE-N09).
+/// لا تحتوي أي منطق تشفير: تُمرّر الطلب إلى <see cref="IAuthDesktopService"/> وحدها (RULE-N06).
+/// </summary>
+public partial class frmPasswordChange : Form
+{
+    /// <summary>الحد الأدنى لطول كلمة المرور الجديدة (سياسة موحّدة مع خدمة المصادقة — RULE-N36).</summary>
+    private const int MinPasswordLength = 6;
+
+    private readonly IServiceProvider _serviceProvider;
+    private int _UserId;
+    private bool _isSelfService; // true when called from login (MustChangePassword flow)
+
+    public frmPasswordChange(IServiceProvider serviceProvider)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private int _UserId;
-        private bool _isSelfService; // true when called from login (MustChangePassword flow)
+        _serviceProvider = serviceProvider;
+        InitializeComponent();
 
-        public frmPasswordChange(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-            InitializeComponent();
-            KeyboardHelper.WireEnterAsTab(this);
-            KeyboardHelper.WireSelectAllOnFocus(this);
-            KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
-            KeyboardHelper.WireArrowNavigation(this); // RULE-N45 — أسهم RTL: يمين=رجوع، يسار=تالي
-        }
+        // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46 — الحقل النشط
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnClose);                 // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
+            (Keys.F2, () => btnSave.PerformClick()),
+            (Keys.Escape, () => btnClose.PerformClick()));
+    }
 
+    // ── التحقق ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// تحقق كامل قبل الحفظ: الحالية مطلوبة (في الخدمة الذاتية) · الجديدة ≥ الحد الأدنى ·
+    /// الجديدة ≠ الحالية · التأكيد مطابق. الرسائل عربية عبر errorProvider (RULE-N28).
+    /// </summary>
     private bool _ValidateForm()
     {
         bool isValid = true;
 
-        // Current password is required for self-service (login flow)
+        // كلمة المرور الحالية مطلوبة في وضع الخدمة الذاتية فقط (شاشة الدخول).
         if (_isSelfService && string.IsNullOrWhiteSpace(txtCurrentPassword.Text))
         {
             errorProvider.SetError(txtCurrentPassword, "كلمة المرور الحالية مطلوبة");
@@ -43,6 +61,18 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
             errorProvider.SetError(txtNewPassword, "كلمة المرور الجديدة مطلوبة");
             isValid = false;
         }
+        else if (txtNewPassword.Text.Length < MinPasswordLength)
+        {
+            errorProvider.SetError(txtNewPassword, $"كلمة المرور الجديدة يجب ألا تقل عن {MinPasswordLength} خانات");
+            isValid = false;
+        }
+        else if (_isSelfService
+                 && !string.IsNullOrWhiteSpace(txtCurrentPassword.Text)
+                 && txtNewPassword.Text == txtCurrentPassword.Text)
+        {
+            errorProvider.SetError(txtNewPassword, "كلمة المرور الجديدة يجب أن تختلف عن الحالية");
+            isValid = false;
+        }
         else
         {
             errorProvider.SetError(txtNewPassword, "");
@@ -53,17 +83,15 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
             errorProvider.SetError(txtConfirmPassword, "تأكيد كلمة المرور مطلوب");
             isValid = false;
         }
-        else
-        {
-            errorProvider.SetError(txtConfirmPassword, "");
-        }
-
-        if (!string.IsNullOrWhiteSpace(txtNewPassword.Text) &&
-            !string.IsNullOrWhiteSpace(txtConfirmPassword.Text) &&
-            txtNewPassword.Text != txtConfirmPassword.Text)
+        else if (!string.IsNullOrWhiteSpace(txtNewPassword.Text) &&
+                 txtNewPassword.Text != txtConfirmPassword.Text)
         {
             errorProvider.SetError(txtConfirmPassword, "كلمة المرور غير متطابقة");
             isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(txtConfirmPassword, "");
         }
 
         if (!isValid)
@@ -75,17 +103,18 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
         return isValid;
     }
 
+    // ── الحفظ ─────────────────────────────────────────────────────────────────
+
     private async void btnSave_Click(object sender, EventArgs e)
     {
-        if (!_ValidateForm())
-            return;
+        if (!_ValidateForm()) return;
 
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
 
         try
         {
-            // Use the auth service to change password via API
+            // الخدمة هي المسؤولة عن التشفير والتحقق النهائي — الشاشة لا تعرف BCrypt إطلاقاً.
             var authService = _serviceProvider.GetRequiredService<IAuthDesktopService>();
             var request = new ChangePasswordRequest(
                 txtCurrentPassword.Text,
@@ -99,18 +128,19 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
                 MessageBox.Show("تم تغيير كلمة المرور بنجاح.", "نجاح",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
-                this.Close();
+                Close();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في تغيير كلمة المرور", "خطأ",
+                MessageBox.Show(result.Error ?? "فشل في تغيير كلمة المرور.", "تعذر الحفظ",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         catch (Exception ex)
         {
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "فشل تغيير كلمة المرور للمستخدم {UserId}", _UserId);
-            MessageBox.Show("حدث خطأ أثناء تغيير كلمة المرور.", "خطأ",
+            MessageBox.Show("تعذر تغيير كلمة المرور. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
@@ -122,20 +152,24 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
 
     private void btnClose_Click(object sender, EventArgs e)
     {
-        this.Close();
+        DialogResult = DialogResult.Cancel;
+        Close();
     }
 
+    // ── أوضاع الفتح ───────────────────────────────────────────────────────────
+
     /// <summary>
-    /// Sets the editor to Update mode for the given user ID.
-    /// Called after DI resolution (parameterless constructor).
+    /// Sets the editor to Update mode for the given user ID (فتح من الدليل — إعادة تعيين إدارية).
     /// </summary>
     public void _SetUpdateMode(int userId)
     {
         _UserId = userId;
         _isSelfService = false;
         lblMode.Text = "إعادة تعيين كلمة المرور";
-        this.Text = "إعادة تعيين كلمة المرور";
-        
+        Text = "إعادة تعيين كلمة المرور";
+        // إعادة التعيين الإدارية لا تطلب ولا تستهلك كلمة المرور الحالية.
+        lblCurrentPassword.Visible = false;
+        txtCurrentPassword.Visible = false;
     }
 
     /// <summary>
@@ -146,34 +180,30 @@ namespace SalesSystem.Desktop.Screens.Users.Forms;
         _UserId = userId;
         _isSelfService = true;
         lblMode.Text = "تغيير كلمة المرور";
-        this.Text = "تغيير كلمة المرور";
+        Text = "تغيير كلمة المرور";
         lblCurrentPassword.Visible = true;
         txtCurrentPassword.Visible = true;
     }
+
+    // ── التحميل والثيم ─────────────────────────────────────────────────────────
 
     private void frmPasswordChange_Load(object sender, EventArgs e)
     {
         try
         {
-            // Default to self-service if called from login
-            if (_UserId > 0 && !_isSelfService)
-            {
-                // Called from list — admin reset mode
-            }
-
-            ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
+            ApplyUiTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
-            Serilog.Log.Error(ex, "خطأ");
-            MessageBox.Show("خطأ", "خطأ",
+            Serilog.Log.Error(ex, "تعذر تجهيز شاشة تغيير كلمة المرور");
+            MessageBox.Show("تعذر تجهيز الشاشة. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
-    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستدعى أخيراً بعد ThemeHelper ليردّ الألوان.</summary>
-    private void ApplyGreenTheme()
+    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — يُستهلك من الـHelper فقط (RULE-N112).</summary>
+    private void ApplyUiTheme()
     {
         GreenThemeHelper.ApplyHeader(lblMode);
 

@@ -25,9 +25,20 @@ public partial class frmListReturns : Form
     /// <summary>يمنع تطبيق التصفية أثناء تهيئة أدوات `gbFilter`.</summary>
     private bool _isInitializing = true;
 
+    // ── الحدود الافتراضية للتصفية (RULE-N148) ─────────────────────────────────
+    // تُلتقط مرة واحدة عند الإنشاء، وهي مرجع زر «مسح التصفية» لمعرفة وجود تصفية نشطة.
+    private readonly DateTime _defaultFrom;
+    private readonly DateTime _defaultTo;
+
     public frmListReturns(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+
+        // RULE-N148 — المدى الافتراضي «هذا الشهر» (يُلتقط قبل بناء الشاشة).
+        var today = DateTime.Today;
+        _defaultFrom = new DateTime(today.Year, today.Month, 1);
+        _defaultTo = today;
+
         InitializeComponent();
 
         // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط
@@ -36,14 +47,31 @@ public partial class frmListReturns : Form
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
         KeyboardHelper.WireArrowNavigation(this);
 
-        KeyboardHelper.WireButtonDisabledVisual(btnAdd, btnRefresh, btnClose);   // RULE-N43
+        KeyboardHelper.WireButtonDisabledVisual(btnAdd, btnRefresh, btnClose, btnClearFilters);   // RULE-N43
 
         KeyboardHelper.WireGlobalShortcuts(this,                                  // RULE-N47
             (Keys.F2, () => btnAdd.PerformClick()),
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Delete, () => { txtFilterValue.Clear(); _ApplyFilter(); }),
-            (Keys.Escape, _ResetFilters));
+            (Keys.Escape, _GlobalEscape));
+
+        // RULE-N147 — Enter = الزر الأساسي للشاشة («جديد») وخارج حقول الإدخال.
+        KeyboardHelper.WireModeEnter(this, () => btnAdd);
+        AcceptButton = btnAdd;
+
         FilterPanelHelper.Attach(this, _serviceProvider);
+    }
+
+    /// <summary>RULE-N47 + RULE-N59: Esc داخل صندوق التصفية = مسحها، وخارجه = إغلاق الشاشة.</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ResetFilters();
+            return;
+        }
+
+        Close();
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
@@ -86,9 +114,8 @@ public partial class frmListReturns : Form
             chkOnlyCancelled.Checked = false;
             txtFilterValue.Clear();
 
-            var today = DateTime.Today;
-            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-            dtpTo.Value = today;
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
@@ -96,11 +123,10 @@ public partial class frmListReturns : Form
         }
     }
 
-    /// <summary>Esc — يمسح كل أدوات التصفية ويعيد «هذا الشهر» (RULE-N59).</summary>
+    /// <summary>Esc أو «مسح التصفية» — يمسح كل أدوات التصفية ويعيد «هذا الشهر» (RULE-N59/N148).</summary>
     private void _ResetFilters()
     {
-        _InitializeFilters();
-        _ApplyFilter();
+        _ClearAllFilters();
         txtFilterValue.Focus();
     }
 
@@ -257,6 +283,42 @@ public partial class frmListReturns : Form
         _PopulateSalesGrid();
         _PopulatePurchaseGrid();
         _UpdateSummary();
+
+        _UpdateClearFiltersState();   // RULE-N148: حالة زر «مسح التصفية» تتبع وجود تصفية نشطة
+    }
+
+    // ── مسح التصفية (RULE-N148) ────────────────────────────────────────────────
+
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
+        => _ResetFilters();
+
+    /// <summary>تفريغ أدوات التصفية وحدها إلى قيمها الافتراضية (RULE-N148).</summary>
+    private void _ClearFilterInputs()
+        => _InitializeFilters();
+
+    /// <summary>يمسح كل أدوات التصفية ثم يعيد تطبيقها على البيانات المحمّلة — بلا إعادة تحميل (RULE-N148).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
+        _ApplyFilter();
+    }
+
+    /// <summary>RULE-N43/N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية مختلفة عن الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        if (btnClearFilters is null) return;
+
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbStatus.SelectedIndex > 0
+            || chkOnlyCancelled.Checked
+            || dtpFrom.Value.Date != _defaultFrom
+            || dtpTo.Value.Date != _defaultTo;
     }
 
     private static string _CustomerText(SalesReturnDto r)
@@ -342,14 +404,7 @@ public partial class frmListReturns : Form
         dgvSales.Columns.Add("TotalAmount", "الإجمالي");
         dgvSales.Columns.Add("StatusDisplay", "الحالة");
 
-        if (dgvSales.Rows.Count > 0)
-        {
-            dgvSales.Columns[0].Width = 130;
-            dgvSales.Columns[1].Width = 110;
-            dgvSales.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dgvSales.Columns[3].Width = 110;
-            dgvSales.Columns[4].Width = 90;
-        }
+        _ApplyColumnWeights(dgvSales, 14F, 14F, 40F, 16F, 16F);
     }
 
     private void _SetupPurchaseGrid()
@@ -362,13 +417,24 @@ public partial class frmListReturns : Form
         dgvPurchases.Columns.Add("TotalAmount", "الإجمالي");
         dgvPurchases.Columns.Add("StatusDisplay", "الحالة");
 
-        if (dgvPurchases.Rows.Count > 0)
+        _ApplyColumnWeights(dgvPurchases, 14F, 14F, 40F, 16F, 16F);
+    }
+
+    /// <summary>
+    /// أوزان الأعمدة (RULE-N22: عرض فقط) — تُضبط دائماً حتى قبل تعبئة أي سطر،
+    /// لأن <c>AutoSizeColumnsMode.Fill</c> من <c>GreenThemeHelper.ApplyGrid</c> يوزّع بالوزن لا بالعرض.
+    /// </summary>
+    private static void _ApplyColumnWeights(DataGridView grid, params float[] weights)
+    {
+        int count = Math.Min(grid.Columns.Count, weights.Length);
+
+        for (int i = 0; i < count; i++)
         {
-            dgvPurchases.Columns[0].Width = 130;
-            dgvPurchases.Columns[1].Width = 110;
-            dgvPurchases.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dgvPurchases.Columns[3].Width = 110;
-            dgvPurchases.Columns[4].Width = 90;
+            var column = grid.Columns[i];
+            column.FillWeight = weights[i];
+            column.MinimumWidth = 100;
+            column.ReadOnly = true;
+            column.SortMode = DataGridViewColumnSortMode.NotSortable;
         }
     }
 
@@ -378,6 +444,7 @@ public partial class frmListReturns : Form
     {
         ApplyGreenTheme();
         _InitializeFilters();
+        _UpdateClearFiltersState();   // RULE-N148 — الشاشة تفتح بلا تصفية نشطة
         _ReloadForm();
     }
 
@@ -395,8 +462,15 @@ public partial class frmListReturns : Form
             OpenPurchaseReturnForm(null);
     }
 
+    /// <summary>
+    /// RULE-N148 — «تحديث» إعادة تحميل كاملة: تفريغ التصفية ← إعادة تحميل بيانات الشاشة ←
+    /// إعادة بناء الشبكة والملخص وتحديد الصف. ليس «مسح تصفية» فقط.
+    /// </summary>
     private void btnRefresh_Click(object sender, EventArgs e)
-        => _ReloadForm();
+    {
+        _ClearFilterInputs();   // التصفية تعود للافتراضي
+        _ReloadForm();          // الشبكة + الملخص + التحديد
+    }
 
     // ── Filter Events (تصفية فورية — RULE-N59) ────────────────────────────────
 

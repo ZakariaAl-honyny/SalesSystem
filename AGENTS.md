@@ -373,6 +373,8 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | RULE-N45 | أسهم RTL بين الحقول: يمين/أعلى = الحقل السابق، يسار/أسفل = الحقل التالي؛ ولا تُطبَّق على `ComboBox` ولا `DataGridView` حتى تحتفظ بسلوكها الأصلي |
 | RULE-N46 | لون الحقل النشط موحّد: `Color.FromArgb(0xD6, 0xE4, 0xF0)`، ويُعاد اللون الأصلي عند `Leave` |
 | RULE-N47 | اختصارات موحّدة للشاشات: `F2` = جديد، `F5` = تحديث، `Esc` = إلغاء الحقل/مسحه — وتظهر في `ToolTip` لكل زر |
+| RULE-N147 | **Enter = الزر الأساسي للوضع الحالي:** وضع العرض ⇒ «جديد» · وضع الإضافة ⇒ «إضافة/حفظ» · وضع التعديل ⇒ «تعديل». التوصيل حصراً عبر `KeyboardHelper.WireModeEnter(this, _PrimaryActionButton)` في المُنشئ + `AcceptButton = _PrimaryActionButton()` داخل `_ApplyModeState()` — و`Enter` داخل حقل إدخال يبقى «الحقل التالي» (`RULE-N40`)، وعلى زر/مربع اختيار يبقى تنفيذ العنصر نفسه. الشاشة المرجعية: `frmProductMaster` — ✅ منفّذ في **26/26** شاشة تصفية (2026-11-14) |
+| RULE-N153 | **Enter داخل شبكة السطور لا يُنفِّذ الزر الأساسي أبداً:** في شاشات المستندات (فواتير · مرتجعات · تسويات · جرد · تحويل · بضاعة أول المدة · POS) الشبكة هي مكان الإدخال السريع بـ`Enter`، فتُعيد `_PrimaryActionButton()` قيمة `null` عند `ContainsFocus`/`IsCurrentCellInEditMode` للشبكة، ويُفرَّغ `AcceptButton` عند دخول الشبكة ويُعاد عند `Leave` — وممنوع ترحيل/حفظ مستند من داخل شبكة السطور، والترحيل المالي يبقى على زرّه و`F4` + تأكيد صريح |
 
 ---
 
@@ -384,9 +386,10 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 |------|-----------|
 | RULE-N50 | كل شاشة تستدعي `GreenThemeHelper.Apply(this)` **كآخر خطوة** في تهيئة المظهر (بعد `ThemeHelper.ApplyMainFormStyle`/`ApplyButtonStyle`)، لأن `ThemeHelper` يفرض خلفية بيضاء وخط `Segoe UI` فيمحو الأخضر |
 | RULE-N51 | كل `DataGridView` تُطبَّق عليها `GreenThemeHelper.ApplyGrid(dgv)` (رؤوس خضراء `(14,165,103)` بنص أبيض، خلفية `(220,240,220)`، أسطر متبادلة `(245,252,245)`). `ThemeHelper.ApplyDataGridViewStyle` **ممنوعة** بعدها |
+| RULE-N51a | **الثيم لا يمحو ألوان المصمّم.** `GreenThemeHelper.Apply` لا يُعيد تلوين حاوية (`Panel` · `FlowLayoutPanel` · `TableLayoutPanel` · `GroupBox`) في ثلاث حالات: (1) **ورثت** خلفية أبيها لأن المصمّم لم يضبط لها لوناً (Ambient)، (2) كانت معطّلة، (3) لوّنها المصمّم بلونٍ خاص خارج لوحة الثيم. التلوين التلقائي مقصور على حاوية لوّنها المصمّم صراحةً بأحد ألوان الثيم. السبب: فرض `BarBackground`/`GroupBackground` على حاوية ورثت الأخضر يحوّل الشاشة وقت التشغيل إلى رمادي باهت بخلاف المصمّم (`RULE-N134`/`RULE-N139`) |
 | RULE-N52 | `ApplyGrid` لا تلمس `ReadOnly` ولا `SelectionMode` ولا `AllowUserToAddRows` ولا `DataSource` — كل شبكة تعلن سلوكها بنفسها حسب `RULE-N22`/`RULE-N22a` |
 | RULE-N53 | لون شريط العنوان (`lblMode`/`lblTitle`) يُطبَّق بـ `GreenThemeHelper.ApplyHeader(label)`، والنص الأخضر الداكن للنصوص المهمة هو `GreenThemeHelper.TextStrong` |
-| RULE-N54 | ممنوع كتابة قيم ألوان الثيم الأخضر كأرقام داخل الشاشات — تُستهلك من ثوابت `GreenThemeHelper` فقط؛ وأي لون جديد يُضاف هناك لا في الشاشة |
+| RULE-N54 | ممنوع كتابة قيم ألوان الثيم الأخضر كأرقام داخل الشاشات — تُستهلك من ثوابت `GreenThemeHelper` فقط؛ وأي لون جديد يُضاف هناك لا في الشاشة — ويجب أن تظهر نفس القيم في `*.Designer.cs` بقيم حرفية مطابقة (انظر `RULE-N134`): المصمّم = وقت التشغيل — وتطابق الاتجاهين (المصمّم = التشغيل) معيار مستقل في §2.35 (`RULE-N140`…`N144`). |
 
 **قيم الثيم الأخضر:**
 
@@ -409,16 +412,19 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 
 | # | الميزة | المرجع | الحالة | ملاحظات |
 |---|---|---|---|---|
-| 1 | تنقل لوحة المفاتيح (Enter/Tab + أسهم RTL + تحديد القيمة + تظليل الحقل) | `RULE-N40`…`RULE-N47` + `KeyboardHelper` | 🔄 تعميم جارٍ | **37** شاشة تستدعي الأربعة، و**23** شاشة تستدعي الستة كاملة من أصل 95 نموذج `frm*` |
-| 2 | الثيم الأخضر في وقت التشغيل | `RULE-N50`…`RULE-N54` + `GreenThemeHelper` | 🔄 تعميم جارٍ | `frmAddUpdateSalesInvoice` هي الشاشة المرجعية |
-| 3 | التفقيط الحيّ كتلميح (ToolTip) على الحقول الرقمية | `LiveTafqeetHelper` | 🔄 تعميم جارٍ | **6 شاشات**: `frmAddUpdateSalesInvoice` · `frmPOS` · `frmJournalEntries` · `frmAccounts` · `frmListExpenses` · `frmEmployeeMaster` |
-| 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` — `ContextMenuStrip` في **14 شبكة من 77** |
-| 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | `WireButtonDisabledVisual` في **23** شاشة |
-| 6 | صندوق التصفية الموحّد `gbFilter` + تصفية فورية + مربعات اختيار + شريط ملخص | `RULE-N56`…`N63` | 🔄 تعميم جارٍ | **22 شاشة** فيها `gbFilter` + `pnlSummary` معاً؛ النمطان المرجعيان: `frmListSales` و`frmProductMaster` |
+| 1 | تنقل لوحة المفاتيح (Enter/Tab + أسهم RTL + تحديد القيمة + تظليل الحقل) | `RULE-N40`…`RULE-N47` + `KeyboardHelper` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): 55 من 93 نموذجاً `frm*` تستدعي الستة كاملة** (`WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` + `WireButtonDisabledVisual` + `WireGlobalShortcuts`) — والعدّ لكل دالة على حدة: `WireArrowNavigation` في **55** · `WireButtonDisabledVisual` في **56** · `WireSelectAllOnFocus` و`WireFocusHighlight` في **56** · `WireEnterAsTab` في **57** · `WireGlobalShortcuts` في **61**. المتبقي من الشاشات الملزمة (62 نموذجاً غير تقريري): `frmLogin` (5 من 6 — بلا `WireArrowNavigation`) · `frmMain` (شاشة هيكلية) · 5 نوافذ طباعة (`frmStocktakingPrint` · `frmStocktakingPrintCard` · `frmStocktakingPrintAdjustment` · `frmWarehouseTransferPrint` · `frmPurchaseInvoicePrint`) تستدعي `WireGlobalShortcuts` فقط. و**31 تقريراً** بلا استدعاء لأنها معفاة (`RULE-N121`) |
+| 2 | الثيم الأخضر في وقت التشغيل | `RULE-N50`…`RULE-N54` + `GreenThemeHelper` | 🔄 تعميم جارٍ | `frmAddUpdateSalesInvoice` هي الشاشة المرجعية — ومنها **مطابقة المصمّم**: كل شاشة تُظهر نفس الألوان في المصمّم ووقت التشغيل (`RULE-N134`). ✅ **2026-11-13 (عدّ فعلي): `GreenThemeHelper.Apply(this)` في 62 من 62 نموذجاً غير تقريري** (93 نموذجاً − 31 تقريراً) بما فيها نوافذ الطباعة، وفي `ctrlDashboard` كذلك · `ApplyGrid` في **53** موضعاً · و**31 تقريراً** تُوحَّد بـ`ReportUiStandardizer.ApplyForm` (31/31) لا بالثيم المباشر (`RULE-N121`) · `SystemColors.Control` غائب عن كل المصمّمات إلا موضعاً واحداً في `frmMain.Designer`. المتبقي: مطابقة القيم الحرفية في مصمّمات الشاشات غير التقريرية (البند 12) |
+| 3 | التفقيط الحيّ كتلميح (ToolTip) على الحقول الرقمية | `LiveTafqeetHelper` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): 22 نموذجاً تستدعي `LiveTafqeetHelper.Attach`** (كانت 6 قبل الموجة) — `frmAddUpdateSalesInvoice` · `frmPOS` · `frmJournalEntries` · `frmAccounts` · `frmListExpenses` · `frmAddUpdateExpense` · `frmEmployeeMaster` · `frmCustomerMaster` · `frmSupplierMaster` · `frmSupplierStatement` · `frmAddUpdateCustomerReceipt` · `frmSupplierPaymentDialog` · `frmAddUpdateInventoryAdjustment` · `frmInventoryAddProduct` · `frmOpeningStock` · `frmPurchaseInvoice` · `frmPurchaseItem` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseReturn` · `frmSalesReturn`. المتبقي (شاشات حركة مالية بلا `Attach` حتى الآن): `frmWarehouseTransferNew` · `frmStocktakingNew` · `frmCashBoxTransactions` |
+| 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` — ✅ **2026-11-13 (عدّ فعلي): 83 شبكة `DataGridView` في 76 مصمّماً** (52 شبكة في 45 مصمّماً غير تقريري + 31 شبكة تقريرية)، و`ContextMenuStrip` معلن ومُسنَد في **33 مصمّماً غير تقريري** (33 من 45). المتبقي **12 شاشة شبكة بلا `ContextMenuStrip`**: `frmProductMaster` · `frmProductUnitMaster` · `frmPOS` · `frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmImportProductsExcel` · `frmInventoryAddProduct` · `frmStocktakingPrintCard` · والمنتقيات الثلاث `frmCustomerSelection` · `frmProductSelection` · `frmSupplierSelection` — والتقارير لا تحتاجه (شاشات عرض `RULE-N121`) |
+| 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): `WireButtonDisabledVisual` في 56 نموذجاً** (كانت 23) — أي كل الشاشات ذات الستة كاملة (55) + `frmLogin` · و`lblMode` معلن في **47 من 63 مصمّماً غير تقريري** (المتبقي: النوافذ المساعدة والمنتقيات وشاشات الطباعة) |
+| 6 | صندوق التصفية الموحّد `gbFilter` + تصفية فورية + مربعات اختيار + شريط ملخص | `RULE-N56`…`N63` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): 26 شاشة غير تقريرية فيها `gbFilter` + `pnlSummary` + `btnToggleFilters` معاً — تعادل تام 26/26: كل شاشة تُعلن `gbFilter` تُعلن `btnToggleFilters` في المصمّم (`RULE-N145`)، وصفر شاشة ناقصة** · `gbFilter` معلن في **54 مصمّماً** (26 غير تقريري + 28 تقريراً) · `pnlSummary` في **59** (28 غير تقريري + 31 تقريراً) · `chkShowInactive` في **12 مصمّماً**. النمطان المرجعيان: `frmListSales` و`frmProductMaster`. المتبقي **19 شاشة شبكة بلا `gbFilter`**: منها مستندات/محررات (`frmAddUpdateSalesInvoice` · `frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmPOS` · `frmOpeningStock` · `frmStocktakingNew` · `frmWarehouseTransferNew` · `frmAddUpdateInventoryAdjustment` · `frmImportProductsExcel` · `frmInventoryAddProduct`) ومنتقيات ونوافذ مساعدة (`frmProductSelection` · `frmCustomerSelection` · `frmSupplierSelection` · `frmCustomerStatement` · `frmPurchaseItemInfo` · `frmInventoryFifo` · `frmStocktakingPrintCard` · `frmBackup`) — ✅ **2026-11-14: 26/26 شاشة تصفية تُعلن `btnClearFilters` في المصمّم** ويُفصل «مسح التصفية» عن «تحديث» (RULE-N148) |
 | 7 | لوحة التحكم كمكوّن `ctrlDashboard` قابل للتضمين | `RULE-N64`…`N69` | ✅ منفّذ | `Screens/Dashboard/Controls/ctrlDashboard` + غلاف `frmDashboard` + `DirectDashboardService`/`MockDashboardDesktopService` + `IEventBus` |
-| 8 | تقرير واحد لكل شاشة + تصنيفات قائمة التقارير | `RULE-N70`…`N76` | ✅ منفّذ | **31 تقريراً** في `Screens/Reports/Forms/`، نموذج واحد لكل تقرير + تنقل داخلي بـ `ReportNavigationHelper` + خمسة `Mock*ReportDesktopService` |
+| 8 | تقرير واحد لكل شاشة + تصنيفات قائمة التقارير | `RULE-N70`…`N76` | ✅ منفّذ | **31 تقريراً** في `Screens/Reports/Forms/**` موزّعة على ستة مجلدات تصنيفية (المبيعات · المشتريات · المخزون · المحاسبة والمالية · العملاء والموردون · الصندوق)، نموذج واحد لكل تقرير + تنقل داخلي بـ `ReportNavigationHelper` + خمسة `Mock*ReportDesktopService` |
 | 9 | نقطة بيع متجر تجزئة بنمط `frmAddUpdateSalesInvoice` | `RULE-N80`…`N85` | ✅ منفّذ | `frmPOS` (1371 سطراً) + شبكة `dgvCart` + خمس خدمات Desktop (منتج · فاتورة بيع · عميل · مستودع · صندوق) |
-| 10 | دورة «تعطيل → إظهار غير النشط → إعادة تنشيط» | `RULE-N90`…`N94` | 🔄 بدأ | العميل مكتمل (خدمة + زر `btnReactivate` في `frmCustomerMaster`)؛ الأصناف والموردون لديهما `ReactivateAsync` بلا زر؛ الباقي لم يبدأ |
+| 10 | دورة «تعطيل → إظهار غير النشط → إعادة تنشيط» | `RULE-N90`…`N94` | 🔄 بدأ | ✅ **2026-11-13 (عدّ فعلي): ثلاثة كيانات مكتملة الخدمة والزر — العميل (`frmCustomerMaster`) والصنف (`frmProductMaster`) والمورد (`frmSupplierMaster`)**: `ReactivateAsync` معرَّضة في `ICustomerDesktopService` و`IProductDesktopService` و`ISupplierDesktopService` فقط، وزر `btnReactivate` معلن في المصمّمات الثلاثة · `chkShowInactive` معلن في **12 مصمّماً**. المتبقي: الفئات · الوحدات · المستودعات · الصناديق · المصروفات · المستخدمون — ✅ **2026-11-14: اكتمل التعميم 9/9** — أُضيف `ReactivateAsync` إلى `IUnitService`/`IWarehouseService`/`IUserService` في BLL (وإلى `I*DesktopService` + `Direct*Service` + `Mock*DesktopService` للفئة/الوحدة/المخزن/الصندوق/المستخدم/الموظف) وزر «↺ إعادة تنشيط» في `frmCategoryMaster` · `frmUnitMaster` · `frmWarehouseMaster` · `frmCashBoxMaster` · `frmUserMaster` · `frmEmployeeMaster` · وأُصلح `DirectUserService.GetAllAsync` (كان يعيد النشطين فقط في الوضع الحقيقي فتُقطع الدورة) |
+| 11 | ترتيب وتجميع أجزاء الشاشة (عنوان · أوامر · تصفية · محتوى · إجماليات · أسفل) | `RULE-N135`…`N138` | 🔄 بدأ | الشاشة النموذج المنفَّذة: `frmAccountStatementReport` — وبقية الشاشات عند أول مساس بها · ✅ **التقارير الـ31 كلها محقَّقة (2026-11-13، عدّ فعلي): `pnlReportRoot` معلن في 31/31 و`pnlReportNav` في 31/31، بستة صفوف + كتل معنونة («أوامر التقرير» · «بحث وتصفية» · «بيانات التقرير» · «الإجماليات» · الأسفل) — 28 تقريراً بـ`gbFilter` و3 بلا كتلة تصفية (`frmExpiredProductsReport` · `frmLowStockReport` · `frmStockBalanceReport`)، وصفر صندوق داخل صندوق وصفر صندوق فارغ** · الشاشات غير التقريرية: **128 صندوق مجموعة في 63 مصمّماً**، منها **25** مصمّماً فيه كتلة «بحث وتصفية» معنونة و**21** فيه كتلة «أوامر» — والباقي يُطبَّق عند أول مساس بالشاشة |
+| 12 | تطابق ألوان التشغيل مع المصمّم (بلا رمادي · حقول بيضاء · الشاشة المرجعية `frmProductMaster`) | `RULE-N140`…`N144` | 🔄 بدأ | ✅ **التقارير (2026-11-13، عدّ فعلي): 47/47 حقل إدخال في مصمّمات التقارير الـ31 بخلفية `Color.White` وخط `Tahoma` — صفر استثناء، و`SystemColors.Control` = 0** · الشاشات غير التقريرية: **62/62 تستدعي `GreenThemeHelper.Apply(this)`** و`SystemColors.Control` غائب عنها كلها (موضع واحد فقط في `frmMain.Designer`)، لكن **193 من 280 حقل إدخال (69%) فقط تُعلن `Color.White` صريحاً في المصمّم** — أي **87 حقلاً** تتلوّن وقت التشغيل فقط (معظمها `TextBox` في الماسترات: `frmProductMaster` 12 حقلاً · `frmListSales` · `frmListReturns` · `frmListPurchases` · `frmPurchaseItem` · `frmEmployeeMaster` …). **البند مفتوح** ويُغلق شاشة بشاشة (`RULE-N143`) |
+| 13 | وضع الإدخال: الحقول معطّلة افتراضياً + آلة حالة `Browsing/Adding/Editing` + تحديث تلقائي بعد الحفظ/الحذف | `RULE-N149`…`N152` | ✅ **2026-11-14: مكتملة 10/10** — `frmProductMaster` (المرجع) + `frmCategoryMaster` · `frmUnitMaster` · `frmWarehouseMaster` · `frmCashBoxMaster` · `frmUserMaster` · `frmEmployeeMaster` · `frmSupplierMaster` · `frmCustomerMaster` · `frmProductUnitMaster` — كلها بـ`EntryMode` + `_ApplyModeState` + تحديث تلقائي + `btnClearFilters` |
 
 **مراحل التعميم:**
 
@@ -426,9 +432,15 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 |---|---|---|
 | P1 — الشاشات اليومية | `frmListSales`, `frmAddUpdateSalesInvoice`, `frmProductMaster`, `frmProductUnitMaster`, `frmProductSelection`, `frmListPurchases`, `frmPurchaseInvoice`, `frmListReturns`, `frmSalesReturn`, `frmPurchaseReturn` | كل شاشة: ثيم أخضر + تنقل كامل + شبكة خضراء + تجربة يدوية |
 | P2 — البيانات الأساسية | Categories, Units, Customers, Suppliers, Warehouses, CashBoxes, Employees, Users, Expenses, Payments, CustomerReceipts | كما أعلاه |
-| P3 — التقارير والمخزون والباقي | `Screens/Reports/Forms/**` (31), `Screens/Inventory/**` (16), Dashboard, POS, Tools, Login | كما أعلاه، مع مراعاة أن شاشات التقارير تُعفى من بنود لوحة المفاتيح و`gbFilter` (`RULE-N121`) وشاشات الطباعة/المعاينة تُعفى من تعبئة النماذج |
+| P3 — التقارير والمخزون والباقي | `Screens/Reports/Forms/**` (31 تقريراً في ستة مجلدات تصنيفية), `Screens/Inventory/**` (16), Dashboard, POS, Tools, Login | كما أعلاه، مع مراعاة أن شاشات التقارير تُعفى من بنود لوحة المفاتيح و`gbFilter` (`RULE-N121`) وشاشات الطباعة/المعاينة تُعفى من تعبئة النماذج |
 
 > **قاعدة:** تُنفَّذ المراحل بالترتيب P1 → P2 → P3، ولا تُعتبر الشاشة «مكتملة» حتى تلتزم بالميزات 1 و2 أعلاه.
+
+> **موجة تعميم 2026-11-13:** رُحِّلت **62 شاشة** (كل النماذج غير التقريرية من أصل 93 نموذجاً `frm*` في `Screens/**`) إلى معيار §2.21/§2.27 مع الالتزام بـ§2.34 (الترتيب والتجميع) و§2.35 (التشغيل = المصمّم): **62/62** تستدعي `GreenThemeHelper.Apply(this)` · **55** تستدعي الستة كاملة من `KeyboardHelper` و**56** تستدعي `WireButtonDisabledVisual` · **22** تستدعي `LiveTafqeetHelper.Attach` · **26/26** شاشة تصفية تُعلن `gbFilter` + `pnlSummary` + `btnToggleFilters` في المصمّم (تعادل تام · `RULE-N145`) · **33 من 45** شاشة شبكة تُعلن `ContextMenuStrip` (`RULE-N23`) · **3** ماسترات أتمّت دورة إعادة التنشيط (عميل · صنف · مورد) · و**31/31** تقريراً موحَّدة بـ`ReportUiStandardizer` + `ReportNavigationHelper` + `pnlReportNav` معلن في المصمّم.
+>
+> **البنود المفتوحة (لم تُنفَّذ فعلاً):** دورة إعادة التنشيط في الماسترات التي لا تعرّض `ReactivateAsync` (الفئات · الوحدات · المستودعات · الصناديق · المصروفات · المستخدمون) · **87 حقلاً من 280** لا يُعلن لوناً أبيض في المصمّم (`RULE-N143`) · **12 شاشة شبكة** بلا `ContextMenuStrip` · **19 شاشة شبكة** بلا `gbFilter` · **7 نماذج** لا تستدعي الستة كاملة (`frmLogin` · `frmMain` · 5 نوافذ طباعة) · توحيد ألوان الحالة الدلالية كثوابت في `GreenThemeHelper`.
+>
+> **✅ مغلق (2026-11-13):** المجلد `Screens/Dashboard/Froms` أُعيدت تسميته إلى `Forms` (نقل خالص بلا تغيير محتوى ولا `namespace` — الـ`namespace` كان أصلاً `SalesSystem.Desktop.Screens.Dashboard.Forms`) — `RULE-N124` **مُغلَق**، ولم يبقَ منه بند مفتوح.
 
 ---
 
@@ -439,7 +451,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | RULE | DIRECTIVE |
 |------|-----------|
 | RULE-N55 | إنشاء نموذج بدون استيفاء بنود §2.21 يُعدّ عملاً غير مكتمل ويُرفض في المراجعة — بلا استثناء إلا شاشات المعاينة/الطباعة للقراءة فقط |
-| RULE-N79 | هيكلان مرجعيان فقط للشاشات: (أ) مستند/قائمة = `pnlHeader`+`pnlToolbar`+`pnlFilters`+`pnlSummary`+`pnlGrid`+`pnlFooter` (ب) `frm*Master` مدمجة = محرر + `gbFilter` + `pnlSummary` + `pnlGrid` — و`lblMode` إلزامي في الحالتين |
+| RULE-N79 | هيكلان مرجعيان فقط للشاشات: (أ) مستند/قائمة = `pnlHeader`+`pnlToolbar`+`pnlFilters`+`pnlSummary`+`pnlGrid`+`pnlFooter` (ب) `frm*Master` مدمجة = محرر + `gbFilter` + `pnlSummary` + `pnlGrid` — و`lblMode` إلزامي في الحالتين — والترتيب والتجميع داخل هذه الهياكل كما في §2.34 (`RULE-N135`…`N138`) |
 
 | # | البند | المرجع | كيف يُتحقق |
 |---|------|--------|-------------|
@@ -471,6 +483,9 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 26 | كل التصفية داخل `gbFilter` بلا استثناء | `RULE-N56`…`N63` | عناصر `gbFilter` في المُصمّم — شاشات التقارير تُعفى من `gbFilter` لأنها تُوحَّد بـ `ReportUiStandardizer` (`RULE-N121`) |
 | 27 | النمط الصحيح للشاشة: بيانات أساسية ⇒ `frm*Master` مدمج · مستند ⇒ `frmList*` + `frmAddUpdate*` | `RULE-N100`…`N104` | لا يوجد `frmAddUpdate*`/`frmList*` لكيان له Master |
 | 28 | لا يُضاف أي بند من §2.29 (صلاحيات/نطاق DI/الموظفون المُخزَّنون) إلى MVP | `RULE-N105`…`N108` | مراجعة القائمة قبل كل تسليم |
+| 29 | **المصمّم = وقت التشغيل:** كل لون/خط يطبّقه وقت التشغيل على عنصر موجود في المصمّم مُعلَن بقيمة حرفية مطابقة في `*.Designer.cs`، ووقت التشغيل لا يُعيد تلوين أي سطح لوّنه المصمّم | `RULE-N134` + `RULE-N139` + `RULE-N51a` | افتح النموذج في مصمّم VS وقارنه بالتشغيل (أخضر الشريط/الشبكة/الأزرار/التسميات) + `grep Color.FromArgb` في المصمّم مقابل ثوابت `GreenThemeHelper`، وتأكد أن اللوحات وصناديق المجموعة والتصفية والملخّص تحتفظ بلون المصمّم، وأن كل **عنصر دائم** تراه وقت التشغيل (زر «إخفاء/إظهار التصفية» · شرائط · حقول) موجود في المصمّم ولا يُبنى وقت التشغيل فقط (`RULE-N145`) + شريط تنقل التقارير (`pnlReportNav`) ظاهر في المصمّم لا وقت التشغيل فقط (`RULE-N146`) — ✅ **رُحِّلت شاشات الإدخال والقوائم والماسترات في 2026-11-13:** 62/62 تستدعي `GreenThemeHelper.Apply(this)` · 26/26 شاشة تصفية تُعلن `btnToggleFilters` في المصمّم · `SystemColors.Control` = 0 (موضع واحد في `frmMain.Designer`) · 31/31 تقريراً `pnlReportNav` معلن — **مع بقاء ما لم يُمسّ:** 87 حقلاً من 280 بلا لون أبيض معلن في المصمّم · 12 شاشة شبكة بلا `ContextMenuStrip` · 19 شاشة شبكة بلا `gbFilter` |
+| 30 | **الترتيب والتجميع:** الكتل بالترتيب الثابت وكل كتلة داخل صندوق مجموعة بعنوان | `RULE-N135`…`N138` | جدول العناصر في تقرير التسليم + فتح الشاشة وعدّ الصناديق والعناوين من أعلى لأسفل |
+| 31 | **الألوان: التشغيل = المصمّم بلا رمادي** — لا عنصر على `SystemColors.Control`/الافتراضي، والحقول بيضاء، وألوان الشاشة من ثوابت `GreenThemeHelper` | `RULE-N140`…`N144` | صورة للمصمّم مقابل صورة للتشغيل لنفس الشاشة + `grep SystemColors.Control` في المصمّم = 0 + جدول الألوان في تقرير التسليم |
 
 **الهيكل المرجعي للمُنشئ وشريط المظهر:**
 
@@ -523,7 +538,8 @@ private void ApplyUiTheme()
 | RULE-N60 | التصفية بـ`SelectedIndex` لا بمقارنة نص عربي، والبحث النصي على أعمدة معروفة (`Name`/`Barcode`/`Phone`…) لا على `DataView.RowFilter` المبني من إدخال المستخدم مباشرة |
 | RULE-N61 | شريط `pnlSummary` يعرض عدد النتائج والإجماليات (`N2`) ويُعاد حسابه بعد كل تصفية |
 | RULE-N62 | أي فلتر جديد يُضاف داخل `gbFilter` فقط — ممنوع أزرار/حقول تصفية خارجها |
-| RULE-N63 | زر اختياري `btnToggleFilters` («إخفاء/إظهار التصفية») يطوي `pnlFilters` إلى ارتفاع 34 للحصول على مساحة أكبر للشبكة، ويُحفظ حالته في `SystemSettings` بمفتاح `UI.FiltersCollapsed` — 🔄 لم يُنفَّذ بعد في أي شاشة (`btnToggleFilters` = 0)؛ يُنفَّذ عند توسيع P2/P3 |
+| RULE-N63 | زر `btnToggleFilters` («إخفاء/إظهار التصفية») يطوي `pnlFilters` إلى ارتفاع 34 للحصول على مساحة أكبر للشبكة، ويُحفظ حالته في `SystemSettings` بمفتاح `UI.FiltersCollapsed` — ✅ منفّذ عبر `FilterPanelHelper.Attach` (`F9` + تلميح + حالة محفوظة)، والزر **مُعلَن في `*.Designer.cs`** ويتبنّاه الـHelper (`RULE-N145`) — ✅ **26/26 شاشة تصفية (2026-11-14)** |
+| RULE-N148 | **فصل «مسح التصفية» عن «تحديث»:** زر `btnClearFilters` («مسح التصفية» · `Tahoma 9 Bold` · `GreenThemeHelper.ActionNeutralBackground` · **داخل `gbFilter`** · معطّل ما لم توجد تصفية نشطة — `RULE-N43`) يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي **بلا أي إعادة تحميل** ولا لمس للمحرر؛ وزر `btnRefresh` (`F5`) يبقى هو المسؤول عن **إعادة تحميل كل بيانات الشاشة** (الدلائل + الشبكة) و**إرجاع المحرر وكل الإعدادات إلى الافتراضي** (تصفية فارغة · وضع العرض · حقول معطّلة). ممنوع توحيدهما في زر واحد أو استخدام «تحديث» لمسح التصفية فقط. الشاشة المرجعية: `frmProductMaster` — ✅ منفّذ في **26/26** شاشة تصفية (2026-11-14) |
 
 **مخطط عناصر `gbFilter`:**
 
@@ -535,6 +551,7 @@ private void ApplyUiTheme()
 | `label3` «من:» + `dtpFrom` · `label4` «إلى:» + `dtpTo` | DateTimePicker | الصف الأول |
 | `btnRangeToday` «اليوم» · `btnRangeMonth` «هذا الشهر» · `btnRange30` «آخر 30 يوماً» | Button (Tahoma 9 Bold) | الصف الثاني — يمين |
 | `chkShowInactive` · `chkOnlyDue` · `chkOnlyCancelled` · `chkOnlyOutOfStock` | CheckBox | الصف الثاني — يسار |
+| `btnClearFilters` «مسح التصفية» | Button (Tahoma 9 Bold · `ActionNeutralBackground`) | بجانب مربعات الاختيار — معطّل ما لم توجد تصفية نشطة (`RULE-N148`) |
 | `btnToggleFilters` | Button | الصف الثاني — أقصى اليسار |
 
 > **تعميم:** يُطبّق المعيار على المراحل P1 → P2 → P3 المذكورة في §2.20، وتُعدّ الشاشة غير مكتملة إن كانت أدوات تصفيتها خارج `gbFilter`.
@@ -566,11 +583,12 @@ private void ApplyUiTheme()
 | RULE-N71 | كل تقرير يُسجَّل في DI ويُفتح من **عنصر قائمة واحد** في `frmMain` — لا تكرار ولا شاشة يتيمة |
 | RULE-N72 | قائمة «التقارير» تُقسَّم إلى قوائم فرعية ثابتة: **المبيعات** · **المشتريات** · **المخزون** · **المحاسبة والمالية** · **العملاء والموردون** · **الصندوق** — كل تصنيف `ToolStripMenuItem` يحتوي تقاريره فقط |
 | RULE-N73 | كل تقرير يستوفي §2.21 **عدا بنود لوحة المفاتيح والتصفية**؛ يُوحَّد مظهره وسلوكه حصراً عبر `ReportUiStandardizer.ApplyForm(this)` + `ReportNavigationHelper.Attach(this, _serviceProvider)` كآخر سطرين في المُنشئ، مع تصدير Excel عبر `IExportableReport` (`RULE-N121`) |
-| RULE-N74 | ملفات التقارير في مجلد واحد `Screens/Reports/Forms/`؛ التصنيف يُطبَّق في قائمة `frmMain` فقط (`RULE-N72`) — لا مجلدات `{Sales,Purchases,…}` |
+| RULE-N74 | تُنظَّم ملفات التقارير في `Screens/Reports/Forms/` داخل **ستة مجلدات تصنيفية** تعكس قوائم `RULE-N72`: `Sales/` (8) · `Purchases/` (3) · `Inventory/` (7) · `Accounting/` (8) · `CustomersSuppliers/` (3) · `CashBox/` (2) — والمجلد الذي يوضع فيه التقرير يُحدَّد بتصنيفه في القائمة (`frmMain` / `ReportNavigationHelper.Catalog`)؛ و`namespace` كل تقرير يبقى `SalesSystem.Desktop.Screens.Reports.Forms` **ولا يُشتق من المجلد** (تسمية متعمَّدة — نقل الملفات لا ينعكس على `frmMain` ولا `Program.cs` ولا `Catalog` ولا تسجيلات DI، فلا «يُصحَّح» أحد الـ namespace ليطابق المجلد)؛ وإضافة تقرير = وضع ملفاته الثلاثة (`frm*.cs` + `frm*.Designer.cs` + `frm*.resx`) في مجلد تصنيفه ثم تسجيله في DI و`frmMain` و`Catalog` — والتصنيف يجب أن يملك مجلداً، ولا مجلد علوي جديد بلا تصنيف قائمة |
 | RULE-N75 | كل `I*ReportDesktopService` تحتاج تنفيذاً وهمياً `Mock*ReportDesktopService` وإلا انكسر وضع التجربة |
 | RULE-N76 | لا يُعتبر التصنيف مكتملاً حتى تصل كل تقاريره من القائمة في نقرتين على الأكثر |
 | RULE-N77 | لا يوجد مجلد `Tabs` للتقارير: كل تقرير **نموذج واحد** `frm*Report` بملفَي `.cs` + `.Designer.cs` ومنطقه داخله — ممنوع `UserControl` وسيط لكل تقرير، وممنوع إبقاء تاب ميت بلا مرجع |
-| RULE-N78 | التنقل بين التقارير يكون **بأزرار داخل النموذج** عبر `ReportNavigationHelper.Attach(this, _serviceProvider)` (سطر واحد كآخر سطر في المُنشئ) — ممنوع `TabControl` وممنوع تكرار شريط الأزرار داخل أي تقرير |
+| RULE-N78 | التنقل بين التقارير يكون **بأزرار داخل النموذج** عبر `ReportNavigationHelper.Attach(this, _serviceProvider)` (سطر واحد كآخر سطر في المُنشئ) — ممنوع `TabControl` وممنوع تكرار شريط الأزرار داخل أي تقرير — والنقر يفتح التقرير الهدف في **نموذج جديد** عبر النمط المعتمد `clsGlobal._OpenForm` (نموذج فرعي MDI غير نمطي، مع إعادة تنشيط نافذة مفتوحة بدل تكرارها) **ولا يُغلق التقرير الحالي** — والتقارير شاشات قراءة فيُسمح بالفتح غير النمطي، و`RULE-N09` تخص شاشات الإدخال حصراً |
+| RULE-N78a | شريط تنقل التقارير (`pnlReportNav` · `lblNavCaption` · `flpReportNav` · `btnNavAllReports`) **يُعلَن في `*.Designer.cs`** لكل `frm*Report` بقيم `GreenThemeHelper` الحرفية، ويتبنّاه `ReportNavigationHelper` بالاسم ويضيف أزرار التصنيفات فقط وقت التشغيل — فلا يغيب الشريط عن المصمّم (`RULE-N146` / `RULE-N145`). ✅ **مغلقة (2026-11-13): الشريط مُعلَن في مصمّمات التقارير الـ31 كلها (31/31)** — `Controls.Add(pnlReportNav)` هو آخر `Controls.Add` في كل مصمّم، و`ClientSize` كبُر 58 فقط، وصفر `SetChildIndex` وصفر مراجع `Helpers` داخل المصمّمات، والقالب `frmAccountStatementReport` |
 
 ---
 
@@ -593,7 +611,7 @@ private void ApplyUiTheme()
 
 | RULE | DIRECTIVE |
 |------|-----------|
-| RULE-N90 | كل كيان يرث `ActivatableEntity` يجب أن يدعم الدورة كاملة: تعطيل → إظهار غير النشط → إعادة تنشيط — 🔄 التعميم جزئي: العميل مكتمل (خدمة + زر)، الأصناف/الفئات/الموردون خدمة بلا زر (`RULE-N122`) |
+| RULE-N90 | كل كيان يرث `ActivatableEntity` يجب أن يدعم الدورة كاملة: تعطيل → إظهار غير النشط → إعادة تنشيط — ✅ **مكتمل 2026-11-14 لكل كيانات التنشيط التسعة**: العميل · الصنف · المورد · الفئة · الوحدة · المخزن · الصندوق · المستخدم (+ الموظف في وضع التجربة) — كلها تعرّض `ReactivateAsync` في `I*DesktopService` و`Direct*Service` و`Mock*DesktopService`، وفي شاشتها زر «↺ إعادة تنشيط» مفعّل على السطر المعطّل فقط (`RULE-N92`/`RULE-N122`) |
 | RULE-N91 | كل `I*DesktopService` لكيان قابل للتعطيل يعرّض `ReactivateAsync` ويُسندها للـ BLL — لا منطق في الـ wrapper (`RULE-N11`) |
 | RULE-N92 | شاشة الدليل تُظهر زر «إعادة تنشيط» مفعّلاً على السطر **غير النشط فقط**، ومعطّلاً على النشط (`RULE-N43`) |
 | RULE-N93 | إعادة التنشيط تُنفَّذ داخل معاملة، وتُعيد تنشيط الحساب المحاسبي المرتبط إن وُجد، وتُستخدم `IgnoreQueryFilters` للوصول للسجل المعطَّل |
@@ -615,7 +633,7 @@ private void ApplyUiTheme()
 
 | Helper | الملف | الوظائف المستهلكة |
 |---|---|---|
-| `KeyboardHelper` | `SalesSystem.Desktop/Helpers/KeyboardHelper.cs` | `WireEnterAsTab` · `WireSelectAllOnFocus` · `WireFocusHighlight` · `WireArrowNavigation` · `WireEnterToClick` · `WireButtonDisabledVisual` · `WireGlobalShortcuts` |
+| `KeyboardHelper` | `SalesSystem.Desktop/Helpers/KeyboardHelper.cs` | `WireEnterAsTab` · `WireSelectAllOnFocus` · `WireFocusHighlight` · `WireArrowNavigation` · `WireEnterToClick` · `WireButtonDisabledVisual` · `WireGlobalShortcuts` · `WireModeEnter` (Enter = الزر الأساسي للوضع — `RULE-N147`) |
 | `GreenThemeHelper` | `SalesSystem.Desktop/Helpers/GreenThemeHelper.cs` | `Apply` · `ApplyHeader` · `ApplyGrid` · `TextStrong` |
 | `LiveTafqeetHelper` | `SalesSystem.Desktop/Helpers/LiveTafqeetHelper.cs` | `Attach` (تلميح التفقيط الحيّ) |
 | `ThemeHelper` | `SalesSystem.Desktop/Helpers/ThemeHelper.cs` | `ApplyMainFormStyle` · `ApplyButtonStyle` (يُستدعى **قبل** الثيم الأخضر) |
@@ -624,6 +642,7 @@ private void ApplyUiTheme()
 | `ReportUiStandardizer` | `SalesSystem.Desktop/Helpers/ReportUiStandardizer.cs` | `Apply` · `ApplyForm` (توحيد مظهر شاشات التقارير — `RULE-N121`) |
 | `ExportHelper` | `SalesSystem.Desktop/Helpers/ExportHelper.cs` | `ExportToExcel` · `ExportToCsv` (التصدير الموحّد للشبكات) |
 | `ArabicNumberToWords` | `SalesSystem.Desktop/Helpers/ArabicNumberToWords.cs` | `ToWords` (التفقيط: مبلغ + عملة + كسر) |
+| `FilterPanelHelper` | `SalesSystem.Desktop/Helpers/FilterPanelHelper.cs` | `Attach` (يتبنّى زر `btnToggleFilters` المُعلَن في المصمّم ويُوصِّل طيّ التصفية + `F9` + حفظ الحالة — `RULE-N63`/`RULE-N145`) |
 
 **سطر الإلزام في كل مُنشئ شاشة:**
 
@@ -725,6 +744,78 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 | RULE-N122 | كل كيان يرث `ActivatableEntity` جديد يجب أن يخرج بـ `ReactivateAsync` في الواجهة وBLL **وزر إعادة تنشيط في شاشته** — لا يُغلق الكيان دون الدورة كاملة |
 | RULE-N123 | لا تبقى مراجع NuGet ميتة (مُعلنة وغير مستخدمة) — تُزال عند أول مساس بملف `.csproj` المعني |
 | RULE-N124 | أسماء مجلدات الشاشات تُكتب `Forms` — أي مجلد مكتوب `Froms` يُصحَّح عند أول مساس بمحتواه |
+
+---
+
+### 2.33 سجل الأخطاء الشائعة في WinForms (WinForms Pitfall Register) — إلزامي
+
+هذه أخطاء وقعت فعلاً في هذا المستودع وكلِّفت دورات مراجعة، ويجب فحصها قبل أي عمل تخطيط/ثيم — كل صف أدناه قاعدة مُلزمة لا نصيحة.
+
+| RULE | الخطأ الشائع | القاعدة الملزمة | كيف يُكتشف |
+|------|-------------|----------------|------------|
+| RULE-N125 | **ترتيب الإرساء (Dock) بعد إضافة عنصر مراسٍ** — إعادة دفع أبٍ `Dock=Fill` إلى آخر مجموعة `Controls` بعد إضافة شريط `Dock=Bottom` تقلب ترتيب الإرساء فيغطي الشريط الصف السفلي (أخفى `btnClose` في 31 شاشة تقرير) | WinForms يُرسي الأبناء **من آخر المجموعة إلى أولها**؛ لا تُعِد ترتيب `Controls` لعنصر `Dock != None` — اترك الترتيب الطبيعي `[العنصر الأمامي(0) … العنصر المراسي المضاف(آخر)]` ويُرسى الشريط أولاً ثم يتقلّص الأب الممتد فوقه | افتح الشاشة وتحقق أن عناصر الصف السفلي (`pnlFooter`/`btnClose`) ظاهرة فوق أي شريط مثبّت |
+| RULE-N126 | **`Anchor` يُحسب نسبةً إلى الأب** — نقل عنصر إلى حاوية جديدة مع إبقاء `Anchor` القديم يُعيد تموضعه عشوائياً | كل Reparent يبدأ بـ`control.Anchor = AnchorStyles.Top \| AnchorStyles.Left` (أو `Dock = Fill` للشبكات) قبل `destination.Controls.Add(control)` | ابحث عن `Controls.Add(` على عنصر منقول وتأكد أن `Anchor` أُلغي |
+| RULE-N127 | **ترتيب التدفّق في `FlowLayoutPanel` بـRTL** — أول عنصر يُضاف يُرسم في أقصى اليمين؛ وفرز عناصر مطلقة الموضع بـ`Top` فقط يضع العنوان على يسار حقله بدل يمينه (فوارق 4–9 بكسل بين عنوان المصمّم وحقله) | رتّب عناصر التصفية بترتيب **بصري**: تجميع الصفوف بسماحية رأسية ≥ 12 بكسل ثم `Left` تنازلياً داخل كل صف، وأضف العنوان قبل حقله | افتح تقريراً متعدد الفلاتر وتحقق أن كل عنوان ملتصق بحقله من اليمين |
+| RULE-N128 | **مرجع إلى ثابت Helper داخل `InitializeComponent`** — المصمّم لا يستوفي التعبير فيُعيد كتابته لوناً حرفياً (`Color.FromArgb`) عند أول تعديل، فيعود تكرار قيم الثيم | ملفات `*.Designer.cs` لا تُشير إلى أي عضو في `Helpers/` — الألوان تُطبَّق وقت التشغيل من الـHelper (`RULE-N54`/`RULE-N112`) | `Select-String -Path *.Designer.cs -Pattern "GreenThemeHelper\|ThemeHelper"` = 0 |
+| RULE-N129 | **إعادة تلوين الطبقات الشفافة** — مشي الثيم يعيد رسم `Panel` شفاف (`BackColor.A < 255`) فيصبح معتماً ويغطي المحتوى (لوحة «جارٍ التحميل») | أي عنصر `BackColor.A < 255` لا يُعاد تلوينه إطلاقاً؛ الطبقات الشفافة تُترك كما هي | افتح شاشة أثناء التحميل وتحقق أن الطبقة شفافة فوق المحتوى |
+| RULE-N130 | **عنصر معلن وغير مضاف** — حقل مُعرَّف ومُهيَّأ في المصمّم لكن `Controls.Add(x)` مفقود (مثل `label1` في `frmAccountStatementReport`) فيبدو الكود سليماً ويضيع العنصر | أي عنصر جديد يُتحقَّق بوجود سطر `Controls.Add` له، لا بالاكتفاء بتعريف الحقل؛ والعناصر الميتة تُزال عند أول مساس بالملف | `grep "Controls.Add("` مقابل قائمة الحقول في نفس `InitializeComponent` |
+| RULE-N131 | **إغلاق Lambda خاطئ** — إنهاء اشتراك حدث بـ`});` بدل `};` يكسر البناء (`CS1002`/`CS1513`) | `+= (s, e) => { … };` — القوس الزائد ممنوع ما لم تُفتح مجموعة صريحة (`Action(( ) => …)`) | `dotnet build` = 0 أخطاء قبل أي تقرير تسليم |
+| RULE-N132 | **فتح تقرير بـ`ShowDialog` ثم إغلاق الشاشة الحالية** — خطأ وقع فعلاً في `ReportNavigationHelper`: الضغط على زر تقرير كان يستبدل الشاشة ويغلقها بعد إغلاق الهدف، بخلاف `frmMain` الذي يفتح التقارير كنماذج فرعية MDI غير نمطية | أي فتح لنموذج من داخل نموذج آخر يمرّ عبر **`clsGlobal._OpenForm`** (نمط البيت الواحد) — لا `ShowDialog` ولا `Show()` مخصّص ولا إغلاق للنموذج الحالي؛ الاستثناء الوحيد: شاشات الإدخال النمطية بند `RULE-N09` | ابحث في الشاشة عن `ShowDialog\|\.Close()` بعد فتح نموذج، وقارن سلوك الزر بسلوك نفس التقرير من `frmMain` |
+| RULE-N133 | **التحقق من التكرار بعد إنشاء نسخة جديدة** — فحص `Application.OpenForms` بعد `GetService` يعني أن النسخة المُنشأة حديثاً تُهمَل وتتسرّب | افحص وجود نافذة مفتوحة بالاسم **قبل** إنشاء/حلّ النسخة (`ServiceProvider.GetService`)، ثم فعّلها؛ وإن لم توجد → أنشئ وافتح عبر `_OpenForm` | اقرأ ترتيب السطور: `GetService` يجب أن يكون **بعد** حلقة `Application.OpenForms` |
+| RULE-N134 | **مصمّم الشاشة لا يُظهر ألوان وقت التشغيل** — التنسيق كله يُطبَّق وقت التشغيل من `GreenThemeHelper`، فيُفتح النموذج في مصمّم Visual Studio أبيض/رمادياً بينما التطبيق أخضر، فيظن المطوّر أن الشاشة بلا ثيم | كل لون يطبّقه وقت التشغيل على عنصر موجود في المصمّم **يُعلَن أيضاً بقيمة حرفية في `*.Designer.cs` مطابقة تماماً لثابت `GreenThemeHelper`** (نفس أرقام `Color.FromArgb`) — فيتساوى المصمّم والتشغيل؛ وممنوع استدعاء أي عضو من `Helpers/` داخل المصمّم (`RULE-N128` يبقى سارياً)؛ وأي اختلاف بين القيمة الحرفية وثابت الـHelper يُعدّ عيباً يُصحَّح لصالح الثابت؛ والعناصر التي تُبنى وقت التشغيل فقط (`pnlReportRoot` وشل التقارير · طبقة التحميل الشفافة) لا تُمثَّل في المصمّم وهذا مقبول **بشرط ألا تكون عناصر دائمة**: كل زر/شريط/حقل دائم يُعلَن في المصمّم (`RULE-N145`) — وسريانها **على مستوى النظام كله**: كل `frm*` وكل `ctrl*` UserControl في `SalesSystem.Desktop` (شاشات الإدخال والقوائم والتقارير ولوحات التحكم والنوافذ الحوارية) — لا استثناء ولا «مرحلة تجريبية»؛ وأي شاشة تُنشأ أو تُعدَّل تخرج وفي مصمّمها نفس ألوان وقت تشغيلها، وإلا فهي غير مكتملة (RULE-N55) | افتح النموذج في مصمّم VS وقارنه بالتشغيل: شريط العنوان والشبكة والأزرار والتسميات يجب أن تكون بنفس الأخضر؛ و`grep Color.FromArgb` في المصمّم يجب أن يطابق قيم `GreenThemeHelper` |
+| RULE-N139 | **الثيم يمحو ألوان المصمّم — الشاشة تصبح رمادية وقت التشغيل** — `GreenThemeHelper.Apply` كان يفرض `BarBackground`/`GroupBackground` على **كل** `Panel`/`GroupBox`، فتُفقد الخلفية الخضراء الموروثة من النموذج ويظهر المحرر والتصفية والشبكة والملخّص بدرجات رمادية باهتة، بينما المصمّم (Ambient) يبدو أخضر أنيقاً | **وقت التشغيل يلتزم حرفياً بألوان المصمّم:** الحاوية التي لم يضبط المصمّم لها خلفية (Ambient) **تُترك** فترث لون الأب؛ والحاوية التي لوّنها المصمّم بلون خاص **تُترك** بلونها؛ والتلوين التلقائي مقصور على الألوان المعلنة من لوحة الثيم (`RULE-N51a`). وأي فرق بين المصمّم والتشغيل في أي سطح = عيب يُصلَح **لصالح المصمّم** لا لصالح الـHelper. ويُمنع «إصلاح» الفرق بتغميق المصمّم — القاعدة: المصمّم هو المرجع البصري | افتح الشاشة وقارنها بالمصمّم على مستوى **كل سطح** لا شريط العنوان فقط: النموذج · لوحات الإدخال · صناديق المجموعة · شريط الأدوات · صندوق التصفية · شريط الملخص · شبكة البيانات (رؤوس/خلايا/تحديد) · الأزرار · التسميات |
+| RULE-N145 | **عنصر يُبنى وقت التشغيل فقط لا يظهر في المصمّم («غير واضح» في المصمّم)** — `FilterPanelHelper` كان يُنشئ زر «إخفاء/إظهار التصفية» (`btnToggleFilters`) **وقت التشغيل فقط**، فلا وجود له في `*.Designer.cs`: لوحة التصفية تظهر في المصمّم بلا زرها، وأي تعديل لاحق في المصمّم يُعيد ترتيب/يمحو الزر من التخطيط، ويظن المطوّر أن الشاشة ناقصة أو أن التصفية لا تُطوى | **كل عنصر دائم في الشاشة يُعلَن في `*.Designer.cs`** (زر · شريط · حقل · تسمية) بقيم حرفية مطابقة لِما يُطبَّق وقت التشغيل (`RULE-N134`)، **وممنوع إنشاء عنصر دائم من داخل Helper**. أدوات الـHelpers **تتبنّى** العنصر المعلَن بالاسم (`FindControl`) وتُوصِّل سلوكه فقط (نقرة · اختصار · تلميح · حالة محفوظة)، وإنشاء عنصر وقت التشغيل يبقى **بديلاً احتياطياً** للشاشات التي لم تُرحَّل بعد. وعليه `FilterPanelHelper.Attach` يوصِّل زر `btnToggleFilters` المعلَن في المصمّم ولا يتخطّاه | افتح النموذج في مصمّم VS وعدّ العناصر: كل زر/شريط تراه وقت التشغيل يجب أن تراه في المصمّم بنفس اللون والموضع؛ و`grep "new Button\|new Label\|new Panel\|new CheckBox"` داخل `Helpers/` مقابل وجود العنصر بنفس الاسم في `*.Designer.cs` للشاشة المعنية |
+| RULE-N146 | أزرار فتح التقارير لا تظهر في المصمّم — شريط تنقل التقارير (`pnlReportNav` · `lblNavCaption` «تقارير هذه المجموعة:» · `flpReportNav` · `btnNavAllReports` «كل التقارير ▾») يُبنى **وقت التشغيل فقط** في `ReportNavigationHelper`، فيفتح المطوّر `*.Designer.cs` لتقرير فلا يرى شريطاً ولا أزراراً ولا يستطيع ضبط موضعها أو التحقق منها | شريط التنقل يُعلَن في المصمّم: `pnlReportNav` (`Dock = Bottom` · ارتفاع 58 · `BarBackground`) بداخله `lblNavCaption` («تقارير هذه المجموعة:» · `Tahoma 9 Bold` · `TextStrong`) و`flpReportNav` (`Dock = Fill`) و`btnNavAllReports` («كل التقارير ▾» · `GroupBackground` · `UseVisualStyleBackColor = false`)، و`ReportNavigationHelper` **يتبنّى** هذه العناصر بالاسم ويُنشئ **أزرار التصنيفات فقط** وقت التشغيل (`RULE-N145`) — وممنوع أن يظهر شريط التنقل لأول مرة عند التشغيل | افتح أي `frm*Report` في مصمّم VS: يجب أن ترى شريط التنقل وأزراره أسفل الشاشة فوق زر «إغلاق»؛ و`grep "new Panel\|new Button\|new Label" Helpers/ReportNavigationHelper.cs` = 0 لعناصر الشريط الدائمة |
+
+> **قرار المالك (2026-11-13): «ما يظهر في المصمّم هو ما يظهر وقت التشغيل» (`runtime == design time`) — قاعدة قائمة على مستوى النظام كله:** تشمل **كل** شاشات `SalesSystem.Desktop` (`frm*` و`ctrl*`)، وهي **شرط قبول دائم** في §2.21 بند 29، لا تجربة محدودة بشاشة واحدة. الشاشة النموذج المرجعي المنفَّذ: `frmAccountStatementReport` — وبقية الشاشات تُطابق عند أول مساس بها.
+
+**قاعدة التسليم:** لا يُسلَّم عمل تخطيط/ثيم قبل تشغيل فحص البناء (RULE-N131) وفحص واحد على الأقل للبنود N125–N130 في الشاشة المتأثرة، ويُذكر البند المختبَر في تقرير التسليم.
+
+---
+
+### 2.34 معيار ترتيب وتجميع أجزاء الشاشة (Layout Order & Grouping Standard) — إلزامي
+
+ترتيب وتجميع أجزاء الشاشة كما في الشاشة المرجعية `frmAddUpdateSalesInvoice` هو المعيار الملزم لكل شاشة في النظام كله، للحصول على نفس تجربة الاستخدام في كل مكان.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N135 | الترتيب الرأسي الثابت: العنوان ← أوامر الشاشة ← معايير البحث/التصفية ← المحتوى الرئيسي ← الإجماليات/الملخص ← شريط الأسفل — لا يُقدَّم بند على بند ولا تُضاف كتلة بينها. |
+| RULE-N136 | كل كتلة في البنود 2–5 داخل `GroupBox` بعنوان عربي قصير: «أوامر التقرير» · «بحث وتصفية» · «بيانات التقرير» · «الإجماليات» (والمكافئات في شاشات الإدخال: «أوامر الفاتورة» · «بيانات …» · «الأصناف» · «الإجماليات») — والعنوان/الألوان من `GreenThemeHelper` (`TextStrong` + `GroupBackground`) وخط `Tahoma 10 Bold`. |
+| RULE-N137 | ممنوع: صندوق داخل صندوق، صندوق فارغ، كتلة بلا صندوق (عدا شريط العنوان وشريط الأسفل)، أو ترتيب مختلف بين شاشتين لنفس النوع. |
+| RULE-N138 | السريان على مستوى النظام كله: كل `frm*` و`ctrl*` (إدخال · قوائم · تقارير · لوحات تحكم · حوارات)؛ الشاشة الجديدة تخرج ملتزمة، والقائمة تُطبَّق عند أول مساس بها؛ والمخالفة = شاشة غير مكتملة (`RULE-N55`). |
+
+> **الشاشة المرجعية:** frmAddUpdateSalesInvoice (‏gbToolbar · gbInvoiceInfo · gbEntry · gbItems · gbTotals) — والقياس بالتجربة اليدوية: افتح الشاشة وتحقق من الصندوق والعنوان لكل كتلة ومن الترتيب أعلاه.
+
+---
+
+### 2.35 معيار تطابق ألوان وقت التشغيل مع المصمّم (Runtime == Design Colours) — إلزامي
+
+قرار المالك: المظهر المصمّم هو الهدف — تعرض الشاشة وقت التشغيل شكلها المصمّم بالضبط ولا تظهر رمادية أبداً.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N140 | ألوان وقت التشغيل = ألوان المصمّم حرفياً: كل لون مؤلَّف في `*.Designer.cs` (`Form.BackColor` · الصناديق · الألواح · التسميات · الأزرار · حقول الإدخال · الشبكة) يظهر في التشغيل بنفس القيمة؛ وأي اختلاف بينهما عيب يُصحَّح لصالح المصمّم (`RULE-N134` تسري في الاتجاهين). |
+| RULE-N141 | ممنوع الظهور الرمادي: لا يُترك أي عنصر على `SystemColors.Control` أو `Control.DefaultBackColor` أو `BackColor` غير معلن، ولا `UseVisualStyleBackColor = true`/`FlatStyle = System` على أزرار وحقول داخل شاشة ثيمها أخضر — الشاشة التي تظهر رمادية في التشغيل شاشة غير مكتملة (`RULE-N55`). |
+| RULE-N142 | لا يُعيد أي Helper كتابة لون مؤلَّف بقيمة أخرى: `GreenThemeHelper.Apply`/`Walk`/`ApplyGrid` تطبّق ثوابت الثيم على العناصر **غير المؤلَّفة** فقط، وتحترم القيمة الحرفية الموجودة في المصمّم؛ والقيم حصراً من `GreenThemeHelper` (ممنوع لون جديد) — وأي تعارض يُحسم لصالح المصمّم ثم يُوحَّد في الـHelper. |
+| RULE-N143 | حقول الإدخال موحّدة: `ComboBox`/`TextBox`/`NumericUpDown`/`DateTimePicker` بخلفية `Color.White` وخط `Tahoma` في المصمّم وفي التشغيل معاً — كما في الشاشة المرجعية `frmProductMaster` (`cmbCategory`/`cmbMainUnit`). — ✅ محقَّق في التقارير الـ31 (2026-11-13): **47/47** حقل إدخال أبيض + `Tahoma`، بصفر استثناء (فحص `grep` على `*.Designer.cs`) |
+| RULE-N144 | الشاشة المرجعية للألوان هي `frmProductMaster` وملف مصمّمها: أي شاشة تُنشأ أو تُعدَّل تُطابق ألوانها ألوان هذه الشاشة حرفياً (الشريط الأخضر · الألواح · الصناديق · الأزرار السبعة · الحقول البيضاء · الشبكة الخضراء)، والمخالفة تُرفض في المراجعة. |
+
+> **التحقق:** افتح الشاشة في مصمّم VS وصوّرها، ثم شغّلها وصوّرها — يجب أن تتطابق الصورتان لوناً وتخطيطاً؛ وأي فرق (خصوصاً الرمادي) عيب، لا اختيار تصميمي.
+
+---
+
+### 2.36 معيار وضع الإدخال (Entry Mode Standard) — إلزامي لشاشات `frm*Master`
+
+شاشة الدليل المدمجة تفتح في **وضع عرض** لا في وضع إدخال: الحقول معطّلة حتى يطلب المستخدم الإضافة أو يختار سجلاً. الشاشة المرجعية: `frmProductMaster`.
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N149 | الشاشة تبدأ في **وضع العرض** (`Browsing`): كل حقول الإدخال **معطّلة**، والمفعّل فقط «جديد/تحديث/خروج»، و`lblMode` = «وضع العرض» — لا حقول مفتوحة بلا سبب عند فتح الشاشة |
+| RULE-N150 | آلة حالة **واحدة** `EntryMode { Browsing, Adding, Editing }` + دالة مركزية `_ApplyModeState()` تُستدعى بعد **كل** انتقال (تحميل · جديد · اختيار سطر · حفظ · حذف · إعادة تنشيط · تحديث · Esc) — وممنوع تعيين `btn*.Enabled` أو `input.Enabled` متفرقاً داخل المعالجات |
+| RULE-N151 | «جديد»/`F2` ⇒ `Adding` (تفريغ + تفعيل + «إضافة … جديد») · اختيار سطر ⇒ `Editing` (تعبئة + تفعيل + «تعديل …: <الاسم>») · وبعد الحفظ/الحذف/إعادة التنشيط **تحديث تلقائي** للشبكة والمحرر والشريط مع إبقاء السطر المحدد (بلا إعادة فتح الشاشة) |
+| RULE-N152 | الأزرار المعطّلة تُرسم بـ `WireButtonDisabledVisual` (رمادية بنص باهت) وليس `Enabled = false` فقط، و`Enter`/`AcceptButton` يتبعان الوضع (`RULE-N147`) |
+
+> **قاعدة:** أي `frm*Master` لا تلتزم بـ§2.36 تُعدّ غير مكتملة (`RULE-N55`)، وتُنفَّذ شاشة بشاشة — وكيل واحد لكل شاشة. ✅ **مكتمل 10/10 ماسترات (2026-11-14)**.
 
 ## 3. Enums
 
@@ -900,14 +991,14 @@ SalesSystem.slnx
 | CashBoxes | ✅ Done | `frmCashBoxMaster`, `frmCashBoxTransactions` | ✅ `CashBoxService` | ✅ `CashBoxes` |
 | Banks | 🔒 V2 (قرار المالك — §2.29 بند 4) | — (لا `frmBanks`) | ❌ | ❌ |
 | Purchases | ✅ Done | `frmListPurchases`, `frmPurchaseInvoice` | ✅ `PurchaseService` | ✅ `PurchaseInvoices` |
-| Sales | ✅ Done | `frmListSales`, `frmAddUpdateSalesInvoice` | ✅ `SalesService` | ✅ `SalesInvoices` |
+| Sales | ✅ Done | `frmListSales`, `frmAddUpdateSalesInvoice` (كلاهما مسجَّل في DI ويُفتح من قائمة `frmMain` عبر `OpenScreen<T>()` — تحقّق 2026-11-13) | ✅ `SalesService` | ✅ `SalesInvoices` |
 | Sales Returns | ✅ Done | `frmSalesReturn`, `frmListReturns` | ✅ `SalesReturnService` | ✅ `SalesReturns` |
 | Purchase Returns | ✅ Done | `frmPurchaseReturn` | ✅ `PurchaseReturnService` | ✅ `PurchaseReturns` |
 | Receipts (سندات القبض) | ✅ Done | `frmListCustomerReceipts`, `frmAddUpdateCustomerReceipt` | ✅ `CustomerReceiptService` | ✅ `CustomerReceipts` |
 | Payments (سندات الصرف) | ✅ Done | `frmListPayments`, `frmListSupplierPayments`, `frmSupplierPaymentDialog` | ✅ `SupplierPaymentService` · `PaymentVoucherService` | ✅ `SupplierPayments` |
-| Reports | ✅ Done | **31** نموذج `frm*Report` في `Screens/Reports/Forms/` | ✅ 5 خدمات تقارير (+ Mocks) | ✅ (تقرأ من الجداول القائمة) |
-| Dashboard | ✅ Done | `frmDashboard` (غلاف) + `ctrlDashboard` | ✅ `DirectDashboardService`/`MockDashboardDesktopService` | ✅ (إحصاءات فوق الجداول القائمة) |
-| Inventory (Transfers/Adjustments) | ✅ Done | `frmInventory`, `frmListInventoryTransactions`, `frmListInventoryBatches`, `frmListInventoryAdjustments`, `frmOpeningStock`, `frmWarehouseTransferNew`, `frmStocktakingNew` + نوافذ الطباعة | ✅ `InventoryService` · `InventoryBatchService` · `InventoryAdjustmentService` | ✅ `InventoryTransactions` · `InventoryBatches` · `InventoryAdjustments` |
+| Reports | ✅ Done | **31** نموذج `frm*Report` في `Screens/Reports/Forms/` داخل ستة مجلدات تصنيفية (`Sales/`, `Purchases/`, `Inventory/`, `Accounting/`, `CustomersSuppliers/`, `CashBox/`) | ✅ 5 خدمات تقارير (+ Mocks) | ✅ (تقرأ من الجداول القائمة) — ✅ **محقَّق (2026-11-13): 31/31** هيكل مرجعي + تجميع معنون · شريط تنقل معلَن في المصمّم · `loadingPanel` + `ShowLoading` بـ`finally` · تصدير عبر `ExportHelper` (صفر `ClosedXML` محلي) · **47/47** حقل إدخال أبيض `Tahoma` · صفر `SystemColors` وصفر مراجع `Helpers` في المصمّمات · حارس تصدير قائم على عدد الصفوف 31/31 (لا ملف برؤوس فقط) · كميات `N3` ومبالغ `N2` · `ShowLoading` موحّد 31/31 (يُعيد المقدمة + مؤشر الانتظار + `finally`) · صفر `ex.Message` للمستخدم |
+| Dashboard | ✅ Done | `frmDashboard` (غلاف) + `ctrlDashboard` — كلاهما مسجَّل في DI (`services.AddTransient<frmDashboard>()` و`services.AddTransient<...ctrlDashboard>()` حسب `RULE-N67`) ويُفتح من `frmMain` | ✅ `DirectDashboardService`/`MockDashboardDesktopService` | ✅ (إحصاءات فوق الجداول القائمة) |
+| Inventory (Transfers/Adjustments) | ✅ Done | **16 نموذجاً في `Screens/Inventory/` — كلها مسجَّلة في DI (16/16)**: `frmInventory`, `frmInventoryList`, `frmInventoryAddProduct`, `frmInventoryBarcode`, `frmInventoryFifo`, `frmListInventoryTransactions`, `frmListInventoryBatches`, `frmListInventoryAdjustments`, `frmAddUpdateInventoryAdjustment`, `frmOpeningStock`, `frmWarehouseTransferNew`, `frmStocktakingNew` + نوافذ الطباعة (`frmStocktakingPrint`, `frmStocktakingPrintAdjustment`, `frmStocktakingPrintCard`, `frmWarehouseTransferPrint`) — **10 تُفتح من قائمة `frmMain`** و6 نوافذ فرعية (محرر التسوية `frmAddUpdateInventoryAdjustment` · منتقي إضافة صنف `frmInventoryAddProduct` · 4 نوافذ طباعة) تُفتح من شاشاتها. تحقّق 2026-11-13: `frmStocktakingNew` · `frmWarehouseTransferNew` · `frmInventoryFifo` · `frmInventoryBarcode` مسجَّلة وتُفتح من القائمة | ✅ `InventoryService` · `InventoryBatchService` · `InventoryAdjustmentService` | ✅ `InventoryTransactions` · `InventoryBatches` · `InventoryAdjustments` |
 | Expenses | ✅ Done | `frmListExpenses`, `frmAddUpdateExpense` | ✅ `ExpenseService` | ✅ `Expense` (عبر `ExpenseConfiguration`) |
 | POS | ✅ Done | `frmPOS` (1371 سطراً) | ✅ `SalesService` (نفس مسار الفاتورة) | ✅ `SalesInvoices` |
 | Accounting Engine | ✅ Done | — (auto) | ✅ `AccountingIntegrationService` | ✅ `JournalEntries` |
@@ -916,6 +1007,8 @@ SalesSystem.slnx
 > The former `API` column was removed — there is no HTTP/API layer; every module's Desktop layer goes straight to Business.
 >
 > **قاعدة:** كل صف في هذا الجدول يُتحقَّق من وجود نموذجه فعلياً في `Screens/<Module>/` قبل ادّعاء «Done» — أسماء لا وجود لها (`frmUsers`, `frmRoles`, `frmSettings`, `frmCurrencies`, `frmTaxes`, `frmBanks`, `frmCategories`, `frmProducts`, `frmWarehouses`, `frmCashBoxes`, `frmSuppliers`, `frmCustomers`, `frmUnits`, `frmSales`, `frmReturns`, `frmReceipts`, `frmPayments`) أُزيلت أو استُبدلت بالاسم الحقيقي (`frm*Master`).
+>
+> **تحقّق 2026-11-13 (DI + القائمة):** **93 نموذجاً `frm*`** في `Screens/**` — كلها مسجَّلة في حاوية DI داخل `Program.cs` (93/93؛ ثلاثة منها بالاسم المؤهَّل: `frmAccounts` · `frmJournalEntries` · `Products.Forms.frmProductSelection`) — و`ctrlDashboard` مسجَّل أيضاً (`RULE-N67`). والشاشات التي جرى التحقق منها مسجَّلة في DI وتُفتح من `frmMain` عبر `OpenScreen<T>()`: `frmStocktakingNew` · `frmWarehouseTransferNew` · `frmInventoryFifo` · `frmInventoryBarcode` · `frmImportProductsExcel` · `frmCalculator` (الأخيرة ضمن أدوات `frmMain` ولا صف مستقل لها في هذا الجدول).
 
 ---
 

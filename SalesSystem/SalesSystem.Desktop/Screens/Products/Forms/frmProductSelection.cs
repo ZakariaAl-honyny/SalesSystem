@@ -48,8 +48,24 @@ public partial class frmProductSelection : Form
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
 
+        // RULE-N43: زر «اختيار» معطّل بلا سجل محدد، ورمادي باهت عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSelect);
+
+        // RULE-N47: F5 تحديث القائمة. Enter/Esc يُديرهما AcceptButton/CancelButton
+        // ومعالجات الشبكة الموجودة — لا تُكرَّر هنا لتجنّب التنفيذ المزدوج.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F5, () => _LoadProducts()));
+
         dgvProducts.AutoGenerateColumns = false;
         dgvUnits.AutoGenerateColumns = false;
+
+        _UpdateButtonsState();
+    }
+
+    /// <summary>آلة حالة الأزرار (RULE-N43): «اختيار» متاح فقط عند وجود صنف محدد.</summary>
+    private void _UpdateButtonsState()
+    {
+        btnSelect.Enabled = _CurrentProductId() > 0 && !_unitsLoadFailed;
     }
 
     public frmProductSelection(IServiceScopeFactory scopeFactory) : this()
@@ -123,10 +139,8 @@ public partial class frmProductSelection : Form
             dgvProducts.DataSource = _productsView;
             lblRecordsCount.Text = _productsView.Count.ToString();
 
-            if (_productsView.Count == 0)
-            {
-                MessageBox.Show("لا توجد منتجات متاحة.", "معلومات", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            // RULE-N22: إشعار «لا توجد بيانات» داخل الشاشة بدل نافذة منبثقة.
+            lblNoData.Visible = _productsView.Count == 0;
 
             _loadingProducts = false;
             await _RefreshUnitsAsync();
@@ -253,6 +267,7 @@ public partial class frmProductSelection : Form
         finally
         {
             Cursor = dgvUnits.Cursor = Cursors.Default;
+            _UpdateButtonsState();
         }
     }
 
@@ -275,6 +290,7 @@ public partial class frmProductSelection : Form
         _unitsLoadFailed = false;
         lblSelectedProduct.Text = $"المنتج المحدد: {EmptyValue}";
         lblNoUnits.Visible = false;
+        _UpdateButtonsState();
     }
 
     private int _CurrentProductId()
@@ -310,13 +326,14 @@ public partial class frmProductSelection : Form
         }
         else
         {
-            string safeSearch = search.Replace("'", "''");
-            _productsView.RowFilter = string.Format(
-                "Name LIKE '%{0}%' OR Barcode LIKE '%{0}%' OR CategoryName LIKE '%{0}%'",
-                safeSearch);
+            // RULE-N24/RULE-N60: قيمة البحث تُهرَّب عبر RowFilterHelper — لا إدراج خام.
+            _productsView.RowFilter = RowFilterHelper.Like("Name", search)
+                + " OR " + RowFilterHelper.Like("Barcode", search)
+                + " OR " + RowFilterHelper.Like("CategoryName", search);
         }
 
         lblRecordsCount.Text = _productsView.Count.ToString();
+        lblNoData.Visible = _productsView.Count == 0;
     }
 
     private async void txtSearch_KeyPress(object sender, KeyPressEventArgs e)

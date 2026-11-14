@@ -40,13 +40,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // lblTitle
             // 
-            lblTitle.BackColor = Color.Firebrick;
+            lblTitle.BackColor = Color.FromArgb(14, 165, 103);
             lblTitle.Dock = DockStyle.Top;
             lblTitle.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(0, 0);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(320, 42);
+            lblTitle.Size = new Size(320, 44);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "آلة حاسبة";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
@@ -56,25 +56,27 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             txtDisplay.BackColor = Color.White;
             txtDisplay.Dock = DockStyle.Top;
             txtDisplay.Font = new Font("Tahoma", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            txtDisplay.Location = new Point(0, 42);
+            txtDisplay.ForeColor = Color.FromArgb(33, 37, 41);
+            txtDisplay.Location = new Point(0, 44);
             txtDisplay.Name = "txtDisplay";
             txtDisplay.ReadOnly = true;
             txtDisplay.RightToLeft = RightToLeft.No;
             txtDisplay.Size = new Size(320, 62);
             txtDisplay.TabIndex = 1;
+            txtDisplay.TabStop = false;
             txtDisplay.Text = "0";
             txtDisplay.TextAlign = HorizontalAlignment.Right;
             // 
             // tblButtons
             // 
-            tblButtons.BackColor = Color.WhiteSmoke;
+            tblButtons.BackColor = Color.FromArgb(235, 240, 235);
             tblButtons.ColumnCount = 4;
             tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tblButtons.Dock = DockStyle.Fill;
-            tblButtons.Location = new Point(0, 104);
+            tblButtons.Location = new Point(0, 106);
             tblButtons.Name = "tblButtons";
             tblButtons.Padding = new Padding(8);
             tblButtons.RightToLeft = RightToLeft.No;
@@ -84,16 +86,16 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             tblButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             tblButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             tblButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tblButtons.Size = new Size(320, 306);
+            tblButtons.Size = new Size(320, 304);
             tblButtons.TabIndex = 2;
             // 
             // btnClear
             // 
-            btnClear.BackColor = Color.Firebrick;
+            btnClear.BackColor = Color.FromArgb(108, 117, 125);
             btnClear.Dock = DockStyle.Fill;
-            btnClear.FlatAppearance.BorderColor = Color.Black;
+            btnClear.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnClear.FlatAppearance.BorderSize = 1;
-            btnClear.FlatStyle = FlatStyle.Popup;
+            btnClear.FlatStyle = FlatStyle.Flat;
             btnClear.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnClear.ForeColor = Color.White;
             btnClear.Margin = new Padding(4);
@@ -105,12 +107,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnBackspace
             // 
-            btnBackspace.BackColor = Color.White;
+            btnBackspace.BackColor = Color.FromArgb(235, 245, 235);
             btnBackspace.Dock = DockStyle.Fill;
-            btnBackspace.FlatAppearance.BorderColor = Color.Black;
+            btnBackspace.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnBackspace.FlatAppearance.BorderSize = 1;
-            btnBackspace.FlatStyle = FlatStyle.Popup;
+            btnBackspace.FlatStyle = FlatStyle.Flat;
             btnBackspace.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnBackspace.ForeColor = Color.FromArgb(33, 37, 41);
             btnBackspace.Margin = new Padding(4);
             btnBackspace.Name = "btnBackspace";
             btnBackspace.TabIndex = 11;
@@ -120,12 +123,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnDivide
             // 
-            btnDivide.BackColor = Color.White;
+            btnDivide.BackColor = Color.FromArgb(23, 162, 184);
             btnDivide.Dock = DockStyle.Fill;
-            btnDivide.FlatAppearance.BorderColor = Color.Black;
+            btnDivide.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnDivide.FlatAppearance.BorderSize = 1;
-            btnDivide.FlatStyle = FlatStyle.Popup;
+            btnDivide.FlatStyle = FlatStyle.Flat;
             btnDivide.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnDivide.ForeColor = Color.White;
             btnDivide.Margin = new Padding(4);
             btnDivide.Name = "btnDivide";
             btnDivide.TabIndex = 12;
@@ -135,12 +139,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnMultiply
             // 
-            btnMultiply.BackColor = Color.White;
+            btnMultiply.BackColor = Color.FromArgb(23, 162, 184);
             btnMultiply.Dock = DockStyle.Fill;
-            btnMultiply.FlatAppearance.BorderColor = Color.Black;
+            btnMultiply.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnMultiply.FlatAppearance.BorderSize = 1;
-            btnMultiply.FlatStyle = FlatStyle.Popup;
+            btnMultiply.FlatStyle = FlatStyle.Flat;
             btnMultiply.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnMultiply.ForeColor = Color.White;
             btnMultiply.Margin = new Padding(4);
             btnMultiply.Name = "btnMultiply";
             btnMultiply.TabIndex = 13;
@@ -152,10 +157,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn7.BackColor = Color.White;
             btn7.Dock = DockStyle.Fill;
-            btn7.FlatAppearance.BorderColor = Color.Black;
+            btn7.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn7.FlatAppearance.BorderSize = 1;
-            btn7.FlatStyle = FlatStyle.Popup;
+            btn7.FlatStyle = FlatStyle.Flat;
             btn7.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn7.ForeColor = Color.FromArgb(33, 37, 41);
             btn7.Margin = new Padding(4);
             btn7.Name = "btn7";
             btn7.TabIndex = 14;
@@ -167,10 +173,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn8.BackColor = Color.White;
             btn8.Dock = DockStyle.Fill;
-            btn8.FlatAppearance.BorderColor = Color.Black;
+            btn8.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn8.FlatAppearance.BorderSize = 1;
-            btn8.FlatStyle = FlatStyle.Popup;
+            btn8.FlatStyle = FlatStyle.Flat;
             btn8.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn8.ForeColor = Color.FromArgb(33, 37, 41);
             btn8.Margin = new Padding(4);
             btn8.Name = "btn8";
             btn8.TabIndex = 15;
@@ -182,10 +189,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn9.BackColor = Color.White;
             btn9.Dock = DockStyle.Fill;
-            btn9.FlatAppearance.BorderColor = Color.Black;
+            btn9.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn9.FlatAppearance.BorderSize = 1;
-            btn9.FlatStyle = FlatStyle.Popup;
+            btn9.FlatStyle = FlatStyle.Flat;
             btn9.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn9.ForeColor = Color.FromArgb(33, 37, 41);
             btn9.Margin = new Padding(4);
             btn9.Name = "btn9";
             btn9.TabIndex = 16;
@@ -195,12 +203,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnSubtract
             // 
-            btnSubtract.BackColor = Color.White;
+            btnSubtract.BackColor = Color.FromArgb(23, 162, 184);
             btnSubtract.Dock = DockStyle.Fill;
-            btnSubtract.FlatAppearance.BorderColor = Color.Black;
+            btnSubtract.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnSubtract.FlatAppearance.BorderSize = 1;
-            btnSubtract.FlatStyle = FlatStyle.Popup;
+            btnSubtract.FlatStyle = FlatStyle.Flat;
             btnSubtract.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnSubtract.ForeColor = Color.White;
             btnSubtract.Margin = new Padding(4);
             btnSubtract.Name = "btnSubtract";
             btnSubtract.TabIndex = 17;
@@ -212,10 +221,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn4.BackColor = Color.White;
             btn4.Dock = DockStyle.Fill;
-            btn4.FlatAppearance.BorderColor = Color.Black;
+            btn4.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn4.FlatAppearance.BorderSize = 1;
-            btn4.FlatStyle = FlatStyle.Popup;
+            btn4.FlatStyle = FlatStyle.Flat;
             btn4.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn4.ForeColor = Color.FromArgb(33, 37, 41);
             btn4.Margin = new Padding(4);
             btn4.Name = "btn4";
             btn4.TabIndex = 18;
@@ -227,10 +237,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn5.BackColor = Color.White;
             btn5.Dock = DockStyle.Fill;
-            btn5.FlatAppearance.BorderColor = Color.Black;
+            btn5.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn5.FlatAppearance.BorderSize = 1;
-            btn5.FlatStyle = FlatStyle.Popup;
+            btn5.FlatStyle = FlatStyle.Flat;
             btn5.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn5.ForeColor = Color.FromArgb(33, 37, 41);
             btn5.Margin = new Padding(4);
             btn5.Name = "btn5";
             btn5.TabIndex = 19;
@@ -242,10 +253,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn6.BackColor = Color.White;
             btn6.Dock = DockStyle.Fill;
-            btn6.FlatAppearance.BorderColor = Color.Black;
+            btn6.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn6.FlatAppearance.BorderSize = 1;
-            btn6.FlatStyle = FlatStyle.Popup;
+            btn6.FlatStyle = FlatStyle.Flat;
             btn6.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn6.ForeColor = Color.FromArgb(33, 37, 41);
             btn6.Margin = new Padding(4);
             btn6.Name = "btn6";
             btn6.TabIndex = 20;
@@ -255,12 +267,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnAdd
             // 
-            btnAdd.BackColor = Color.White;
+            btnAdd.BackColor = Color.FromArgb(23, 162, 184);
             btnAdd.Dock = DockStyle.Fill;
-            btnAdd.FlatAppearance.BorderColor = Color.Black;
+            btnAdd.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnAdd.FlatAppearance.BorderSize = 1;
-            btnAdd.FlatStyle = FlatStyle.Popup;
+            btnAdd.FlatStyle = FlatStyle.Flat;
             btnAdd.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnAdd.ForeColor = Color.White;
             btnAdd.Margin = new Padding(4);
             btnAdd.Name = "btnAdd";
             btnAdd.TabIndex = 21;
@@ -272,10 +285,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn1.BackColor = Color.White;
             btn1.Dock = DockStyle.Fill;
-            btn1.FlatAppearance.BorderColor = Color.Black;
+            btn1.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn1.FlatAppearance.BorderSize = 1;
-            btn1.FlatStyle = FlatStyle.Popup;
+            btn1.FlatStyle = FlatStyle.Flat;
             btn1.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn1.ForeColor = Color.FromArgb(33, 37, 41);
             btn1.Margin = new Padding(4);
             btn1.Name = "btn1";
             btn1.TabIndex = 22;
@@ -287,10 +301,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn2.BackColor = Color.White;
             btn2.Dock = DockStyle.Fill;
-            btn2.FlatAppearance.BorderColor = Color.Black;
+            btn2.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn2.FlatAppearance.BorderSize = 1;
-            btn2.FlatStyle = FlatStyle.Popup;
+            btn2.FlatStyle = FlatStyle.Flat;
             btn2.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn2.ForeColor = Color.FromArgb(33, 37, 41);
             btn2.Margin = new Padding(4);
             btn2.Name = "btn2";
             btn2.TabIndex = 23;
@@ -302,10 +317,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn3.BackColor = Color.White;
             btn3.Dock = DockStyle.Fill;
-            btn3.FlatAppearance.BorderColor = Color.Black;
+            btn3.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn3.FlatAppearance.BorderSize = 1;
-            btn3.FlatStyle = FlatStyle.Popup;
+            btn3.FlatStyle = FlatStyle.Flat;
             btn3.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn3.ForeColor = Color.FromArgb(33, 37, 41);
             btn3.Margin = new Padding(4);
             btn3.Name = "btn3";
             btn3.TabIndex = 24;
@@ -315,12 +331,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnEquals
             // 
-            btnEquals.BackColor = Color.White;
+            btnEquals.BackColor = Color.FromArgb(14, 165, 103);
             btnEquals.Dock = DockStyle.Fill;
-            btnEquals.FlatAppearance.BorderColor = Color.Black;
+            btnEquals.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnEquals.FlatAppearance.BorderSize = 1;
-            btnEquals.FlatStyle = FlatStyle.Popup;
+            btnEquals.FlatStyle = FlatStyle.Flat;
             btnEquals.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnEquals.ForeColor = Color.White;
             btnEquals.Margin = new Padding(4);
             btnEquals.Name = "btnEquals";
             btnEquals.TabIndex = 25;
@@ -332,10 +349,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btn0.BackColor = Color.White;
             btn0.Dock = DockStyle.Fill;
-            btn0.FlatAppearance.BorderColor = Color.Black;
+            btn0.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btn0.FlatAppearance.BorderSize = 1;
-            btn0.FlatStyle = FlatStyle.Popup;
+            btn0.FlatStyle = FlatStyle.Flat;
             btn0.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btn0.ForeColor = Color.FromArgb(33, 37, 41);
             btn0.Margin = new Padding(4);
             btn0.Name = "btn0";
             btn0.TabIndex = 26;
@@ -347,10 +365,11 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btnDot.BackColor = Color.White;
             btnDot.Dock = DockStyle.Fill;
-            btnDot.FlatAppearance.BorderColor = Color.Black;
+            btnDot.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnDot.FlatAppearance.BorderSize = 1;
-            btnDot.FlatStyle = FlatStyle.Popup;
+            btnDot.FlatStyle = FlatStyle.Flat;
             btnDot.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnDot.ForeColor = Color.FromArgb(33, 37, 41);
             btnDot.Margin = new Padding(4);
             btnDot.Name = "btnDot";
             btnDot.TabIndex = 27;
@@ -360,17 +379,17 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnClose
             // 
-            btnClose.BackColor = Color.White;
+            btnClose.BackColor = Color.FromArgb(108, 117, 125);
             btnClose.Dock = DockStyle.Bottom;
-            btnClose.FlatAppearance.BorderColor = Color.Black;
-            btnClose.FlatAppearance.BorderSize = 2;
-            btnClose.FlatStyle = FlatStyle.Popup;
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnClose.ForeColor = Color.White;
             btnClose.Location = new Point(0, 410);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(320, 38);
             btnClose.TabIndex = 28;
-            btnClose.Text = "إغلاق";
+            btnClose.Text = "إغلاق (Esc)";
             btnClose.UseVisualStyleBackColor = false;
             btnClose.Click += btnClose_Click;
             // 
@@ -399,7 +418,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // frmCalculator
             // 
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.FromArgb(170, 220, 170);
             CancelButton = btnClose;
             ClientSize = new Size(320, 448);
             Controls.Add(tblButtons);

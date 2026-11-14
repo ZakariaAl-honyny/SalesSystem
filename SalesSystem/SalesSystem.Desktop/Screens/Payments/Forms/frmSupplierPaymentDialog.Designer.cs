@@ -13,7 +13,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            tableLayoutPanel1 = new TableLayoutPanel();
+            gbPaymentInfo = new GroupBox();
+            tlpInfo = new TableLayoutPanel();
             lblSupplier = new Label();
             cmbSupplier = new ComboBox();
             lblBalance = new Label();
@@ -26,239 +27,347 @@
             dtpDate = new DateTimePicker();
             lblNotes = new Label();
             txtNotes = new TextBox();
-            pnlButtons = new FlowLayoutPanel();
-            btnCancel = new Button();
+            pnlFooter = new Panel();
+            flpButtons = new FlowLayoutPanel();
             btnSave = new Button();
-            tableLayoutPanel1.SuspendLayout();
+            btnCancel = new Button();
+            toolTip1 = new ToolTip(components);
+            liveTip = new ToolTip(components);
+            errorProvider = new ErrorProvider(components);
+            gbPaymentInfo.SuspendLayout();
+            tlpInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numAmount).BeginInit();
-            pnlButtons.SuspendLayout();
+            pnlFooter.SuspendLayout();
+            flpButtons.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
             // 
-            // tableLayoutPanel1
+            // gbPaymentInfo
             // 
-            tableLayoutPanel1.ColumnCount = 2;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Controls.Add(lblSupplier, 0, 0);
-            tableLayoutPanel1.Controls.Add(cmbSupplier, 1, 0);
-            tableLayoutPanel1.Controls.Add(lblBalance, 0, 1);
-            tableLayoutPanel1.Controls.Add(lblBalanceVal, 1, 1);
-            tableLayoutPanel1.Controls.Add(lblInvoice, 0, 2);
-            tableLayoutPanel1.Controls.Add(cmbInvoice, 1, 2);
-            tableLayoutPanel1.Controls.Add(lblAmount, 0, 3);
-            tableLayoutPanel1.Controls.Add(numAmount, 1, 3);
-            tableLayoutPanel1.Controls.Add(lblDate, 0, 4);
-            tableLayoutPanel1.Controls.Add(dtpDate, 1, 4);
-            tableLayoutPanel1.Controls.Add(lblNotes, 0, 5);
-            tableLayoutPanel1.Controls.Add(txtNotes, 1, 5);
-            tableLayoutPanel1.Dock = DockStyle.Top;
-            tableLayoutPanel1.Location = new Point(0, 0);
-            tableLayoutPanel1.Margin = new Padding(4);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.Padding = new Padding(12);
-            tableLayoutPanel1.RowCount = 6;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel1.Size = new Size(625, 438);
-            tableLayoutPanel1.TabIndex = 1;
+            gbPaymentInfo.BackColor = Color.FromArgb(235, 245, 235);
+            gbPaymentInfo.Controls.Add(tlpInfo);
+            gbPaymentInfo.Dock = DockStyle.Fill;
+            gbPaymentInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbPaymentInfo.ForeColor = Color.FromArgb(14, 82, 52);
+            gbPaymentInfo.Location = new Point(0, 0);
+            gbPaymentInfo.Margin = new Padding(0);
+            gbPaymentInfo.Name = "gbPaymentInfo";
+            gbPaymentInfo.Padding = new Padding(12, 6, 12, 8);
+            gbPaymentInfo.Size = new Size(640, 418);
+            gbPaymentInfo.TabIndex = 0;
+            gbPaymentInfo.TabStop = false;
+            gbPaymentInfo.Text = "بيانات السند";
+            // 
+            // tlpInfo
+            // 
+            tlpInfo.BackColor = Color.FromArgb(235, 245, 235);
+            tlpInfo.ColumnCount = 2;
+            tlpInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F));
+            tlpInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tlpInfo.Controls.Add(lblSupplier, 0, 0);
+            tlpInfo.Controls.Add(cmbSupplier, 1, 0);
+            tlpInfo.Controls.Add(lblBalance, 0, 1);
+            tlpInfo.Controls.Add(lblBalanceVal, 1, 1);
+            tlpInfo.Controls.Add(lblInvoice, 0, 2);
+            tlpInfo.Controls.Add(cmbInvoice, 1, 2);
+            tlpInfo.Controls.Add(lblAmount, 0, 3);
+            tlpInfo.Controls.Add(numAmount, 1, 3);
+            tlpInfo.Controls.Add(lblDate, 0, 4);
+            tlpInfo.Controls.Add(dtpDate, 1, 4);
+            tlpInfo.Controls.Add(lblNotes, 0, 5);
+            tlpInfo.Controls.Add(txtNotes, 1, 5);
+            tlpInfo.Dock = DockStyle.Fill;
+            tlpInfo.Location = new Point(12, 24);
+            tlpInfo.Margin = new Padding(0);
+            tlpInfo.Name = "tlpInfo";
+            tlpInfo.RowCount = 6;
+            tlpInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            tlpInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            tlpInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            tlpInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            tlpInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
+            tlpInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tlpInfo.Size = new Size(616, 386);
+            tlpInfo.TabIndex = 0;
             // 
             // lblSupplier
             // 
-            lblSupplier.Location = new Point(484, 12);
+            lblSupplier.Dock = DockStyle.Fill;
+            lblSupplier.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblSupplier.ForeColor = Color.FromArgb(14, 82, 52);
+            lblSupplier.Location = new Point(4, 0);
             lblSupplier.Margin = new Padding(4, 0, 4, 0);
             lblSupplier.Name = "lblSupplier";
-            lblSupplier.Size = new Size(125, 20);
+            lblSupplier.Size = new Size(162, 46);
             lblSupplier.TabIndex = 0;
-            lblSupplier.Text = "المورد:";
+            lblSupplier.Text = "المورد: *";
+            lblSupplier.TextAlign = ContentAlignment.MiddleRight;
             // 
             // cmbSupplier
             // 
+            cmbSupplier.BackColor = Color.White;
             cmbSupplier.Dock = DockStyle.Fill;
-            cmbSupplier.Location = new Point(16, 16);
-            cmbSupplier.Margin = new Padding(4);
+            cmbSupplier.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbSupplier.FlatStyle = FlatStyle.Flat;
+            cmbSupplier.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cmbSupplier.FormattingEnabled = true;
+            cmbSupplier.Location = new Point(174, 8);
+            cmbSupplier.Margin = new Padding(4, 8, 4, 6);
             cmbSupplier.Name = "cmbSupplier";
-            cmbSupplier.Size = new Size(443, 37);
+            cmbSupplier.Size = new Size(438, 32);
             cmbSupplier.TabIndex = 1;
+            cmbSupplier.SelectedIndexChanged += cmbSupplier_SelectedIndexChanged;
             // 
             // lblBalance
             // 
-            lblBalance.Location = new Point(484, 32);
+            lblBalance.Dock = DockStyle.Fill;
+            lblBalance.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblBalance.ForeColor = Color.FromArgb(14, 82, 52);
+            lblBalance.Location = new Point(4, 46);
             lblBalance.Margin = new Padding(4, 0, 4, 0);
             lblBalance.Name = "lblBalance";
-            lblBalance.Size = new Size(125, 20);
+            lblBalance.Size = new Size(162, 46);
             lblBalance.TabIndex = 2;
             lblBalance.Text = "الرصيد الحالي:";
+            lblBalance.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblBalanceVal
             // 
-            lblBalanceVal.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblBalanceVal.ForeColor = Color.Red;
-            lblBalanceVal.Location = new Point(391, 32);
+            lblBalanceVal.Dock = DockStyle.Fill;
+            lblBalanceVal.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblBalanceVal.ForeColor = Color.Blue;
+            lblBalanceVal.Location = new Point(174, 46);
             lblBalanceVal.Margin = new Padding(4, 0, 4, 0);
             lblBalanceVal.Name = "lblBalanceVal";
-            lblBalanceVal.Size = new Size(68, 20);
+            lblBalanceVal.Size = new Size(438, 46);
             lblBalanceVal.TabIndex = 3;
             lblBalanceVal.Text = "0.00";
+            lblBalanceVal.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // lblInvoice
             // 
-            lblInvoice.Location = new Point(484, 52);
+            lblInvoice.Dock = DockStyle.Fill;
+            lblInvoice.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblInvoice.ForeColor = Color.FromArgb(14, 82, 52);
+            lblInvoice.Location = new Point(4, 92);
             lblInvoice.Margin = new Padding(4, 0, 4, 0);
             lblInvoice.Name = "lblInvoice";
-            lblInvoice.Size = new Size(125, 20);
+            lblInvoice.Size = new Size(162, 46);
             lblInvoice.TabIndex = 4;
             lblInvoice.Text = "رقم الفاتورة:";
+            lblInvoice.TextAlign = ContentAlignment.MiddleRight;
             // 
             // cmbInvoice
             // 
+            cmbInvoice.BackColor = Color.White;
             cmbInvoice.Dock = DockStyle.Fill;
-            cmbInvoice.Location = new Point(16, 56);
-            cmbInvoice.Margin = new Padding(4);
+            cmbInvoice.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbInvoice.FlatStyle = FlatStyle.Flat;
+            cmbInvoice.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cmbInvoice.FormattingEnabled = true;
+            cmbInvoice.Location = new Point(174, 100);
+            cmbInvoice.Margin = new Padding(4, 8, 4, 6);
             cmbInvoice.Name = "cmbInvoice";
-            cmbInvoice.Size = new Size(443, 37);
+            cmbInvoice.Size = new Size(438, 32);
             cmbInvoice.TabIndex = 5;
             // 
             // lblAmount
             // 
-            lblAmount.Location = new Point(484, 72);
+            lblAmount.Dock = DockStyle.Fill;
+            lblAmount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblAmount.ForeColor = Color.FromArgb(14, 82, 52);
+            lblAmount.Location = new Point(4, 138);
             lblAmount.Margin = new Padding(4, 0, 4, 0);
             lblAmount.Name = "lblAmount";
-            lblAmount.Size = new Size(125, 20);
+            lblAmount.Size = new Size(162, 46);
             lblAmount.TabIndex = 6;
-            lblAmount.Text = "المبلغ المدفوع:";
+            lblAmount.Text = "المبلغ المدفوع: *";
+            lblAmount.TextAlign = ContentAlignment.MiddleRight;
             // 
             // numAmount
             // 
+            numAmount.BackColor = Color.White;
             numAmount.DecimalPlaces = 2;
             numAmount.Dock = DockStyle.Fill;
-            numAmount.Location = new Point(16, 76);
-            numAmount.Margin = new Padding(4);
+            numAmount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            numAmount.Location = new Point(174, 146);
+            numAmount.Margin = new Padding(4, 8, 4, 6);
             numAmount.Maximum = new decimal(new int[] { 10000000, 0, 0, 0 });
             numAmount.Name = "numAmount";
-            numAmount.Size = new Size(443, 36);
+            numAmount.Size = new Size(438, 32);
             numAmount.TabIndex = 7;
+            numAmount.TextAlign = HorizontalAlignment.Right;
+            numAmount.ThousandsSeparator = true;
             // 
             // lblDate
             // 
-            lblDate.Location = new Point(484, 92);
+            lblDate.Dock = DockStyle.Fill;
+            lblDate.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblDate.ForeColor = Color.FromArgb(14, 82, 52);
+            lblDate.Location = new Point(4, 184);
             lblDate.Margin = new Padding(4, 0, 4, 0);
             lblDate.Name = "lblDate";
-            lblDate.Size = new Size(125, 20);
+            lblDate.Size = new Size(162, 46);
             lblDate.TabIndex = 8;
             lblDate.Text = "التاريخ:";
+            lblDate.TextAlign = ContentAlignment.MiddleRight;
             // 
             // dtpDate
             // 
+            dtpDate.BackColor = Color.White;
             dtpDate.Dock = DockStyle.Fill;
-            dtpDate.Location = new Point(16, 96);
-            dtpDate.Margin = new Padding(4);
+            dtpDate.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dtpDate.Format = DateTimePickerFormat.Short;
+            dtpDate.Location = new Point(174, 192);
+            dtpDate.Margin = new Padding(4, 8, 4, 6);
             dtpDate.Name = "dtpDate";
-            dtpDate.Size = new Size(443, 36);
+            dtpDate.Size = new Size(438, 32);
             dtpDate.TabIndex = 9;
             // 
             // lblNotes
             // 
-            lblNotes.Location = new Point(484, 112);
+            lblNotes.Dock = DockStyle.Fill;
+            lblNotes.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblNotes.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNotes.Location = new Point(4, 230);
             lblNotes.Margin = new Padding(4, 0, 4, 0);
             lblNotes.Name = "lblNotes";
-            lblNotes.Size = new Size(125, 29);
+            lblNotes.Size = new Size(162, 156);
             lblNotes.TabIndex = 10;
             lblNotes.Text = "ملاحظات:";
+            lblNotes.TextAlign = ContentAlignment.TopRight;
             // 
             // txtNotes
             // 
+            txtNotes.BackColor = Color.White;
             txtNotes.Dock = DockStyle.Fill;
-            txtNotes.Location = new Point(16, 116);
-            txtNotes.Margin = new Padding(4);
+            txtNotes.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtNotes.Location = new Point(174, 238);
+            txtNotes.Margin = new Padding(4, 8, 4, 8);
             txtNotes.Multiline = true;
             txtNotes.Name = "txtNotes";
-            txtNotes.Size = new Size(443, 306);
+            txtNotes.ScrollBars = ScrollBars.Vertical;
+            txtNotes.Size = new Size(438, 140);
             txtNotes.TabIndex = 11;
             // 
-            // pnlButtons
+            // pnlFooter
             // 
-            pnlButtons.Controls.Add(btnCancel);
-            pnlButtons.Controls.Add(btnSave);
-            pnlButtons.Dock = DockStyle.Bottom;
-            pnlButtons.FlowDirection = FlowDirection.RightToLeft;
-            pnlButtons.Location = new Point(0, 463);
-            pnlButtons.Margin = new Padding(4);
-            pnlButtons.Name = "pnlButtons";
-            pnlButtons.Padding = new Padding(12, 0, 12, 0);
-            pnlButtons.Size = new Size(625, 62);
-            pnlButtons.TabIndex = 0;
+            pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+            pnlFooter.Controls.Add(flpButtons);
+            pnlFooter.Dock = DockStyle.Bottom;
+            pnlFooter.Location = new Point(0, 418);
+            pnlFooter.Margin = new Padding(0);
+            pnlFooter.Name = "pnlFooter";
+            pnlFooter.Size = new Size(640, 74);
+            pnlFooter.TabIndex = 1;
             // 
-            // btnCancel
+            // flpButtons
             // 
-            btnCancel.BackColor = Color.White;
-            btnCancel.FlatAppearance.BorderColor = Color.Black;
-            btnCancel.FlatAppearance.BorderSize = 2;
-            btnCancel.FlatStyle = FlatStyle.Popup;
-            btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancel.Location = new Point(16, 4);
-            btnCancel.Margin = new Padding(4);
-            btnCancel.Name = "btnCancel";
-            btnCancel.Size = new Size(100, 44);
-            btnCancel.TabIndex = 0;
-            btnCancel.Text = "إلغاء";
-            btnCancel.UseVisualStyleBackColor = false;
+            flpButtons.BackColor = Color.FromArgb(235, 240, 235);
+            flpButtons.Controls.Add(btnSave);
+            flpButtons.Controls.Add(btnCancel);
+            flpButtons.Dock = DockStyle.Fill;
+            flpButtons.FlowDirection = FlowDirection.RightToLeft;
+            flpButtons.Location = new Point(0, 0);
+            flpButtons.Margin = new Padding(0);
+            flpButtons.Name = "flpButtons";
+            flpButtons.Padding = new Padding(12, 11, 12, 11);
+            flpButtons.Size = new Size(640, 74);
+            flpButtons.TabIndex = 0;
+            flpButtons.WrapContents = false;
             // 
             // btnSave
             // 
-            btnSave.BackColor = Color.White;
-            btnSave.FlatAppearance.BorderColor = Color.Black;
-            btnSave.FlatAppearance.BorderSize = 2;
-            btnSave.FlatStyle = FlatStyle.Popup;
+            btnSave.BackColor = Color.FromArgb(25, 135, 84);
+            btnSave.FlatAppearance.BorderSize = 0;
+            btnSave.FlatStyle = FlatStyle.Flat;
             btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSave.Location = new Point(124, 4);
+            btnSave.ForeColor = Color.White;
+            btnSave.Location = new Point(486, 11);
             btnSave.Margin = new Padding(4);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(125, 44);
-            btnSave.TabIndex = 1;
-            btnSave.Text = "حفظ السند";
+            btnSave.Size = new Size(140, 40);
+            btnSave.TabIndex = 0;
+            btnSave.Text = "حفظ السند (F4)";
             btnSave.UseVisualStyleBackColor = false;
+            btnSave.Click += btnSave_Click;
+            // 
+            // btnCancel
+            // 
+            btnCancel.BackColor = Color.FromArgb(108, 117, 125);
+            btnCancel.FlatAppearance.BorderSize = 0;
+            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancel.ForeColor = Color.White;
+            btnCancel.Location = new Point(342, 11);
+            btnCancel.Margin = new Padding(4);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(136, 40);
+            btnCancel.TabIndex = 1;
+            btnCancel.Text = "إلغاء (Esc)";
+            btnCancel.UseVisualStyleBackColor = false;
+            btnCancel.Click += btnCancel_Click;
+            // 
+            // toolTip1
+            // 
+            toolTip1.AutomaticDelay = 300;
+            toolTip1.BackColor = Color.White;
+            toolTip1.ForeColor = Color.Black;
+            // 
+            // liveTip
+            // 
+            liveTip.AutomaticDelay = 300;
+            liveTip.BackColor = Color.White;
+            liveTip.ForeColor = Color.Black;
             // 
             // errorProvider
             // 
-            this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-            this.errorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.NeverBlink;
+            errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
+            errorProvider.ContainerControl = this;
+            errorProvider.RightToLeft = true;
             // 
             // frmSupplierPaymentDialog
             // 
+            AcceptButton = btnSave;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.WhiteSmoke;
-            ClientSize = new Size(625, 525);
-            Controls.Add(pnlButtons);
-            Controls.Add(tableLayoutPanel1);
-            Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            BackColor = Color.FromArgb(170, 220, 170);
+            CancelButton = btnCancel;
+            ClientSize = new Size(640, 492);
+            Controls.Add(gbPaymentInfo);
+            Controls.Add(pnlFooter);
+            Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            KeyPreview = true;
             Margin = new Padding(4);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "frmSupplierPaymentDialog";
             RightToLeft = RightToLeft.Yes;
             RightToLeftLayout = true;
-            StartPosition = FormStartPosition.CenterScreen;
+            StartPosition = FormStartPosition.CenterParent;
             Text = "سند صرف جديد";
-            tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel1.PerformLayout();
+            gbPaymentInfo.ResumeLayout(false);
+            tlpInfo.ResumeLayout(false);
+            tlpInfo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numAmount).EndInit();
-            pnlButtons.ResumeLayout(false);
+            pnlFooter.ResumeLayout(false);
+            flpButtons.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
             ResumeLayout(false);
         }
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.GroupBox gbPaymentInfo;
+        private System.Windows.Forms.TableLayoutPanel tlpInfo;
         private System.Windows.Forms.Label lblSupplier, lblBalance, lblBalanceVal, lblInvoice, lblAmount, lblDate, lblNotes;
         private System.Windows.Forms.ComboBox cmbSupplier, cmbInvoice;
         private System.Windows.Forms.NumericUpDown numAmount;
         private System.Windows.Forms.DateTimePicker dtpDate;
         private System.Windows.Forms.TextBox txtNotes;
-        private System.Windows.Forms.FlowLayoutPanel pnlButtons;
+        private System.Windows.Forms.Panel pnlFooter;
+        private System.Windows.Forms.FlowLayoutPanel flpButtons;
         private System.Windows.Forms.Button btnSave, btnCancel;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolTip liveTip;
         private System.Windows.Forms.ErrorProvider errorProvider;
     }
 }

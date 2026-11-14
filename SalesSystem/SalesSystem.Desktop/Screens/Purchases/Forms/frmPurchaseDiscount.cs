@@ -3,10 +3,9 @@ using SalesSystem.Desktop.Helpers;
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
-/// نافذة "خصم المشتريات" — نموذج واجهة (UI Shape) يعمل ببيانات وهمية في الذاكرة فقط
-/// دون أي اتصال بالخادم (وضع التجربة / UI-First).
-/// تُعرض عبر ShowDialog وتُعيد إلى النموذج الأب قيمة الخصم ونوعه (مبلغ / نسبة)
-/// ونسبة الضريبة والصافي النهائي عبر خصائص عامة بعد الموافقة.
+/// حوار «خصم المشتريات» — واجهة أولية ببيانات وهمية في الذاكرة (وضع التجربة / UI-First).
+/// يُعرض عبر <c>ShowDialog</c> ويُعيد قيمة الخصم ونوعه (مبلغ / نسبة) ونسبة الضريبة والصافي النهائي.
+/// <para>RULE-N40…RULE-N47 / RULE-N50…RULE-N54 / RULE-N97 — التنقل والثيم والتفقيط الحيّ.</para>
 /// </summary>
 public partial class frmPurchaseDiscount : Form
 {
@@ -22,14 +21,63 @@ public partial class frmPurchaseDiscount : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
+        KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
+            (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N97 — التفقيط الحيّ على قيمة الخصم.
+        LiveTafqeetHelper.Attach(tipTafqeet,
+            (numDiscount, "قيمة الخصم", LiveTafqeetHelper.ReadMode.Money));
+
+        ApplyUiTheme(); // RULE-N50
 
         LoadMockData();
         Recalculate();
     }
 
     // ═══════════════════════════════════════════════════════════
-    // نتائج النافذة — يقرأها النموذج الأب بعد ShowDialog
+    // الثيم (RULE-N50…RULE-N54)
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply</c> آخر سطر (RULE-N50).</summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+
+        ThemeHelper.ApplyButtonStyle(btnOk, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnCancel, ThemeHelper.ButtonType.Secondary);
+
+        // ThemeHelper يفرض Segoe UI ويوسّع الأزرار ⇒ نثبّت Tahoma والأحجام (RULE-N21).
+        foreach (var btn in new[] { btnOk, btnCancel })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btn.Size = new Size(140, 40);
+        }
+
+        btnOk.ForeColor = Color.White;
+        btnOk.Margin = new Padding(0, 0, 8, 0);
+        btnCancel.Size = new Size(92, 40);
+        btnCancel.Margin = new Padding(0);
+
+        toolTip.SetToolTip(btnOk, "موافق — اعتماد الخصم وإغلاق الحوار (Enter)");
+        toolTip.SetToolTip(btnCancel, "إلغاء وإغلاق الحوار بلا حفظ (Esc)");
+        toolTip.SetToolTip(numDiscount, "قيمة الخصم — مبلغ ثابت أو نسبة مئوية حسب النوع المحدد");
+        toolTip.SetToolTip(cmbTax, "نسبة الضريبة المطبَّقة على المجموع بعد الخصم");
+
+        GreenThemeHelper.ApplyHeader(lblTitle);
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // نتائج الحوار — يقرأها النموذج الأب بعد ShowDialog
     // ═══════════════════════════════════════════════════════════
     public decimal Subtotal => MockSubtotal;
 
@@ -44,12 +92,12 @@ public partial class frmPurchaseDiscount : Form
         cmbTax.SelectedItem?.ToString() is { } s
         && decimal.TryParse(s.TrimEnd('%'), out var rate) ? rate : 0m;
 
-    /// <summary>قيمة الخصم المحسوبة بالريال اليمني (مبلغ أو نسبة × المجموع الفرعي).</summary>
+    /// <summary>قيمة الخصم المحسوبة بالريال اليمني (مبلغ أو نسبة × المجموع الفرعي) — منطق محفوظ كما هو.</summary>
     public decimal DiscountAmount => IsPercentageDiscount
         ? Subtotal * (DiscountValue / 100m)
         : DiscountValue;
 
-    /// <summary>مبلغ الضريبة المحسوبة على المجموع بعد الخصم.</summary>
+    /// <summary>مبلغ الضريبة المحسوبة على المجموع بعد الخصم — منطق محفوظ كما هو.</summary>
     public decimal TaxAmount => (Subtotal - DiscountAmount) * (TaxRate / 100m);
 
     /// <summary>
@@ -105,36 +153,44 @@ public partial class frmPurchaseDiscount : Form
     {
         try
         {
+            errorProvider.SetError(numDiscount, "");
+
             if (DiscountValue < 0)
             {
+                errorProvider.SetError(numDiscount, "لا يمكن أن تكون قيمة الخصم سالبة.");
                 MessageBox.Show("لا يمكن أن تكون قيمة الخصم سالبة.", "تحقق من القيم",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                numDiscount.Focus();
                 return;
             }
 
             // منع خصم أكبر من المجموع الفرعي عند الخصم بالمبلغ
             if (!IsPercentageDiscount && DiscountValue > Subtotal)
             {
+                errorProvider.SetError(numDiscount, "قيمة الخصم أكبر من المجموع الفرعي للفاتورة.");
                 MessageBox.Show("قيمة الخصم أكبر من المجموع الفرعي للفاتورة.", "تحقق من القيم",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                numDiscount.Focus();
                 return;
             }
 
             // منع خصم بنسبة تتجاوز 100%
             if (IsPercentageDiscount && DiscountValue > 100m)
             {
+                errorProvider.SetError(numDiscount, "نسبة الخصم لا يمكن أن تتجاوز 100%.");
                 MessageBox.Show("نسبة الخصم لا يمكن أن تتجاوز 100%.", "تحقق من القيم",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                numDiscount.Focus();
                 return;
             }
 
-            // في النسخة النهائية تُعاد القيم إلى فاتورة الشراء عبر خصائص النافذة
+            // في النسخة النهائية تُعاد القيم إلى فاتورة الشراء عبر خصائص الحوار
             DialogResult = DialogResult.OK;
             Close();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // واجهة تجريبية: لا يوجد اتصال بالخادم بعد — رسالة عامة فقط
+            Serilog.Log.Error(ex, "خطأ في حوار خصم المشتريات");
             MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
         }

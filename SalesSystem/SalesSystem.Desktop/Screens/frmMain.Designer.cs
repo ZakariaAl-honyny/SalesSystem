@@ -130,6 +130,14 @@
             msAccounting = new ToolStripMenuItem();
             msbtnChartOfAccounts = new ToolStripMenuItem();
             msbtnJournalEntries = new ToolStripMenuItem();
+            // ── شاشات أُضيفت إلى القائمة (استيراد الأصناف · تحويل مخزني · جرد · FIFO · باركود · حاسبة) ──
+            msbtnImportProducts = new ToolStripMenuItem();
+            msbtnInventoryTransfer = new ToolStripMenuItem();
+            msbtnInventoryCounts = new ToolStripMenuItem();
+            msbtnInventoryFifo = new ToolStripMenuItem();
+            msbtnInventoryBarcode = new ToolStripMenuItem();
+            msTools = new ToolStripMenuItem();
+            msbtnCalculator = new ToolStripMenuItem();
 
             errorProvider1 = new ErrorProvider(components);
             msMainMenu.SuspendLayout();
@@ -144,8 +152,11 @@
             msMainMenu.ImageScalingSize = new Size(24, 24);
             msMainMenu.Items.AddRange(new ToolStripItem[] {
                 msbtnDashboard, msFile, msSale, msBuy, msBasis, msStore, msRevenue,
-                msAccounting, msData, msReport, msSettings, msAccoutSettings
+                msAccounting, msData, msReport, msTools, msSettings, msAccoutSettings
             });
+            // RULE-N134: نفس قيم GreenThemeHelper (BarBackground · TextStrong) في المصمّم ووقت التشغيل
+            msMainMenu.BackColor = Color.FromArgb(235, 240, 235);
+            msMainMenu.ForeColor = Color.FromArgb(14, 82, 52);
             msMainMenu.Location = new Point(0, 0);
             msMainMenu.Name = "msMainMenu";
             msMainMenu.Size = new Size(1378, 37);
@@ -187,7 +198,9 @@
             // msBasis
             // 
             msBasis.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnManageProducts
+                msbtnManageProducts, msbtnImportProducts,
+                new ToolStripSeparator(),
+                msbtnManageCategories, msbtnManageUnits
             });
             msBasis.Name = "msBasis";
             msBasis.Size = new Size(105, 33);
@@ -235,7 +248,10 @@
                 new ToolStripSeparator(),
                 msbtnManageWarehouses, msbtnInventoryMovement,
                 msbtnInventoryTransactions, msbtnInventoryBatches,
-                msbtnInventoryAdjustments, msbtnOpeningStock
+                msbtnInventoryAdjustments, msbtnOpeningStock,
+                new ToolStripSeparator(),
+                msbtnInventoryTransfer, msbtnInventoryCounts,
+                msbtnInventoryFifo, msbtnInventoryBarcode
             });
             msStore.Name = "msStore";
             msStore.Size = new Size(95, 33);
@@ -480,6 +496,57 @@
             msbtnJournalEntries.Size = new Size(300, 38);
             msbtnJournalEntries.Text = "القيود المحاسبية";
             msbtnJournalEntries.Click += msbtnJournalEntries_Click;
+            // 
+            // msbtnImportProducts
+            // 
+            msbtnImportProducts.Name = "msbtnImportProducts";
+            msbtnImportProducts.Size = new Size(300, 38);
+            msbtnImportProducts.Text = "استيراد الأصناف من Excel";
+            msbtnImportProducts.Click += msbtnImportProducts_Click;
+            // 
+            // msbtnInventoryTransfer
+            // 
+            msbtnInventoryTransfer.Name = "msbtnInventoryTransfer";
+            msbtnInventoryTransfer.Size = new Size(300, 38);
+            msbtnInventoryTransfer.Text = "تحويل مخزني بين المستودعات";
+            msbtnInventoryTransfer.Click += msbtnInventoryTransfer_Click;
+            // 
+            // msbtnInventoryCounts
+            // 
+            msbtnInventoryCounts.Name = "msbtnInventoryCounts";
+            msbtnInventoryCounts.Size = new Size(300, 38);
+            msbtnInventoryCounts.Text = "جرد المخزون";
+            msbtnInventoryCounts.Click += msbtnInventoryCounts_Click;
+            // 
+            // msbtnInventoryFifo
+            // 
+            msbtnInventoryFifo.Name = "msbtnInventoryFifo";
+            msbtnInventoryFifo.Size = new Size(300, 38);
+            msbtnInventoryFifo.Text = "توزيع الدفعات (FIFO / FEFO)";
+            msbtnInventoryFifo.Click += msbtnInventoryFifo_Click;
+            // 
+            // msbtnInventoryBarcode
+            // 
+            msbtnInventoryBarcode.Name = "msbtnInventoryBarcode";
+            msbtnInventoryBarcode.Size = new Size(300, 38);
+            msbtnInventoryBarcode.Text = "طباعة باركود الأصناف";
+            msbtnInventoryBarcode.Click += msbtnInventoryBarcode_Click;
+            // 
+            // msTools
+            // 
+            msTools.DropDownItems.AddRange(new ToolStripItem[] {
+                msbtnCalculator
+            });
+            msTools.Name = "msTools";
+            msTools.Size = new Size(79, 33);
+            msTools.Text = "أدوات";
+            // 
+            // msbtnCalculator
+            // 
+            msbtnCalculator.Name = "msbtnCalculator";
+            msbtnCalculator.Size = new Size(300, 38);
+            msbtnCalculator.Text = "الآلة الحاسبة";
+            msbtnCalculator.Click += msbtnCalculator_Click;
             // 
             // msReport
             // 
@@ -855,7 +922,7 @@
             AutoSize = true;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             AutoValidate = AutoValidate.EnableAllowFocusChange;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.FromArgb(170, 220, 170);
             ClientSize = new Size(1378, 944);
             Controls.Add(msMainMenu);
             Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -967,6 +1034,14 @@
         private ToolStripMenuItem msAccounting;
         private ToolStripMenuItem msbtnChartOfAccounts;
         private ToolStripMenuItem msbtnJournalEntries;
+        // شاشات أُضيفت إلى القائمة (RULE-N71/N76)
+        private ToolStripMenuItem msbtnImportProducts;
+        private ToolStripMenuItem msbtnInventoryTransfer;
+        private ToolStripMenuItem msbtnInventoryCounts;
+        private ToolStripMenuItem msbtnInventoryFifo;
+        private ToolStripMenuItem msbtnInventoryBarcode;
+        private ToolStripMenuItem msTools;
+        private ToolStripMenuItem msbtnCalculator;
         private ToolStripMenuItem msbtnInventory;
         private ToolStripMenuItem msSettings;
         private ToolStripMenuItem msbtnSettings;

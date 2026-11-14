@@ -6,159 +6,394 @@ partial class frmImportProductsExcel
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && (components != null))
+        if (disposing && components != null)
         {
             components.Dispose();
         }
         base.Dispose(disposing);
     }
 
+    #region Windows Form Designer generated code
+
     private void InitializeComponent()
     {
-        this.pnlTop = new System.Windows.Forms.Panel();
-        this.btnSelectFile = new System.Windows.Forms.Button();
-        this.btnDownloadTemplate = new System.Windows.Forms.Button();
-        this.btnGenerateBarcodes = new System.Windows.Forms.Button();
-        this.dgvPreview = new System.Windows.Forms.DataGridView();
-        this.pnlBottom = new System.Windows.Forms.Panel();
-        this.lblCount = new System.Windows.Forms.Label();
-        this.btnSave = new System.Windows.Forms.Button();
-        this.pnlTop.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)(this.dgvPreview)).BeginInit();
-        this.pnlBottom.SuspendLayout();
-        this.SuspendLayout();
+        components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+        lblMode = new Label();
+        gbFile = new GroupBox();
+        btnSelectFile = new Button();
+        btnDownloadTemplate = new Button();
+        lblFileCaption = new Label();
+        lblFilePath = new Label();
+        gbOptions = new GroupBox();
+        btnGenerateBarcodes = new Button();
+        gbPreview = new GroupBox();
+        dgvPreview = new DataGridView();
+        pnlPreviewTop = new Panel();
+        lblSearch = new Label();
+        txtSearch = new TextBox();
+        lblNoData = new Label();
+        pnlSummary = new Panel();
+        lblCount = new Label();
+        lblSummary = new Label();
+        pnlFooter = new Panel();
+        btnSave = new Button();
+        btnClose = new Button();
+        gbFile.SuspendLayout();
+        gbOptions.SuspendLayout();
+        gbPreview.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)dgvPreview).BeginInit();
+        pnlPreviewTop.SuspendLayout();
+        pnlSummary.SuspendLayout();
+        pnlFooter.SuspendLayout();
+        SuspendLayout();
         // 
-        // pnlTop
+        // lblMode
         // 
-        this.pnlTop.Controls.Add(this.btnSelectFile);
-        this.pnlTop.Controls.Add(this.btnDownloadTemplate);
-        this.pnlTop.Controls.Add(this.btnGenerateBarcodes);
-        this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
-        this.pnlTop.Location = new System.Drawing.Point(0, 0);
-        this.pnlTop.Name = "pnlTop";
-        this.pnlTop.Size = new System.Drawing.Size(984, 60);
-        this.pnlTop.TabIndex = 0;
+        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.Dock = DockStyle.Top;
+        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblMode.ForeColor = Color.White;
+        lblMode.Location = new Point(0, 0);
+        lblMode.Name = "lblMode";
+        lblMode.Size = new Size(1000, 48);
+        lblMode.TabIndex = 0;
+        lblMode.Text = "استيراد الأصناف من ملف Excel";
+        lblMode.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // gbFile
+        // 
+        gbFile.BackColor = Color.FromArgb(235, 245, 235);
+        gbFile.Controls.Add(btnSelectFile);
+        gbFile.Controls.Add(btnDownloadTemplate);
+        gbFile.Controls.Add(lblFileCaption);
+        gbFile.Controls.Add(lblFilePath);
+        gbFile.Dock = DockStyle.Top;
+        gbFile.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        gbFile.ForeColor = Color.FromArgb(14, 82, 52);
+        gbFile.Location = new Point(0, 48);
+        gbFile.Name = "gbFile";
+        gbFile.Padding = new Padding(8);
+        gbFile.Size = new Size(1000, 86);
+        gbFile.TabIndex = 1;
+        gbFile.TabStop = false;
+        gbFile.Text = "ملف الاستيراد";
         // 
         // btnSelectFile
         // 
-        this.btnSelectFile.BackColor = System.Drawing.Color.MediumSeaGreen;
-        this.btnSelectFile.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-        this.btnSelectFile.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-        this.btnSelectFile.ForeColor = System.Drawing.Color.White;
-        this.btnSelectFile.Location = new System.Drawing.Point(820, 12);
-        this.btnSelectFile.Name = "btnSelectFile";
-        this.btnSelectFile.Size = new System.Drawing.Size(150, 35);
-        this.btnSelectFile.TabIndex = 0;
-        this.btnSelectFile.Text = "اختر ملف إكسل";
-        this.btnSelectFile.UseVisualStyleBackColor = false;
-        this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
+        btnSelectFile.BackColor = Color.FromArgb(14, 165, 103);
+        btnSelectFile.FlatAppearance.BorderSize = 0;
+        btnSelectFile.FlatStyle = FlatStyle.Flat;
+        btnSelectFile.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnSelectFile.ForeColor = Color.White;
+        btnSelectFile.Location = new Point(808, 34);
+        btnSelectFile.Name = "btnSelectFile";
+        btnSelectFile.Size = new Size(160, 38);
+        btnSelectFile.TabIndex = 0;
+        btnSelectFile.Text = "اختر ملف إكسل";
+        btnSelectFile.UseVisualStyleBackColor = false;
+        btnSelectFile.Click += btnSelectFile_Click;
         // 
         // btnDownloadTemplate
         // 
-        this.btnDownloadTemplate.BackColor = System.Drawing.Color.SteelBlue;
-        this.btnDownloadTemplate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-        this.btnDownloadTemplate.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-        this.btnDownloadTemplate.ForeColor = System.Drawing.Color.White;
-        this.btnDownloadTemplate.Location = new System.Drawing.Point(660, 12);
-        this.btnDownloadTemplate.Name = "btnDownloadTemplate";
-        this.btnDownloadTemplate.Size = new System.Drawing.Size(150, 35);
-        this.btnDownloadTemplate.TabIndex = 1;
-        this.btnDownloadTemplate.Text = "تحميل نموذج";
-        this.btnDownloadTemplate.UseVisualStyleBackColor = false;
-        this.btnDownloadTemplate.Click += new System.EventHandler(this.btnDownloadTemplate_Click);
+        btnDownloadTemplate.BackColor = Color.FromArgb(108, 117, 125);
+        btnDownloadTemplate.FlatAppearance.BorderSize = 0;
+        btnDownloadTemplate.FlatStyle = FlatStyle.Flat;
+        btnDownloadTemplate.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnDownloadTemplate.ForeColor = Color.White;
+        btnDownloadTemplate.Location = new Point(640, 34);
+        btnDownloadTemplate.Name = "btnDownloadTemplate";
+        btnDownloadTemplate.Size = new Size(160, 38);
+        btnDownloadTemplate.TabIndex = 1;
+        btnDownloadTemplate.Text = "تحميل نموذج";
+        btnDownloadTemplate.UseVisualStyleBackColor = false;
+        btnDownloadTemplate.Click += btnDownloadTemplate_Click;
+        // 
+        // lblFileCaption
+        // 
+        lblFileCaption.AutoSize = true;
+        lblFileCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblFileCaption.Location = new Point(573, 41);
+        lblFileCaption.Name = "lblFileCaption";
+        lblFileCaption.Size = new Size(60, 24);
+        lblFileCaption.TabIndex = 2;
+        lblFileCaption.Text = "الملف:";
+        // 
+        // lblFilePath
+        // 
+        lblFilePath.BackColor = Color.White;
+        lblFilePath.BorderStyle = BorderStyle.FixedSingle;
+        lblFilePath.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        lblFilePath.ForeColor = Color.FromArgb(33, 37, 41);
+        lblFilePath.Location = new Point(24, 38);
+        lblFilePath.Name = "lblFilePath";
+        lblFilePath.Size = new Size(540, 30);
+        lblFilePath.TabIndex = 3;
+        lblFilePath.Text = "لم يتم اختيار ملف بعد";
+        lblFilePath.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // gbOptions
+        // 
+        gbOptions.BackColor = Color.FromArgb(235, 245, 235);
+        gbOptions.Controls.Add(btnGenerateBarcodes);
+        gbOptions.Dock = DockStyle.Top;
+        gbOptions.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        gbOptions.ForeColor = Color.FromArgb(14, 82, 52);
+        gbOptions.Location = new Point(0, 134);
+        gbOptions.Name = "gbOptions";
+        gbOptions.Padding = new Padding(8);
+        gbOptions.Size = new Size(1000, 78);
+        gbOptions.TabIndex = 2;
+        gbOptions.TabStop = false;
+        gbOptions.Text = "خيارات الاستيراد";
         // 
         // btnGenerateBarcodes
         // 
-        this.btnGenerateBarcodes.BackColor = System.Drawing.Color.DarkOrange;
-        this.btnGenerateBarcodes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-        this.btnGenerateBarcodes.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-        this.btnGenerateBarcodes.ForeColor = System.Drawing.Color.White;
-        this.btnGenerateBarcodes.Location = new System.Drawing.Point(400, 12);
-        this.btnGenerateBarcodes.Name = "btnGenerateBarcodes";
-        this.btnGenerateBarcodes.Size = new System.Drawing.Size(250, 35);
-        this.btnGenerateBarcodes.TabIndex = 2;
-        this.btnGenerateBarcodes.Text = "توليد باركود للأصناف الفارغة";
-        this.btnGenerateBarcodes.UseVisualStyleBackColor = false;
-        this.btnGenerateBarcodes.Click += new System.EventHandler(this.btnGenerateBarcodes_Click);
+        btnGenerateBarcodes.BackColor = Color.FromArgb(23, 162, 184);
+        btnGenerateBarcodes.FlatAppearance.BorderSize = 0;
+        btnGenerateBarcodes.FlatStyle = FlatStyle.Flat;
+        btnGenerateBarcodes.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnGenerateBarcodes.ForeColor = Color.White;
+        btnGenerateBarcodes.Location = new Point(718, 27);
+        btnGenerateBarcodes.Name = "btnGenerateBarcodes";
+        btnGenerateBarcodes.Size = new Size(250, 38);
+        btnGenerateBarcodes.TabIndex = 0;
+        btnGenerateBarcodes.Text = "توليد باركود للأصناف الفارغة";
+        btnGenerateBarcodes.UseVisualStyleBackColor = false;
+        btnGenerateBarcodes.Click += btnGenerateBarcodes_Click;
+        // 
+        // gbPreview
+        // 
+        gbPreview.BackColor = Color.FromArgb(235, 245, 235);
+        gbPreview.Controls.Add(dgvPreview);
+        gbPreview.Controls.Add(pnlPreviewTop);
+        gbPreview.Dock = DockStyle.Fill;
+        gbPreview.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        gbPreview.ForeColor = Color.FromArgb(14, 82, 52);
+        gbPreview.Location = new Point(0, 212);
+        gbPreview.Name = "gbPreview";
+        gbPreview.Padding = new Padding(10);
+        gbPreview.Size = new Size(1000, 334);
+        gbPreview.TabIndex = 3;
+        gbPreview.TabStop = false;
+        gbPreview.Text = "معاينة الصفوف";
         // 
         // dgvPreview
         // 
-        this.dgvPreview.AllowUserToAddRows = false;
-        this.dgvPreview.AllowUserToDeleteRows = false;
-        this.dgvPreview.BackgroundColor = System.Drawing.Color.White;
-        this.dgvPreview.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        this.dgvPreview.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.dgvPreview.Location = new System.Drawing.Point(0, 60);
-        this.dgvPreview.Name = "dgvPreview";
-        this.dgvPreview.RowTemplate.Height = 28;
-        this.dgvPreview.Size = new System.Drawing.Size(984, 441);
-        this.dgvPreview.TabIndex = 1;
-        this.dgvPreview.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPreview_CellValueChanged);
+        dgvPreview.AllowUserToAddRows = false;
+        dgvPreview.AllowUserToDeleteRows = false;
+        dataGridViewCellStyle1.BackColor = Color.FromArgb(245, 252, 245);
+        dgvPreview.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+        dgvPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvPreview.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvPreview.BorderStyle = BorderStyle.None;
+        dgvPreview.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle2.BackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        dataGridViewCellStyle2.ForeColor = Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle2.SelectionForeColor = Color.White;
+        dgvPreview.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+        dgvPreview.ColumnHeadersHeight = 45;
+        dataGridViewCellStyle3.BackColor = Color.White;
+        dataGridViewCellStyle3.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvPreview.DefaultCellStyle = dataGridViewCellStyle3;
+        dgvPreview.Dock = DockStyle.Fill;
+        dgvPreview.EnableHeadersVisualStyles = false;
+        dgvPreview.GridColor = Color.FromArgb(205, 225, 205);
+        dgvPreview.Location = new Point(10, 54);
+        dgvPreview.Margin = new Padding(0);
+        dgvPreview.Name = "dgvPreview";
+        dgvPreview.ReadOnly = true;
+        dgvPreview.RightToLeft = RightToLeft.Yes;
+        dgvPreview.RowHeadersVisible = false;
+        dgvPreview.RowTemplate.Height = 32;
+        dgvPreview.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvPreview.Size = new Size(980, 270);
+        dgvPreview.TabIndex = 1;
+        dgvPreview.CellValueChanged += dgvPreview_CellValueChanged;
         // 
-        // pnlBottom
+        // pnlPreviewTop
         // 
-        this.pnlBottom.Controls.Add(this.lblCount);
-        this.pnlBottom.Controls.Add(this.btnSave);
-        this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-        this.pnlBottom.Location = new System.Drawing.Point(0, 501);
-        this.pnlBottom.Name = "pnlBottom";
-        this.pnlBottom.Size = new System.Drawing.Size(984, 60);
-        this.pnlBottom.TabIndex = 2;
+        pnlPreviewTop.BackColor = Color.FromArgb(235, 240, 235);
+        pnlPreviewTop.Controls.Add(lblSearch);
+        pnlPreviewTop.Controls.Add(txtSearch);
+        pnlPreviewTop.Controls.Add(lblNoData);
+        pnlPreviewTop.Dock = DockStyle.Top;
+        pnlPreviewTop.Location = new Point(10, 34);
+        pnlPreviewTop.Name = "pnlPreviewTop";
+        pnlPreviewTop.Size = new Size(980, 44);
+        pnlPreviewTop.TabIndex = 0;
+        // 
+        // lblSearch
+        // 
+        lblSearch.AutoSize = true;
+        lblSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblSearch.Location = new Point(870, 10);
+        lblSearch.Name = "lblSearch";
+        lblSearch.Size = new Size(60, 24);
+        lblSearch.TabIndex = 0;
+        lblSearch.Text = "بحث:";
+        // 
+        // txtSearch
+        // 
+        txtSearch.BackColor = Color.White;
+        txtSearch.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        txtSearch.Location = new Point(700, 8);
+        txtSearch.Name = "txtSearch";
+        txtSearch.RightToLeft = RightToLeft.Yes;
+        txtSearch.Size = new Size(160, 32);
+        txtSearch.TabIndex = 1;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        // 
+        // lblNoData
+        // 
+        lblNoData.AutoSize = true;
+        lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNoData.Location = new Point(24, 12);
+        lblNoData.Name = "lblNoData";
+        lblNoData.Size = new Size(380, 24);
+        lblNoData.TabIndex = 2;
+        lblNoData.Text = "لا توجد بيانات — اختر ملف Excel لبدء المعاينة";
+        // 
+        // pnlSummary
+        // 
+        pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
+        pnlSummary.Controls.Add(lblCount);
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 546);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Size = new Size(1000, 46);
+        pnlSummary.TabIndex = 4;
         // 
         // lblCount
         // 
-        this.lblCount.AutoSize = true;
-        this.lblCount.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-        this.lblCount.Location = new System.Drawing.Point(820, 20);
-        this.lblCount.Name = "lblCount";
-        this.lblCount.Size = new System.Drawing.Size(120, 24);
-        this.lblCount.TabIndex = 1;
-        this.lblCount.Text = "عدد الأصناف: 0";
+        lblCount.AutoSize = true;
+        lblCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblCount.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCount.Location = new Point(790, 11);
+        lblCount.Name = "lblCount";
+        lblCount.Size = new Size(180, 24);
+        lblCount.TabIndex = 0;
+        lblCount.Text = "عدد الأصناف: 0";
+        // 
+        // lblSummary
+        // 
+        lblSummary.AutoSize = true;
+        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.Location = new Point(450, 11);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Size = new Size(300, 24);
+        lblSummary.TabIndex = 1;
+        lblSummary.Text = "المقبولة: 0  ·  المرفوضة: 0";
+        // 
+        // pnlFooter
+        // 
+        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.Controls.Add(btnSave);
+        pnlFooter.Controls.Add(btnClose);
+        pnlFooter.Dock = DockStyle.Bottom;
+        pnlFooter.Location = new Point(0, 592);
+        pnlFooter.Name = "pnlFooter";
+        pnlFooter.Padding = new Padding(10);
+        pnlFooter.Size = new Size(1000, 68);
+        pnlFooter.TabIndex = 5;
         // 
         // btnSave
         // 
-        this.btnSave.BackColor = System.Drawing.Color.SteelBlue;
-        this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-        this.btnSave.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-        this.btnSave.ForeColor = System.Drawing.Color.White;
-        this.btnSave.Location = new System.Drawing.Point(12, 12);
-        this.btnSave.Name = "btnSave";
-        this.btnSave.Size = new System.Drawing.Size(200, 40);
-        this.btnSave.TabIndex = 0;
-        this.btnSave.Text = "اعتماد وحفظ الأصناف";
-        this.btnSave.UseVisualStyleBackColor = false;
-        this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+        btnSave.BackColor = Color.FromArgb(14, 165, 103);
+        btnSave.FlatAppearance.BorderSize = 0;
+        btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnSave.ForeColor = Color.White;
+        btnSave.Location = new Point(788, 12);
+        btnSave.Name = "btnSave";
+        btnSave.Size = new Size(200, 44);
+        btnSave.TabIndex = 0;
+        btnSave.Text = "اعتماد وحفظ الأصناف (F2)";
+        btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.DialogResult = DialogResult.Cancel;
+        btnClose.FlatAppearance.BorderSize = 0;
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(656, 12);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(120, 44);
+        btnClose.TabIndex = 1;
+        btnClose.Text = "إغلاق (Esc)";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
         // 
         // frmImportProductsExcel
         // 
-        this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
-        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.BackColor = System.Drawing.Color.WhiteSmoke;
-        this.ClientSize = new System.Drawing.Size(984, 561);
-        this.Controls.Add(this.dgvPreview);
-        this.Controls.Add(this.pnlBottom);
-        this.Controls.Add(this.pnlTop);
-        this.Font = new System.Drawing.Font("Tahoma", 10F);
-        this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-        this.MaximizeBox = false;
-        this.Name = "frmImportProductsExcel";
-        this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-        this.RightToLeftLayout = true;
-        this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-        this.Text = "استيراد المنتجات من Excel";
-        this.pnlTop.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)(this.dgvPreview)).EndInit();
-        this.pnlBottom.ResumeLayout(false);
-        this.pnlBottom.PerformLayout();
-        this.ResumeLayout(false);
+        AutoScaleMode = AutoScaleMode.None;
+        BackColor = Color.FromArgb(170, 220, 170);
+        CancelButton = btnClose;
+        ClientSize = new Size(1000, 660);
+        Controls.Add(gbPreview);
+        Controls.Add(pnlSummary);
+        Controls.Add(pnlFooter);
+        Controls.Add(gbOptions);
+        Controls.Add(gbFile);
+        Controls.Add(lblMode);
+        Font = new Font("Tahoma", 10F);
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        MaximizeBox = false;
+        MinimizeBox = false;
+        Name = "frmImportProductsExcel";
+        RightToLeft = RightToLeft.Yes;
+        RightToLeftLayout = true;
+        StartPosition = FormStartPosition.CenterScreen;
+        Text = "استيراد الأصناف من Excel";
+        gbFile.ResumeLayout(false);
+        gbFile.PerformLayout();
+        gbOptions.ResumeLayout(false);
+        gbPreview.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)dgvPreview).EndInit();
+        pnlPreviewTop.ResumeLayout(false);
+        pnlPreviewTop.PerformLayout();
+        pnlSummary.ResumeLayout(false);
+        pnlSummary.PerformLayout();
+        pnlFooter.ResumeLayout(false);
+        ResumeLayout(false);
+        PerformLayout();
     }
 
-    private System.Windows.Forms.Panel pnlTop;
-    private System.Windows.Forms.Button btnSelectFile;
-    private System.Windows.Forms.Button btnDownloadTemplate;
-    private System.Windows.Forms.Button btnGenerateBarcodes;
-    private System.Windows.Forms.DataGridView dgvPreview;
-    private System.Windows.Forms.Panel pnlBottom;
-    private System.Windows.Forms.Button btnSave;
-    private System.Windows.Forms.Label lblCount;
+    #endregion
+
+    private Label lblMode;
+    private GroupBox gbFile;
+    private Button btnSelectFile;
+    private Button btnDownloadTemplate;
+    private Label lblFileCaption;
+    private Label lblFilePath;
+    private GroupBox gbOptions;
+    private Button btnGenerateBarcodes;
+    private GroupBox gbPreview;
+    private DataGridView dgvPreview;
+    private Panel pnlPreviewTop;
+    private Label lblSearch;
+    private TextBox txtSearch;
+    private Label lblNoData;
+    private Panel pnlSummary;
+    private Label lblCount;
+    private Label lblSummary;
+    private Panel pnlFooter;
+    private Button btnSave;
+    private Button btnClose;
 }

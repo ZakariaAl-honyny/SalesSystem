@@ -25,6 +25,12 @@ public partial class frmListSupplierPayments : Form
     /// <summary>يمنع انطلاق التصفية قبل اكتمال تهيئة أدواتها (RULE-N59 — التصفية فورية بعد التهيئة).</summary>
     private bool _isInitializing = true;
 
+    /// <summary>«من» الافتراضي الذي يعيد إليه «مسح التصفية» التاريخ (RULE-N148) — يُلتقط عند البناء.</summary>
+    private DateTime _defaultFrom;
+
+    /// <summary>«إلى» الافتراضي الذي يعيد إليه «مسح التصفية» التاريخ (RULE-N148) — يُلتقط عند البناء.</summary>
+    private DateTime _defaultTo;
+
     public frmListSupplierPayments(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -33,6 +39,10 @@ public partial class frmListSupplierPayments : Form
         _supplierTable = new DataTable();
         _supplierView = new DataView();
 
+        // النطاق الافتراضي لأدوات التصفية — أساس زر «مسح التصفية» (RULE-N148).
+        _defaultFrom = dtpFrom.Value.Date;
+        _defaultTo = dtpTo.Value.Date;
+
         // RULE-N40 / N41 / N46 / N45 — التنقل والتحديد وتظليل الحقل النشط وأسهم RTL
         KeyboardHelper.WireEnterAsTab(this);                                              // RULE-N40
         KeyboardHelper.WireSelectAllOnFocus(this);                                        // RULE-N41
@@ -40,13 +50,18 @@ public partial class frmListSupplierPayments : Form
         KeyboardHelper.WireArrowNavigation(this);                                         // RULE-N45
 
         // RULE-N43 — الأزرار المعطّلة تظهر رمادية باهتة
-        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh);
+        KeyboardHelper.WireButtonDisabledVisual(btnAddNew, btnRefresh, btnClearFilters);
 
         // RULE-N47 — اختصارات موحّدة: F2 جديد · F5 تحديث · Esc مسح التصفية
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F2, () => btnAddNew.PerformClick()),
-            (Keys.F5, () => _RefreshPayments()),
-            (Keys.Escape, () => _ClearFilters()));
+            (Keys.F5, () => btnRefresh.PerformClick()),
+            (Keys.Escape, _GlobalEscape));
+
+        // RULE-N147 — Enter = الزر الأساسي لهذه الشاشة: زر «صرف جديد» (لا وضع إدخال في شاشة قائمة — RULE-N101).
+        KeyboardHelper.WireModeEnter(this, () => btnAddNew);
+        AcceptButton = btnAddNew;
+
         FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
@@ -173,6 +188,9 @@ public partial class frmListSupplierPayments : Form
             _supplierView = new DataView(_supplierTable);
             dgvSupplierPayments.DataSource = _supplierView;
             _ApplyFilter();
+
+            // RULE-N148: بعد كل تحميل لا يبقى سطر محدَّد — الاختيار يبدأ من الصفر.
+            dgvSupplierPayments.ClearSelection();
         }
         catch (Exception ex)
         {
@@ -206,19 +224,18 @@ public partial class frmListSupplierPayments : Form
         // (1) البحث السريع باسم المورد — السلوك القائم لحقل txtSearch.
         string quick = txtSearch.Text.Trim();
         if (quick.Length > 0)
-            clauses.Add($"SupplierName LIKE '%{_EscapeFilterValue(quick)}%'");
+            clauses.Add(RowFilterHelper.Like("SupplierName", quick));
 
         // (2) الحقل المحدد في cbFilterBy + قيمته (RULE-N57/N60).
         string value = txtFilterValue.Text.Trim();
         if (value.Length > 0)
         {
-            string safe = _EscapeFilterValue(value);
             clauses.Add(cbFilterBy.SelectedIndex switch
             {
-                1 => $"ReferenceNo LIKE '%{safe}%'",   // رقم السند
-                2 => $"Notes LIKE '%{safe}%'",          // البيان
-                3 => $"AmountText LIKE '%{safe}%'",     // المبلغ
-                _ => $"SupplierName LIKE '%{safe}%'",   // المورد (الافتراضي)
+                1 => RowFilterHelper.Like("ReferenceNo", value),   // رقم السند
+                2 => RowFilterHelper.Like("Notes", value),          // البيان
+                3 => RowFilterHelper.Like("AmountText", value),     // المبلغ
+                _ => RowFilterHelper.Like("SupplierName", value),   // المورد (الافتراضي)
             });
         }
 
@@ -244,11 +261,8 @@ public partial class frmListSupplierPayments : Form
 
         _UpdateSummary();
         _UpdateEmptyState();
+        _UpdateClearFiltersState();   // RULE-N148 — حالة زر «مسح التصفية» تتبع التصفية النشطة
     }
-
-    /// <summary>يُهرّب قيمة المستخدم قبل بنائها في RowFilter (RULE-N60).</summary>
-    private static string _EscapeFilterValue(string value)
-        => value.Replace("'", "''");
 
     /// <summary>شريط الملخص (RULE-N61): المعروض من الإجمالي + مجموع المبالغ N2.</summary>
     private void _UpdateSummary()
@@ -294,27 +308,66 @@ public partial class frmListSupplierPayments : Form
         _ApplyFilter();
     }
 
-    /// <summary>Esc: يمسح كل التصفية ويعيد النطاق إلى «هذا الشهر» (RULE-N59).</summary>
+    /// <summary>Esc: يمسح كل أدوات التصفية ويعيد الشبكة إلى وضعها الافتراضي (RULE-N59 / RULE-N148).</summary>
     private void _ClearFilters()
+    {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل وبلا لمس البيانات (RULE-N148). «تحديث» هو المسؤول عن إعادة التحميل.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e) => _ClearFilters();
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث».</summary>
+    private void _ClearFilterInputs()
     {
         _isInitializing = true;
         try
         {
-            cbFilterBy.SelectedIndex = 0;
+            cbFilterBy.SelectedIndex = 0;          // «المورد»
             txtFilterValue.Clear();
             txtSearch.Clear();
-
-            var today = DateTime.Today;
-            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-            dtpTo.Value = today;
+            dtpFrom.Value = _defaultFrom;          // النطاق الافتراضي لا «هذا الشهر»
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
             _isInitializing = false;
         }
+    }
+
+    /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية بلا تحميل (RULE-N148).</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
 
         _ApplyFilter();
-        txtFilterValue.Focus();
+    }
+
+    /// <summary>RULE-N43: زر «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || !string.IsNullOrWhiteSpace(txtSearch.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || dtpFrom.Value.Date != _defaultFrom
+            || dtpTo.Value.Date != _defaultTo;
+    }
+
+    /// <summary>RULE-N47 + RULE-N59: Esc داخل صندوق التصفية = مسحها، وخارجه = إغلاق الشاشة.</summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearFilters();
+            return;
+        }
+
+        Close();
     }
 
     // ── Form Events ────────────────────────────────────────────────────────────
@@ -331,6 +384,10 @@ public partial class frmListSupplierPayments : Form
             // نطاق افتراضي يفتح بثلاثة أشهر حتى لا تظهر الشاشة فارغة.
             dtpFrom.Value = new DateTime(today.Year, today.Month, 1).AddMonths(-2);
             dtpTo.Value = today;
+
+            // الافتراضي الذي يعيد إليه «مسح التصفية» = نطاق فتح الشاشة (RULE-N148).
+            _defaultFrom = dtpFrom.Value.Date;
+            _defaultTo = dtpTo.Value.Date;
         }
         finally
         {
@@ -339,6 +396,7 @@ public partial class frmListSupplierPayments : Form
 
         _ApplyToolTips();
         _ReloadForm();
+        _UpdateClearFiltersState();   // RULE-N148 — لا تصفية نشطة عند الفتح ⇒ الزر معطّل
         ApplyGreenTheme();   // RULE-N50 — الأخير في مسار التحميل
     }
 
@@ -347,9 +405,29 @@ public partial class frmListSupplierPayments : Form
         Close();
     }
 
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← إعادة قراءة المدفوعات ← إعادة بناء الأعمدة والملخص والاختيار. لا يمسح التصفية فقط.
+    /// </summary>
     private void btnRefresh_Click(object sender, EventArgs e)
     {
-        _RefreshPayments();
+        try
+        {
+            _ClearFilterInputs();   // التصفية تعود للافتراضي قبل إعادة التحميل
+            _ReloadForm();          // إعادة بناء الأعمدة + قراءة البيانات (يعيد تطبيق التصفية والملخص)
+        }
+        catch (Exception ex)
+        {
+            // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+            Serilog.Log.Error(ex, "فشل تحديث شاشة مدفوعات الموردين");
+            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            // مؤشر الانتظار يديره _RefreshPayments — هنا حالة الزر فقط.
+            _UpdateClearFiltersState();
+        }
     }
 
     private void btnAddNew_Click(object sender, EventArgs e)
@@ -438,7 +516,8 @@ public partial class frmListSupplierPayments : Form
 
     private void tsmiRefresh_Click(object sender, EventArgs e)
     {
-        _RefreshPayments();
+        // RULE-N148: «تحديث» = إعادة تحميل كل البيانات — لا مسح تصفية فقط.
+        btnRefresh_Click(sender, e);
     }
 
     private void tsmiEdit_Click(object sender, EventArgs e)

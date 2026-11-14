@@ -53,7 +53,8 @@ partial class frmWarehouseTransferPrint
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.FromArgb(33, 43, 54);
+        // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
+        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
@@ -77,6 +78,7 @@ partial class frmWarehouseTransferPrint
         // 
         // lblTitle
         // 
+        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTitle.ForeColor = Color.White;
@@ -89,7 +91,7 @@ partial class frmWarehouseTransferPrint
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = Color.FromArgb(230, 126, 34);
+        lblAccent.BackColor = Color.FromArgb(14, 82, 52);
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Location = new Point(0, 42);
         lblAccent.Name = "lblAccent";
@@ -100,10 +102,12 @@ partial class frmWarehouseTransferPrint
         // 
         pnlPreviewCard.BackColor = Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
+        // RULE-N125 — ترتيب الإضافة يحكم الإرساء: العنصر المرسى أعلى البطاقة يُضاف أخيراً
+        // (الأبناء يُرسون من آخر المجموعة إلى أولها) فيظهر الرأس ثم الحقول ثم الفاصل ثم التذييل.
+        pnlPreviewCard.Controls.Add(lblCardFooter);
+        pnlPreviewCard.Controls.Add(pnlDashedSeparator);
         pnlPreviewCard.Controls.Add(tblFields);
         pnlPreviewCard.Controls.Add(pnlCardHeader);
-        pnlPreviewCard.Controls.Add(pnlDashedSeparator);
-        pnlPreviewCard.Controls.Add(lblCardFooter);
         pnlPreviewCard.Location = new Point(20, 56);
         pnlPreviewCard.Name = "pnlPreviewCard";
         pnlPreviewCard.RightToLeft = RightToLeft.Yes;
@@ -155,7 +159,7 @@ partial class frmWarehouseTransferPrint
         lblTransferNoValue.AutoSize = true;
         lblTransferNoValue.Dock = DockStyle.Fill;
         lblTransferNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferNoValue.ForeColor = Color.FromArgb(230, 126, 34);
+        lblTransferNoValue.ForeColor = Color.FromArgb(14, 82, 52);
         lblTransferNoValue.Location = new Point(15, 4);
         lblTransferNoValue.Name = "lblTransferNoValue";
         lblTransferNoValue.Size = new Size(258, 26);
@@ -334,11 +338,11 @@ partial class frmWarehouseTransferPrint
         // 
         // lblNoteValue
         // 
-        lblNoteValue.BackColor = Color.FromArgb(255, 248, 240);
+        lblNoteValue.BackColor = Color.FromArgb(235, 245, 235);
         lblNoteValue.BorderStyle = BorderStyle.FixedSingle;
         lblNoteValue.Dock = DockStyle.Fill;
         lblNoteValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNoteValue.ForeColor = Color.FromArgb(230, 126, 34);
+        lblNoteValue.ForeColor = Color.FromArgb(14, 82, 52);
         lblNoteValue.Location = new Point(15, 186);
         lblNoteValue.Name = "lblNoteValue";
         lblNoteValue.Size = new Size(258, 56);
@@ -374,7 +378,7 @@ partial class frmWarehouseTransferPrint
         // 
         lblTransferTitle.Dock = DockStyle.Top;
         lblTransferTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferTitle.ForeColor = Color.FromArgb(230, 126, 34);
+        lblTransferTitle.ForeColor = Color.FromArgb(14, 82, 52);
         lblTransferTitle.Location = new Point(0, 30);
         lblTransferTitle.Name = "lblTransferTitle";
         lblTransferTitle.Size = new Size(398, 40);
@@ -386,7 +390,7 @@ partial class frmWarehouseTransferPrint
         // 
         lblStoreName.Dock = DockStyle.Top;
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(23, 87, 129);
+        lblStoreName.ForeColor = Color.FromArgb(14, 82, 52);
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(398, 30);
@@ -419,7 +423,7 @@ partial class frmWarehouseTransferPrint
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(248, 249, 250);
+        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
@@ -431,12 +435,12 @@ partial class frmWarehouseTransferPrint
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.White;
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.DialogResult = DialogResult.Cancel;
-        btnClose.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.FromArgb(52, 73, 94);
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -463,7 +467,7 @@ partial class frmWarehouseTransferPrint
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
+        lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Location = new Point(0, 0);
         lblFooterLine.Name = "lblFooterLine";
@@ -473,7 +477,7 @@ partial class frmWarehouseTransferPrint
         // frmWarehouseTransferPrint
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.WhiteSmoke;
+        BackColor = Color.FromArgb(170, 220, 170);
         CancelButton = btnClose;
         ClientSize = new Size(441, 494);
         Controls.Add(pnlFooter);
@@ -496,6 +500,7 @@ partial class frmWarehouseTransferPrint
         pnlCardHeader.ResumeLayout(false);
         pnlFooter.ResumeLayout(false);
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion

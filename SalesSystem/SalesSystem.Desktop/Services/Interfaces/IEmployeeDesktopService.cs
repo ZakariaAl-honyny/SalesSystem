@@ -13,4 +13,5 @@ public interface IEmployeeDesktopService
     Task<Result<EmployeeDto>> CreateAsync(EmployeeDto request, CancellationToken ct = default);
     Task<Result<EmployeeDto>> UpdateAsync(int id, EmployeeDto request, CancellationToken ct = default);
     Task<Result> DeactivateAsync(int id, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }

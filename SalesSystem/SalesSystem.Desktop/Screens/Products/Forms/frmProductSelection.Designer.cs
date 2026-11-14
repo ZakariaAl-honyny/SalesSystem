@@ -17,8 +17,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            // RULE-N134: ألوان المصمّم = ثوابت GreenThemeHelper حرفياً (المصمّم = وقت التشغيل).
             tooltip = new ToolTip(components);
             dgvProducts = new DataGridView();
             colId = new DataGridViewTextBoxColumn();
@@ -40,6 +39,7 @@
             lblSearch = new Label();
             lblMode = new Label();
             lblRecordsCount = new Label();
+            lblNoData = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvUnits).BeginInit();
             SuspendLayout();
@@ -48,17 +48,28 @@
             // 
             dgvProducts.AllowUserToAddRows = false;
             dgvProducts.AllowUserToDeleteRows = false;
+            dgvProducts.AllowUserToResizeRows = false;
+            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
             dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvProducts.BackgroundColor = Color.White;
-            dgvProducts.BorderStyle = BorderStyle.Fixed3D;
+            dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvProducts.BorderStyle = BorderStyle.None;
             dgvProducts.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            dgvProducts.ColumnHeadersHeight = 40;
+            dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvProducts.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvProducts.ColumnHeadersHeight = 45;
             dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategory, colBarcode, colStock });
+            dgvProducts.DefaultCellStyle.BackColor = Color.White;
+            dgvProducts.DefaultCellStyle.Font = new Font("Tahoma", 10F);
+            dgvProducts.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvProducts.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+            dgvProducts.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
             dgvProducts.EnableHeadersVisualStyles = false;
-            dgvProducts.GridColor = Color.FromArgb(222, 226, 230);
+            dgvProducts.GridColor = Color.FromArgb(205, 225, 205);
             dgvProducts.Location = new Point(12, 96);
             dgvProducts.MultiSelect = false;
             dgvProducts.Name = "dgvProducts";
@@ -115,29 +126,40 @@
             colStock.Name = "colStock";
             colStock.ReadOnly = true;
             colStock.SortMode = DataGridViewColumnSortMode.NotSortable;
-            colStock.DefaultCellStyle = dataGridViewCellStyle2;
             // 
             // dgvUnits
             // 
             dgvUnits.AllowUserToAddRows = false;
             dgvUnits.AllowUserToDeleteRows = false;
+            dgvUnits.AllowUserToResizeRows = false;
+            dgvUnits.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
             dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvUnits.BackgroundColor = Color.White;
-            dgvUnits.BorderStyle = BorderStyle.Fixed3D;
+            dgvUnits.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvUnits.BorderStyle = BorderStyle.None;
             dgvUnits.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            dgvUnits.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dgvUnits.ColumnHeadersHeight = 38;
+            dgvUnits.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dgvUnits.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvUnits.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            dgvUnits.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvUnits.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
+            dgvUnits.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvUnits.ColumnHeadersHeight = 45;
             dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colUnitId, colUnitName, colConversion, colAvailable, colSalePrice });
+            dgvUnits.DefaultCellStyle.BackColor = Color.White;
+            dgvUnits.DefaultCellStyle.Font = new Font("Tahoma", 10F);
+            dgvUnits.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgvUnits.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
+            dgvUnits.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
             dgvUnits.EnableHeadersVisualStyles = false;
-            dgvUnits.GridColor = Color.FromArgb(222, 226, 230);
+            dgvUnits.GridColor = Color.FromArgb(205, 225, 205);
             dgvUnits.Location = new Point(12, 364);
             dgvUnits.MultiSelect = false;
             dgvUnits.Name = "dgvUnits";
             dgvUnits.ReadOnly = true;
             dgvUnits.RowHeadersVisible = false;
             dgvUnits.RowHeadersWidth = 62;
-            dgvUnits.RowTemplate.Height = 30;
+            dgvUnits.RowTemplate.Height = 32;
             dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvUnits.Size = new Size(886, 240);
             dgvUnits.TabIndex = 6;
@@ -197,7 +219,7 @@
             // 
             lblSelectedProduct.AutoEllipsis = true;
             lblSelectedProduct.Font = new Font("Tahoma", 11F, FontStyle.Bold);
-            lblSelectedProduct.ForeColor = Color.Firebrick;
+            lblSelectedProduct.ForeColor = Color.FromArgb(14, 82, 52);
             lblSelectedProduct.Location = new Point(12, 332);
             lblSelectedProduct.Name = "lblSelectedProduct";
             lblSelectedProduct.Size = new Size(640, 26);
@@ -209,7 +231,7 @@
             // 
             lblNoUnits.AutoSize = true;
             lblNoUnits.Font = new Font("Tahoma", 10F);
-            lblNoUnits.ForeColor = Color.Firebrick;
+            lblNoUnits.ForeColor = Color.FromArgb(14, 82, 52);
             lblNoUnits.Location = new Point(660, 335);
             lblNoUnits.Name = "lblNoUnits";
             lblNoUnits.Size = new Size(196, 24);
@@ -219,7 +241,7 @@
             // 
             // btnSelect
             // 
-            btnSelect.BackColor = Color.FromArgb(25, 135, 84);
+            btnSelect.BackColor = Color.FromArgb(40, 167, 69);
             btnSelect.Cursor = Cursors.Hand;
             btnSelect.FlatAppearance.BorderSize = 0;
             btnSelect.FlatStyle = FlatStyle.Flat;
@@ -231,7 +253,7 @@
             btnSelect.Size = new Size(118, 40);
             btnSelect.TabIndex = 2;
             btnSelect.Text = "اختيار";
-            tooltip.SetToolTip(btnSelect, "اختيار المنتج والوحدة المحددة");
+            tooltip.SetToolTip(btnSelect, "اختيار المنتج والوحدة المحددة (Enter)");
             btnSelect.UseVisualStyleBackColor = false;
             btnSelect.Click += btnSelect_Click;
             // 
@@ -250,17 +272,20 @@
             btnCancel.Size = new Size(118, 40);
             btnCancel.TabIndex = 3;
             btnCancel.Text = "إلغاء";
-            tooltip.SetToolTip(btnCancel, "إلغاء و إغلاق النافذة");
+            tooltip.SetToolTip(btnCancel, "إلغاء و إغلاق النافذة (Esc)");
             btnCancel.UseVisualStyleBackColor = false;
             btnCancel.Click += btnCancel_Click;
             // 
             // txtSearch
             // 
+            txtSearch.BackColor = Color.White;
+            txtSearch.BorderStyle = BorderStyle.FixedSingle;
             txtSearch.Font = new Font("Tahoma", 10F);
             txtSearch.Location = new Point(130, 52);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(400, 32);
             txtSearch.TabIndex = 0;
+            tooltip.SetToolTip(txtSearch, "بحث فوري بالاسم أو الباركود أو التصنيف — F5 لتحديث القائمة");
             txtSearch.TextChanged += txtSearch_TextChanged;
             txtSearch.KeyDown += txtSearch_KeyDown;
             txtSearch.KeyPress += txtSearch_KeyPress;
@@ -269,6 +294,7 @@
             // 
             lblSearch.AutoSize = true;
             lblSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblSearch.ForeColor = Color.FromArgb(14, 82, 52);
             lblSearch.Location = new Point(12, 55);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(60, 24);
@@ -277,11 +303,10 @@
             // 
             // lblMode
             // 
-            lblMode.BackColor = Color.WhiteSmoke;
+            lblMode.BackColor = Color.FromArgb(14, 165, 103);
             lblMode.Dock = DockStyle.Top;
-            lblMode.FlatStyle = FlatStyle.Flat;
-            lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            lblMode.ForeColor = Color.Firebrick;
+            lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
+            lblMode.ForeColor = Color.White;
             lblMode.Location = new Point(0, 0);
             lblMode.Name = "lblMode";
             lblMode.Size = new Size(910, 40);
@@ -293,19 +318,33 @@
             // 
             lblRecordsCount.AutoSize = true;
             lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblRecordsCount.ForeColor = Color.FromArgb(14, 82, 52);
             lblRecordsCount.Location = new Point(800, 55);
             lblRecordsCount.Name = "lblRecordsCount";
             lblRecordsCount.Size = new Size(41, 24);
             lblRecordsCount.TabIndex = 5;
             lblRecordsCount.Text = "[0]";
             // 
+            // lblNoData
+            // 
+            lblNoData.AutoSize = true;
+            lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNoData.Location = new Point(620, 55);
+            lblNoData.Name = "lblNoData";
+            lblNoData.Size = new Size(130, 24);
+            lblNoData.TabIndex = 9;
+            lblNoData.Text = "لا توجد بيانات";
+            lblNoData.Visible = false;
+            // 
             // frmProductSelection
             // 
             AcceptButton = btnSelect;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.FromArgb(170, 220, 170);
             CancelButton = btnCancel;
             ClientSize = new Size(910, 668);
+            Controls.Add(lblNoData);
             Controls.Add(lblNoUnits);
             Controls.Add(lblSelectedProduct);
             Controls.Add(dgvUnits);
@@ -352,6 +391,7 @@
         private Label lblSearch;
         private Label lblMode;
         private Label lblRecordsCount;
+        private Label lblNoData;
         private ToolTip tooltip;
     }
 }

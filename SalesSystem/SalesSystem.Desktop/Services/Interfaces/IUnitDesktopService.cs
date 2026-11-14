@@ -12,5 +12,6 @@ public interface IUnitDesktopService
     Task<Result<UnitDto>> CreateAsync(CreateUnitRequest r, CancellationToken ct = default);
     Task<Result<UnitDto>> UpdateAsync(int id, UpdateUnitRequest r, CancellationToken ct = default);
     Task<Result> DeleteAsync(int id, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }
 

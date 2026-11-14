@@ -79,4 +79,16 @@ public class MockUnitDesktopService : IUnitDesktopService
 
         return Task.FromResult(Result.Success());
     }
+
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockLookupsData.Units.FirstOrDefault(u => u.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("الوحدة غير موجودة"));
+
+        var index = MockLookupsData.Units.IndexOf(existing);
+        MockLookupsData.Units[index] = existing with { IsActive = true };
+
+        return Task.FromResult(Result.Success());
+    }
 }

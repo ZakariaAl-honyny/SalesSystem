@@ -81,6 +81,17 @@ public class MockUserDesktopService : IUserDesktopService
         return Task.FromResult(Result.Success());
     }
 
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockSecurityData.Users.FirstOrDefault(u => u.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("المستخدم غير موجود"));
+
+        var index = MockSecurityData.Users.IndexOf(existing);
+        MockSecurityData.Users[index] = existing with { IsActive = true };
+        return Task.FromResult(Result.Success());
+    }
+
     public Task<Result<ResetPasswordResponse>> ResetPasswordAsync(int id, CancellationToken ct = default)
     {
         var existing = MockSecurityData.Users.FirstOrDefault(u => u.Id == id);

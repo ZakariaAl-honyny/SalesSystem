@@ -59,7 +59,8 @@ partial class frmPurchaseInvoicePrint
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.FromArgb(33, 43, 54);
+        // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
+        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
@@ -70,6 +71,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblTitle
         // 
+        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTitle.ForeColor = Color.White;
@@ -94,7 +96,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = Color.FromArgb(23, 87, 129);
+        lblAccent.BackColor = Color.FromArgb(14, 82, 52);
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Height = 4;
         lblAccent.Name = "lblAccent";
@@ -104,14 +106,16 @@ partial class frmPurchaseInvoicePrint
         // 
         pnlPreviewCard.BackColor = Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
+        // RULE-N125 — ترتيب الإضافة يحكم الإرساء: العنصر المرسى أعلى البطاقة يُضاف أخيراً
+        // (الأبناء يُرسون من آخر المجموعة إلى أولها) فيظهر الرأس ثم الحقول ثم الفاصل ثم التذييل.
+        pnlPreviewCard.Controls.Add(lblThanks);
+        pnlPreviewCard.Controls.Add(pnlDashedSeparator);
         pnlPreviewCard.Controls.Add(tblFields);
         pnlPreviewCard.Controls.Add(pnlCardHeader);
-        pnlPreviewCard.Controls.Add(pnlDashedSeparator);
-        pnlPreviewCard.Controls.Add(lblThanks);
         pnlPreviewCard.Location = new Point(20, 56);
         pnlPreviewCard.Name = "pnlPreviewCard";
         pnlPreviewCard.RightToLeft = RightToLeft.Yes;
-        pnlPreviewCard.Size = new Size(400, 430);
+        pnlPreviewCard.Size = new Size(400, 432);
         pnlPreviewCard.TabIndex = 1;
         // 
         // pnlCardHeader
@@ -128,7 +132,7 @@ partial class frmPurchaseInvoicePrint
         // 
         lblStoreName.Dock = DockStyle.Top;
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(23, 87, 129);
+        lblStoreName.ForeColor = Color.FromArgb(14, 82, 52);
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(398, 30);
@@ -140,7 +144,7 @@ partial class frmPurchaseInvoicePrint
         // 
         lblInvoiceTitle.Dock = DockStyle.Top;
         lblInvoiceTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblInvoiceTitle.ForeColor = Color.FromArgb(23, 87, 129);
+        lblInvoiceTitle.ForeColor = Color.FromArgb(14, 82, 52);
         lblInvoiceTitle.Location = new Point(0, 30);
         lblInvoiceTitle.Name = "lblInvoiceTitle";
         lblInvoiceTitle.Size = new Size(398, 40);
@@ -393,11 +397,11 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblTotalValue
         // 
-        lblTotalValue.BackColor = Color.FromArgb(240, 247, 253);
+        lblTotalValue.BackColor = Color.FromArgb(235, 245, 235);
         lblTotalValue.BorderStyle = BorderStyle.FixedSingle;
         lblTotalValue.Dock = DockStyle.Fill;
         lblTotalValue.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalValue.ForeColor = Color.FromArgb(23, 87, 129);
+        lblTotalValue.ForeColor = Color.FromArgb(14, 82, 52);
         lblTotalValue.Location = new Point(125, 175);
         lblTotalValue.Name = "lblTotalValue";
         lblTotalValue.Size = new Size(258, 38);
@@ -475,7 +479,7 @@ partial class frmPurchaseInvoicePrint
         lblTafqitValue.AutoEllipsis = true;
         lblTafqitValue.Dock = DockStyle.Fill;
         lblTafqitValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTafqitValue.ForeColor = Color.FromArgb(23, 87, 129);
+        lblTafqitValue.ForeColor = Color.FromArgb(14, 82, 52);
         lblTafqitValue.Location = new Point(125, 267);
         lblTafqitValue.Name = "lblTafqitValue";
         lblTafqitValue.Size = new Size(258, 34);
@@ -508,7 +512,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(248, 249, 250);
+        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
@@ -519,7 +523,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
+        lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Height = 2;
         lblFooterLine.Name = "lblFooterLine";
@@ -544,13 +548,12 @@ partial class frmPurchaseInvoicePrint
         // btnClose
         // 
         btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        btnClose.BackColor = Color.White;
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.DialogResult = DialogResult.Cancel;
-        btnClose.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
-        btnClose.FlatAppearance.BorderSize = 1;
+        btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.FromArgb(52, 73, 94);
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -562,7 +565,7 @@ partial class frmPurchaseInvoicePrint
         // frmPurchaseInvoicePrint
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.WhiteSmoke;
+        BackColor = Color.FromArgb(170, 220, 170);
         CancelButton = btnClose;
         ClientSize = new Size(440, 580);
         Controls.Add(pnlFooter);

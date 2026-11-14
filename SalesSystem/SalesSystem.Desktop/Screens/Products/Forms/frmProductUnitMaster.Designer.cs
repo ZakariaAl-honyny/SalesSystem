@@ -45,15 +45,18 @@ partial class frmProductUnitMaster
         dgvUnits = new DataGridView();
         pnlFilters = new Panel();
         gbFilter = new GroupBox();
+        btnToggleFilters = new Button();
         label2 = new Label();
         cbFilterBy = new ComboBox();
         lblSearch = new Label();
         txtFilterValue = new TextBox();
         chkOnlyBaseUnit = new CheckBox();
         chkOnlyWithBarcode = new CheckBox();
+        btnClearFilters = new Button();
         pnlSummary = new Panel();
         lblSummary = new Label();
         errorProvider = new ErrorProvider(components);
+        toolTip = new ToolTip(components);
         pnlFields.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numFactor).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numSalePrice).BeginInit();
@@ -416,6 +419,7 @@ partial class frmProductUnitMaster
         // pnlFilters
         // 
         pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
         pnlFilters.Location = new Point(0, 290);
         pnlFilters.Name = "pnlFilters";
@@ -430,6 +434,7 @@ partial class frmProductUnitMaster
         gbFilter.Controls.Add(txtFilterValue);
         gbFilter.Controls.Add(chkOnlyBaseUnit);
         gbFilter.Controls.Add(chkOnlyWithBarcode);
+        gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold);
         gbFilter.Location = new Point(0, 0);
@@ -501,6 +506,47 @@ partial class frmProductUnitMaster
         chkOnlyWithBarcode.TabIndex = 5;
         chkOnlyWithBarcode.Text = "لها باركود فقط";
         chkOnlyWithBarcode.CheckedChanged += chkOnlyWithBarcode_CheckedChanged;
+        // 
+        // btnClearFilters
+        // 
+        // RULE-N148: زر «مسح التصفية» داخل gbFilter — يمسح أدوات التصفية فقط ولا يعيد تحميل البيانات.
+        // القيم حرفية مطابقة لِـ GreenThemeHelper.ActionNeutralBackground (RULE-N134).
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.Cursor = Cursors.Hand;
+        btnClearFilters.Enabled = false;
+        btnClearFilters.FlatAppearance.BorderSize = 0;
+        btnClearFilters.FlatStyle = FlatStyle.Flat;
+        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.Location = new Point(653, 68);
+        btnClearFilters.Name = "btnClearFilters";
+        btnClearFilters.Size = new Size(145, 32);
+        btnClearFilters.TabIndex = 6;
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+        toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+        btnClearFilters.UseVisualStyleBackColor = false;
+        btnClearFilters.Click += btnClearFilters_Click;
+        // 
+        // btnToggleFilters
+        // 
+        // RULE-N145: زر «إخفاء/إظهار التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لِما يُطبَّق
+        // وقت التشغيل، والسلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله
+        // FilterPanelHelper.Attach — لا يُنشأ الزر وقت التشغيل.
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderSize = 1;
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.Location = new Point(0, 0);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 112);
+        btnToggleFilters.TabIndex = 25;
+        btnToggleFilters.Text = "إخفاء التصفية";
+        btnToggleFilters.UseVisualStyleBackColor = false;
         // 
         // pnlSummary
         // 
@@ -597,13 +643,16 @@ partial class frmProductUnitMaster
     private System.Windows.Forms.DataGridView dgvUnits;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.GroupBox gbFilter;
+    private System.Windows.Forms.Button btnToggleFilters;
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.ComboBox cbFilterBy;
     private System.Windows.Forms.Label lblSearch;
     private System.Windows.Forms.TextBox txtFilterValue;
     private System.Windows.Forms.CheckBox chkOnlyBaseUnit;
     private System.Windows.Forms.CheckBox chkOnlyWithBarcode;
+    private System.Windows.Forms.Button btnClearFilters;
     private System.Windows.Forms.Panel pnlSummary;
     private System.Windows.Forms.Label lblSummary;
     private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.ToolTip toolTip;
 }

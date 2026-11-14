@@ -16,9 +16,6 @@ public partial class frmPurchaseInvoicePrint : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    // لون تدرج المشتريات (أزرق) — تمييز لوني لفاتورة المشتريات
-    private static readonly Color PurchaseColor = Color.FromArgb(23, 87, 129);
-
     // ── بيانات الفاتورة الوهمية (Mock) ─────────────────────────────────────────
 
     private sealed class PurchaseInvoice
@@ -58,15 +55,50 @@ public partial class frmPurchaseInvoicePrint : Form
         InitializeComponent();
         KeyboardHelper.WireGlobalShortcuts(this, (Keys.F10, () => btnPrint.PerformClick()));
         _BindInvoice();
+        ApplyUiTheme();   // RULE-N50 — الثيم الأخضر آخر خطوة في تهيئة المظهر
+    }
+
+    // ── الثيم الأخضر (RULE-N50…RULE-N54 / RULE-N134 / RULE-N140…N144) ──────────
+
+    /// <summary>
+    /// يبدأ بـ <see cref="ThemeHelper"/> وينتهي بـ <see cref="GreenThemeHelper.Apply(Form)"/>
+    /// **كآخر سطر** — والقيم النهائية مطابقة حرفياً لما هو معلن في <c>*.Designer.cs</c>
+    /// حتى يتساوى المصمّم ووقت التشغيل.
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+        ThemeHelper.ApplyButtonStyle(btnPrint, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // يُعاد ضبط ما فرضه ThemeHelper (خط Segoe UI/حجم مرن) إلى قيم المصمّم حرفياً.
+        foreach (var btn in new[] { btnPrint, btnClose })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+        }
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.ForeColor = Color.White;
+        btnClose.Size = new Size(100, 42);
+        btnClose.ForeColor = Color.White;
+
+        // عنوان الفاتورة والإجمالي والتفقيط: نص مميّز من لوحة الثيم فقط (RULE-N54).
+        lblAccent.BackColor = GreenThemeHelper.TextStrong;
+        lblInvoiceTitle.ForeColor = GreenThemeHelper.TextStrong;
+        lblTotalValue.ForeColor = GreenThemeHelper.TextStrong;
+        lblTafqitValue.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.ApplyHeader(lblTitle);   // RULE-N53
+        GreenThemeHelper.Apply(this);             // ← الأخير دائماً (RULE-N50)
     }
 
     // ── ربط بيانات الفاتورة ببطاقة المعاينة ─────────────────────────────────────
 
     private void _BindInvoice()
     {
-        lblAccent.BackColor = PurchaseColor;
-        lblInvoiceTitle.ForeColor = PurchaseColor;
-
         lblInvoiceNoValue.Text = _invoice.InvoiceNo;
         lblDateValue.Text = _invoice.Date.ToString("dd/MM/yyyy");
         lblSupplierValue.Text = _invoice.Supplier;
@@ -76,22 +108,30 @@ public partial class frmPurchaseInvoicePrint : Form
         lblDiscountValue.Text = "- " + _invoice.Discount.ToString("N2") + " ريال يمني";
         lblTaxValue.Text = _invoice.Tax.ToString("N2") + " ريال يمني";
         lblTotalValue.Text = _invoice.Total.ToString("N0") + " ريال يمني";
-        lblTotalValue.ForeColor = PurchaseColor;
         lblPaidValue.Text = _invoice.Paid.ToString("N2") + " ريال يمني";
         lblRemainingValue.Text = _invoice.Remaining.ToString("N2") + " ريال يمني";
         lblTafqitValue.Text = _invoice.Tafqit;
-        lblTafqitValue.ForeColor = PurchaseColor;
     }
 
     // ── أحداث الواجهة ─────────────────────────────────────────────────────────
 
     private void btnPrint_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            $"تمت طباعة فاتورة المشتريات رقم {_invoice.InvoiceNo} بنجاح.\n" +
-            $"المورد: {_invoice.Supplier} — الإجمالي: {_invoice.Total:N0} ريال يمني\n" +
-            "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-            "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        try
+        {
+            MessageBox.Show(
+                $"تمت طباعة فاتورة المشتريات رقم {_invoice.InvoiceNo} بنجاح.\n" +
+                $"المورد: {_invoice.Supplier} — الإجمالي: {_invoice.Total:N0} ريال يمني\n" +
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
+                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
+            Serilog.Log.Error(ex, "تعذرت طباعة فاتورة المشتريات {InvoiceNo}", _invoice.InvoiceNo);
+            MessageBox.Show("تعذر طباعة فاتورة المشتريات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnClose_Click(object sender, EventArgs e)

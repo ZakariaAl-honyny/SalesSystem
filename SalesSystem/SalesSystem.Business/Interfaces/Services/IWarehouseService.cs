@@ -13,4 +13,5 @@ public interface IWarehouseService
     Task<Result> DeleteAsync(int id, CancellationToken ct);
     Task<Result> PermanentDeleteAsync(int id, CancellationToken ct);
     Task<Result> SetDefaultAsync(int id, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct);
 }

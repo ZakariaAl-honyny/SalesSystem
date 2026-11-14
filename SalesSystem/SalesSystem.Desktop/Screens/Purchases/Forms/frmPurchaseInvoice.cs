@@ -27,44 +27,162 @@ public partial class frmPurchaseInvoice : Form
     private IEventBus _eventBus => _serviceProvider.GetRequiredService<IEventBus>();
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
     private ISettingsDesktopService _settingsApi => _serviceProvider.GetRequiredService<ISettingsDesktopService>();
-    
+
     private PurchaseInvoiceDto? _invoice;
     private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
     private bool _isUpdating = false;
-    private Button btnPrintA4 = null!;
+    private bool _tafqeetAttached = false;
 
     public frmPurchaseInvoice(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (4 من 6).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
-        KeyboardHelper.WireArrowNavigation(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+
+        // RULE-N43 — مظهر واضح للأزرار المعطّلة.
+        KeyboardHelper.WireButtonDisabledVisual(
+            btnAddItem, btnRemoveItem, btnSaveDraft, btnPost, btnCancelInvoice, btnPrintA4, btnClose);
+
+        // RULE-N47 — الاختصارات الموحّدة على الأزرار الموجودة فعلاً في الشاشة.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F2, () => btnAddItem.PerformClick()),        // جديد = سطر صنف جديد
+            (Keys.F3, () => btnSaveDraft.PerformClick()),      // حفظ/عرض المسودة
+            (Keys.F4, () => btnPost.PerformClick()),           // ترحيل
+            (Keys.F5, _RefreshAsync),                          // تحديث
+            (Keys.Delete, _GlobalDelete),                      // حذف السطر المحدد
+            (Keys.Escape, _GlobalEscape));                     // خروج
+
+        // RULE-N147 — Enter = الزر الأساسي للوضع الحالي (Enter داخل حقل = الحقل التالي — RULE-N40).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
+
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
-        ApplyStyles();
+
         SetupGrid();
+        ApplyUiTheme();   // ينتهي بالثيم الأخضر (RULE-N50)
     }
 
     public void LoadData(PurchaseInvoiceDto? invoice)
     {
         _invoice = invoice;
-        ApplyStyles();
+        ApplyUiTheme();
+        _UpdateModeHeader();
     }
 
-    private void ApplyStyles()
+    // ── الاختصارات العامة (RULE-N47) ─────────────────────────────────────────
+
+    /// <summary>Delete: حذف السطر المحدد — يعمل فقط عندما تكون الشبكة هي صاحبة التركيز،
+    /// ولا يحذف أثناء تحرير خلية داخلها (RULE-N22a — نفس حارس معالج Esc).</summary>
+    private void _GlobalDelete()
+    {
+        if (dgvItems.IsCurrentCellInEditMode) return;
+
+        if (dgvItems.ContainsFocus && btnRemoveItem.Enabled) btnRemoveItem.PerformClick();
+    }
+
+    /// <summary>Esc: يُلغي تحرير الخلية أولاً، وإلا يُغلق النموذج (RULE-N47).</summary>
+    private void _GlobalEscape()
+    {
+        if (dgvItems.IsCurrentCellInEditMode)
+        {
+            dgvItems.CancelEdit();
+            return;
+        }
+
+        btnClose.PerformClick();
+    }
+
+    /// <summary>F5: إعادة تحميل القوائم وإعادة حساب الإجماليات (RULE-N47).</summary>
+    private async void _RefreshAsync()
+    {
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+
+            // نحفظ الاختيارات قبل إعادة الربط حتى لا تتغير بيانات الفاتورة الحالية.
+            int supplierId = Convert.ToInt32(cmbSupplier.SelectedValue ?? 0);
+            int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
+
+            await LoadLookups();
+
+            if (supplierId > 0) cmbSupplier.SelectedValue = supplierId;
+            if (warehouseId > 0) cmbWarehouse.SelectedValue = warehouseId;
+
+            CalculateTotals();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تحديث بيانات فاتورة المشتريات");
+            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>مؤشر الوضع في شريط العنوان (RULE-N44).</summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = _invoice == null
+            ? "(( فاتورة مشتريات جديدة ))"
+            : $"(( فاتورة مشتريات — {_invoice.InvoiceNo} ))";
+
+        _SyncAcceptButton();
+    }
+
+    /// <summary>
+    /// الزر الأساسي الذي يستقبله <c>Enter</c> (RULE-N147):
+    /// وضع الإدخال/المسودة ⇒ «حفظ مسودة» · وضع العرض (مرحّلة/ملغاة) ⇒ لا زر أساسي (بلا أي حفظ أو ترحيل).
+    /// <para>
+    /// حارس إلزامي: التركيز داخل شبكة السطور ⇒ <c>null</c>، فـ<c>Enter</c> هناك يبقى تنقّلاً/تحريراً
+    /// داخل الشبكة ولا يُرحّل الفاتورة أبداً من الشبكة.
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton()
+    {
+        if (dgvItems.ContainsFocus || dgvItems.IsCurrentCellInEditMode) return null;
+
+        bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+        return editable ? btnSaveDraft : null;
+    }
+
+    /// <summary>
+    /// يزامن <see cref="Form.AcceptButton"/> مع الزر الأساسي للوضع الحالي، فلا يظل Enter مرتبطاً بزر
+    /// لم يعد صالحاً بعد تغيّر الوضع (RULE-N147).
+    /// </summary>
+    private void _SyncAcceptButton() => AcceptButton = _PrimaryActionButton();
+
+    /// <summary>المظهر: ThemeHelper أولاً ثم الثيم الأخضر أخيراً (RULE-N50).</summary>
+    private void ApplyUiTheme()
     {
         ThemeHelper.ApplyMainFormStyle(this);
         this.Text = _invoice == null ? "فاتورة مشتريات جديدة" : $"فاتورة مشتريات - {_invoice.InvoiceNo}";
-        
-        ThemeHelper.ApplyButtonStyle(btnAddItem, ThemeHelper.ButtonType.Secondary);
-        ThemeHelper.ApplyButtonStyle(btnRemoveItem, ThemeHelper.ButtonType.Neutral);
-        ThemeHelper.ApplyButtonStyle(btnSaveDraft, ThemeHelper.ButtonType.Primary);
-        ThemeHelper.ApplyButtonStyle(btnPost, ThemeHelper.ButtonType.Success);
-        ThemeHelper.ApplyButtonStyle(btnCancelInvoice, ThemeHelper.ButtonType.Danger);
-        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // الأزرار: ألوانها وخط Tahoma معلنة حرفياً في المصمّم بقيم مطابقة لثوابت الثيم
+        // (RULE-N134 / RULE-N144) — فلا يُعاد تنسيقها وقت التشغيل، وتبقى حالة التعطيل
+        // المرسومة بـ WireButtonDisabledVisual (RULE-N43) سليمة دون أن يمحوها الثيم.
+
+        GreenThemeHelper.ApplyHeader(lblMode);   // RULE-N53
+        GreenThemeHelper.ApplyGrid(dgvItems);    // RULE-N51/N52 — لا يلمس ReadOnly/SelectionMode
+
+        GreenThemeHelper.Apply(this);            // ← الأخير دائماً (RULE-N50)
+
+        // RULE-N97 — التفقيط الحيّ على حقول المال (مرة واحدة لكل نموذج).
+        if (!_tafqeetAttached)
+        {
+            _tafqeetAttached = true;
+            LiveTafqeetHelper.Attach(toolTip,
+                (txtPaid, "المبلغ المدفوع", LiveTafqeetHelper.ReadMode.Money),
+                (numInvoiceDiscount, "خصم الفاتورة", LiveTafqeetHelper.ReadMode.Money));
+        }
     }
 
     protected override async void OnLoad(EventArgs e)
@@ -76,35 +194,20 @@ public partial class frmPurchaseInvoice : Form
 
             if (_invoice != null) BindInvoice();
             else ResetForm();
-            
+
             UpdateUIState();
             CalculateTotals();
-            SetupPrintingButtons();
-            ApplyGreenTheme();
+            ApplyUiTheme();
+
+            // RULE-N22a — الشبكة شبكة إدخال: التحرير والصف الجديد مملوكان للشاشة (RULE-N52).
+            dgvItems.AllowUserToAddRows = true;
+            dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل النموذج");
             MessageBox.Show("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-    }
-
-    // Printer buttons moved to top with null! initialization
-
-    private void SetupPrintingButtons()
-    {
-        btnPrintA4 = new Button 
-        { 
-            Text = "طباعة A4", 
-            Width = 100, 
-            Height = 30, 
-            Location = new Point(10, 10),
-            Anchor = AnchorStyles.Bottom | AnchorStyles.Left
-        };
-        btnPrintA4.Click += btnPrintA4_Click;
-        
-        if (pnlFooter != null) pnlFooter.Controls.Add(btnPrintA4);
-        else this.Controls.Add(btnPrintA4);
     }
 
     private async Task LoadLookups()
@@ -152,7 +255,6 @@ public partial class frmPurchaseInvoice : Form
         cmbWarehouse.SelectedValue = _invoice.WarehouseId;
         cmbPaymentType.SelectedIndex = (byte)_invoice.PaymentType - 1;
         numInvoiceDiscount.Value = _invoice.DiscountAmount;
-        numTaxRate.Value = 15;
         txtPaid.Text = _invoice.PaidAmount.ToString("N2");
         txtNotes.Text = _invoice.Notes;
 
@@ -165,10 +267,13 @@ public partial class frmPurchaseInvoice : Form
                 ProductName = item.ProductName,
                 Quantity = item.Quantity,
                 UnitCost = item.UnitCost,
+                UnitPrice = item.UnitCost,      // عرض فقط: تُبقي LineTotal صحيحة عند فتح فاتورة محفوظة
                 DiscountAmount = item.DiscountAmount
             });
         }
         _isUpdating = false;
+
+        _UpdateModeHeader();
     }
 
     private void ResetForm()
@@ -181,6 +286,8 @@ public partial class frmPurchaseInvoice : Form
         numInvoiceDiscount.Value = 0;
         txtPaid.Text = "0";
         txtNotes.Clear();
+
+        _UpdateModeHeader();
     }
 
     private void SetupGrid()
@@ -192,26 +299,16 @@ public partial class frmPurchaseInvoice : Form
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColQty", HeaderText = "الكمية", DataPropertyName = "Quantity", Width = 80 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColCost", HeaderText = "التكلفة", DataPropertyName = "UnitCost", Width = 100 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColDisc", HeaderText = "خصم", DataPropertyName = "DiscountAmount", Width = 80 });
-        dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 120, ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { Format = "N2", ForeColor = Color.Blue, Font = new Font(dgvItems.Font, FontStyle.Bold) } });
+        dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 120, ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { Format = "N2", ForeColor = GreenThemeHelper.TextStrong, Font = new Font(dgvItems.Font, FontStyle.Bold) } });
 
         dgvItems.DataSource = _lines;
         dgvItems.CellEndEdit += DgvItems_CellEndEdit;
     }
 
-    /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
-    private void ApplyGreenTheme()
-    {
-        // لا يوجد شريط عنوان (lblMode/lblTitle) في هذه الشاشة — العنوان في شريط النافذة (this.Text).
-        // شبكة الأصناف شبكة إدخال (RULE-N22a): التحرير داخل الخلية بالباركود، فسلوكها مملوك للشاشة.
-        GreenThemeHelper.ApplyGrid(dgvItems);
+    // ── أحداث الحقول (كما كانت مربوطة في المصمّم) ────────────────────────────
 
-        // إعادة تأكيد سلوك الإدخال بعد ثيم الشبكة (المساعد لا يلمس هذه الخصائص).
-        dgvItems.AllowUserToAddRows = true;
-        dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
-        // ReadOnly لا يُعاد ضبطه هنا — يتحكم به UpdateUIState() حسب حالة الفاتورة (مسودة/مرحّل).
-
-        GreenThemeHelper.Apply(this);   // ← الأخير
-    }
+    private void numInvoiceDiscount_ValueChanged(object? sender, EventArgs e) => CalculateTotals();
+    private void txtPaid_TextChanged(object? sender, EventArgs e) => CalculateTotals();
 
     private void DgvItems_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
@@ -227,9 +324,16 @@ public partial class frmPurchaseInvoice : Form
                 row.ProductId = product.Id;
                 row.ProductName = product.Name;
                 row.UnitCost = product.PurchasePrice;
+                row.UnitPrice = row.UnitCost;   // عرض فقط: LineTotal محسوبة من UnitPrice (لا تغيير في الطلب المحفوظ)
                 if (row.Quantity == 0) row.Quantity = 1;
             }
         }
+        else if (colName == "ColCost")
+        {
+            // تحرير عمود التكلفة: مزامنة حقل السعر لعرض LineTotal صحيحة (عرض فقط).
+            row.UnitPrice = row.UnitCost;
+        }
+
         CalculateTotals();
         dgvItems.Refresh();
     }
@@ -238,17 +342,14 @@ public partial class frmPurchaseInvoice : Form
     {
         if (_isUpdating) return;
         decimal subTotal = _lines.Sum(x => x.LineTotal);
-        decimal taxRate = numTaxRate.Value;
-        bool isTaxInclusive = chkTaxInclusive.Checked;
         decimal invoiceDiscount = numInvoiceDiscount.Value;
         decimal paidAmount = txtPaid.DecimalValue;
 
-        decimal taxAmount = isTaxInclusive ? subTotal - (subTotal / (1 + taxRate / 100m)) : subTotal * (taxRate / 100m);
-        decimal totalAmount = subTotal - invoiceDiscount + (isTaxInclusive ? 0 : taxAmount);
+        // قرار المالك: MVP V1 بلا ضريبة على مستندات الشراء — الإجمالي = الفرعي - خصم الفاتورة.
+        decimal totalAmount = subTotal - invoiceDiscount;
         decimal dueAmount = totalAmount - paidAmount;
 
         lblSubTotalVal.Text = subTotal.ToString("N2");
-        lblTaxAmountVal.Text = taxAmount.ToString("N2");
         lblTotalVal.Text = totalAmount.ToString("N2");
         lblDueVal.Text = dueAmount.ToString("N2");
         lblDueVal.ForeColor = dueAmount > 0 ? Color.Red : Color.Green;
@@ -265,9 +366,20 @@ public partial class frmPurchaseInvoice : Form
         btnSaveDraft.Visible = editable;
         btnPost.Visible = editable;
         btnCancelInvoice.Visible = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
-        
+
         lblStatus.Text = _invoice?.Status switch { 1 => "مسودة", 2 => "مرحل", 3 => "ملغي", _ => "جديد" };
-        lblStatus.BackColor = _invoice?.Status switch { 1 => Color.Gray, 2 => Color.Green, 3 => Color.Red, _ => Color.Blue };
+
+        // ألوان الحالة من ثوابت ThemeHelper (لا أرقام لون داخل الشاشة) — مطابقة لقيمة المصمّم.
+        lblStatus.BackColor = _invoice?.Status switch
+        {
+            1 => ThemeHelper.Neutral,
+            2 => ThemeHelper.Success,
+            3 => ThemeHelper.Danger,
+            _ => ThemeHelper.Primary
+        };
+
+        // RULE-N147 — الزر الذي يستقبله Enter يتبع الوضع الحالي (بلا حفظ/ترحيل من شبكة السطور).
+        _SyncAcceptButton();
     }
 
     private void btnAddItem_Click(object? sender, EventArgs e)
@@ -351,7 +463,7 @@ public partial class frmPurchaseInvoice : Form
                 numInvoiceDiscount.Value,
                 null,
                 null,
-                decimal.Parse(lblTaxAmountVal.Text),
+                0m,
                 0m,
                 txtPaid.DecimalValue,
                 txtNotes.Text,
@@ -394,24 +506,42 @@ public partial class frmPurchaseInvoice : Form
         if (_invoice == null) return;
         if (MessageBox.Show("هل أنت متأكد من إلغاء الفاتورة؟ سيتم عكس المخزون.", "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
-        var result = await _purchaseApi.CancelAsync(_invoice.Id);
-        if (result.IsSuccess)
+        try
         {
-            _notification.ShowSuccess("تم الإلغاء بنجاح");
-            _eventBus.Publish(new PurchaseInvoiceChangedMessage(_invoice.Id));
-            foreach (var item in _invoice.Items) _eventBus.Publish(new StockChangedMessage(item.ProductId));
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            Cursor = Cursors.WaitCursor;
+            var result = await _purchaseApi.CancelAsync(_invoice.Id);
+            if (result.IsSuccess)
+            {
+                _notification.ShowSuccess("تم الإلغاء بنجاح");
+                _eventBus.Publish(new PurchaseInvoiceChangedMessage(_invoice.Id));
+                foreach (var item in _invoice.Items) _eventBus.Publish(new StockChangedMessage(item.ProductId));
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else _notification.ShowError(result.Error!);
         }
-        else _notification.ShowError(result.Error!);
+        catch (Exception ex)
+        {
+            Log.Error(ex, "حدث خطأ أثناء إلغاء فاتورة المشتريات");
+            _notification.ShowError("حدث خطأ أثناء الإلغاء. تم تسجيل التفاصيل للدعم الفني.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
     }
 
     private async void btnPrintA4_Click(object? sender, EventArgs e)
     {
-        if (_invoice == null) return;
+        if (_invoice == null)
+        {
+            MessageBox.Show("احفظ الفاتورة أولاً قبل الطباعة.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
 
         try
         {
+            Cursor = Cursors.WaitCursor;
             var settingsRes = await _settingsApi.GetSettingsAsync();
             if (!settingsRes.IsSuccess)
             {
@@ -430,6 +560,10 @@ public partial class frmPurchaseInvoice : Form
         {
             Log.Error(ex, "حدث خطأ أثناء طباعة فاتورة المشتريات A4");
             _notification.ShowError("حدث خطأ أثناء الطباعة. تم تسجيل التفاصيل للدعم الفني.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
         }
     }
 

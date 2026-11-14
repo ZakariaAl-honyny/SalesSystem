@@ -14,5 +14,6 @@ public interface IUserDesktopService
     Task<Result<UserDto>> UpdateAsync(int id, UpdateUserRequest request, CancellationToken ct = default);
     Task<Result> DeleteAsync(int id, CancellationToken ct = default);
     Task<Result<ResetPasswordResponse>> ResetPasswordAsync(int id, CancellationToken ct = default);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct = default);
 }
 

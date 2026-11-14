@@ -22,6 +22,12 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         /// <summary>يمنع تطبيق التصفية أثناء ضبط القيم برمجياً (RULE-N59 — تصفية فورية بلا وميض).</summary>
         private bool _isInitializing;
 
+        // RULE-N148: القيم الافتراضية الملتقطة عند الإنشاء — يعود إليها «مسح التصفية».
+        private int _defaultFilterByIndex = 1;
+        private int _defaultStatusIndex;
+        private DateTime _defaultFrom = DateTime.Today;
+        private DateTime _defaultTo = DateTime.Today;
+
         public frmListPayments(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -34,11 +40,16 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
             KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
             KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
-            KeyboardHelper.WireButtonDisabledVisual(btnAddCustomerPayment, btnAddSupplierPayment); // RULE-N43
+            KeyboardHelper.WireButtonDisabledVisual(btnAddCustomerPayment, btnAddSupplierPayment, btnClearFilters, btnRefresh); // RULE-N43
             KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
                 (Keys.F2, _AddNewForActiveTab),
                 (Keys.F5, _RefreshActiveTab),
-                (Keys.Escape, _ResetFilters));
+                (Keys.Escape, _GlobalEscape));
+
+            // RULE-N147: Enter = الزر الأساسي = «سند جديد» للتبويب النشط (لا يوجد زر «جديد» موحّد في هذه الشاشة).
+            KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+            AcceptButton = _PrimaryActionButton();
+
             FilterPanelHelper.Attach(this, _serviceProvider);
         }
 
@@ -97,6 +108,12 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 dtpTo.Value = today;
 
                 txtFilterValue.Visible = true;
+
+                // RULE-N148: تُلتقط القيم الافتراضية هنا لأنها مصدر «مسح التصفية».
+                _defaultFilterByIndex = cbFilterBy.SelectedIndex;
+                _defaultStatusIndex = cbStatus.SelectedIndex;
+                _defaultFrom = dtpFrom.Value;
+                _defaultTo = dtpTo.Value;
             }
             finally
             {
@@ -145,6 +162,58 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
 
             _UpdateSummary();
+            _UpdateClearFiltersState();   // RULE-N148 — بعد كل تطبيق تصفية
+        }
+
+        /// <summary>
+        /// «مسح التصفية» (RULE-N148) — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+        /// بلا إعادة تحميل ولا لمس للبيانات. «تحديث» (F5) هو المسؤول عن إعادة تحميل الشاشة.
+        /// </summary>
+        private void btnClearFilters_Click(object sender, EventArgs e)
+        {
+            _ClearAllFilters();
+            txtFilterValue.Focus();
+        }
+
+        /// <summary>تفريغ أدوات التصفية وحدها إلى قيمها الافتراضية (بلا تطبيق ولا تحميل).</summary>
+        private void _ClearFilterInputs()
+        {
+            _isInitializing = true;
+            try
+            {
+                txtFilterValue.Clear();
+                cbFilterBy.SelectedIndex = _defaultFilterByIndex;
+                cbStatus.SelectedIndex = _defaultStatusIndex;
+                chkOnlyCancelled.Checked = false;
+
+                dtpFrom.Value = _defaultFrom;
+                dtpTo.Value = _defaultTo;
+
+                txtFilterValue.Visible = cbFilterBy.SelectedIndex > 0;
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
+
+        /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية بلا إعادة تحميل (RULE-N148).</summary>
+        private void _ClearAllFilters()
+        {
+            _ClearFilterInputs();
+            _ApplyFilter();
+        }
+
+        /// <summary>RULE-N43: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الافتراضي.</summary>
+        private void _UpdateClearFiltersState()
+        {
+            btnClearFilters.Enabled =
+                !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+                || cbFilterBy.SelectedIndex != _defaultFilterByIndex
+                || cbStatus.SelectedIndex != _defaultStatusIndex
+                || chkOnlyCancelled.Checked
+                || dtpFrom.Value.Date != _defaultFrom.Date
+                || dtpTo.Value.Date != _defaultTo.Date;
         }
 
         /// <summary>RULE-N60: بناء التصفية بأسماء أعمدة معروفة — لا نص المستخدم مباشرة.</summary>
@@ -170,7 +239,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 switch (filterBy)
                 {
                     case 1:
-                        parts.Add($"CustomerName LIKE '%{_EscapeLike(text)}%'");
+                        parts.Add(RowFilterHelper.Like("CustomerName", text));
                         break;
                     case 2:
                         parts.Add(int.TryParse(text, out int receiptNo)
@@ -178,7 +247,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                             : "ReceiptNo < 0");
                         break;
                     case 3:
-                        parts.Add($"Notes LIKE '%{_EscapeLike(text)}%'");
+                        parts.Add(RowFilterHelper.Like("Notes", text));
                         break;
                     case 4:
                         parts.Add(decimal.TryParse(text, out decimal amount)
@@ -207,13 +276,13 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 switch (filterBy)
                 {
                     case 1:
-                        parts.Add($"SupplierName LIKE '%{_EscapeLike(text)}%'");
+                        parts.Add(RowFilterHelper.Like("SupplierName", text));
                         break;
                     case 2:
-                        parts.Add($"PaymentNo LIKE '%{_EscapeLike(text)}%'");
+                        parts.Add(RowFilterHelper.Like("PaymentNo", text));
                         break;
                     case 3:
-                        parts.Add($"Notes LIKE '%{_EscapeLike(text)}%'");
+                        parts.Add(RowFilterHelper.Like("Notes", text));
                         break;
                     case 4:
                         parts.Add(decimal.TryParse(text, out decimal amount)
@@ -229,13 +298,6 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         /// <summary>نطاق التاريخ على عمود نصي بصيغة yyyy/MM/dd (ترتيب نصي = ترتيب زمني).</summary>
         private string _DateRangeClause(string column)
             => $"{column} >= '{dtpFrom.Value:yyyy/MM/dd}' AND {column} <= '{dtpTo.Value:yyyy/MM/dd}'";
-
-        /// <summary>RULE-N60: تحييد محارف LIKE الخاصة قبل بناء شرط البحث.</summary>
-        private static string _EscapeLike(string value)
-            => value.Replace("'", "''")
-                    .Replace("[", "[[]")
-                    .Replace("%", "[%]")
-                    .Replace("*", "[*]");
 
         /// <summary>RULE-N61: «المعروض: N من M — الإجمالي: X» بعد كل تصفية أو تحميل.</summary>
         private void _UpdateSummary()
@@ -289,6 +351,10 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             lblCustomerCount.Text = _customerView.Table != null ? _customerView.Count.ToString() : "0";
             lblSupplierCount.Text = _supplierView.Table != null ? _supplierView.Count.ToString() : "0";
 
+            // RULE-N22: سطر «لا توجد بيانات» لكل تبويب بعد كل تصفية.
+            _UpdateEmptyState(lblCustomerEmpty, _customerView);
+            _UpdateEmptyState(lblSupplierEmpty, _supplierView);
+
             string summary = $"المعروض: {shown:N0} من {total:N0} — الإجمالي: {sum:N2}";
 
             // سندات الصرف بلا حقل حالة في العقد — لا نعرض عدّادات حالة غير موجودة.
@@ -296,6 +362,15 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 summary += $" · مرحّل: {posted:N0} · ملغى: {cancelled:N0}";
 
             lblSummary.Text = summary;
+        }
+
+        /// <summary>يُظهر/يُخفي سطر «لا توجد بيانات» حسب عدد أسطر العرض المصفّى (RULE-N22).</summary>
+        private static void _UpdateEmptyState(Label label, DataView view)
+        {
+            label.Visible = view.Table == null || view.Count == 0;
+
+            if (label.Visible)
+                label.BringToFront();
         }
 
         private static decimal _AmountOf(DataRowView row)
@@ -356,6 +431,18 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
 
             _ApplyFilter();
+        }
+
+        /// <summary>RULE-N47 + RULE-N59: Esc داخل صندوق التصفية = مسحها، وخارجه = إغلاق الشاشة.</summary>
+        private void _GlobalEscape()
+        {
+            if (gbFilter.ContainsFocus)
+            {
+                _ResetFilters();
+                return;
+            }
+
+            Close();
         }
 
         // ── أحداث التصفية (فورية — RULE-N59) ───────────────────────────────────
@@ -446,6 +533,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             cbStatus.Enabled = !isSupplierTab;
             chkOnlyCancelled.Enabled = !isSupplierTab;
 
+            AcceptButton = _PrimaryActionButton();   // RULE-N147 — يتبع التبويب النشط
             _UpdateSummary();
         }
 
@@ -613,30 +701,59 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
         }
 
+        /// <summary>
+        /// «تحديث» كامل (RULE-N148): تصفية افتراضية ← إعادة بناء الأعمدة ← إعادة تحميل الشبكتين ←
+        /// شريط الملخص وحالة زر «مسح التصفية» — وليس مسح التصفية فقط.
+        /// </summary>
         private void _RefreshAll()
         {
+            _ClearFilterInputs();       // التصفية تعود للافتراضي — بلا تطبيق هنا (التحميل سيطبّقها)
             _SetupCustomerGrid();
             _SetupSupplierGrid();
             _RefreshCustomerPayments();
             _RefreshSupplierPayments();
+            _UpdateClearFiltersState();
         }
 
-        /// <summary>RULE-N47: F5 — إعادة تحميل التبويب النشط من الخدمة.</summary>
+        /// <summary>RULE-N47/N148: F5 = «تحديث» كامل لإعادة تحميل الشاشة بلا مسح تصفية فقط.</summary>
         private void _RefreshActiveTab()
         {
-            if (tabPayments.SelectedTab == tpSupplierPayments)
-                _RefreshSupplierPayments();
-            else
-                _RefreshCustomerPayments();
+            _RefreshAll();
         }
+
+        /// <summary>
+        /// RULE-N148: زر «تحديث» الظاهر — نفس مسار F5 وعنصر قائمة السياق: إعادة تحميل كاملة
+        /// (تصفية افتراضية ← إعادة بناء الأعمدة ← تحميل الشبكتين) وليس مسح التصفية فقط.
+        /// </summary>
+        private async void btnRefresh_Click(object? sender, EventArgs e)
+        {
+            Cursor = Cursors.WaitCursor;
+            try
+            {
+                await Task.Yield();   // RULE-N26 — يرسم مؤشر الانتظار قبل إعادة التحميل
+                _RefreshAll();
+            }
+            catch (Exception ex)
+            {
+                // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
+                Serilog.Log.Error(ex, "فشل تحديث شاشة المقبوضات والمدفوعات");
+                MessageBox.Show("تعذر تحديث البيانات. يرجى المحاولة مرة أخرى.",
+                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>RULE-N147: الزر الأساسي = «سند جديد» للتبويب النشط (لا يقرأ مرة واحدة بل عند كل ضغطة).</summary>
+        private Button _PrimaryActionButton()
+            => tabPayments.SelectedTab == tpSupplierPayments ? btnAddSupplierPayment : btnAddCustomerPayment;
 
         /// <summary>RULE-N47: F2 — سند جديد حسب التبويب النشط (نفس أزرار الإضافة القائمة).</summary>
         private void _AddNewForActiveTab()
         {
-            if (tabPayments.SelectedTab == tpSupplierPayments)
-                btnAddSupplierPayment.PerformClick();
-            else
-                btnAddCustomerPayment.PerformClick();
+            _PrimaryActionButton().PerformClick();
         }
 
         private void frmListPayments_Load(object sender, EventArgs e)
@@ -673,6 +790,12 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             dialog.ShowDialog();
             _RefreshSupplierPayments();
         }
+
+        private void dgvCustomerPayments_DoubleClick(object? sender, EventArgs e)
+            => tsmiCustomerEdit_Click(sender!, e);
+
+        private void dgvSupplierPayments_DoubleClick(object? sender, EventArgs e)
+            => tsmiSupplierEdit_Click(sender!, e);
 
         private void cmsCustomerPayments_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {

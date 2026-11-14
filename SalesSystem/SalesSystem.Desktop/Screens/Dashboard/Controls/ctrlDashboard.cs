@@ -7,9 +7,18 @@
 // • كل خدماته تُحلّ من DI عبر I*DesktopService فقط — لا وصول مباشر لقاعدة البيانات
 //   ولا أي طبقة أدنى (RULE-N05 / RULE-N06).
 //
+// التجميع (§2.34 / RULE-N135…N138) — من أعلى لأسفل، كل كتلة داخل GroupBox:
+//   (1) العنوان lblMode  (2) gbCommands «أوامر اللوحة»  (3) gbIndicators «مؤشرات اليوم»
+//   (4) gbDetails «ملخص الأرقام»  — ولا صندوق داخل صندوق، ولا gbFilter/pnlSummary
+//   لأن اللوحة شاشة عرض لا قائمة سجلات.
+//
 // ملاحظة الاشتراك (RULE-N69): نستخدم Control.OnLoad — وهو يُطلق فعلياً
 // لمكوّن UserControl يُضاف إلى حاضن حتى لو أُضيف قبل عرض النموذج؛ يُطلق مرة
 // واحدة عند إنشاء مقبض النافذة (CreateControl) لحظة ظهور النموذج الحاضن.
+//
+// ملاحظة الاختصارات (RULE-N47): `KeyboardHelper.WireGlobalShortcuts` يعمل على
+// النماذج فقط (Form)، لذا F5 يُوصَّل في النموذج الحاضن على `RefreshAsync` —
+// كل حاضن (frmDashboard الآن، وأي حاضن آخر لاحقاً) يسطّر استدعاءً واحداً.
 // -----------------------------------------------------------------------------
 
 using Microsoft.Extensions.DependencyInjection;
@@ -58,8 +67,16 @@ public partial class ctrlDashboard : UserControl
         RightToLeft = RightToLeft.Yes;
         Font = new Font("Tahoma", 10F);
 
-        // لوحة عرض للقراءة فقط: لا حقول إدخال — يكفي ربط Enter/Tab (RULE-N40)
+        // ── لوحة المفاتيح (RULE-N40…RULE-N46) — لوحة عرض بلا حقول إدخال ──
         KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+        KeyboardHelper.WireButtonDisabledVisual(btnRefresh);                       // RULE-N43
+
+        // ── تلميحات الأزرار مع اختصاراتها (RULE-N47) ──
+        toolTip1.SetToolTip(btnRefresh, "تحديث أرقام اللوحة من الخدمة (F5)");
+        toolTip1.SetToolTip(lblPeriod, "الفترة التي تخصّها أرقام البطاقات");
 
         ApplyRoleVisibility();
         ApplyWelcomeText();
@@ -72,28 +89,37 @@ public partial class ctrlDashboard : UserControl
 
     /// <summary>
     /// يحمّل ملخص لوحة المعلومات ويعرضه. لا يرمي استثناءً أبداً:
-    /// فشل التحديث غير حرج ويُسجَّل كتحذير فقط (RULE-N29).
+    /// فشل التحديث غير حرج ويُسجَّل كتحذير، وتظهر حالة «لا توجد بيانات» بدل خطأ (RULE-N29).
     /// </summary>
     public async Task RefreshAsync()
     {
+        // الحاضن قد يغلق الشاشة قبل وصول الرد — لا نلمس عناصر مُنتهية
+        if (IsDisposed) return;
+
         var previousCursor = Cursor;
-        Cursor = Cursors.WaitCursor;
 
         try
         {
+            Cursor = Cursors.WaitCursor;             // RULE-N26
+            SetStatus("جارٍ تحديث الأرقام…");
+
             _lastRefreshUtc = DateTime.UtcNow;
 
             var result = await DesktopService.GetSummaryAsync().ConfigureAwait(true);
 
+            if (IsDisposed) return;
+
             if (result is null)
             {
                 Log.Warning("لوحة المعلومات: استجابة فارغة من خدمة الملخص");
+                ShowEmptyState();
                 return;
             }
 
             if (!result.IsSuccess || result.Value is null)
             {
                 Log.Warning("لوحة المعلومات: تعذر تحميل الملخص — {Error}", result.Error);
+                ShowEmptyState();
                 return;
             }
 
@@ -101,12 +127,13 @@ public partial class ctrlDashboard : UserControl
         }
         catch (Exception ex)
         {
-            // فشل غير حرج: نُسجّل تحذيراً ولا نُظهر خطأً للمستخدم
+            // فشل غير حرج: نُسجّل تحذيراً ونعرض «لا توجد بيانات» بدل نافذة خطأ
             Log.Warning(ex, "لوحة المعلومات: فشل تحديث الأرقام — ستُعاد المحاولة عند الحدث التالي");
+            if (!IsDisposed) ShowEmptyState();
         }
         finally
         {
-            Cursor = previousCursor;
+            if (!IsDisposed) Cursor = previousCursor;   // RULE-N26 — الاستعادة دائماً
         }
     }
 
@@ -116,6 +143,7 @@ public partial class ctrlDashboard : UserControl
 
     private void ApplySummary(DashboardSummaryDto s)
     {
+        // المبالغ N2 (RULE-001) — والعدادات أعداد صحيحة (لا كميات في هذا الملخص)
         cardSalesValue.Text = s.TotalSalesToday.ToString("N2");
         cardPurchasesValue.Text = s.TotalPurchasesToday.ToString("N2");
         cardCustomersValue.Text = s.ActiveCustomersCount.ToString();
@@ -123,11 +151,59 @@ public partial class ctrlDashboard : UserControl
         cardReceivablesValue.Text = s.TotalReceivables.ToString("N2");
         cardPayablesValue.Text = s.TotalPayables.ToString("N2");
 
-        // الأسطر الثانوية — تستخدم أعضاء DTO التي كانت مهجورة
-        lblSalesSub.Text = $"عدد الفواتير اليوم: {s.NumberOfSalesToday}\nهذا الشهر: {s.TotalSalesMonth.ToString("N2")}";
-        lblPurchasesSub.Text = $"هذا الشهر: {s.TotalPurchasesMonth.ToString("N2")}";
+        // الأسطر الثانوية داخل البطاقات
+        lblSalesSub.Text = $"عدد الفواتير اليوم: {s.NumberOfSalesToday}\nهذا الشهر: {s.TotalSalesMonth:N2}";
+        lblPurchasesSub.Text = $"هذا الشهر: {s.TotalPurchasesMonth:N2}";
         lblCustomersSub.Text = $"الموردون النشطون: {s.ActiveSuppliersCount}";
         lblStockSub.Text = $"إجمالي الأصناف: {s.TotalProductsCount}";
+
+        // كتلة التفاصيل «ملخص الأرقام» — كل المبالغ N2 والأعداد بلا كسور
+        lblDetails.Text =
+            $"مبيعات اليوم: {s.TotalSalesToday:N2}   |   عدد فواتير اليوم: {s.NumberOfSalesToday}\n" +
+            $"مبيعات الشهر: {s.TotalSalesMonth:N2}   |   مشتريات الشهر: {s.TotalPurchasesMonth:N2}\n" +
+            $"مشتريات اليوم: {s.TotalPurchasesToday:N2}\n" +
+            $"مستحقات لنا (عملاء): {s.TotalReceivables:N2}   |   مستحقات علينا (موردون): {s.TotalPayables:N2}\n" +
+            $"العملاء النشطون: {s.ActiveCustomersCount}   |   الموردون النشطون: {s.ActiveSuppliersCount}\n" +
+            $"إجمالي الأصناف: {s.TotalProductsCount}   |   أصناف بمخزون منخفض: {s.LowStockItemsCount}";
+
+        // هل هناك حركة فعلاً؟ إن لا، نقولها للمستخدم بصراحة بدل أصفار صامتة
+        bool noMovement = s.TotalSalesToday == 0m
+                          && s.TotalPurchasesToday == 0m
+                          && s.NumberOfSalesToday == 0
+                          && s.TotalReceivables == 0m
+                          && s.TotalPayables == 0m;
+
+        SetStatus(noMovement
+            ? "لا توجد حركة اليوم — ستُحدَّث الأرقام تلقائياً عند أول فاتورة"
+            : "آخر تحديث: " + DateTime.Now.ToString("HH:mm:ss"));
+    }
+
+    /// <summary>حالة «لا توجد بيانات» — تُعرض بدل أي استثناء أو نافذة خطأ.</summary>
+    private void ShowEmptyState()
+    {
+        lblDetails.Text = "لا توجد بيانات لعرضها حالياً.\nستُحدَّث الأرقام تلقائياً عند تسجيل أول حركة.";
+        SetStatus("لا توجد بيانات — آخر محاولة: " + DateTime.Now.ToString("HH:mm:ss"));
+    }
+
+    private void SetStatus(string text) => lblDataStatus.Text = text;
+
+    // ═════════════════════════════════════════════════════════════════
+    //  الأوامر
+    // ═════════════════════════════════════════════════════════════════
+
+    private async void btnRefresh_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            // RefreshAsync لا يرمي، لكن نلتزم بقاعدة async void (RULE-N25)
+            Log.Error(ex, "لوحة المعلومات: تعذر تنفيذ التحديث اليدوي");
+            MessageBox.Show("تعذر تحديث أرقام اللوحة. حاول مرة أخرى.", "لوحة المعلومات",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -149,20 +225,24 @@ public partial class ctrlDashboard : UserControl
     }
 
     // ═════════════════════════════════════════════════════════════════
-    //  المظهر (RULE-N50…RULE-N54)
+    //  المظهر (RULE-N50…RULE-N54) — ينتهي بـ Apply(this) دائماً
     // ═════════════════════════════════════════════════════════════════
 
     private void ApplyUiTheme()
     {
-        // لون الأسطر الثانوية من الثيم الأخضر — بلا قيم لون مكرّرة (RULE-N54)
+        // الأسطر الثانوية والنصوص المهمة: من ثوابت الثيم لا من أرقام مكرّرة (RULE-N54)
+        // (القيم نفسها معلنة في المصمّم — RULE-N134 — فالاستدعاء تثبيت لا تغيير)
         lblSalesSub.ForeColor = GreenThemeHelper.TextStrong;
         lblPurchasesSub.ForeColor = GreenThemeHelper.TextStrong;
         lblCustomersSub.ForeColor = GreenThemeHelper.TextStrong;
         lblStockSub.ForeColor = GreenThemeHelper.TextStrong;
         lblWelcome.ForeColor = GreenThemeHelper.TextStrong;
+        lblPeriod.ForeColor = GreenThemeHelper.TextStrong;
+        lblDetails.ForeColor = GreenThemeHelper.TextStrong;
+        lblDataStatus.ForeColor = GreenThemeHelper.TextStrong;
 
         GreenThemeHelper.ApplyHeader(lblMode);   // RULE-N53
-        GreenThemeHelper.Apply(this);            // آخر سطر دائماً (RULE-N50)
+        GreenThemeHelper.Apply(this);            // آخر سطر دائماً (RULE-N50 / RULE-N69)
     }
 
     // ═════════════════════════════════════════════════════════════════

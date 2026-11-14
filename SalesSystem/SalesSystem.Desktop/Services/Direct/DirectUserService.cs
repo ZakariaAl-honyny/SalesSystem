@@ -23,7 +23,7 @@ public class DirectUserService : IUserDesktopService
     {
         try
         {
-            return await _users.GetAllAsync(includeInactive: false, ct);
+            return await _users.GetAllAsync(includeInactive: true, ct);
         }
         catch (Exception)
         {
@@ -88,6 +88,18 @@ public class DirectUserService : IUserDesktopService
         catch (Exception)
         {
             return Result<ResetPasswordResponse>.Failure("حدث خطأ أثناء إعادة تعيين كلمة المرور");
+        }
+    }
+
+    public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _users.ReactivateAsync(id, ct);
+        }
+        catch (Exception)
+        {
+            return Result.Failure("حدث خطأ أثناء إعادة تنشيط المستخدم");
         }
     }
 }

@@ -22,6 +22,9 @@ public static class KeyboardHelper
     /// <summary>سجل الحقول التي وُصِّلت بالفعل للتنقل بالأسهم (منع التوصيل المزدوج).</summary>
     private static readonly ConditionalWeakTable<Control, object> ArrowNavigationWired = new();
 
+    /// <summary>سجل النماذج التي وُصِّل فيها زر الوضع مع Enter (منع التوصيل المزدوج).</summary>
+    private static readonly ConditionalWeakTable<Control, object> ModeEnterWired = new();
+
     /// <summary>علامة مشتركة تُخزَّن في جدولي التوصيل (قيمة واحدة لكل مفتاح).</summary>
     private static readonly object WiredMarker = new();
 
@@ -482,6 +485,53 @@ public static class KeyboardHelper
                 }
             }
         };
+    }
+
+    /// <summary>
+    /// يوجّه <c>Enter</c> إلى الزر الأساسي للوضع الحالي (RULE-N147):
+    /// وضع العرض ⇒ «جديد» · وضع الإضافة ⇒ «إضافة/حفظ» · وضع التعديل ⇒ «تعديل».
+    /// <para>
+    /// لا يعمل عندما يكون المؤشر داخل حقل إدخال (Enter هناك = الحقل التالي — `RULE-N40`)،
+    /// ولا على زر/مربع اختيار (Enter هناك = تنفيذ العنصر نفسه).
+    /// </para>
+    /// </summary>
+    /// <param name="form">الشاشة.</param>
+    /// <param name="primaryButton">يُرجع الزر الأساسي للوضع الحالي — يُقرأ عند كل ضغطة لا مرة واحدة.</param>
+    public static void WireModeEnter(Form form, Func<Button?> primaryButton)
+    {
+        if (form is null || primaryButton is null) return;
+        if (!MarkWired(ModeEnterWired, form)) return;
+
+        form.KeyPreview = true;
+        form.KeyDown += (_, e) =>
+        {
+            if (e.KeyCode != Keys.Enter || e.Modifiers != Keys.None) return;
+
+            // Enter داخل حقل إدخال أو على زر = سلوك العنصر نفسه، لا زر الوضع.
+            var focused = FindFocusedControl(form);
+            if (focused is TextBoxBase or ComboBox or NumericUpDown or DateTimePicker or ButtonBase) return;
+
+            var primary = primaryButton();
+            if (primary is null || primary.IsDisposed || !primary.Enabled || !primary.Visible) return;
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+            primary.PerformClick();
+        };
+    }
+
+    /// <summary>يعيد العنصر الذي يحمل التركيز فعلياً داخل الشجرة (null = التركيز على الشاشة نفسها).</summary>
+    private static Control? FindFocusedControl(Control root)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child.Focused) return child;
+
+            var nested = FindFocusedControl(child);
+            if (nested is not null) return nested;
+        }
+
+        return null;
     }
 
     /// <summary>

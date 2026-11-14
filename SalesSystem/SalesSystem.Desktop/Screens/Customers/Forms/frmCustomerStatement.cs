@@ -52,7 +52,17 @@ public partial class frmCustomerStatement : Form
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));   // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
+
+        // RULE-N43: مظهر واضح للأزرار عند التعطيل (تحديث معطّل أثناء تنفيذ الكشف).
+        KeyboardHelper.WireButtonDisabledVisual(btnRefresh, btnClose);
+
+        // RULE-N47: F5 تحديث الكشف. Esc يُديره CancelButton (btnClose) — بلا تكرار ولا تنفيذ مزدوج.
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.F5, () => _RefreshStatement()));
     }
+
+    /// <summary>آلة حالة الأزرار (RULE-N43): «تحديث» معطّل أثناء تنفيذ الكشف.</summary>
+    private void _SetBusy(bool busy) => btnRefresh.Enabled = !busy;
 
     // ── الثيم الأخضر ───────────────────────────────────────────────────────────
 
@@ -238,6 +248,7 @@ public partial class frmCustomerStatement : Form
     {
         if (cmbCustomer.SelectedIndex < 0) return;
 
+        _SetBusy(true);
         Cursor = Cursors.WaitCursor;
         try
         {
@@ -447,6 +458,9 @@ public partial class frmCustomerStatement : Form
 
             lblRecordsCount.Text = periodMovements.Count.ToString();
 
+            // RULE-N22: إشعار «لا توجد بيانات» داخل الشاشة عند خلو الفترة من الحركات.
+            lblNoData.Visible = dgvStatement.Rows.Count == 0;
+
             // ── تحليل أعمار الديون ──────────────────────────────────────────────
             _CalculateAging(customer.Id, from);
         }
@@ -459,6 +473,7 @@ public partial class frmCustomerStatement : Form
         finally
         {
             Cursor = Cursors.Default;
+            _SetBusy(false);
         }
     }
 
@@ -628,6 +643,38 @@ public partial class frmCustomerStatement : Form
 
     private void btnRefresh_Click(object sender, EventArgs e)
         => _RefreshStatement();
+
+    // ── قائمة السياق + النقر المزدوج (عرض للقراءة فقط — RULE-N23) ───────────────
+
+    private void dgvStatement_DoubleClick(object sender, EventArgs e) => _ShowMovementDetails();
+
+    private void cmsStatementRefresh_Click(object sender, EventArgs e) => _RefreshStatement();
+
+    private void cmsStatementClose_Click(object sender, EventArgs e) => Close();
+
+    /// <summary>عرض تفاصيل الحركة المحددة — لا يعدّل أي بيانات.</summary>
+    private void _ShowMovementDetails()
+    {
+        if (dgvStatement.CurrentRow is not DataGridViewRow row) return;
+        if (row.IsNewRow) return;
+
+        string Cell(string columnName)
+        {
+            string value = row.Cells[columnName].Value?.ToString() ?? string.Empty;
+            return string.IsNullOrWhiteSpace(value) ? "—" : value;
+        }
+
+        string message =
+            $"التاريخ: {Cell("ColDate")}{Environment.NewLine}" +
+            $"النوع: {Cell("ColType")}{Environment.NewLine}" +
+            $"المرجع: {Cell("ColReference")}{Environment.NewLine}" +
+            $"البيان: {Cell("ColDescription")}{Environment.NewLine}" +
+            $"مدين: {Cell("ColDebit")}{Environment.NewLine}" +
+            $"دائن: {Cell("ColCredit")}{Environment.NewLine}" +
+            $"الرصيد: {Cell("ColBalance")}";
+
+        MessageBox.Show(message, "تفاصيل الحركة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
 
     private void btnClose_Click(object sender, EventArgs e)
         => Close();

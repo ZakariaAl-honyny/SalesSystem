@@ -1,10 +1,12 @@
+using SalesSystem.Desktop.Helpers;
 using Serilog;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
 /// <summary>
-/// نموذج طباعة باركود الأصناف (نسخة تجريبية UI-first).
-/// يعمل ببيانات Mock داخلية فقط — لا يوجد اتصال بالخلفية (API / قاعدة بيانات).
+/// «طباعة باركود الأصناف» (نسخة UI-first ببيانات داخلية).
+/// الهيكل (RULE-N79 / RULE-N135…N138): العنوان ← أوامر الملصق ← بيانات الملصق ← معاينة الملصق.
+/// RULE-N42: Enter في حقل الباركود = بحث فوري، ويبقى التركيز في الحقل جاهزاً للمسح التالي.
 /// </summary>
 public partial class frmInventoryBarcode : Form
 {
@@ -29,14 +31,42 @@ public partial class frmInventoryBarcode : Form
 
     private MockProduct? _selectedProduct;
 
+    /// <summary>نص شريط العنوان الأساسي — تُضاف إليه حالة الصنف المحدد (RULE-N44).</summary>
+    private const string FormTitle = "طباعة باركود الأصناف";
+
     public frmInventoryBarcode(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
+        KeyboardHelper.WireEnterAsTab(this);
+        KeyboardHelper.WireSelectAllOnFocus(this);
+        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireArrowNavigation(this);
+
+        // RULE-N43 — مظهر واضح للأزرار المعطّلة.
+        KeyboardHelper.WireButtonDisabledVisual(btnPrint, btnClose);
+
+        // RULE-N47 — Esc يغلق الشاشة (لا «جديد/تحديث/ترحيل» على هذه الشاشة).
+        KeyboardHelper.WireGlobalShortcuts(this,
+            (Keys.Escape, () => { if (btnClose.Enabled) btnClose.PerformClick(); }));
+
+        ApplyUiTheme();
     }
 
     // محجوز لربط خدمات API الحقيقية لاحقاً — النسخة الحالية تعمل ببيانات Mock فقط
     private IServiceProvider ServiceProvider => _serviceProvider;
+
+    // ── الثيم (RULE-N50…RULE-N54) ─────────────────────────────────────
+
+    /// <summary>الثيم الأخضر — <c>GreenThemeHelper.Apply(this)</c> آخر سطر دائماً (لا شبكة في هذه الشاشة).</summary>
+    private void ApplyUiTheme()
+    {
+        GreenThemeHelper.ApplyHeader(lblMode);
+
+        GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
+    }
 
     // ── التحميل والبيانات التجريبية ──────────────────────────────────────
 
@@ -48,6 +78,7 @@ public partial class frmInventoryBarcode : Form
             cmbProduct.ValueMember = nameof(MockProduct.Barcode);
             cmbProduct.DataSource = new List<MockProduct>(MockProducts);
 
+            cmbLabelSize.Items.Clear();
             cmbLabelSize.Items.AddRange(LabelSizes);
             cmbLabelSize.SelectedIndex = 1; // متوسط
 
@@ -57,6 +88,9 @@ public partial class frmInventoryBarcode : Form
 
             if (cmbProduct.Items.Count > 0)
                 cmbProduct.SelectedIndex = 0;
+
+            // RULE-N42: التركيز يبدأ في حقل الباركود ليكون جاهزاً للمسح التالي.
+            txtBarcode.Focus();
         }
         catch (Exception ex)
         {
@@ -74,6 +108,69 @@ public partial class frmInventoryBarcode : Form
 
         lblBarcodeValue.Text = _selectedProduct?.Barcode ?? "----------";
         pnlBarcodePreview.Invalidate();
+
+        _UpdateModeHeader();
+    }
+
+    /// <summary>RULE-N44 — مؤشر الوضع: اسم الصنف المحدد أو «بلا تحديد».</summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = _selectedProduct is null
+            ? FormTitle
+            : $"{FormTitle} — {_selectedProduct.Name}";
+    }
+
+    // ── RULE-N42: بحث فوري بالباركود ─────────────────────────────────────
+
+    private void txtBarcode_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter) return;
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+
+        _FindByBarcode();
+
+        // WireEnterAsTab موصول بالحقل أيضاً وينقل التركيز للحقل التالي بعده — لذلك نُعيد التركيز
+        // إلى حقل الباركود بعد انتهاء معالجة المفتاح ليبقى جاهزاً للمسح التالي (RULE-N42).
+        BeginInvoke((Action)(() =>
+        {
+            if (txtBarcode.IsDisposed) return;
+            txtBarcode.Focus();
+            txtBarcode.SelectAll();
+        }));
+    }
+
+    /// <summary>يبحث عن الصنف بالباركود: يُحدَّد فوراً إن وُجد، وإلا رسالة عربية ويُبقى النص للتعديل.</summary>
+    private void _FindByBarcode()
+    {
+        string code = txtBarcode.Text.Trim();
+
+        if (code.Length == 0)
+        {
+            errorProvider.SetError(txtBarcode, "أدخل أو امسح الباركود أولاً");
+            return;
+        }
+
+        var product = MockProducts.FirstOrDefault(
+            p => string.Equals(p.Barcode, code, StringComparison.OrdinalIgnoreCase));
+
+        if (product is null)
+        {
+            errorProvider.SetError(txtBarcode, "لا يوجد صنف بهذا الباركود");
+            MessageBox.Show($"لا يوجد صنف بهذا الباركود: {code}", "بحث بالباركود",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        errorProvider.SetError(txtBarcode, "");
+
+        // اختيار الصنف يرفع SelectedIndexChanged فتتحدث المعاينة وشريط العنوان.
+        cmbProduct.SelectedItem = product;
+        lblBarcodeValue.Text = product.Barcode;
+        pnlBarcodePreview.Invalidate();
+
+        txtBarcode.Clear();
     }
 
     private void btnPrint_Click(object? sender, EventArgs e)
@@ -116,6 +213,7 @@ public partial class frmInventoryBarcode : Form
         finally
         {
             Cursor = Cursors.Default;
+            txtBarcode.Focus();
         }
     }
 

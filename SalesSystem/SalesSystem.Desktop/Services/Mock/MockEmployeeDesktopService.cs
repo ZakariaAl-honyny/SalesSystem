@@ -65,4 +65,15 @@ public class MockEmployeeDesktopService : IEmployeeDesktopService
         MockEmployeesData.Employees[index] = existing with { IsActive = false };
         return Task.FromResult(Result.Success());
     }
+
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockEmployeesData.Employees.FirstOrDefault(e => e.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("الموظف غير موجود"));
+
+        var index = MockEmployeesData.Employees.IndexOf(existing);
+        MockEmployeesData.Employees[index] = existing with { IsActive = true };
+        return Task.FromResult(Result.Success());
+    }
 }

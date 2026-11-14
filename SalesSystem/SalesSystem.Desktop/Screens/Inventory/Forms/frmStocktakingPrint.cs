@@ -16,13 +16,6 @@ public partial class frmStocktakingPrint : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
-    // لون محاضر الجرد (تركواز) — يميزها عن سندات التحويل والقبض/الصرف
-    private static readonly Color StocktakingColor = Color.FromArgb(13, 116, 119);
-
-    // ألوان الفائض/العجز — مطابقة لشاشة الجرد الفعلي (frmStocktakingNew)
-    private static readonly Color SurplusGreen = Color.FromArgb(25, 135, 84);
-    private static readonly Color DeficitRed = Color.FromArgb(220, 53, 69);
-
     // ── بيانات محضر الجرد الوهمية (Mock) ──────────────────────────────────────
 
     private sealed class StocktakingSession
@@ -58,17 +51,50 @@ public partial class frmStocktakingPrint : Form
         InitializeComponent();
         KeyboardHelper.WireGlobalShortcuts(this, (Keys.F10, () => btnPrint.PerformClick()));
         _BindSession();
+        ApplyUiTheme();   // RULE-N50 — الثيم الأخضر آخر خطوة في تهيئة المظهر
+    }
+
+    // ── الثيم الأخضر (RULE-N50…RULE-N54 / RULE-N134 / RULE-N140…N144) ──────────
+
+    /// <summary>
+    /// يبدأ بـ <see cref="ThemeHelper"/> وينتهي بـ <see cref="GreenThemeHelper.Apply(Form)"/>
+    /// **كآخر سطر** — والقيم النهائية مطابقة حرفياً لما هو معلن في <c>*.Designer.cs</c>
+    /// حتى يتساوى المصمّم ووقت التشغيل.
+    /// </summary>
+    private void ApplyUiTheme()
+    {
+        ThemeHelper.ApplyMainFormStyle(this);
+        ThemeHelper.ApplyButtonStyle(btnPrint, ThemeHelper.ButtonType.Success);
+        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
+
+        // يُعاد ضبط ما فرضه ThemeHelper (خط Segoe UI/حجم مرن) إلى قيم المصمّم حرفياً.
+        foreach (var btn in new[] { btnPrint, btnClose })
+        {
+            btn.AutoSize = false;
+            btn.UseVisualStyleBackColor = false;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Tahoma", 11F, FontStyle.Bold);
+        }
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.ForeColor = Color.White;
+        btnClose.Size = new Size(100, 42);
+        btnClose.ForeColor = Color.White;
+
+        // عنوان البطاقة ورقم المحضر: نص مميّز + شريط تمييز من لوحة الثيم فقط (RULE-N54).
+        lblAccent.BackColor = GreenThemeHelper.TextStrong;
+        lblStocktakingTitle.ForeColor = GreenThemeHelper.TextStrong;
+        lblDocNoValue.ForeColor = GreenThemeHelper.TextStrong;
+
+        GreenThemeHelper.ApplyHeader(lblTitle);   // RULE-N53
+        GreenThemeHelper.Apply(this);             // ← الأخير دائماً (RULE-N50)
     }
 
     // ── ربط بيانات المحضر ببطاقة المعاينة ─────────────────────────────────────
 
     private void _BindSession()
     {
-        lblStocktakingTitle.ForeColor = StocktakingColor;
-        lblAccent.BackColor = StocktakingColor;
-
         lblDocNoValue.Text = _session.DocNo;
-        lblDocNoValue.ForeColor = StocktakingColor;
         lblDateValue.Text = _session.Date.ToString("dd/MM/yyyy");
         lblWarehouseValue.Text = _session.Warehouse;
         lblCommitteeHeadValue.Text = _session.CommitteeHead;
@@ -83,12 +109,22 @@ public partial class frmStocktakingPrint : Form
 
     private void btnPrint_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(
-            $"تمت طباعة محضر الجرد رقم {_session.DocNo} بنجاح.\n" +
-            $"المستودع: {_session.Warehouse} — لجنة الجرد: {_session.CommitteeHead} / {_session.CommitteeMember} / {_session.Storekeeper}\n" +
-            $"عدد الأصناف: {_session.ItemCount} — إجمالي الفائض: {_session.TotalSurplus:N3} — إجمالي العجز: {_session.TotalDeficit:N3}\n" +
-            "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-            "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        try
+        {
+            MessageBox.Show(
+                $"تمت طباعة محضر الجرد رقم {_session.DocNo} بنجاح.\n" +
+                $"المستودع: {_session.Warehouse} — لجنة الجرد: {_session.CommitteeHead} / {_session.CommitteeMember} / {_session.Storekeeper}\n" +
+                $"عدد الأصناف: {_session.ItemCount} — إجمالي الفائض: {_session.TotalSurplus:N3} — إجمالي العجز: {_session.TotalDeficit:N3}\n" +
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
+                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
+            Serilog.Log.Error(ex, "تعذرت طباعة محضر الجرد {DocNo}", _session.DocNo);
+            MessageBox.Show("تعذر طباعة محضر الجرد. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void btnClose_Click(object sender, EventArgs e)

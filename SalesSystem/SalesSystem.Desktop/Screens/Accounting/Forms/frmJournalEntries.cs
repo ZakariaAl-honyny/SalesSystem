@@ -34,7 +34,6 @@ public partial class frmJournalEntries : Form
     // ── State ────────────────────────────────────────────────────────────────
     private readonly BindingList<LineRow> _lines = new();
     private readonly List<JournalEntryListDto> _entries = new();
-    private readonly Dictionary<int, JournalEntryListDto> _entriesById = new();
 
     private DataView _entriesView = new();
 
@@ -52,6 +51,12 @@ public partial class frmJournalEntries : Form
 
     /// <summary>هل قيّد المستخدم التاريخ «من/إلى»؟ (افتراضياً بلا تقييد زمني حتى تظهر كل القيود).</summary>
     private bool _dateRangeActive;
+
+    /// <summary>قيمة «من» الافتراضية — تُلتقط عند الإنشاء ويعود إليها «مسح التصفية» (RULE-N148).</summary>
+    private DateTime _defaultFrom;
+
+    /// <summary>قيمة «إلى» الافتراضية — تُلتقط عند الإنشاء ويعود إليها «مسح التصفية» (RULE-N148).</summary>
+    private DateTime _defaultTo;
 
     private bool _filterBusy;
     private bool _filterPending;
@@ -112,11 +117,15 @@ public partial class frmJournalEntries : Form
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
 
+        // RULE-N147: Enter = الزر الأساسي للشاشة («جديد») — ويُستثنى منه ما لا يملك Enter فيه معنى الزر.
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
+
         ApplyUiTheme();
 
         // RULE-N43: يُوصَّل بعد الثيم حتى يلتقط الألوان النهائية للأزرار.
         KeyboardHelper.WireButtonDisabledVisual(
-            btnNew, btnSave, btnEdit, btnPost, btnCancelEntry, btnDeleteDraft, btnRefresh);
+            btnNew, btnSave, btnEdit, btnPost, btnCancelEntry, btnDeleteDraft, btnRefresh, btnClearFilters);
 
         _BindEntryTypes();
         _BindStatusFilter();
@@ -256,11 +265,14 @@ public partial class frmJournalEntries : Form
     {
         var today = DateTime.Today;
 
+        _defaultFrom = new DateTime(today.Year, today.Month, 1);
+        _defaultTo = today;
+
         _suppressFilterEvents = true;
         try
         {
-            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-            dtpTo.Value = today;
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
@@ -278,6 +290,7 @@ public partial class frmJournalEntries : Form
             await _LoadAccountsAsync();
             await _LoadEntriesAsync();
             _ResetForm();
+            _UpdateClearFiltersState(); // RULE-N43: الحالة الابتدائية لزر «مسح التصفية»
         }
         catch (Exception ex)
         {
@@ -340,12 +353,10 @@ public partial class frmJournalEntries : Form
         }
 
         _entries.Clear();
-        _entriesById.Clear();
 
         foreach (var entry in result.Value)
         {
             _entries.Add(entry);
-            _entriesById[entry.Id] = entry;
         }
 
         _BuildEntriesTable(selectId);
@@ -451,6 +462,7 @@ public partial class frmJournalEntries : Form
         {
             _UpdateSummary();
             _UpdateEmptyState();
+            _UpdateClearFiltersState();
             return;
         }
 
@@ -466,7 +478,8 @@ public partial class frmJournalEntries : Form
                 _ => "EntryNumber"
             };
 
-            rowFilter = $"{column} LIKE '%{text.Replace("'", "''")}%'";
+            // RULE-N60/N112: التهريب في RowFilterHelper لا داخل الشاشة.
+            rowFilter = RowFilterHelper.Like(column, text);
         }
 
         var previousSelectionGuard = _loadingSelection;
@@ -488,6 +501,7 @@ public partial class frmJournalEntries : Form
         _UpdateSummary();
         _UpdateEmptyState();
         _ApplySelection(selectId);
+        _UpdateClearFiltersState(); // RULE-N43
     }
 
     private void _ApplySelection(int? selectId)
@@ -688,16 +702,31 @@ public partial class frmJournalEntries : Form
     {
         if (e.KeyCode != Keys.Escape) return;
 
-        _ClearFilters();
+        _ClearAllFilters();
         e.Handled = true;
         e.SuppressKeyPress = true;
     }
 
-    /// <summary>Esc = مسح كل أدوات التصفية والعودة لعرض كامل.</summary>
-    private void _ClearFilters()
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد شبكة القيود إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس لمحرر القيد ولا لشبكة البنود (RULE-N148).
+    /// «تحديث» (F5) هو المسؤول عن إعادة قراءة البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object? sender, EventArgs e)
     {
-        var today = DateTime.Today;
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
 
+    /// <summary>
+    /// تفريغ أدوات التصفية وحدها إلى الوضع الافتراضي (بلا تطبيق ولا إعادة تحميل) — RULE-N148.
+    /// تُستهلك من «مسح التصفية» و«تحديث» — ولا تمس محرر القيد ولا شبكة البنود.
+    /// </summary>
+    private void _ClearFilterInputs()
+    {
+        bool wasSuppressed = _suppressFilterEvents;
+
+        // منع تصفية وسيطة عند كل ضبط حقل — تُطبَّق مرة واحدة بعد التفريغ.
         _suppressFilterEvents = true;
         try
         {
@@ -708,15 +737,35 @@ public partial class frmJournalEntries : Form
             chkOnlyDraft.Checked = false;
             chkOnlyCancelled.Checked = false;
             _dateRangeActive = false;
-            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-            dtpTo.Value = today;
+            dtpFrom.Value = _defaultFrom;
+            dtpTo.Value = _defaultTo;
         }
         finally
         {
-            _suppressFilterEvents = false;
+            _suppressFilterEvents = wasSuppressed;
         }
+    }
 
-        _OnFiltersChanged();
+    /// <summary>يمسح كل أدوات التصفية ثم يعيد تطبيق التصفية الافتراضية على القيود المحمَّلة (بلا تحميل) — RULE-N59.</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
+        _ApplyFilter(_currentEntryId);
+    }
+
+    /// <summary>RULE-N43/RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الوضع الافتراضي.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbEntryTypeFilter.SelectedIndex > 0
+            || cbStatusFilter.SelectedIndex > 0
+            || chkOnlyDraft.Checked
+            || chkOnlyCancelled.Checked
+            || _dateRangeActive
+            || dtpFrom.Value.Date != _defaultFrom.Date
+            || dtpTo.Value.Date != _defaultTo.Date;
     }
 
     // ── تحميل قيد في المحرر ──────────────────────────────────────────────────
@@ -1488,19 +1537,20 @@ public partial class frmJournalEntries : Form
 
     private void btnClose_Click(object? sender, EventArgs e) => Close();
 
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← دليل الحسابات ← القيود ← الملخص والتحديد والمحرر.
+    /// «مسح التصفية» لا يفعل ذلك — هو يمسح أدوات التصفية فقط.
+    /// </summary>
     private async Task _RefreshAsync()
     {
         Cursor = Cursors.WaitCursor;
         try
         {
-            int? currentId = _currentEntryId;
-
-            await _LoadEntriesAsync(currentId);
-
-            if (currentId is int id && _entriesById.ContainsKey(id))
-                await _LoadEntryAsync(id);
-            else if (currentId is not null)
-                _ResetForm();
+            _ClearFilterInputs();        // التصفية تعود للافتراضي
+            await _LoadAccountsAsync();  // قد يتغيّر دليل الحسابات من شاشة الحسابات
+            await _LoadEntriesAsync();   // إعادة قراءة القيود (يعيد تطبيق التصفية والملخّص والتحديد)
+            _ResetForm();                // تفريغ المحرر + إلغاء التحديد
         }
         catch (Exception ex)
         {
@@ -1516,17 +1566,24 @@ public partial class frmJournalEntries : Form
 
     // ── الاختصارات ───────────────────────────────────────────────────────────
 
-    /// <summary>Esc: داخل صندوق التصفية يمسح التصفية، وخارجها يُغلق الشاشة.</summary>
+    /// <summary>Esc: داخل صندوق التصفية يمسح التصفية (بلا إعادة تحميل — RULE-N148)، وخارجها يُغلق الشاشة.</summary>
     private void _HandleEscape()
     {
         if (gbFilter.ContainsFocus || txtFilterValue.Focused)
         {
-            _ClearFilters();
+            _ClearAllFilters();
             return;
         }
 
         Close();
     }
+
+    /// <summary>
+    /// الزر الأساسي لـ Enter (RULE-N147): «جديد». ويُعاد <c>null</c> عندما يكون التركيز داخل شبكة
+    /// (القيود/البنود) حتى يبقى Enter فيها تنقّلاً بين السطور ولا يُفرّغ محرر القيد أثناء الإدخال.
+    /// </summary>
+    private Button? _PrimaryActionButton()
+        => dgvEntries.ContainsFocus || dgvLines.ContainsFocus ? null : btnNew;
 
     /// <summary>Delete يحذف المسودة فقط عندما لا يكون المؤشر داخل حقل إدخال.</summary>
     private void _HandleDeleteShortcut()

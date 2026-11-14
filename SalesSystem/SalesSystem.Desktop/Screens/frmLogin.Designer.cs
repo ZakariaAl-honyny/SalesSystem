@@ -18,7 +18,9 @@
             // 
             // lblTitle
             // 
+            lblTitle.BackColor = Color.FromArgb(14, 165, 103);
             lblTitle.Font = new Font("Tahoma", 18F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(0, 50);
             lblTitle.Margin = new Padding(4, 0, 4, 0);
             lblTitle.Name = "lblTitle";
@@ -39,6 +41,7 @@
             // 
             // txtPin
             // 
+            txtPin.BackColor = Color.White;
             txtPin.Location = new Point(257, 206);
             txtPin.Margin = new Padding(4, 5, 4, 5);
             txtPin.MaxLength = 128;
@@ -51,11 +54,12 @@
             // 
             // btnLogin
             // 
-            btnLogin.BackColor = Color.White;
-            btnLogin.FlatAppearance.BorderColor = Color.Black;
-            btnLogin.FlatAppearance.BorderSize = 2;
-            btnLogin.FlatStyle = FlatStyle.Popup;
+            btnLogin.BackColor = Color.FromArgb(14, 165, 103);
+            btnLogin.FlatAppearance.BorderColor = Color.FromArgb(14, 165, 103);
+            btnLogin.FlatAppearance.BorderSize = 0;
+            btnLogin.FlatStyle = FlatStyle.Flat;
             btnLogin.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnLogin.ForeColor = Color.White;
             btnLogin.Location = new Point(257, 285);
             btnLogin.Margin = new Padding(4, 5, 4, 5);
             btnLogin.Name = "btnLogin";
@@ -79,7 +83,7 @@
             // LoginForm
             // 
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.WhiteSmoke;
+            BackColor = Color.FromArgb(170, 220, 170);
             ClientSize = new Size(686, 470);
             Controls.Add(lblError);
             Controls.Add(btnLogin);

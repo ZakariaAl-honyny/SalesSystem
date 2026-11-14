@@ -75,6 +75,17 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
         return Task.FromResult(Result.Success());
     }
 
+    public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)
+    {
+        var existing = MockData.CashBoxes.FirstOrDefault(c => c.Id == id);
+        if (existing is null)
+            return Task.FromResult(Result.Failure("الصندوق النقدي غير موجود"));
+
+        var index = MockData.CashBoxes.IndexOf(existing);
+        MockData.CashBoxes[index] = existing with { IsActive = true };
+        return Task.FromResult(Result.Success());
+    }
+
     public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
         // محاكاة بسيطة للتحويل — لا حاجة لتحديث الأرصدة في وضع التجربة

@@ -31,6 +31,31 @@ public partial class frmEmployeeMaster : Form
     /// <summary>null = إضافة موظف جديد، &gt; 0 = تعديل موظف قائم.</summary>
     private int? _editId;
 
+    /// <summary>حارس منع التكرار أثناء تنفيذ عملية إعادة التنشيط (RULE-N92).</summary>
+    private bool _reactivateBusy;
+
+    /// <summary>
+    /// حالة الشاشة (آلة الحالة): تبدأ دائماً بوضع العرض <see cref="EntryMode.Browsing"/>
+    /// حيث كل حقول الإدخال **معطّلة**، ولا تُفعَّل إلا بزر «جديد» أو باختيار سجل من الشبكة (RULE-N149).
+    /// </summary>
+    private EntryMode _mode = EntryMode.Browsing;
+
+    /// <summary>نص شريط العنوان الأساسي، تُضاف إليه لاحقة الوضع الحالي.</summary>
+    private const string FormTitle = "(( دليل الموظفين ))";
+
+    /// <summary>أوضاع شاشة الإدخال — آلة الحالة التي تحكم تفعيل الحقول والأزرار (RULE-N43/RULE-N44/RULE-N149).</summary>
+    private enum EntryMode
+    {
+        /// <summary>عرض فقط: كل حقول الإدخال معطّلة حتى يضغط المستخدم «جديد» أو يحدّد سجلاً (RULE-N149).</summary>
+        Browsing,
+
+        /// <summary>إضافة سجل جديد: الحقول مفعّلة وزر «إضافة» متاح فقط.</summary>
+        Adding,
+
+        /// <summary>تعديل سجل محدد: الحقول مفعّلة وأزرار «تعديل/حذف» متاحة.</summary>
+        Editing
+    }
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmEmployeeMaster()
     {
@@ -45,21 +70,25 @@ public partial class frmEmployeeMaster : Form
         KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
 
-        // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
+        // أزرار الوضع (إضافة/تعديل/حذف) و«مسح التصفية» تتغير حالة تفعيلها حسب الوضع والسجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnReactivate, btnClearFilters); // RULE-N43
 
-        // RULE-N47 — اختصارات موحّدة: F2 جديد · F5 تحديث · Esc مسح كل التصفية (RULE-N59)
+        // RULE-N47 — اختصارات موحّدة: F2 جديد · F5 تحديث · Esc مسح التصفية/إلغاء (RULE-N59).
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F2, btnNew.PerformClick),
             (Keys.F5, () => btnRefresh.PerformClick()),
-            (Keys.Escape, _ClearFilters));
+            (Keys.Escape, _GlobalEscape));
+
+        // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل» (RULE-N147).
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
 
         // RULE-N47 — اختصار كل زر في تلميحه
         tafqeetTip.SetToolTip(btnNew, "جديد (F2) — Esc يمسح التصفية");
         tafqeetTip.SetToolTip(btnSave, "إضافة موظف جديد");
         tafqeetTip.SetToolTip(btnEdit, "تعديل الموظف المحدد");
         tafqeetTip.SetToolTip(btnDelete, "حذف (تعطيل) الموظف المحدد");
+        tafqeetTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
         tafqeetTip.SetToolTip(btnRefresh, "تحديث البيانات (F5)");
         tafqeetTip.SetToolTip(btnClose, "خروج من الشاشة");
 
@@ -67,6 +96,23 @@ public partial class frmEmployeeMaster : Form
         LiveTafqeetHelper.Attach(tafqeetTip,
             (numBasicSalary, "الراتب الأساسي", LiveTafqeetHelper.ReadMode.Money));
         FilterPanelHelper.Attach(this, _serviceProvider);
+    }
+
+    // ── Global Shortcuts ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء المحرر
+    /// والعودة إلى وضع العرض (RULE-N47 / RULE-N150).
+    /// </summary>
+    private void _GlobalEscape()
+    {
+        if (gbFilter.ContainsFocus)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        _ResetForm();
     }
 
     /// <summary>هل الحقل المطلوب (اسم الموظف) مكتمل؟</summary>
@@ -89,14 +135,18 @@ public partial class frmEmployeeMaster : Form
         _ = edit;
     }
 
-    /// <summary>تحديث يدوي لقائمة الموظفين مع الإبقاء على نص البحث الحالي.</summary>
+    /// <summary>
+    /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
+    /// أدوات التصفية ← قائمة الموظفين ← المحرر ووضع العرض. لا يُستخدم لمسح التصفية وحدها.
+    /// </summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
     {
         Cursor = Cursors.WaitCursor;
         try
         {
-            await _LoadEmployeesAsync();
-            _ResetForm(); // تفريغ الحقول + وضع الاستعداد بعد التحديث
+            _ClearFilterInputs();          // التصفية تعود للافتراضي
+            await _LoadEmployeesAsync();   // إعادة قراءة الموظفين (يعيد تطبيق التصفية والملخّص)
+            _ResetForm();                  // تفريغ المحرر + وضع العرض + الحقول معطّلة
         }
         catch (Exception ex)
         {
@@ -279,16 +329,43 @@ public partial class frmEmployeeMaster : Form
         }
     }
 
-    /// <summary>RULE-N59 — Esc يمسح كل أدوات التصفية ويعيد القائمة كاملة.</summary>
-    private void _ClearFilters()
+    /// <summary>
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للمحرر (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
+    /// </summary>
+    private void btnClearFilters_Click(object? sender, EventArgs e)
+    {
+        _ClearAllFilters();
+        txtFilterValue.Focus();
+    }
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث» وEsc.</summary>
+    private void _ClearFilterInputs()
     {
         if (cbFilterBy.SelectedIndex != 0) cbFilterBy.SelectedIndex = 0;
         if (cbStatus.SelectedIndex != 0) cbStatus.SelectedIndex = 0;
         if (chkShowInactive.Checked) chkShowInactive.Checked = false;
         if (chkHasSalary.Checked) chkHasSalary.Checked = false;
         if (txtFilterValue.Text.Length > 0) txtFilterValue.Clear();
+    }
+
+    /// <summary>RULE-N59 — يمسح كل أدوات التصفية ويعيد القائمة كاملة إلى حالتها الافتراضية.</summary>
+    private void _ClearAllFilters()
+    {
+        _ClearFilterInputs();
 
         _ApplyFilter(); // ضمان التطبيق حتى لو لم يتغيّر شيء
+    }
+
+    /// <summary>RULE-N43 / RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled =
+            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+            || cbFilterBy.SelectedIndex > 0
+            || cbStatus.SelectedIndex > 0
+            || chkShowInactive.Checked
+            || chkHasSalary.Checked;
     }
 
     /// <summary>
@@ -300,6 +377,7 @@ public partial class frmEmployeeMaster : Form
         if (_employeesView is null || _employeesView.Table is null)
         {
             _UpdateSummary();
+            _UpdateClearFiltersState();
             return;
         }
 
@@ -339,18 +417,23 @@ public partial class frmEmployeeMaster : Form
                 _ => "Name",
             };
 
-            conditions.Add($"{column} LIKE '%{_EscapeFilterValue(text)}%'");
+            conditions.Add(RowFilterHelper.Like(column, text));
         }
 
-        _employeesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : string.Empty;
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            _employeesView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تطبيق تصفية دليل الموظفين — أُبقيت التصفية السابقة كما هي");
+        }
 
         _ApplyRowColoring();
         _UpdateSummary();
+        _UpdateClearFiltersState();
     }
-
-    /// <summary>تهريب قيمة البحث قبل حقنها في <see cref="DataView.RowFilter"/> (RULE-N60).</summary>
-    private static string _EscapeFilterValue(string value)
-        => value.Replace("'", "''").Replace("[", "[[]").Replace("*", "[*]").Replace("%", "[%]");
 
     /// <summary>RULE-N61 — شريط الملخص: المعروض/الإجمالي + نشط/معطّل + إجمالي رواتب المعروض.</summary>
     private void _UpdateSummary()
@@ -384,6 +467,10 @@ public partial class frmEmployeeMaster : Form
         lblSummary.Text =
             $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}" +
             $" · إجمالي رواتب المعروض: {shownSalary:N2}";
+
+        // «لا توجد بيانات» يُعلن في شريط الملخص بدل إضافة صف وهمي إلى الشبكة
+        // (الصف الوهمي يُفسد التصدير والتصفية — RULE-N22 / RULE-N61).
+        if (shown == 0) lblSummary.Text += " — لا توجد بيانات مطابقة";
     }
 
     // ── Grid Selection ────────────────────────────────────────────────────────
@@ -412,11 +499,7 @@ public partial class frmEmployeeMaster : Form
 
         _editId = employeeId;
         _selected = e;
-
-        // وضع التعديل: زر التعديل يُحدّث السجل المحدد، وزر الإضافة معطّل (السجل محدد)، وزر الحذف متاح.
-        btnSave.Enabled = false;
-        btnEdit.Enabled = true;
-        btnDelete.Enabled = true;
+        _mode = EntryMode.Editing;   // RULE-N150: اختيار سجل من الشبكة = وضع التعديل
 
         errorProvider.Clear();
 
@@ -437,25 +520,102 @@ public partial class frmEmployeeMaster : Form
             dtpHireDate.Checked = false;
         }
 
-        _UpdateModeHeader();
+        // بعد تعبئة الحقول: تفعيل الحقول + ضبط الأزرار + شريط الوضع + Enter الأساسي.
+        _ApplyModeState();
     }
 
     // ── Mode / Reset ──────────────────────────────────────────────────────────
 
-    private void _UpdateModeHeader()
-        => lblMode.Text = _editId.HasValue
-            ? "(( دليل الموظفين )) — تعديل موظف"
-            : "(( دليل الموظفين )) — إضافة موظف جديد";
+    /// <summary>
+    /// آلة الحالة المركزية للشاشة (RULE-N150): تفعيل/تعطيل حقول الإدخال، وحالة كل زر، ونص شريط الوضع.
+    /// تُستدعى بعد **كل** انتقال حالة: تحميل · «جديد» · اختيار سجل · حفظ ناجح · حذف · «تحديث» · Esc.
+    /// الحقول تبدأ معطّلة، ولا تُفعَّل إلا في وضعي الإضافة والتعديل (RULE-N149).
+    /// </summary>
+    private void _ApplyModeState()
+    {
+        bool editingSession = _mode != EntryMode.Browsing;
 
+        _SetEditorEnabled(editingSession);
+
+        // آلة حالة الأزرار (RULE-N43): «جديد/تحديث/خروج» متاحة دائماً،
+        // «إضافة» في وضع الإضافة، «تعديل/حذف» عند وجود سجل محدد.
+        btnNew.Enabled = true;
+        btnRefresh.Enabled = true;
+        btnClose.Enabled = true;
+        btnSave.Enabled = _mode == EntryMode.Adding;
+        btnEdit.Enabled = _mode == EntryMode.Editing;
+        btnDelete.Enabled = _mode == EntryMode.Editing;
+
+        _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
+
+        _UpdateModeHeader();         // RULE-N44 / RULE-N151
+
+        // RULE-N147: Enter يُنفِّذ الزر الأساسي للوضع الحالي (ويُبرزه كزر افتراضي للشاشة).
+        AcceptButton = _PrimaryActionButton();
+    }
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي (RULE-N147): عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل».
+    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة.
+    /// </summary>
+    private Button? _PrimaryActionButton() => _mode switch
+    {
+        EntryMode.Adding => btnSave,
+        EntryMode.Editing => btnEdit,
+        _ => btnNew
+    };
+
+    /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
+    private Control[] _EditorInputs() => new Control[]
+    {
+        txtName, txtJobTitle, txtPhone, txtNationalId, numBasicSalary, dtpHireDate
+    };
+
+    /// <summary>تفعيل أو تعطيل كل حقول المحرر دفعة واحدة (txtCode يبقى للقراءة دائماً).</summary>
+    private void _SetEditorEnabled(bool enabled)
+    {
+        foreach (var input in _EditorInputs())
+            input.Enabled = enabled;
+    }
+
+    /// <summary>
+    /// شريط الوضع (RULE-N44): «وضع العرض» افتراضياً · «إضافة موظف جديد» · «تعديل موظف: &lt;الاسم&gt;».
+    /// </summary>
+    private void _UpdateModeHeader()
+    {
+        lblMode.Text = _mode switch
+        {
+            EntryMode.Adding => $"{FormTitle} — إضافة موظف جديد",
+            EntryMode.Editing => $"{FormTitle} — تعديل موظف: {txtName.Text.Trim()}",
+            _ => $"{FormTitle} — وضع العرض"
+        };
+    }
+
+    /// <summary>
+    /// آلة حالة زر «إعادة تنشيط» (RULE-N92): مفعّل فقط في وضع التعديل مع سجل **غير نشط** محدد،
+    /// ومعطّل عند عدم وجود تحديد أو كون السجل نشطاً أو أثناء عملية جارية.
+    /// </summary>
+    private void _UpdateReactivateButton()
+    {
+        bool hasSelection = _editId.HasValue;
+
+        bool isActive = hasSelection
+            && _employeesById.TryGetValue(_editId!.Value, out var employee)
+            && employee.IsActive;
+
+        btnReactivate.Enabled =
+            _mode == EntryMode.Editing && hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
+    }
+
+    /// <summary>
+    /// إعادة الشاشة إلى **وضع العرض** (الحالة الافتراضية): تفريغ الحقول، تعطيل كل حقول الإدخال،
+    /// وإتاحة «جديد/تحديث/خروج» فقط (RULE-N149).
+    /// </summary>
     private void _ResetForm()
     {
         _editId = null;
         _selected = null;
-
-        // وضع الإضافة: زر الإضافة متاح، وزرّي التعديل والحذف معطّلان لعدم وجود سجل محدد.
-        btnSave.Enabled = true;
-        btnEdit.Enabled = false;
-        btnDelete.Enabled = false;
+        _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
 
@@ -470,7 +630,22 @@ public partial class frmEmployeeMaster : Form
         dtpHireDate.Checked = true;
 
         dgvEmployees.ClearSelection();
-        _UpdateModeHeader();
+
+        _ApplyModeState();   // الحقول معطّلة + «جديد» فقط + شريط الوضع = وضع العرض
+        btnNew.Focus();
+    }
+
+    /// <summary>
+    /// بدء إدخال موظف جديد (زر «جديد» / F2): تفريغ الحقول ثم **تفعيلها** وتحويل شريط الوضع
+    /// إلى «إضافة موظف جديد» (RULE-N151).
+    /// </summary>
+    private void _StartNewEntry()
+    {
+        _ResetForm();
+
+        _mode = EntryMode.Adding;
+        _ApplyModeState();
+
         txtName.Focus();
     }
 
@@ -511,7 +686,7 @@ public partial class frmEmployeeMaster : Form
 
     // ── Buttons ───────────────────────────────────────────────────────────────
 
-    private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
+    private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
 
     /// <summary>زر الخروج: إغلاق شاشة دليل الموظفين.</summary>
     private void btnClose_Click(object? sender, EventArgs e) => Close();
@@ -576,7 +751,7 @@ public partial class frmEmployeeMaster : Form
         }
 
         Cursor = Cursors.WaitCursor;
-        btnSave.Enabled = false;
+        btnSave.Enabled = false;   // حارس مؤقت أثناء العملية — يُستعاد في finally عبر _ApplyModeState
         btnEdit.Enabled = false;
 
         try
@@ -595,18 +770,16 @@ public partial class frmEmployeeMaster : Form
                 MessageBox.Show(edit ? "تم تعديل الموظف بنجاح." : "تمت إضافة الموظف بنجاح.",
                     "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
+                // ثم تحديث القائمة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي — RULE-N151).
                 _editId = result.Value.Id;
                 _selected = result.Value;
-
-                // بعد الحفظ الناجح يصبح السجل محدداً → وضع التعديل
-                // (زر الإضافة معطّل، وزرّا التعديل والحذف متاحان). النصوص ثابتة في المصمم.
-                btnSave.Enabled = false;
-                btnEdit.Enabled = true;
-                btnDelete.Enabled = true;
+                _mode = EntryMode.Editing;
 
                 await _LoadEmployeesAsync();
+                _FillForm(result.Value.Id);   // يعبّئ الحقول ويضبط الأزرار وشريط الوضع
+                _ApplyModeState();            // ضمان الحالة حتى لو لم يُعثر على السطر
                 _SelectGridRow(result.Value.Id);
-                _UpdateModeHeader();
             }
             else
             {
@@ -622,18 +795,8 @@ public partial class frmEmployeeMaster : Form
         }
         finally
         {
-            // استعادة حالة الأزرار حسب الوضع الحالي للنموذج.
-            if (_editId is null)
-            {
-                btnSave.Enabled = true;
-                btnEdit.Enabled = false;
-            }
-            else
-            {
-                btnSave.Enabled = false;
-                btnEdit.Enabled = true;
-            }
-
+            // استعادة الحالة الكاملة (حقول + أزرار + شريط الوضع) حسب الوضع الحالي للنموذج.
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
     }
@@ -655,7 +818,7 @@ public partial class frmEmployeeMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
-        btnDelete.Enabled = false;
+        btnDelete.Enabled = false;   // حارس مؤقت أثناء العملية — يُستعاد في finally عبر _ApplyModeState
 
         try
         {
@@ -666,8 +829,10 @@ public partial class frmEmployeeMaster : Form
                 MessageBox.Show("تم تعطيل الموظف بنجاح.", "تم الحذف",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                // بعد الحذف: الرجوع إلى وضع العرض (الحقول معطّلة) ثم تحديث القائمة تلقائياً.
                 _ResetForm();
                 await _LoadEmployeesAsync();
+                _ApplyModeState();   // يضمن بقاء الحقول معطّلة بعد إعادة التحميل
             }
             else
             {
@@ -683,9 +848,86 @@ public partial class frmEmployeeMaster : Form
         }
         finally
         {
-            // بعد الحذف الناجح يعود النموذج إلى وضع الإضافة → يبقى زرّا التعديل والحذف معطّلين.
-            btnDelete.Enabled = _editId.HasValue;
-            btnEdit.Enabled = _editId.HasValue;
+            // بعد الحذف الناجح يعود النموذج إلى وضع العرض → «جديد» فقط هو المتاح.
+            _ApplyModeState();
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>
+    /// إعادة تنشيط الموظف المعطَّل (RULE-N90…RULE-N94 / RULE-N122):
+    /// الزر مفعّل فقط على سجل غير نشط في وضع التعديل، والتنفيذ في الخدمة بلا منطق محلي.
+    /// </summary>
+    private async void btnReactivate_Click(object? sender, EventArgs e)
+    {
+        if (_editId is not int id)
+        {
+            MessageBox.Show("يرجى اختيار موظف معطّل من القائمة أولاً.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (!_employeesById.TryGetValue(id, out var employee))
+        {
+            MessageBox.Show("تعذر العثور على بيانات الموظف المحدد. يرجى تحديث القائمة.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (employee.IsActive)
+        {
+            MessageBox.Show("الموظف المحدد نشط بالفعل.",
+                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            _UpdateReactivateButton();
+            return;
+        }
+
+        if (_reactivateBusy) return;
+
+        if (MessageBox.Show($"هل تريد إعادة تنشيط الموظف \"{employee.Name}\"؟",
+                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            return;
+
+        Cursor = Cursors.WaitCursor;
+        _reactivateBusy = true;
+        _UpdateReactivateButton();
+
+        try
+        {
+            var result = await EmployeeService.ReactivateAsync(id);
+
+            if (result.IsSuccess)
+            {
+                Log.Information("أُعيد تنشيط الموظف {EmployeeId} ({EmployeeName}) بنجاح", id, employee.Name);
+
+                MessageBox.Show("تم إعادة تنشيط الموظف بنجاح.", "تم إعادة التنشيط",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // RULE-N94: تحديث تلقائي للشبكة ثم إبقاء السطر المُعاد تنشيطه محدداً وإعادة تعبئة المحرر.
+                await _LoadEmployeesAsync();
+                _FillForm(id);
+                _SelectGridRow(id);
+                _ApplyModeState();   // السجل نشط بعد إعادة التنشيط → زر إعادة التنشيط معطّل
+            }
+            else
+            {
+                Log.Warning("تعذر إعادة تنشيط الموظف {EmployeeId}. السبب: {Error}", id, result.Error);
+
+                MessageBox.Show($"تعذر إعادة تنشيط الموظف.\n{result.Error}",
+                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء إعادة تنشيط الموظف {EmployeeId}", id);
+            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
+                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _reactivateBusy = false;
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
     }
@@ -707,4 +949,83 @@ public partial class frmEmployeeMaster : Form
 
     private static decimal _Clamp(NumericUpDown control, decimal value)
         => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
+
+    // ── Context Menu / Double click (RULE-N23) ────────────────────────────────
+
+    /// <summary>النقر المزدوج على السطر = تحميل بياناته في المحرّر (نفس مسار النقر المفرد).</summary>
+    private void dgvEmployees_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0) return;
+        dgvEmployees_CellClick(sender, e);
+    }
+
+    /// <summary>
+    /// حالة بنود قائمة السياق قبل ظهورها (RULE-N23): بنود التعديل/التعطيل تُفعَّل فقط عند
+    /// وجود سطر محدد، وتتبع آلة حالة الأزرار نفسها (RULE-N43) بلا منطق مكرر.
+    /// </summary>
+    private void cmsGrid_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        bool hasRow = dgvEmployees.CurrentRow?.DataBoundItem is DataRowView;
+
+        mnuEdit.Enabled = hasRow;
+        mnuDeactivate.Enabled = hasRow && btnDelete.Enabled;
+        mnuRefresh.Enabled = btnRefresh.Enabled;
+        mnuExport.Enabled = dgvEmployees.Rows.Count > 0;
+    }
+
+    /// <summary>تعديل السطر المحدد = تحميله في المحرّر ثم نقل المؤشر إلى أول حقل.</summary>
+    private void mnuEdit_Click(object? sender, EventArgs e)
+    {
+        if (dgvEmployees.CurrentRow is not DataGridViewRow row) return;
+
+        dgvEmployees_CellClick(dgvEmployees, new DataGridViewCellEventArgs(0, row.Index));
+        txtName.Focus();
+    }
+
+    /// <summary>تعطيل السطر المحدد — يستدعي معالج زر الحذف القائم (بلا منطق مكرر).</summary>
+    private void mnuDeactivate_Click(object? sender, EventArgs e) => btnDelete.PerformClick();
+
+    /// <summary>تحديث البيانات — يستدعي معالج زر التحديث القائم.</summary>
+    private void mnuRefresh_Click(object? sender, EventArgs e) => btnRefresh.PerformClick();
+
+    /// <summary>تصدير الشبكة المعروضة إلى Excel عبر <see cref="ExportHelper"/> (RULE-N112).</summary>
+    private void mnuExport_Click(object? sender, EventArgs e) => _ExportGridToExcel();
+
+    private void _ExportGridToExcel()
+    {
+        try
+        {
+            if (dgvEmployees.Rows.Count == 0)
+            {
+                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "Excel (*.xlsx)|*.xlsx",
+                FileName = $"دليل_الموظفين_{DateTime.Now:yyyyMMdd_HHmm}.xlsx",
+                Title = "تصدير دليل الموظفين إلى Excel"
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+            Cursor = Cursors.WaitCursor;
+            ExportHelper.ExportToExcel(dgvEmployees, "الموظفون", dialog.FileName);
+
+            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تصدير دليل الموظفين إلى Excel");
+            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
 }

@@ -14,6 +14,7 @@ public interface IUserService
     Task<Result<UserDto>> UpdateAsync(int id, UpdateUserRequest request, CancellationToken ct);
     Task<Result> DeleteAsync(int id, CancellationToken ct);
     Task<Result> PermanentDeleteAsync(int id, CancellationToken ct);
+    Task<Result> ReactivateAsync(int id, CancellationToken ct);
 
     /// <summary>
     /// Gets the current user's profile with permissions from the assigned role.
