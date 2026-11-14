@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
 
@@ -129,8 +130,8 @@ public partial class frmInventoryFifo : Form
             .Where(r => !r.Field<bool>("IsTotal"))
             .Sum(r => r.Field<decimal>("TotalCost"));
 
-        lblTotalQtyValue.Text = totalQty.ToString("N3");
-        lblTotalCostValue.Text = totalCost.ToString("N2");
+        lblTotalQtyValue.Text = clsFormat.Quantity(totalQty);
+        lblTotalCostValue.Text = clsFormat.Money(totalCost);
     }
 
     /// <summary>سطر «لا توجد بيانات» — يظهر فقط حين لا تكون هناك طبقات (RULE-N22).</summary>

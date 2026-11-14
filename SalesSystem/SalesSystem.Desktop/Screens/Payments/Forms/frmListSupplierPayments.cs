@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Screens.Payments;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
@@ -281,7 +282,7 @@ public partial class frmListSupplierPayments : Form
             }
         }
 
-        lblSummary.Text = $"المعروض: {shown} من {total} — الإجمالي: {totalAmount.ToString("N2")}";
+        lblSummary.Text = $"المعروض: {shown} من {total} — الإجمالي: {clsFormat.Money(totalAmount)}";
         lblRecordsCount.Text = shown.ToString();
     }
 

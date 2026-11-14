@@ -38,6 +38,13 @@ You are a code quality reviewer for the Sales Management System (classic WinForm
 - [ ] Any new abstraction with no behaviour (empty interface/base/repository wrapper) → **violation §2.30 (Simplicity Gate)**
 - [ ] Do NOT report missing automated test coverage as a defect (§2.31 — tests are the owner's).
 
+### Single home / no duplication (`RULE-N169`…`RULE-N172`)
+- [ ] Shared behaviour lives once in a declared home — `SalesSystem.Desktop/Helpers/` (UI behaviour) · `SalesSystem.Desktop/Global Classes/` (`clsGlobal` · `clsFormat` · `clsDialogs` · `clsValidation` · `clsInputFeedback`) · `Common/Helpers/` (layer-neutral) · `Business/Helpers/` (calculations). A second copy anywhere → **violation**.
+- [ ] The same behaviour is not "fixed" in several screens: if one fix had to touch more than one screen file, it belongs in a helper and must be moved before merging.
+- [ ] Numeric/date display goes through `clsFormat` (`Money`/`Quantity`/`Number`/`Percent`/`DateToShort`/`DateToLong`) — no new inline `ToString("N2"/"N3"/"N0")` in files touched by the slice.
+- [ ] User messages go through `clsDialogs` in files the slice touches — no new raw `MessageBox.Show` with an ad-hoc title, and never `ex.Message` to the user.
+- [ ] Alignment with the declared hero pattern: `SalesSystem.Desktop/Global Classes/` (the owner's reference style) — small `cls*` static utilities, one responsibility each, no framework abstractions added.
+
 ### Financial Integrity
 - [ ] Money `decimal(18,2)`, quantities `decimal(18,3)` — never float/double/int?
 

@@ -258,8 +258,7 @@ public partial class frmListSales : Form
         // حماية النطاق: لا ننادي الخدمة إذا كان النطاق معكوساً.
         if (from > to)
         {
-            MessageBox.Show("تاريخ البداية «من» يجب أن يكون قبل تاريخ النهاية «إلى» أو مساوياً له.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تاريخ البداية «من» يجب أن يكون قبل تاريخ النهاية «إلى» أو مساوياً له.");
             return;
         }
 
@@ -288,8 +287,7 @@ public partial class frmListSales : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل فواتير البيع. يرجى إعادة المحاولة.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل فواتير البيع. يرجى إعادة المحاولة.");
             }
         }
         catch (OperationCanceledException)
@@ -302,8 +300,7 @@ public partial class frmListSales : Form
 
             if (!ct.IsCancellationRequested)
             {
-                MessageBox.Show("تعذر تحميل فواتير البيع. يرجى إعادة المحاولة.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("تعذر تحميل فواتير البيع. يرجى إعادة المحاولة.");
             }
             return;
         }
@@ -365,9 +362,9 @@ public partial class frmListSales : Form
                 inv.InvoiceNo,
                 clsFormat.DateToShort(inv.InvoiceDate),
                 string.IsNullOrWhiteSpace(inv.CustomerName) ? CashCustomerName : inv.CustomerName,
-                inv.TotalAmount.ToString("N2"),
-                inv.PaidAmount.ToString("N2"),
-                inv.DueAmount.ToString("N2"),
+                clsFormat.Money(inv.TotalAmount),
+                clsFormat.Money(inv.PaidAmount),
+                clsFormat.Money(inv.DueAmount),
                 _GetStatusText(inv.Status),
                 inv.Notes ?? string.Empty);
 
@@ -451,9 +448,9 @@ public partial class frmListSales : Form
         }
 
         lblRecordsCount.Text = _filteredInvoices.Count.ToString();
-        lblTotalAmount.Text = total.ToString("N2");
-        lblTotalPaid.Text = paid.ToString("N2");
-        lblTotalDue.Text = due.ToString("N2");
+        lblTotalAmount.Text = clsFormat.Money(total);
+        lblTotalPaid.Text = clsFormat.Money(paid);
+        lblTotalDue.Text = clsFormat.Money(due);
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
@@ -505,13 +502,11 @@ public partial class frmListSales : Form
 
         if (inv.Status != 1)
         {
-            MessageBox.Show("يمكن ترحيل الفواتير المسودة فقط.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يمكن ترحيل الفواتير المسودة فقط.");
             return;
         }
 
-        if (MessageBox.Show($"هل تريد ترحيل الفاتورة رقم {inv.InvoiceNo}؟",
-                "تأكيد الترحيل", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد ترحيل الفاتورة رقم {inv.InvoiceNo}؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -521,21 +516,18 @@ public partial class frmListSales : Form
 
             if (res.IsSuccess)
             {
-                MessageBox.Show("تم الترحيل بنجاح.", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم الترحيل بنجاح.");
                 _RefreshSalesList();
             }
             else
             {
-                MessageBox.Show(res.Error ?? "تعذر ترحيل الفاتورة. يرجى إعادة المحاولة.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(res.Error ?? "تعذر ترحيل الفاتورة. يرجى إعادة المحاولة.");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل ترحيل فاتورة البيع {InvoiceId} من شاشة الدليل", inv.Id);
-            MessageBox.Show("تعذر ترحيل الفاتورة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر ترحيل الفاتورة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -552,13 +544,11 @@ public partial class frmListSales : Form
 
         if (inv.Status == 3)
         {
-            MessageBox.Show("الفاتورة ملغية بالفعل.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الفاتورة ملغية بالفعل.");
             return;
         }
 
-        if (MessageBox.Show($"هل تريد إلغاء الفاتورة رقم {inv.InvoiceNo}؟",
-                "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إلغاء الفاتورة رقم {inv.InvoiceNo}؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -568,21 +558,18 @@ public partial class frmListSales : Form
 
             if (res.IsSuccess)
             {
-                MessageBox.Show("تم إلغاء الفاتورة بنجاح.", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إلغاء الفاتورة بنجاح.");
                 _RefreshSalesList();
             }
             else
             {
-                MessageBox.Show(res.Error ?? "تعذر إلغاء الفاتورة. يرجى إعادة المحاولة.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(res.Error ?? "تعذر إلغاء الفاتورة. يرجى إعادة المحاولة.");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل إلغاء فاتورة البيع {InvoiceId} من شاشة الدليل", inv.Id);
-            MessageBox.Show("تعذر إلغاء الفاتورة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر إلغاء الفاتورة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -793,14 +780,12 @@ public partial class frmListSales : Form
         try
         {
             Clipboard.SetText(inv.InvoiceNo.ToString());
-            MessageBox.Show("تم نسخ رقم الفاتورة إلى الحافظة.", "نسخ",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم نسخ رقم الفاتورة إلى الحافظة.");
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر نسخ رقم الفاتورة {InvoiceNo} إلى الحافظة", inv.InvoiceNo);
-            MessageBox.Show("تعذر النسخ إلى الحافظة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر النسخ إلى الحافظة.");
         }
     }
 

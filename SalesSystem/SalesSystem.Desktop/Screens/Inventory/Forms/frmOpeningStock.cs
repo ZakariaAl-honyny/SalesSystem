@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
@@ -201,8 +202,8 @@ public partial class frmOpeningStock : Form
             total += Convert.ToDecimal(row["TotalCost"]);
         }
 
-        lblItemCountValue.Text = _dtLines.Rows.Count.ToString("N0");
-        txtTotalCost.Text = total.ToString("N2");
+        lblItemCountValue.Text = clsFormat.Number(_dtLines.Rows.Count);
+        txtTotalCost.Text = clsFormat.Money(total);
 
         _UpdateButtonsState();
         _UpdateModeHeader();

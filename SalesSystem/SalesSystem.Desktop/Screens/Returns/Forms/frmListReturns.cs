@@ -334,7 +334,7 @@ public partial class frmListReturns : Form
                 r.ReturnNo,
                 r.ReturnDate.ToString("yyyy-MM-dd"),
                 _CustomerText(r),
-                r.TotalAmount.ToString("N2"),
+                clsFormat.Money(r.TotalAmount),
                 r.StatusDisplay
             );
         }
@@ -354,7 +354,7 @@ public partial class frmListReturns : Form
                 r.ReturnNo,
                 r.ReturnDate.ToString("yyyy-MM-dd"),
                 r.SupplierName,
-                r.TotalAmount.ToString("N2"),
+                clsFormat.Money(r.TotalAmount),
                 r.StatusDisplay
             );
         }

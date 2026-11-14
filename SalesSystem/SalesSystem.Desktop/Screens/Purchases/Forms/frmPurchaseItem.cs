@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -163,7 +164,7 @@ public partial class frmPurchaseItem : Form
 
     private void CalculateTotal()
     {
-        lblTotalValue.Text = Total.ToString("N2");
+        lblTotalValue.Text = clsFormat.Money(Total);
     }
 
     // ═══════════════════════════════════════════════════════════

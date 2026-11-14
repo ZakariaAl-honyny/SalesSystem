@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Data;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.CustomerReceipts.Forms;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -474,7 +475,7 @@ public partial class frmCashBoxTransactions : Form
 
         lblRecordsCount.Text = view.Count.ToString();
         lblSummary.Text =
-            $"المعروض: {view.Count} من {table.Rows.Count} — الوارد: {inflow.ToString("N2")} · الصادر: {outflow.ToString("N2")} · الرصيد: {(inflow - outflow).ToString("N2")}";
+            $"المعروض: {view.Count} من {table.Rows.Count} — الوارد: {clsFormat.Money(inflow)} · الصادر: {clsFormat.Money(outflow)} · الرصيد: {clsFormat.Money(inflow - outflow)}";
 
         lblEmpty.Visible = view.Count == 0;
         if (lblEmpty.Visible) lblEmpty.BringToFront();

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO.Requests;
@@ -254,8 +255,8 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         }
 
         lblLinesCount.Text = _linesView.Count.ToString();
-        lblTotalsDiff.Text = totalDifference.ToString("N3");
-        txtTotalsValue.Text = Math.Abs(totalValue).ToString("N2");
+        lblTotalsDiff.Text = clsFormat.Quantity(totalDifference);
+        txtTotalsValue.Text = clsFormat.Money(Math.Abs(totalValue));
 
         lblEmpty.Visible = _linesView.Count == 0;
 

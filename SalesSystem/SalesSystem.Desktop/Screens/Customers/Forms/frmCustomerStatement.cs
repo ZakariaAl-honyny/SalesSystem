@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Responses;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 
@@ -416,13 +417,13 @@ public partial class frmCustomerStatement : Form
             if (openingBalance != 0)
             {
                 int rowIdx = dgvStatement.Rows.Add(
-                    from.ToString("dd/MM/yyyy"),
+                    clsFormat.DateToDayMonthYear(from),
                     "رصيد سابق",
                     "—",
                     "الرصيد المحمل من فترة سابقة",
                     "",
                     "",
-                    openingBalance.ToString("N2"));
+                    clsFormat.Money(openingBalance));
                 dgvStatement.Rows[rowIdx].Tag = "Opening";
             }
 
@@ -436,20 +437,20 @@ public partial class frmCustomerStatement : Form
                 totalCredit += m.Credit;
 
                 dgvStatement.Rows.Add(
-                    m.Date.ToString("dd/MM/yyyy"),
+                    clsFormat.DateToDayMonthYear(m.Date),
                     m.Type,
                     m.Reference,
                     m.Description,
-                    m.Debit > 0 ? m.Debit.ToString("N2") : "",
-                    m.Credit > 0 ? m.Credit.ToString("N2") : "",
-                    running.ToString("N2"));
+                    m.Debit > 0 ? clsFormat.Money(m.Debit) : "",
+                    m.Credit > 0 ? clsFormat.Money(m.Credit) : "",
+                    clsFormat.Money(running));
             }
 
             // ── بطاقات الملخص ──────────────────────────────────────────────────
-            cardOpeningValue.Text = openingBalance.ToString("N2");
-            cardDebitValue.Text = totalDebit.ToString("N2");
-            cardCreditValue.Text = totalCredit.ToString("N2");
-            cardClosingValue.Text = running.ToString("N2");
+            cardOpeningValue.Text = clsFormat.Money(openingBalance);
+            cardDebitValue.Text = clsFormat.Money(totalDebit);
+            cardCreditValue.Text = clsFormat.Money(totalCredit);
+            cardClosingValue.Text = clsFormat.Money(running);
             cardClosingValue.ForeColor = running > 0
                 ? Color.FromArgb(192, 57, 43)   // مدين (عليه)
                 : running < 0
@@ -535,7 +536,7 @@ public partial class frmCustomerStatement : Form
             dgvAging.Rows.Add(
                 b.Label,
                 b.Count.ToString(),
-                b.Amount.ToString("N2"),
+                clsFormat.Money(b.Amount),
                 b.Percentage.ToString("N1") + " %");
         }
 
@@ -543,7 +544,7 @@ public partial class frmCustomerStatement : Form
         int totalRow = dgvAging.Rows.Add(
             "الإجمالي",
             creditInvoices.Count.ToString(),
-            totalOverdue.ToString("N2"),
+            clsFormat.Money(totalOverdue),
             totalOverdue > 0 ? "100 %" : "0 %");
         dgvAging.Rows[totalRow].Tag = "Total";
         dgvAging.Rows[totalRow].DefaultCellStyle.Font = new Font(dgvAging.Font, FontStyle.Bold);

@@ -1,4 +1,5 @@
 using System.Drawing.Drawing2D;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -100,16 +101,16 @@ public partial class frmPurchaseInvoicePrint : Form
     private void _BindInvoice()
     {
         lblInvoiceNoValue.Text = _invoice.InvoiceNo;
-        lblDateValue.Text = _invoice.Date.ToString("dd/MM/yyyy");
+        lblDateValue.Text = clsFormat.DateToDayMonthYear(_invoice.Date);
         lblSupplierValue.Text = _invoice.Supplier;
         lblWarehouseValue.Text = _invoice.Warehouse;
 
-        lblSubTotalValue.Text = _invoice.SubTotal.ToString("N2") + " ريال يمني";
-        lblDiscountValue.Text = "- " + _invoice.Discount.ToString("N2") + " ريال يمني";
-        lblTaxValue.Text = _invoice.Tax.ToString("N2") + " ريال يمني";
-        lblTotalValue.Text = _invoice.Total.ToString("N0") + " ريال يمني";
-        lblPaidValue.Text = _invoice.Paid.ToString("N2") + " ريال يمني";
-        lblRemainingValue.Text = _invoice.Remaining.ToString("N2") + " ريال يمني";
+        lblSubTotalValue.Text = clsFormat.Money(_invoice.SubTotal) + " ريال يمني";
+        lblDiscountValue.Text = "- " + clsFormat.Money(_invoice.Discount) + " ريال يمني";
+        lblTaxValue.Text = clsFormat.Money(_invoice.Tax) + " ريال يمني";
+        lblTotalValue.Text = clsFormat.Number(_invoice.Total) + " ريال يمني";
+        lblPaidValue.Text = clsFormat.Money(_invoice.Paid) + " ريال يمني";
+        lblRemainingValue.Text = clsFormat.Money(_invoice.Remaining) + " ريال يمني";
         lblTafqitValue.Text = _invoice.Tafqit;
     }
 

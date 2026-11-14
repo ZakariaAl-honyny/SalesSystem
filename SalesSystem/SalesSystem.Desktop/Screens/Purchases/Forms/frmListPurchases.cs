@@ -204,8 +204,7 @@ public partial class frmListPurchases : Form
         // حماية النطاق: لا ننادي الخدمة إذا كان النطاق معكوساً.
         if (from > to)
         {
-            MessageBox.Show("تاريخ البداية «من» يجب أن يكون قبل تاريخ النهاية «إلى» أو مساوياً له.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تاريخ البداية «من» يجب أن يكون قبل تاريخ النهاية «إلى» أو مساوياً له.");
             return;
         }
 
@@ -227,16 +226,14 @@ public partial class frmListPurchases : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "حدث خطأ في تحميل البيانات", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل البيانات");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء تحميل فواتير الشراء");
-            MessageBox.Show("حدث خطأ أثناء تحميل البيانات",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل البيانات");
         }
         finally
         {
@@ -281,7 +278,7 @@ public partial class frmListPurchases : Form
                     .Contains(text, StringComparison.OrdinalIgnoreCase)),
 
                 FilterAmount => query.Where(i =>
-                    i.NetTotal.ToString("N2").Contains(text, StringComparison.Ordinal) ||
+                    clsFormat.Money(i.NetTotal).Contains(text, StringComparison.Ordinal) ||
                     i.NetTotal.ToString("0.##").StartsWith(text, StringComparison.Ordinal)),
 
                 _ => query
@@ -313,9 +310,9 @@ public partial class frmListPurchases : Form
                 inv.InvoiceNo,
                 clsFormat.DateToShort(inv.InvoiceDate.ToDateTime(TimeOnly.MinValue)),
                 inv.SupplierName ?? "",
-                inv.TotalAmount.ToString("N2"),
-                inv.PaidAmount.ToString("N2"),
-                inv.DueAmount.ToString("N2"),
+                clsFormat.Money(inv.TotalAmount),
+                clsFormat.Money(inv.PaidAmount),
+                clsFormat.Money(inv.DueAmount),
                 _GetStatusText(inv.Status)
             );
 
@@ -388,8 +385,8 @@ public partial class frmListPurchases : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {_filteredInvoices.Count} من {_allInvoices.Count} — الصافي: {net.ToString("N2")} · " +
-            $"المدفوع: {paid.ToString("N2")} · المتبقي: {due.ToString("N2")}";
+            $"المعروض: {_filteredInvoices.Count} من {_allInvoices.Count} — الصافي: {clsFormat.Money(net)} · " +
+            $"المدفوع: {clsFormat.Money(paid)} · المتبقي: {clsFormat.Money(due)}";
 
         lblRecordsCount.Text = _filteredInvoices.Count.ToString();
     }
@@ -521,13 +518,11 @@ public partial class frmListPurchases : Form
 
         if (inv.Status != 1)
         {
-            MessageBox.Show("يمكن ترحيل الفواتير المسودة فقط.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يمكن ترحيل الفواتير المسودة فقط.");
             return;
         }
 
-        if (MessageBox.Show($"هل تريد ترحيل الفاتورة رقم {inv.InvoiceNo}؟",
-                "تأكيد الترحيل", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد ترحيل الفاتورة رقم {inv.InvoiceNo}؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -536,22 +531,19 @@ public partial class frmListPurchases : Form
             var res = await _purchaseApi.PostAsync(inv.Id);
             if (res.IsSuccess)
             {
-                MessageBox.Show("تم الترحيل بنجاح", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم الترحيل بنجاح");
                 _RefreshPurchasesList();
             }
             else
             {
-                MessageBox.Show(res.Error ?? "حدث خطأ أثناء الترحيل.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(res.Error ?? "حدث خطأ أثناء الترحيل.");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء ترحيل فاتورة الشراء {InvoiceId}", inv.Id);
-            MessageBox.Show("حدث خطأ أثناء الترحيل",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الترحيل");
         }
         finally
         {
@@ -567,13 +559,11 @@ public partial class frmListPurchases : Form
 
         if (inv.Status == 3)
         {
-            MessageBox.Show("الفاتورة ملغية بالفعل.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الفاتورة ملغية بالفعل.");
             return;
         }
 
-        if (MessageBox.Show($"هل تريد إلغاء الفاتورة رقم {inv.InvoiceNo}؟",
-                "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إلغاء الفاتورة رقم {inv.InvoiceNo}؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -582,22 +572,19 @@ public partial class frmListPurchases : Form
             var res = await _purchaseApi.CancelAsync(inv.Id);
             if (res.IsSuccess)
             {
-                MessageBox.Show("تم الإلغاء بنجاح", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم الإلغاء بنجاح");
                 _RefreshPurchasesList();
             }
             else
             {
-                MessageBox.Show(res.Error ?? "حدث خطأ أثناء الإلغاء.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(res.Error ?? "حدث خطأ أثناء الإلغاء.");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء إلغاء فاتورة الشراء {InvoiceId}", inv.Id);
-            MessageBox.Show("حدث خطأ أثناء الإلغاء",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الإلغاء");
         }
         finally
         {
@@ -802,14 +789,12 @@ public partial class frmListPurchases : Form
         try
         {
             Clipboard.SetText(inv.InvoiceNo.ToString());
-            MessageBox.Show("تم نسخ رقم الفاتورة إلى الحافظة.", "نسخ",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم نسخ رقم الفاتورة إلى الحافظة.");
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر نسخ رقم الفاتورة {InvoiceNo} إلى الحافظة", inv.InvoiceNo);
-            MessageBox.Show("تعذر النسخ إلى الحافظة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر النسخ إلى الحافظة.");
         }
     }
 

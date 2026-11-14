@@ -11,6 +11,7 @@ using SalesSystem.Desktop.Messaging.Messages;
 using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Screens.Returns;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Returns.Forms;
@@ -292,7 +293,7 @@ public partial class frmSalesReturn : Form
     private void CalculateTotals()
     {
         decimal total = _lines.Sum(x => x.LineTotal);
-        lblTotalVal.Text = total.ToString("N2");
+        lblTotalVal.Text = clsFormat.Money(total);
     }
 
     private void UpdateUIState()

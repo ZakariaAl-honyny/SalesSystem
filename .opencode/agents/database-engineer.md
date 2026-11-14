@@ -18,6 +18,7 @@ Entities, configurations, migrations and seeders exist **only in Stage B**, afte
 - UI = classic WinForms code-behind, NO MVVM (no `*ViewModel`, no `ICommand`/`RelayCommand`, no binding frameworks).
 - Backend = simple N-Layer (`Common` · `Models` · `DTO` · `DataAccess` · `Business` · `Desktop`). NO Clean Architecture: no `Domain`/`Application`/`Infrastructure`/`UseCases` folders, no MediatR/CQRS, no AutoMapper, no Specification pattern, no extra repository abstractions over `IUnitOfWork`.
 - NO API LAYER, EVER: no `HttpClient`, no `System.Net.Http`, no controllers, no JSON on the data path. Desktop contract is `I<Entity>DesktopService`.
+- SINGLE HOME (`RULE-N169`…`RULE-N172`): shared, layer-neutral helpers belong in `SalesSystem.Common/Helpers/` and are **consumed, never copied** into a seeder/configuration/migration; entity/config/migration code must not re-implement a date/number format or a validation rule — those live in `clsFormat`/`clsValidation`/`Common/Helpers/`.
 - SIMPLICITY GATE: the smallest readable solution wins. More than 3 new abstractions → stop and report to the Orchestrator.
 - NO TESTS: never create/edit/run tests, never run `dotnet test`. `SalesSystem.Tests` belongs to the owner. End every delivery with an Arabic manual test checklist table (`الشاشة` · `الخطوة` · `النتيجة المتوقعة`).
 

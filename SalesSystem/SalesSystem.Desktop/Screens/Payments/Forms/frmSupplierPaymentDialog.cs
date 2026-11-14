@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using Serilog;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
@@ -175,7 +176,7 @@ public partial class frmSupplierPaymentDialog : Form
         if (supplier != null)
         {
             _currentBalance = supplier.CurrentBalance;
-            lblBalanceVal.Text = _currentBalance.ToString("N2");
+            lblBalanceVal.Text = clsFormat.Money(_currentBalance);
             lblBalanceVal.ForeColor = _currentBalance > 0 ? Color.Red : Color.Blue;
         }
 

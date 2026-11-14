@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -108,11 +109,11 @@ public partial class frmPurchaseItemInfo : Form
         foreach (var purchase in ordered)
         {
             dgvHistory.Rows.Add(
-                purchase.Date.ToString("dd/MM/yyyy"),
+                clsFormat.DateToDayMonthYear(purchase.Date),
                 purchase.Supplier,
-                purchase.Quantity.ToString("N3"),
-                purchase.UnitCost.ToString("N2"),
-                purchase.Total.ToString("N2"));
+                clsFormat.Quantity(purchase.Quantity),
+                clsFormat.Money(purchase.UnitCost),
+                clsFormat.Money(purchase.Total));
         }
 
         lblRecordsCount.Text = ordered.Count.ToString();
@@ -129,9 +130,9 @@ public partial class frmPurchaseItemInfo : Form
         decimal lastCost = ordered.Last().UnitCost;                                 // أحدث سعر شراء
         decimal minCost = ordered.Min(p => p.UnitCost);                             // أدنى سعر شراء
 
-        cardAvgValue.Text = averageCost.ToString("N2");
-        cardLastValue.Text = lastCost.ToString("N2");
-        cardMinValue.Text = minCost.ToString("N2");
+        cardAvgValue.Text = clsFormat.Money(averageCost);
+        cardLastValue.Text = clsFormat.Money(lastCost);
+        cardMinValue.Text = clsFormat.Money(minCost);
     }
 
     // ── تنسيق الشبكة: إبراز عمود الإجمالي وأعمدة الكميات/التكلفة ─────────────

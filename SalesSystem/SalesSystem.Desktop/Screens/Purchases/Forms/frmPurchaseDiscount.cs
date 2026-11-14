@@ -1,4 +1,5 @@
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
@@ -137,10 +138,10 @@ public partial class frmPurchaseDiscount : Form
 
     private void Recalculate()
     {
-        lblSubtotalValue.Text = Subtotal.ToString("N2");
-        lblDiscountValue.Text = DiscountAmount.ToString("N2");
-        lblTaxValue.Text = TaxAmount.ToString("N2");
-        lblNetValue.Text = NetTotal.ToString("N2");
+        lblSubtotalValue.Text = clsFormat.Money(Subtotal);
+        lblDiscountValue.Text = clsFormat.Money(DiscountAmount);
+        lblTaxValue.Text = clsFormat.Money(TaxAmount);
+        lblNetValue.Text = clsFormat.Money(NetTotal);
 
         // إظهار الوحدة بجانب حقل القيمة: نسبة % أو مبلغ بالريال
         lblUnit.Text = IsPercentageDiscount ? "%" : "ريال";

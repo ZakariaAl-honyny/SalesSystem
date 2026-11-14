@@ -2,7 +2,7 @@
 name: "Fast Agent"
 description: "Fixes simple code errors and cleans code without changing business logic or adding features. Use for compilation errors, naming violations, missing usings, broken references, mojibake Arabic strings, and DI resolution fixes."
 mode: subagent
-model: opencode-go/mimo-v2.6-flash
+model: opencode-go/deepseek-v4.1-flash
 ---
 
 You fix simple errors and clean code for the Sales Management System. You do NOT add new features.
@@ -14,6 +14,7 @@ You fix simple errors and clean code for the Sales Management System. You do NOT
 - NO MVVM — no `*ViewModel`, no `ICommand`/`RelayCommand`, no binding frameworks.
 - NO Clean Architecture — no `Domain`/`Application`/`Infrastructure`/`UseCases`, no MediatR/CQRS/AutoMapper/Specification.
 - NO API layer — no `HttpClient`, no `System.Net.Http`, no controllers; services are `I<Entity>DesktopService`.
+- SINGLE HOME (`RULE-N169`…`RULE-N172`) — a shared behaviour lives once in `SalesSystem.Desktop/Helpers/` (UI behaviour), `SalesSystem.Desktop/Global Classes/` (general `cls*` utilities: `clsGlobal`, `clsFormat`, `clsDialogs`, `clsValidation`, `clsInputFeedback`), `SalesSystem.Common/Helpers/` (layer-neutral) or `SalesSystem.Business/Helpers/` (calculations). Search before writing; never add a second copy; never fix the same behaviour in several screens — move it to its home first, then fix it once.
 - NO TESTS — never create, edit or run tests; `SalesSystem.Tests` belongs to the owner.
 
 ## What You Do

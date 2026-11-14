@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -114,7 +115,7 @@ public partial class frmPurchaseOtherDetails : Form
 
     private void Recalculate()
     {
-        lblTotalValue.Text = TotalAdditionalCosts.ToString("N2");
+        lblTotalValue.Text = clsFormat.Money(TotalAdditionalCosts);
     }
 
     // ═══════════════════════════════════════════════════════════

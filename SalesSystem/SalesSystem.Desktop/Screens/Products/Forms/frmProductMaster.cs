@@ -196,8 +196,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث البيانات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -222,8 +221,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل الأصناف");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -267,15 +265,13 @@ public partial class frmProductMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل مجموعات الأصناف.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل مجموعات الأصناف.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل مجموعات الأصناف");
-            MessageBox.Show("تعذر تحميل مجموعات الأصناف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل مجموعات الأصناف. يرجى إعادة المحاولة.");
         }
     }
 
@@ -293,16 +289,14 @@ public partial class frmProductMaster : Form
             else
             {
                 _unitLookup = new List<UnitDto>();
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الوحدات.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الوحدات.");
             }
         }
         catch (Exception ex)
         {
             _unitLookup = new List<UnitDto>();
             Log.Error(ex, "خطأ أثناء تحميل قائمة الوحدات");
-            MessageBox.Show("تعذر تحميل قائمة الوحدات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الوحدات. يرجى إعادة المحاولة.");
         }
     }
 
@@ -352,15 +346,13 @@ public partial class frmProductMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الأصناف.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الأصناف.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة الأصناف");
-            MessageBox.Show("تعذر تحميل قائمة الأصناف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الأصناف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -580,8 +572,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار صنف من الشبكة");
-            MessageBox.Show("تعذر عرض بيانات الصنف المحدد. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات الصنف المحدد. يرجى إعادة المحاولة.");
         }
     }
 
@@ -768,8 +759,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تغيير وحدة الصنف");
-            MessageBox.Show("تعذر تحميل سعر الوحدة المحددة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل سعر الوحدة المحددة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -988,8 +978,7 @@ public partial class frmProductMaster : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -1030,9 +1019,7 @@ public partial class frmProductMaster : Form
         if (edit)
         {
             string editName = txtName.Text.Trim();
-            if (MessageBox.Show($"هل أنت متأكد من تعديل الصنف \"{editName}\"؟",
-                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+            if (!clsDialogs.Confirm($"هل أنت متأكد من تعديل الصنف \"{editName}\"؟"))
                 return;
         }
 
@@ -1108,8 +1095,7 @@ public partial class frmProductMaster : Form
             {
                 EventBus.Publish(new ProductChangedMessage(result.Value.Id));
 
-                MessageBox.Show(edit ? "تم تعديل الصنف بنجاح." : "تمت إضافة الصنف بنجاح.",
-                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(edit ? "تم تعديل الصنف بنجاح." : "تمت إضافة الصنف بنجاح.");
 
                 // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
                 // ثم تحديث القائمة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي بعد الحفظ).
@@ -1123,15 +1109,13 @@ public partial class frmProductMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حفظ الصنف.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حفظ الصنف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ الصنف");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1145,16 +1129,13 @@ public partial class frmProductMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار صنف من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار صنف من القائمة أولاً.");
             return;
         }
 
         string name = txtName.Text.Trim();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) الصنف \"{name}\"؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) الصنف \"{name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -1166,8 +1147,7 @@ public partial class frmProductMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعطيل الصنف بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعطيل الصنف بنجاح.");
 
                 EventBus.Publish(new ProductChangedMessage(id));
 
@@ -1178,15 +1158,13 @@ public partial class frmProductMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم تعطيل الصنف.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل الصنف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعطيل الصنف {ProductId}", id);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1204,31 +1182,26 @@ public partial class frmProductMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار صنف معطّل من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار صنف معطّل من القائمة أولاً.");
             return;
         }
 
         if (!_productsById.TryGetValue(id, out var product))
         {
-            MessageBox.Show("تعذر العثور على بيانات الصنف المحدد. يرجى تحديث القائمة.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر العثور على بيانات الصنف المحدد. يرجى تحديث القائمة.");
             return;
         }
 
         if (product.IsActive)
         {
-            MessageBox.Show("الصنف المحدد نشط بالفعل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الصنف المحدد نشط بالفعل.");
             _UpdateReactivateButton();
             return;
         }
 
         if (_reactivateBusy) return;
 
-        if (MessageBox.Show($"هل تريد إعادة تنشيط الصنف \"{product.Name}\"؟",
-                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إعادة تنشيط الصنف \"{product.Name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -1254,22 +1227,19 @@ public partial class frmProductMaster : Form
                 _SelectGridRow(id);
                 _ApplyModeState();   // السجل نشط بعد إعادة التنشيط → زر إعادة التنشيط معطّل
 
-                MessageBox.Show("تم إعادة تنشيط الصنف بنجاح.", "تم إعادة التنشيط",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إعادة تنشيط الصنف بنجاح.");
             }
             else
             {
                 Log.Warning("تعذر إعادة تنشيط الصنف {ProductId}. السبب: {Error}", id, result.Error);
 
-                MessageBox.Show($"تعذر إعادة تنشيط الصنف.\n{result.Error}",
-                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"تعذر إعادة تنشيط الصنف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إعادة تنشيط الصنف {ProductId}", id);
-            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1283,8 +1253,7 @@ public partial class frmProductMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى حفظ الصنف أولاً قبل إدارة وحداته وأسعاره.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى حفظ الصنف أولاً قبل إدارة وحداته وأسعاره.");
             return;
         }
 
@@ -1300,8 +1269,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء فتح شاشة وحدات وأسعار الصنف");
-            MessageBox.Show("تعذر فتح شاشة وحدات وأسعار الصنف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح شاشة وحدات وأسعار الصنف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1322,8 +1290,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء فتح شاشة مجموعات الأصناف");
-            MessageBox.Show("تعذر فتح شاشة مجموعات الأصناف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح شاشة مجموعات الأصناف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1390,8 +1357,7 @@ public partial class frmProductMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء البحث عن الباركود {Barcode}", code);
-            MessageBox.Show("تعذر البحث عن الباركود. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر البحث عن الباركود. يرجى إعادة المحاولة.");
         }
         finally
         {

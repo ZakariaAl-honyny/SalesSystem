@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
@@ -112,7 +113,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
     /// <summary>إجمالي السند بصيغة N2 (RULE-001).</summary>
     private void _UpdateNetTotal()
-        => lblNetTotalAmount.Text = numAmount.Value.ToString("N2");
+        => lblNetTotalAmount.Text = clsFormat.Money(numAmount.Value);
 
     /// <summary>F2 — سند جديد: تفريغ الحقول والعودة إلى وضع الإضافة.</summary>
     private void _StartNewEntry()

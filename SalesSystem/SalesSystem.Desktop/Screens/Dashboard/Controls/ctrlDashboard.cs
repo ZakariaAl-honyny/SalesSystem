@@ -23,6 +23,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
@@ -144,12 +145,12 @@ public partial class ctrlDashboard : UserControl
     private void ApplySummary(DashboardSummaryDto s)
     {
         // المبالغ N2 (RULE-001) — والعدادات أعداد صحيحة (لا كميات في هذا الملخص)
-        cardSalesValue.Text = s.TotalSalesToday.ToString("N2");
-        cardPurchasesValue.Text = s.TotalPurchasesToday.ToString("N2");
+        cardSalesValue.Text = clsFormat.Money(s.TotalSalesToday);
+        cardPurchasesValue.Text = clsFormat.Money(s.TotalPurchasesToday);
         cardCustomersValue.Text = s.ActiveCustomersCount.ToString();
         cardLowStockValue.Text = s.LowStockItemsCount.ToString();
-        cardReceivablesValue.Text = s.TotalReceivables.ToString("N2");
-        cardPayablesValue.Text = s.TotalPayables.ToString("N2");
+        cardReceivablesValue.Text = clsFormat.Money(s.TotalReceivables);
+        cardPayablesValue.Text = clsFormat.Money(s.TotalPayables);
 
         // الأسطر الثانوية داخل البطاقات
         lblSalesSub.Text = $"عدد الفواتير اليوم: {s.NumberOfSalesToday}\nهذا الشهر: {s.TotalSalesMonth:N2}";

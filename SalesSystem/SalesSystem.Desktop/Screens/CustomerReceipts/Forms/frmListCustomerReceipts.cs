@@ -276,7 +276,7 @@ public partial class frmListCustomerReceipts : Form
     {
         1 => r.ReceiptNo.ToString().Contains(text, StringComparison.Ordinal),
         2 => (r.Notes ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase),
-        3 => r.Amount.ToString("N2").Contains(text, StringComparison.Ordinal)
+        3 => clsFormat.Money(r.Amount).Contains(text, StringComparison.Ordinal)
              || r.Amount.ToString("0.###").Contains(text, StringComparison.Ordinal),
         _ => (r.CustomerName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase),
     };
@@ -360,7 +360,7 @@ public partial class frmListCustomerReceipts : Form
                 r.ReceiptNo,
                 r.ReceiptDate.ToString("yyyy-MM-dd"),
                 r.CustomerName ?? "",
-                r.Amount.ToString("N2"),
+                clsFormat.Money(r.Amount),
                 r.PaymentMethodName ?? "",
                 r.CashBoxName ?? "",
                 r.StatusName ?? ""

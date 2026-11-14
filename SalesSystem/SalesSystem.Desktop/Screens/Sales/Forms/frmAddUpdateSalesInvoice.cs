@@ -10,6 +10,7 @@ using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Messaging.Messages;
@@ -617,7 +618,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal totalPaid = _invoice.PaidAmount;
         if (_invoice.PaymentType == 3) // Mixed — keep paid amount as-is, bank is separate
         {
-            txtPaid.Text = totalPaid.ToString("N2");
+            txtPaid.Text = clsFormat.Money(totalPaid);
         }
         else if (_invoice.PaymentType == 2) // Credit — paid should be 0
         {
@@ -625,10 +626,10 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
         else // Cash
         {
-            txtPaid.Text = totalPaid.ToString("N2");
+            txtPaid.Text = clsFormat.Money(totalPaid);
         }
 
-        txtExpenses.Text = _invoice.OtherCharges.ToString("N2");
+        txtExpenses.Text = clsFormat.Money(_invoice.OtherCharges);
         txtNotes.Text = _invoice.Notes;
 
         // Build lines with ProductUnitId for correct unit restore
@@ -1059,7 +1060,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal discount = decimal.TryParse(txtLineDiscount.Text, out decimal d) ? d : 0m;
         decimal total = (qty * price) - discount;
         if (total < 0m) total = 0m;
-        lblLineTotal.Text = total.ToString("N2");
+        lblLineTotal.Text = clsFormat.Money(total);
     }
 
     private async void btnAddLine_Click(object? sender, EventArgs? e)

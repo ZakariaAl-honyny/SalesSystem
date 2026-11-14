@@ -1,4 +1,5 @@
 using System.Data;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -306,12 +307,12 @@ public partial class frmSupplierStatement : Form
             {
                 _table.Rows.Add(
                     RowKindOpening,
-                    from.ToString("dd/MM/yyyy"),
+                    clsFormat.DateToDayMonthYear(from),
                     "رصيد سابق",
                     NoValue,
                     string.Empty,
                     string.Empty,
-                    opening.ToString("N2"),
+                    clsFormat.Money(opening),
                     0m,
                     0m,
                     opening);
@@ -325,12 +326,12 @@ public partial class frmSupplierStatement : Form
 
                 _table.Rows.Add(
                     RowKindNormal,
-                    line.Date.ToString("dd/MM/yyyy"),
+                    clsFormat.DateToDayMonthYear(line.Date),
                     line.Type,
                     line.Reference,
-                    line.Debit > 0 ? line.Debit.ToString("N2") : string.Empty,
-                    line.Credit > 0 ? line.Credit.ToString("N2") : string.Empty,
-                    running.ToString("N2"),
+                    line.Debit > 0 ? clsFormat.Money(line.Debit) : string.Empty,
+                    line.Credit > 0 ? clsFormat.Money(line.Credit) : string.Empty,
+                    clsFormat.Money(running),
                     line.Debit,
                     line.Credit,
                     running);
@@ -413,7 +414,7 @@ public partial class frmSupplierStatement : Form
         if (!any) closing = 0m;
 
         lblSummary.Text = $"عدد الحركات: {moves} · مدين: {debit:N2} · دائن: {credit:N2}";
-        txtClosingBalance.Text = closing.ToString("N2");
+        txtClosingBalance.Text = clsFormat.Money(closing);
 
         emptyState.Visible = _view is null || _view.Count == 0;
         if (emptyState.Visible) emptyState.BringToFront();

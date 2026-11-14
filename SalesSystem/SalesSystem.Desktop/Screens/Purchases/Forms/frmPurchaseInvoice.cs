@@ -12,6 +12,7 @@ using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Screens.Purchases;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -255,7 +256,7 @@ public partial class frmPurchaseInvoice : Form
         cmbWarehouse.SelectedValue = _invoice.WarehouseId;
         cmbPaymentType.SelectedIndex = (byte)_invoice.PaymentType - 1;
         numInvoiceDiscount.Value = _invoice.DiscountAmount;
-        txtPaid.Text = _invoice.PaidAmount.ToString("N2");
+        txtPaid.Text = clsFormat.Money(_invoice.PaidAmount);
         txtNotes.Text = _invoice.Notes;
 
         _lines.Clear();
@@ -349,9 +350,9 @@ public partial class frmPurchaseInvoice : Form
         decimal totalAmount = subTotal - invoiceDiscount;
         decimal dueAmount = totalAmount - paidAmount;
 
-        lblSubTotalVal.Text = subTotal.ToString("N2");
-        lblTotalVal.Text = totalAmount.ToString("N2");
-        lblDueVal.Text = dueAmount.ToString("N2");
+        lblSubTotalVal.Text = clsFormat.Money(subTotal);
+        lblTotalVal.Text = clsFormat.Money(totalAmount);
+        lblDueVal.Text = clsFormat.Money(dueAmount);
         lblDueVal.ForeColor = dueAmount > 0 ? Color.Red : Color.Green;
     }
 

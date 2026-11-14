@@ -48,6 +48,7 @@ public class ReceiptPrinter
 ## Rules
 - `PrintDataService` MUST return `Task<Result<InvoicePrintDto>>` — NEVER nullable, never throws.
 - Money prints as `N2` (`decimal(18,2)`), quantities as `N3`; Arabic text via a UTF-8 safe font.
+- **Single home (`RULE-N169`…`RULE-N172`):** print/PDF layouts consume the shared formatting helpers (`clsFormat` for `Money`/`Quantity`/`DateToShort`) and the `Printing/**` home for layout code — no per-report copy of a formatter or a colour table; a shared print behaviour is added once in `Printing/**` and consumed.
 - Use `AsNoTracking()` for read-only print data queries.
 - **Stage (`RULE-N165`…`RULE-N168`):** a layout is designed and QA'd at **Stage A against mock DTOs** — never add a query, entity or migration to get something to print. Real print data is wired in Stage B after the owner approves.
 

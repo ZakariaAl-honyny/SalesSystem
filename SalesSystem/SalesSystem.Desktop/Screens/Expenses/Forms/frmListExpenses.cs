@@ -144,7 +144,7 @@ public partial class frmListExpenses : Form
             else
             {
                 _allExpenses = new List<ExpenseDto>();
-                MessageBox.Show(result.Error ?? "فشل في تحميل بيانات المصروفات", "خطأ في تحميل البيانات", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في تحميل بيانات المصروفات");
             }
 
             _ApplyFilter();
@@ -155,7 +155,7 @@ public partial class frmListExpenses : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحميل قائمة المصروفات في شاشة الدليل");
-            MessageBox.Show("تعذر تحميل بيانات المصروفات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل بيانات المصروفات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -226,9 +226,9 @@ public partial class frmListExpenses : Form
 
         if (decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal amount))
             return query.Where(x => x.Amount == amount
-                                 || x.Amount.ToString("N2").Contains(text, StringComparison.OrdinalIgnoreCase));
+                                 || clsFormat.Money(x.Amount).Contains(text, StringComparison.OrdinalIgnoreCase));
 
-        return query.Where(x => x.Amount.ToString("N2").Contains(text, StringComparison.OrdinalIgnoreCase));
+        return query.Where(x => clsFormat.Money(x.Amount).Contains(text, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>قيمة الحالة المختارة — null = الكل.</summary>
@@ -253,7 +253,7 @@ public partial class frmListExpenses : Form
                 ex.ExpenseDate.ToString("yyyy-MM-dd"),
                 ex.ExpenseAccountName ?? "",
                 ex.CashBoxName ?? "",
-                ex.Amount.ToString("N2"),
+                clsFormat.Money(ex.Amount),
                 ex.Notes ?? "",
                 ex.StatusName ?? ""
             );
@@ -290,7 +290,7 @@ public partial class frmListExpenses : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {_filteredExpenses.Count} من {_allExpenses.Count} — الإجمالي: {total.ToString("N2")} · مرحّل: {posted} · ملغى: {cancelled}";
+            $"المعروض: {_filteredExpenses.Count} من {_allExpenses.Count} — الإجمالي: {clsFormat.Money(total)} · مرحّل: {posted} · ملغى: {cancelled}";
 
         _UpdateRecordsCount();
     }
@@ -546,11 +546,11 @@ public partial class frmListExpenses : Form
 
         if (status != 1)
         {
-            MessageBox.Show("لا يمكن ترحيل المصروف إلا في حالة مسودة.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن ترحيل المصروف إلا في حالة مسودة.");
             return;
         }
 
-        if (MessageBox.Show("هل أنت متأكد من ترحيل هذا المصروف؟", "تأكيد الترحيل", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من ترحيل هذا المصروف؟"))
             return;
 
         _ = PostAsync(id);
@@ -565,18 +565,18 @@ public partial class frmListExpenses : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم ترحيل المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم ترحيل المصروف بنجاح.");
                 _ReloadForm();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في الترحيل", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في الترحيل");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل ترحيل المصروف {ExpenseId} من شاشة الدليل", id);
-            MessageBox.Show("تعذر ترحيل المصروف. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر ترحيل المصروف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -593,11 +593,11 @@ public partial class frmListExpenses : Form
 
         if (status == 3)
         {
-            MessageBox.Show("السند ملغي بالفعل.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("السند ملغي بالفعل.");
             return;
         }
 
-        if (MessageBox.Show("هل أنت متأكد من إلغاء هذا المصروف؟", "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء هذا المصروف؟"))
             return;
 
         _ = CancelAsync(id);
@@ -612,18 +612,18 @@ public partial class frmListExpenses : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم إلغاء المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إلغاء المصروف بنجاح.");
                 _ReloadForm();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في الإلغاء", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في الإلغاء");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل إلغاء المصروف {ExpenseId} من شاشة الدليل", id);
-            MessageBox.Show("تعذر إلغاء المصروف. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر إلغاء المصروف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -640,11 +640,11 @@ public partial class frmListExpenses : Form
 
         if (status != 1)
         {
-            MessageBox.Show("لا يمكن حذف المصروف إلا في حالة مسودة.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن حذف المصروف إلا في حالة مسودة.");
             return;
         }
 
-        if (MessageBox.Show("هل أنت متأكد من حذف هذا المصروف؟", "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من حذف هذا المصروف؟"))
             return;
 
         _ = DeleteAsync(id);
@@ -659,18 +659,18 @@ public partial class frmListExpenses : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم حذف المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم حذف المصروف بنجاح.");
                 _ReloadForm();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في الحذف", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في الحذف");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل حذف المصروف {ExpenseId} من شاشة الدليل", id);
-            MessageBox.Show("تعذر حذف المصروف. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر حذف المصروف. يرجى إعادة المحاولة.");
         }
         finally
         {
