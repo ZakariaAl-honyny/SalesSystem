@@ -1,4 +1,5 @@
 using System.Data;
+using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
@@ -13,7 +14,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
     /// + §2.34 (عنوان ← أوامر ← تصفية ← محتوى ← إجماليات) + §2.35 (المصمّم = وقت التشغيل).
     /// </para>
     /// <para>
-    /// البيانات تجريبية في الذاكرة (UI-First) — لا وصول لأي طبقة بيانات من الشاشة.
+    /// البيانات تجريبية في الذاكرة **في وضع التجربة فقط** (<see cref="AppSettings.Current"/> ·
+    /// <c>UseMockData</c>)، وفي الوضع الحقيقي تبقى الشبكات فارغة ويُعرض إشعار صريح في عناصر
+    /// قائمة بالفعل — لا صفوف ولا أرقام مُختلقة (RULE-N167). لا وصول لأي طبقة بيانات من الشاشة.
     /// التصفية فورية (RULE-N59) بلا زر بحث، وبناء <c>DataView.RowFilter</c> يمرّ عبر
     /// <see cref="RowFilterHelper"/> على أعمدة معروفة فقط (RULE-N24/RULE-N60).
     /// </para>
@@ -22,6 +25,22 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
     {
         /// <summary>RULE-N46: لون الحقل النشط الموحّد.</summary>
         private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
+
+        /// <summary>
+        /// وضع التجربة: البيت الواحد لاكتشاف الوضع هو <see cref="AppSettings.Current"/> (<c>UseMockData</c>)
+        /// — نفس ما يستهلكه <c>frmMain</c>؛ لا آلية ثانية. البيانات التجريبية تُبنى في وضع التجربة فقط.
+        /// </summary>
+        private static bool IsMockMode => AppSettings.Current.UseMockData;
+
+        /// <summary>
+        /// إشعار الوضع الحقيقي — يُعرض في شريط الملخص وسطور «لا توجد بيانات» القائمة في المصمّم
+        /// (RULE-N134/N145: بلا عنصر واجهة جديد).
+        /// </summary>
+        private const string MockOnlyNotice =
+            "لا توجد بيانات: هذه الشاشة تُعرض في وضع التجربة فقط حتى اعتماد الباك-إند";
+
+        /// <summary>نص سطر «لا توجد بيانات» الأصلي في المصمّم (وضع التجربة فقط).</summary>
+        private const string EmptyStateText = "لا توجد بيانات للعرض";
 
         // ── ثوابت الحالات (RULE-N60: تُقارن بثوابت داخل الكود، لا بنص المستخدم) ─────
         private const string StockOut = "نفد";
@@ -174,22 +193,10 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _productsTable.Columns.Add("StockStatus", typeof(string));
             _productsTable.Columns.Add("IsActive", typeof(bool));
 
-            var products = new[]
-            {
-                new MockProduct("P-1001", "6251001234567", "سكر أبيض 1 كجم",           "كيس",     "الرئيسي", 0m,    20m,  32.50m,  true),
-                new MockProduct("P-1002", "6251001234568", "شاي أوراق سائب 250 جم",     "عبوة",    "الرئيسي", 15m,   25m,  18.75m,  true),
-                new MockProduct("P-1003", "6251001234569", "زيت عباد الشمس 1 لتر",      "زجاجة",   "المعرض",  120m,  40m,  46.00m,  true),
-                new MockProduct("P-1004", "6251001234570", "أرز بسمتي 5 كجم",           "كيس",     "الرئيسي", 8m,    30m,  145.00m, true),
-                new MockProduct("P-1005", "6251001234571", "دقيق أبيض فاخر 2 كجم",      "كيس",     "الرئيسي", 60m,   50m,  28.90m,  true),
-                new MockProduct("P-1006", "6251001234572", "حليب مجفف 2 كجم",           "علبة",    "المعرض",  0m,    15m,  95.00m,  true),
-                new MockProduct("P-1007", "6251001234573", "قهوة سريعة الذوبان 100 جم", "برطمان",  "الرئيسي", 45m,   20m,  22.40m,  true),
-                new MockProduct("P-1008", "6251001234574", "معجون طماطم 400 جم",        "علبة",    "المعرض",  18m,   35m,  12.75m,  true),
-                new MockProduct("P-1009", "6251001234575", "صابون سائل لليدين 500 مل",  "زجاجة",   "الرئيسي", 210m,  50m,  15.20m,  true),
-                new MockProduct("P-1010", "6251001234576", "مناديل ورقية 200 منديل",    "علبة",    "المعرض",  4m,    25m,  8.60m,   true),
-                new MockProduct("P-1011", "6251001234577", "عصير مانجو 1 لتر (موقوف)",  "كرتون",   "المعرض",  33m,   20m,  11.40m,  false),
-            };
+            // الوضع الحقيقي: الشبكة تبقى فارغة — لا تُبنى أي صفوف مُختلقة (RULE-N167).
+            if (!IsMockMode) return;
 
-            foreach (var p in products)
+            foreach (var p in _MockProducts())
             {
                 string status = p.Stock <= 0
                     ? StockOut
@@ -201,6 +208,25 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             }
         }
 
+        /// <summary>
+        /// صفوف أرصدة الأصناف التجريبية — تُستهلك في **وضع التجربة فقط** (مراجعة المالك للشاشة)،
+        /// ولا تُبنى أبداً في الوضع الحقيقي فلا يظهر رقم مُختلق أمام قرار شراء/بيع (RULE-N167/N173).
+        /// </summary>
+        private static MockProduct[] _MockProducts() => new[]
+        {
+            new MockProduct("P-1001", "6251001234567", "سكر أبيض 1 كجم",           "كيس",     "الرئيسي", 0m,    20m,  32.50m,  true),
+            new MockProduct("P-1002", "6251001234568", "شاي أوراق سائب 250 جم",     "عبوة",    "الرئيسي", 15m,   25m,  18.75m,  true),
+            new MockProduct("P-1003", "6251001234569", "زيت عباد الشمس 1 لتر",      "زجاجة",   "المعرض",  120m,  40m,  46.00m,  true),
+            new MockProduct("P-1004", "6251001234570", "أرز بسمتي 5 كجم",           "كيس",     "الرئيسي", 8m,    30m,  145.00m, true),
+            new MockProduct("P-1005", "6251001234571", "دقيق أبيض فاخر 2 كجم",      "كيس",     "الرئيسي", 60m,   50m,  28.90m,  true),
+            new MockProduct("P-1006", "6251001234572", "حليب مجفف 2 كجم",           "علبة",    "المعرض",  0m,    15m,  95.00m,  true),
+            new MockProduct("P-1007", "6251001234573", "قهوة سريعة الذوبان 100 جم", "برطمان",  "الرئيسي", 45m,   20m,  22.40m,  true),
+            new MockProduct("P-1008", "6251001234574", "معجون طماطم 400 جم",        "علبة",    "المعرض",  18m,   35m,  12.75m,  true),
+            new MockProduct("P-1009", "6251001234575", "صابون سائل لليدين 500 مل",  "زجاجة",   "الرئيسي", 210m,  50m,  15.20m,  true),
+            new MockProduct("P-1010", "6251001234576", "مناديل ورقية 200 منديل",    "علبة",    "المعرض",  4m,    25m,  8.60m,   true),
+            new MockProduct("P-1011", "6251001234577", "عصير مانجو 1 لتر (موقوف)",  "كرتون",   "المعرض",  33m,   20m,  11.40m,  false),
+        };
+
         private void _BuildCountsTable()
         {
             _countsTable = new DataTable();
@@ -210,18 +236,22 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _countsTable.Columns.Add("Committee", typeof(string));
             _countsTable.Columns.Add("Status", typeof(string));
 
-            var counts = new[]
-            {
-                new MockCount("INV-2026-001", new DateTime(2026, 9, 5),  "الرئيسي", "رئيس: أحمد محمود / عضو: خالد سعيد", "مرحّل"),
-                new MockCount("INV-2026-002", new DateTime(2026, 9, 12), "المعرض",  "رئيس: سامي حسن / عضو: عمر يوسف",    "مكتمل"),
-                new MockCount("INV-2026-003", new DateTime(2026, 9, 18), "الرئيسي", "رئيس: أحمد محمود / عضو: ليلى إبراهيم", "مسودة"),
-            };
+            // الوضع الحقيقي: لا محاضر جرد مُختلقة.
+            if (!IsMockMode) return;
 
-            foreach (var c in counts)
+            foreach (var c in _MockCounts())
             {
                 _countsTable.Rows.Add(c.CountNo, c.Date, c.Warehouse, c.Committee, c.Status);
             }
         }
+
+        /// <summary>محاضر الجرد التجريبية — تُستهلك في **وضع التجربة فقط** (RULE-N167/N173).</summary>
+        private static MockCount[] _MockCounts() => new[]
+        {
+            new MockCount("INV-2026-001", new DateTime(2026, 9, 5),  "الرئيسي", "رئيس: أحمد محمود / عضو: خالد سعيد", "مرحّل"),
+            new MockCount("INV-2026-002", new DateTime(2026, 9, 12), "المعرض",  "رئيس: سامي حسن / عضو: عمر يوسف",    "مكتمل"),
+            new MockCount("INV-2026-003", new DateTime(2026, 9, 18), "الرئيسي", "رئيس: أحمد محمود / عضو: ليلى إبراهيم", "مسودة"),
+        };
 
         private void _BuildTransfersTable()
         {
@@ -233,19 +263,23 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _transfersTable.Columns.Add("DriverName", typeof(string));
             _transfersTable.Columns.Add("Status", typeof(string));
 
-            var transfers = new[]
-            {
-                new MockTransfer("TR-2026-001", new DateTime(2026, 9, 8),  "الرئيسي", "المعرض",  "محمد علي", "مستلم"),
-                new MockTransfer("TR-2026-002", new DateTime(2026, 9, 11), "المعرض",  "الرئيسي", "حسن فؤاد", "قيد النقل"),
-                new MockTransfer("TR-2026-003", new DateTime(2026, 9, 15), "الرئيسي", "المعرض",  "محمد علي", "مستلم"),
-                new MockTransfer("TR-2026-004", new DateTime(2026, 9, 19), "المعرض",  "الرئيسي", "—",        "مسودة"),
-            };
+            // الوضع الحقيقي: لا تحويلات مخزنية مُختلقة.
+            if (!IsMockMode) return;
 
-            foreach (var t in transfers)
+            foreach (var t in _MockTransfers())
             {
                 _transfersTable.Rows.Add(t.TransferNo, t.Date, t.From, t.To, t.Driver, t.Status);
             }
         }
+
+        /// <summary>التحويلات المخزنية التجريبية — تُستهلك في **وضع التجربة فقط** (RULE-N167/N173).</summary>
+        private static MockTransfer[] _MockTransfers() => new[]
+        {
+            new MockTransfer("TR-2026-001", new DateTime(2026, 9, 8),  "الرئيسي", "المعرض",  "محمد علي", "مستلم"),
+            new MockTransfer("TR-2026-002", new DateTime(2026, 9, 11), "المعرض",  "الرئيسي", "حسن فؤاد", "قيد النقل"),
+            new MockTransfer("TR-2026-003", new DateTime(2026, 9, 15), "الرئيسي", "المعرض",  "محمد علي", "مستلم"),
+            new MockTransfer("TR-2026-004", new DateTime(2026, 9, 19), "المعرض",  "الرئيسي", "—",        "مسودة"),
+        };
 
         // ── Grid Setup ─────────────────────────────────────────────────────────────
 
@@ -399,21 +433,18 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         {
             if (_productsView.Table == null) return;
 
-            var parts = new List<string>();
-
             string search = txtFilterValue.Text.Trim();
-            if (search.Length > 0)
+
+            var parts = new List<string>
             {
-                parts.Add(cbFilterBy.SelectedIndex switch
+                RowFilterHelper.Text(search, cbFilterBy.SelectedIndex switch
                 {
-                    1 => RowFilterHelper.Like("Name", search),
-                    2 => RowFilterHelper.Like("Code", search),
-                    3 => RowFilterHelper.Like("Barcode", search),
-                    _ => "(" + RowFilterHelper.Like("Name", search)
-                              + " OR " + RowFilterHelper.Like("Code", search)
-                              + " OR " + RowFilterHelper.Like("Barcode", search) + ")",
-                });
-            }
+                    1 => new[] { "Name" },
+                    2 => new[] { "Code" },
+                    3 => new[] { "Barcode" },
+                    _ => new[] { "Name", "Code", "Barcode" },
+                }),
+            };
 
             if (!chkShowInactive.Checked)
                 parts.Add("IsActive = true");
@@ -421,9 +452,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             if (chkOnlyOutOfStock.Checked)
                 parts.Add("Stock <= 0");
 
-            string? status = _SelectedProductsStatus();
-            if (status is not null)
-                parts.Add($"StockStatus = '{RowFilterHelper.Escape(status)}'");
+            parts.Add(RowFilterHelper.EqualsText("StockStatus", _SelectedProductsStatus()));
 
             _SetRowFilter(_productsView, parts);
         }
@@ -432,27 +461,18 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         {
             if (_countsView.Table == null) return;
 
-            var parts = new List<string>();
-
-            string search = txtFilterValue.Text.Trim();
-            if (search.Length > 0)
+            var parts = new List<string>
             {
-                parts.Add(cbFilterBy.SelectedIndex switch
+                RowFilterHelper.Text(txtFilterValue.Text.Trim(), cbFilterBy.SelectedIndex switch
                 {
-                    1 => RowFilterHelper.Like("CountNo", search),
-                    2 => RowFilterHelper.Like("WarehouseName", search),
-                    3 => RowFilterHelper.Like("Committee", search),
-                    _ => "(" + RowFilterHelper.Like("CountNo", search)
-                              + " OR " + RowFilterHelper.Like("WarehouseName", search)
-                              + " OR " + RowFilterHelper.Like("Committee", search) + ")",
-                });
-            }
-
-            string? status = _SelectedCountsStatus();
-            if (status is not null)
-                parts.Add($"Status = '{RowFilterHelper.Escape(status)}'");
-
-            _AddDateRange(parts, "CountDate");
+                    1 => new[] { "CountNo" },
+                    2 => new[] { "WarehouseName" },
+                    3 => new[] { "Committee" },
+                    _ => new[] { "CountNo", "WarehouseName", "Committee" },
+                }),
+                RowFilterHelper.EqualsText("Status", _SelectedCountsStatus()),
+                RowFilterHelper.DateRange("CountDate", dtpFrom.Value, dtpTo.Value),
+            };
 
             _SetRowFilter(_countsView, parts);
         }
@@ -461,43 +481,21 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         {
             if (_transfersView.Table == null) return;
 
-            var parts = new List<string>();
-
-            string search = txtFilterValue.Text.Trim();
-            if (search.Length > 0)
+            var parts = new List<string>
             {
-                parts.Add(cbFilterBy.SelectedIndex switch
+                RowFilterHelper.Text(txtFilterValue.Text.Trim(), cbFilterBy.SelectedIndex switch
                 {
-                    1 => RowFilterHelper.Like("TransferNo", search),
-                    2 => RowFilterHelper.Like("FromWarehouse", search),
-                    3 => RowFilterHelper.Like("ToWarehouse", search),
-                    4 => RowFilterHelper.Like("DriverName", search),
-                    _ => "(" + RowFilterHelper.Like("TransferNo", search)
-                              + " OR " + RowFilterHelper.Like("FromWarehouse", search)
-                              + " OR " + RowFilterHelper.Like("ToWarehouse", search)
-                              + " OR " + RowFilterHelper.Like("DriverName", search) + ")",
-                });
-            }
-
-            string? status = _SelectedTransfersStatus();
-            if (status is not null)
-                parts.Add($"Status = '{RowFilterHelper.Escape(status)}'");
-
-            _AddDateRange(parts, "TransferDate");
+                    1 => new[] { "TransferNo" },
+                    2 => new[] { "FromWarehouse" },
+                    3 => new[] { "ToWarehouse" },
+                    4 => new[] { "DriverName" },
+                    _ => new[] { "TransferNo", "FromWarehouse", "ToWarehouse", "DriverName" },
+                }),
+                RowFilterHelper.EqualsText("Status", _SelectedTransfersStatus()),
+                RowFilterHelper.DateRange("TransferDate", dtpFrom.Value, dtpTo.Value),
+            };
 
             _SetRowFilter(_transfersView, parts);
-        }
-
-        /// <summary>يضيف نطاق التاريخ (النطاق المعكوس يُبادَل طرفاه بدل إسقاط النتائج).</summary>
-        private void _AddDateRange(List<string> parts, string dateColumn)
-        {
-            DateTime from = dtpFrom.Value.Date;
-            DateTime to = dtpTo.Value.Date;
-            if (from > to)
-                (from, to) = (to, from);
-
-            parts.Add($"{dateColumn} >= #{from:yyyy-MM-dd}#");
-            parts.Add($"{dateColumn} <= #{to:yyyy-MM-dd}#");
         }
 
         /// <summary>إن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).</summary>
@@ -505,7 +503,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         {
             try
             {
-                view.RowFilter = parts.Count > 0 ? string.Join(" AND ", parts) : string.Empty;
+                view.RowFilter = RowFilterHelper.Build(parts);
             }
             catch (Exception ex)
             {
@@ -542,6 +540,14 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
         private void _UpdateSummary()
         {
+            // الوضع الحقيقي: لا بيانات مُختلقة ⇒ إشعار صريح في شريط الملخص القائم (RULE-N134/N145).
+            if (!IsMockMode)
+            {
+                lblSummary.Text = MockOnlyNotice;
+                _UpdateEmptyLabels();
+                return;
+            }
+
             switch (tabMain.SelectedIndex)
             {
                 case 1:
@@ -616,16 +622,22 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                  + $" · قيمة المخزون: {clsFormat.Money(stockValue)}";
         }
 
-        /// <summary>سطر «لا توجد بيانات» لكل تبويب (RULE-N22/N23).</summary>
+        /// <summary>
+        /// سطر «لا توجد بيانات» لكل تبويب (RULE-N22/N23) — نصه يُبدَّل في الوضع الحقيقي إلى إشعار
+        /// صريح يمنع قراءة الفراغ كـ«صفر رصيد حقيقي» (RULE-N167)، والعنصر نفسه قائم في المصمّم.
+        /// </summary>
         private void _UpdateEmptyLabels()
         {
-            _ToggleEmpty(lblEmptyProducts, _productsView.Count);
-            _ToggleEmpty(lblEmptyCounts, _countsView.Count);
-            _ToggleEmpty(lblEmptyTransfers, _transfersView.Count);
+            string text = IsMockMode ? EmptyStateText : MockOnlyNotice;
+
+            _ToggleEmpty(lblEmptyProducts, _productsView.Count, text);
+            _ToggleEmpty(lblEmptyCounts, _countsView.Count, text);
+            _ToggleEmpty(lblEmptyTransfers, _transfersView.Count, text);
         }
 
-        private static void _ToggleEmpty(Label label, int count)
+        private static void _ToggleEmpty(Label label, int count, string text)
         {
+            label.Text = text;
             label.Visible = count == 0;
 
             if (label.Visible)

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.DTO.Responses;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
@@ -39,6 +40,12 @@ public partial class frmProductMaster : Form
 
     /// <summary>يمنع إعادة تحميل سعر الوحدة أثناء تعبئة النموذج برمجياً.</summary>
     private bool _isBindingMainUnit;
+
+    /// <summary>
+    /// وحدات الصنف المحدد كما وردت من الخدمة — تُستهلك في تحميل وحفظ سعر الوحدة الرئيسية
+    /// (سعر البيع · التكلفة · الخصم المسموح به) بدون نداء إضافي للخدمة.
+    /// </summary>
+    private IReadOnlyList<ProductUnitDto> _productUnits = Array.Empty<ProductUnitDto>();
 
     /// <summary>يمنع تكرار تنفيذ إعادة التنشيط ويُعطّل زرها مؤقتاً أثناء العملية (RULE-N92).</summary>
     private bool _reactivateBusy;
@@ -659,6 +666,44 @@ public partial class frmProductMaster : Form
         }
     }
 
+    /// <summary>
+    /// حفظ سعر البيع · سعر التكلفة · الخصم المسموح به على الوحدة الرئيسية للصنف
+    /// عبر <c>UpdateProductUnitAsync</c> (سعر التكلفة والخصم ليسا في <see cref="ProductPriceDto"/>،
+    /// ومكانهما <see cref="ProductUnitDto"/>). السعر بالجملة يُعاد كما هو (لا حقل له في الشاشة).
+    /// </summary>
+    private async Task _SaveMainUnitPricesAsync(int productId)
+    {
+        var unit = _productUnits.FirstOrDefault(u => u.IsBaseUnit) ?? _productUnits.FirstOrDefault();
+        if (unit is null) return;   // لا وحدة للصنف → لا شيء يُحفظ من مجموعة الوحدة الرئيسية
+
+        try
+        {
+            var request = new UpdateProductUnitRequest(
+                UnitId: (short)unit.UnitId,
+                Barcode: unit.Barcode,       // الباركود يُحفظ عبر UpdateProductRequest — لا يُلمس هنا
+                SalePrice: numMainUnitSalePrice.Value,
+                WholesalePrice: unit.WholesalePrice,
+                CostPrice: numMainUnitCostPrice.Value,
+                MaxDiscountAmount: numMainUnitMaxDiscount.Value > 0m
+                    ? (decimal?)numMainUnitMaxDiscount.Value
+                    : null);
+
+            var result = await ProductService.UpdateProductUnitAsync(productId, unit.Id, request);
+
+            if (!result.IsSuccess)
+            {
+                Log.Error("تعذر حفظ أسعار الوحدة الرئيسية للصنف {ProductId}. السبب: {Error}",
+                    productId, result.Error);
+                clsDialogs.Warning($"تم حفظ بيانات الصنف، لكن تعذر حفظ سعر/تكلفة/خصم الوحدة الرئيسية.\n{result.Error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء حفظ أسعار الوحدة الرئيسية للصنف {ProductId}", productId);
+            clsDialogs.Warning("تم حفظ بيانات الصنف، لكن تعذر حفظ سعر/تكلفة/خصم الوحدة الرئيسية.");
+        }
+    }
+
     private void _SelectCategory(int categoryId)
     {
         cmbCategory.SelectedValue = categoryId;
@@ -679,6 +724,7 @@ public partial class frmProductMaster : Form
             if (result.IsSuccess && result.Value != null && result.Value.Count > 0)
             {
                 var units = result.Value.ToList();
+                _productUnits = units;   // مرجع الوحدات لتحميل/حفظ أسعار الوحدة الرئيسية
 
                 // توحيد ربط الوحدة الرئيسية بين وضعي الإضافة والتعديل:
                 // دائماً DisplayMember = "Name" و ValueMember = "Id" على قائمة UnitDto.
@@ -694,10 +740,11 @@ public partial class frmProductMaster : Form
                 var baseUnit = units.FirstOrDefault(u => u.IsBaseUnit) ?? units[0];
                 cmbMainUnit.SelectedValue = baseUnit.UnitId;   // رقم الوحدة (متوافق مع وضع الإضافة)
 
-                await _LoadSalePriceAsync(baseUnit.Id);        // رقم وحدة الصنف لتحميل السعر
+                await _LoadSalePriceAsync(baseUnit);           // سعر البيع + التكلفة + الخصم المسموح به
             }
             else
             {
+                _productUnits = Array.Empty<ProductUnitDto>();
                 cmbMainUnit.DataSource = null;
                 cmbMainUnit.Enabled = false;
                 numMainUnitSalePrice.Value = 0;
@@ -715,28 +762,47 @@ public partial class frmProductMaster : Form
         }
     }
 
-    private async Task _LoadSalePriceAsync(int productUnitId)
+    /// <summary>
+    /// تحميل أسعار الوحدة الرئيسية للصنف: سعر البيع · سعر التكلفة · الخصم المسموح به.
+    /// سعر التكلفة والخصم المسموح به **ليسا في <see cref="ProductPriceDto"/>** — مصدرهما
+    /// <see cref="ProductUnitDto"/> نفسه (نفس ما تحفظه شاشة الوحدات والأسعار)،
+    /// وسعر البيع يُقرأ من الوحدة ويُستهلك سطر السعر الأحدث (<see cref="ProductPriceDto.Price"/>)
+    /// كبديل عند غياب سعر الوحدة. لا تُكتب سطور الأسعار من هذه الشاشة (العقد لا يملك تعديلها).
+    /// </summary>
+    private async Task _LoadSalePriceAsync(ProductUnitDto unit)
     {
         try
         {
-            var result = await ProductService.GetProductPricesByUnitAsync(productUnitId);
+            // أحدث سطر سعر للوحدة (نفس ترتيب خدمة الأسعار: EffectiveFrom تنازلياً).
+            decimal? rowPrice = null;
+
+            var result = await ProductService.GetProductPricesByUnitAsync(unit.Id);
 
             if (result.IsSuccess && result.Value != null)
             {
-                var price = result.Value
+                rowPrice = result.Value
                     .OrderByDescending(p => p.EffectiveFrom)
+                    .Select(p => (decimal?)p.Price)
                     .FirstOrDefault();
-
-                numMainUnitSalePrice.Value = _Clamp(numMainUnitSalePrice, price?.Price ?? 0m);
+            }
+            else
+            {
+                Log.Error("تعذر تحميل سطور أسعار الوحدة {ProductUnitId}. السبب: {Error}",
+                    unit.Id, result.Error);
+                clsDialogs.Warning("تعذر تحميل سجل أسعار الوحدة الرئيسية؛ تم عرض الأسعار المسجّلة على الوحدة.");
             }
 
-            // TODO: سعر التكلفة والخصم المسموح به غير موجودين في ProductPriceDto.
-            numMainUnitCostPrice.Value = 0;
-            numMainUnitMaxDiscount.Value = 0;
+            // سعر البيع المحفوظ على الوحدة أولاً (هو ما يُحفظ من هذه الشاشة)، ثم سطر السعر الأحدث.
+            decimal salePrice = unit.SalePrice > 0m ? unit.SalePrice : rowPrice ?? 0m;
+
+            numMainUnitSalePrice.Value = _Clamp(numMainUnitSalePrice, salePrice);
+            numMainUnitCostPrice.Value = _Clamp(numMainUnitCostPrice, unit.CostPrice);
+            numMainUnitMaxDiscount.Value = _Clamp(numMainUnitMaxDiscount, unit.MaxDiscountAmount ?? 0m);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ أثناء تحميل سعر الوحدة {ProductUnitId}", productUnitId);
+            Log.Error(ex, "خطأ أثناء تحميل سعر الوحدة {ProductUnitId}", unit.Id);
+            clsDialogs.Error("تعذر تحميل أسعار الوحدة الرئيسية. يرجى إعادة المحاولة.");
         }
     }
 
@@ -752,8 +818,13 @@ public partial class frmProductMaster : Form
         {
             if (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0) return;
 
+            // القيمة المختارة هي رقم الوحدة (UnitId) — تُترجم إلى وحدة الصنف (ProductUnitDto)
+            // لأن سطور الأسعار مرتبطة بـ ProductUnitId لا بـ UnitId.
+            var unit = _productUnits.FirstOrDefault(u => u.UnitId == unitId);
+            if (unit is null) return;
+
             _isBindingMainUnit = true;
-            await _LoadSalePriceAsync(unitId);
+            await _LoadSalePriceAsync(unit);
         }
         catch (Exception ex)
         {
@@ -865,6 +936,7 @@ public partial class frmProductMaster : Form
     {
         _editId = null;
         _mode = EntryMode.Browsing;
+        _productUnits = Array.Empty<ProductUnitDto>();   // لا وحدات محمَّلة في وضع العرض/الإضافة
 
         errorProvider.Clear();
 
@@ -1063,6 +1135,11 @@ public partial class frmProductMaster : Form
                     IsActive: isActive);
 
                 result = await ProductService.UpdateAsync(id, request);
+
+                // إعادة إرسال أسعار الوحدة الرئيسية كما هي معروضة في الشاشة
+                // (سعر البيع · التكلفة · الخصم المسموح به) حتى لا تُصفَّر عند كل حفظ.
+                if (result.IsSuccess)
+                    await _SaveMainUnitPricesAsync(id);
             }
             else
             {

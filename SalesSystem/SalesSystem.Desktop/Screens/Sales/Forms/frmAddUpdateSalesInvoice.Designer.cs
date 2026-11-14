@@ -848,7 +848,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             pnlEntry.Name = "pnlEntry";
             pnlEntry.Size = new Size(1594, 94);
             pnlEntry.TabIndex = 15;
-            pnlEntry.Paint += pnlEntry_Paint;
             // 
             // lblBarcodeLabel
             // 
@@ -1176,7 +1175,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // lblLockIndicator
             // 
-            lblLockIndicator.BackColor = Color.Honeydew;
+            lblLockIndicator.BackColor = Color.FromArgb(235, 245, 235);
             lblLockIndicator.BorderStyle = BorderStyle.FixedSingle;
             lblLockIndicator.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblLockIndicator.ForeColor = Color.DarkGreen;
@@ -1187,7 +1186,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblLockIndicator.TabIndex = 8;
             lblLockIndicator.Text = "✏ قابلة للتعديل";
             lblLockIndicator.TextAlign = ContentAlignment.MiddleCenter;
-            lblLockIndicator.Click += lblLockIndicator_Click;
             // 
             // gbTotals
             // 
@@ -1211,7 +1209,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbTotals.TabIndex = 17;
             gbTotals.TabStop = false;
             gbTotals.Text = "الإجماليات";
-            gbTotals.Enter += gbTotals_Enter;
             // 
             // label1
             // 

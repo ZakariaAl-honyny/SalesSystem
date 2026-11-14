@@ -378,10 +378,13 @@ public partial class frmListSales : Form
             switch (inv.Status)
             {
                 case 3: // ملغي
-                    row.DefaultCellStyle.BackColor = Color.MistyRose;
+                    row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusDangerBack;
                     break;
                 case 1: // مسودة
                     row.DefaultCellStyle.BackColor = GreenThemeHelper.StatusWarningBack;
+                    break;
+                default: // مُرحَّل/سليم — تصفير صريح حتى لا يبقى لون سطر سابق على سطر معاد استخدامه
+                    row.DefaultCellStyle.BackColor = Color.Empty;
                     break;
             }
         }

@@ -1031,9 +1031,9 @@ public partial class frmJournalEntries : Form
                 break;
 
             case StatusCancelled:
-                e.CellStyle.BackColor = Color.MistyRose;
-                e.CellStyle.ForeColor = Color.DarkRed;
-                e.CellStyle.SelectionForeColor = Color.DarkRed;
+                e.CellStyle.BackColor = GreenThemeHelper.StatusDangerBack;
+                e.CellStyle.ForeColor = GreenThemeHelper.StatusDanger;
+                e.CellStyle.SelectionForeColor = GreenThemeHelper.StatusDanger;
                 break;
 
             default:

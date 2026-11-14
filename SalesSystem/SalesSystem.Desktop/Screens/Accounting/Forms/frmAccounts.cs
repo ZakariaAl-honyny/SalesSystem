@@ -524,11 +524,16 @@ public partial class frmAccounts : Form
         if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
         if (dgvAccounts.Rows[e.RowIndex].DataBoundItem is not DataRowView row) return;
 
+        // تصفير صريح قبل الحكم: الخلية قد تكون معاد استخدامها بعد إعادة الربط فيبقى لون حالة سابق
+        e.CellStyle.BackColor = Color.Empty;
+        e.CellStyle.ForeColor = Color.Empty;
+        e.CellStyle.SelectionForeColor = Color.Empty;
+
         if (row["IsActive"] is bool isActive && !isActive)
         {
-            e.CellStyle.BackColor = Color.MistyRose;
-            e.CellStyle.ForeColor = Color.DarkRed;
-            e.CellStyle.SelectionForeColor = Color.DarkRed;
+            e.CellStyle.BackColor = GreenThemeHelper.StatusDangerBack;
+            e.CellStyle.ForeColor = GreenThemeHelper.StatusDanger;
+            e.CellStyle.SelectionForeColor = GreenThemeHelper.StatusDanger;
         }
     }
 

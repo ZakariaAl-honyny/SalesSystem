@@ -319,26 +319,17 @@ public partial class frmListInventoryTransactions : Form
         if (_isInitializing)
             return;
 
-        var conditions = new List<string>();
-
-        // 1) النطاق الزمني — نطاق معكوس = نُبادل الطرفين، ومقارنة نصية بصيغة yyyy-MM-dd (بلا اعتماد على ثقافة الجهاز).
-        DateTime from = dtpFrom.Value.Date;
-        DateTime to = dtpTo.Value.Date;
-
-        if (from > to)
-            (from, to) = (to, from);
-
-        string fromKey = from.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        string toKey = to.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-        conditions.Add($"CreatedDate >= '{fromKey}'");
-        conditions.Add($"CreatedDate <= '{toKey}'");
+        // 1) النطاق الزمني — نطاق معكوس = يُبادَل طرفاه داخل الأداة، وصيغة yyyy-MM-dd ثابتة (بلا ثقافة الجهاز).
+        var conditions = new List<string>
+        {
+            RowFilterHelper.DateRangeText("CreatedDate", dtpFrom.Value, dtpTo.Value),
+        };
 
         // 2) نوع الحركة — SelectedIndex 1..12 = قيمة MovementType الرقمية.
         int movementType = cbMovementType.SelectedIndex;
 
         if (movementType > 0)
-            conditions.Add($"MovementType = {movementType}");
+            conditions.Add(RowFilterHelper.EqualsNumber("MovementType", movementType));
 
         // 3) الوارد/الصادر — حسب إشارة الكمية.
         if (chkOnlyIn.Checked)
@@ -348,23 +339,16 @@ public partial class frmListInventoryTransactions : Form
             conditions.Add("Quantity < 0");
 
         // 4) نص التصفية على عمود معروف فقط (RULE-N60).
-        string text = txtFilterValue.Text.Trim();
-
-        if (text.Length > 0)
+        conditions.Add(RowFilterHelper.Text(txtFilterValue.Text.Trim(), cbFilterBy.SelectedIndex switch
         {
-            string column = cbFilterBy.SelectedIndex switch
-            {
-                1 => "WarehouseName",
-                2 => "MovementTypeDisplay",
-                3 => "ReferenceNo",
-                4 => "Notes",
-                _ => "Products",
-            };
+            1 => "WarehouseName",
+            2 => "MovementTypeDisplay",
+            3 => "ReferenceNo",
+            4 => "Notes",
+            _ => "Products",
+        }));
 
-            conditions.Add(RowFilterHelper.Like(column, text));
-        }
-
-        _transactionsView.RowFilter = conditions.Count == 0 ? string.Empty : string.Join(" AND ", conditions);
+        _transactionsView.RowFilter = RowFilterHelper.Build(conditions);
 
         _UpdateSummary();
         _UpdateClearFiltersState();   // RULE-N148: حالة زر «مسح التصفية» بعد كل تطبيق

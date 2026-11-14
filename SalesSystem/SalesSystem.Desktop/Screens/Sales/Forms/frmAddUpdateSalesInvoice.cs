@@ -207,15 +207,6 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtNotes.KeyDown += FieldEnter_KeyDown;
         dtpDate.KeyDown += FieldEnter_KeyDown;
 
-        // Unified focus indicator for all input controls
-        ThemeHelper.WireFocusIndicator(
-            txtBarcode, cmbUnit, txtQuantity, txtUnitPrice, txtLineDiscount, dtpLineExpiry,  // Entry panel
-            txtPaid, txtExpenses, txtNotes,                     // Payment / notes
-            cmbCustomer, cmbWarehouse, cmbCashBox,              // Header combos
-            cmbAccount, cmbDiscountType,                        // Footer combos
-            numInvoiceDiscount, dtpDate                                        // Numeric / date
-        );
-
         // ── المتاح في المخزون (لكل وحدة) — عند تغيير الوحدة أو المستودع ──
         cmbUnit.SelectedIndexChanged += cmbUnit_SelectedIndexChanged;
         cmbWarehouse.SelectedIndexChanged += cmbWarehouse_SelectedIndexChanged_RefreshAvailable;
@@ -610,20 +601,10 @@ public partial class frmAddUpdateSalesInvoice : Form
             isPercentage ? (_invoice.DiscountRate ?? 0m) : _invoice.DiscountAmount,
             numInvoiceDiscount.Minimum, numInvoiceDiscount.Maximum);
 
-        // Restore payment amounts — split PaidAmount into cash vs bank
-        decimal totalPaid = _invoice.PaidAmount;
-        if (_invoice.PaymentType == 3) // Mixed — keep paid amount as-is, bank is separate
-        {
-            txtPaid.Text = clsFormat.Money(totalPaid);
-        }
-        else if (_invoice.PaymentType == 2) // Credit — paid should be 0
-        {
-            txtPaid.Text = "0";
-        }
-        else // Cash
-        {
-            txtPaid.Text = clsFormat.Money(totalPaid);
-        }
+        // المبلغ المدفوع كما هو محفوظ — لكل أنواع الدفع (نقدي · آجل · مختلط).
+        // لا يُصفَّر للآجل: الفاتورة الآجلة قد تكون مدفوعة جزئياً، وتصفيرها يفقد المبلغ
+        // ويكتب صفراً عند الحفظ التالي.
+        txtPaid.Text = clsFormat.Money(_invoice.PaidAmount);
 
         txtExpenses.Text = clsFormat.Money(_invoice.OtherCharges);
         txtNotes.Text = _invoice.Notes;
@@ -1779,14 +1760,25 @@ public partial class frmAddUpdateSalesInvoice : Form
                                ?? lineUnits.FirstOrDefault(u => u.IsBaseUnit)
                                ?? lineUnits.FirstOrDefault();
 
+                // ── قراءة الكمية والسعر من الخلية عبر بيت القراءة الواحد (RULE-N169) ──
+                // لا Convert.ToDecimal على خلية محرَّرة حيّاً: الفراغ/الشرطة/الفاصل العربي كان يرمي
+                // FormatException فيلتقطه catch ويُفرَّغ السطر (فقدان بيانات صامت).
+                object? qtyCellValue = dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value;
+                decimal parsedQty = TryParseCellDecimal(qtyCellValue);
+                // الخلية غير مُدخلة (null · DBNull · فراغ) ⇒ الافتراضي 1؛ أما الصفر الحقيقي المكتوب فيبقى صفراً
+                if ((qtyCellValue is null or DBNull) ||
+                    (qtyCellValue is string qtyText && string.IsNullOrWhiteSpace(qtyText)))
+                    parsedQty = 1m;
+                decimal parsedUnitPrice = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value);
+
                 var line = new InvoiceLineItem
                 {
                     ProductId = product.Id,
                     ProductCode = product.Barcode ?? "",
                     Barcode = product.Barcode ?? "",
                     ProductName = product.Name,
-                    Quantity = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value ?? 1m),
-                    UnitPrice = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value ?? 0m),
+                    Quantity = parsedQty,
+                    UnitPrice = parsedUnitPrice,
                     UnitName = matchedUnit?.UnitName ?? lineUnitName,
                     ProductUnitId = matchedUnit?.Id ?? 0,
                     ConversionFactor = matchedUnit != null && matchedUnit.ConversionFactor > 0m ? matchedUnit.ConversionFactor : 1m,
@@ -1825,7 +1817,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             // 2) الكمية + التحقق من المخزون بالوحدات الأساسية
             decimal previousQty = existingLine.Quantity;
             if (dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value != null)
-                existingLine.Quantity = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value);
+                existingLine.Quantity = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colQuantity.Index].Value);
 
             // ── Early stock validation on direct quantity edit ──
             if (existingLine.Quantity != previousQty)
@@ -1843,7 +1835,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             // 3) السعر
             if (dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value != null)
-                existingLine.UnitPrice = Convert.ToDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value);
+                existingLine.UnitPrice = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value);
 
             // 4) تقييد الخصم داخل (الكمية × السعر) بعد أي تغيير
             decimal maxDiscount = Math.Max(0m, existingLine.Quantity * existingLine.UnitPrice);
@@ -2272,7 +2264,14 @@ public partial class frmAddUpdateSalesInvoice : Form
         try
         {
             Cursor = Cursors.WaitCursor;
-            await _salesApi.CancelAsync(_invoice.Id, default);
+            var cancelResult = await _salesApi.CancelAsync(_invoice.Id, default);
+            if (!cancelResult.IsSuccess)
+            {
+                // لا نجاح وهمي — الفاتورة لم تُلغَ فعلاً، تبقى الشاشة مفتوحة برسالة الخدمة العربية
+                clsDialogs.Error(cancelResult.Error ?? "تعذر إلغاء الفاتورة.");
+                return;
+            }
+
             clsDialogs.Success("تم إلغاء الفاتورة");
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -2966,7 +2965,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         // ── مؤشر القفل (القفل تلقائي — لا زر) ──
         lblLockIndicator.Text = locked ? "🔒 مقفلة" : "✏ قابلة للتعديل";
-        lblLockIndicator.BackColor = locked ? Color.MistyRose : Color.Honeydew;
+        lblLockIndicator.BackColor = locked ? GreenThemeHelper.StatusDangerBack : GreenThemeHelper.StatusSuccessBack;
         lblLockIndicator.ForeColor = locked ? Color.Firebrick : Color.DarkGreen;
 
         btnSaveDraft.Visible = editable;
@@ -3197,26 +3196,6 @@ public partial class frmAddUpdateSalesInvoice : Form
         // أُزيلت وحدة الضرائب (V2) — يبقى اختيار الضريبة معطلاً دائماً.
         //cmbTax.Enabled = false;
         CalculateTotals();
-    }
-
-    private void lblDueVal_Click(object sender, EventArgs e)
-    {
-
-    }
-
-    private void pnlEntry_Paint(object sender, PaintEventArgs e)
-    {
-
-    }
-
-    private void lblLockIndicator_Click(object sender, EventArgs e)
-    {
-
-    }
-
-    private void gbTotals_Enter(object sender, EventArgs e)
-    {
-
     }
 }
 

@@ -238,41 +238,27 @@ public partial class frmListInventoryAdjustments : Form
         // 1) الحالة — 1 مسودة · 2 مرحّل · 3 ملغى (القيم الحقيقية لهذا الكيان).
         byte? status = _GetStatusFilterValue();
         if (status.HasValue)
-            parts.Add($"Status = {status.Value}");
+            parts.Add(RowFilterHelper.EqualsNumber("Status", status.Value));
 
         // 2) «الملغاة فقط» — يحتاج عمود الحالة الموجود أصلاً.
         if (chkOnlyCancelled.Checked)
             parts.Add("Status = 3");
 
-        // 3) النطاق الزمني على تاريخ الإنشاء (نطاق معكوس = نُبادل الطرفين).
-        DateTime from = dtpFrom.Value.Date;
-        DateTime to = dtpTo.Value.Date;
-        if (from > to)
-            (from, to) = (to, from);
+        // 3) النطاق الزمني على تاريخ الإنشاء (نطاق معكوس = يُبادَل طرفاه داخل الأداة).
+        parts.Add(RowFilterHelper.DateRangeText("CreatedAt", dtpFrom.Value, dtpTo.Value, exclusiveEnd: true));
 
-        parts.Add($"CreatedAt >= '{from:yyyy-MM-dd}' AND CreatedAt < '{to.AddDays(1):yyyy-MM-dd}'");
-
-        // 4) نص التصفية على الحقل المختار.
-        string text = txtFilterValue.Text.Trim();
-        if (text.Length > 0)
+        // 4) نص التصفية على الحقل المختار (RULE-N60: القيمة تُهرَّب وأسماء الأعمدة ثابتة).
+        parts.Add(RowFilterHelper.Text(txtFilterValue.Text.Trim(), cbFilterBy.SelectedIndex switch
         {
-            // RULE-N60: القيمة تُهرَّب في RowFilterHelper، وأسماء الأعمدة ثابتة داخل الشاشة.
-            string adjustmentNo = RowFilterHelper.Like("AdjustmentNo", text);
-            string warehouse = RowFilterHelper.Like("WarehouseName", text);
-            string reason = RowFilterHelper.Like("Reason", text);
-
-            parts.Add(cbFilterBy.SelectedIndex switch
-            {
-                1 => adjustmentNo,
-                2 => warehouse,
-                3 => reason,
-                _ => $"({adjustmentNo} OR {warehouse} OR {reason})",
-            });
-        }
+            1 => new[] { "AdjustmentNo" },
+            2 => new[] { "WarehouseName" },
+            3 => new[] { "Reason" },
+            _ => new[] { "AdjustmentNo", "WarehouseName", "Reason" },
+        }));
 
         try
         {
-            _adjustmentsView.RowFilter = string.Join(" AND ", parts);
+            _adjustmentsView.RowFilter = RowFilterHelper.Build(parts);
         }
         catch (Exception ex)
         {

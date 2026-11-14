@@ -152,7 +152,7 @@ public partial class frmPurchaseItem : Form
     private void cmbUnit_SelectedIndexChanged(object? sender, EventArgs e)
     {
         if (cmbUnit.SelectedIndex >= 0)
-            lblConversionFactor.Text = MockUnits[cmbUnit.SelectedIndex].ConversionFactor.ToString("0.##");
+            lblConversionFactor.Text = clsFormat.Ratio(MockUnits[cmbUnit.SelectedIndex].ConversionFactor);
     }
 
     private void chkExpiry_CheckedChanged(object? sender, EventArgs e)

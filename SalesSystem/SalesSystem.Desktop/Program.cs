@@ -191,6 +191,16 @@ static class Program
                     services.AddSingleton<BizInterfaces.ILocalImageStorageService, LocalImageStorageService>();
                     services.AddScoped<BizInterfaces.ILogService, LogService>();
                     services.AddScoped<BizInterfaces.IReportExportService, ReportExportService>();
+                    // مستودع التقارير وخدمات الطباعة (تنفيذها في DataAccess) — كانت غير مسجَّلة، فيفشل
+                    // الوضع الحقيقي عند حلّ IReportService و SalesService برسالة «Unable to resolve service» (RULE-N10).
+                    services.AddScoped<SalesSystem.Business.Interfaces.Repositories.IReportRepository,
+                                       SalesSystem.DataAccess.Repositories.ReportRepository>();
+                    services.AddScoped<SalesSystem.Business.Printing.IPrintService,
+                                       SalesSystem.DataAccess.Printing.PrintService>();
+                    // InvoicePrintDtoBuilder تبعية PrintDataService (بلا DbContext ⇒ Singleton).
+                    services.AddSingleton<SalesSystem.Business.Printing.InvoicePrintDtoBuilder>();
+                    services.AddScoped<SalesSystem.Business.Printing.Contracts.IPrintDataService,
+                                       SalesSystem.DataAccess.Printing.PrintDataService>();
 
                     // Accounting Services
                     services.AddScoped<BizInterfaces.IAccountingIntegrationService, AccountingIntegrationService>();
@@ -376,7 +386,6 @@ static class Program
                     services.AddTransient<frmStocktakingPrintCard>();
                     services.AddTransient<frmInventoryFifo>();
                     services.AddTransient<frmInventoryBarcode>();
-                    services.AddTransient<frmInventoryAddProduct>();
                     // المشتريات — حوارات سطور/خصم/عملة/تفاصيل وطباعة الفاتورة
                     services.AddTransient<frmPurchaseInvoicePrint>();
                     services.AddTransient<frmPurchaseItem>();
@@ -395,6 +404,17 @@ static class Program
                 .Build();
 
             Program.ServiceProvider = host.Services;
+
+            // ترخيص QuestPDF (Community) — يُهيَّأ مرة واحدة قبل أي توليد PDF.
+            // أي فشل يُسجَّل فقط ولا يمنع الإقلاع.
+            try
+            {
+                SalesSystem.DataAccess.Printing.PrintingBootstrapper.Initialize();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "QuestPDF printing bootstrap failed; printing may be unavailable");
+            }
 
             // واقعي فقط: تطبيق الهجرات وزرع البيانات الأساسية قبل شاشة الدخول.
             // فشل التهيئة = توقّف مُغلق (fail-closed): لا شاشة دخول على قاعدة بيانات غير مهيّأة (RULE-N166).

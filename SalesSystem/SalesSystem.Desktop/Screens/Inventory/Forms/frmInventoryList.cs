@@ -135,8 +135,8 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 new { Name = "MovementDate",   Header = "التاريخ",        Fill = 12, Min = 150, Format = (string?)clsFormat.Get(clsFormat.DateLongPattern) },
                 new { Name = "WarehouseName",  Header = "المستودع",       Fill = 12, Min = 130, Format = (string?)null },
                 new { Name = "MovementType",   Header = "نوع الحركة",     Fill = 12, Min = 120, Format = (string?)null },
-                new { Name = "QuantityChange", Header = "الكمية",         Fill = 10, Min = 100, Format = (string?)"N3" },
-                new { Name = "QuantityAfter",  Header = "الرصيد",         Fill = 10, Min = 100, Format = (string?)"N3" },
+                new { Name = "QuantityChange", Header = "الكمية",         Fill = 10, Min = 100, Format = (string?)null },
+                new { Name = "QuantityAfter",  Header = "الرصيد",         Fill = 10, Min = 100, Format = (string?)null },
                 new { Name = "ReferenceNo",    Header = "رقم المرجع",     Fill = 10, Min = 120, Format = (string?)null },
             };
 
@@ -157,6 +157,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
                 dgvMovements.Columns.Add(column);
             }
+
+            // RULE-N179 — الكميات من البيت الواحد (RULE-N169): 3 منازل حسب إعدادات التنسيق الحيّة.
+            GridFormatHelper.ApplyColumns(dgvMovements, GridFormatKind.Quantity, "QuantityChange", "QuantityAfter");
         }
 
         // ── Data Loading ───────────────────────────────────────────────────────────
@@ -276,22 +279,17 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         {
             if (_isInitializing || IsDisposed || _movementsView.Table == null) return;
 
-            var parts = new List<string>();
-
-            // 1) نص التصفية على الحقل المختار (RULE-N60: العمود من ثوابت الكود).
-            string search = txtFilterValue.Text.Trim();
-            if (search.Length > 0)
+            var parts = new List<string>
             {
-                parts.Add(cbFilterBy.SelectedIndex switch
+                // 1) نص التصفية على الحقل المختار (RULE-N60: العمود من ثوابت الكود).
+                RowFilterHelper.Text(txtFilterValue.Text.Trim(), cbFilterBy.SelectedIndex switch
                 {
-                    1 => RowFilterHelper.Like("WarehouseName", search),
-                    2 => RowFilterHelper.Like("ReferenceNo", search),
-                    3 => RowFilterHelper.Like("MovementType", search),
-                    _ => "(" + RowFilterHelper.Like("WarehouseName", search)
-                              + " OR " + RowFilterHelper.Like("ReferenceNo", search)
-                              + " OR " + RowFilterHelper.Like("MovementType", search) + ")",
-                });
-            }
+                    1 => new[] { "WarehouseName" },
+                    2 => new[] { "ReferenceNo" },
+                    3 => new[] { "MovementType" },
+                    _ => new[] { "WarehouseName", "ReferenceNo", "MovementType" },
+                }),
+            };
 
             // 2) اتجاه الحركة — 0 = الكل، 1 = وارد، 2 = صادر.
             if (cbStatus.SelectedIndex == 1)
@@ -300,13 +298,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 parts.Add("QuantityChange < 0");
 
             // 3) النطاق الزمني — النطاق المعكوس يُبادَل طرفاه بدل إسقاط النتائج.
-            DateTime from = dtpFrom.Value.Date;
-            DateTime to = dtpTo.Value.Date;
-            if (from > to)
-                (from, to) = (to, from);
-
-            parts.Add($"MovementDate >= #{from:yyyy-MM-dd}#");
-            parts.Add($"MovementDate <= #{to:yyyy-MM-dd}#");
+            parts.Add(RowFilterHelper.DateRange("MovementDate", dtpFrom.Value, dtpTo.Value));
 
             // 4) الحركات التي انتهى الرصيد بعدها إلى صفر أو أقل.
             if (chkOnlyOutOfStock.Checked)
@@ -315,7 +307,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             // إن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
             try
             {
-                _movementsView.RowFilter = parts.Count > 0 ? string.Join(" AND ", parts) : string.Empty;
+                _movementsView.RowFilter = RowFilterHelper.Build(parts);
             }
             catch (Exception ex)
             {

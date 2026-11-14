@@ -91,14 +91,30 @@ StocktakingPrintAdjustment · StocktakingPrintCard · SupplierSelection · Suppl
 
 ---
 
-## 6) ترتيب العمل المقترح
+## 6) قائمة المهام (Task board — 2026-11-15)
 
-1. **P-01** (حفظ وهمي للتحويل والجرد) — أخطر بند، داخل المرحلة أ (Mock) فقط.
-2. **P-02 / P-03** (أسعار الصنف · صندوق المستخدم وإعادة تعيين كلمة المرور).
-3. **P-09** قرار مالك: حذف frmInventoryAddProduct أو توصيلها بمالك.
-4. **P-10 / P-11 / W-01 / W-02** — تنظيف بيت واحد (S/M).
-5. **P-12** — تصحيح السجل + إعادة تصديق mock-qa.
-6. تسليم المرحلة أ ← موافقة مكتوبة ← المرحلة ب ← **P-04…P-08**.
+| # | المهمة | المرجع | الحجم | المالك | الموجة | الحالة |
+|---|---|---|---|---|---|---|
+| T-01 | تسجيل `IReportRepository` · `IPrintService` · `IPrintDataService` + استدعاء `PrintingBootstrapper.Initialize()` | P-13 | S | `implement-agent` | W1 | 🔄 قيد التنفيذ |
+| T-02 | إغلاق حقول `DirectReportService` + `DirectFinancialReportService` | P-04 · P-05 | M | `backend-architect` | W1 | 🔄 قيد التنفيذ |
+| T-03 | إغلاق حقول `DirectSalesReportService` + `DirectCategoryService` | P-06 · P-07 | M | `backend-architect` | W1 | 🔄 قيد التنفيذ |
+| T-04 | أسعار الصنف إلى `ProductPriceDto` + صندوق المستخدم وإعادة تعيين كلمة المرور | P-02 · P-03 | M | `ui-agent` | W1 | 🔄 قيد التنفيذ |
+| T-05 | `DirectSettingsService:82` (مفتاح إعداد لا يُقرأ) | P-08 | S | `fast-agent` | W2 | ⬜ |
+| T-06 | `N2`/`N3` حرفية → `GridFormatHelper` في 5 شاشات مخزون | P-10 | S | `ui-agent` | W2 | ⬜ |
+| T-07 | ألوان الحالة الحرفية → ثوابت الثيم في 4 شاشات | P-15 · W-01 | S | `ui-agent` | W2 | ⬜ |
+| T-08 | `ToString("0.##")` في مسند البحث → `clsFormat` | W-02 | S | `fast-agent` | W2 | ⬜ |
+| T-09 | باني التصفية المكرّر 4 مرات → بيت واحد | P-11 | M | `ui-agent` | W3 | ⬜ |
+| T-10 | شاشة `frmInventoryAddProduct` اليتيمة (حذف أو توصيل) | P-09 | S | `ui-agent` | W3 | ⬜ قرار مالك |
+| T-11 | تصحيح صف Inventory في `MOCK-COVERAGE` + إعادة تصديق `mock-qa` | P-12 | S | `mock-qa` + Orchestrator | W3 | ⬜ |
+| T-12 | `FocusColor` المكرّر في 12 شاشة → استهلاك مباشر | W-03 | S | `fast-agent` | W3 | ⬜ (اختياري) |
+| T-13 | اعتماد تغيير «fail-closed» في تهيئة قاعدة البيانات | P-14 | — | المالك | — | ⬜ قرار مالك |
+
+**قاعدة:** كل مهمة تنتهي ببناء أخضر (0 Errors) + مراجعة واحدة + تحديث هذا السجل. المهام التي تمسّ `Services/Direct/**` محكومة بسجل الموافقات في `docs/MOCK-COVERAGE.md` §7 (فيه الآن موافقتان: Settings · Reports/Categories/Settings-service).
+
+**حالة التنفيذ (2026-11-15، بعد موجة «fix all»):** T-01 ✅ · T-04 ✅ · T-05 ⏸ (فجوة قدرة: لا نظير لـ`RefreshCache` في BLL) · T-06 ✅ · T-07 ✅ · T-08 ✅ · T-09 ✅ · T-10 ✅ (حُذفت الشاشة الميتة + سطر DI) · T-11 ✅ (`mock-qa`: العقدان `مؤهل للمراجعة`، وصُححت صفوف السجل) · T-13 ✅ (لون حالة في مصمّم) · T-12 ⏸ (ليس عيباً — متروك).
+**T-02 / T-03 — إعادة تصنيف:** المسوحات أثبتت أن `DirectReportService`/`DirectFinancialReportService`/`DirectSalesReportService`/`DirectCategoryService` **تعكس حدود BLL/DTO** (حقول غير موجودة · `GetWorkingCapital`/`GetAccountBalances`/`GetProductProfitability`/`GetProfitByCustomer` غير معلنة في BLL · `CreateProductCategoryRequest` يقبل `Name` فقط). أُغلقت كـ«مُصححة بالمرجع»، وتحتاج **عقداً/قدرة BLL جديدة** = طلب منفصل، لا «إصلاح ربط».
+**فجوات مسجَّلة بعد الموجة:** P-16 — `AGENTS.md` ما زال يذكر `frmInventoryAddProduct` في §2.20/§9 (16 نموذجاً ← 15) · P-17 — `frmListInventoryBatches` يكرّر باني التصفية (تكرار رابع) · P-18 — `DirectSettingsService.RefreshCache` عضو عقد بلا قدرة BLL.
+
 
 ---
 

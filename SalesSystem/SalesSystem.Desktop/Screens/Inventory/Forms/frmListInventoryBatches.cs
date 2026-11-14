@@ -140,15 +140,13 @@ public partial class frmListInventoryBatches : Form
 
     // ── Grid Setup ─────────────────────────────────────────────────────────────────
 
-    private DataGridViewColumn _MakeColumn(string name, string header, int fill, int min, string? format = null)
+    private DataGridViewColumn _MakeColumn(string name, string header, int fill, int min)
     {
-        var col = new DataGridViewTextBoxColumn
+        return new DataGridViewTextBoxColumn
         {
             Name = name, HeaderText = header, DataPropertyName = name,
             MinimumWidth = min, FillWeight = fill, ReadOnly = true,
         };
-        if (format is not null) col.DefaultCellStyle.Format = format;
-        return col;
     }
 
     private void _SetupGridColumns()
@@ -159,12 +157,16 @@ public partial class frmListInventoryBatches : Form
         dgvBatches.Columns.Add(_MakeColumn("ProductName", "المنتج", 18, 180));
         dgvBatches.Columns.Add(_MakeColumn("BatchNo", "رقم الدفعة", 10, 120));
         dgvBatches.Columns.Add(_MakeColumn("WarehouseName", "المستودع", 10, 120));
-        dgvBatches.Columns.Add(_MakeColumn("QuantityReceived", "الكمية المستلمة", 10, 100, "N3"));
-        dgvBatches.Columns.Add(_MakeColumn("QuantityRemaining", "الكمية المتبقية", 10, 100, "N3"));
-        dgvBatches.Columns.Add(_MakeColumn("UnitCost", "تكلفة الوحدة", 8, 90, "N2"));
-        dgvBatches.Columns.Add(_MakeColumn("TotalValue", "القيمة الإجمالية", 10, 100, "N2"));
+        dgvBatches.Columns.Add(_MakeColumn("QuantityReceived", "الكمية المستلمة", 10, 100));
+        dgvBatches.Columns.Add(_MakeColumn("QuantityRemaining", "الكمية المتبقية", 10, 100));
+        dgvBatches.Columns.Add(_MakeColumn("UnitCost", "تكلفة الوحدة", 8, 90));
+        dgvBatches.Columns.Add(_MakeColumn("TotalValue", "القيمة الإجمالية", 10, 100));
         dgvBatches.Columns.Add(_MakeColumn("ExpiryDate", "تاريخ الانتهاء", 8, 90));
         dgvBatches.Columns.Add(_MakeColumn("ExpiryStatus", "حالة الصلاحية", 8, 80));
+
+        // RULE-N179 — تنسيق الأعمدة من البيت الواحد (RULE-N169): كمية 3 / مبلغ 2 حسب إعدادات التنسيق الحيّة.
+        GridFormatHelper.ApplyColumns(dgvBatches, GridFormatKind.Quantity, "QuantityReceived", "QuantityRemaining");
+        GridFormatHelper.ApplyColumns(dgvBatches, GridFormatKind.Money, "UnitCost", "TotalValue");
     }
 
     // ── Data Loading ───────────────────────────────────────────────────────────────

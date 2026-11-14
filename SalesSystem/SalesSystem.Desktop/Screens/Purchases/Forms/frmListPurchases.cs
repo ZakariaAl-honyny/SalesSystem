@@ -277,9 +277,10 @@ public partial class frmListPurchases : Form
                 FilterNotes => query.Where(i => (i.Notes ?? string.Empty)
                     .Contains(text, StringComparison.OrdinalIgnoreCase)),
 
+                // المطابقة على نص العرض نفسه (clsFormat.Money) — لا نمط خاص داخل الشاشة (RULE-N169)
                 FilterAmount => query.Where(i =>
                     clsFormat.Money(i.NetTotal).Contains(text, StringComparison.Ordinal) ||
-                    i.NetTotal.ToString("0.##").StartsWith(text, StringComparison.Ordinal)),
+                    (clsFormat.TryParseMoney(text, out decimal amount) && i.NetTotal == amount)),
 
                 _ => query
             };
