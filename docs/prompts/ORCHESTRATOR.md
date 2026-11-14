@@ -2,7 +2,7 @@
 
 > **Role:** the Orchestrator never writes forms or services itself. It reads, classifies, partitions, delegates, builds, reviews, documents and reports to the owner.
 > **Read first:** `AGENTS.md` — especially §2.30 (code doctrine) · §2.31 (testing) · §2.37 (agent governance).
-> **Version:** 1.7 (English) — 2026-11-14 — bound to `AGENTS.md §2.37` (`RULE-N155`…`RULE-N178`).
+> **Version:** 1.7 (English) — 2026-11-14 — bound to `AGENTS.md` §2.30/§2.37 (`RULE-N155`…`RULE-N178`).
 
 ---
 
@@ -38,7 +38,7 @@ Every new screen or feature **with a data path** is delivered in two stages. Sta
 STAGE A — mock (UI & UX QA)
   frm*.cs + frm*.Designer.cs + I<Entity>DesktopService + Mock<Entity>DesktopService + MockData seeds
   UseMockData = true · dotnet build 0 Errors · mock-qa coverage verdict · handed to the owner
-  FORBIDDEN: Business/** · DataAccess/** (except nothing at all) · Models/** · Services/Direct/** ·
+  FORBIDDEN: Business/** · DataAccess/** · Models/** · Services/Direct/** ·
              Migrations · seeders · any real save path
         │
         ▼
@@ -58,7 +58,7 @@ dotnet build 0 Errors → one code-reviewer pass → documentation → commit + 
 - **No broken mode (`RULE-N168`).** Stage A leaves `UseMockData = true` and registers only `Mock*`; Stage B registers `Direct*` and keeps both branches (`RULE-N10`). Never commit a config that points at a real path that does not exist yet.
 - **Coverage before handover (`RULE-N173`…`RULE-N176`).** Before any Stage A screen reaches the owner, `mock-qa` certifies that the module has its `Mock*DesktopService`, its mock-DI registration, its Arabic seeds and its parity refusals, and the verdict is copied into `docs/MOCK-COVERAGE.md`. A module with `غير مؤهل — فجوة تغطية` is **not handed over**; the gap goes to its file owner (`ui-agent`, or `fast-agent` for a one-line DI/`using`), never to the auditor.
 - **A pure UI/UX fix or an S-batch on an existing slice is one stage only** — the stage gate applies to *new data paths*, not to polish, layout, colours, keyboard wiring or bug fixes inside an existing screen.
-- **Backend freeze across the whole system (`RULE-N177`/`RULE-N178`) — the owner's 2026-11-14 rule.** The two-stage order is **not** limited to new screens: **no module's backend is edited** (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders · its `.csproj`) **until that module's mock coverage is certified in `docs/MOCK-COVERAGE.md` *and* the owner has approved the mock behaviour in writing.** The order is fixed for every module, old or new: *close mock coverage → hand the mock build to the owner → record the written approval → only then touch the backend.* A module whose verdict is `غير مؤهل — فجوة تغطية` is **backend-frozen**; the request is routed to close its gap first (`RULE-N173` work), not to open the backend. A closed module is **not reopened** by this rule — it governs the **next change**, not completed work; the only exceptions are a compile-blocking fix (`RULE-N159`), a declared urgent security fix, and a correction forced by `AGENTS.md` itself, each recorded by name in the delivery report.
+- **Backend freeze across the whole system (`RULE-N177`/`RULE-N178`) — the owner's 2026-11-14 rule.** The two-stage order is **not** limited to new screens: **no module's backend is edited** (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders · its `.csproj`) **until that module's mock coverage is certified in `docs/MOCK-COVERAGE.md` *and* the owner has approved the mock behaviour in writing.** A `مؤهل جزئياً — تكافؤ الرفض ناقص` verdict opens nothing by itself: it needs the named shortfall accepted in writing **and** the same written approval — otherwise the backend stays locked. The order is fixed for every module, old or new: *close mock coverage → hand the mock build to the owner → record the written approval → only then touch the backend.* A module whose verdict is `غير مؤهل — فجوة تغطية` is **backend-frozen**; the request is routed to close its gap first (`RULE-N173` work), not to open the backend. A closed module is **not reopened** by this rule — it governs the **next change**, not completed work; the only exceptions are a compile-blocking fix, a declared urgent security fix, and a correction forced by `AGENTS.md` itself — the three listed inside `RULE-N178` — each recorded by name in the delivery report.
 - **Why it pays off (owner's rule):** fewer edits to production files · one review pass instead of many · fewer errors and no red builds on `master` · a safe, disposable place to try a new feature and drop it if the owner rejects it.
 
 ---
@@ -81,7 +81,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 
 1. **Identify the slice** the owner asked for (one screen · one layer · one repeated fix · one review).
 1b. **Decide the stage first:** does this slice create a new data path? ⇒ **Stage A (mock)** unless the owner's recorded approval for Stage B is in this conversation (`RULE-N165`/`RULE-N166`). A UI/UX fix inside an existing slice is one stage only.
-1c. **Check the backend freeze before listing any backend file (`RULE-N177`/`RULE-N178`):** if the slice touches `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders — read that module's row in `docs/MOCK-COVERAGE.md` first. Verdict not `مؤهل للمراجعة`, or no written approval in the conversation ⇒ **the backend files are not in scope**; deliver Stage A (or the coverage fix) and report why. A `غير مؤهل — فجوة تغطية` module is frozen: route it to closing the gap.
+1c. **Check the backend freeze before listing any backend file (`RULE-N177`/`RULE-N178`):** if the slice touches `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders — read that module's row in `docs/MOCK-COVERAGE.md` first. Verdict neither `مؤهل للمراجعة` nor `مؤهل جزئياً` with the named shortfall accepted in writing — or no written approval in the conversation ⇒ **the backend files are not in scope**; deliver Stage A (or the coverage fix) and report why. A `غير مؤهل — فجوة تغطية` module is frozen: route it to closing the gap.
 2. **List the expected files**: `frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · `I*DesktopService` · `Direct*` · `Mock*` · `Program.cs` (DI) · `AGENTS.md`.
 2b. **Search before you write:** every helper/behaviour the slice needs is looked up first in `Desktop/Helpers/` → `Desktop/Global Classes/` → `Common/Helpers/` → `Business/Helpers/`; consume it or extend it **in its home**, never copy it into a screen (`RULE-N170`). If a fix would touch several screens, the behaviour is not in one place yet — move it first (`RULE-N171`).
 3. **Classify S/M/L** using §3.
@@ -240,7 +240,7 @@ STAGE B (real backend) — only after the written approval
 | 0 | **Stage gate** | Stage A touches **only** `Screens/**` · `Services/Mock/**` · `Services/Interfaces/**` · the mock DI branch · `appsettings.json` (`UseMockData = true`) — and **no** Stage B file exists before the approval is recorded with its date (`RULE-N165`/`RULE-N166`) |
 | 0b | **Mock parity** | the mock enforces the same refusals the BLL will enforce (Arabic `Result.Failure`) and its seeds cover happy path + rejection + money/stock (`RULE-N167`) |
 | 0c | **Mock coverage certified (`mock-qa`)** | every data contract of the module has its `Mock*` + mock-DI registration + Arabic seeds; verdict = `مؤهل للمراجعة`; `docs/MOCK-COVERAGE.md` row updated in the same wave (`RULE-N173`/`RULE-N174`/`RULE-N175`) |
-| 0d | **Backend freeze honoured (`RULE-N177`/`RULE-N178`)** | if the slice touches **any** module backend (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders), the module's `docs/MOCK-COVERAGE.md` verdict is `مؤهل للمراجعة` **and** the owner's written approval (date + wording) is quoted in the brief — otherwise the backend files are out of scope and the slice is returned to Stage A |
+| 0d | **Backend freeze honoured (`RULE-N177`/`RULE-N178`)** | if the slice touches **any** module backend (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders), the module's `docs/MOCK-COVERAGE.md` verdict is `مؤهل للمراجعة` — or `مؤهل جزئياً` **with the named shortfall accepted in writing** — **and** the owner's written approval (date + wording) is quoted in the brief; otherwise the backend files are out of scope and the slice is returned to Stage A |
 | 1 | Green build | `dotnet build` = **0 Errors** |
 | 2 | Zero scope creep | `git status` contains no file outside the brief |
 | 3 | Zero dead code | no declared control without `Controls.Add` (`RULE-N130`) · no unreferenced member |
@@ -253,7 +253,7 @@ STAGE B (real backend) — only after the written approval
 | 9 | Test checklist | Arabic table (screen · step · expected result) + the mandatory final line |
 | 10 | Clean repo | `git status --porcelain` empty · `local == origin` |
 
-**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`) · **a Stage A handover without a `mock-qa` `مؤهل للمراجعة` verdict** (`RULE-N175`) · **a data contract with no mock, or a mock branch pointed at `Direct*` to "make it open"** (`RULE-N173`/`RULE-N176`) · **any edit to a module's backend while its coverage verdict is not `مؤهل للمراجعة` or its written owner approval is missing** (`RULE-N177`) · **opening work on a `غير مؤهل — فجوة تغطية` module instead of closing its coverage gap first** (`RULE-N178`) · **a shared helper/behaviour copied into a screen instead of its single home** (`RULE-N169`…`RULE-N172`).
+**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`) · **a Stage A handover without a `mock-qa` `مؤهل للمراجعة` verdict** (`RULE-N175`) · **a data contract with no mock, or a mock branch pointed at `Direct*` to "make it open"** (`RULE-N173`/`RULE-N176`) · **any edit to a module's backend while its coverage verdict is not `مؤهل للمراجعة` (or `مؤهل جزئياً` with the shortfall accepted in writing) or its written owner approval is missing** (`RULE-N177`) · **opening work on a `غير مؤهل — فجوة تغطية` module instead of closing its coverage gap first** (`RULE-N178`) · **a shared helper/behaviour copied into a screen instead of its single home** (`RULE-N169`…`RULE-N172`).
 
 ---
 
@@ -284,7 +284,7 @@ STAGE B (real backend) — only after the written approval
 | 21 | **Owner asks for the backend of an approved Stage A** | L | quote the approval+date in every brief, then DB → BLL → UI | 3 |
 | 22 | **"Every module must have mock data — I want to review UI & UX"** | L (system-wide) | `mock-qa` certifies all modules **read-only** → gap list is split into S/M slices, each to its file owner → build → `mock-qa` re-certifies → `docs/MOCK-COVERAGE.md` updated | 1 auditor + N fixers (waves of ≤ 4) |
 | 23 | **A new module/screen joins the system** | L | its Stage A brief carries **gate 0c**: `Mock*` + Arabic seeds + parity refusals + `UseMockData = true` + `mock-qa` verdict **before** the owner sees it | Stage A: 1 `ui-agent` + 1 `mock-qa` |
-| 24 | **Owner asks to change the backend of an old/closed module** | L | **gate 0d first**: read the module row in `docs/MOCK-COVERAGE.md` — coverage certified + written approval ⇒ Stage B waves; otherwise deliver the mock/coverage slice and ask for review | 1 (mock slice) or 3 (Stage B) |
+| 24 | **Owner asks to change the backend of an old/closed module** | L | **gate 0d first**: read the module row in `docs/MOCK-COVERAGE.md` — `مؤهل للمراجعة` (or `مؤهل جزئياً` + written acceptance of the shortfall) **and** a written approval ⇒ Stage B waves; otherwise deliver the mock/coverage slice and ask for review | 1 (mock slice) or 3 (Stage B) |
 | 25 | **A module is `غير مؤهل — فجوة تغطية` and the owner asks for work on it** | L | backend **frozen** (`RULE-N178`): split the gap into S/M slices, each to its file owner, build, `mock-qa` re-certify — then the original request resumes through Stage A | 1 auditor + N fixers |
 
 > If no row matches: classify S/M/L, then apply §3/§4. Never invent a new split without stating the reason in the delivery report.
@@ -340,7 +340,7 @@ STAGE B (real backend) — only after the written approval
 - [ ] Build green after **each** wave (not only once at the end).
 - [ ] Stage A left `UseMockData = true` and registered only `Mock*`; the mock enforces the real refusals (`RULE-N167`/`RULE-N168`).
 - [ ] **Mock coverage:** `mock-qa` returned `مؤهل للمراجعة` for every module in the slice **before** the handover, and the `docs/MOCK-COVERAGE.md` rows were updated in the same wave (`RULE-N173`…`RULE-N175`).
-- [ ] **Backend freeze (`RULE-N177`/`RULE-N178`):** no backend file (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders) was written for a module whose coverage verdict is not `مؤهل للمراجعة` or whose written approval is missing; a `غير مؤهل` module was routed to closing its gap, not to a backend slice.
+- [ ] **Backend freeze (`RULE-N177`/`RULE-N178`):** no backend file (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · migrations · seeders) was written for a module whose coverage verdict is not `مؤهل للمراجعة` (or `مؤهل جزئياً` + written acceptance of the shortfall) or whose written approval is missing; a `غير مؤهل` module was routed to closing its gap, not to a backend slice.
 - [ ] Stage B briefs quote the owner's approval verbatim with its date.
 - [ ] One review (`code-reviewer`) on the slice; its notes closed or explicitly deferred.
 - [ ] `AGENTS.md` updated for any status/rule change.

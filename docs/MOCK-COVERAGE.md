@@ -47,77 +47,81 @@ dotnet build .\SalesSystem.slnx
 
 ## 3) مصفوفة التغطية — العقود (33 عقد بيانات)
 
-| # | العقد | الوحدة | التنفيذ الوهمي | مسجَّل في فرع Mock | الحكم |
-|---|---|---|---|---|---|
-| 1 | `IAccountDesktopService` | Accounting | `MockAccountDesktopService` (7 رفض) | ✅ | مؤهل |
-| 2 | `IAuthDesktopService` | Login / Users | ❌ لا يوجد `MockAuthDesktopService` — يُسند دائماً إلى `DirectAuthService` الذي يستدعي `MockAuthService` في وضع التجربة | ⚠️ غير مطبَّق كـMock مستقل | **مؤهل وظيفياً · فجوة تصنيف (بند ف-1)** |
-| 3 | `IBackupDesktopService` | Users (`frmBackup`) | ❌ لا يوجد أي Mock | ❌ `DirectBackupService` دائماً | **غير مؤهل — فجوة تغطية (بند ف-2)** |
-| 4 | `IBranchDesktopService` | Users (`frmUserMaster`) | `MockBranchDesktopService` (0 رفض — قراءة فقط) | ✅ | مؤهل |
-| 5 | `ICashBoxDesktopService` | CashBoxes | `MockCashBoxDesktopService` (2 رفض) | ✅ | مؤهل |
-| 6 | `ICashBoxReportDesktopService` | Reports / CashBox | `MockCashBoxReportDesktopService` (قراءة فقط) | ✅ | مؤهل |
-| 7 | `ICategoryDesktopService` | Categories | `MockCategoryDesktopService` (2) | ✅ | مؤهل |
-| 8 | `ICustomerDesktopService` | Customers | `MockCustomerDesktopService` (2) | ✅ | مؤهل |
-| 9 | `ICustomerReceiptDesktopService` | CustomerReceipts | `MockCustomerReceiptDesktopService` (2) | ✅ | مؤهل |
-| 10 | `IDashboardDesktopService` | Dashboard | `MockDashboardDesktopService` (قراءة فقط) | ✅ | مؤهل |
-| 11 | `IEmployeeDesktopService` | Employees | `MockEmployeeDesktopService` (2) | ✅ Mock-only by design | مؤهل |
-| 12 | `IExpenseDesktopService` | Expenses | `MockExpenseDesktopService` (2) | ✅ | مؤهل |
-| 13 | `IFinancialReportDesktopService` | Reports / Accounting | `MockFinancialReportDesktopService` (قراءة فقط) | ✅ | مؤهل |
-| 14 | `IFormatSettingsDesktopService` | Settings | `MockFormatSettingsDesktopService` (4) | ✅ Mock-only by design (المرحلة أ) | مؤهل |
-| 15 | `IInventoryAdjustmentDesktopService` | Inventory | `MockInventoryAdjustmentDesktopService` (2) | ✅ | مؤهل |
-| 16 | `IInventoryBatchDesktopService` | Inventory | `MockInventoryBatchDesktopService` (1) | ✅ | مؤهل |
-| 17 | `IInventoryDesktopService` | Inventory | `MockInventoryDesktopService` (0) | ✅ | مؤهل · **تكافؤ الرفض يحتاج تحقّقاً (بند ف-3)** |
-| 18 | `IJournalEntryDesktopService` | Accounting | `MockJournalEntryDesktopService` (6) | ✅ | مؤهل |
-| 19 | `IProductDesktopService` | Products | `MockProductDesktopService` (5) | ✅ | مؤهل |
-| 20 | `IPurchaseInvoiceDesktopService` | Purchases | `MockPurchaseInvoiceDesktopService` (5) | ✅ | مؤهل |
-| 21 | `IPurchaseReportDesktopService` | Reports / Purchases | `MockPurchaseReportDesktopService` (قراءة فقط) | ✅ | مؤهل |
-| 22 | `IPurchaseReturnDesktopService` | Returns | `MockPurchaseReturnDesktopService` (5) | ✅ | مؤهل |
-| 23 | `IReportDesktopService` | Reports | `MockReportDesktopService` (قراءة فقط) | ✅ | مؤهل |
-| 24 | `ISalesInvoiceDesktopService` | Sales / POS | `MockSalesInvoiceDesktopService` (5) | ✅ | مؤهل |
-| 25 | `ISalesReportDesktopService` | Reports / Sales | `MockSalesReportDesktopService` (قراءة فقط) | ✅ | مؤهل |
-| 26 | `ISalesReturnDesktopService` | Returns | `MockSalesReturnDesktopService` (5) | ✅ | مؤهل |
-| 27 | `ISettingsDesktopService` | Settings / Invoices | `MockSettingsDesktopService` (0 — قراءة إعدادات) | ✅ | مؤهل |
-| 28 | `ISupplierDesktopService` | Suppliers | `MockSupplierDesktopService` (2) | ✅ | مؤهل |
-| 29 | `ISupplierPaymentDesktopService` | Payments | `MockSupplierPaymentDesktopService` (0) | ✅ | مؤهل · **تكافؤ الرفض ناقص (بند ف-4)** |
-| 30 | `IThemeColorDesktopService` | Settings | `MockThemeColorDesktopService` (8) | ✅ Mock-only by design (المرحلة أ) | مؤهل |
-| 31 | `IUnitDesktopService` | Units | `MockUnitDesktopService` (2) | ✅ | مؤهل |
-| 32 | `IUserDesktopService` | Users | `MockUserDesktopService` (3) | ✅ | مؤهل |
-| 33 | `IWarehouseDesktopService` | Warehouses / Inventory | `MockWarehouseDesktopService` (2) | ✅ | مؤهل |
+> **قاعدة العدّ:** «عدد الرفض» = كل نداءات `.Failure(` داخل ملف الـMock (قراءة فعلية `Select-String`/regex، 2026-11-14). العمود الأخير يذكر ما ينقص لبلوغ تكافؤ `RULE-N167` — والفجوة تُغلق في الـMock فقط، بلا باك-إند (`RULE-N176`).
 
-**الخلاصة (عدّ فعلي 2026-11-14):** 33 عقد بيانات · **31** لها `Mock*DesktopService` مسجَّل في فرع Mock · **2** بلا Mock مستقل (`IAuthDesktopService` يعمل عبر `MockAuthService`، و`IBackupDesktopService` لا يعمل بلا قاعدة بيانات) · **31** ملف `Mock*DesktopService` + `MockAuthService` + **12** ملف بيانات `Mock*Data.cs` + `MockData.cs` (45 ملفاً في `Services/Mock/`).
+| # | العقد | الوحدة | التنفيذ الوهمي | بيانات أولية (seeds) | التسجيل | الحكم | ما ينقص |
+|---|---|---|---|---|---|---|---|
+| 1 | `IAccountDesktopService` | Accounting | `MockAccountDesktopService` (8) | `MockAccountsData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 2 | `IAuthDesktopService` | Login / Users | ❌ لا `MockAuthDesktopService` | `MockSecurityData` (عبر `MockAuthService`) | `DirectAuthService` دائماً | **`غير مؤهل — فجوة تغطية` (ف-1)** | Mock مستقل + رفض عربي (كلمة سر خاطئة/قفل) |
+| 3 | `IBackupDesktopService` | Users (`frmBackup`) | ❌ لا Mock | — | `DirectBackupService` دائماً | **`غير مؤهل — فجوة تغطية` (ف-2)** | Mock كامل — الشاشة لا تُفتح بلا قاعدة بيانات |
+| 4 | `IBranchDesktopService` | Users | `MockBranchDesktopService` (0 — قراءة) | قائمة داخل الملف | فرع Mock | `مؤهل للمراجعة` | — |
+| 5 | `ICashBoxDesktopService` | CashBoxes | `MockCashBoxDesktopService` (4) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار اسم الصندوق |
+| 6 | `ICashBoxReportDesktopService` | Reports / CashBox | `MockCashBoxReportDesktopService` (0 — قراءة) | `MockData` + `MockCustomerReceiptsData` + `MockExpensesData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 7 | `ICategoryDesktopService` | Categories | `MockCategoryDesktopService` (5) | `MockLookupsData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 8 | `ICustomerDesktopService` | Customers | `MockCustomerDesktopService` (4) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الاسم/الهاتف في `CreateAsync` |
+| 9 | `ICustomerReceiptDesktopService` | CustomerReceipts | `MockCustomerReceiptDesktopService` (7) | `MockCustomerReceiptsData` + `MockData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 10 | `IDashboardDesktopService` | Dashboard | `MockDashboardDesktopService` (0 — قراءة) | 4 ملفات بيانات | فرع Mock | `مؤهل للمراجعة` | — |
+| 11 | `IEmployeeDesktopService` | Employees | `MockEmployeeDesktopService` (4) | `MockEmployeesData` | Mock-only by design | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض الحقول الإلزامية/التكرار لا «غير موجود» فقط |
+| 12 | `IExpenseDesktopService` | Expenses | `MockExpenseDesktopService` (9) | `MockExpensesData` + `MockData` + `MockAccountsData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 13 | `IFinancialReportDesktopService` | Reports / Accounting | `MockFinancialReportDesktopService` (21 — قراءة) | 8 ملفات بيانات | فرع Mock | `مؤهل للمراجعة` | — |
+| 14 | `IFormatSettingsDesktopService` | Settings | `MockFormatSettingsDesktopService` (5) | افتراضيات `clsFormat` | Mock-only by design (المرحلة أ) | `مؤهل للمراجعة` | — |
+| 15 | `IInventoryAdjustmentDesktopService` | Inventory | `MockInventoryAdjustmentDesktopService` (8) | `MockInventoryData` + `MockData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 16 | `IInventoryBatchDesktopService` | Inventory | `MockInventoryBatchDesktopService` (2) | `MockInventoryData` + `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | تحقّق حقول `CreateAsync` |
+| 17 | `IInventoryDesktopService` | Inventory | `MockInventoryDesktopService` (5) | `MockData` | فرع Mock | `مؤهل للمراجعة` | لا شاشة تكتب مخزوناً عبر هذا العقد (ف-3 مغلقة) |
+| 18 | `IJournalEntryDesktopService` | Accounting | `MockJournalEntryDesktopService` (19) | `MockJournalEntriesData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 19 | `IProductDesktopService` | Products | `MockProductDesktopService` (12) | `MockData` + `MockLookupsData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الباركود/الاسم في `CreateAsync` |
+| 20 | `IPurchaseInvoiceDesktopService` | Purchases | `MockPurchaseInvoiceDesktopService` (9) | `MockPurchasesData` + `MockData` + `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | كمية `0` · المدفوع > الإجمالي · مخزون سالب |
+| 21 | `IPurchaseReportDesktopService` | Reports / Purchases | `MockPurchaseReportDesktopService` (2 — قراءة) | `MockPurchasesData` + `MockData` + `MockSuppliersData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 22 | `IPurchaseReturnDesktopService` | Returns | `MockPurchaseReturnDesktopService` (6) | `MockReturnsData` + `MockData` + `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | كمية `0` · إرجاع أكبر من المشترى |
+| 23 | `IReportDesktopService` | Reports | `MockReportDesktopService` (19 — قراءة) | 7 ملفات بيانات | فرع Mock | `مؤهل للمراجعة` | — |
+| 24 | `ISalesInvoiceDesktopService` | Sales / POS | `MockSalesInvoiceDesktopService` (9) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | كمية `0` · المدفوع > الإجمالي · مخزون سالب · بنود فارغة |
+| 25 | `ISalesReportDesktopService` | Reports / Sales | `MockSalesReportDesktopService` (6 — قراءة) | `MockData` + `MockLookupsData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 26 | `ISalesReturnDesktopService` | Returns | `MockSalesReturnDesktopService` (6) | `MockReturnsData` + `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | كمية `0` · إرجاع أكبر من المبيع |
+| 27 | `ISettingsDesktopService` | Settings / Invoices | `MockSettingsDesktopService` (0) | قيم داخلية | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | دالتا الكتابة تعيدان النجاح دائماً (لا شاشة تستهلكهما) |
+| 28 | `ISupplierDesktopService` | Suppliers | `MockSupplierDesktopService` (4) | `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الاسم |
+| 29 | `ISupplierPaymentDesktopService` | Payments | `MockSupplierPaymentDesktopService` (3) | `MockSupplierPaymentsData` + `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | المدفوع > المتبقي (ف-4) · إلغاء بدل حذف صلب |
+| 30 | `IThemeColorDesktopService` | Settings | `MockThemeColorDesktopService` (9) | افتراضيات `ThemePalette` | Mock-only by design (المرحلة أ) | `مؤهل للمراجعة` | — |
+| 31 | `IUnitDesktopService` | Units | `MockUnitDesktopService` (6) | `MockLookupsData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 32 | `IUserDesktopService` | Users | `MockUserDesktopService` (7) | `MockSecurityData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 33 | `IWarehouseDesktopService` | Warehouses / Inventory | `MockWarehouseDesktopService` (4) | `MockData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الاسم |
+
+**الخلاصة (عدّ فعلي 2026-11-14):** **37** واجهة `I*` في `Services/Interfaces/` · منها **33 عقد بيانات** (المستثنى 4 عقود تحتية: `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` — وعقود الطباعة في `Printing/`) · **31** عقداً له `Mock*DesktopService` موزَّعة: **28** مسجَّلة داخل `if (appSettings.UseMockData)` + **3** Mock-only by design (`IEmployee` · `IThemeColor` · `IFormatSettings`) · **2** موصولان دائماً بـ`Direct*` (`IAuthDesktopService` · `IBackupDesktopService`) · **45** ملفاً في `Services/Mock/` = 31 `Mock*DesktopService` + `MockAuthService` + **12** `Mock*Data.cs` + `MockData.cs`.
+
+> **الحكم الإجمالي للسجل: `مؤهل جزئياً — تكافؤ الرفض ناقص`** — 16 عقداً `مؤهل للمراجعة` و14 `مؤهل جزئياً` و2 `غير مؤهل`. وبهذا الحكم **الباك-إند مقفل لكل الوحدات** (`RULE-N177`) حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً، ثم يراجع سلوك الـMock ويوافق كتابةً.
 
 ---
 
-## 4) دليل مراجعة المالك — الوحدات والشاشات (21 وحدة + الهيكل)
+## 4) دليل مراجعة المالك — الوحدات والشاشات (22 وحدة + الهيكل)
 
 > لكل صف: افتح الشاشة من `frmMain` في وضع التجربة، ثم نفّذ خطوات القسم 5. الشاشات بين قوسين هي ملفات `frm*` الفعلية.
 
 | الوحدة | عدد الشاشات | الشاشات | عقود البيانات | الحكم |
 |---|---|---|---|---|
 | Accounting | 2 | `frmAccounts` · `frmJournalEntries` | `IAccountDesktopService` · `IJournalEntryDesktopService` | ✅ مؤهل |
-| CashBoxes | 2 | `frmCashBoxMaster` · `frmCashBoxTransactions` | `ICashBoxDesktopService` | ✅ مؤهل |
+| CashBoxes | 2 | `frmCashBoxMaster` · `frmCashBoxTransactions` | `ICashBoxDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Categories | 1 | `frmCategoryMaster` | `ICategoryDesktopService` | ✅ مؤهل |
 | CustomerReceipts | 2 | `frmListCustomerReceipts` · `frmAddUpdateCustomerReceipt` | `ICustomerReceiptDesktopService` | ✅ مؤهل |
-| Customers | 3 | `frmCustomerMaster` · `frmCustomerSelection` · `frmCustomerStatement` | `ICustomerDesktopService` | ✅ مؤهل |
+| Customers | 3 | `frmCustomerMaster` · `frmCustomerSelection` · `frmCustomerStatement` | `ICustomerDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Dashboard | 1 | `frmDashboard` (+ `ctrlDashboard`) | `IDashboardDesktopService` | ✅ مؤهل |
-| Employees | 1 | `frmEmployeeMaster` | `IEmployeeDesktopService` | ✅ مؤهل (Mock-only) |
+| Employees | 1 | `frmEmployeeMaster` | `IEmployeeDesktopService` | ⚠️ جزئي — تكافؤ الرفض (Mock-only) |
 | Expenses | 2 | `frmListExpenses` · `frmAddUpdateExpense` | `IExpenseDesktopService` | ✅ مؤهل |
-| Inventory | 16 | `frmInventory` · `frmInventoryList` · `frmInventoryAddProduct` · `frmInventoryBarcode` · `frmInventoryFifo` · `frmListInventoryTransactions` · `frmListInventoryBatches` · `frmListInventoryAdjustments` · `frmAddUpdateInventoryAdjustment` · `frmOpeningStock` · `frmWarehouseTransferNew` · `frmStocktakingNew` + 4 نوافذ طباعة | `IInventoryDesktopService` · `IInventoryBatchDesktopService` · `IInventoryAdjustmentDesktopService` · `IWarehouseDesktopService` | ✅ مؤهل · تكافؤ الرفض بند ف-3 |
-| Payments | 3 | `frmListPayments` · `frmListSupplierPayments` · `frmSupplierPaymentDialog` | `ISupplierPaymentDesktopService` | ✅ مؤهل · تكافؤ الرفض بند ف-4 |
-| POS | 1 | `frmPOS` | `IProductDesktopService` · `ISalesInvoiceDesktopService` · `ICustomerDesktopService` · `IWarehouseDesktopService` · `ICashBoxDesktopService` | ✅ مؤهل |
-| Products | 4 | `frmProductMaster` · `frmProductUnitMaster` · `frmProductSelection` · `frmImportProductsExcel` | `IProductDesktopService` | ✅ مؤهل |
-| Purchases | 9 | `frmListPurchases` · `frmPurchaseInvoice` · `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmSupplierStatement` | `IPurchaseInvoiceDesktopService` · `ISupplierDesktopService` | ✅ مؤهل |
+| Inventory | 16 | `frmInventory` · `frmInventoryList` · `frmInventoryAddProduct` · `frmInventoryBarcode` · `frmInventoryFifo` · `frmListInventoryTransactions` · `frmListInventoryBatches` · `frmListInventoryAdjustments` · `frmAddUpdateInventoryAdjustment` · `frmOpeningStock` · `frmWarehouseTransferNew` · `frmStocktakingNew` + 4 نوافذ طباعة | `IInventoryDesktopService` · `IInventoryBatchDesktopService` · `IInventoryAdjustmentDesktopService` · `IWarehouseDesktopService` | ⚠️ جزئي — `IInventoryBatch` و`IWarehouse` بلا رفض تكرار |
+| Payments | 3 | `frmListPayments` · `frmListSupplierPayments` · `frmSupplierPaymentDialog` | `ISupplierPaymentDesktopService` | ⚠️ جزئي — تكافؤ الرفض (ف-4) |
+| POS | 1 | `frmPOS` | `IProductDesktopService` · `ISalesInvoiceDesktopService` · `ICustomerDesktopService` · `IWarehouseDesktopService` · `ICashBoxDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
+| Products | 4 | `frmProductMaster` · `frmProductUnitMaster` · `frmProductSelection` · `frmImportProductsExcel` | `IProductDesktopService` | ⚠️ جزئي — تكرار الباركود |
+| Purchases | 9 | `frmListPurchases` · `frmPurchaseInvoice` · `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmSupplierStatement` | `IPurchaseInvoiceDesktopService` · `ISupplierDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Reports | 31 | 31 تقريراً في ستة مجلدات تصنيفية (`Sales/` · `Purchases/` · `Inventory/` · `Accounting/` · `CustomersSuppliers/` · `CashBox/`) | خمسة عقود تقارير | ✅ مؤهل (قراءة فقط) |
-| Returns | 3 | `frmListReturns` · `frmSalesReturn` · `frmPurchaseReturn` | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ✅ مؤهل |
-| Sales | 2 | `frmListSales` · `frmAddUpdateSalesInvoice` | `ISalesInvoiceDesktopService` | ✅ مؤهل |
+| Returns | 3 | `frmListReturns` · `frmSalesReturn` · `frmPurchaseReturn` | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — إفراط في الإرجاع |
+| Sales | 2 | `frmListSales` · `frmAddUpdateSalesInvoice` | `ISalesInvoiceDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Settings | 2 | `frmChangeSystemColorsSettings` · `frmFormatingSetting` | `IThemeColorDesktopService` · `IFormatSettingsDesktopService` | ✅ مؤهل (المرحلة أ) |
-| Suppliers | 2 | `frmSupplierMaster` · `frmSupplierSelection` | `ISupplierDesktopService` | ✅ مؤهل |
+| Suppliers | 2 | `frmSupplierMaster` · `frmSupplierSelection` | `ISupplierDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Tools | 1 | `frmCalculator` | — (لا مسار بيانات) | لا ينطبق |
 | Units | 1 | `frmUnitMaster` | `IUnitDesktopService` | ✅ مؤهل |
 | Users | 3 | `frmUserMaster` · `frmPasswordChange` · `frmBackup` | `IUserDesktopService` · `IBranchDesktopService` · `IAuthDesktopService` · `IBackupDesktopService` | ⚠️ **جزئي** — `frmBackup` غير مؤهل (ف-2) |
-| Warehouses | 1 | `frmWarehouseMaster` | `IWarehouseDesktopService` | ✅ مؤهل |
-| الهيكل (root) | 2 | `frmLogin` · `frmMain` | `IAuthDesktopService` | ✅ مؤهل (الدخول يقبل أي بيانات) |
+| Warehouses | 1 | `frmWarehouseMaster` | `IWarehouseDesktopService` | ⚠️ جزئي — تكرار الاسم |
+| الهيكل (root) | 2 | `frmLogin` · `frmMain` | `IAuthDesktopService` | ❌ غير مؤهل — فجوة تغطية (ف-1) |
 
-**الإجمالي:** **93 نموذج `frm*`** في `Screens/**` · **87** ذات مسار بيانات، منها **86** تُفتح وتُحفظ بلا قاعدة بيانات و**1** غير مؤهلة (`frmBackup`) · **6** بلا مسار بيانات (`frmCalculator` + خمس نوافذ طباعة/معاينة).
+**الإجمالي (عدّ فعلي):** **95 نموذج `frm*`** في `Screens/**` (منها 31 تقريراً) · **89** ذات مسار بيانات، منها **88** تُفتح وتُحفظ بلا قاعدة بيانات و**1** غير مؤهلة (`frmBackup`) · **6** بلا مسار بيانات (`frmCalculator` + خمس نوافذ طباعة/معاينة: `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` · `frmPurchaseInvoicePrint`).
 
 ---
 
@@ -138,18 +142,21 @@ dotnet build .\SalesSystem.slnx
 | 11 | عطّل سجلاً ثم أعد تنشيطه | الدورة تعمل، السطر يُحدَّد، رسالة عربية |
 | 12 | افتح تقريراً من «التقارير» في وضع التجربة | يعرض بيانات تجريبية بلا قاعدة بيانات، وزر التصدير يعمل |
 
+> **تحذير مقصود (2026-11-14):** الخطوتان **4** و**6** و**9** و**10** **ستفشل حالياً** في شاشات البيع والشراء والمرتجعات وسند الصرف والماسترات المعلَّمة `مؤهل جزئياً — تكافؤ الرفض ناقص` (§3) — لأن الـMock لا يرفض بعدُ: كمية `0` · المدفوع > الإجمالي · الباركود/الاسم المكرر · الإفراط في الإرجاع. هذا **نقص تكافؤ معلن** (بند ف-5) لا عيب في الشاشة: كل رفض يمرّ اليوم سُيغلق في موجة تكافؤ داخل الـMock وحدها، بلا باك-إند. الخطوتان **3** و**5** و**8** و**11** صالحة في كل الوحدات لتقييم UI & UX الآن.
+
 ---
 
 ## 6) الفجوات المفتوحة (تُغلق بوكيل واحد لكل ملف — `RULE-N158`)
 
 | البند | الفجوة | الملف/الموضع | المالك المقترح | الحالة |
 |---|---|---|---|---|
-| ف-1 | `IAuthDesktopService` بلا `MockAuthDesktopService` مستقل — يعمل عبر `DirectAuthService` + `MockAuthService` (وظيفياً يعمل، لكنه لا يطابق قاعدة «كل عقد بيانات له Mock») | `Services/Interfaces/IAuthDesktopService.cs` · `Program.cs` | `ui-agent` (نفس عقد الشاشة) | مفتوح — **مجمِّد لباك-إند وحدة المستخدمين/المصادقة** |
+| ف-1 | `IAuthDesktopService` بلا `MockAuthDesktopService` مستقل — يُسند دائماً إلى `DirectAuthService` الذي يستدعي `MockAuthService`؛ و`MockAuthService` نفسه **بلا أي رفض** (دخول/تغيير كلمة سر = نجاح دائماً) | `Services/Interfaces/IAuthDesktopService.cs` · `Services/Mock/MockAuthService.cs` · `Program.cs` | `ui-agent` (نفس عقد الشاشة) | **غير مؤهل — مجمِّد لباك-إند المستخدمين/المصادقة** |
 | ف-2 | `frmBackup` بلا Mock إطلاقاً — يعمل على قاعدة البيانات الحقيقية فقط | `IBackupDesktopService` · `DirectBackupService` · `frmBackup.cs` · `Program.cs` | `ui-agent` | **مانع للمراجعة · مجمِّد لباك-إند النسخ الاحتياطي** |
-| ف-3 | `MockInventoryDesktopService` بلا أي رفض — يجب التحقق من أنه قراءة فقط، وإلا فالتكافؤ ناقص | `Services/Mock/MockInventoryDesktopService.cs` | `mock-qa` يفحص · `ui-agent` يصلح | مفتوح (تحقّق) |
-| ف-4 | `MockSupplierPaymentDesktopService` بلا رفض (المبلغ > المتبقي يجب أن يُرفض) | `Services/Mock/MockSupplierPaymentDesktopService.cs` | `ui-agent` | مفتوح (تكافؤ) |
+| ف-3 | **مغلقة بالتدقيق (2026-11-14):** `MockInventoryDesktopService` فيه 5 رفض، ولا شاشة تكتب مخزوناً عبر هذا العقد (`frmAddUpdateSalesInvoice` · `frmProductSelection` · `frmListInventoryTransactions` تقرأ فقط، و`frmOpeningStock` يحفظ عبر `IInventoryAdjustmentDesktopService`) | `Services/Mock/MockInventoryDesktopService.cs` | — | ✅ **مغلقة** |
+| ف-4 | `MockSupplierPaymentDesktopService`: لا رفض «المدفوع > المتبقي»، و`CancelAsync` **تحذف السند** بدل حالة إلغاء (`RULE-004`)، و`PostAsync`/`CancelAsync` خارج الواجهة | `Services/Mock/MockSupplierPaymentDesktopService.cs` | `ui-agent` | **مفتوح — تكافؤ (مجمِّد لباك-إند المدفوعات)** |
+| ف-5 | **تكافؤ الرفض ناقص في 14 عقداً** — التفصيل عمود «ما ينقص» في §3 (البيع/الشراء/المرتجعات: كمية `0` · مدفوع > الإجمالي · مخزون سالب · إفراط في الإرجاع؛ والماسترات: تكرار الباركود/الاسم/الهاتف) | ملفات `Services/Mock/Mock*DesktopService.cs` المعلَّمة `مؤهل جزئياً` | `ui-agent` (وكيل واحد لكل ملف) | **مفتوح — موجة تكافؤ** |
 
-> **قاعدة:** فجوة `RULE-N173` لا تُغلق بتعديل الشاشة — تُغلق بإضافة الـMock/seeds/التسجيل، ولا يُعلن أي module «مؤهلاً» في هذا السجل قبل ذلك.
+> **قاعدة:** فجوة `RULE-N173` لا تُغلق بتعديل الشاشة — تُغلق بإضافة الـMock/seeds/التسجيل/التكافؤ، ولا يُعلن أي module «مؤهلاً» في هذا السجل قبل ذلك، و**لا يُلمس باك-إند الوحدة** أثناء إغلاق فجوته (`RULE-N177`/`RULE-N178`).
 
 ---
 
@@ -169,16 +176,19 @@ dotnet build .\SalesSystem.slnx
 
 | الحالة في §3 | معنى قفل الباك-إند | ما يُسمح فوراً |
 |---|---|---|
-| `مؤهل للمراجعة` بلا موافقة مكتوبة | **مقفل**: لا `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · ترحيل · seeder | إصلاحات UI/UX داخل الـMock · إصلاحات بناء (`RULE-N159`) |
+| `مؤهل للمراجعة` بلا موافقة مكتوبة | **مقفل**: لا `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · ترحيل · seeder | إصلاحات UI/UX داخل الـMock · إصلاحات بناء (بند الاستثناءات في `RULE-N178`) |
 | `مؤهل للمراجعة` + موافقة مكتوبة مؤرَّخة | **مفتوح** — Stage B مسموح للوحدة نفسها فقط | 4 موجات Stage B بالترتيب |
-| `مؤهل جزئياً — تكافؤ الرفض ناقص` | **مقفل** حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً | إصلاح تكافؤ الرفض في `Mock*` |
-| `غير مؤهل — فجوة تغطية` | **مجمَّد**: لا عمل على الوحدة أصلاً | إغلاق الفجوة فقط (Mock/seeds/تسجيل) |
+| `مؤهل جزئياً — تكافؤ الرفض ناقص` | **مقفل** حتى يُغلق نقص التكافؤ أو يقبل المالك النقص كتابةً — **ويبقى شرط الموافقة المكتوبة المؤرَّخة على سلوك الـMock واجباً** (الصف الأول) | إصلاح تكافؤ الرفض في `Mock*` |
+| `غير مؤهل — فجوة تغطية` | **مجمَّد الباك-إند**: لا `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` ولا ترحيل — الحظر على الباك-إند لا على إغلاق التغطية | إغلاق الفجوة فقط (Mock/seeds/تسجيل/تكافؤ) |
+
+**سجل الموافقات المكتوبة:** (فارغ — **0 موافقات مؤرَّخة حتى 2026-11-14**) ⇐ **الباك-إند مقفل لكل الوحدات بلا استثناء**، وتُقيَّد كل موافقة هنا بالشكل: `التاريخ · الوحدة · نص المالك الحرفي · ما راجعه`.
 
 **ملاحظات القفل:**
 - القفل **لا يُعيد فتح وحدة مغلقة** ولا يُلغي عملاً مكتملاً؛ يحكم **التغيير التالي** على وحدتها (`RULE-N178`).
-- الوحدات المجمَّدة حالياً بحسب §6: **Users/Backup** (ف-1 · ف-2)، وباك-إند **Inventory** و**Payments** لا يُمسّ حتى يُغلق تكافؤ الرفض (ف-3 · ف-4) أو يقبل المالك.
-- الاستثناءات الثلاثة المنصوصة في `RULE-N178` (خطأ بناء · أمن عاجل معلَّن للمالك · تصحيح يفرضه `AGENTS.md` بلا تغيير سلوك مالي) تُدوَّن في تقرير التسليم.
-- **قاعدة الفحص للـOrchestrator:** أي حزمة عمل (brief) تحمل ملفاً من `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` تُرفض ما لم تذكر حكم هذا السجل للوحدة + نص الموافقة وتاريخها (`RULE-N160`/`RULE-N177`).
+- **الوحدات المجمَّدة تغطيةً** (لا تُسلَّم للمالك): **Users/Backup** (ف-1: `IAuthDesktopService` بلا Mock · ف-2: `frmBackup` بلا Mock) والهيكل (`frmLogin`/`frmMain` عبر العقد نفسه). و**كل وحدة أخرى مقفلة الباك-إند** لأن حكمها `مؤهل جزئياً` (16 عقداً) أو بلا موافقة مكتوبة.
+- صف `IAuthDesktopService` في §3 حكمه الآن **`غير مؤهل — فجوة تغطية`** ولا يُعامَل بأي حكم مخفَّف: بوابة 0c وقفل الباك-إند يقرآن المفردات الثلاث فقط (`RULE-N175`).
+- الاستثناءات الثلاثة المنصوصة في `RULE-N178` (خطأ بناء يمنع الترجمة · أمن عاجل معلَّن للمالك · تصحيح يفرضه `AGENTS.md` بلا تغيير سلوك مالي) تُدوَّن في تقرير التسليم.
+- **قاعدة الفحص للـOrchestrator:** أي حزمة عمل (brief) تحمل ملفاً من `Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` تُرفض ما لم تذكر حكم هذا السجل للوحدة + نص الموافقة وتاريخها (`RULE-N160`/`RULE-N177`) — وهذه هي **بوابة 0d** في `docs/prompts/ORCHESTRATOR.md` §8.
 
 ---
 

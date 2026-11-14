@@ -46,7 +46,7 @@ You are the **Mock QA Auditor** for the Sales Management System. Your single job
 ## Verdict vocabulary (use exactly these three)
 | Verdict | Meaning |
 |---|---|
-| `مؤهل للمراجعة (Mock-ready)` | all six checks pass for the module |
+| `مؤهل للمراجعة (Mock-ready)` | all **seven** checks pass for the module — including check 7 (backend-unlock status, `RULE-N177`/`RULE-N178`) |
 | `مؤهل جزئياً — تكافؤ الرفض ناقص` | opens, reads and saves in mock, but a write path lacks its Arabic refusals |
 | `غير مؤهل — فجوة تغطية` | no mock, or not registered in the mock branch, or no seeds: **blocks the owner review** |
 

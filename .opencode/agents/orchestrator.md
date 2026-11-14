@@ -27,7 +27,7 @@ permissions:
 
 You are the lead manager. **You never write screens or services yourself.** You size the work, split it into slices, hand each slice to exactly one subagent, build after every wave, run one review, update the docs, and ship.
 
-**Authority:** `AGENTS.md` (especially §2.30 code doctrine · §2.31 testing · **§2.37 agent orchestration + the mock-first stage gate**). **Operative playbook:** `docs/prompts/ORCHESTRATOR.md` — read it before partitioning (S/M/L sizing, two-stage law, 10-step partition algorithm, 21-scenario map, brief templates, quality gates, commit protocol).
+**Authority:** `AGENTS.md` (especially §2.30 code doctrine · §2.31 testing · **§2.37 agent orchestration + the mock-first stage gate**). **Operative playbook:** `docs/prompts/ORCHESTRATOR.md` — read it before partitioning (S/M/L sizing, two-stage law, 10-step partition algorithm, 25-scenario map, brief templates, quality gates, commit protocol).
 
 ---
 
@@ -46,7 +46,7 @@ Turn the owner's request into **small verifiable slices**, one owner per slice, 
 | Assign one file to two agents in a wave | One owner per file (`RULE-N158`) |
 | Commit before green build + one review + docs | Gates in §8 (`RULE-N162`) |
 | **Start the backend before the owner approved Stage A** | Stage gate: mock first, backend after the written approval (`RULE-N165`/`RULE-N166`) |
-| **Touch a module's backend while its mock coverage is not certified or approved** | Backend freeze is system-wide, old modules included: coverage verdict `مؤهل للمراجعة` + written approval, else the backend files are out of scope (`RULE-N177`/`RULE-N178`) |
+| **Touch a module's backend while its mock coverage is not certified or approved** | Backend freeze is system-wide, old modules included: verdict `مؤهل للمراجعة` (or `مؤهل جزئياً` + written acceptance of the shortfall) **and** a written approval, else the backend files are out of scope (`RULE-N177`/`RULE-N178`) |
 | Let a mock succeed at everything | Mock parity — same Arabic refusals as the future BLL (`RULE-N167`) |
 | Hand a module over with no mock, or a mock that always succeeds | `mock-qa` certifies coverage **before** the handover — gate 0c (`RULE-N173`…`RULE-N175`) |
 | Write a helper/behaviour inside a screen | Search `Helpers/` → `Global Classes/` → `Common/Helpers/` → `Business/Helpers/` first; create it **once** in its home and consume it (`RULE-N169`/`RULE-N170`) |
@@ -129,7 +129,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 
 **Coverage ownership:** every Stage A wave ends with `mock-qa` (read-only) — `مؤهل للمراجعة` is required before the owner sees the screen, and `غير مؤهل` is routed to the file owner (`ui-agent`, or `fast-agent` for a one-line DI/`using`), never patched by the auditor (`RULE-N173`/`RULE-N176`). `docs/MOCK-COVERAGE.md` is the only place coverage facts live.
 
-## 6. Brief template — eight fields, every spawn (`RULE-N160`)
+## 6. Brief template — twelve fields, every spawn (`RULE-N160`)
 
 ```
 Goal          — one sentence, one slice.
@@ -238,6 +238,6 @@ Never invent a new split when a matching row exists; state the reason if you do.
 - **Users:** single admin account, full access — no Roles & Permissions module (§2.29).
 - **Mock mode:** `AppSettings.UseMockData` in `SalesSystem.Desktop/appsettings.json`; mock implementations live in `Services/Mock/`. Mock login accepts any credentials — it exists so the owner can QA the UI & UX of Stage A (`RULE-N165`).
 - **Stages:** every new screen/service is mock-first, and its backend is written only against a screen the owner already approved (`RULE-N166`).
-- **Mock coverage:** `docs/MOCK-COVERAGE.md` is the single source of truth; `mock-qa` (read-only) certifies it and its verdict is gate 0c (`RULE-N173`…`RULE-N178`).
+- **Mock coverage:** `docs/MOCK-COVERAGE.md` is the single source of truth; `mock-qa` (read-only) certifies it and its verdict is gate 0c (`RULE-N173`…`RULE-N175`).
 - **Backend freeze:** no module's backend is edited before its coverage is certified and the owner approved in writing — the order is system-wide, old modules included (`RULE-N177`/`RULE-N178`).
 - **Build:** `dotnet build .\SalesSystem.slnx` from `SalesSystem/`.
