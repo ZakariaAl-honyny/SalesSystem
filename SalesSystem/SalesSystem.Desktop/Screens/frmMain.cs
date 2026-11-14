@@ -403,6 +403,13 @@ public partial class frmMain : Form
     private void msbtnSystemColors_Click(object sender, EventArgs e)
         => OpenScreen<frmChangeSystemColorsSettings>();
 
+    /// <summary>
+    /// يفتح شاشة «إعدادات التنسيق» من الحاوية (RULE-N02) عبر النمط المعتمد
+    /// <see cref="OpenScreen{T}"/> — الشاشة تُعدّل تنسيق الأرقام والتواريخ والمبالغ.
+    /// </summary>
+    private void msbtnFormatSettings_Click(object sender, EventArgs e)
+        => OpenScreen<frmFormatingSetting>();
+
     private void msbtnSettings_Click(object sender, EventArgs e)
     {
         // أُزيلت شاشة الإعدادات العامة (Settings فقط: نسخ احتياطي + تحديث)

@@ -93,6 +93,12 @@ static class Program
                     // المالك الصريحة على المرحلة B (RULE-N165/RULE-N166).
                     services.AddTransient<IThemeColorDesktopService, MockThemeColorDesktopService>();
 
+                    // Mock-only by design: إعدادات التنسيق تُخزَّن في وضع التجربة فقط.
+                    // يبقى التسجيل خارج فرعي Mock/Direct كي لا يبقى النوع غير قابل للحل
+                    // في أي وضع (RULE-N168)، ويُستبدل بـ Direct*Service بعد موافقة
+                    // المالك الصريحة على المرحلة B (RULE-N165/RULE-N166).
+                    services.AddTransient<IFormatSettingsDesktopService, MockFormatSettingsDesktopService>();
+
                     // Interfaces with NO mock — always Direct:
                     services.AddTransient<IAuthDesktopService, DirectAuthService>();
                     services.AddTransient<IBackupDesktopService, DirectBackupService>();
@@ -299,6 +305,7 @@ static class Program
                     services.AddTransient<frmBackup>();
                     // إعدادات — شاشة ألوان النظام (تُفتح من msbtnSystemColors في frmMain)
                     services.AddTransient<frmChangeSystemColorsSettings>();
+                    services.AddTransient<frmFormatingSetting>();
                     // Master forms — replace the removed frmList* / frmAddUpdate* screens
                     services.AddTransient<frmUserMaster>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmAccounts>();

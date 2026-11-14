@@ -109,6 +109,7 @@
             // ── الإعدادات ────────────────────────────────────────────────────────────────────────────
             msSettings = new ToolStripMenuItem();
             msbtnSystemColors = new ToolStripMenuItem();
+            msbtnFormatSettings = new ToolStripMenuItem();
             msbtnSettings = new ToolStripMenuItem();
             msbtnCompanySettings = new ToolStripMenuItem();
             msbtnUpdateCheck = new ToolStripMenuItem();
@@ -862,7 +863,7 @@
             // msSettings
             // 
             msSettings.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnSystemColors, msbtnSettings, msbtnCompanySettings, msbtnUpdateCheck, msbtnBackup
+                msbtnSystemColors, msbtnFormatSettings, msbtnSettings, msbtnCompanySettings, msbtnUpdateCheck, msbtnBackup
             });
             msSettings.Name = "msSettings";
             msSettings.Size = new Size(120, 33);
@@ -874,6 +875,13 @@
             msbtnSystemColors.Size = new Size(300, 38);
             msbtnSystemColors.Text = "ألوان النظام";
             msbtnSystemColors.Click += msbtnSystemColors_Click;
+            // 
+            // msbtnFormatSettings
+            // 
+            msbtnFormatSettings.Name = "msbtnFormatSettings";
+            msbtnFormatSettings.Size = new Size(300, 38);
+            msbtnFormatSettings.Text = "إعدادات التنسيق";
+            msbtnFormatSettings.Click += msbtnFormatSettings_Click;
             // 
             // msbtnSettings
             // 
@@ -1053,6 +1061,7 @@
         private ToolStripMenuItem msbtnInventory;
         private ToolStripMenuItem msSettings;
         private ToolStripMenuItem msbtnSystemColors;
+        private ToolStripMenuItem msbtnFormatSettings;
         private ToolStripMenuItem msbtnSettings;
         private ToolStripMenuItem msbtnCompanySettings;
         private ToolStripMenuItem msbtnUpdateCheck;
