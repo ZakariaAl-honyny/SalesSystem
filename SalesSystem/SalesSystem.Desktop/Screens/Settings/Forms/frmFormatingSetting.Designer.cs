@@ -20,24 +20,30 @@ partial class frmFormatingSetting
         lblMode = new Label();
         gbNumbers = new GroupBox();
         lblMoneyDecimals = new Label();
-        numMoneyDecimals = new NumericUpDown();
+        cmbMoneyDecimals = new ComboBox();
         lblQuantityDecimals = new Label();
-        numQuantityDecimals = new NumericUpDown();
+        cmbQuantityDecimals = new ComboBox();
         lblNumberDecimals = new Label();
-        numNumberDecimals = new NumericUpDown();
+        cmbNumberDecimals = new ComboBox();
         lblPercentDecimals = new Label();
-        numPercentDecimals = new NumericUpDown();
-        chkThousandsSeparator = new CheckBox();
+        cmbPercentDecimals = new ComboBox();
+        lblThousandsSeparator = new Label();
+        pnlThousandsOptions = new Panel();
+        rdoThousandsYes = new RadioButton();
+        rdoThousandsNo = new RadioButton();
+        lblArabicIndicDigits = new Label();
+        pnlArabicDigitsOptions = new Panel();
+        rdoArabicYes = new RadioButton();
+        rdoArabicNo = new RadioButton();
         lblDecimalSeparator = new Label();
         cmbDecimalSeparator = new ComboBox();
-        chkArabicIndicDigits = new CheckBox();
         gbDates = new GroupBox();
         lblDateShortPattern = new Label();
-        txtDateShortPattern = new TextBox();
+        cmbDateShortPattern = new ComboBox();
         lblDateDayMonthYearPattern = new Label();
-        txtDateDayMonthYearPattern = new TextBox();
+        cmbDateDayMonthYearPattern = new ComboBox();
         lblDateLongPattern = new Label();
-        txtDateLongPattern = new TextBox();
+        cmbDateLongPattern = new ComboBox();
         lblDateHint = new Label();
         gbPreview = new GroupBox();
         pnlPreviewScroll = new Panel();
@@ -68,10 +74,8 @@ partial class frmFormatingSetting
         toolTip = new ToolTip(components);
         pnlHeader.SuspendLayout();
         gbNumbers.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)numMoneyDecimals).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numQuantityDecimals).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numNumberDecimals).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numPercentDecimals).BeginInit();
+        pnlThousandsOptions.SuspendLayout();
+        pnlArabicDigitsOptions.SuspendLayout();
         gbDates.SuspendLayout();
         gbPreview.SuspendLayout();
         pnlPreviewScroll.SuspendLayout();
@@ -108,24 +112,26 @@ partial class frmFormatingSetting
         // 
         gbNumbers.BackColor = Color.FromArgb(235, 245, 235);
         gbNumbers.Controls.Add(lblMoneyDecimals);
-        gbNumbers.Controls.Add(numMoneyDecimals);
+        gbNumbers.Controls.Add(cmbMoneyDecimals);
         gbNumbers.Controls.Add(lblQuantityDecimals);
-        gbNumbers.Controls.Add(numQuantityDecimals);
+        gbNumbers.Controls.Add(cmbQuantityDecimals);
         gbNumbers.Controls.Add(lblNumberDecimals);
-        gbNumbers.Controls.Add(numNumberDecimals);
+        gbNumbers.Controls.Add(cmbNumberDecimals);
         gbNumbers.Controls.Add(lblPercentDecimals);
-        gbNumbers.Controls.Add(numPercentDecimals);
-        gbNumbers.Controls.Add(chkThousandsSeparator);
+        gbNumbers.Controls.Add(cmbPercentDecimals);
+        gbNumbers.Controls.Add(lblThousandsSeparator);
+        gbNumbers.Controls.Add(pnlThousandsOptions);
+        gbNumbers.Controls.Add(lblArabicIndicDigits);
+        gbNumbers.Controls.Add(pnlArabicDigitsOptions);
         gbNumbers.Controls.Add(lblDecimalSeparator);
         gbNumbers.Controls.Add(cmbDecimalSeparator);
-        gbNumbers.Controls.Add(chkArabicIndicDigits);
         gbNumbers.Dock = DockStyle.Top;
         gbNumbers.Font = new Font("Tahoma", 10F);
         gbNumbers.ForeColor = Color.FromArgb(14, 82, 52);
         gbNumbers.Location = new Point(0, 56);
         gbNumbers.Name = "gbNumbers";
         gbNumbers.Padding = new Padding(8);
-        gbNumbers.Size = new Size(1180, 176);
+        gbNumbers.Size = new Size(1180, 200);
         gbNumbers.TabIndex = 1;
         gbNumbers.TabStop = false;
         gbNumbers.Text = "المبالغ والأرقام";
@@ -133,111 +139,186 @@ partial class frmFormatingSetting
         // lblMoneyDecimals
         // 
         lblMoneyDecimals.AutoSize = true;
-        lblMoneyDecimals.Location = new Point(1020, 40);
+        lblMoneyDecimals.Location = new Point(1051, 38);
         lblMoneyDecimals.Name = "lblMoneyDecimals";
-        lblMoneyDecimals.Size = new Size(94, 24);
+        lblMoneyDecimals.Size = new Size(113, 24);
         lblMoneyDecimals.TabIndex = 0;
         lblMoneyDecimals.Text = "منازل المبالغ";
         // 
-        // numMoneyDecimals
+        // cmbMoneyDecimals
         // 
-        numMoneyDecimals.BackColor = Color.White;
-        numMoneyDecimals.BorderStyle = BorderStyle.FixedSingle;
-        numMoneyDecimals.Font = new Font("Tahoma", 10F);
-        numMoneyDecimals.Location = new Point(936, 34);
-        numMoneyDecimals.Maximum = new decimal(new int[] { 4, 0, 0, 0 });
-        numMoneyDecimals.Name = "numMoneyDecimals";
-        numMoneyDecimals.Size = new Size(76, 32);
-        numMoneyDecimals.TabIndex = 1;
-        numMoneyDecimals.TextAlign = HorizontalAlignment.Center;
-        numMoneyDecimals.ValueChanged += Value_Changed;
+        cmbMoneyDecimals.BackColor = Color.White;
+        cmbMoneyDecimals.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbMoneyDecimals.FlatStyle = FlatStyle.Flat;
+        cmbMoneyDecimals.Font = new Font("Tahoma", 10F);
+        cmbMoneyDecimals.Location = new Point(893, 34);
+        cmbMoneyDecimals.Name = "cmbMoneyDecimals";
+        cmbMoneyDecimals.Size = new Size(150, 32);
+        cmbMoneyDecimals.TabIndex = 1;
+        cmbMoneyDecimals.SelectedIndexChanged += Value_Changed;
         // 
         // lblQuantityDecimals
         // 
         lblQuantityDecimals.AutoSize = true;
-        lblQuantityDecimals.Location = new Point(745, 40);
+        lblQuantityDecimals.Location = new Point(763, 38);
         lblQuantityDecimals.Name = "lblQuantityDecimals";
-        lblQuantityDecimals.Size = new Size(100, 24);
+        lblQuantityDecimals.Size = new Size(122, 24);
         lblQuantityDecimals.TabIndex = 2;
         lblQuantityDecimals.Text = "منازل الكميات";
         // 
-        // numQuantityDecimals
+        // cmbQuantityDecimals
         // 
-        numQuantityDecimals.BackColor = Color.White;
-        numQuantityDecimals.BorderStyle = BorderStyle.FixedSingle;
-        numQuantityDecimals.Font = new Font("Tahoma", 10F);
-        numQuantityDecimals.Location = new Point(661, 34);
-        numQuantityDecimals.Maximum = new decimal(new int[] { 4, 0, 0, 0 });
-        numQuantityDecimals.Name = "numQuantityDecimals";
-        numQuantityDecimals.Size = new Size(76, 32);
-        numQuantityDecimals.TabIndex = 3;
-        numQuantityDecimals.TextAlign = HorizontalAlignment.Center;
-        numQuantityDecimals.Value = new decimal(new int[] { 3, 0, 0, 0 });
-        numQuantityDecimals.ValueChanged += Value_Changed;
+        cmbQuantityDecimals.BackColor = Color.White;
+        cmbQuantityDecimals.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbQuantityDecimals.FlatStyle = FlatStyle.Flat;
+        cmbQuantityDecimals.Font = new Font("Tahoma", 10F);
+        cmbQuantityDecimals.Location = new Point(605, 34);
+        cmbQuantityDecimals.Name = "cmbQuantityDecimals";
+        cmbQuantityDecimals.Size = new Size(150, 32);
+        cmbQuantityDecimals.TabIndex = 3;
+        cmbQuantityDecimals.SelectedIndexChanged += Value_Changed;
         // 
         // lblNumberDecimals
         // 
         lblNumberDecimals.AutoSize = true;
-        lblNumberDecimals.Location = new Point(480, 40);
+        lblNumberDecimals.Location = new Point(484, 38);
         lblNumberDecimals.Name = "lblNumberDecimals";
-        lblNumberDecimals.Size = new Size(94, 24);
+        lblNumberDecimals.Size = new Size(113, 24);
         lblNumberDecimals.TabIndex = 4;
         lblNumberDecimals.Text = "منازل الأعداد";
         // 
-        // numNumberDecimals
+        // cmbNumberDecimals
         // 
-        numNumberDecimals.BackColor = Color.White;
-        numNumberDecimals.BorderStyle = BorderStyle.FixedSingle;
-        numNumberDecimals.Font = new Font("Tahoma", 10F);
-        numNumberDecimals.Location = new Point(396, 34);
-        numNumberDecimals.Maximum = new decimal(new int[] { 4, 0, 0, 0 });
-        numNumberDecimals.Name = "numNumberDecimals";
-        numNumberDecimals.Size = new Size(76, 32);
-        numNumberDecimals.TabIndex = 5;
-        numNumberDecimals.TextAlign = HorizontalAlignment.Center;
-        numNumberDecimals.ValueChanged += Value_Changed;
+        cmbNumberDecimals.BackColor = Color.White;
+        cmbNumberDecimals.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbNumberDecimals.FlatStyle = FlatStyle.Flat;
+        cmbNumberDecimals.Font = new Font("Tahoma", 10F);
+        cmbNumberDecimals.Location = new Point(326, 34);
+        cmbNumberDecimals.Name = "cmbNumberDecimals";
+        cmbNumberDecimals.Size = new Size(150, 32);
+        cmbNumberDecimals.TabIndex = 5;
+        cmbNumberDecimals.SelectedIndexChanged += Value_Changed;
         // 
         // lblPercentDecimals
         // 
         lblPercentDecimals.AutoSize = true;
-        lblPercentDecimals.Location = new Point(215, 40);
+        lblPercentDecimals.Location = new Point(201, 38);
         lblPercentDecimals.Name = "lblPercentDecimals";
-        lblPercentDecimals.Size = new Size(84, 24);
+        lblPercentDecimals.Size = new Size(117, 24);
         lblPercentDecimals.TabIndex = 6;
         lblPercentDecimals.Text = "منازل النسب";
         // 
-        // numPercentDecimals
+        // cmbPercentDecimals
         // 
-        numPercentDecimals.BackColor = Color.White;
-        numPercentDecimals.BorderStyle = BorderStyle.FixedSingle;
-        numPercentDecimals.Font = new Font("Tahoma", 10F);
-        numPercentDecimals.Location = new Point(131, 34);
-        numPercentDecimals.Maximum = new decimal(new int[] { 4, 0, 0, 0 });
-        numPercentDecimals.Name = "numPercentDecimals";
-        numPercentDecimals.Size = new Size(76, 32);
-        numPercentDecimals.TabIndex = 7;
-        numPercentDecimals.TextAlign = HorizontalAlignment.Center;
-        numPercentDecimals.Value = new decimal(new int[] { 2, 0, 0, 0 });
-        numPercentDecimals.ValueChanged += Value_Changed;
+        cmbPercentDecimals.BackColor = Color.White;
+        cmbPercentDecimals.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbPercentDecimals.FlatStyle = FlatStyle.Flat;
+        cmbPercentDecimals.Font = new Font("Tahoma", 10F);
+        cmbPercentDecimals.Location = new Point(43, 34);
+        cmbPercentDecimals.Name = "cmbPercentDecimals";
+        cmbPercentDecimals.Size = new Size(150, 32);
+        cmbPercentDecimals.TabIndex = 7;
+        cmbPercentDecimals.SelectedIndexChanged += Value_Changed;
         // 
-        // chkThousandsSeparator
+        // lblThousandsSeparator
         // 
-        chkThousandsSeparator.Checked = true;
-        chkThousandsSeparator.Font = new Font("Tahoma", 10F);
-        chkThousandsSeparator.Location = new Point(860, 96);
-        chkThousandsSeparator.Name = "chkThousandsSeparator";
-        chkThousandsSeparator.Size = new Size(290, 30);
-        chkThousandsSeparator.TabIndex = 8;
-        chkThousandsSeparator.Text = "فاصل الآلاف (1,234.56)";
-        chkThousandsSeparator.CheckedChanged += Value_Changed;
+        lblThousandsSeparator.AutoSize = true;
+        lblThousandsSeparator.Location = new Point(1044, 90);
+        lblThousandsSeparator.Name = "lblThousandsSeparator";
+        lblThousandsSeparator.Size = new Size(120, 24);
+        lblThousandsSeparator.TabIndex = 8;
+        lblThousandsSeparator.Text = "فاصل الآلاف";
+        // 
+        // pnlThousandsOptions
+        // 
+        pnlThousandsOptions.BackColor = Color.FromArgb(235, 245, 235);
+        pnlThousandsOptions.Controls.Add(rdoThousandsYes);
+        pnlThousandsOptions.Controls.Add(rdoThousandsNo);
+        pnlThousandsOptions.Location = new Point(736, 86);
+        pnlThousandsOptions.Name = "pnlThousandsOptions";
+        pnlThousandsOptions.Size = new Size(300, 36);
+        pnlThousandsOptions.TabIndex = 9;
+        // 
+        // rdoThousandsYes
+        // 
+        rdoThousandsYes.AutoSize = true;
+        rdoThousandsYes.Checked = true;
+        rdoThousandsYes.Font = new Font("Tahoma", 10F);
+        rdoThousandsYes.ForeColor = Color.FromArgb(14, 82, 52);
+        rdoThousandsYes.Location = new Point(220, 6);
+        rdoThousandsYes.Name = "rdoThousandsYes";
+        rdoThousandsYes.Size = new Size(66, 26);
+        rdoThousandsYes.TabIndex = 0;
+        rdoThousandsYes.TabStop = true;
+        rdoThousandsYes.Text = "نعم";
+        rdoThousandsYes.CheckedChanged += Value_Changed;
+        // 
+        // rdoThousandsNo
+        // 
+        rdoThousandsNo.AutoSize = true;
+        rdoThousandsNo.Font = new Font("Tahoma", 10F);
+        rdoThousandsNo.ForeColor = Color.FromArgb(14, 82, 52);
+        rdoThousandsNo.Location = new Point(140, 6);
+        rdoThousandsNo.Name = "rdoThousandsNo";
+        rdoThousandsNo.Size = new Size(52, 26);
+        rdoThousandsNo.TabIndex = 1;
+        rdoThousandsNo.TabStop = true;
+        rdoThousandsNo.Text = "لا";
+        rdoThousandsNo.CheckedChanged += Value_Changed;
+        // 
+        // lblArabicIndicDigits
+        // 
+        lblArabicIndicDigits.AutoSize = true;
+        lblArabicIndicDigits.Location = new Point(476, 90);
+        lblArabicIndicDigits.Name = "lblArabicIndicDigits";
+        lblArabicIndicDigits.Size = new Size(240, 24);
+        lblArabicIndicDigits.TabIndex = 10;
+        lblArabicIndicDigits.Text = "أرقام عربية (٠١٢٣٤٥٦٧٨٩)";
+        // 
+        // pnlArabicDigitsOptions
+        // 
+        pnlArabicDigitsOptions.BackColor = Color.FromArgb(235, 245, 235);
+        pnlArabicDigitsOptions.Controls.Add(rdoArabicYes);
+        pnlArabicDigitsOptions.Controls.Add(rdoArabicNo);
+        pnlArabicDigitsOptions.Location = new Point(168, 86);
+        pnlArabicDigitsOptions.Name = "pnlArabicDigitsOptions";
+        pnlArabicDigitsOptions.Size = new Size(300, 36);
+        pnlArabicDigitsOptions.TabIndex = 11;
+        // 
+        // rdoArabicYes
+        // 
+        rdoArabicYes.AutoSize = true;
+        rdoArabicYes.Font = new Font("Tahoma", 10F);
+        rdoArabicYes.ForeColor = Color.FromArgb(14, 82, 52);
+        rdoArabicYes.Location = new Point(220, 6);
+        rdoArabicYes.Name = "rdoArabicYes";
+        rdoArabicYes.Size = new Size(66, 26);
+        rdoArabicYes.TabIndex = 0;
+        rdoArabicYes.TabStop = true;
+        rdoArabicYes.Text = "نعم";
+        rdoArabicYes.CheckedChanged += Value_Changed;
+        // 
+        // rdoArabicNo
+        // 
+        rdoArabicNo.AutoSize = true;
+        rdoArabicNo.Checked = true;
+        rdoArabicNo.Font = new Font("Tahoma", 10F);
+        rdoArabicNo.ForeColor = Color.FromArgb(14, 82, 52);
+        rdoArabicNo.Location = new Point(140, 6);
+        rdoArabicNo.Name = "rdoArabicNo";
+        rdoArabicNo.Size = new Size(52, 26);
+        rdoArabicNo.TabIndex = 1;
+        rdoArabicNo.TabStop = true;
+        rdoArabicNo.Text = "لا";
+        rdoArabicNo.CheckedChanged += Value_Changed;
         // 
         // lblDecimalSeparator
         // 
         lblDecimalSeparator.AutoSize = true;
-        lblDecimalSeparator.Location = new Point(700, 102);
+        lblDecimalSeparator.Location = new Point(1044, 142);
         lblDecimalSeparator.Name = "lblDecimalSeparator";
-        lblDecimalSeparator.Size = new Size(76, 24);
-        lblDecimalSeparator.TabIndex = 9;
+        lblDecimalSeparator.Size = new Size(120, 24);
+        lblDecimalSeparator.TabIndex = 12;
         lblDecimalSeparator.Text = "فاصل الكسر";
         // 
         // cmbDecimalSeparator
@@ -246,38 +327,26 @@ partial class frmFormatingSetting
         cmbDecimalSeparator.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbDecimalSeparator.FlatStyle = FlatStyle.Flat;
         cmbDecimalSeparator.Font = new Font("Tahoma", 10F);
-        cmbDecimalSeparator.Items.AddRange(new object[] { ".", "," });
-        cmbDecimalSeparator.Location = new Point(600, 96);
+        cmbDecimalSeparator.Location = new Point(776, 138);
         cmbDecimalSeparator.Name = "cmbDecimalSeparator";
-        cmbDecimalSeparator.SelectedIndex = 0;
-        cmbDecimalSeparator.Size = new Size(92, 32);
-        cmbDecimalSeparator.TabIndex = 10;
+        cmbDecimalSeparator.Size = new Size(260, 32);
+        cmbDecimalSeparator.TabIndex = 13;
         cmbDecimalSeparator.SelectedIndexChanged += Value_Changed;
-        // 
-        // chkArabicIndicDigits
-        // 
-        chkArabicIndicDigits.Font = new Font("Tahoma", 10F);
-        chkArabicIndicDigits.Location = new Point(200, 96);
-        chkArabicIndicDigits.Name = "chkArabicIndicDigits";
-        chkArabicIndicDigits.Size = new Size(300, 30);
-        chkArabicIndicDigits.TabIndex = 11;
-        chkArabicIndicDigits.Text = "أرقام عربية (٠١٢٣٤٥٦٧٨٩)";
-        chkArabicIndicDigits.CheckedChanged += Value_Changed;
         // 
         // gbDates
         // 
         gbDates.BackColor = Color.FromArgb(235, 245, 235);
         gbDates.Controls.Add(lblDateShortPattern);
-        gbDates.Controls.Add(txtDateShortPattern);
+        gbDates.Controls.Add(cmbDateShortPattern);
         gbDates.Controls.Add(lblDateDayMonthYearPattern);
-        gbDates.Controls.Add(txtDateDayMonthYearPattern);
+        gbDates.Controls.Add(cmbDateDayMonthYearPattern);
         gbDates.Controls.Add(lblDateLongPattern);
-        gbDates.Controls.Add(txtDateLongPattern);
+        gbDates.Controls.Add(cmbDateLongPattern);
         gbDates.Controls.Add(lblDateHint);
         gbDates.Dock = DockStyle.Top;
         gbDates.Font = new Font("Tahoma", 10F);
         gbDates.ForeColor = Color.FromArgb(14, 82, 52);
-        gbDates.Location = new Point(0, 232);
+        gbDates.Location = new Point(0, 256);
         gbDates.Name = "gbDates";
         gbDates.Padding = new Padding(8);
         gbDates.Size = new Size(1180, 132);
@@ -288,62 +357,68 @@ partial class frmFormatingSetting
         // lblDateShortPattern
         // 
         lblDateShortPattern.AutoSize = true;
-        lblDateShortPattern.Location = new Point(1010, 40);
+        lblDateShortPattern.Location = new Point(1034, 38);
         lblDateShortPattern.Name = "lblDateShortPattern";
-        lblDateShortPattern.Size = new Size(140, 24);
+        lblDateShortPattern.Size = new Size(130, 24);
         lblDateShortPattern.TabIndex = 0;
-        lblDateShortPattern.Text = "صيغة التاريخ القصير";
+        lblDateShortPattern.Text = "التاريخ القصير";
         // 
-        // txtDateShortPattern
+        // cmbDateShortPattern
         // 
-        txtDateShortPattern.BackColor = Color.White;
-        txtDateShortPattern.Font = new Font("Tahoma", 10F);
-        txtDateShortPattern.Location = new Point(790, 34);
-        txtDateShortPattern.Name = "txtDateShortPattern";
-        txtDateShortPattern.Size = new Size(200, 32);
-        txtDateShortPattern.TabIndex = 1;
-        txtDateShortPattern.TextAlign = HorizontalAlignment.Center;
-        txtDateShortPattern.TextChanged += Value_Changed;
+        cmbDateShortPattern.BackColor = Color.White;
+        cmbDateShortPattern.DropDownStyle = ComboBoxStyle.DropDown;
+        cmbDateShortPattern.FlatStyle = FlatStyle.Flat;
+        cmbDateShortPattern.Font = new Font("Tahoma", 10F);
+        cmbDateShortPattern.Location = new Point(806, 34);
+        cmbDateShortPattern.Name = "cmbDateShortPattern";
+        cmbDateShortPattern.Size = new Size(220, 32);
+        cmbDateShortPattern.TabIndex = 1;
+        cmbDateShortPattern.SelectedIndexChanged += Value_Changed;
+        cmbDateShortPattern.TextChanged += Value_Changed;
         // 
         // lblDateDayMonthYearPattern
         // 
         lblDateDayMonthYearPattern.AutoSize = true;
-        lblDateDayMonthYearPattern.Location = new Point(620, 40);
+        lblDateDayMonthYearPattern.Location = new Point(678, 38);
         lblDateDayMonthYearPattern.Name = "lblDateDayMonthYearPattern";
-        lblDateDayMonthYearPattern.Size = new Size(148, 24);
+        lblDateDayMonthYearPattern.Size = new Size(120, 24);
         lblDateDayMonthYearPattern.TabIndex = 2;
-        lblDateDayMonthYearPattern.Text = "صيغة يوم/شهر/سنة";
+        lblDateDayMonthYearPattern.Text = "يوم/شهر/سنة";
         // 
-        // txtDateDayMonthYearPattern
+        // cmbDateDayMonthYearPattern
         // 
-        txtDateDayMonthYearPattern.BackColor = Color.White;
-        txtDateDayMonthYearPattern.Font = new Font("Tahoma", 10F);
-        txtDateDayMonthYearPattern.Location = new Point(400, 34);
-        txtDateDayMonthYearPattern.Name = "txtDateDayMonthYearPattern";
-        txtDateDayMonthYearPattern.Size = new Size(200, 32);
-        txtDateDayMonthYearPattern.TabIndex = 3;
-        txtDateDayMonthYearPattern.TextAlign = HorizontalAlignment.Center;
-        txtDateDayMonthYearPattern.TextChanged += Value_Changed;
+        cmbDateDayMonthYearPattern.BackColor = Color.White;
+        cmbDateDayMonthYearPattern.DropDownStyle = ComboBoxStyle.DropDown;
+        cmbDateDayMonthYearPattern.FlatStyle = FlatStyle.Flat;
+        cmbDateDayMonthYearPattern.Font = new Font("Tahoma", 10F);
+        cmbDateDayMonthYearPattern.Location = new Point(450, 34);
+        cmbDateDayMonthYearPattern.Name = "cmbDateDayMonthYearPattern";
+        cmbDateDayMonthYearPattern.Size = new Size(220, 32);
+        cmbDateDayMonthYearPattern.TabIndex = 3;
+        cmbDateDayMonthYearPattern.SelectedIndexChanged += Value_Changed;
+        cmbDateDayMonthYearPattern.TextChanged += Value_Changed;
         // 
         // lblDateLongPattern
         // 
         lblDateLongPattern.AutoSize = true;
-        lblDateLongPattern.Location = new Point(230, 40);
+        lblDateLongPattern.Location = new Point(302, 38);
         lblDateLongPattern.Name = "lblDateLongPattern";
-        lblDateLongPattern.Size = new Size(148, 24);
+        lblDateLongPattern.Size = new Size(140, 24);
         lblDateLongPattern.TabIndex = 4;
-        lblDateLongPattern.Text = "صيغة التاريخ والوقت";
+        lblDateLongPattern.Text = "التاريخ والوقت";
         // 
-        // txtDateLongPattern
+        // cmbDateLongPattern
         // 
-        txtDateLongPattern.BackColor = Color.White;
-        txtDateLongPattern.Font = new Font("Tahoma", 10F);
-        txtDateLongPattern.Location = new Point(10, 34);
-        txtDateLongPattern.Name = "txtDateLongPattern";
-        txtDateLongPattern.Size = new Size(200, 32);
-        txtDateLongPattern.TabIndex = 5;
-        txtDateLongPattern.TextAlign = HorizontalAlignment.Center;
-        txtDateLongPattern.TextChanged += Value_Changed;
+        cmbDateLongPattern.BackColor = Color.White;
+        cmbDateLongPattern.DropDownStyle = ComboBoxStyle.DropDown;
+        cmbDateLongPattern.FlatStyle = FlatStyle.Flat;
+        cmbDateLongPattern.Font = new Font("Tahoma", 10F);
+        cmbDateLongPattern.Location = new Point(74, 34);
+        cmbDateLongPattern.Name = "cmbDateLongPattern";
+        cmbDateLongPattern.Size = new Size(220, 32);
+        cmbDateLongPattern.TabIndex = 5;
+        cmbDateLongPattern.SelectedIndexChanged += Value_Changed;
+        cmbDateLongPattern.TextChanged += Value_Changed;
         // 
         // lblDateHint
         // 
@@ -362,7 +437,7 @@ partial class frmFormatingSetting
         gbPreview.Dock = DockStyle.Fill;
         gbPreview.Font = new Font("Tahoma", 10F);
         gbPreview.ForeColor = Color.FromArgb(14, 82, 52);
-        gbPreview.Location = new Point(0, 364);
+        gbPreview.Location = new Point(0, 388);
         gbPreview.Name = "gbPreview";
         gbPreview.Padding = new Padding(8);
         gbPreview.Size = new Size(1180, 364);
@@ -390,9 +465,9 @@ partial class frmFormatingSetting
         pnlPreviewScroll.Controls.Add(lblPreviewSample);
         pnlPreviewScroll.Controls.Add(lblValidation);
         pnlPreviewScroll.Dock = DockStyle.Fill;
-        pnlPreviewScroll.Location = new Point(8, 30);
+        pnlPreviewScroll.Location = new Point(8, 33);
         pnlPreviewScroll.Name = "pnlPreviewScroll";
-        pnlPreviewScroll.Size = new Size(1164, 326);
+        pnlPreviewScroll.Size = new Size(1164, 323);
         pnlPreviewScroll.TabIndex = 0;
         // 
         // lblPreviewMoneyCaption
@@ -402,7 +477,7 @@ partial class frmFormatingSetting
         lblPreviewMoneyCaption.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewMoneyCaption.Location = new Point(1000, 14);
         lblPreviewMoneyCaption.Name = "lblPreviewMoneyCaption";
-        lblPreviewMoneyCaption.Size = new Size(66, 24);
+        lblPreviewMoneyCaption.Size = new Size(73, 24);
         lblPreviewMoneyCaption.TabIndex = 0;
         lblPreviewMoneyCaption.Text = "المبلغ:";
         // 
@@ -413,7 +488,7 @@ partial class frmFormatingSetting
         lblPreviewMoney.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewMoney.Location = new Point(640, 14);
         lblPreviewMoney.Name = "lblPreviewMoney";
-        lblPreviewMoney.Size = new Size(60, 24);
+        lblPreviewMoney.Size = new Size(28, 24);
         lblPreviewMoney.TabIndex = 1;
         lblPreviewMoney.Text = "—";
         // 
@@ -435,7 +510,7 @@ partial class frmFormatingSetting
         lblPreviewQuantity.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewQuantity.Location = new Point(640, 48);
         lblPreviewQuantity.Name = "lblPreviewQuantity";
-        lblPreviewQuantity.Size = new Size(60, 24);
+        lblPreviewQuantity.Size = new Size(28, 24);
         lblPreviewQuantity.TabIndex = 3;
         lblPreviewQuantity.Text = "—";
         // 
@@ -446,7 +521,7 @@ partial class frmFormatingSetting
         lblPreviewNumberCaption.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewNumberCaption.Location = new Point(1000, 82);
         lblPreviewNumberCaption.Name = "lblPreviewNumberCaption";
-        lblPreviewNumberCaption.Size = new Size(66, 24);
+        lblPreviewNumberCaption.Size = new Size(65, 24);
         lblPreviewNumberCaption.TabIndex = 4;
         lblPreviewNumberCaption.Text = "العدد:";
         // 
@@ -457,7 +532,7 @@ partial class frmFormatingSetting
         lblPreviewNumber.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewNumber.Location = new Point(640, 82);
         lblPreviewNumber.Name = "lblPreviewNumber";
-        lblPreviewNumber.Size = new Size(60, 24);
+        lblPreviewNumber.Size = new Size(28, 24);
         lblPreviewNumber.TabIndex = 5;
         lblPreviewNumber.Text = "—";
         // 
@@ -468,7 +543,7 @@ partial class frmFormatingSetting
         lblPreviewPercentCaption.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewPercentCaption.Location = new Point(1000, 116);
         lblPreviewPercentCaption.Name = "lblPreviewPercentCaption";
-        lblPreviewPercentCaption.Size = new Size(76, 24);
+        lblPreviewPercentCaption.Size = new Size(82, 24);
         lblPreviewPercentCaption.TabIndex = 6;
         lblPreviewPercentCaption.Text = "النسبة:";
         // 
@@ -479,7 +554,7 @@ partial class frmFormatingSetting
         lblPreviewPercent.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewPercent.Location = new Point(640, 116);
         lblPreviewPercent.Name = "lblPreviewPercent";
-        lblPreviewPercent.Size = new Size(60, 24);
+        lblPreviewPercent.Size = new Size(28, 24);
         lblPreviewPercent.TabIndex = 7;
         lblPreviewPercent.Text = "—";
         // 
@@ -490,7 +565,7 @@ partial class frmFormatingSetting
         lblPreviewDateShortCaption.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewDateShortCaption.Location = new Point(1000, 150);
         lblPreviewDateShortCaption.Name = "lblPreviewDateShortCaption";
-        lblPreviewDateShortCaption.Size = new Size(136, 24);
+        lblPreviewDateShortCaption.Size = new Size(145, 24);
         lblPreviewDateShortCaption.TabIndex = 8;
         lblPreviewDateShortCaption.Text = "التاريخ القصير:";
         // 
@@ -501,7 +576,7 @@ partial class frmFormatingSetting
         lblPreviewDateShort.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewDateShort.Location = new Point(640, 150);
         lblPreviewDateShort.Name = "lblPreviewDateShort";
-        lblPreviewDateShort.Size = new Size(60, 24);
+        lblPreviewDateShort.Size = new Size(28, 24);
         lblPreviewDateShort.TabIndex = 9;
         lblPreviewDateShort.Text = "—";
         // 
@@ -512,7 +587,7 @@ partial class frmFormatingSetting
         lblPreviewDateDMYCaption.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewDateDMYCaption.Location = new Point(1000, 184);
         lblPreviewDateDMYCaption.Name = "lblPreviewDateDMYCaption";
-        lblPreviewDateDMYCaption.Size = new Size(146, 24);
+        lblPreviewDateDMYCaption.Size = new Size(160, 24);
         lblPreviewDateDMYCaption.TabIndex = 10;
         lblPreviewDateDMYCaption.Text = "يوم/شهر/سنة:";
         // 
@@ -523,7 +598,7 @@ partial class frmFormatingSetting
         lblPreviewDateDMY.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewDateDMY.Location = new Point(640, 184);
         lblPreviewDateDMY.Name = "lblPreviewDateDMY";
-        lblPreviewDateDMY.Size = new Size(60, 24);
+        lblPreviewDateDMY.Size = new Size(28, 24);
         lblPreviewDateDMY.TabIndex = 11;
         lblPreviewDateDMY.Text = "—";
         // 
@@ -534,7 +609,7 @@ partial class frmFormatingSetting
         lblPreviewDateLongCaption.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewDateLongCaption.Location = new Point(1000, 218);
         lblPreviewDateLongCaption.Name = "lblPreviewDateLongCaption";
-        lblPreviewDateLongCaption.Size = new Size(148, 24);
+        lblPreviewDateLongCaption.Size = new Size(150, 24);
         lblPreviewDateLongCaption.TabIndex = 12;
         lblPreviewDateLongCaption.Text = "التاريخ والوقت:";
         // 
@@ -545,7 +620,7 @@ partial class frmFormatingSetting
         lblPreviewDateLong.ForeColor = Color.FromArgb(14, 82, 52);
         lblPreviewDateLong.Location = new Point(640, 218);
         lblPreviewDateLong.Name = "lblPreviewDateLong";
-        lblPreviewDateLong.Size = new Size(60, 24);
+        lblPreviewDateLong.Size = new Size(28, 24);
         lblPreviewDateLong.TabIndex = 13;
         lblPreviewDateLong.Text = "—";
         // 
@@ -575,7 +650,7 @@ partial class frmFormatingSetting
         pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
-        pnlSummary.Location = new Point(0, 728);
+        pnlSummary.Location = new Point(0, 752);
         pnlSummary.Margin = new Padding(0);
         pnlSummary.Name = "pnlSummary";
         pnlSummary.Size = new Size(1180, 42);
@@ -599,7 +674,7 @@ partial class frmFormatingSetting
         pnlFooter.Controls.Add(lblFooterHint);
         pnlFooter.Controls.Add(flpFooter);
         pnlFooter.Dock = DockStyle.Bottom;
-        pnlFooter.Location = new Point(0, 770);
+        pnlFooter.Location = new Point(0, 794);
         pnlFooter.Margin = new Padding(0);
         pnlFooter.Name = "pnlFooter";
         pnlFooter.Size = new Size(1180, 60);
@@ -625,7 +700,6 @@ partial class frmFormatingSetting
         flpFooter.Controls.Add(btnReset);
         flpFooter.Controls.Add(btnClose);
         flpFooter.Dock = DockStyle.Right;
-        flpFooter.FlowDirection = FlowDirection.LeftToRight;
         flpFooter.Location = new Point(660, 0);
         flpFooter.Name = "flpFooter";
         flpFooter.Padding = new Padding(8, 11, 8, 11);
@@ -641,7 +715,7 @@ partial class frmFormatingSetting
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 9F, FontStyle.Bold);
         btnSave.ForeColor = Color.White;
-        btnSave.Location = new Point(8, 11);
+        btnSave.Location = new Point(354, 11);
         btnSave.Margin = new Padding(0, 0, 8, 0);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(150, 38);
@@ -659,10 +733,10 @@ partial class frmFormatingSetting
         btnReset.FlatStyle = FlatStyle.Flat;
         btnReset.Font = new Font("Tahoma", 9F, FontStyle.Bold);
         btnReset.ForeColor = Color.White;
-        btnReset.Location = new Point(166, 11);
+        btnReset.Location = new Point(159, 11);
         btnReset.Margin = new Padding(0, 0, 8, 0);
         btnReset.Name = "btnReset";
-        btnReset.Size = new Size(170, 38);
+        btnReset.Size = new Size(187, 38);
         btnReset.TabIndex = 1;
         btnReset.Text = "استعادة الافتراضي";
         toolTip.SetToolTip(btnReset, "إعادة كل إعدادات التنسيق إلى قيمها الافتراضية بعد تأكيد");
@@ -677,7 +751,7 @@ partial class frmFormatingSetting
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 9F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(344, 11);
+        btnClose.Location = new Point(31, 11);
         btnClose.Margin = new Padding(0);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(120, 38);
@@ -692,7 +766,7 @@ partial class frmFormatingSetting
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.FromArgb(170, 220, 170);
-        ClientSize = new Size(1180, 830);
+        ClientSize = new Size(1180, 854);
         Controls.Add(gbPreview);
         Controls.Add(pnlSummary);
         Controls.Add(pnlFooter);
@@ -710,14 +784,13 @@ partial class frmFormatingSetting
         pnlHeader.ResumeLayout(false);
         gbNumbers.ResumeLayout(false);
         gbNumbers.PerformLayout();
-        ((System.ComponentModel.ISupportInitialize)numMoneyDecimals).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numQuantityDecimals).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numNumberDecimals).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numPercentDecimals).EndInit();
+        pnlThousandsOptions.ResumeLayout(false);
+        pnlThousandsOptions.PerformLayout();
+        pnlArabicDigitsOptions.ResumeLayout(false);
+        pnlArabicDigitsOptions.PerformLayout();
         gbDates.ResumeLayout(false);
         gbDates.PerformLayout();
         gbPreview.ResumeLayout(false);
-        gbPreview.PerformLayout();
         pnlPreviewScroll.ResumeLayout(false);
         pnlPreviewScroll.PerformLayout();
         pnlSummary.ResumeLayout(false);
@@ -730,24 +803,30 @@ partial class frmFormatingSetting
     private System.Windows.Forms.Label lblMode;
     private System.Windows.Forms.GroupBox gbNumbers;
     private System.Windows.Forms.Label lblMoneyDecimals;
-    private System.Windows.Forms.NumericUpDown numMoneyDecimals;
+    private System.Windows.Forms.ComboBox cmbMoneyDecimals;
     private System.Windows.Forms.Label lblQuantityDecimals;
-    private System.Windows.Forms.NumericUpDown numQuantityDecimals;
+    private System.Windows.Forms.ComboBox cmbQuantityDecimals;
     private System.Windows.Forms.Label lblNumberDecimals;
-    private System.Windows.Forms.NumericUpDown numNumberDecimals;
+    private System.Windows.Forms.ComboBox cmbNumberDecimals;
     private System.Windows.Forms.Label lblPercentDecimals;
-    private System.Windows.Forms.NumericUpDown numPercentDecimals;
-    private System.Windows.Forms.CheckBox chkThousandsSeparator;
+    private System.Windows.Forms.ComboBox cmbPercentDecimals;
+    private System.Windows.Forms.Label lblThousandsSeparator;
+    private System.Windows.Forms.Panel pnlThousandsOptions;
+    private System.Windows.Forms.RadioButton rdoThousandsYes;
+    private System.Windows.Forms.RadioButton rdoThousandsNo;
+    private System.Windows.Forms.Label lblArabicIndicDigits;
+    private System.Windows.Forms.Panel pnlArabicDigitsOptions;
+    private System.Windows.Forms.RadioButton rdoArabicYes;
+    private System.Windows.Forms.RadioButton rdoArabicNo;
     private System.Windows.Forms.Label lblDecimalSeparator;
     private System.Windows.Forms.ComboBox cmbDecimalSeparator;
-    private System.Windows.Forms.CheckBox chkArabicIndicDigits;
     private System.Windows.Forms.GroupBox gbDates;
     private System.Windows.Forms.Label lblDateShortPattern;
-    private System.Windows.Forms.TextBox txtDateShortPattern;
+    private System.Windows.Forms.ComboBox cmbDateShortPattern;
     private System.Windows.Forms.Label lblDateDayMonthYearPattern;
-    private System.Windows.Forms.TextBox txtDateDayMonthYearPattern;
+    private System.Windows.Forms.ComboBox cmbDateDayMonthYearPattern;
     private System.Windows.Forms.Label lblDateLongPattern;
-    private System.Windows.Forms.TextBox txtDateLongPattern;
+    private System.Windows.Forms.ComboBox cmbDateLongPattern;
     private System.Windows.Forms.Label lblDateHint;
     private System.Windows.Forms.GroupBox gbPreview;
     private System.Windows.Forms.Panel pnlPreviewScroll;

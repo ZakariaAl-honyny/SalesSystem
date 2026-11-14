@@ -27,6 +27,12 @@ namespace SalesSystem.Desktop.GlobalClasses
         int Max = 0,
         IReadOnlyList<string>? AllowedValues = null);
 
+    /// <summary>خيار معروض في قائمة اختيار: القيمة المخزَّنة والنص العربي الذي يراه المستخدم.</summary>
+    public sealed record FormatOption(string Value, string DisplayText)
+    {
+        public override string ToString() => DisplayText;
+    }
+
     /// <summary>
     /// تنسيق وقراءة التواريخ والأرقام والمبالغ — البيت الواحد لكل تنسيق يُعرض في الشاشات
     /// (<c>RULE-N169</c>…<c>RULE-N172</c>): التعريفات والقيم الحيّة والتحقق والتنسيق والقراءة كلها هنا،
@@ -50,6 +56,12 @@ namespace SalesSystem.Desktop.GlobalClasses
         public const string NumbersGroup = "المبالغ والأرقام";
         public const string DatesGroup = "التواريخ";
 
+        // ── التمثيل القانوني لقيم نعم/لا (البيت الواحد — لا يُكتب حرفياً في أي شاشة) ──
+        /// <summary>التمثيل القانوني لقيمة نعم — البيت الواحد (لا يُكتب حرفياً في أي شاشة).</summary>
+        public const string ToggleTrue = "true";
+        /// <summary>التمثيل القانوني لقيمة لا.</summary>
+        public const string ToggleFalse = "false";
+
         private const string InvariantExamplePattern = "dd/MM/yyyy";
         private const int MaxPatternLength = 32;
 
@@ -69,6 +81,65 @@ namespace SalesSystem.Desktop.GlobalClasses
             if (string.IsNullOrWhiteSpace(key)) return string.Empty;
 
             return _values.TryGetValue(key, out var value) ? value : string.Empty;
+        }
+
+        /// <summary>
+        /// خيارات مفتاح تنسيق واحد — تُبنى من التعريف وحده (لا نسخة ثانية من التسميات في أي شاشة ولا في أي خدمة).
+        /// <para>
+        /// <c>Decimals</c>: خيار لكل قيمة من <c>Min</c> إلى <c>Max</c> بنص وصفي («منزلتان»…).
+        /// <c>Toggle</c>: «نعم» ثم «لا». <c>Choice</c>: خيار لكل قيمة مسموحة بنص ودّي.
+        /// <c>Pattern</c>: خيار لكل صيغة مسموحة بنصها كما هي (المثال الحيّ يعرضه صندوق المعاينة).
+        /// </para>
+        /// <para>لا ترمي استثناءً أبداً: المفتاح المجهول أو الفارغ يُعيد قائمة فارغة.</para>
+        /// </summary>
+        public static IReadOnlyList<FormatOption> Options(string key)
+        {
+            var definition = _Find(key);
+            if (definition is null) return Array.Empty<FormatOption>();
+
+            try
+            {
+                if (definition.Kind == FormatSettingKind.Decimals)
+                {
+                    var decimals = new List<FormatOption>(Math.Max(definition.Max - definition.Min + 1, 0));
+
+                    for (var count = definition.Min; count <= definition.Max; count++)
+                    {
+                        decimals.Add(new FormatOption(
+                            count.ToString(CultureInfo.InvariantCulture),
+                            $"{count} — {_DecimalsWord(count)}"));
+                    }
+
+                    return decimals;
+                }
+
+                if (definition.Kind == FormatSettingKind.Toggle)
+                {
+                    return new List<FormatOption>(2)
+                    {
+                        new FormatOption(ToggleTrue, "نعم"),
+                        new FormatOption(ToggleFalse, "لا")
+                    };
+                }
+
+                var allowed = definition.AllowedValues;
+                if (allowed is null || allowed.Count == 0) return Array.Empty<FormatOption>();
+
+                var options = new List<FormatOption>(allowed.Count);
+
+                foreach (var value in allowed)
+                {
+                    options.Add(new FormatOption(
+                        value,
+                        definition.Kind == FormatSettingKind.Choice ? _ChoiceText(value) : value));
+                }
+
+                return options;
+            }
+            catch (Exception)
+            {
+                return Array.Empty<FormatOption>();
+            }
         }
 
         /// <summary>نسخة مستقلة من كل القيم الحيّة بمفاتيح التعريفات (آمنة للتعديل والفحص خارجياً).</summary>
@@ -100,7 +171,7 @@ namespace SalesSystem.Desktop.GlobalClasses
             if (definition.Key is ThousandsSeparator or DecimalSeparator)
             {
                 bool thousands = definition.Key == ThousandsSeparator
-                    ? NormalizeToggle(normalized) == "true"
+                    ? NormalizeToggle(normalized) == ToggleTrue
                     : _Toggle(ThousandsSeparator, null);
 
                 string decimalSeparator = definition.Key == DecimalSeparator
@@ -246,6 +317,12 @@ namespace SalesSystem.Desktop.GlobalClasses
 
         // ───────────────────────────── القراءة ─────────────────────────────
 
+        /// <summary>
+        /// يقرأ نعم/لا بأي صيغة يقبلها العقد (<c>"true"</c>/<c>"1"</c>/<c>"نعم"</c>) — <c>true</c> للنعمى فقط،
+        /// وأي قيمة أخرى (بما فيها الفارغة أو غير المعروفة) تُقرأ «لا» كما في <c>NormalizeToggle</c>.
+        /// </summary>
+        public static bool IsOn(string? value) => NormalizeToggle(value) == ToggleTrue;
+
         /// <summary>يقرأ مبلغاً من نص المستخدم — يُعيد <c>false</c> للنص الفارغ أو غير الرقمي.</summary>
         public static bool TryParseMoney(string? text, out decimal value)
         {
@@ -309,12 +386,18 @@ namespace SalesSystem.Desktop.GlobalClasses
                 new(QuantityDecimals, "منازل الكميات", NumbersGroup, FormatSettingKind.Decimals, "3", 0, 4),
                 new(NumberDecimals, "منازل الأعداد", NumbersGroup, FormatSettingKind.Decimals, "0", 0, 4),
                 new(PercentDecimals, "منازل النسب", NumbersGroup, FormatSettingKind.Decimals, "2", 0, 4),
-                new(ThousandsSeparator, "فاصل الآلاف", NumbersGroup, FormatSettingKind.Toggle, "true"),
+                new(ThousandsSeparator, "فاصل الآلاف", NumbersGroup, FormatSettingKind.Toggle, ToggleTrue),
                 new(DecimalSeparator, "فاصل الكسر", NumbersGroup, FormatSettingKind.Choice, ".", AllowedValues: new[] { ".", "," }),
-                new(ArabicIndicDigits, "أرقام عربية (٠١٢٣٤٥٦٧٨٩)", NumbersGroup, FormatSettingKind.Toggle, "false"),
-                new(DateShortPattern, "صيغة التاريخ القصير", DatesGroup, FormatSettingKind.Pattern, "dd/MMM/yyyy"),
-                new(DateDayMonthYearPattern, "صيغة يوم/شهر/سنة", DatesGroup, FormatSettingKind.Pattern, "dd/MM/yyyy"),
-                new(DateLongPattern, "صيغة التاريخ والوقت", DatesGroup, FormatSettingKind.Pattern, "dd/MM/yyyy HH:mm")
+                new(ArabicIndicDigits, "أرقام عربية (٠١٢٣٤٥٦٧٨٩)", NumbersGroup, FormatSettingKind.Toggle, ToggleFalse),
+
+                // الافتراضي أولاً في كل قائمة (يُختار تلقائياً عند استعادة الافتراضي) — ولا تُضيَّق الصيغة المكتوبة يدوياً:
+                // التحقق يبقى عبر _IsValidPattern لا عبر القائمة، فالقائمة اقتراح سريع للمستخدم.
+                new(DateShortPattern, "صيغة التاريخ القصير", DatesGroup, FormatSettingKind.Pattern, "dd/MMM/yyyy",
+                    AllowedValues: new[] { "dd/MMM/yyyy", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd" }),
+                new(DateDayMonthYearPattern, "صيغة يوم/شهر/سنة", DatesGroup, FormatSettingKind.Pattern, "dd/MM/yyyy",
+                    AllowedValues: new[] { "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd", "dd/MM/yy" }),
+                new(DateLongPattern, "صيغة التاريخ والوقت", DatesGroup, FormatSettingKind.Pattern, "dd/MM/yyyy HH:mm",
+                    AllowedValues: new[] { "dd/MM/yyyy HH:mm", "dd/MM/yyyy hh:mm tt", "yyyy/MM/dd HH:mm", "dd/MM/yyyy HH:mm:ss" })
             };
         }
 
@@ -340,6 +423,24 @@ namespace SalesSystem.Desktop.GlobalClasses
 
         private static FormatSettingDefinition? _Find(string? key)
             => key is not null && _definitionsByKey.TryGetValue(key, out var definition) ? definition : null;
+
+        /// <summary>النص العربي الوصفي لعدد المنازل العشرية (يُستهلك في خيارات القوائم فقط).</summary>
+        private static string _DecimalsWord(int count) => count switch
+        {
+            0 => "بلا كسور",
+            1 => "منزلة واحدة",
+            2 => "منزلتان",
+            3 => "ثلاث منازل",
+            _ => "أربع منازل"
+        };
+
+        /// <summary>النص الودّي لقيمة فاصل (يُستهلك في خيارات القوائم فقط — قيمة غير معروفة تُعرض كما هي).</summary>
+        private static string _ChoiceText(string value) => value switch
+        {
+            "." => "نقطة (.) — مثال: 1,234.56",
+            "," => "فاصلة (,) — مثال: 1.234,56",
+            _ => value
+        };
 
         /// <summary>القارئ الوحيد للقيم: دفعة المعاينة ← القيمة الحيّة ← الافتراضي (بلا نسخة ثانية من الافتراضيات).</summary>
         private static string _Read(string key, IReadOnlyDictionary<string, string>? values)
@@ -368,7 +469,7 @@ namespace SalesSystem.Desktop.GlobalClasses
         }
 
         private static bool _Toggle(string key, IReadOnlyDictionary<string, string>? values)
-            => NormalizeToggle(_Read(key, values)) == "true";
+            => IsOn(_Read(key, values));
 
         /// <summary>
         /// القاعدة المتقاطعة الوحيدة (فاصل آلاف مفعّل + «,» فاصلَ كسر = التباس) — يستهلكها
@@ -533,8 +634,8 @@ namespace SalesSystem.Desktop.GlobalClasses
         {
             return (text ?? string.Empty).Trim().ToLowerInvariant() switch
             {
-                "true" or "1" or "نعم" => "true",
-                "false" or "0" or "لا" => "false",
+                "true" or "1" or "نعم" => ToggleTrue,
+                "false" or "0" or "لا" => ToggleFalse,
                 _ => null
             };
         }
