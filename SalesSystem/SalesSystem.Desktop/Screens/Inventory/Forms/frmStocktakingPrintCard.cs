@@ -1,4 +1,5 @@
 using System.Drawing.Drawing2D;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -131,19 +132,17 @@ public partial class frmStocktakingPrintCard : Form
     {
         try
         {
-            MessageBox.Show(
+            clsDialogs.Success(
                 $"تمت طباعة كرت صنف «{_card.ProductName}» بنجاح.\n" +
                 $"الباركود: {_card.Barcode} — المستودع: {_card.Warehouse}\n" +
                 $"الرصيد الحالي: {_card.CurrentBalance:N3} — عدد الحركات: {_movements.Count}\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
             Serilog.Log.Error(ex, "تعذرت طباعة كرت الصنف {ProductName}", _card.ProductName);
-            MessageBox.Show("تعذر طباعة كرت الصنف. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر طباعة كرت الصنف. يرجى إعادة المحاولة.");
         }
     }
 

@@ -162,8 +162,7 @@ public partial class frmWarehouseMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث البيانات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -188,8 +187,7 @@ public partial class frmWarehouseMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل المخازن");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -245,15 +243,13 @@ public partial class frmWarehouseMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة المخازن.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة المخازن.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة المخازن");
-            MessageBox.Show("تعذر تحميل قائمة المخازن. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة المخازن. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -484,8 +480,7 @@ public partial class frmWarehouseMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار مخزن من الشبكة");
-            MessageBox.Show("تعذر عرض بيانات المخزن المحدد. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات المخزن المحدد. يرجى إعادة المحاولة.");
         }
     }
 
@@ -643,8 +638,7 @@ public partial class frmWarehouseMaster : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -717,8 +711,7 @@ public partial class frmWarehouseMaster : Form
             {
                 EventBus.Publish(new WarehouseChangedMessage(result.Value.Id));
 
-                MessageBox.Show(edit ? "تم تعديل المخزن بنجاح." : "تمت إضافة المخزن بنجاح.",
-                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(edit ? "تم تعديل المخزن بنجاح." : "تمت إضافة المخزن بنجاح.");
 
                 // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
                 // ثم تحديث القائمة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي — RULE-N151).
@@ -732,15 +725,13 @@ public partial class frmWarehouseMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حفظ المخزن.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حفظ المخزن.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ المخزن");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -754,16 +745,13 @@ public partial class frmWarehouseMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار مخزن من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار مخزن من القائمة أولاً.");
             return;
         }
 
         string name = txtName.Text.Trim();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) المخزن \"{name}\"؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) المخزن \"{name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -775,8 +763,7 @@ public partial class frmWarehouseMaster : Form
             var current = await WarehouseService.GetByIdAsync(id);
             if (!current.IsSuccess || current.Value is null)
             {
-                MessageBox.Show($"لم يتم تعطيل المخزن.\n{current.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل المخزن.\n{current.Error}");
                 return;
             }
 
@@ -787,8 +774,7 @@ public partial class frmWarehouseMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعطيل المخزن بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعطيل المخزن بنجاح.");
 
                 EventBus.Publish(new WarehouseChangedMessage(id));
 
@@ -799,15 +785,13 @@ public partial class frmWarehouseMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم تعطيل المخزن.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل المخزن.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعطيل المخزن {WarehouseId}", id);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -821,16 +805,13 @@ public partial class frmWarehouseMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار مخزن من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار مخزن من القائمة أولاً.");
             return;
         }
 
         string name = txtName.Text.Trim();
 
-        if (MessageBox.Show($"هل تريد تعيين المخزن \"{name}\" كمخزن افتراضي؟",
-                "تعيين مخزن افتراضي", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد تعيين المخزن \"{name}\" كمخزن افتراضي؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -842,22 +823,19 @@ public partial class frmWarehouseMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعيين المخزن الافتراضي بنجاح.", "تم التنفيذ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعيين المخزن الافتراضي بنجاح.");
 
                 EventBus.Publish(new WarehouseChangedMessage(id));
             }
             else
             {
-                MessageBox.Show($"لم يتم تعيين المخزن الافتراضي.\n{result.Error}",
-                    "فشل التنفيذ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعيين المخزن الافتراضي.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعيين المخزن الافتراضي {WarehouseId}", id);
-            MessageBox.Show("حدث خطأ أثناء تعيين المخزن الافتراضي. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تعيين المخزن الافتراضي. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -874,31 +852,26 @@ public partial class frmWarehouseMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار مخزن معطّل من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار مخزن معطّل من القائمة أولاً.");
             return;
         }
 
         if (!_warehousesById.TryGetValue(id, out var warehouse))
         {
-            MessageBox.Show("تعذر العثور على بيانات المخزن المحدد. يرجى تحديث القائمة.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر العثور على بيانات المخزن المحدد. يرجى تحديث القائمة.");
             return;
         }
 
         if (warehouse.IsActive)
         {
-            MessageBox.Show("المخزن المحدد نشط بالفعل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("المخزن المحدد نشط بالفعل.");
             _ApplyModeState();
             return;
         }
 
         if (_reactivateBusy) return;
 
-        if (MessageBox.Show($"هل تريد إعادة تنشيط المخزن \"{warehouse.Name}\"؟",
-                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إعادة تنشيط المخزن \"{warehouse.Name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -922,22 +895,19 @@ public partial class frmWarehouseMaster : Form
                 _SelectGridRow(id);
                 _ApplyModeState();   // السجل نشط الآن ⇒ زر «إعادة تنشيط» معطّل
 
-                MessageBox.Show("تم إعادة تنشيط المخزن بنجاح.", "تم إعادة التنشيط",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إعادة تنشيط المخزن بنجاح.");
             }
             else
             {
                 Log.Warning("تعذر إعادة تنشيط المخزن {WarehouseId}. السبب: {Error}", id, result.Error);
 
-                MessageBox.Show($"تعذر إعادة تنشيط المخزن.\n{result.Error}",
-                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"تعذر إعادة تنشيط المخزن.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إعادة تنشيط المخزن {WarehouseId}", id);
-            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1015,8 +985,7 @@ public partial class frmWarehouseMaster : Form
         {
             if (dgvWarehouses.Rows.Count == 0)
             {
-                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد بيانات معروضة للتصدير.");
                 return;
             }
 
@@ -1032,14 +1001,12 @@ public partial class frmWarehouseMaster : Form
             Cursor = Cursors.WaitCursor;
             ExportHelper.ExportToExcel(dgvWarehouses, "المخازن", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تصدير دليل المخازن إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

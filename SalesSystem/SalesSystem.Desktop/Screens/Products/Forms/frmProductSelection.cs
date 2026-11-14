@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
@@ -132,7 +133,7 @@ public partial class frmProductSelection : Form
             }
             else if (!result.IsSuccess)
             {
-                MessageBox.Show(result.Error ?? "حدث خطأ في تحميل قائمة المنتجات", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل قائمة المنتجات");
             }
 
             _productsView = new DataView(_productsTable);
@@ -148,7 +149,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة المنتجات");
-            MessageBox.Show("حدث خطأ في تحميل البيانات. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل البيانات. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -179,8 +180,7 @@ public partial class frmProductSelection : Form
         if (!result.IsSuccess)
         {
             Log.Error("تعذر تحميل أرصدة المخزن {WarehouseId}: {Error}", WarehouseId, result.Error);
-            MessageBox.Show("تعذر تحميل أرصدة المخزن. ستظهر الكميات المتاحة صفراً.",
-                "تحذير", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر تحميل أرصدة المخزن. ستظهر الكميات المتاحة صفراً.");
         }
     }
 
@@ -232,7 +232,7 @@ public partial class frmProductSelection : Form
             {
                 _unitsLoadFailed = true;
                 Log.Error("تعذر تحميل وحدات المنتج {ProductId}: {Error}", productId, result.Error);
-                MessageBox.Show(result.Error ?? "حدث خطأ في تحميل وحدات المنتج", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل وحدات المنتج");
             }
 
             decimal baseAvailable = _GetBaseAvailable(productId);
@@ -262,7 +262,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل وحدات المنتج {ProductId}", productId);
-            MessageBox.Show("حدث خطأ في تحميل وحدات المنتج. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل وحدات المنتج. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -348,7 +348,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء الانتقال إلى وحدات المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -366,7 +366,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء الانتقال إلى وحدات المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -382,7 +382,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل وحدات المنتج");
-            MessageBox.Show("حدث خطأ في تحميل وحدات المنتج. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل وحدات المنتج. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -395,7 +395,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء الانتقال إلى وحدات المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -413,7 +413,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء الانتقال إلى وحدات المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -452,7 +452,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار وحدة المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -470,7 +470,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار وحدة المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -483,7 +483,7 @@ public partial class frmProductSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -512,8 +512,7 @@ public partial class frmProductSelection : Form
 
         if (WarehouseId > 0 && _GetAvailableForUnit(unit) <= 0)
         {
-            MessageBox.Show("لا توجد كمية متاحة من هذه الوحدة في المخزن المحدد.",
-                "تحذير", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا توجد كمية متاحة من هذه الوحدة في المخزن المحدد.");
             return;
         }
 

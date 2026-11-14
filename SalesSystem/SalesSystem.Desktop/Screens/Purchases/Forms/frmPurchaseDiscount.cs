@@ -159,8 +159,7 @@ public partial class frmPurchaseDiscount : Form
             if (DiscountValue < 0)
             {
                 errorProvider.SetError(numDiscount, "لا يمكن أن تكون قيمة الخصم سالبة.");
-                MessageBox.Show("لا يمكن أن تكون قيمة الخصم سالبة.", "تحقق من القيم",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا يمكن أن تكون قيمة الخصم سالبة.");
                 numDiscount.Focus();
                 return;
             }
@@ -169,8 +168,7 @@ public partial class frmPurchaseDiscount : Form
             if (!IsPercentageDiscount && DiscountValue > Subtotal)
             {
                 errorProvider.SetError(numDiscount, "قيمة الخصم أكبر من المجموع الفرعي للفاتورة.");
-                MessageBox.Show("قيمة الخصم أكبر من المجموع الفرعي للفاتورة.", "تحقق من القيم",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("قيمة الخصم أكبر من المجموع الفرعي للفاتورة.");
                 numDiscount.Focus();
                 return;
             }
@@ -179,8 +177,7 @@ public partial class frmPurchaseDiscount : Form
             if (IsPercentageDiscount && DiscountValue > 100m)
             {
                 errorProvider.SetError(numDiscount, "نسبة الخصم لا يمكن أن تتجاوز 100%.");
-                MessageBox.Show("نسبة الخصم لا يمكن أن تتجاوز 100%.", "تحقق من القيم",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("نسبة الخصم لا يمكن أن تتجاوز 100%.");
                 numDiscount.Focus();
                 return;
             }
@@ -192,8 +189,7 @@ public partial class frmPurchaseDiscount : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ في حوار خصم المشتريات");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 

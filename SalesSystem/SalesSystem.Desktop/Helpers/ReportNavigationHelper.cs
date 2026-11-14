@@ -630,7 +630,7 @@ public static class ReportNavigationHelper
 
     /// <summary>رسالة الخطأ الموحّدة — بلا تفاصيل استثناء للمستخدم (RULE-N29).</summary>
     private static void ShowOpenFailed()
-        => MessageBox.Show(OpenFailedMessage, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        => clsDialogs.Error(OpenFailedMessage);
 
     // ═════════════════════════════════════════════════════════════════
     //  حجز المساحة أسفل النموذج

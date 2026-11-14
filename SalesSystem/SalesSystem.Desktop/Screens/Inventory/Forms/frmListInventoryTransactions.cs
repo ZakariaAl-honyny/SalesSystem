@@ -2,6 +2,7 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -201,7 +202,7 @@ public partial class frmListInventoryTransactions : Form
             }
             else if (!result.IsSuccess)
             {
-                MessageBox.Show(result.Error ?? "حدث خطأ في تحميل قائمة الحركات", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل قائمة الحركات");
             }
 
             _transactionsTable = table;
@@ -217,7 +218,7 @@ public partial class frmListInventoryTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحميل قائمة حركات المخزون في الشاشة");
-            MessageBox.Show("تعذر تحميل حركات المخزون. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل حركات المخزون. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -485,7 +486,7 @@ public partial class frmListInventoryTransactions : Form
 
             if (!result.IsSuccess || result.Value is null)
             {
-                MessageBox.Show("تعذر تحميل تفاصيل الحركة", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("تعذر تحميل تفاصيل الحركة");
                 return;
             }
 
@@ -506,12 +507,12 @@ public partial class frmListInventoryTransactions : Form
                 }
             }
 
-            MessageBox.Show(details.ToString(), "تفاصيل الحركة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info(details.ToString());
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل عرض تفاصيل حركة المخزون {TransactionId}", id);
-            MessageBox.Show("تعذر تحميل تفاصيل الحركة. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل تفاصيل الحركة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -574,7 +575,7 @@ public partial class frmListInventoryTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحديث قائمة حركات المخزون");
-            MessageBox.Show("تعذر تحديث قائمة الحركات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث قائمة الحركات. يرجى إعادة المحاولة.");
         }
     }
 

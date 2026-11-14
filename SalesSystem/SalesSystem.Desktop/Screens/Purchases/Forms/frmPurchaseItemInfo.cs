@@ -182,14 +182,12 @@ public partial class frmPurchaseItemInfo : Form
         {
             var row = dgvHistory.Rows[e.RowIndex];
 
-            MessageBox.Show(
+            clsDialogs.Info(
                 $"التاريخ: {row.Cells["ColDate"].Value}\n" +
                 $"المورد: {row.Cells["ColSupplier"].Value}\n" +
                 $"الكمية: {row.Cells["ColQty"].Value}\n" +
                 $"تكلفة الوحدة: {row.Cells["ColUnitCost"].Value}\n" +
-                $"الإجمالي: {row.Cells["ColTotal"].Value}",
-                "تفاصيل عملية الشراء",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                $"الإجمالي: {row.Cells["ColTotal"].Value}");
         }
         catch (Exception ex)
         {
@@ -204,8 +202,7 @@ public partial class frmPurchaseItemInfo : Form
         {
             if (dgvHistory.Rows.Count == 0)
             {
-                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد بيانات معروضة للتصدير.");
                 return;
             }
 
@@ -221,14 +218,12 @@ public partial class frmPurchaseItemInfo : Form
             Cursor = Cursors.WaitCursor;
             ExportHelper.ExportToExcel(dgvHistory, "سجل المشتريات", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ أثناء تصدير سجل مشتريات الصنف إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -247,8 +242,7 @@ public partial class frmPurchaseItemInfo : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحديث بيانات معلومات الصنف");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

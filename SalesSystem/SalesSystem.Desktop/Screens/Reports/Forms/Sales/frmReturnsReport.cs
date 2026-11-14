@@ -5,6 +5,7 @@ using SalesSystem.Common;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Reports.Forms;
@@ -47,9 +48,9 @@ public partial class frmReturnsReport : Form, IExportableReport
                 UpdateSummary(list);
                 FormatGrid();
             }
-            else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            else { clsDialogs.Error(result.Error!); }
         }
-        catch (Exception ex) { Log.Error(ex, "خطأ في تحميل تقرير المرتجعات"); MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل التقرير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (Exception ex) { Log.Error(ex, "خطأ في تحميل تقرير المرتجعات"); clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير."); }
         finally { ShowLoading(false); }
     }
 
@@ -75,17 +76,17 @@ public partial class frmReturnsReport : Form, IExportableReport
 
     private async Task ExportToExcelAsync()
     {
-        if (dgvReport.Rows.Count == 0) { MessageBox.Show("لا توجد بيانات للتصدير", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+        if (dgvReport.Rows.Count == 0) { clsDialogs.Warning("لا توجد بيانات للتصدير"); return; }
         try
         {
             var dlg = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"تقرير_المرتجعات_{DateTime.Now:yyyyMMdd}.xlsx" };
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "تقرير المرتجعات", dlg.FileName);
-                MessageBox.Show("تم تصدير التقرير بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
-        catch (Exception ex) { Log.Error(ex, "خطأ في تصدير تقرير المرتجعات"); MessageBox.Show("حدث خطأ أثناء التصدير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (Exception ex) { Log.Error(ex, "خطأ في تصدير تقرير المرتجعات"); clsDialogs.Error("حدث خطأ أثناء التصدير."); }
     }
 
     private void ShowLoading(bool show)

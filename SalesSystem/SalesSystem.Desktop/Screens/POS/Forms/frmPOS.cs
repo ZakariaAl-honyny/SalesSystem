@@ -7,6 +7,7 @@ using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
 using SalesSystem.DTO.Responses;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -227,8 +228,7 @@ public partial class frmPOS : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحميل شاشة نقطة البيع");
-            MessageBox.Show("حدث خطأ أثناء تحميل شاشة نقطة البيع. يرجى المحاولة مرة أخرى.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل شاشة نقطة البيع. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -245,8 +245,7 @@ public partial class frmPOS : Form
         var result = await ProductApi.GetAllAsync();
         if (!result.IsSuccess || result.Value is null)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الأصناف.", "نقطة البيع",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الأصناف.");
             return;
         }
 
@@ -477,8 +476,7 @@ public partial class frmPOS : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر إضافة الصنف من الكتالوج");
-            MessageBox.Show("تعذر إضافة الصنف. يرجى المحاولة مرة أخرى.", "نقطة البيع",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر إضافة الصنف. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -538,8 +536,7 @@ public partial class frmPOS : Form
 
             if (!result.IsSuccess || result.Value is null)
             {
-                MessageBox.Show(result.Error ?? "لا يوجد صنف بهذا الباركود.", "بحث الباركود",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning(result.Error ?? "لا يوجد صنف بهذا الباركود.");
                 return;
             }
 
@@ -548,8 +545,7 @@ public partial class frmPOS : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر البحث بالباركود");
-            MessageBox.Show("تعذر البحث بالباركود. يرجى المحاولة مرة أخرى.", "بحث الباركود",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر البحث بالباركود. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -567,8 +563,7 @@ public partial class frmPOS : Form
         var units = await GetUnitsAsync(product.Id);
         if (units.Count == 0)
         {
-            MessageBox.Show($"لا توجد وحدة بيع معرّفة للصنف «{product.Name}».", "نقطة البيع",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning($"لا توجد وحدة بيع معرّفة للصنف «{product.Name}».");
             return;
         }
 
@@ -784,15 +779,13 @@ public partial class frmPOS : Form
     {
         if (_editingLine is null || !_cart.Contains(_editingLine))
         {
-            MessageBox.Show("حدد سطراً في الشبكة أولاً.", "تطبيق السطر",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("حدد سطراً في الشبكة أولاً.");
             return;
         }
 
         if (numQty.Value <= 0m)
         {
-            MessageBox.Show("الكمية يجب أن تكون أكبر من صفر.", "تطبيق السطر",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الكمية يجب أن تكون أكبر من صفر.");
             return;
         }
 
@@ -1015,8 +1008,7 @@ public partial class frmPOS : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحديث كتالوج الأصناف");
-            MessageBox.Show("تعذر تحديث قائمة الأصناف. يرجى المحاولة مرة أخرى.", "تحديث الأصناف",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث قائمة الأصناف. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -1092,10 +1084,9 @@ public partial class frmPOS : Form
         // مسودة لم تُرحَّل: تحذير واضح قبل بدء بيع جديد — ولا يُحذف شيء من هذه الشاشة
         if (_pendingInvoiceId is int pendingDraft)
         {
-            if (MessageBox.Show(
+            if (!clsDialogs.Confirm(
                     $"توجد فاتورة محفوظة كمسودة برقم {pendingDraft} لم تُرحَّل بعد. " +
-                    "هل تريد إبقاءها كمسودة وبدء بيع جديد؟",
-                    "جديد [F2]", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                    "هل تريد إبقاءها كمسودة وبدء بيع جديد؟"))
             {
                 return;   // «لا» — البقاء على الحالة الحالية
             }
@@ -1104,8 +1095,7 @@ public partial class frmPOS : Form
         }
 
         if (_cart.Count > 0 &&
-            MessageBox.Show("سيتم إفراغ سلة البيع وبدء فاتورة جديدة. هل تريد المتابعة؟", "جديد [F2]",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            !clsDialogs.Confirm("سيتم إفراغ سلة البيع وبدء فاتورة جديدة. هل تريد المتابعة؟"))
         {
             return;
         }
@@ -1117,8 +1107,7 @@ public partial class frmPOS : Form
     private void btnClose_Click(object? sender, EventArgs e)
     {
         if (_cart.Count > 0 &&
-            MessageBox.Show("توجد سلة غير محفوظة. هل تريد إغلاق الشاشة؟", "إغلاق [Esc]",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            !clsDialogs.Confirm("توجد سلة غير محفوظة. هل تريد إغلاق الشاشة؟"))
         {
             return;
         }
@@ -1147,9 +1136,8 @@ public partial class frmPOS : Form
                 var retryPost = await SalesApi.PostAsync(pendingInvoiceId);
                 if (!retryPost.IsSuccess)
                 {
-                    MessageBox.Show(
-                        $"الفاتورة رقم {pendingInvoiceId} محفوظة كمسودة ولم تُرحَّل بعد: {retryPost.Error}",
-                        "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    clsDialogs.Warning(
+                        $"الفاتورة رقم {pendingInvoiceId} محفوظة كمسودة ولم تُرحَّل بعد: {retryPost.Error}");
                     UpdateInvoiceInfoLabel();
                     return;
                 }
@@ -1157,8 +1145,7 @@ public partial class frmPOS : Form
                 _pendingInvoiceId = null;
                 EventBus.Publish(new SaleInvoiceChangedMessage(pendingInvoiceId)); // تحديث لوحة التحكم
 
-                MessageBox.Show($"تم ترحيل الفاتورة المحفوظة كمسودة رقم {pendingInvoiceId} بنجاح.", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success($"تم ترحيل الفاتورة المحفوظة كمسودة رقم {pendingInvoiceId} بنجاح.");
 
                 ClearCart();                                                   // RULE-N85 — الشاشة تبقى مفتوحة
                 UpdateInvoiceInfoLabel();
@@ -1170,7 +1157,7 @@ public partial class frmPOS : Form
             {
                 if (!string.IsNullOrWhiteSpace(error))
                 {
-                    MessageBox.Show(error, "تحقق من البيانات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    clsDialogs.Warning(error);
                 }
 
                 return;
@@ -1209,8 +1196,7 @@ public partial class frmPOS : Form
             var createResult = await SalesApi.CreateAsync(request);
             if (!createResult.IsSuccess || createResult.Value is null)
             {
-                MessageBox.Show(createResult.Error ?? "تعذر إنشاء الفاتورة.", "حفظ وترحيل",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(createResult.Error ?? "تعذر إنشاء الفاتورة.");
                 return;
             }
 
@@ -1221,9 +1207,8 @@ public partial class frmPOS : Form
             if (!postResult.IsSuccess)
             {
                 // لا نُسقط نجاح الإنشاء: الفاتورة محفوظة كمسودة، ونحتفظ بمعرّفها لإعادة الترحيل فقط
-                MessageBox.Show(
-                    $"تم إنشاء الفاتورة رقم {created.InvoiceNo} وحفظها كمسودة، لكن تعذر ترحيلها: {postResult.Error}",
-                    "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning(
+                    $"تم إنشاء الفاتورة رقم {created.InvoiceNo} وحفظها كمسودة، لكن تعذر ترحيلها: {postResult.Error}");
                 return;
             }
 
@@ -1231,8 +1216,7 @@ public partial class frmPOS : Form
 
             EventBus.Publish(new SaleInvoiceChangedMessage(created.Id));   // تحديث لوحة التحكم
 
-            MessageBox.Show($"تم حفظ وترحيل الفاتورة رقم {created.InvoiceNo} بنجاح.", "نجاح",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success($"تم حفظ وترحيل الفاتورة رقم {created.InvoiceNo} بنجاح.");
 
             ClearCart();                                                   // RULE-N85 — الشاشة تبقى مفتوحة
             UpdateInvoiceInfoLabel();
@@ -1240,8 +1224,7 @@ public partial class frmPOS : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ وترحيل فاتورة نقطة البيع");
-            MessageBox.Show("حدث خطأ أثناء حفظ الفاتورة. تم تسجيل التفاصيل في السجل.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء حفظ الفاتورة. تم تسجيل التفاصيل في السجل.");
         }
         finally
         {

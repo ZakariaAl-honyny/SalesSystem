@@ -151,8 +151,7 @@ public partial class frmEmployeeMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث قائمة الموظفين");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -174,8 +173,7 @@ public partial class frmEmployeeMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل الموظفين");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -234,15 +232,13 @@ public partial class frmEmployeeMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الموظفين.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الموظفين.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة الموظفين");
-            MessageBox.Show("تعذر تحميل قائمة الموظفين. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الموظفين. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -488,8 +484,7 @@ public partial class frmEmployeeMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار موظف من الشبكة");
-            MessageBox.Show("تعذر عرض بيانات الموظف المحدد. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات الموظف المحدد. يرجى إعادة المحاولة.");
         }
     }
 
@@ -677,8 +672,7 @@ public partial class frmEmployeeMaster : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -767,8 +761,7 @@ public partial class frmEmployeeMaster : Form
 
             if (result.IsSuccess && result.Value != null)
             {
-                MessageBox.Show(edit ? "تم تعديل الموظف بنجاح." : "تمت إضافة الموظف بنجاح.",
-                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(edit ? "تم تعديل الموظف بنجاح." : "تمت إضافة الموظف بنجاح.");
 
                 // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
                 // ثم تحديث القائمة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي — RULE-N151).
@@ -783,15 +776,13 @@ public partial class frmEmployeeMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حفظ الموظف.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حفظ الموظف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ الموظف");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -805,16 +796,13 @@ public partial class frmEmployeeMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار موظف من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار موظف من القائمة أولاً.");
             return;
         }
 
         string name = txtName.Text.Trim();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) الموظف \"{name}\"؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) الموظف \"{name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -826,8 +814,7 @@ public partial class frmEmployeeMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعطيل الموظف بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعطيل الموظف بنجاح.");
 
                 // بعد الحذف: الرجوع إلى وضع العرض (الحقول معطّلة) ثم تحديث القائمة تلقائياً.
                 _ResetForm();
@@ -836,15 +823,13 @@ public partial class frmEmployeeMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم تعطيل الموظف.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل الموظف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعطيل الموظف {EmployeeId}", id);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -862,31 +847,26 @@ public partial class frmEmployeeMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار موظف معطّل من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار موظف معطّل من القائمة أولاً.");
             return;
         }
 
         if (!_employeesById.TryGetValue(id, out var employee))
         {
-            MessageBox.Show("تعذر العثور على بيانات الموظف المحدد. يرجى تحديث القائمة.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر العثور على بيانات الموظف المحدد. يرجى تحديث القائمة.");
             return;
         }
 
         if (employee.IsActive)
         {
-            MessageBox.Show("الموظف المحدد نشط بالفعل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الموظف المحدد نشط بالفعل.");
             _UpdateReactivateButton();
             return;
         }
 
         if (_reactivateBusy) return;
 
-        if (MessageBox.Show($"هل تريد إعادة تنشيط الموظف \"{employee.Name}\"؟",
-                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إعادة تنشيط الموظف \"{employee.Name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -901,8 +881,7 @@ public partial class frmEmployeeMaster : Form
             {
                 Log.Information("أُعيد تنشيط الموظف {EmployeeId} ({EmployeeName}) بنجاح", id, employee.Name);
 
-                MessageBox.Show("تم إعادة تنشيط الموظف بنجاح.", "تم إعادة التنشيط",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إعادة تنشيط الموظف بنجاح.");
 
                 // RULE-N94: تحديث تلقائي للشبكة ثم إبقاء السطر المُعاد تنشيطه محدداً وإعادة تعبئة المحرر.
                 await _LoadEmployeesAsync();
@@ -914,15 +893,13 @@ public partial class frmEmployeeMaster : Form
             {
                 Log.Warning("تعذر إعادة تنشيط الموظف {EmployeeId}. السبب: {Error}", id, result.Error);
 
-                MessageBox.Show($"تعذر إعادة تنشيط الموظف.\n{result.Error}",
-                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"تعذر إعادة تنشيط الموظف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إعادة تنشيط الموظف {EmployeeId}", id);
-            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -997,8 +974,7 @@ public partial class frmEmployeeMaster : Form
         {
             if (dgvEmployees.Rows.Count == 0)
             {
-                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد بيانات معروضة للتصدير.");
                 return;
             }
 
@@ -1014,14 +990,12 @@ public partial class frmEmployeeMaster : Form
             Cursor = Cursors.WaitCursor;
             ExportHelper.ExportToExcel(dgvEmployees, "الموظفون", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تصدير دليل الموظفين إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

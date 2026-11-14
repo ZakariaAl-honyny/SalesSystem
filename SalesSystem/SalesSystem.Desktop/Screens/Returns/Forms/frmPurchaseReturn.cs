@@ -137,7 +137,7 @@ public partial class frmPurchaseReturn : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحديث بيانات مرتجع المشتريات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -188,7 +188,7 @@ public partial class frmPurchaseReturn : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل النموذج");
-            MessageBox.Show("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.");
         }
     }
 
@@ -218,7 +218,7 @@ public partial class frmPurchaseReturn : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل البيانات");
-            MessageBox.Show("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.");
         }
     }
 
@@ -358,8 +358,7 @@ public partial class frmPurchaseReturn : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -369,7 +368,7 @@ public partial class frmPurchaseReturn : Form
     {
         if (!_ValidateForm()) return;
 
-        if (post && MessageBox.Show("ترحيل المرتجع؟ سيتم تقليل المخزون وتقليل رصيد المورد.", "تأكيد", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+        if (post && !clsDialogs.Confirm("ترحيل المرتجع؟ سيتم تقليل المخزون وتقليل رصيد المورد.")) return;
 
         btnSaveDraft.Enabled = btnPost.Enabled = false;
         Cursor = Cursors.WaitCursor;

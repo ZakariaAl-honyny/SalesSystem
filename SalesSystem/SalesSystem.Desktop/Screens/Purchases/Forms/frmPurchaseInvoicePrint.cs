@@ -120,18 +120,16 @@ public partial class frmPurchaseInvoicePrint : Form
     {
         try
         {
-            MessageBox.Show(
+            clsDialogs.Success(
                 $"تمت طباعة فاتورة المشتريات رقم {_invoice.InvoiceNo} بنجاح.\n" +
                 $"المورد: {_invoice.Supplier} — الإجمالي: {_invoice.Total:N0} ريال يمني\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
             Serilog.Log.Error(ex, "تعذرت طباعة فاتورة المشتريات {InvoiceNo}", _invoice.InvoiceNo);
-            MessageBox.Show("تعذر طباعة فاتورة المشتريات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر طباعة فاتورة المشتريات. يرجى إعادة المحاولة.");
         }
     }
 

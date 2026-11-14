@@ -162,7 +162,7 @@ public partial class frmListReturns : Form
             {
                 if (!salesResult.IsSuccess)
                 {
-                    MessageBox.Show(salesResult.Error ?? "حدث خطأ في تحميل مرتجعات المبيعات", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(salesResult.Error ?? "حدث خطأ في تحميل مرتجعات المبيعات");
                 }
                 _allSalesReturns = new List<SalesReturnDto>();
             }
@@ -176,7 +176,7 @@ public partial class frmListReturns : Form
             {
                 if (!purchaseResult.IsSuccess)
                 {
-                    MessageBox.Show(purchaseResult.Error ?? "حدث خطأ في تحميل مرتجعات المشتريات", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(purchaseResult.Error ?? "حدث خطأ في تحميل مرتجعات المشتريات");
                 }
                 _allPurchaseReturns = new List<PurchaseReturnDto>();
             }
@@ -185,8 +185,7 @@ public partial class frmListReturns : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء تحميل المرتجعات");
-            MessageBox.Show("حدث خطأ أثناء تحميل المرتجعات",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل المرتجعات");
             _allSalesReturns = new List<SalesReturnDto>();
             _allPurchaseReturns = new List<PurchaseReturnDto>();
         }

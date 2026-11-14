@@ -181,8 +181,7 @@ public partial class frmListSupplierPayments : Form
             }
             else if (!result.IsSuccess)
             {
-                MessageBox.Show(result.Error ?? "حدث خطأ في تحميل مدفوعات الموردين",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل مدفوعات الموردين");
             }
 
             _supplierTable = table;
@@ -197,8 +196,7 @@ public partial class frmListSupplierPayments : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "فشل تحميل مدفوعات الموردين في شاشة مدفوعات الموردين");
-            MessageBox.Show("حدث خطأ أثناء تحميل المدفوعات.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل المدفوعات.");
         }
         finally
         {
@@ -421,8 +419,7 @@ public partial class frmListSupplierPayments : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "فشل تحديث شاشة مدفوعات الموردين");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

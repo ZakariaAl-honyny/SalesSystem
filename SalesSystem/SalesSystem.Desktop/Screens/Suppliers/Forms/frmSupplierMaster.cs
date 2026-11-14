@@ -187,8 +187,7 @@ public partial class frmSupplierMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث البيانات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -210,8 +209,7 @@ public partial class frmSupplierMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل الموردين");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -257,15 +255,13 @@ public partial class frmSupplierMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الموردين.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الموردين.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة الموردين");
-            MessageBox.Show("تعذر تحميل قائمة الموردين. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الموردين. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -517,8 +513,7 @@ public partial class frmSupplierMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار مورد من الشبكة");
-            MessageBox.Show("تعذر عرض بيانات المورد المحدد. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات المورد المحدد. يرجى إعادة المحاولة.");
         }
     }
 
@@ -598,8 +593,7 @@ public partial class frmSupplierMaster : Form
     {
         if (_suppliersView is null || _suppliersView.Count == 0)
         {
-            MessageBox.Show("لا توجد بيانات للتصدير.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا توجد بيانات للتصدير.");
             return;
         }
 
@@ -617,14 +611,12 @@ public partial class frmSupplierMaster : Form
         {
             ExportHelper.ExportToExcel(dgvSuppliers, "الموردون", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تصدير دليل الموردين إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -838,8 +830,7 @@ public partial class frmSupplierMaster : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -935,8 +926,7 @@ public partial class frmSupplierMaster : Form
             {
                 EventBus.Publish(new SupplierChangedMessage(result.Value.Id));
 
-                MessageBox.Show(edit ? "تم تعديل المورد بنجاح." : "تمت إضافة المورد بنجاح.",
-                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(edit ? "تم تعديل المورد بنجاح." : "تمت إضافة المورد بنجاح.");
 
                 // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
                 // ثم تحديث القائمة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي — RULE-N151).
@@ -950,15 +940,13 @@ public partial class frmSupplierMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حفظ المورد.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حفظ المورد.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ المورد");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -974,16 +962,13 @@ public partial class frmSupplierMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار مورد من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار مورد من القائمة أولاً.");
             return;
         }
 
         string name = txtName.Text.Trim();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) المورد \"{name}\"؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) المورد \"{name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -996,8 +981,7 @@ public partial class frmSupplierMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعطيل المورد بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعطيل المورد بنجاح.");
 
                 EventBus.Publish(new SupplierChangedMessage(id));
 
@@ -1008,15 +992,13 @@ public partial class frmSupplierMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم تعطيل المورد.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل المورد.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعطيل المورد {SupplierId}", id);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1038,29 +1020,24 @@ public partial class frmSupplierMaster : Form
 
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار مورد معطّل من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار مورد معطّل من القائمة أولاً.");
             return;
         }
 
         if (!_suppliersById.TryGetValue(id, out var supplier))
         {
-            MessageBox.Show("تعذر العثور على بيانات المورد المحدد. يرجى تحديث القائمة.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر العثور على بيانات المورد المحدد. يرجى تحديث القائمة.");
             return;
         }
 
         if (supplier.IsActive)
         {
-            MessageBox.Show("المورد المحدد نشط بالفعل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("المورد المحدد نشط بالفعل.");
             _UpdateReactivateButton();
             return;
         }
 
-        if (MessageBox.Show($"هل تريد إعادة تنشيط المورد \"{supplier.Name}\"؟",
-                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إعادة تنشيط المورد \"{supplier.Name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -1086,20 +1063,17 @@ public partial class frmSupplierMaster : Form
                 _SelectGridRow(id);
                 _ApplyModeState();   // السجل نشط بعد إعادة التنشيط → زر إعادة التنشيط معطّل
 
-                MessageBox.Show("تم إعادة تنشيط المورد بنجاح.", "تم إعادة التنشيط",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إعادة تنشيط المورد بنجاح.");
             }
             else
             {
-                MessageBox.Show($"تعذر إعادة تنشيط المورد.\n{result.Error}",
-                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"تعذر إعادة تنشيط المورد.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إعادة تنشيط المورد {SupplierId}", id);
-            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.");
         }
         finally
         {

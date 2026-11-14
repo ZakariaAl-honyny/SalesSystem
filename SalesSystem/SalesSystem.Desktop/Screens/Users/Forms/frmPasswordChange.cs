@@ -3,6 +3,7 @@ using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Users.Forms;
 
@@ -96,8 +97,7 @@ public partial class frmPasswordChange : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -125,23 +125,20 @@ public partial class frmPasswordChange : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تغيير كلمة المرور بنجاح.", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تغيير كلمة المرور بنجاح.");
                 DialogResult = DialogResult.OK;
                 Close();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في تغيير كلمة المرور.", "تعذر الحفظ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في تغيير كلمة المرور.");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "فشل تغيير كلمة المرور للمستخدم {UserId}", _UserId);
-            MessageBox.Show("تعذر تغيير كلمة المرور. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تغيير كلمة المرور. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -197,8 +194,7 @@ public partial class frmPasswordChange : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "تعذر تجهيز شاشة تغيير كلمة المرور");
-            MessageBox.Show("تعذر تجهيز الشاشة. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تجهيز الشاشة. يرجى إعادة المحاولة.");
         }
     }
 

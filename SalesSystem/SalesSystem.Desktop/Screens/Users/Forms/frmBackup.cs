@@ -2,6 +2,7 @@
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO.Common;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Users.Forms;
 
@@ -102,8 +103,7 @@ public partial class frmBackup : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "خطأ في تحميل قائمة النسخ الاحتياطية");
-            MessageBox.Show("تعذر تحميل قائمة النسخ الاحتياطية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة النسخ الاحتياطية. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -163,22 +163,19 @@ public partial class frmBackup : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم إنشاء النسخة الاحتياطية بنجاح.", "تم",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إنشاء النسخة الاحتياطية بنجاح.");
                 _ReloadForm();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر إنشاء النسخة الاحتياطية.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر إنشاء النسخة الاحتياطية.");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "خطأ في إنشاء النسخة الاحتياطية");
-            MessageBox.Show("تعذر إنشاء النسخة الاحتياطية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر إنشاء النسخة الاحتياطية. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -192,19 +189,14 @@ public partial class frmBackup : Form
         string? fileName = _GetSelectedFileName();
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            MessageBox.Show("الرجاء تحديد ملف نسخة احتياطية من القائمة.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الرجاء تحديد ملف نسخة احتياطية من القائمة.");
             return;
         }
 
-        if (MessageBox.Show(
+        if (!clsDialogs.Confirm(
                 "هل أنت متأكد من استعادة النسخة الاحتياطية؟\n" +
                 "سيتم استبدال جميع البيانات الحالية.\n\n" +
-                "الملف: " + fileName,
-                "تأكيد استعادة النسخة الاحتياطية",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                "الملف: " + fileName))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -216,21 +208,18 @@ public partial class frmBackup : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم استعادة النسخة الاحتياطية بنجاح.", "تمت الاستعادة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم استعادة النسخة الاحتياطية بنجاح.");
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر استعادة النسخة الاحتياطية.", "خطأ في الاستعادة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر استعادة النسخة الاحتياطية.");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "خطأ في استعادة النسخة الاحتياطية");
-            MessageBox.Show("تعذر استعادة النسخة الاحتياطية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر استعادة النسخة الاحتياطية. يرجى إعادة المحاولة.");
         }
         finally
         {

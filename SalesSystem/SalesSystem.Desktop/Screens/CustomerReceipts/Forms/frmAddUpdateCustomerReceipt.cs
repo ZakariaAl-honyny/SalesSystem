@@ -149,8 +149,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
             }
             else
             {
-                MessageBox.Show(customerResult.Error ?? "تعذر تحميل قائمة العملاء.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(customerResult.Error ?? "تعذر تحميل قائمة العملاء.");
             }
 
             var cashResult = await CashBoxService.GetAllAsync();
@@ -164,15 +163,13 @@ public partial class frmAddUpdateCustomerReceipt : Form
             }
             else
             {
-                MessageBox.Show(cashResult.Error ?? "تعذر تحميل قائمة الصناديق.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(cashResult.Error ?? "تعذر تحميل قائمة الصناديق.");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل قوائم سند القبض");
-            MessageBox.Show("تعذر تحميل القوائم. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل القوائم. يرجى إعادة المحاولة.");
         }
     }
 
@@ -195,16 +192,14 @@ public partial class frmAddUpdateCustomerReceipt : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في تحميل بيانات السند", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في تحميل بيانات السند");
                 Close();
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل سند القبض {ReceiptId}", _editingId);
-            MessageBox.Show("تعذر تحميل بيانات السند. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل بيانات السند. يرجى إعادة المحاولة.");
             Close();
         }
         finally
@@ -227,8 +222,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحديث شاشة سند القبض");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -274,8 +268,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -321,13 +314,13 @@ public partial class frmAddUpdateCustomerReceipt : Form
                 var result = await ReceiptService.UpdateAsync(_editingId, request);
                 if (result.IsSuccess)
                 {
-                    MessageBox.Show("تم تحديث سند القبض بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    clsDialogs.Success("تم تحديث سند القبض بنجاح.");
                     DialogResult = DialogResult.OK;
                     Close();
                 }
                 else
                 {
-                    MessageBox.Show(result.Error ?? "فشل في تحديث السند", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "فشل في تحديث السند");
                 }
             }
             else
@@ -341,21 +334,20 @@ public partial class frmAddUpdateCustomerReceipt : Form
                 var result = await ReceiptService.CreateAsync(request);
                 if (result.IsSuccess)
                 {
-                    MessageBox.Show("تم إضافة سند القبض بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    clsDialogs.Success("تم إضافة سند القبض بنجاح.");
                     DialogResult = DialogResult.OK;
                     Close();
                 }
                 else
                 {
-                    MessageBox.Show(result.Error ?? "فشل في إضافة السند", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "فشل في إضافة السند");
                 }
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل حفظ سند القبض (وضع التعديل: {IsEditMode})", _isEditMode);
-            MessageBox.Show("تعذر حفظ السند. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر حفظ السند. يرجى إعادة المحاولة.");
         }
         finally
         {

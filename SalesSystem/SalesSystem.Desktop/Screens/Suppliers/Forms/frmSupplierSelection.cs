@@ -4,6 +4,7 @@ using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using System.Data;
 using Serilog;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Suppliers.Forms;
 
@@ -82,8 +83,7 @@ public partial class frmSupplierSelection : Form
 
             if (!result.IsSuccess || result.Value is null)
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الموردين. يرجى المحاولة مرة أخرى.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الموردين. يرجى المحاولة مرة أخرى.");
                 return;
             }
 
@@ -104,8 +104,7 @@ public partial class frmSupplierSelection : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة الموردين");
-            MessageBox.Show("تعذر تحميل قائمة الموردين. يرجى المحاولة مرة أخرى.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الموردين. يرجى المحاولة مرة أخرى.");
         }
         finally
         {

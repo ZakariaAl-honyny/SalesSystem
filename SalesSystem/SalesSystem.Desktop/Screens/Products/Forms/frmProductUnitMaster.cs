@@ -202,8 +202,7 @@ public partial class frmProductUnitMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة وحدات الصنف {ProductId}", _productId);
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -250,15 +249,13 @@ public partial class frmProductUnitMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة الوحدات.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الوحدات.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة الوحدات");
-            MessageBox.Show("تعذر تحميل قائمة الوحدات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الوحدات. يرجى إعادة المحاولة.");
         }
     }
 
@@ -302,15 +299,13 @@ public partial class frmProductUnitMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل وحدات الصنف.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل وحدات الصنف.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل وحدات الصنف {ProductId}", _productId);
-            MessageBox.Show("تعذر تحميل وحدات الصنف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل وحدات الصنف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -547,8 +542,7 @@ public partial class frmProductUnitMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار وحدة من الشبكة");
-            MessageBox.Show("تعذر عرض بيانات الوحدة المحددة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات الوحدة المحددة. يرجى إعادة المحاولة.");
         }
     }
 
@@ -567,8 +561,7 @@ public partial class frmProductUnitMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديد وحدة في الشبكة");
-            MessageBox.Show("تعذر عرض بيانات الوحدة المحددة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات الوحدة المحددة. يرجى إعادة المحاولة.");
         }
     }
 
@@ -812,8 +805,7 @@ public partial class frmProductUnitMaster : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -853,8 +845,7 @@ public partial class frmProductUnitMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث البيانات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -944,8 +935,7 @@ public partial class frmProductUnitMaster : Form
 
             if (result.IsSuccess && result.Value != null)
             {
-                MessageBox.Show(edit ? "تم تعديل وحدة الصنف بنجاح." : "تمت إضافة وحدة الصنف بنجاح.",
-                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(edit ? "تم تعديل وحدة الصنف بنجاح." : "تمت إضافة وحدة الصنف بنجاح.");
 
                 // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
                 // ثم تحديث الشبكة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي — RULE-N151).
@@ -959,15 +949,13 @@ public partial class frmProductUnitMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حفظ وحدة الصنف.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حفظ وحدة الصنف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ وحدة الصنف {ProductId}", _productId);
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -981,23 +969,19 @@ public partial class frmProductUnitMaster : Form
     {
         if (_editId is not int productUnitId)
         {
-            MessageBox.Show("يرجى اختيار وحدة من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار وحدة من القائمة أولاً.");
             return;
         }
 
         if (_unitsById.TryGetValue(productUnitId, out var current) && current.IsBaseUnit)
         {
-            MessageBox.Show("لا يمكن حذف الوحدة الأساسية للصنف. يمكنك تعديل أسعارها فقط.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن حذف الوحدة الأساسية للصنف. يمكنك تعديل أسعارها فقط.");
             return;
         }
 
         string unitName = _CurrentUnitName();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) وحدة المنتج \"{unitName}\"؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) وحدة المنتج \"{unitName}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -1010,8 +994,7 @@ public partial class frmProductUnitMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم حذف وحدة الصنف بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم حذف وحدة الصنف بنجاح.");
 
                 // بعد الحذف: الرجوع إلى وضع العرض (الحقول معطّلة) ثم تحديث الشبكة تلقائياً.
                 _ResetForm();
@@ -1020,15 +1003,13 @@ public partial class frmProductUnitMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حذف وحدة الصنف.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حذف وحدة الصنف.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حذف وحدة الصنف {ProductUnitId}", productUnitId);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.");
         }
         finally
         {

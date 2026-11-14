@@ -210,8 +210,7 @@ public partial class frmCashBoxTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل شاشة حركات الصندوق");
-            MessageBox.Show("تعذر تحميل الشاشة. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -262,15 +261,13 @@ public partial class frmCashBoxTransactions : Form
             else
             {
                 _ShowEmptyState();
-                MessageBox.Show(result.Error ?? "فشل في تحميل قائمة الصناديق.", "خطأ في تحميل البيانات",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في تحميل قائمة الصناديق.");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل صناديق شاشة الحركات");
-            MessageBox.Show("تعذر تحميل قائمة الصناديق. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الصناديق. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -314,8 +311,7 @@ public partial class frmCashBoxTransactions : Form
             }
             else
             {
-                MessageBox.Show(receiptsResult.Error ?? "فشل في تحميل سندات القبض.", "خطأ في تحميل البيانات",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(receiptsResult.Error ?? "فشل في تحميل سندات القبض.");
             }
 
             var expensesResult = await ExpenseService.GetAllAsync();
@@ -341,8 +337,7 @@ public partial class frmCashBoxTransactions : Form
             }
             else
             {
-                MessageBox.Show(expensesResult.Error ?? "فشل في تحميل المصروفات.", "خطأ في تحميل البيانات",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(expensesResult.Error ?? "فشل في تحميل المصروفات.");
             }
 
             _movements = table;
@@ -351,8 +346,7 @@ public partial class frmCashBoxTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر بناء حركات الصندوق {CashBoxId}", cashBoxId);
-            MessageBox.Show("تعذر تحميل حركات الصندوق. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل حركات الصندوق. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -617,8 +611,7 @@ public partial class frmCashBoxTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تبديل الصندوق في شاشة الحركات");
-            MessageBox.Show("تعذر تحميل حركات الصندوق. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل حركات الصندوق. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -639,8 +632,7 @@ public partial class frmCashBoxTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحديث حركات الصندوق");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -769,8 +761,7 @@ public partial class frmCashBoxTransactions : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر فتح مستند الحركة {DocKind}/{DocId}", docKind, docId);
-            MessageBox.Show("تعذر فتح المستند. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح المستند. يرجى إعادة المحاولة.");
             return;
         }
 
@@ -798,8 +789,7 @@ public partial class frmCashBoxTransactions : Form
         {
             if (dgvTransactions.Rows.Count == 0)
             {
-                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد بيانات معروضة للتصدير.");
                 return;
             }
 
@@ -815,14 +805,12 @@ public partial class frmCashBoxTransactions : Form
             Cursor = Cursors.WaitCursor;
             ExportHelper.ExportToExcel(dgvTransactions, "حركات الصندوق", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تصدير حركات الصندوق إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
@@ -182,9 +183,9 @@ public partial class frmStocktakingNew : Form
             else if (diff < 0) deficit += Math.Abs(diff);
         }
 
-        lblSurplusValue.Text = surplus.ToString("N3");
-        lblDeficitValue.Text = deficit.ToString("N3");
-        lblItemCountValue.Text = counted.ToString("N0");
+        lblSurplusValue.Text = clsFormat.Quantity(surplus);
+        lblDeficitValue.Text = clsFormat.Quantity(deficit);
+        lblItemCountValue.Text = clsFormat.Number(counted);
 
         _UpdateModeHeader();
     }
@@ -221,8 +222,7 @@ public partial class frmStocktakingNew : Form
     {
         if (!_ValidateHeader()) return;
 
-        MessageBox.Show("تم حفظ المحضر كمسودة (وضع تجريبي — لا يتم حفظ فعلي).",
-            "حفظ المسودة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        clsDialogs.Success("تم حفظ المحضر كمسودة (وضع تجريبي — لا يتم حفظ فعلي).");
     }
 
     private void btnPost_Click(object? sender, EventArgs e)
@@ -230,12 +230,10 @@ public partial class frmStocktakingNew : Form
         if (!_ValidateHeader()) return;
         if (!_ValidateCountedRows()) return;
 
-        if (MessageBox.Show("هل أنت متأكد من اعتماد محضر الجرد الفعلي؟",
-                "تأكيد الاعتماد", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من اعتماد محضر الجرد الفعلي؟"))
             return;
 
-        MessageBox.Show("تم اعتماد محضر الجرد بنجاح (وضع تجريبي — لا ترحيل فعلي للمخزون).",
-            "اعتماد الجرد", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        clsDialogs.Success("تم اعتماد محضر الجرد بنجاح (وضع تجريبي — لا ترحيل فعلي للمخزون).");
 
         DialogResult = DialogResult.OK;
         Close();
@@ -268,8 +266,7 @@ public partial class frmStocktakingNew : Form
         if (cmbWarehouse.SelectedIndex < 0)
         {
             errorProvider.SetError(cmbWarehouse, "يرجى اختيار المستودع");
-            MessageBox.Show("يرجى اختيار المستودع.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار المستودع.");
             cmbWarehouse.Focus();
             return false;
         }
@@ -291,8 +288,7 @@ public partial class frmStocktakingNew : Form
 
             if (actual.Value < 0)
             {
-                MessageBox.Show("الكمية الفعلية لا يمكن أن تكون سالبة.", "بيانات غير صحيحة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الكمية الفعلية لا يمكن أن تكون سالبة.");
                 dgvLines.CurrentCell = row.Cells[colActualQty.Index];
                 return false;
             }
@@ -301,8 +297,7 @@ public partial class frmStocktakingNew : Form
 
         if (counted == 0)
         {
-            MessageBox.Show("يجب إدخال الكمية الفعلية لصنف واحد على الأقل قبل الاعتماد.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يجب إدخال الكمية الفعلية لصنف واحد على الأقل قبل الاعتماد.");
             return false;
         }
         return true;

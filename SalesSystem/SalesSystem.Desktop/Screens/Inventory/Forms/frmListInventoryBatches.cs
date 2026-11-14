@@ -5,6 +5,7 @@ using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Responses;
 using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -191,8 +192,7 @@ public partial class frmListInventoryBatches : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تهيئة شاشة دفعات المخزون");
-            MessageBox.Show("تعذر تهيئة الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تهيئة الشاشة. يرجى إعادة المحاولة.");
         }
     }
 
@@ -236,8 +236,7 @@ public partial class frmListInventoryBatches : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحميل قائمة الأصناف في شاشة دفعات المخزون");
-            MessageBox.Show("تعذر تحميل قائمة الأصناف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الأصناف. يرجى إعادة المحاولة.");
         }
     }
 
@@ -262,8 +261,7 @@ public partial class frmListInventoryBatches : Form
                 if (result.IsSuccess && result.Value is not null)
                     allBatches.AddRange(result.Value);
                 else if (!result.IsSuccess)
-                    MessageBox.Show(result.Error ?? "تعذر تحميل دفعات الصنف المحدد.",
-                        "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "تعذر تحميل دفعات الصنف المحدد.");
             }
             else
             {
@@ -291,8 +289,7 @@ public partial class frmListInventoryBatches : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحميل دفعات المخزون");
-            MessageBox.Show("تعذر تحميل دفعات المخزون. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل دفعات المخزون. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -684,8 +681,7 @@ public partial class frmListInventoryBatches : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحديث دفعات المخزون");
-            MessageBox.Show("تعذر تحديث دفعات المخزون. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث دفعات المخزون. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -739,8 +735,7 @@ public partial class frmListInventoryBatches : Form
         {
             if (dgvBatches.SelectedRows.Count == 0)
             {
-                MessageBox.Show("يرجى اختيار دفعة من القائمة أولاً.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى اختيار دفعة من القائمة أولاً.");
                 return;
             }
 
@@ -760,14 +755,12 @@ public partial class frmListInventoryBatches : Form
             details.AppendLine($"تاريخ الانتهاء: {Cell("ExpiryDate")}");
             details.AppendLine($"حالة الصلاحية: {Cell("ExpiryStatus")}");
 
-            MessageBox.Show(details.ToString(), "تفاصيل الدفعة",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info(details.ToString());
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل عرض تفاصيل دفعة المخزون");
-            MessageBox.Show("تعذر عرض تفاصيل الدفعة. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض تفاصيل الدفعة. يرجى إعادة المحاولة.");
         }
     }
 
@@ -778,8 +771,7 @@ public partial class frmListInventoryBatches : Form
         {
             if (dgvBatches.Rows.Count == 0)
             {
-                MessageBox.Show("لا توجد بيانات للتصدير.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد بيانات للتصدير.");
                 return;
             }
 
@@ -796,14 +788,12 @@ public partial class frmListInventoryBatches : Form
 
             ExportHelper.ExportToExcel(dgvBatches, "دفعات المخزون", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تصدير دفعات المخزون إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

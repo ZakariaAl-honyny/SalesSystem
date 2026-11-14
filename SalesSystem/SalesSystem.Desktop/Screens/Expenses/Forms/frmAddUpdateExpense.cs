@@ -144,15 +144,13 @@ public partial class frmAddUpdateExpense : Form
             }
             else
             {
-                MessageBox.Show(cashResult.Error ?? "تعذر تحميل قائمة الصناديق.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(cashResult.Error ?? "تعذر تحميل قائمة الصناديق.");
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل قائمة الصناديق في شاشة المصروف");
-            MessageBox.Show("تعذر تحميل قائمة الصناديق. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة الصناديق. يرجى إعادة المحاولة.");
         }
     }
 
@@ -173,16 +171,14 @@ public partial class frmAddUpdateExpense : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في تحميل بيانات المصروف", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في تحميل بيانات المصروف");
                 Close();
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل المصروف {ExpenseId}", _editingId);
-            MessageBox.Show("تعذر تحميل بيانات المصروف. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل بيانات المصروف. يرجى إعادة المحاولة.");
             Close();
         }
         finally
@@ -205,8 +201,7 @@ public partial class frmAddUpdateExpense : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحديث شاشة المصروف");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -252,8 +247,7 @@ public partial class frmAddUpdateExpense : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -300,13 +294,13 @@ public partial class frmAddUpdateExpense : Form
                 var result = await ExpenseService.UpdateAsync(_editingId, request);
                 if (result.IsSuccess)
                 {
-                    MessageBox.Show("تم تحديث المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    clsDialogs.Success("تم تحديث المصروف بنجاح.");
                     DialogResult = DialogResult.OK;
                     Close();
                 }
                 else
                 {
-                    MessageBox.Show(result.Error ?? "فشل في تحديث المصروف", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "فشل في تحديث المصروف");
                 }
             }
             else
@@ -321,21 +315,20 @@ public partial class frmAddUpdateExpense : Form
                 var result = await ExpenseService.CreateAsync(request);
                 if (result.IsSuccess)
                 {
-                    MessageBox.Show("تم إضافة المصروف بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    clsDialogs.Success("تم إضافة المصروف بنجاح.");
                     DialogResult = DialogResult.OK;
                     Close();
                 }
                 else
                 {
-                    MessageBox.Show(result.Error ?? "فشل في إضافة المصروف", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "فشل في إضافة المصروف");
                 }
             }
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل حفظ المصروف (وضع التعديل: {IsEditMode})", _isEditMode);
-            MessageBox.Show("تعذر حفظ المصروف. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر حفظ المصروف. يرجى إعادة المحاولة.");
         }
         finally
         {

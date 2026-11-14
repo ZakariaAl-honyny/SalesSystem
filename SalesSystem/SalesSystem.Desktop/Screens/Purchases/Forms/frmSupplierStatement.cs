@@ -198,8 +198,7 @@ public partial class frmSupplierStatement : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحميل كشف حساب المورد");
-            MessageBox.Show("تعذر تحميل كشف الحساب. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل كشف الحساب. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -284,8 +283,7 @@ public partial class frmSupplierStatement : Form
         // حماية النطاق: لا نبني كشفاً بنطاق معكوس.
         if (from > to)
         {
-            MessageBox.Show("تاريخ البداية «من» يجب أن يكون قبل تاريخ النهاية «إلى» أو مساوياً له.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تاريخ البداية «من» يجب أن يكون قبل تاريخ النهاية «إلى» أو مساوياً له.");
             return;
         }
 
@@ -342,8 +340,7 @@ public partial class frmSupplierStatement : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر بناء كشف حساب المورد");
-            MessageBox.Show("تعذر بناء كشف الحساب. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر بناء كشف الحساب. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -593,8 +590,7 @@ public partial class frmSupplierStatement : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تحديث كشف حساب المورد");
-            MessageBox.Show("تعذر تحديث الكشف. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث الكشف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -625,15 +621,13 @@ public partial class frmSupplierStatement : Form
             var row = dgvStatement.CurrentRow;
             if (row is null) return;
 
-            MessageBox.Show(
+            clsDialogs.Info(
                 $"التاريخ: {row.Cells["ColDate"].Value}\n" +
                 $"النوع: {row.Cells["ColType"].Value}\n" +
                 $"المرجع: {row.Cells["ColReference"].Value}\n" +
                 $"مدين: {row.Cells["ColDebit"].Value}\n" +
                 $"دائن: {row.Cells["ColCredit"].Value}\n" +
-                $"الرصيد: {row.Cells["ColBalance"].Value}",
-                "تفاصيل الحركة",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                $"الرصيد: {row.Cells["ColBalance"].Value}");
         }
         catch (Exception ex)
         {
@@ -655,8 +649,7 @@ public partial class frmSupplierStatement : Form
         {
             if (dgvStatement.Rows.Count == 0)
             {
-                MessageBox.Show("لا توجد بيانات معروضة للتصدير.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد بيانات معروضة للتصدير.");
                 return;
             }
 
@@ -672,14 +665,12 @@ public partial class frmSupplierStatement : Form
             Cursor = Cursors.WaitCursor;
             ExportHelper.ExportToExcel(dgvStatement, "كشف حساب مورد", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ أثناء تصدير كشف حساب المورد إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

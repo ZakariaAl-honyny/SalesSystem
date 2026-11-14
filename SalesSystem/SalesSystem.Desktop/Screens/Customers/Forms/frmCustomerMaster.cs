@@ -189,8 +189,7 @@ public partial class frmCustomerMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث البيانات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -212,8 +211,7 @@ public partial class frmCustomerMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل العملاء");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -259,15 +257,13 @@ public partial class frmCustomerMaster : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة العملاء.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة العملاء.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل قائمة العملاء");
-            MessageBox.Show("تعذر تحميل قائمة العملاء. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة العملاء. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -523,8 +519,7 @@ public partial class frmCustomerMaster : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار عميل من الشبكة");
-            MessageBox.Show("تعذر عرض بيانات العميل المحدد. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض بيانات العميل المحدد. يرجى إعادة المحاولة.");
         }
     }
 
@@ -604,8 +599,7 @@ public partial class frmCustomerMaster : Form
     {
         if (_customersView is null || _customersView.Count == 0)
         {
-            MessageBox.Show("لا توجد بيانات للتصدير.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا توجد بيانات للتصدير.");
             return;
         }
 
@@ -623,14 +617,12 @@ public partial class frmCustomerMaster : Form
         {
             ExportHelper.ExportToExcel(dgvCustomers, "العملاء", dialog.FileName);
 
-            MessageBox.Show("تم تصدير البيانات بنجاح.", "تم التصدير",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تصدير البيانات بنجاح.");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تصدير دليل العملاء إلى Excel");
-            MessageBox.Show("تعذر تصدير البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تصدير البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -827,8 +819,7 @@ public partial class frmCustomerMaster : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -928,8 +919,7 @@ public partial class frmCustomerMaster : Form
             {
                 EventBus.Publish(new CustomerChangedMessage(result.Value.Id));
 
-                MessageBox.Show(edit ? "تم تعديل العميل بنجاح." : "تمت إضافة العميل بنجاح.",
-                    "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(edit ? "تم تعديل العميل بنجاح." : "تمت إضافة العميل بنجاح.");
 
                 // بعد الحفظ الناجح (إضافة أو تعديل): يصبح السجل محفوظاً ومحدداً → وضع التعديل،
                 // ثم تحديث القائمة وإعادة تعبئة الحقول من البيانات المحفوظة (تحديث تلقائي بعد الحفظ).
@@ -943,15 +933,13 @@ public partial class frmCustomerMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم حفظ العميل.\n{result.Error}",
-                    "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حفظ العميل.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ العميل");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -966,16 +954,13 @@ public partial class frmCustomerMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار عميل من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار عميل من القائمة أولاً.");
             return;
         }
 
         string name = txtName.Text.Trim();
 
-        if (MessageBox.Show($"هل أنت متأكد من حذف (تعطيل) العميل \"{name}\"؟",
-                "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) العميل \"{name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -988,8 +973,7 @@ public partial class frmCustomerMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعطيل العميل بنجاح.", "تم الحذف",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعطيل العميل بنجاح.");
 
                 EventBus.Publish(new CustomerChangedMessage(id));
 
@@ -1000,15 +984,13 @@ public partial class frmCustomerMaster : Form
             }
             else
             {
-                MessageBox.Show($"لم يتم تعطيل العميل.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل العميل.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعطيل العميل {CustomerId}", id);
-            MessageBox.Show("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1027,31 +1009,26 @@ public partial class frmCustomerMaster : Form
     {
         if (_editId is not int id)
         {
-            MessageBox.Show("يرجى اختيار عميل معطّل من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار عميل معطّل من القائمة أولاً.");
             return;
         }
 
         if (!_customersById.TryGetValue(id, out var customer))
         {
-            MessageBox.Show("تعذر العثور على بيانات العميل المحدد. يرجى تحديث القائمة.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر العثور على بيانات العميل المحدد. يرجى تحديث القائمة.");
             return;
         }
 
         if (customer.IsActive)
         {
-            MessageBox.Show("العميل المحدد نشط بالفعل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("العميل المحدد نشط بالفعل.");
             _ApplyModeState();
             return;
         }
 
         if (_actionButtonsBusy) return;
 
-        if (MessageBox.Show($"هل تريد إعادة تنشيط العميل \"{customer.Name}\"؟",
-                "تأكيد إعادة التنشيط", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد إعادة تنشيط العميل \"{customer.Name}\"؟"))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -1064,8 +1041,7 @@ public partial class frmCustomerMaster : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم إعادة تنشيط العميل بنجاح.", "تم إعادة التنشيط",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إعادة تنشيط العميل بنجاح.");
 
                 EventBus.Publish(new CustomerChangedMessage(id));
 
@@ -1080,15 +1056,13 @@ public partial class frmCustomerMaster : Form
             }
             else
             {
-                MessageBox.Show($"تعذر إعادة تنشيط العميل.\n{result.Error}",
-                    "فشل إعادة التنشيط", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"تعذر إعادة تنشيط العميل.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إعادة تنشيط العميل {CustomerId}", id);
-            MessageBox.Show("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إعادة التنشيط. يرجى إعادة المحاولة.");
         }
         finally
         {

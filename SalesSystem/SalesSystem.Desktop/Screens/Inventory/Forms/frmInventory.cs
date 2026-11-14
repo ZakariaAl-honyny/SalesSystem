@@ -1,4 +1,5 @@
 using System.Data;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
 
@@ -817,8 +818,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                MessageBox.Show("الخلية المحددة لا تحمل قيمة تُصفّى بها.", "تصفية",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الخلية المحددة لا تحمل قيمة تُصفّى بها.");
                 return;
             }
 
@@ -842,8 +842,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             if (cell is null)
             {
-                MessageBox.Show("يرجى تحديد سطر في الشبكة أولاً.", "تصفية",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى تحديد سطر في الشبكة أولاً.");
                 return;
             }
 
@@ -882,7 +881,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             catch (Exception ex)
             {
                 Log.Error(ex, "خطأ أثناء تحميل بيانات المخزون التجريبية");
-                MessageBox.Show("حدث خطأ أثناء تحميل بيانات المخزون.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("حدث خطأ أثناء تحميل بيانات المخزون.");
             }
             finally
             {
@@ -924,8 +923,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             catch (Exception ex)
             {
                 Log.Error(ex, "تعذر تحديث بيانات المخزون");
-                MessageBox.Show("تعذر تحديث بيانات المخزون. يرجى إعادة المحاولة.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("تعذر تحديث بيانات المخزون. يرجى إعادة المحاولة.");
             }
             finally
             {

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Models.Accounting.Enums;
@@ -295,8 +296,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة القيود المحاسبية");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -313,8 +313,7 @@ public partial class frmJournalEntries : Form
 
         if (!result.IsSuccess || result.Value is null)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل دليل الحسابات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error(result.Error ?? "تعذر تحميل دليل الحسابات. يرجى إعادة المحاولة.");
             return;
         }
 
@@ -347,8 +346,7 @@ public partial class frmJournalEntries : Form
 
         if (!result.IsSuccess || result.Value is null)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل القيود المحاسبية. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error(result.Error ?? "تعذر تحميل القيود المحاسبية. يرجى إعادة المحاولة.");
             return;
         }
 
@@ -441,8 +439,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تصفية القيود المحاسبية");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -779,8 +776,7 @@ public partial class frmJournalEntries : Form
 
             if (!result.IsSuccess || result.Value is null)
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل القيد المحاسبي المحدد.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل القيد المحاسبي المحدد.");
                 return;
             }
 
@@ -829,8 +825,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل القيد المحاسبي {EntryId}", entryId);
-            MessageBox.Show("حدث خطأ غير متوقع أثناء فتح القيد المحاسبي. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء فتح القيد المحاسبي. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1017,8 +1012,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء فتح القيد المحاسبي بالنقر المزدوج");
-            MessageBox.Show("تعذر فتح القيد المحاسبي المحدد. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح القيد المحاسبي المحدد. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1076,8 +1070,7 @@ public partial class frmJournalEntries : Form
         if (cbLineAccount.SelectedItem is not AccountOption account)
         {
             errorProvider.SetError(cbLineAccount, "يجب اختيار الحساب");
-            MessageBox.Show("يرجى اختيار الحساب أولاً قبل إضافة البند.",
-                "بيانات ناقصة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار الحساب أولاً قبل إضافة البند.");
             cbLineAccount.Focus();
             return;
         }
@@ -1089,8 +1082,7 @@ public partial class frmJournalEntries : Form
         {
             errorProvider.SetError(numLineDebit, "لا يجوز أن يكون البند مديناً ودائناً معاً");
             errorProvider.SetError(numLineCredit, "لا يجوز أن يكون البند مديناً ودائناً معاً");
-            MessageBox.Show("لا يمكن أن يحتوي البند على مبلغ مدين ومبلغ دائن في الوقت نفسه.",
-                "بند غير صالح", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن أن يحتوي البند على مبلغ مدين ومبلغ دائن في الوقت نفسه.");
             numLineDebit.Focus();
             return;
         }
@@ -1098,8 +1090,7 @@ public partial class frmJournalEntries : Form
         if (debit <= 0m && credit <= 0m)
         {
             errorProvider.SetError(numLineDebit, "أدخل مبلغ المدين أو الدائن");
-            MessageBox.Show("يجب إدخال مبلغ مدين أو مبلغ دائن أكبر من صفر.",
-                "بند غير صالح", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يجب إدخال مبلغ مدين أو مبلغ دائن أكبر من صفر.");
             numLineDebit.Focus();
             return;
         }
@@ -1124,8 +1115,7 @@ public partial class frmJournalEntries : Form
     {
         if (dgvLines.CurrentRow?.DataBoundItem is not LineRow row)
         {
-            MessageBox.Show("يرجى تحديد بند من شبكة البنود أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تحديد بند من شبكة البنود أولاً.");
             return;
         }
 
@@ -1212,8 +1202,7 @@ public partial class frmJournalEntries : Form
 
         if (isValid) return true;
 
-        MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل الحفظ.",
-            "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل الحفظ.");
 
         if (!string.IsNullOrWhiteSpace(errorProvider.GetError(txtEntryDescription)))
             txtEntryDescription.Focus();
@@ -1233,8 +1222,7 @@ public partial class frmJournalEntries : Form
         if (_busy) return;
         if (_currentEntryId is int existingId && _currentStatus != StatusDraft)
         {
-            MessageBox.Show("لا يمكن حفظ قيد مُرحَّل أو ملغى. القيود المُرحَّلة غير قابلة للتعديل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن حفظ قيد مُرحَّل أو ملغى. القيود المُرحَّلة غير قابلة للتعديل.");
             return;
         }
 
@@ -1274,8 +1262,7 @@ public partial class frmJournalEntries : Form
 
                 if (!result.IsSuccess)
                 {
-                    MessageBox.Show($"لم يتم حفظ تعديل القيد.\n{result.Error}",
-                        "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error($"لم يتم حفظ تعديل القيد.\n{result.Error}");
                     return;
                 }
 
@@ -1290,18 +1277,16 @@ public partial class frmJournalEntries : Form
 
                 if (!result.IsSuccess)
                 {
-                    MessageBox.Show($"لم يتم حفظ القيد المحاسبي.\n{result.Error}",
-                        "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error($"لم يتم حفظ القيد المحاسبي.\n{result.Error}");
                     return;
                 }
 
                 savedId = result.Value;
             }
 
-            MessageBox.Show(isUpdate
+            clsDialogs.Success(isUpdate
                     ? "تم تعديل القيد المحاسبي بنجاح."
-                    : "تم حفظ القيد المحاسبي كمسودة بنجاح.",
-                "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    : "تم حفظ القيد المحاسبي كمسودة بنجاح.");
 
             await _LoadEntriesAsync(savedId);
 
@@ -1311,8 +1296,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ القيد المحاسبي");
-            MessageBox.Show("حدث خطأ أثناء حفظ القيد المحاسبي. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء حفظ القيد المحاسبي. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1330,23 +1314,19 @@ public partial class frmJournalEntries : Form
     {
         if (_currentEntryId is not int id)
         {
-            MessageBox.Show("يرجى اختيار قيد محاسبي من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار قيد محاسبي من القائمة أولاً.");
             return;
         }
 
         if (_currentStatus != StatusDraft)
         {
-            MessageBox.Show("لا يمكن ترحيل هذا القيد — القيود المُرحَّلة أو الملغاة لا تُرحَّل مرة أخرى.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن ترحيل هذا القيد — القيود المُرحَّلة أو الملغاة لا تُرحَّل مرة أخرى.");
             return;
         }
 
-        if (MessageBox.Show(
+        if (!clsDialogs.Confirm(
                 $"هل تريد ترحيل القيد رقم {_currentEntryNumber}؟\n" +
-                "بعد الترحيل لا يمكن تعديل القيد أو حذفه، ويمكن إلغاؤه فقط.",
-                "تأكيد الترحيل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                "بعد الترحيل لا يمكن تعديل القيد أو حذفه، ويمكن إلغاؤه فقط."))
         {
             return;
         }
@@ -1361,13 +1341,11 @@ public partial class frmJournalEntries : Form
 
             if (!result.IsSuccess)
             {
-                MessageBox.Show($"لم يتم ترحيل القيد.\n{result.Error}",
-                    "فشل الترحيل", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم ترحيل القيد.\n{result.Error}");
                 return;
             }
 
-            MessageBox.Show("تم ترحيل القيد المحاسبي بنجاح.",
-                "تم الترحيل", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم ترحيل القيد المحاسبي بنجاح.");
 
             await _LoadEntriesAsync(id);
             await _LoadEntryAsync(id);
@@ -1375,8 +1353,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء ترحيل القيد المحاسبي {EntryId}", id);
-            MessageBox.Show("حدث خطأ أثناء ترحيل القيد المحاسبي. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء ترحيل القيد المحاسبي. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1392,24 +1369,20 @@ public partial class frmJournalEntries : Form
     {
         if (_currentEntryId is not int id)
         {
-            MessageBox.Show("يرجى اختيار قيد محاسبي من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار قيد محاسبي من القائمة أولاً.");
             return;
         }
 
         if (_currentStatus != StatusPosted)
         {
-            MessageBox.Show("لا يمكن إلغاء هذا القيد — الإلغاء متاح للقيود المُرحَّلة فقط.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن إلغاء هذا القيد — الإلغاء متاح للقيود المُرحَّلة فقط.");
             return;
         }
 
-        if (MessageBox.Show(
+        if (!clsDialogs.Confirm(
                 $"تحذير: سيتم إلغاء القيد رقم {_currentEntryNumber} نهائياً.\n" +
                 "لا يمكن التراجع عن هذه العملية، وسيبقى القيد في السجل بحالة «ملغى».\n\n" +
-                "هل أنت متأكد من إلغاء القيد؟",
-                "تأكيد إلغاء القيد", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                "هل أنت متأكد من إلغاء القيد؟"))
         {
             return;
         }
@@ -1424,13 +1397,11 @@ public partial class frmJournalEntries : Form
 
             if (!result.IsSuccess)
             {
-                MessageBox.Show($"لم يتم إلغاء القيد.\n{result.Error}",
-                    "فشل الإلغاء", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم إلغاء القيد.\n{result.Error}");
                 return;
             }
 
-            MessageBox.Show("تم إلغاء القيد المحاسبي بنجاح.",
-                "تم الإلغاء", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم إلغاء القيد المحاسبي بنجاح.");
 
             await _LoadEntriesAsync(id);
             await _LoadEntryAsync(id);
@@ -1438,8 +1409,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إلغاء القيد المحاسبي {EntryId}", id);
-            MessageBox.Show("حدث خطأ أثناء إلغاء القيد المحاسبي. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إلغاء القيد المحاسبي. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1455,21 +1425,17 @@ public partial class frmJournalEntries : Form
     {
         if (_currentEntryId is not int id)
         {
-            MessageBox.Show("يرجى اختيار قيد محاسبي من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار قيد محاسبي من القائمة أولاً.");
             return;
         }
 
         if (_currentStatus != StatusDraft)
         {
-            MessageBox.Show("حذف المسودة متاح للقيود بحالة «مسودة» فقط. القيود المُرحَّلة تُلغى ولا تُحذف.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("حذف المسودة متاح للقيود بحالة «مسودة» فقط. القيود المُرحَّلة تُلغى ولا تُحذف.");
             return;
         }
 
-        if (MessageBox.Show($"هل تريد حذف مسودة القيد رقم {_currentEntryNumber}؟",
-                "تأكيد حذف المسودة", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل تريد حذف مسودة القيد رقم {_currentEntryNumber}؟"))
         {
             return;
         }
@@ -1484,13 +1450,11 @@ public partial class frmJournalEntries : Form
 
             if (!result.IsSuccess)
             {
-                MessageBox.Show($"لم يتم حذف المسودة.\n{result.Error}",
-                    "فشل الحذف", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حذف المسودة.\n{result.Error}");
                 return;
             }
 
-            MessageBox.Show("تم حذف مسودة القيد المحاسبي بنجاح.",
-                "تم الحذف", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم حذف مسودة القيد المحاسبي بنجاح.");
 
             await _LoadEntriesAsync();
             _ResetForm();
@@ -1498,8 +1462,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حذف مسودة القيد المحاسبي {EntryId}", id);
-            MessageBox.Show("حدث خطأ أثناء حذف المسودة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء حذف المسودة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1517,15 +1480,13 @@ public partial class frmJournalEntries : Form
     {
         if (_currentEntryId is not int)
         {
-            MessageBox.Show("يرجى اختيار قيد محاسبي من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار قيد محاسبي من القائمة أولاً.");
             return;
         }
 
         if (_currentStatus != StatusDraft)
         {
-            MessageBox.Show("لا يمكن تعديل قيد مُرحَّل أو ملغى — القيود المُرحَّلة غير قابلة للتعديل.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن تعديل قيد مُرحَّل أو ملغى — القيود المُرحَّلة غير قابلة للتعديل.");
             return;
         }
 
@@ -1555,8 +1516,7 @@ public partial class frmJournalEntries : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث شاشة القيود المحاسبية");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {

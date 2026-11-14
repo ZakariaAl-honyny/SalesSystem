@@ -202,8 +202,7 @@ public partial class ctrlDashboard : UserControl
         {
             // RefreshAsync لا يرمي، لكن نلتزم بقاعدة async void (RULE-N25)
             Log.Error(ex, "لوحة المعلومات: تعذر تنفيذ التحديث اليدوي");
-            MessageBox.Show("تعذر تحديث أرقام اللوحة. حاول مرة أخرى.", "لوحة المعلومات",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر تحديث أرقام اللوحة. حاول مرة أخرى.");
         }
     }
 

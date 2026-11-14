@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
 
@@ -110,8 +111,7 @@ public partial class frmInventoryAddProduct : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تهيئة حقول حوار إضافة صنف");
-            MessageBox.Show("تعذر تهيئة شاشة إضافة الصنف. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تهيئة شاشة إضافة الصنف. يرجى إعادة المحاولة.");
         }
     }
 
@@ -243,8 +243,7 @@ public partial class frmInventoryAddProduct : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -263,8 +262,7 @@ public partial class frmInventoryAddProduct : Form
             // chkTrackExpiry + dgvUnits rows (الوحدة / معامل التحويل / الباركود /
             // سعر البيع / التكلفة) + cmbWarehouse, nudOpeningQty, txtBatchNo, dtpExpiry.
 
-            MessageBox.Show("تم إضافة الصنف بنجاح", "نجاح",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم إضافة الصنف بنجاح");
 
             DialogResult = DialogResult.OK;
             Close();
@@ -272,8 +270,7 @@ public partial class frmInventoryAddProduct : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ أثناء إضافة الصنف");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل.");
         }
         finally
         {

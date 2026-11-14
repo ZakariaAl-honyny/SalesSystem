@@ -156,8 +156,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             {
                 // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
                 Serilog.Log.Error(ex, "فشل تطبيق تصفية المقبوضات والمدفوعات");
-                MessageBox.Show("تعذر تطبيق التصفية الحالية. يرجى تعديل معايير التصفية.",
-                    "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("تعذر تطبيق التصفية الحالية. يرجى تعديل معايير التصفية.");
                 return;
             }
 
@@ -635,15 +634,14 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 }
                 else if (!result.IsSuccess)
                 {
-                    MessageBox.Show(result.Error ?? "حدث خطأ في تحميل سندات القبض", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل سندات القبض");
                 }
             }
             catch (Exception ex)
             {
                 // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
                 Serilog.Log.Error(ex, "فشل تحميل سندات القبض في شاشة المدفوعات");
-                MessageBox.Show("حدث خطأ أثناء تحميل سندات القبض.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("حدث خطأ أثناء تحميل سندات القبض.");
             }
             finally
             {
@@ -682,15 +680,14 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 }
                 else if (!result.IsSuccess)
                 {
-                    MessageBox.Show(result.Error ?? "حدث خطأ في تحميل سندات الصرف", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل سندات الصرف");
                 }
             }
             catch (Exception ex)
             {
                 // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
                 Serilog.Log.Error(ex, "فشل تحميل سندات الصرف في شاشة المدفوعات");
-                MessageBox.Show("حدث خطأ أثناء تحميل سندات الصرف.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("حدث خطأ أثناء تحميل سندات الصرف.");
             }
             finally
             {
@@ -737,8 +734,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             {
                 // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
                 Serilog.Log.Error(ex, "فشل تحديث شاشة المقبوضات والمدفوعات");
-                MessageBox.Show("تعذر تحديث البيانات. يرجى المحاولة مرة أخرى.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("تعذر تحديث البيانات. يرجى المحاولة مرة أخرى.");
             }
             finally
             {

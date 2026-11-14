@@ -206,8 +206,7 @@ public partial class frmPurchaseItem : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -224,8 +223,7 @@ public partial class frmPurchaseItem : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ في حوار صنف المشتريات");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 

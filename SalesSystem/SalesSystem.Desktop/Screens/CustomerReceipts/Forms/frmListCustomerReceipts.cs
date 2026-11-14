@@ -211,7 +211,7 @@ public partial class frmListCustomerReceipts : Form
             {
                 if (!result.IsSuccess)
                 {
-                    MessageBox.Show(result.Error ?? "حدث خطأ في تحميل سندات القبض", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل سندات القبض");
                 }
                 _allReceipts = new List<CustomerReceiptDto>();
             }
@@ -220,8 +220,7 @@ public partial class frmListCustomerReceipts : Form
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء تحميل سندات القبض");
-            MessageBox.Show("حدث خطأ أثناء تحميل سندات القبض",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل سندات القبض");
         }
         finally
         {
@@ -537,11 +536,11 @@ public partial class frmListCustomerReceipts : Form
 
         if (status != StatusDraft)
         {
-            MessageBox.Show("لا يمكن ترحيل السند إلا في حالة مسودة.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن ترحيل السند إلا في حالة مسودة.");
             return;
         }
 
-        if (MessageBox.Show("هل أنت متأكد من ترحيل سند القبض؟", "تأكيد الترحيل", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من ترحيل سند القبض؟"))
             return;
 
         _ = PostAsync(id);
@@ -556,20 +555,19 @@ public partial class frmListCustomerReceipts : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم ترحيل سند القبض بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم ترحيل سند القبض بنجاح.");
                 _ReloadForm();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في الترحيل", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في الترحيل");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء ترحيل سند القبض");
-            MessageBox.Show("حدث خطأ أثناء الترحيل",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الترحيل");
         }
         finally
         {
@@ -585,11 +583,11 @@ public partial class frmListCustomerReceipts : Form
 
         if (status == StatusCancelled)
         {
-            MessageBox.Show("السند ملغي بالفعل.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("السند ملغي بالفعل.");
             return;
         }
 
-        if (MessageBox.Show("هل أنت متأكد من إلغاء سند القبض؟", "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء سند القبض؟"))
             return;
 
         _ = CancelAsync(id);
@@ -604,20 +602,19 @@ public partial class frmListCustomerReceipts : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم إلغاء سند القبض بنجاح.", "تم", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إلغاء سند القبض بنجاح.");
                 _ReloadForm();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "فشل في الإلغاء", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "فشل في الإلغاء");
             }
         }
         catch (Exception ex)
         {
             // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
             Serilog.Log.Error(ex, "حدث خطأ أثناء إلغاء سند القبض");
-            MessageBox.Show("حدث خطأ أثناء الإلغاء",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الإلغاء");
         }
         finally
         {

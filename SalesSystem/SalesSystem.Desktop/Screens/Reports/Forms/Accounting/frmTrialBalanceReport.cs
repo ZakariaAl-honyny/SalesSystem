@@ -2,6 +2,7 @@
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.Common;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -57,9 +58,9 @@ public partial class frmTrialBalanceReport : Form, IExportableReport
                 UpdateSummary(result.Value.ToList());
                 FormatGrid();
             }
-            else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            else { clsDialogs.Error(result.Error!); }
         }
-        catch (Exception ex) { Log.Error(ex, "خطأ في تحميل ميزان المراجعة"); MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل التقرير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (Exception ex) { Log.Error(ex, "خطأ في تحميل ميزان المراجعة"); clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير."); }
         finally { ShowLoading(false); }
     }
 
@@ -86,17 +87,17 @@ public partial class frmTrialBalanceReport : Form, IExportableReport
 
     private async Task ExportToExcelAsync()
     {
-        if (dgvReport.Rows.Count == 0) { MessageBox.Show("لا توجد بيانات للتصدير", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+        if (dgvReport.Rows.Count == 0) { clsDialogs.Warning("لا توجد بيانات للتصدير"); return; }
         try
         {
             var dlg = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"ميزان_المراجعة_{DateTime.Now:yyyyMMdd}.xlsx" };
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "ميزان المراجعة", dlg.FileName);
-                MessageBox.Show("تم تصدير التقرير بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
-        catch (Exception ex) { Log.Error(ex, "خطأ في تصدير ميزان المراجعة"); MessageBox.Show("حدث خطأ أثناء التصدير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (Exception ex) { Log.Error(ex, "خطأ في تصدير ميزان المراجعة"); clsDialogs.Error("حدث خطأ أثناء التصدير."); }
     }
 
     private void ShowLoading(bool show)

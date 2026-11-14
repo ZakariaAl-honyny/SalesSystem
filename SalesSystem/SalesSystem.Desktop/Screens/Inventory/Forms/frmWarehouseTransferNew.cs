@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -205,8 +206,7 @@ public partial class frmWarehouseTransferNew : Form
         if (!_ValidateHeader()) return;
         if (!_ValidateLines()) return;
 
-        MessageBox.Show("تم حفظ سند التحويل (وضع تجريبي — لا خصم فعلي من المخزون).",
-            "حفظ السند", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        clsDialogs.Success("تم حفظ سند التحويل (وضع تجريبي — لا خصم فعلي من المخزون).");
 
         DialogResult = DialogResult.OK;
         Close();
@@ -238,15 +238,13 @@ public partial class frmWarehouseTransferNew : Form
     {
         if (cmbFromWarehouse.SelectedIndex < 0 || cmbToWarehouse.SelectedIndex < 0)
         {
-            MessageBox.Show("يرجى اختيار مستودع الإرسال ومستودع الاستلام.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار مستودع الإرسال ومستودع الاستلام.");
             return false;
         }
 
         if (cmbFromWarehouse.SelectedIndex == cmbToWarehouse.SelectedIndex)
         {
-            MessageBox.Show("لا يمكن أن يكون مستودع الإرسال ومستودع الاستلام متطابقين.",
-                "بيانات غير صحيحة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن أن يكون مستودع الإرسال ومستودع الاستلام متطابقين.");
             cmbToWarehouse.Focus();
             return false;
         }
@@ -266,8 +264,7 @@ public partial class frmWarehouseTransferNew : Form
 
             if (qty.HasValue && qty.Value < 0)
             {
-                MessageBox.Show("الكمية لا يمكن أن تكون سالبة.",
-                    "بيانات غير صحيحة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الكمية لا يمكن أن تكون سالبة.");
                 dgvLines.CurrentCell = row.Cells[colQuantity.Index];
                 return false;
             }
@@ -277,8 +274,7 @@ public partial class frmWarehouseTransferNew : Form
 
         if (linesWithQty == 0)
         {
-            MessageBox.Show("يجب إدخال كمية أكبر من صفر لصنف واحد على الأقل.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يجب إدخال كمية أكبر من صفر لصنف واحد على الأقل.");
             return false;
         }
 

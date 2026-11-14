@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO.Responses;
 using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -179,8 +180,7 @@ public partial class frmListInventoryAdjustments : Form
             }
             else if (!result.IsSuccess)
             {
-                MessageBox.Show(result.Error ?? "حدث خطأ في تحميل قائمة التسويات", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل قائمة التسويات");
             }
 
             dgvAdjustments.DataSource = _adjustmentsView;
@@ -189,8 +189,7 @@ public partial class frmListInventoryAdjustments : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل تحميل قائمة تسويات المخزون في شاشة القائمة");
-            MessageBox.Show("تعذر تحميل قائمة تسويات المخزون. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة تسويات المخزون. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -384,8 +383,7 @@ public partial class frmListInventoryAdjustments : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل فتح تفاصيل تسوية المخزون من شاشة القائمة");
-            MessageBox.Show("تعذر فتح تفاصيل التسوية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح تفاصيل التسوية. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -407,24 +405,22 @@ public partial class frmListInventoryAdjustments : Form
             if (_selectedAdjustment is null || _selectedAdjustment.Status != 1)   // Draft only
                 return;
 
-            if (MessageBox.Show("هل أنت متأكد من ترحيل تسوية المخزون؟", "تأكيد الترحيل",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (!clsDialogs.Confirm("هل أنت متأكد من ترحيل تسوية المخزون؟"))
                 return;
 
             var result = await DesktopService.PostAsync(_selectedAdjustment.Id);
 
             if (result.IsSuccess)
-                MessageBox.Show("تم ترحيل تسوية المخزون بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم ترحيل تسوية المخزون بنجاح");
             else
-                MessageBox.Show($"خطأ في الترحيل: {result.Error}", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"خطأ في الترحيل: {result.Error}");
 
             _ReloadForm();
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل ترحيل تسوية المخزون {AdjustmentId} من شاشة القائمة", _selectedAdjustment?.Id);
-            MessageBox.Show("تعذر ترحيل تسوية المخزون. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر ترحيل تسوية المخزون. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -446,24 +442,22 @@ public partial class frmListInventoryAdjustments : Form
             if (_selectedAdjustment is null || _selectedAdjustment.Status != 2)   // Posted only
                 return;
 
-            if (MessageBox.Show("هل أنت متأكد من إلغاء تسوية المخزون؟ لا يمكن التراجع عن هذا الإجراء.",
-                "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء تسوية المخزون؟ لا يمكن التراجع عن هذا الإجراء."))
                 return;
 
             var result = await DesktopService.CancelAsync(_selectedAdjustment.Id);
 
             if (result.IsSuccess)
-                MessageBox.Show("تم إلغاء تسوية المخزون بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم إلغاء تسوية المخزون بنجاح");
             else
-                MessageBox.Show($"خطأ في الإلغاء: {result.Error}", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"خطأ في الإلغاء: {result.Error}");
 
             _ReloadForm();
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "فشل إلغاء تسوية المخزون {AdjustmentId} من شاشة القائمة", _selectedAdjustment?.Id);
-            MessageBox.Show("تعذر إلغاء تسوية المخزون. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر إلغاء تسوية المخزون. يرجى إعادة المحاولة.");
         }
         finally
         {

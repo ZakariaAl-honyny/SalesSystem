@@ -218,8 +218,7 @@ public partial class frmSupplierPaymentDialog : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -239,8 +238,7 @@ public partial class frmSupplierPaymentDialog : Form
 
         if (amount > _currentBalance)
         {
-            if (MessageBox.Show("المبلغ المدفوع أكبر من الرصيد. هل تريد المتابعة؟", "تنبيه",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (!clsDialogs.Confirm("المبلغ المدفوع أكبر من الرصيد. هل تريد المتابعة؟"))
                 return;
         }
 

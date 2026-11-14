@@ -128,8 +128,7 @@ public partial class frmPurchaseOtherDetails : Form
             // حقول الإدخال محصورة بين 0 والحد الأقصى — تحقق احتياطي فقط
             if (TotalAdditionalCosts < 0)
             {
-                MessageBox.Show("لا يمكن أن تكون التكاليف الإضافية قيمة سالبة.", "تحقق من القيم",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا يمكن أن تكون التكاليف الإضافية قيمة سالبة.");
                 return;
             }
 
@@ -140,8 +139,7 @@ public partial class frmPurchaseOtherDetails : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ في حوار التكاليف الإضافية للمشتريات");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 

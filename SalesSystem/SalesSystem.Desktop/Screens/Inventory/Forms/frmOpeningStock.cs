@@ -120,8 +120,7 @@ public partial class frmOpeningStock : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة بضاعة أول المدة");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -142,15 +141,13 @@ public partial class frmOpeningStock : Form
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل قائمة المخازن.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة المخازن.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل المخازن");
-            MessageBox.Show("تعذر تحميل قائمة المخازن. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل قائمة المخازن. يرجى إعادة المحاولة.");
         }
     }
 
@@ -223,8 +220,7 @@ public partial class frmOpeningStock : Form
                 .FirstOrDefault(r => r.Field<int>("ProductId") == dialog.SelectedProduct.Id);
             if (existing != null)
             {
-                MessageBox.Show("هذا المنتج مضاف مسبقاً للقائمة.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("هذا المنتج مضاف مسبقاً للقائمة.");
                 return;
             }
 
@@ -245,7 +241,7 @@ public partial class frmOpeningStock : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء إضافة منتج");
-            MessageBox.Show("حدث خطأ أثناء إضافة المنتج.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إضافة المنتج.");
         }
     }
 
@@ -411,8 +407,7 @@ public partial class frmOpeningStock : Form
 
         if (_dtLines.Rows.Count == 0)
         {
-            MessageBox.Show("يرجى إضافة منتج واحد على الأقل.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى إضافة منتج واحد على الأقل.");
             isValid = false;
         }
 
@@ -421,8 +416,7 @@ public partial class frmOpeningStock : Form
             int puId = Convert.ToInt32(row["ProductUnitId"]);
             if (puId <= 0)
             {
-                MessageBox.Show("يرجى اختيار الوحدة المناسبة لكل المنتجات.", "بيانات غير مكتملة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى اختيار الوحدة المناسبة لكل المنتجات.");
                 isValid = false;
                 break;
             }
@@ -430,8 +424,7 @@ public partial class frmOpeningStock : Form
             decimal qty = Convert.ToDecimal(row["Quantity"]);
             if (qty <= 0)
             {
-                MessageBox.Show("الكمية يجب أن تكون أكبر من صفر.", "بيانات غير صحيحة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الكمية يجب أن تكون أكبر من صفر.");
                 isValid = false;
                 break;
             }
@@ -453,7 +446,7 @@ public partial class frmOpeningStock : Form
 
             if (cmbWarehouse.SelectedValue is not short warehouseId)
             {
-                MessageBox.Show("يرجى اختيار المخزن", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("يرجى اختيار المخزن");
                 return;
             }
 
@@ -466,8 +459,7 @@ public partial class frmOpeningStock : Form
             var createResult = await adjustmentApi.CreateAsync(createRequest);
             if (!createResult.IsSuccess || createResult.Value == null)
             {
-                MessageBox.Show(createResult.Error ?? "حدث خطأ أثناء إنشاء التسوية.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(createResult.Error ?? "حدث خطأ أثناء إنشاء التسوية.");
                 return;
             }
 
@@ -496,21 +488,18 @@ public partial class frmOpeningStock : Form
 
             if (successCount == 0)
             {
-                MessageBox.Show("فشل إضافة جميع المنتجات. تحقق من البيانات.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("فشل إضافة جميع المنتجات. تحقق من البيانات.");
                 return;
             }
 
             var postResult = await adjustmentApi.PostAsync(adjustmentId);
             if (!postResult.IsSuccess)
             {
-                MessageBox.Show(postResult.Error ?? "حدث خطأ أثناء ترحيل التسوية.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(postResult.Error ?? "حدث خطأ أثناء ترحيل التسوية.");
                 return;
             }
 
-            MessageBox.Show($"تم حفظ وترحيل {successCount} منتج بنجاح كبضاعة أول المدة.", "تم",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success($"تم حفظ وترحيل {successCount} منتج بنجاح كبضاعة أول المدة.");
 
             DialogResult = DialogResult.OK;
             Close();
@@ -518,8 +507,7 @@ public partial class frmOpeningStock : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ أثناء حفظ الكميات الافتتاحية");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل.");
         }
         finally
         {

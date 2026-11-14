@@ -2,6 +2,7 @@
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.Common;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -61,13 +62,13 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
             }
             else
             {
-                MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error!);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل قائمة الدخل");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل التقرير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير.");
         }
         finally
         {
@@ -114,7 +115,7 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
     {
         if (_bindingSource.DataSource is not List<IncomeStatementDto> data || data.Count == 0)
         {
-            MessageBox.Show("لا توجد بيانات للتصدير", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -129,13 +130,13 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "قائمة الدخل", dialog.FileName);
-                MessageBox.Show("تم تصدير التقرير بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تصدير قائمة الدخل");
-            MessageBox.Show("حدث خطأ أثناء التصدير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء التصدير.");
         }
     }
 

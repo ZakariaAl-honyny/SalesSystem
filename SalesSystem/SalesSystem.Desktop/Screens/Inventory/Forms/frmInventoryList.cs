@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
@@ -191,8 +192,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل بيانات حركات المخزون.", "خطأ في تحميل البيانات",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل بيانات حركات المخزون.");
             }
 
             _movementsView = new DataView(_movementsTable);
@@ -218,8 +218,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             catch (Exception ex)
             {
                 Log.Error(ex, "تعذر تحميل قائمة حركات المخزون");
-                MessageBox.Show("تعذر تحميل بيانات الحركات. يرجى إعادة المحاولة.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("تعذر تحميل بيانات الحركات. يرجى إعادة المحاولة.");
             }
             finally
             {
@@ -252,8 +251,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             catch (Exception ex)
             {
                 Log.Error(ex, "تعذر تحديث قائمة حركات المخزون");
-                MessageBox.Show("تعذر تحديث بيانات الحركات. يرجى إعادة المحاولة.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("تعذر تحديث بيانات الحركات. يرجى إعادة المحاولة.");
             }
             finally
             {
@@ -455,8 +453,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                MessageBox.Show("الخلية المحددة لا تحمل قيمة تُصفّى بها.", "تصفية",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الخلية المحددة لا تحمل قيمة تُصفّى بها.");
                 return;
             }
 
@@ -479,8 +476,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             if (cell is null)
             {
-                MessageBox.Show("يرجى تحديد سطر في الشبكة أولاً.", "تصفية",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى تحديد سطر في الشبكة أولاً.");
                 return;
             }
 

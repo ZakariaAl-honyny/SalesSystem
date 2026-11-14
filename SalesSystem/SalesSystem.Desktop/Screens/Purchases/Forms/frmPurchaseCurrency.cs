@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
@@ -264,13 +265,8 @@ public partial class frmPurchaseCurrency : Form
                 errorProvider.SetError(numRate,
                     $"السعر المُدخل خارج النطاق المسموح ({RangeText(opt)}).");
 
-                var confirm = MessageBox.Show(
-                    $"السعر المُدخل ({_currentRate:N2}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({opt.OfficialRate:N2})؟",
-                    "سعر الصرف خارج النطاق",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-
-                if (confirm == DialogResult.Yes)
+                if (clsDialogs.Confirm(
+                    $"السعر المُدخل ({_currentRate:N2}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({opt.OfficialRate:N2})؟"))
                 {
                     _currentRate = opt.OfficialRate;
 
@@ -293,8 +289,7 @@ public partial class frmPurchaseCurrency : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ في حوار عملة المشتريات");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 

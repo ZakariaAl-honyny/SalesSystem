@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Screens;
 
@@ -159,8 +160,7 @@ public partial class frmLogin : Form
         catch (Exception ex)
         {
             Log.Error(ex, "فشل معالج حدث تسجيل الدخول");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -194,8 +194,7 @@ public partial class frmLogin : Form
             SetPinModeVisible();
             txtPin.Focus();
 
-            MessageBox.Show("تعذر تسجيل الدخول التلقائي. يرجى إدخال كلمة المرور.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر تسجيل الدخول التلقائي. يرجى إدخال كلمة المرور.");
         }
         finally
         {
@@ -223,8 +222,7 @@ public partial class frmLogin : Form
         if (string.IsNullOrWhiteSpace(password))
         {
             errorProvider1.SetError(txtPin, "هذا الحقل مطلوب");
-            MessageBox.Show("يرجى إدخال كلمة المرور.", "بيانات ناقصة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى إدخال كلمة المرور.");
             txtPin.Focus();
             return;
         }
@@ -250,8 +248,7 @@ public partial class frmLogin : Form
                 lblError.Text = message;
                 lblError.Visible = true;
 
-                MessageBox.Show(message, "تعذر تسجيل الدخول",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(message);
 
                 txtPin.Clear();
                 txtPin.Focus();
@@ -266,8 +263,7 @@ public partial class frmLogin : Form
         catch (Exception ex)
         {
             Log.Error(ex, "فشل عملية تسجيل الدخول");
-            MessageBox.Show("تعذر إكمال عملية تسجيل الدخول. يرجى المحاولة مرة أخرى.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر إكمال عملية تسجيل الدخول. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -315,8 +311,7 @@ public partial class frmLogin : Form
     /// </summary>
     private void HandleMustChangePassword(LoginResponse loginResponse)
     {
-        MessageBox.Show("يجب تغيير كلمة المرور قبل المتابعة.", "تغيير كلمة المرور مطلوب",
-            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        clsDialogs.Warning("يجب تغيير كلمة المرور قبل المتابعة.");
 
         try
         {
@@ -330,16 +325,14 @@ public partial class frmLogin : Form
                 Log.Information("غيّر المستخدم {UserId} كلمة المرور — إعادة المصادقة مطلوبة",
                     loginResponse.UserId);
 
-                MessageBox.Show("تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.",
-                    "تغيير كلمة المرور", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول بكلمة المرور الجديدة.");
             }
             else
             {
                 Log.Warning("أُلغيت عملية تغيير كلمة المرور الإلزامية للمستخدم {UserId}",
                     loginResponse.UserId);
 
-                MessageBox.Show("لم يتم تغيير كلمة المرور، ولا يمكن المتابعة قبل تغييرها.",
-                    "تغيير كلمة المرور مطلوب", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لم يتم تغيير كلمة المرور، ولا يمكن المتابعة قبل تغييرها.");
             }
         }
         catch (Exception ex)
@@ -347,8 +340,7 @@ public partial class frmLogin : Form
             Log.Error(ex, "تعذر فتح شاشة تغيير كلمة المرور الإلزامية للمستخدم {UserId}",
                 loginResponse.UserId);
 
-            MessageBox.Show("تعذر فتح شاشة تغيير كلمة المرور. يرجى المحاولة مرة أخرى.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح شاشة تغيير كلمة المرور. يرجى المحاولة مرة أخرى.");
         }
         finally
         {

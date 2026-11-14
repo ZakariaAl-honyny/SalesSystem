@@ -161,8 +161,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (!result.IsSuccess || result.Value is null)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل بيانات التسوية", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error(result.Error ?? "تعذر تحميل بيانات التسوية");
             return;
         }
 
@@ -307,20 +306,17 @@ public partial class frmAddUpdateInventoryAdjustment : Form
                 btnPost.Enabled = true;
                 AcceptButton = _PrimaryActionButton();   // RULE-N147 — صار الزر الأساسي «ترحيل»
 
-                MessageBox.Show("تم حفظ مسودة التسوية بنجاح", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم حفظ مسودة التسوية بنجاح");
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر حفظ مسودة التسوية.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر حفظ مسودة التسوية.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر حفظ مسودة تسوية المخزون");
-            MessageBox.Show("تعذر حفظ مسودة التسوية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر حفظ مسودة التسوية. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -350,23 +346,20 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم ترحيل تسوية المخزون بنجاح", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم ترحيل تسوية المخزون بنجاح");
 
                 DialogResult = DialogResult.OK;
                 Close();
             }
             else
             {
-                MessageBox.Show(result.Error ?? "تعذر ترحيل التسوية.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر ترحيل التسوية.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر ترحيل تسوية المخزون");
-            MessageBox.Show("تعذر ترحيل التسوية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر ترحيل التسوية. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -425,8 +418,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -447,8 +439,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحديث بيانات تسوية المخزون");
-            MessageBox.Show("تعذر تحديث بيانات التسوية. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث بيانات التسوية. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -478,8 +469,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحميل شاشة تسوية المخزون");
-            MessageBox.Show("تعذر تحميل بيانات الشاشة. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل بيانات الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -495,8 +485,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
     private async void btnPost_Click(object sender, EventArgs e)
     {
-        if (MessageBox.Show("هل أنت متأكد من ترحيل التسوية؟", "تأكيد",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من ترحيل التسوية؟"))
             return;
 
         await _PostAdjustmentAsync();
@@ -515,8 +504,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (cell?.Value is null)
         {
-            MessageBox.Show("يرجى تحديد خلية تحتوي قيمة أولاً.", "نسخ",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تحديد خلية تحتوي قيمة أولاً.");
             return;
         }
 
@@ -527,8 +515,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر نسخ قيمة خلية من بنود التسوية");
-            MessageBox.Show("تعذر نسخ القيمة. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر نسخ القيمة. يرجى إعادة المحاولة.");
         }
     }
 

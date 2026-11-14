@@ -1,3 +1,4 @@
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
 
@@ -95,8 +96,7 @@ public partial class frmInventoryBarcode : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل بيانات طباعة الباركود");
-            MessageBox.Show("حدث خطأ أثناء تحميل البيانات.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل البيانات.");
         }
     }
 
@@ -158,8 +158,7 @@ public partial class frmInventoryBarcode : Form
         if (product is null)
         {
             errorProvider.SetError(txtBarcode, "لا يوجد صنف بهذا الباركود");
-            MessageBox.Show($"لا يوجد صنف بهذا الباركود: {code}", "بحث بالباركود",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning($"لا يوجد صنف بهذا الباركود: {code}");
             return;
         }
 
@@ -179,16 +178,14 @@ public partial class frmInventoryBarcode : Form
         {
             if (_selectedProduct is null)
             {
-                MessageBox.Show("يرجى اختيار الصنف أولاً.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى اختيار الصنف أولاً.");
                 return;
             }
 
             int count = (int)nudLabelsCount.Value;
             if (count <= 0)
             {
-                MessageBox.Show("يرجى إدخال عدد صحيح من الملصقات.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى إدخال عدد صحيح من الملصقات.");
                 return;
             }
 
@@ -197,18 +194,14 @@ public partial class frmInventoryBarcode : Form
             Cursor = Cursors.WaitCursor;
 
             // نسخة تجريبية: محاكاة نجاح الطباعة بدون طابعة حقيقية
-            MessageBox.Show(
+            clsDialogs.Success(
                 $"تمت طباعة {count} ملصق باركود للصنف: {_selectedProduct.Name}\r\n" +
-                $"الباركود: {_selectedProduct.Barcode} | حجم الملصق: {sizeName}",
-                "طباعة ناجحة",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+                $"الباركود: {_selectedProduct.Barcode} | حجم الملصق: {sizeName}");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء طباعة الباركود");
-            MessageBox.Show("حدث خطأ أثناء تجهيز الطباعة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تجهيز الطباعة.");
         }
         finally
         {

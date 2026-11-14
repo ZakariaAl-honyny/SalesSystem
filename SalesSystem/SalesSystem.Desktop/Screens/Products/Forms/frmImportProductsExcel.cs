@@ -2,6 +2,7 @@ using ClosedXML.Excel;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO.Requests;
 using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
 using System.Data;
@@ -186,8 +187,7 @@ public partial class frmImportProductsExcel : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في قراءة ملف Excel");
-            MessageBox.Show("تعذر قراءة الملف. تأكد من أن الملف غير مفتوح في تطبيق آخر.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر قراءة الملف. تأكد من أن الملف غير مفتوح في تطبيق آخر.");
         }
         finally
         {
@@ -214,8 +214,7 @@ public partial class frmImportProductsExcel : Form
         {
             Log.Error(ex, "تعذر تصفية معاينة استيراد الأصناف");
             _dtPreview.DefaultView.RowFilter = string.Empty;
-            MessageBox.Show("تعذر تطبيق البحث على المعاينة.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("تعذر تطبيق البحث على المعاينة.");
         }
 
         _UpdateSummary();
@@ -291,8 +290,7 @@ public partial class frmImportProductsExcel : Form
         var validRows = _dtPreview.AsEnumerable().Where(r => r.Field<bool>("IsValid")).ToList();
         if (!validRows.Any())
         {
-            MessageBox.Show("لا توجد أصناف صالحة للاعتماد. راجع عمود «ملاحظات» لمعرفة سبب الرفض.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا توجد أصناف صالحة للاعتماد. راجع عمود «ملاحظات» لمعرفة سبب الرفض.");
             return;
         }
 
@@ -351,8 +349,7 @@ public partial class frmImportProductsExcel : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اعتماد الأصناف المستوردة");
-            MessageBox.Show("تعذر اعتماد الأصناف. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر اعتماد الأصناف. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -383,14 +380,13 @@ public partial class frmImportProductsExcel : Form
                 ws.Row(1).Style.Font.Bold = true;
                 ws.Row(1).Style.Fill.BackgroundColor = XLColor.LightGray;
                 wb.SaveAs(sfd.FileName);
-                MessageBox.Show("تم حفظ النموذج.", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم حفظ النموذج.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في إنشاء نموذج الاستيراد");
-            MessageBox.Show("تعذر حفظ النموذج. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر حفظ النموذج. يرجى إعادة المحاولة.");
         }
         finally
         {

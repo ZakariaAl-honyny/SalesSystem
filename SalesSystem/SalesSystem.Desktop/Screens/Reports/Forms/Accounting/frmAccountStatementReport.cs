@@ -2,6 +2,7 @@
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.Common;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Reports;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -66,7 +67,7 @@ public partial class frmAccountStatementReport : Form, IExportableReport
             ShowLoading(true);
             if (cmbPartyType.SelectedIndex < 0)
             {
-                MessageBox.Show("اختر نوع الطرف (عميل أو مورد) أولاً.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("اختر نوع الطرف (عميل أو مورد) أولاً.");
                 return;
             }
             var partyId = (int)nudPartyId.Value;
@@ -74,7 +75,7 @@ public partial class frmAccountStatementReport : Form, IExportableReport
             {
                 _errorProvider.SetError(nudPartyId, "أدخل رقم الطرف أولاً");
                 lblSummary.Text = "أدخل رقم الطرف أولاً";
-                MessageBox.Show("أدخل رقم الطرف أولاً.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("أدخل رقم الطرف أولاً.");
                 return;
             }
             IReadOnlyList<AccountStatementDto>? list = null;
@@ -82,13 +83,13 @@ public partial class frmAccountStatementReport : Form, IExportableReport
             {
                 var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
                 if (result.IsSuccess) list = result.Value;
-                else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                else { clsDialogs.Error(result.Error!); return; }
             }
             else
             {
                 var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetSupplierStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
                 if (result.IsSuccess) list = result.Value;
-                else { MessageBox.Show(result.Error!, "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                else { clsDialogs.Error(result.Error!); return; }
             }
             if (list != null)
             {
@@ -98,7 +99,7 @@ public partial class frmAccountStatementReport : Form, IExportableReport
                 _errorProvider.SetError(nudPartyId, string.Empty);
             }
         }
-        catch (Exception ex) { Log.Error(ex, "خطأ في تحميل كشف حساب الطرف"); MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل التقرير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (Exception ex) { Log.Error(ex, "خطأ في تحميل كشف حساب الطرف"); clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير."); }
         finally { ShowLoading(false); }
     }
 
@@ -136,17 +137,17 @@ public partial class frmAccountStatementReport : Form, IExportableReport
 
     private Task ExportToExcelAsync()
     {
-        if (dgvReport.Rows.Count == 0) { MessageBox.Show("لا توجد بيانات للتصدير", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning); return Task.CompletedTask; }
+        if (dgvReport.Rows.Count == 0) { clsDialogs.Warning("لا توجد بيانات للتصدير"); return Task.CompletedTask; }
         try
         {
             var dlg = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"كشف_حساب_{DateTime.Now:yyyyMMdd}.xlsx" };
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "كشف حساب", dlg.FileName);
-                MessageBox.Show("تم تصدير التقرير بنجاح", "نجاح", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
-        catch (Exception ex) { Log.Error(ex, "خطأ في تصدير كشف حساب"); MessageBox.Show("حدث خطأ أثناء التصدير.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (Exception ex) { Log.Error(ex, "خطأ في تصدير كشف حساب"); clsDialogs.Error("حدث خطأ أثناء التصدير."); }
         return Task.CompletedTask;
     }
 

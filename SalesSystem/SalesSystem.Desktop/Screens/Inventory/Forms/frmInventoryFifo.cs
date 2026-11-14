@@ -169,8 +169,7 @@ public partial class frmInventoryFifo : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل طبقات FIFO/FEFO");
-            MessageBox.Show("حدث خطأ في تحميل بيانات الطبقات. يرجى المحاولة مرة أخرى.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل بيانات الطبقات. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -228,22 +227,19 @@ public partial class frmInventoryFifo : Form
         string batchNo = drv.Row.Field<string>("BatchNo") ?? string.Empty;
         if (string.IsNullOrWhiteSpace(batchNo))
         {
-            MessageBox.Show("السطر المحدد لا يحتوي رقم تشغيلة.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("السطر المحدد لا يحتوي رقم تشغيلة.");
             return;
         }
 
         try
         {
             Clipboard.SetText(batchNo);
-            MessageBox.Show($"تم نسخ رقم التشغيلة: {batchNo}", "تم",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success($"تم نسخ رقم التشغيلة: {batchNo}");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر نسخ رقم التشغيلة");
-            MessageBox.Show("تعذر نسخ رقم التشغيلة. يرجى المحاولة مرة أخرى.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر نسخ رقم التشغيلة. يرجى المحاولة مرة أخرى.");
         }
     }
 

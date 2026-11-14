@@ -1,4 +1,5 @@
 using System.Drawing.Drawing2D;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -111,19 +112,17 @@ public partial class frmStocktakingPrint : Form
     {
         try
         {
-            MessageBox.Show(
+            clsDialogs.Success(
                 $"تمت طباعة محضر الجرد رقم {_session.DocNo} بنجاح.\n" +
                 $"المستودع: {_session.Warehouse} — لجنة الجرد: {_session.CommitteeHead} / {_session.CommitteeMember} / {_session.Storekeeper}\n" +
                 $"عدد الأصناف: {_session.ItemCount} — إجمالي الفائض: {_session.TotalSurplus:N3} — إجمالي العجز: {_session.TotalDeficit:N3}\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
             Serilog.Log.Error(ex, "تعذرت طباعة محضر الجرد {DocNo}", _session.DocNo);
-            MessageBox.Show("تعذر طباعة محضر الجرد. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر طباعة محضر الجرد. يرجى إعادة المحاولة.");
         }
     }
 

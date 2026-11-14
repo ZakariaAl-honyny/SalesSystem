@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
@@ -184,8 +185,7 @@ public partial class frmAccounts : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل الحسابات");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -211,8 +211,7 @@ public partial class frmAccounts : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث دليل الحسابات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -233,8 +232,7 @@ public partial class frmAccounts : Form
 
         if (!result.IsSuccess || result.Value is null)
         {
-            MessageBox.Show(result.Error ?? "تعذر تحميل دليل الحسابات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error(result.Error ?? "تعذر تحميل دليل الحسابات. يرجى إعادة المحاولة.");
             return;
         }
 
@@ -791,8 +789,7 @@ public partial class frmAccounts : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.",
-                "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
 
             if (!string.IsNullOrWhiteSpace(errorProvider.GetError(txtNameAr)))
                 txtNameAr.Focus();
@@ -874,8 +871,7 @@ public partial class frmAccounts : Form
 
                 if (!result.IsSuccess)
                 {
-                    MessageBox.Show($"لم يتم حفظ التعديل.\n{result.Error}",
-                        "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error($"لم يتم حفظ التعديل.\n{result.Error}");
                     return;
                 }
 
@@ -891,16 +887,14 @@ public partial class frmAccounts : Form
 
                 if (!result.IsSuccess)
                 {
-                    MessageBox.Show($"لم يتم حفظ الحساب.\n{result.Error}",
-                        "فشل الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error($"لم يتم حفظ الحساب.\n{result.Error}");
                     return;
                 }
 
                 savedId = result.Value;
             }
 
-            MessageBox.Show(isUpdate ? "تم تعديل الحساب بنجاح." : "تمت إضافة الحساب بنجاح.",
-                "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success(isUpdate ? "تم تعديل الحساب بنجاح." : "تمت إضافة الحساب بنجاح.");
 
             _editId = savedId;
             await _LoadAsync();
@@ -914,8 +908,7 @@ public partial class frmAccounts : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ الحساب");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -930,22 +923,18 @@ public partial class frmAccounts : Form
     {
         if (_editId is not int id || !_accountsById.TryGetValue(id, out var account))
         {
-            MessageBox.Show("يرجى اختيار حساب من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار حساب من القائمة أولاً.");
             return;
         }
 
         if (account.IsSystem)
         {
-            MessageBox.Show("هذا حساب نظامي لا يمكن تعطيله. يمكنك تعديل بياناته فقط.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("هذا حساب نظامي لا يمكن تعطيله. يمكنك تعديل بياناته فقط.");
             return;
         }
 
-        if (MessageBox.Show($"هل أنت متأكد من تعطيل الحساب \"{account.NameAr}\"؟\n" +
-                            "لن يظهر في القوائم بعد التعطيل، ويمكن إظهاره بخيار «إظهار غير النشط».",
-                "تأكيد التعطيل", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"هل أنت متأكد من تعطيل الحساب \"{account.NameAr}\"؟\n" +
+                                "لن يظهر في القوائم بعد التعطيل، ويمكن إظهاره بخيار «إظهار غير النشط»."))
         {
             return;
         }
@@ -960,23 +949,20 @@ public partial class frmAccounts : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم تعطيل الحساب بنجاح.", "تم التعطيل",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم تعطيل الحساب بنجاح.");
 
                 _ResetForm();
                 await _LoadAsync();
             }
             else
             {
-                MessageBox.Show($"لم يتم تعطيل الحساب.\n{result.Error}",
-                    "فشل التعطيل", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم تعطيل الحساب.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تعطيل الحساب {AccountId}", id);
-            MessageBox.Show("حدث خطأ أثناء التعطيل. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء التعطيل. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -994,24 +980,20 @@ public partial class frmAccounts : Form
     {
         if (_editId is not int id || !_accountsById.TryGetValue(id, out var account))
         {
-            MessageBox.Show("يرجى اختيار حساب من القائمة أولاً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار حساب من القائمة أولاً.");
             return;
         }
 
         if (account.IsSystem)
         {
-            MessageBox.Show("لا يمكن حذف حساب نظامي نهائياً.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("لا يمكن حذف حساب نظامي نهائياً.");
             return;
         }
 
-        if (MessageBox.Show($"تحذير: سيتم حذف الحساب \"{account.NameAr}\" نهائياً من قاعدة البيانات " +
-                            "ولا يمكن التراجع عن هذه العملية.\n" +
-                            "إن كان الحساب مستخدماً في قيود أو فواتير فسيرفض النظام الحذف.\n\n" +
-                            "هل أنت متأكد من الحذف النهائي؟",
-                "تأكيد الحذف النهائي", MessageBoxButtons.YesNo, MessageBoxIcon.Stop,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm($"تحذير: سيتم حذف الحساب \"{account.NameAr}\" نهائياً من قاعدة البيانات " +
+                                "ولا يمكن التراجع عن هذه العملية.\n" +
+                                "إن كان الحساب مستخدماً في قيود أو فواتير فسيرفض النظام الحذف.\n\n" +
+                                "هل أنت متأكد من الحذف النهائي؟"))
         {
             return;
         }
@@ -1026,23 +1008,20 @@ public partial class frmAccounts : Form
 
             if (result.IsSuccess)
             {
-                MessageBox.Show("تم حذف الحساب نهائياً.", "تم الحذف النهائي",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success("تم حذف الحساب نهائياً.");
 
                 _ResetForm();
                 await _LoadAsync();
             }
             else
             {
-                MessageBox.Show($"لم يتم حذف الحساب نهائياً.\n{result.Error}",
-                    "فشل الحذف النهائي", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error($"لم يتم حذف الحساب نهائياً.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء الحذف النهائي للحساب {AccountId}", id);
-            MessageBox.Show("حدث خطأ أثناء الحذف النهائي. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحذف النهائي. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1076,8 +1055,7 @@ public partial class frmAccounts : Form
 
             if (!result.IsSuccess || result.Value is null)
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل شجرة الحسابات.",
-                    "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل شجرة الحسابات.");
                 return;
             }
 
@@ -1090,13 +1068,12 @@ public partial class frmAccounts : Form
                 ? builder.ToString(0, maxLength) + "\n… (الشجرة أطول من أن تُعرض كاملة)"
                 : builder.ToString();
 
-            MessageBox.Show(text, "شجرة الحسابات", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info(text);
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء عرض شجرة الحسابات");
-            MessageBox.Show("تعذر عرض شجرة الحسابات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر عرض شجرة الحسابات. يرجى إعادة المحاولة.");
         }
         finally
         {

@@ -1,4 +1,5 @@
 using System.Drawing.Drawing2D;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -109,19 +110,17 @@ public partial class frmWarehouseTransferPrint : Form
     {
         try
         {
-            MessageBox.Show(
+            clsDialogs.Success(
                 $"تمت طباعة سند التحويل رقم {_transfer.TransferNo} بنجاح.\n" +
                 $"من: {_transfer.FromWarehouse} — إلى: {_transfer.ToWarehouse}\n" +
                 $"السائق: {_transfer.Driver} — عدد الأصناف: {_transfer.ItemCount}\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
             Serilog.Log.Error(ex, "تعذرت طباعة سند التحويل {TransferNo}", _transfer.TransferNo);
-            MessageBox.Show("تعذر طباعة سند التحويل المخزني. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر طباعة سند التحويل المخزني. يرجى إعادة المحاولة.");
         }
     }
 

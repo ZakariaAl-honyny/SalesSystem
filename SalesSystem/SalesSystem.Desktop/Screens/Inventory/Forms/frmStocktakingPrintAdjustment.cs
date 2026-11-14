@@ -1,4 +1,5 @@
 using System.Drawing.Drawing2D;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -103,19 +104,17 @@ public partial class frmStocktakingPrintAdjustment : Form
     {
         try
         {
-            MessageBox.Show(
+            clsDialogs.Success(
                 $"تمت طباعة سند تسوية الجرد رقم {_voucher.VoucherNo} بنجاح.\n" +
                 $"المستودع: {_voucher.Warehouse} — سبب التسوية: {_voucher.Reason}\n" +
                 $"عدد الأصناف: {_voucher.ItemCount} — إجمالي قيمة التسوية: {_voucher.TotalValue:N0} ريال يمني\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)",
-                "تمت الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
             Serilog.Log.Error(ex, "تعذرت طباعة سند تسوية الجرد {VoucherNo}", _voucher.VoucherNo);
-            MessageBox.Show("تعذر طباعة سند تسوية الجرد. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر طباعة سند تسوية الجرد. يرجى إعادة المحاولة.");
         }
     }
 

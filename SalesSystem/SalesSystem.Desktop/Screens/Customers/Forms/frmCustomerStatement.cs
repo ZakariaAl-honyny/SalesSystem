@@ -150,8 +150,7 @@ public partial class frmCustomerStatement : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ أثناء تحميل البيانات"); // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
-            MessageBox.Show("حدث خطأ أثناء تحميل البيانات. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -468,8 +467,7 @@ public partial class frmCustomerStatement : Form
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "خطأ أثناء إعداد كشف الحساب"); // RULE-N29 — التفاصيل تُسجَّل ولا تُعرض للمستخدم
-            MessageBox.Show("حدث خطأ أثناء إعداد كشف الحساب. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إعداد كشف الحساب. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -674,7 +672,7 @@ public partial class frmCustomerStatement : Form
             $"دائن: {Cell("ColCredit")}{Environment.NewLine}" +
             $"الرصيد: {Cell("ColBalance")}";
 
-        MessageBox.Show(message, "تفاصيل الحركة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        clsDialogs.Info(message);
     }
 
     private void btnClose_Click(object sender, EventArgs e)

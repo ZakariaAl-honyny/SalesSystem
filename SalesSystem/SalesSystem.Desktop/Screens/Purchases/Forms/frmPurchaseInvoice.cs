@@ -121,7 +121,7 @@ public partial class frmPurchaseInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحديث بيانات فاتورة المشتريات");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -207,7 +207,7 @@ public partial class frmPurchaseInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل النموذج");
-            MessageBox.Show("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.");
         }
     }
 
@@ -242,7 +242,7 @@ public partial class frmPurchaseInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل البيانات");
-            MessageBox.Show("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.", "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.");
         }
     }
 
@@ -438,8 +438,7 @@ public partial class frmPurchaseInvoice : Form
 
         if (!isValid)
         {
-            MessageBox.Show("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
         }
 
         return isValid;
@@ -449,7 +448,7 @@ public partial class frmPurchaseInvoice : Form
     {
         if (!_ValidateForm()) return;
 
-        if (post && MessageBox.Show("هل أنت متأكد من ترحيل فاتورة المشتريات؟ سيتم زيادة المخزون.", "تأكيد الترحيل", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+        if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل فاتورة المشتريات؟ سيتم زيادة المخزون.")) return;
 
         btnSaveDraft.Enabled = btnPost.Enabled = false;
         try
@@ -505,7 +504,7 @@ public partial class frmPurchaseInvoice : Form
     private async void btnCancelInvoice_Click(object? sender, EventArgs e)
     {
         if (_invoice == null) return;
-        if (MessageBox.Show("هل أنت متأكد من إلغاء الفاتورة؟ سيتم عكس المخزون.", "تأكيد الإلغاء", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+        if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء الفاتورة؟ سيتم عكس المخزون.")) return;
 
         try
         {
@@ -536,7 +535,7 @@ public partial class frmPurchaseInvoice : Form
     {
         if (_invoice == null)
         {
-            MessageBox.Show("احفظ الفاتورة أولاً قبل الطباعة.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info("احفظ الفاتورة أولاً قبل الطباعة.");
             return;
         }
 

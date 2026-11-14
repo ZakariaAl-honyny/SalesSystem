@@ -279,8 +279,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحميل الشاشة");
-            MessageBox.Show("حدث خطأ أثناء تحميل الشاشة. يرجى المحاولة مرة أخرى.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل الشاشة. يرجى المحاولة مرة أخرى.");
         }
         finally
         {
@@ -453,8 +452,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل القوائم");
-            MessageBox.Show("حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -505,8 +503,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// Standard duplicate-product warning used by all entry paths.
     /// </summary>
     private void WarnDuplicateProduct()
-        => MessageBox.Show("هذا المنتج مضاف مسبقاً للقائمة.", "تنبيه",
-            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        => clsDialogs.Warning("هذا المنتج مضاف مسبقاً للقائمة.");
 
     /// <summary>
     /// معامل تحويل الوحدة المختارة في لوحة الإدخال إلى الوحدة الأساسية (1 عند عدم التحديد).
@@ -581,11 +578,10 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         decimal availableInUnit = availableBase / newConversionFactor;
 
-        MessageBox.Show(
+        clsDialogs.Warning(
             "الكمية غير كافية في المخزون." +
             $"\nالمتاح بالوحدة المختارة: {availableInUnit:G} — المطلوب: {newQty:G}" +
-            $"\nالمتاح بالوحدة الأساسية: {availableBase:G} — المطلوب: {neededBase:G}",
-            "المخزون غير كافٍ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            $"\nالمتاح بالوحدة الأساسية: {availableBase:G} — المطلوب: {neededBase:G}");
         return false;
     }
 
@@ -764,8 +760,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             Log.Error(ex, "خطأ غير متوقع في معالجة مفتاح الباركود");
             Cursor = Cursors.Default;
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -799,8 +794,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في البحث عن الباركود: {Barcode}", barcode);
-            MessageBox.Show("حدث خطأ أثناء البحث عن المنتج.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء البحث عن المنتج.");
         }
         finally
         {
@@ -856,8 +850,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل بيانات المنتج");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -918,16 +911,14 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             if (cmbUnit.Tag == null || Convert.ToInt32(cmbUnit.Tag) <= 0)
             {
-                MessageBox.Show("الرجاء اختيار منتج أولاً (مسح باركود أو F4).", "بيانات غير مكتملة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الرجاء اختيار منتج أولاً (مسح باركود أو F4).");
                 txtBarcode.Focus();
                 return;
             }
 
             if (cmbUnit.SelectedValue == null || Convert.ToInt32(cmbUnit.SelectedValue) <= 0)
             {
-                MessageBox.Show("الرجاء اختيار وحدة للمنتج.", "بيانات غير مكتملة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الرجاء اختيار وحدة للمنتج.");
                 cmbUnit.Focus();
                 return;
             }
@@ -949,8 +940,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             e.SuppressKeyPress = true;
             if (!decimal.TryParse(txtQuantity.Text, out decimal qty) || qty <= 0)
             {
-                MessageBox.Show("الرجاء إدخال كمية صحيحة (أكبر من صفر).", "بيانات غير صحيحة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الرجاء إدخال كمية صحيحة (أكبر من صفر).");
                 txtQuantity.Focus();
                 txtQuantity.SelectAll();
                 return;
@@ -972,8 +962,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             e.SuppressKeyPress = true;
             if (!decimal.TryParse(txtUnitPrice.Text, out decimal price) || price < 0)
             {
-                MessageBox.Show("الرجاء إدخال سعر صحيح.", "بيانات غير صحيحة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الرجاء إدخال سعر صحيح.");
                 txtUnitPrice.Focus();
                 txtUnitPrice.SelectAll();
                 return;
@@ -1025,8 +1014,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             Log.Error(ex, "خطأ غير متوقع في معالجة مفتاح تاريخ الانتهاء");
             Cursor = Cursors.Default;
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1072,8 +1060,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في إضافة/تعديل السطر");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1091,15 +1078,14 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             if (IsLocked)
             {
-                MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.", "الفاتورة مقفلة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Info("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.");
                 return;
             }
 
             int rowIndex = dgvItems.CurrentRow?.Index ?? -1;
             if (rowIndex < 0 || rowIndex >= _lines.Count)
             {
-                MessageBox.Show("اختر سطراً من الجدول أولاً.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Info("اختر سطراً من الجدول أولاً.");
                 return;
             }
 
@@ -1108,8 +1094,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تعديل السطر المحدد");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1122,14 +1107,13 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             if (IsLocked)
             {
-                MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.", "الفاتورة مقفلة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Info("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.");
                 return;
             }
 
             if (dgvItems.CurrentRow is null || _lines.Count == 0)
             {
-                MessageBox.Show("اختر سطراً من الجدول أولاً.", "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Info("اختر سطراً من الجدول أولاً.");
                 return;
             }
 
@@ -1138,8 +1122,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في حذف السطر المحدد");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1181,14 +1164,12 @@ public partial class frmAddUpdateSalesInvoice : Form
             await RefreshAvailableStockAsync();  // إعادة قراءة رصيد المستودع الحالي
 
             dgvItems.Refresh();
-            MessageBox.Show("تم تحديث بيانات الأصناف والأرصدة.", "تم",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم تحديث بيانات الأصناف والأرصدة.");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحديث بيانات الأصناف");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -1200,8 +1181,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (IsLocked)
         {
-            MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.", "الفاتورة مقفلة",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديل الأصناف.");
             return;
         }
 
@@ -1348,24 +1328,21 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (cmbUnit.Tag == null || Convert.ToInt32(cmbUnit.Tag) <= 0)
         {
-            MessageBox.Show("الرجاء اختيار منتج أولاً (مسح باركود أو F4).", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الرجاء اختيار منتج أولاً (مسح باركود أو F4).");
             txtBarcode.Focus();
             return false;
         }
 
         if (cmbUnit.SelectedValue == null || Convert.ToInt32(cmbUnit.SelectedValue) <= 0)
         {
-            MessageBox.Show("الرجاء اختيار الوحدة.", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الرجاء اختيار الوحدة.");
             cmbUnit.Focus();
             return false;
         }
 
         if (!decimal.TryParse(txtQuantity.Text, out decimal qty) || qty <= 0)
         {
-            MessageBox.Show("الرجاء إدخال كمية صحيحة (أكبر من صفر).", "بيانات غير صحيحة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الرجاء إدخال كمية صحيحة (أكبر من صفر).");
             txtQuantity.Focus();
             txtQuantity.SelectAll();
             return false;
@@ -1373,8 +1350,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (!decimal.TryParse(txtUnitPrice.Text, out decimal price) || price < 0)
         {
-            MessageBox.Show("الرجاء إدخال سعر صحيح.", "بيانات غير صحيحة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("الرجاء إدخال سعر صحيح.");
             txtUnitPrice.Focus();
             txtUnitPrice.SelectAll();
             return false;
@@ -1456,8 +1432,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             Log.Error(ex, "خطأ غير متوقع أثناء بدء تحرير خلية في شبكة الأصناف");
             Cursor = Cursors.Default;
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1641,8 +1616,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في إدخال الباركود داخل الشبكة");
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
     }
 
@@ -1659,8 +1633,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             }
             else
             {
-                MessageBox.Show("لم يتم العثور على منتج بهذا الباركود.", "بحث",
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                clsDialogs.Warning("لم يتم العثور على منتج بهذا الباركود.");
             }
         }
         catch (Exception ex)
@@ -1907,8 +1880,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             line.DiscountAmount = Math.Max(0m, _discountBeforeEdit);
             cell.Value = line.DiscountAmount;
             cell.ToolTipText = "قيمة الخصم غير صحيحة — تم استرجاع القيمة السابقة";
-            MessageBox.Show("قيمة الخصم غير صحيحة. يجب أن تكون رقماً أكبر من أو يساوي صفر.",
-                "بيانات غير صحيحة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("قيمة الخصم غير صحيحة. يجب أن تكون رقماً أكبر من أو يساوي صفر.");
             CalculateTotals();
             return;
         }
@@ -1928,8 +1900,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (clamped)
         {
-            MessageBox.Show($"لا يمكن أن يتجاوز الخصم قيمة السطر ({maxDiscount:N2}).\nتم تقييد الخصم إلى {maxDiscount:N2}.",
-                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info($"لا يمكن أن يتجاوز الخصم قيمة السطر ({maxDiscount:N2}).\nتم تقييد الخصم إلى {maxDiscount:N2}.");
         }
 
         CalculateTotals();
@@ -2270,8 +2241,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل السطر رقم {RowIndex} للتحرير", rowIndex);
-            MessageBox.Show("حدث خطأ غير متوقع. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -2285,9 +2255,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         if (dgvItems.CurrentRow?.DataBoundItem is not InvoiceLineItem line)
             return;
 
-        var result = MessageBox.Show("هل أنت متأكد من حذف هذا الصنف من الفاتورة؟",
-            "تأكيد الحذف", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        if (result != DialogResult.Yes) return;
+        if (!clsDialogs.Confirm("هل أنت متأكد من حذف هذا الصنف من الفاتورة؟")) return;
 
         bool wasEditing = _editingLineKey == line.LineKey;
         _lines.Remove(line);
@@ -2310,24 +2278,21 @@ public partial class frmAddUpdateSalesInvoice : Form
     private async void btnCancelInvoice_Click(object? sender, EventArgs e)
     {
         if (_invoice == null) return;
-        if (MessageBox.Show("هل أنت متأكد من إلغاء هذه الفاتورة؟", "تأكيد الإلغاء",
-            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء هذه الفاتورة؟"))
             return;
 
         try
         {
             Cursor = Cursors.WaitCursor;
             await _salesApi.CancelAsync(_invoice.Id, default);
-            MessageBox.Show("تم إلغاء الفاتورة", "نجاح",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم إلغاء الفاتورة");
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ أثناء إلغاء الفاتورة");
-            MessageBox.Show("حدث خطأ أثناء إلغاء الفاتورة. تم تسجيل التفاصيل.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء إلغاء الفاتورة. تم تسجيل التفاصيل.");
         }
         finally
         {
@@ -2355,8 +2320,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             var settingsRes = await _settingsApi.GetSettingsAsync();
             if (!settingsRes.IsSuccess)
             {
-                MessageBox.Show("فشل تحميل إعدادات الطباعة: " + settingsRes.Error, "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error("فشل تحميل إعدادات الطباعة: " + settingsRes.Error);
                 return;
             }
 
@@ -2382,8 +2346,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في طباعة الفاتورة {Label}", label);
-            MessageBox.Show("حدث خطأ أثناء الطباعة. تم تسجيل التفاصيل في السجل.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الطباعة. تم تسجيل التفاصيل في السجل.");
         }
         finally
         {
@@ -2457,8 +2420,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء بدء فاتورة بيع جديدة");
-            MessageBox.Show("حدث خطأ أثناء بدء فاتورة جديدة. يرجى المحاولة مرة أخرى.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء بدء فاتورة جديدة. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -2469,9 +2431,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (!_lines.Any(l => l.ProductId > 0)) return true;
 
-        return MessageBox.Show(
-            "هل تريد بدء فاتورة جديدة؟ سيتم فقدان البيانات غير المحفوظة.",
-            "تأكيد", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+        return clsDialogs.Confirm("هل تريد بدء فاتورة جديدة؟ سيتم فقدان البيانات غير المحفوظة.");
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -2563,8 +2523,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء فتح شاشة مردود المبيعات");
-            MessageBox.Show("حدث خطأ أثناء فتح شاشة مردود المبيعات.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء فتح شاشة مردود المبيعات.");
         }
     }
 
@@ -2582,8 +2541,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             errorProvider.SetError(cmbCustomer, "يجب اختيار العميل");
             cmbCustomer.Focus();
-            MessageBox.Show("يجب اختيار العميل", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يجب اختيار العميل");
             return false;
         }
 
@@ -2592,8 +2550,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             errorProvider.SetError(cmbWarehouse, "يجب اختيار المستودع");
             cmbWarehouse.Focus();
-            MessageBox.Show("يجب اختيار المستودع", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يجب اختيار المستودع");
             return false;
         }
 
@@ -2602,8 +2559,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             errorProvider.SetError(dgvItems, "لم يتم إضافة أي منتج إلى الفاتورة");
             dgvItems.Focus();
-            MessageBox.Show("أضف منتج واحد على الأقل", "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("أضف منتج واحد على الأقل");
             return false;
         }
 
@@ -2645,8 +2601,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             {
                 errorProvider.SetError(txtPaid, "المبلغ المدفوع أقل من الإجمالي");
                 txtPaid.Focus();
-                MessageBox.Show($"البيع النقدي يتطلب دفع كامل المبلغ.\nالإجمالي: {totalAmount:N2} — المدفوع: {totalPaid:N2}\nالمتبقي: {totalAmount - totalPaid:N2}",
-                    "بيانات غير مكتملة", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning($"البيع النقدي يتطلب دفع كامل المبلغ.\nالإجمالي: {totalAmount:N2} — المدفوع: {totalPaid:N2}\nالمتبقي: {totalAmount - totalPaid:N2}");
                 return false;
             }
             // Cash 
@@ -2675,8 +2630,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         // Paid amount > total → warn (overpayment, allowed only on confirmation for cash/mixed edge cases)
         if (totalPaid > 0 && totalPaid > totalAmount && errors.Count == 0)
         {
-            if (MessageBox.Show($"المبلغ المدفوع ({totalPaid:N2}) أكبر من الإجمالي ({totalAmount:N2}). هل تريد المتابعة؟",
-                "تنبيه — دفعة زائدة", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (!clsDialogs.Confirm($"المبلغ المدفوع ({totalPaid:N2}) أكبر من الإجمالي ({totalAmount:N2}). هل تريد المتابعة؟"))
             {
                 txtPaid.Focus();
                 return false;
@@ -2685,8 +2639,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (errors.Count > 0)
         {
-            MessageBox.Show(string.Join("\n", errors), "بيانات غير مكتملة",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning(string.Join("\n", errors));
             return false;
         }
 
@@ -2700,15 +2653,13 @@ public partial class frmAddUpdateSalesInvoice : Form
         // الفاتورة مقفلة (مرحّلة/ملغاة) — لا حفظ ولا ترحيل
         if (IsLocked)
         {
-            MessageBox.Show("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديلها أو ترحيلها مرة أخرى.", "الفاتورة مقفلة",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديلها أو ترحيلها مرة أخرى.");
             return;
         }
 
         if (!_ValidateForm()) return;
 
-        if (post && MessageBox.Show("هل أنت متأكد من ترحيل الفاتورة؟ لا يمكن تعديلها بعد الترحيل.", "تأكيد الترحيل",
-            MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+        if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل الفاتورة؟ لا يمكن تعديلها بعد الترحيل."))
             return;
 
         btnSaveDraft.Enabled = btnPost.Enabled = false;
@@ -2743,8 +2694,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             if (items.Count == 0)
             {
-                MessageBox.Show("لا توجد منتجات صالحة للحفظ.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا توجد منتجات صالحة للحفظ.");
                 return;
             }
 
@@ -2800,8 +2750,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 var updateResult = await _salesApi.UpdateAsync(_invoice!.Id, createRequest, default);
                 if (!updateResult.IsSuccess)
                 {
-                    MessageBox.Show(updateResult.Error ?? "فشل تعديل الفاتورة", "خطأ",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(updateResult.Error ?? "فشل تعديل الفاتورة");
                     return;
                 }
                 invoiceId = _invoice.Id;
@@ -2812,8 +2761,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 var createResult = await _salesApi.CreateAsync(createRequest, default);
                 if (!createResult.IsSuccess)
                 {
-                    MessageBox.Show(createResult.Error ?? "فشل إنشاء الفاتورة", "خطأ",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    clsDialogs.Error(createResult.Error ?? "فشل إنشاء الفاتورة");
                     return;
                 }
                 invoiceId = createResult.Value!.Id;
@@ -2829,16 +2777,14 @@ public partial class frmAddUpdateSalesInvoice : Form
 
                 if (alreadyPosted)
                 {
-                    MessageBox.Show(isUpdate ? "تم تعديل وترحيل الفاتورة بنجاح" : "تم إنشاء وترحيل الفاتورة بنجاح", "نجاح",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    clsDialogs.Success(isUpdate ? "تم تعديل وترحيل الفاتورة بنجاح" : "تم إنشاء وترحيل الفاتورة بنجاح");
                 }
                 else
                 {
                     var postResult = await _salesApi.PostAsync(invoiceId, default);
                     if (!postResult.IsSuccess)
                     {
-                        MessageBox.Show($"تم الحفظ كمسودة ولكن فشل الترحيل: {postResult.Error}", "تنبيه",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        clsDialogs.Warning($"تم الحفظ كمسودة ولكن فشل الترحيل: {postResult.Error}");
                         // Refresh state from server — the invoice may still be a draft
                         var fresh = await _salesApi.GetByIdAsync(invoiceId, default);
                         if (fresh.IsSuccess) _invoice = fresh.Value;
@@ -2855,19 +2801,16 @@ public partial class frmAddUpdateSalesInvoice : Form
                         else
                         {
                             // الترحيل نجح على الخادم لكن تعذّر تحديث الحالة محلياً — لا نقفل الشاشة بشكل خاطئ
-                            MessageBox.Show("تم ترحيل الفاتورة، لكن تعذر تحديث حالتها. أعد فتح الفاتورة من قائمة السجلات.",
-                                "تنبيه", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            clsDialogs.Warning("تم ترحيل الفاتورة، لكن تعذر تحديث حالتها. أعد فتح الفاتورة من قائمة السجلات.");
                         }
 
-                        MessageBox.Show(isUpdate ? "تم تعديل وترحيل الفاتورة بنجاح" : "تم إنشاء وترحيل الفاتورة بنجاح", "نجاح",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        clsDialogs.Success(isUpdate ? "تم تعديل وترحيل الفاتورة بنجاح" : "تم إنشاء وترحيل الفاتورة بنجاح");
                     }
                 }
             }
             else
             {
-                MessageBox.Show(isUpdate ? "تم تعديل الفاتورة بنجاح" : "تم الحفظ كمسودة بنجاح", "نجاح",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                clsDialogs.Success(isUpdate ? "تم تعديل الفاتورة بنجاح" : "تم الحفظ كمسودة بنجاح");
             }
 
             // Update UI — stay open for further editing
@@ -2880,8 +2823,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ الفاتورة");
-            MessageBox.Show("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل في السجل.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل في السجل.");
         }
         finally
         {
@@ -3128,8 +3070,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         // حماية من الفقدان: فاتورة جديدة فيها أصناف غير محفوظة ⇒ تأكيد قبل الإغلاق.
         if (_invoice == null && _lines.Any(l => l.ProductId > 0)
-            && MessageBox.Show("سيتم إغلاق الشاشة وفقدان الأصناف غير المحفوظة. هل تريد المتابعة؟",
-                "تأكيد الخروج", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            && !clsDialogs.Confirm("سيتم إغلاق الشاشة وفقدان الأصناف غير المحفوظة. هل تريد المتابعة؟"))
             return;
 
         btnClose.PerformClick();
