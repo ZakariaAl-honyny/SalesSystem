@@ -4,6 +4,11 @@
 // المصدر الوحيد لقيم الثيم الأخضر. ممنوع تكرار هذه الأرقام داخل أي شاشة؛
 // الشاشات تستهلك الثوابت من هنا فقط (RULE-N54).
 //
+// 🎨 الألوان لم تبقَ ثوابت: كل عضو أدناه خاصية قراءة تمرّر القيمة الحيّة من
+//     ThemePalette (المصدر الوحيد القابل للتغيير) — التعديل في اللوحة ينعكس
+//     فوراً على كل الشاشات المفتوحة عبر ThemePalette.ApplyToOpenForms بلا
+//     إعادة فتحها وبلا تعديل أي شاشة.
+//
 // ⚠️ ترتيب التطبيق إلزامي (RULE-N50):
 //     ThemeHelper.ApplyMainFormStyle(this)   ← يفرض خلفية بيضاء وخط Segoe UI
 //     ThemeHelper.ApplyButtonStyle(...)      ← يفرض Segoe UI على الأزرار
@@ -42,41 +47,44 @@ namespace SalesSystem.Desktop.Helpers;
 public static class GreenThemeHelper
 {
     // ── لوحة الألوان (المصدر الوحيد — RULE-N54) ─────────────────────
+    // كل عضو هنا **خاصية قراءة فقط** تمرّر القيمة الحيّة من ThemePalette
+    // (المصدر الوحيد القابل للتغيير). لا لون حرفي في هذا الملف إطلاقاً (RULE-N112)،
+    // فأي تغيير في اللوحة ينعكس فوراً على كل الأعضاء بلا تعديل أي شاشة.
     /// <summary>خلفية النموذج.</summary>
-    public static readonly Color FormBackground = Color.FromArgb(170, 220, 170);
+    public static Color FormBackground => ThemePalette.Get(ThemePalette.FrmMainColor);
 
-    /// <summary>شريط العنوان ورؤوس أعمدة الشبكة.</summary>
-    public static readonly Color HeaderBackground = Color.FromArgb(14, 165, 103);
+    /// <summary>شريط العنوان.</summary>
+    public static Color HeaderBackground => ThemePalette.Get(ThemePalette.HeaderBarColor);
 
     /// <summary>نص شريط العنوان ورؤوس الأعمدة.</summary>
-    public static readonly Color HeaderForeground = Color.White;
+    public static Color HeaderForeground => ThemePalette.Get(ThemePalette.HeaderTextColor);
 
     /// <summary>خلفية صناديق المجموعات (GroupBox) ولوحات الإدخال.</summary>
-    public static readonly Color GroupBackground = Color.FromArgb(235, 245, 235);
+    public static Color GroupBackground => ThemePalette.Get(ThemePalette.GroupBoxColor);
 
     /// <summary>خلفية أشرطة الأدوات/الإجراءات ولوحات الحاويات.</summary>
-    public static readonly Color BarBackground = Color.FromArgb(235, 240, 235);
+    public static Color BarBackground => ThemePalette.Get(ThemePalette.BarBackgroundColor);
 
     /// <summary>خلفية الشبكة.</summary>
-    public static readonly Color GridBackground = Color.FromArgb(220, 240, 220);
+    public static Color GridBackground => ThemePalette.Get(ThemePalette.GridBackgroundColor);
 
     /// <summary>لون خطوط الشبكة.</summary>
-    public static readonly Color GridLine = Color.FromArgb(205, 225, 205);
+    public static Color GridLine => ThemePalette.Get(ThemePalette.GridLineColor);
 
     /// <summary>لون الأسطر المتبادلة.</summary>
-    public static readonly Color GridAlternate = Color.FromArgb(245, 252, 245);
+    public static Color GridAlternate => ThemePalette.Get(ThemePalette.GridAlternateRowColor);
 
     /// <summary>لون النص المميّز (أخضر داكن).</summary>
-    public static readonly Color TextStrong = Color.FromArgb(14, 82, 52);
+    public static Color TextStrong => ThemePalette.Get(ThemePalette.TextStrongColor);
 
     /// <summary>خلفية الخلية/السطر المحدد.</summary>
-    public static readonly Color SelectionBack = Color.FromArgb(255, 255, 180);
+    public static Color SelectionBack => ThemePalette.Get(ThemePalette.SelectionRowColor);
 
     /// <summary>خلفية إجراء معلوماتي (تركوازي) — زر «تصدير» في الشاشة المرجعية.</summary>
-    public static readonly Color ActionInfoBackground = Color.FromArgb(23, 162, 184);
+    public static Color ActionInfoBackground => ThemePalette.Get(ThemePalette.BtnInfoButtonColor);
 
     /// <summary>خلفية إجراء محايد (رمادي) — زر «إغلاق» (زر الخروج في الشاشة المرجعية).</summary>
-    public static readonly Color ActionNeutralBackground = Color.FromArgb(108, 117, 125);
+    public static Color ActionNeutralBackground => ThemePalette.Get(ThemePalette.BtnCancelButtonColor);
 
     // ── ألوان حالة التعطيل (RULE-N43) — الاستثناء الوحيد لألوان وقت التشغيل ─────
     /// <summary>
@@ -91,19 +99,44 @@ public static class GreenThemeHelper
     /// <c>KeyboardHelper.WireDisabledVisuals</c> الذي يُوصَّل تلقائياً من
     /// <see cref="Apply(Control)"/>.</para>
     /// </summary>
-    public static readonly Color DisabledBack = Color.FromArgb(224, 224, 224);
+    public static Color DisabledBack => ThemePalette.Get(ThemePalette.DisabledBackColor);
 
     /// <summary>
     /// نص العنصر **المعطّل** (باهت) — رفيق <see cref="DisabledBack"/>، يُطبَّق معه
     /// وقت التشغيل فقط أثناء <c>Enabled == false</c> ولا يُعلَن في أي مصمّم.
     /// </summary>
-    public static readonly Color DisabledFore = Color.FromArgb(150, 150, 150);
+    public static Color DisabledFore => ThemePalette.Get(ThemePalette.DisabledForeColor);
 
     /// <summary>أسماء شريط العنوان/العنوان التي يُطبَّق عليها <see cref="ApplyHeader"/>.</summary>
     private static readonly HashSet<string> HeaderLabelNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "lblMode", "lblTitle", "lblHeader", "lblPageTitle"
     };
+
+    /// <summary>
+    /// ألوان الحاويات الخمسة في اللوحة (الدور + المفتاح). تُقرأ قيمها الافتراضية من
+    /// <see cref="ThemePalette.Definitions"/> — لا جدول قيم ثانٍ هنا (RULE-N112).
+    /// </summary>
+    private static readonly string[] ContainerRoleKeys =
+    {
+        ThemePalette.FrmMainColor,
+        ThemePalette.BarBackgroundColor,
+        ThemePalette.GroupBoxColor,
+        ThemePalette.GridBackgroundColor,
+        ThemePalette.HeaderBarColor
+    };
+
+    /// <summary>القيم الافتراضية لألوان الحاويات (مفتاح ← قيمة المصمّم الأصلية).</summary>
+    private static readonly Dictionary<string, Color> PaletteDefaults = BuildPaletteDefaults();
+
+    private static Dictionary<string, Color> BuildPaletteDefaults()
+    {
+        var map = new Dictionary<string, Color>(StringComparer.Ordinal);
+        foreach (var definition in ThemePalette.Definitions)
+            map[definition.Key] = definition.DefaultValue;
+
+        return map;
+    }
 
     // ═════════════════════════════════════════════════════════════════
     //  Apply — للشاشة كاملة
@@ -207,6 +240,12 @@ public static class GreenThemeHelper
     /// النموذج يحوّل الشاشة وقت التشغيل إلى درجات رمادية باهتة، بينما المصمّم يبدو أخضر
     /// — وهو عيب «المصمّم ≠ وقت التشغيل» بعينه.
     /// </para>
+    /// <para>
+    /// «لون من لوحة الثيم» في <see cref="IsThemeColor"/> يعني: القيمة الحيّة **أو**
+    /// القيمة الافتراضية **أو** قيمة سبق أن طبّقتها اللوحة — فاللون الحرفي في
+    /// <c>*.Designer.cs</c> هو الافتراضي دائماً، ويصبح هو نفسه «قديماً» بعد أول تطبيق
+    /// فتتبعه الحاوية في التغييرات المتتالية (RULE-N134: المصمّم = وقت التشغيل).
+    /// </para>
     /// </summary>
     private static bool ShouldRepaint(Control child)
     {
@@ -222,15 +261,48 @@ public static class GreenThemeHelper
         return IsThemeColor(child.BackColor);
     }
 
-    /// <summary>هل اللون من لوحة الثيم الرسمية؟ (RULE-N54: المصدر الوحيد للقيم)</summary>
+    /// <summary>
+    /// هل اللون من لوحة الثيم الرسمية؟ (RULE-N54: المصدر الوحيد للقيم)
+    /// <para>
+    /// يطابق عند: (1) القيمة الحيّة للدور — حاوية أُعيد تلوينها في تطبيق سابق،
+    /// (2) <b>القيمة الافتراضية</b> من <see cref="ThemePalette.Definitions"/> — وهي
+    /// اللون الحرفي الذي كتبه المصمّم، (3) آخر قيمة طبّقتها اللوحة في
+    /// <see cref="ThemePalette.ApplyToOpenForms"/> — فتتبع الحاوية التغيير الثاني
+    /// والثالث أيضاً بلا إعادة فتح الشاشة.
+    /// </para>
+    /// <para>
+    /// بلا (2) تصبح <c>groupBoxColor</c>/<c>barBackgroundColor</c> بلا أثر: اللون الحرفي
+    /// في المصمّم هو الافتراضي، فلا يطابق القيمة الحيّة بعد أي تغيير، فتُترك الحاوية
+    /// على لونها القديم إلى الأبد (قبل إعادة الفتح وبعدها). وبلا (3) يقتصر الأثر على
+    /// أول تغيير فقط.
+    /// </para>
+    /// </summary>
     private static bool IsThemeColor(Color color)
     {
         int argb = color.ToArgb();
-        return argb == FormBackground.ToArgb()
+
+        // (1) القيم الحيّة للدور.
+        if (argb == FormBackground.ToArgb()
             || argb == BarBackground.ToArgb()
             || argb == GroupBackground.ToArgb()
             || argb == GridBackground.ToArgb()
-            || argb == HeaderBackground.ToArgb();
+            || argb == HeaderBackground.ToArgb())
+        {
+            return true;
+        }
+
+        foreach (var key in ContainerRoleKeys)
+        {
+            // (2) القيمة الافتراضية = اللون الحرفي في *.Designer.cs.
+            if (PaletteDefaults.TryGetValue(key, out var fallback) && fallback.ToArgb() == argb)
+                return true;
+
+            // (3) قيمة سبق أن طبّقتها اللوحة على الحاويات.
+            if (ThemePalette.WasAppliedValue(key, color))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool IsHeaderLabel(Label label)
@@ -263,18 +335,19 @@ public static class GreenThemeHelper
             // ── الرؤوس ──
             dgv.ColumnHeadersHeight = 45;
             dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dgv.ColumnHeadersDefaultCellStyle.BackColor = HeaderBackground;
-            dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = HeaderBackground;
-            dgv.ColumnHeadersDefaultCellStyle.ForeColor = HeaderForeground;
+            dgv.ColumnHeadersDefaultCellStyle.BackColor = ThemePalette.Get(ThemePalette.GridHeaderColor);
+            dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemePalette.Get(ThemePalette.GridHeaderColor);
+            dgv.ColumnHeadersDefaultCellStyle.ForeColor = ThemePalette.Get(ThemePalette.GridHeaderTextColor);
+            dgv.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemePalette.Get(ThemePalette.GridHeaderTextColor);
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             // ── الخلايا ──
-            dgv.DefaultCellStyle.BackColor = Color.White;
-            dgv.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
+            dgv.DefaultCellStyle.BackColor = ThemePalette.Get(ThemePalette.GridCellBackgroundColor);
+            dgv.DefaultCellStyle.ForeColor = ThemePalette.Get(ThemePalette.GridCellTextColor);
             dgv.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-            dgv.DefaultCellStyle.SelectionBackColor = SelectionBack;
-            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgv.DefaultCellStyle.SelectionBackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
+            dgv.DefaultCellStyle.SelectionForeColor = ThemePalette.Get(ThemePalette.GridCellTextColor);
             dgv.RowTemplate.Height = 32;
 
             // ── الأسطر المتبادلة ──

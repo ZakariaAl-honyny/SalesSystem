@@ -108,6 +108,7 @@
             msReportDailyClosure = new ToolStripMenuItem();
             // ── الإعدادات ────────────────────────────────────────────────────────────────────────────
             msSettings = new ToolStripMenuItem();
+            msbtnSystemColors = new ToolStripMenuItem();
             msbtnSettings = new ToolStripMenuItem();
             msbtnCompanySettings = new ToolStripMenuItem();
             msbtnUpdateCheck = new ToolStripMenuItem();
@@ -861,11 +862,18 @@
             // msSettings
             // 
             msSettings.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnSettings, msbtnCompanySettings, msbtnUpdateCheck, msbtnBackup
+                msbtnSystemColors, msbtnSettings, msbtnCompanySettings, msbtnUpdateCheck, msbtnBackup
             });
             msSettings.Name = "msSettings";
             msSettings.Size = new Size(120, 33);
             msSettings.Text = "الإعدادات";
+            // 
+            // msbtnSystemColors
+            // 
+            msbtnSystemColors.Name = "msbtnSystemColors";
+            msbtnSystemColors.Size = new Size(300, 38);
+            msbtnSystemColors.Text = "ألوان النظام";
+            msbtnSystemColors.Click += msbtnSystemColors_Click;
             // 
             // msbtnSettings
             // 
@@ -1044,6 +1052,7 @@
         private ToolStripMenuItem msbtnCalculator;
         private ToolStripMenuItem msbtnInventory;
         private ToolStripMenuItem msSettings;
+        private ToolStripMenuItem msbtnSystemColors;
         private ToolStripMenuItem msbtnSettings;
         private ToolStripMenuItem msbtnCompanySettings;
         private ToolStripMenuItem msbtnUpdateCheck;

@@ -32,6 +32,7 @@ using SalesSystem.Desktop.Suppliers.Forms;
 using SalesSystem.Desktop.Screens;
 using SalesSystem.Desktop.Screens.Dashboard.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
+using SalesSystem.Desktop.Screens.Settings.Forms;
 using SalesSystem.Desktop.Screens.Tools.Forms;
 using Microsoft.EntityFrameworkCore;
 using SalesSystem.DTO.Common;
@@ -85,6 +86,12 @@ static class Program
                     // --- I*DesktopService implementations (2-Tier) ---
                     // Mock-only by design (no BLL backend yet) — Employee module is intentionally kept:
                     services.AddTransient<IEmployeeDesktopService, MockEmployeeDesktopService>();
+
+                    // Mock-only by design: ألوان النظام تُخزَّن في وضع التجربة فقط.
+                    // يبقى التسجيل خارج فرعي Mock/Direct كي لا يبقى النوع غير قابل للحل
+                    // في أي وضع (RULE-N168)، ويُستبدل بـ Direct*Service بعد موافقة
+                    // المالك الصريحة على المرحلة B (RULE-N165/RULE-N166).
+                    services.AddTransient<IThemeColorDesktopService, MockThemeColorDesktopService>();
 
                     // Interfaces with NO mock — always Direct:
                     services.AddTransient<IAuthDesktopService, DirectAuthService>();
@@ -290,6 +297,8 @@ static class Program
                     // Users/Admin Forms
                     services.AddTransient<frmPasswordChange>();
                     services.AddTransient<frmBackup>();
+                    // إعدادات — شاشة ألوان النظام (تُفتح من msbtnSystemColors في frmMain)
+                    services.AddTransient<frmChangeSystemColorsSettings>();
                     // Master forms — replace the removed frmList* / frmAddUpdate* screens
                     services.AddTransient<frmUserMaster>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmAccounts>();

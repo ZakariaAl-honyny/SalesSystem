@@ -24,6 +24,7 @@ using SalesSystem.Desktop.Screens.Inventory.Forms;
 using SalesSystem.Desktop.Screens.Warehouses.Forms;
 using SalesSystem.Desktop.Suppliers.Forms;
 using SalesSystem.Desktop.Screens.Reports.Forms;
+using SalesSystem.Desktop.Screens.Settings.Forms;
 using SalesSystem.Desktop.Screens.Dashboard.Forms;
 using SalesSystem.Desktop.Screens.Tools.Forms;
 using SalesSystem.Desktop.Helpers;
@@ -393,6 +394,14 @@ public partial class frmMain : Form
     // ── الإعدادات (Settings) ──────────────────────────────────────────────────
     // الإعدادات العامة وإعدادات الشركة أُزيلتا من الواجهة — المعالجات تبقى فارغة
     // فقط لأنهما مرتبطتان في ملف الـ Designer.
+
+    /// <summary>
+    /// يفتح شاشة «ألوان النظام» من الحاوية (RULE-N02) عبر النمط المعتمد
+    /// <see cref="OpenScreen{T}"/> — الشاشة تُعدّل <see cref="ThemePalette"/> ثم
+    /// تُعيد تلوين كل النماذج المفتوحة بلا إغلاق أي منها.
+    /// </summary>
+    private void msbtnSystemColors_Click(object sender, EventArgs e)
+        => OpenScreen<frmChangeSystemColorsSettings>();
 
     private void msbtnSettings_Click(object sender, EventArgs e)
     {

@@ -6,12 +6,15 @@ namespace SalesSystem.Desktop.Helpers;
 public static class ThemeHelper
 {
     // Institutional Professional Palette (Modern Flat Colors)
-    public static readonly Color Primary = ColorTranslator.FromHtml("#0D6EFD");   // Modern Blue
-    public static readonly Color Success = ColorTranslator.FromHtml("#198754");   // Eye-friendly Green
-    public static readonly Color Danger = ColorTranslator.FromHtml("#DC3545");    // Muted Red
-    public static readonly Color Warning = ColorTranslator.FromHtml("#FFC107");   // Amber
-    public static readonly Color Neutral = Color.FromArgb(108, 117, 125);         // Gray
-    public static readonly Color Secondary = ColorTranslator.FromHtml("#F8F9FA"); // Light Gray
+    // الألوان الستة أدناه تمرّر قيمها الحيّة من ThemePalette (المصدر الوحيد القابل
+    // للتغيير) — لا لون حرفي هنا، فأي تعديل في اللوحة ينعكس فوراً على كل الأزرار
+    // بلا تعديل أي شاشة (RULE-N54 / RULE-N112).
+    public static Color Primary => ThemePalette.Get(ThemePalette.BtnAddNewButtonColor);     // Modern Blue
+    public static Color Success => ThemePalette.Get(ThemePalette.BtnSaveButtonColor);      // Eye-friendly Green
+    public static Color Danger => ThemePalette.Get(ThemePalette.BtnDeleteButtonColor);     // Muted Red
+    public static Color Warning => ThemePalette.Get(ThemePalette.BtnWarningButtonColor);   // Amber
+    public static Color Neutral => ThemePalette.Get(ThemePalette.BtnCancelButtonColor);    // Gray
+    public static Color Secondary => ThemePalette.Get(ThemePalette.BtnSecondaryButtonColor); // Light Gray
     public static readonly Color BorderColor = ColorTranslator.FromHtml("#DEE2E6");
     
     public static readonly Color SidebarBg = Color.FromArgb(33, 43, 54);
