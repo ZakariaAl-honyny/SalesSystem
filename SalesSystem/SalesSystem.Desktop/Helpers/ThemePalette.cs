@@ -109,6 +109,14 @@ public static class ThemePalette
     /// <summary>لون السطر المحدد.</summary>
     public const string SelectionRowColor = "selectionRowColor";
 
+    /// <summary>
+    /// لون الحقل النشط (تظليل التركيز). قيمته الافتراضية هي نفس اللون الحرفي الذي
+    /// تستخدمه كل الشاشات عبر <c>KeyboardHelper.WireFocusHighlight</c> —
+    /// <c>(0xD6,0xE4,0xF0)</c> = (214,228,240) — فيبقى «المصمّم = التشغيل» صحيحاً.
+    /// الشاشات لا تحتاج أي تعديل: التوصيل يقرأ القيمة الحيّة من هنا (RULE-N54a).
+    /// </summary>
+    public const string ActiveFieldColor = "activeFieldColor";
+
     /// <summary>خلفية العنصر المعطّل.</summary>
     public const string DisabledBackColor = "disabledBackColor";
 
@@ -123,33 +131,41 @@ public static class ThemePalette
     private const string GroupButtons = "الأزرار";
     private const string GroupBars = "الصناديق والأشرطة";
     private const string GroupGrid = "الشبكة";
+    private const string GroupSelection = "التحديد والحقل النشط";
     private const string GroupStates = "حالات العرض";
 
     private static readonly ThemeColorDefinition[] AllDefinitions =
     {
-        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,    Color.FromArgb(170, 220, 170)),
-        new(HeaderBarColor,          "شريط العنوان",          GroupMain,    Color.FromArgb(14, 165, 103)),
-        new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,    Color.White),
-        new(TextStrongColor,         "النص المميّز",          GroupMain,    Color.FromArgb(14, 82, 52)),
-        new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons, Color.FromArgb(13, 110, 253)),
-        new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons, Color.FromArgb(25, 135, 84)),
-        new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons, Color.FromArgb(220, 53, 69)),
-        new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons, Color.FromArgb(108, 117, 125)),
-        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons, Color.FromArgb(23, 162, 184)),
-        new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons, Color.FromArgb(255, 193, 7)),
-        new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons, Color.FromArgb(248, 249, 250)),
-        new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,  Color.FromArgb(235, 240, 235)),
-        new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,    Color.FromArgb(235, 245, 235)),
-        new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,    Color.FromArgb(220, 240, 220)),
-        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,    Color.FromArgb(14, 165, 103)),
-        new(GridHeaderTextColor,     "نص رؤوس الأعمدة",       GroupGrid,    Color.White),
-        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,    Color.FromArgb(205, 225, 205)),
-        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,    Color.FromArgb(245, 252, 245)),
-        new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,    Color.White),
-        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,    Color.FromArgb(33, 37, 41)),
-        new(SelectionRowColor,       "لون السطر المحدد",      GroupGrid,    Color.FromArgb(255, 255, 180)),
-        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,  Color.FromArgb(224, 224, 224)),
-        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,  Color.FromArgb(150, 150, 150)),
+        // ── الشاشة الرئيسية (4) ──
+        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(170, 220, 170)),
+        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(14, 165, 103)),
+        new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,      Color.White),
+        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(14, 82, 52)),
+        // ── الأزرار (7) ──
+        new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(13, 110, 253)),
+        new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(25, 135, 84)),
+        new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons,   Color.FromArgb(220, 53, 69)),
+        new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons,   Color.FromArgb(108, 117, 125)),
+        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(23, 162, 184)),
+        new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(255, 193, 7)),
+        new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 249, 250)),
+        // ── الصناديق والأشرطة (2) ──
+        new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,    Color.FromArgb(235, 240, 235)),
+        new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,      Color.FromArgb(235, 245, 235)),
+        // ── الشبكة (7 — لون التحديد انتقل إلى مجموعة «التحديد والحقل النشط») ──
+        new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,      Color.FromArgb(220, 240, 220)),
+        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(14, 165, 103)),
+        new(GridHeaderTextColor,     "نص رؤوس الأعمدة",       GroupGrid,      Color.White),
+        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(205, 225, 205)),
+        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(245, 252, 245)),
+        new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,      Color.White),
+        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(33, 37, 41)),
+        // ── التحديد والحقل النشط (2) ──
+        new(SelectionRowColor,       "لون السطر المحدد",      GroupSelection, Color.FromArgb(255, 255, 180)),
+        new(ActiveFieldColor,        "لون الحقل النشط",       GroupSelection, Color.FromArgb(214, 228, 240)),
+        // ── حالات العرض (2) ──
+        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(224, 224, 224)),
+        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(150, 150, 150)),
     };
 
     private static readonly ReadOnlyCollection<ThemeColorDefinition> DefinitionsReadOnly =
@@ -187,8 +203,141 @@ public static class ThemePalette
     //  القراءة والكتابة
     // ═════════════════════════════════════════════════════════════════
 
-    /// <summary>تعريفات اللوحة (23 لوناً بترتيب العرض في الشاشة).</summary>
+    /// <summary>تعريفات اللوحة (24 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
     public static IReadOnlyList<ThemeColorDefinition> Definitions => DefinitionsReadOnly;
+
+    /// <summary>فهرس التعريفات بالمفتاح (تطابق ترتيبي — نفس أسماء الثوابت).</summary>
+    private static readonly Dictionary<string, ThemeColorDefinition> DefinitionsByKey = BuildDefinitionsByKey();
+
+    private static Dictionary<string, ThemeColorDefinition> BuildDefinitionsByKey()
+    {
+        var map = new Dictionary<string, ThemeColorDefinition>(StringComparer.Ordinal);
+        foreach (var definition in AllDefinitions)
+            map[definition.Key] = definition;
+
+        return map;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  الافتراضيات والتباين (WCAG 2.1) — خريطة واحدة يستهلكها الجميع
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// الحد الأدنى لتباين **نص المتن العادي** بنظام WCAG 2.1 (4.5:1).
+    /// <para>
+    /// الموطن الوحيد لهذا الرقم (RULE-N172): تُستهلك هنا في <see cref="ContrastRules"/>
+    /// وفي <see cref="ColorSuggestionHelper.ReadableForeFor"/> — وممنوع كتابته حرفياً
+    /// في أي شاشة أو خدمة (RULE-N112).
+    /// </para>
+    /// </summary>
+    public const double BodyTextMinimumContrast = 4.5;
+
+    /// <summary>
+    /// خريطة التباين **المتناظرة** (المفتاح ← اللون الشريك + الحد الأدنى). مصدر واحد
+    /// فقط: الشاشة والخدمة الوهمية و<see cref="ColorSuggestionHelper"/> تقرأ منه —
+    /// وممنوع تكرارها في أي ملف آخر (RULE-N54a / RULE-N112).
+    /// <para>
+    /// لا يظهر المفتاح هنا معناه «لا شرط تباين» (<see cref="MinimumContrastFor"/> = 0.0)
+    /// و<see cref="ContrastPartnerColor"/> = <c>null</c>.
+    /// </para>
+    /// </summary>
+    private static readonly Dictionary<string, (string Partner, double Minimum)> ContrastRules =
+        BuildContrastRules();
+
+    private static Dictionary<string, (string Partner, double Minimum)> BuildContrastRules()
+    {
+        var map = new Dictionary<string, (string Partner, double Minimum)>(StringComparer.Ordinal);
+
+        void Add(string key, string partner, double minimum) => map[key] = (partner, minimum);
+
+        // نصوص/رؤوس فوق خلفيات: 3.0 لنص كبير (شريط/رؤوس) و4.5 لنص عادي.
+        Add(HeaderTextColor, HeaderBarColor, 3.0);
+        Add(HeaderBarColor, HeaderTextColor, 3.0);
+        Add(GridHeaderTextColor, GridHeaderColor, 3.0);
+        Add(GridHeaderColor, GridHeaderTextColor, 3.0);
+        Add(GridCellTextColor, GridCellBackgroundColor, BodyTextMinimumContrast);
+        Add(GridCellBackgroundColor, GridCellTextColor, BodyTextMinimumContrast);
+        Add(SelectionRowColor, GridCellTextColor, BodyTextMinimumContrast);
+        Add(TextStrongColor, FrmMainColor, BodyTextMinimumContrast);
+        Add(FrmMainColor, TextStrongColor, BodyTextMinimumContrast);
+        // حالات العرض: تباين مقروء لا أكثر (رمادي على رمادي).
+        Add(DisabledForeColor, DisabledBackColor, 2.0);
+        Add(DisabledBackColor, DisabledForeColor, 2.0);
+
+        return map;
+    }
+
+    /// <summary>
+    /// القيمة الافتراضية لمفتاح معروف؛ والمفتاح المجهول يُعيد افتراضي خلفية الشاشة
+    /// الرئيسية (لا استثناء — عرض اللون لا يتوقّف بسبب مفتاح خاطئ).
+    /// </summary>
+    public static Color DefaultFor(string key)
+    {
+        if (key is not null && DefinitionsByKey.TryGetValue(key, out var definition))
+            return definition.DefaultValue;
+
+        return DefinitionsByKey.TryGetValue(FrmMainColor, out var fallback)
+            ? fallback.DefaultValue
+            : Color.White;
+    }
+
+    /// <summary>
+    /// نسبة التباين بنظام WCAG 2.1 بين لونين (1.00 … 21.00) **مقرَّبة بمنزلتين عشريتين** —
+    /// للعرض على المستخدم فقط. أي مقارنة تحقّق تستخدم <see cref="ContrastRatioRaw"/>
+    /// (التقريب قد يرفع/يخفض نصاً على الحد تماماً — RULE-N167).
+    /// </summary>
+    public static double ContrastRatio(Color a, Color b) => Math.Round(ContrastRatioRaw(a, b), 2);
+
+    /// <summary>
+    /// نسبة التباين **غير المقرَّبة** (WCAG 2.1) — تُستخدم في كل مقارنة تحقّق
+    /// («هل بلغ التباين الحد الأدنى؟») لأن التقريب يمكن أن يقبل لوناً على الحد أو يرفضه.
+    /// لا يوجد تحويل ثانٍ لمعادلة WCAG في أي ملف آخر (RULE-N172).
+    /// </summary>
+    internal static double ContrastRatioRaw(Color a, Color b)
+    {
+        double luminanceA = RelativeLuminance(a);
+        double luminanceB = RelativeLuminance(b);
+
+        double lighter = Math.Max(luminanceA, luminanceB);
+        double darker = Math.Min(luminanceA, luminanceB);
+
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    /// <summary>الحد الأدنى لتباين المفتاح (0.0 = لا شرط).</summary>
+    public static double MinimumContrastFor(string key)
+        => key is not null && ContrastRules.TryGetValue(key, out var rule) ? rule.Minimum : 0.0;
+
+    /// <summary>
+    /// مفتاح اللون الشريك الذي يُقاس عليه تباين المفتاح، أو <c>null</c> إن لا شرط تباين.
+    /// <para>
+    /// هذه هي القراءة الوحيدة لخريطة <see cref="ContrastRules"/> في اتجاه الشريك؛
+    /// تُستهلك هنا في <see cref="ContrastPartnerColor"/> وفي الخدمة الوهمية التي تحتاج
+    /// **المفتاح** لا اللون لتقرأ قيمة الطلب المقدَّم بدل القيمة الحيّة (RULE-N172).
+    /// </para>
+    /// </summary>
+    public static string? ContrastPartnerKey(string key)
+        => key is not null && ContrastRules.TryGetValue(key, out var rule) ? rule.Partner : null;
+
+    /// <summary>اللون الشريك الحيّ الذي يُقاس عليه تباين المفتاح، أو <c>null</c> إن لا شرط.</summary>
+    public static Color? ContrastPartnerColor(string key)
+        => ContrastPartnerKey(key) is { } partnerKey ? Get(partnerKey) : null;
+
+    /// <summary>الإضاءة النسبية (WCAG) للون: 0.0 أسود … 1.0 أبيض.</summary>
+    private static double RelativeLuminance(Color color)
+        => (0.2126 * Linearize(color.R))
+         + (0.7152 * Linearize(color.G))
+         + (0.0722 * Linearize(color.B));
+
+    /// <summary>تحويل قناة (0..255) إلى مساحة الإضاءة الخطية في WCAG.</summary>
+    private static double Linearize(byte channel)
+    {
+        double value = channel / 255.0;
+
+        return value <= 0.03928
+            ? value / 12.92
+            : Math.Pow((value + 0.055) / 1.055, 2.4);
+    }
 
     /// <summary>
     /// القيمة الحيّة للون. المفتاح المجهول يُعيد لون خلفية الشاشة الرئيسية
@@ -264,6 +413,9 @@ public static class ThemePalette
 
                 GreenThemeHelper.Apply(form);
                 RepaintThemeButtons(form);
+
+                // الحقل النشط المفتوح يعيد التلوين فوراً باللون الحيّ (RULE-N54a)
+                KeyboardHelper.RefreshFocusHighlight(form);
 
                 // منطقة MDI: خلفية النموذج المصمَّمة (RULE-N139/RULE-N140)
                 foreach (var mdi in form.Controls.OfType<MdiClient>())
@@ -394,6 +546,102 @@ public static class ThemePalette
 
         color = Color.FromArgb(r, g, b);
         return true;
+    }
+
+    /// <summary>
+    /// يقرأ **نص لون** وصل من خارج الشاشة (الحافظة · كتابة يدوية) بصيغ متعددة، ويُعيد اللون:
+    /// <list type="bullet">
+    /// <item><c>#RRGGBB</c> · <c>RRGGBB</c> · <c>0xRRGGBB</c></item>
+    /// <item><c>#AARRGGBB</c> / <c>AARRGGBB</c> — تُتجاهل الشفافية ويُقرأ اللون من الخانات الست الدنيا</item>
+    /// <item><c>RGB(r,g,b)</c> / <c>rgb(r, g, b)</c> — بلا حساسية لحالة الحروف وبمسافات حرة</item>
+    /// <item><c>r,g,b</c> و <c>r; g; b</c> — كل قناة 0..255 (خارج النطاق ⇒ <c>false</c>)</item>
+    /// </list>
+    /// <para>
+    /// متسامح مع المسافات وعلامات التنصيص حول القيمة ومع الأرقام العربية ٠-٩ (تُطوى إلى 0-9 قبل
+    /// القراءة). **المكان الوحيد** لتحويل نص المستخدم إلى لون في النظام كله (RULE-N169…N172):
+    /// الشاشات تستدعي هذه الدالة ولا تكتب تحليلاً خاصاً بها. الصيغ الست عشرية تُمرَّر إلى
+    /// <see cref="TryParseHex"/> نفسه — لا محلّل ست عشري ثانٍ. لا ترمي استثناءً أبداً.
+    /// </para>
+    /// </summary>
+    public static bool TryParseColorText(string? text, out Color color)
+    {
+        color = Color.Empty;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        try
+        {
+            string value = NormalizeColorText(text);
+            if (value.Length == 0) return false;
+
+            // (1) rgb(r, g, b) — لاحقة/بادئة بلا حساسية لحالة الحروف، ومسافات مسموحة حول rgb وحول الأقواس
+            if (value.StartsWith("rgb", StringComparison.OrdinalIgnoreCase))
+            {
+                int open = value.IndexOf('(');
+                int close = value.LastIndexOf(')');
+
+                if (open < 0 || close <= open) return false;
+                if (!string.Equals(value[..open].Trim(), "rgb", StringComparison.OrdinalIgnoreCase)) return false;
+                if (value[(close + 1)..].Trim().Length != 0) return false;
+
+                return TryParseRgbChannels(value[(open + 1)..close], out color);
+            }
+
+            // (2) r,g,b  /  r; g; b
+            if (value.Contains(',') || value.Contains(';'))
+                return TryParseRgbChannels(value, out color);
+
+            // (3) الصيغ الست عشرية — بعد تجريد # و 0x وشفافية AA، يبقى التحليل لـ TryParseHex وحده
+            string hex = value;
+            if (hex.StartsWith('#')) hex = hex[1..];
+            if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase)) hex = hex[2..];
+
+            if (hex.Length == 8) hex = hex[2..];        // AARRGGBB: تُرمى الشفافية
+            else if (hex.Length != 6) return false;     // غير ذلك ليس قيمة لون
+
+            return TryParseHex("#" + hex, out color);
+        }
+        catch
+        {
+            // نص غريب لا يُسقط الشاشة — يُعدّ غير مفهوم فقط.
+            color = Color.Empty;
+            return false;
+        }
+    }
+
+    /// <summary>قراءة ثلاث قنوات <c>r</c> · <c>g</c> · <c>b</c> من نص مفصول بفاصلة أو فاصلة منقوطة.</summary>
+    private static bool TryParseRgbChannels(string channels, out Color color)
+    {
+        color = Color.Empty;
+
+        var parts = channels.Split(new[] { ',', ';' }, StringSplitOptions.TrimEntries);
+        if (parts.Length != 3) return false;
+
+        var values = new int[3];
+
+        for (int i = 0; i < values.Length; i++)
+        {
+            if (!int.TryParse(parts[i], out int channel)) return false;
+            if (channel < 0 || channel > 255) return false;
+
+            values[i] = channel;
+        }
+
+        color = Color.FromArgb(values[0], values[1], values[2]);
+        return true;
+    }
+
+    /// <summary>علامات التنصيص التي تُطوى حول النص الملصوق («#0EA567» · "#0EA567" · '#0EA567').</summary>
+    private static readonly char[] QuoteCharacters = { '"', '\'', '`', '«', '»' };
+
+    /// <summary>تطبيع نص اللون: أرقام عربية ٠-٩ ⇒ 0-9، ثم تقليم المسافات وعلامات التنصيص حول القيمة.</summary>
+    private static string NormalizeColorText(string text)
+    {
+        string value = text;
+
+        for (int digit = 0; digit <= 9; digit++)
+            value = value.Replace((char)('\u0660' + digit), (char)('0' + digit));
+
+        return value.Trim().Trim(QuoteCharacters).Trim();
     }
 
     /// <summary>يقرأ خانتين ست عشريتين من <paramref name="start"/> (رفض أي محرف غير ست عشري).</summary>

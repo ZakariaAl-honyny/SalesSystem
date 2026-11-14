@@ -1,7 +1,7 @@
 # AGENTS.md — Sales Management System (v5.0.0 — 2-Tier WinForms Edition)
 # READ THIS FILE FIRST — BEFORE WRITING ANY CODE
 # Platform: .NET 10 | 2-Tier Architecture
-# Code doctrine: Classic WinForms (NO MVVM) · Simple N-Layer (NO Clean Architecture) · No API layer · Reusable Helpers — see §2.30
+# Code doctrine: Classic WinForms (NO MVVM) · Simple N-Layer (NO Clean Architecture) · No API layer · Reusable Helpers — one home per shared behaviour (`Helpers/` · `Global Classes/` · `Common/Helpers/`) — see §2.30 (`RULE-N169`…`N172`)
 # WinForms Desktop + Business Logic Layer + SQL Server (no HTTP/API layer)
 
 ---
@@ -373,7 +373,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | RULE-N43 | آلة حالة الأزرار: «جديد/حفظ» مفعّلان في وضع الإضافة، و«تعديل/حذف» مفعّلان فقط عند وجود سجل محدد؛ ومعطّلة = رمادية بنص باهت (`WireButtonDisabledVisual`) وليس فقط `Enabled = false` |
 | RULE-N44 | مؤشر الوضع إلزامي: `lblMode` أعلى الشاشة يوضّح «إضافة … جديد» أو «تعديل …: <الاسم>»، ويتحدث مع كل تغيير للحالة |
 | RULE-N45 | أسهم RTL بين الحقول: يمين/أعلى = الحقل السابق، يسار/أسفل = الحقل التالي؛ ولا تُطبَّق على `ComboBox` ولا `DataGridView` حتى تحتفظ بسلوكها الأصلي |
-| RULE-N46 | لون الحقل النشط موحّد: `Color.FromArgb(0xD6, 0xE4, 0xF0)`، ويُعاد اللون الأصلي عند `Leave` |
+| RULE-N46 | لون الحقل النشط موحّد: `(214, 228, 240)` = `ThemePalette.ActiveFieldColor` يُقرأ **حيّاً** — تُمرَّر الشاشة `ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)` فيلتقط الـHelper القيمة الحيّة عند كل دخول (`RULE-N54b`)، ويُعاد اللون الأصلي عند `Leave` |
 | RULE-N47 | اختصارات موحّدة للشاشات: `F2` = جديد، `F5` = تحديث، `Esc` = إلغاء الحقل/مسحه — وتظهر في `ToolTip` لكل زر |
 | RULE-N147 | **Enter = الزر الأساسي للوضع الحالي:** وضع العرض ⇒ «جديد» · وضع الإضافة ⇒ «إضافة/حفظ» · وضع التعديل ⇒ «تعديل». التوصيل حصراً عبر `KeyboardHelper.WireModeEnter(this, _PrimaryActionButton)` في المُنشئ + `AcceptButton = _PrimaryActionButton()` داخل `_ApplyModeState()` — و`Enter` داخل حقل إدخال يبقى «الحقل التالي» (`RULE-N40`)، وعلى زر/مربع اختيار يبقى تنفيذ العنصر نفسه. الشاشة المرجعية: `frmProductMaster` — ✅ منفّذ في **26/26** شاشة تصفية (2026-11-14) |
 | RULE-N153 | **Enter داخل شبكة السطور لا يُنفِّذ الزر الأساسي أبداً:** في شاشات المستندات (فواتير · مرتجعات · تسويات · جرد · تحويل · بضاعة أول المدة · POS) الشبكة هي مكان الإدخال السريع بـ`Enter`، فتُعيد `_PrimaryActionButton()` قيمة `null` عند `ContainsFocus`/`IsCurrentCellInEditMode` للشبكة، ويُفرَّغ `AcceptButton` عند دخول الشبكة ويُعاد عند `Leave` — وممنوع ترحيل/حفظ مستند من داخل شبكة السطور، والترحيل المالي يبقى على زرّه و`F4` + تأكيد صريح |
@@ -392,7 +392,9 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | RULE-N52 | `ApplyGrid` لا تلمس `ReadOnly` ولا `SelectionMode` ولا `AllowUserToAddRows` ولا `DataSource` — كل شبكة تعلن سلوكها بنفسها حسب `RULE-N22`/`RULE-N22a` |
 | RULE-N53 | لون شريط العنوان (`lblMode`/`lblTitle`) يُطبَّق بـ `GreenThemeHelper.ApplyHeader(label)`، والنص الأخضر الداكن للنصوص المهمة هو `GreenThemeHelper.TextStrong` |
 | RULE-N54 | ممنوع كتابة قيم ألوان الثيم الأخضر كأرقام داخل الشاشات — تُستهلك من ثوابت `GreenThemeHelper` فقط؛ وأي لون جديد يُضاف هناك لا في الشاشة — ويجب أن تظهر نفس القيم في `*.Designer.cs` بقيم حرفية مطابقة (انظر `RULE-N134`): المصمّم = وقت التشغيل — وتطابق الاتجاهين (المصمّم = التشغيل) معيار مستقل في §2.35 (`RULE-N140`…`N144`). |
-| RULE-N54a | **اللوحة القابلة للتخصيص (2026-11-14 — المرحلة أ):** `GreenThemeHelper`/`ThemeHelper` تبقى **الواجهة الوحيدة** التي تستهلكها الشاشات (نفس الأسماء ونفس النوع `Color`)، لكن قيمها تُقرأ وقت العرض من `ThemePalette` (في `Helpers/`) — **23 لوناً** في خمس مجموعات (الشاشة الرئيسية · الأزرار · الصناديق والأشرطة · الشبكة · حالات العرض) قابلة للتعديل من `frmChangeSystemColorsSettings`. افتراضيات `ThemePalette` هي نفس القيم الحرفية القديمة، فيبقى «المصمّم = التشغيل» صحيحاً على الثيم الافتراضي (`RULE-N134`/`RULE-N140`). **إلزامي:** ممنوع أن تكرّر أي شاشة/خدمة قائمة المفاتيح أو التسميات أو المجموعات أو الافتراضيات — تُستهلك من `ThemePalette.Definitions` وثوابت `ThemePalette.*` فقط؛ وممنوع كتابة قيمة لون جديدة خارج `ThemePalette` (`RULE-N112`). `ThemePalette.ApplyToOpenForms()` هي الطريقة **الوحيدة** لتطبيق تغيير الألوان على الشاشات المفتوحة (بلا إغلاق ولا إعادة إنشاء)، وتُستدعى بعد نجاح الحفظ/الاستعادة فقط. وتبقى `RULE-N51a`/`RULE-N139` ساريَين: لا تُلوَّن حاوية Ambient ولا حاوية بلون مخصّص — التلوين مقصور على ما يحمل لون ثيم حيّاً أو افتراضياً أو سبق أن طبّقته اللوحة |
+| RULE-N54a | **اللوحة القابلة للتخصيص (2026-11-14 — المرحلة أ):** `GreenThemeHelper`/`ThemeHelper` تبقى **الواجهة الوحيدة** التي تستهلكها الشاشات (نفس الأسماء ونفس النوع `Color`)، لكن قيمها تُقرأ وقت العرض من `ThemePalette` (في `Helpers/`) — **24 لوناً** في ست مجموعات (الشاشة الرئيسية · الأزرار · الصناديق والأشرطة · الشبكة · **التحديد والحقل النشط** · حالات العرض) قابلة للتعديل من `frmChangeSystemColorsSettings`. افتراضيات `ThemePalette` هي نفس القيم الحرفية القديمة، فيبقى «المصمّم = التشغيل» صحيحاً على الثيم الافتراضي (`RULE-N134`/`RULE-N140`). **إلزامي:** ممنوع أن تكرّر أي شاشة/خدمة قائمة المفاتيح أو التسميات أو المجموعات أو الافتراضيات — تُستهلك من `ThemePalette.Definitions` وثوابت `ThemePalette.*` فقط؛ وممنوع كتابة قيمة لون جديدة خارج `ThemePalette` (`RULE-N112`). `ThemePalette.ApplyToOpenForms()` هي الطريقة **الوحيدة** لتطبيق تغيير الألوان على الشاشات المفتوحة (بلا إغلاق ولا إعادة إنشاء)، وتُستدعى بعد نجاح الحفظ/الاستعادة فقط. وتبقى `RULE-N51a`/`RULE-N139` ساريَين: لا تُلوَّن حاوية Ambient ولا حاوية بلون مخصّص — التلوين مقصور على ما يحمل لون ثيم حيّاً أو افتراضياً أو سبق أن طبّقته اللوحة |
+| RULE-N54b | **التحديد والحقل النشط لونان نظاميان لا لونان محليان:** `SelectionRowColor` (`(255,255,180)`) و`ActiveFieldColor` (`(214,228,240)`) يُستهلكان من `ThemePalette` حصراً — `GreenThemeHelper.ApplyGrid` يبثّ `SelectionRowColor` على `DefaultCellStyle.SelectionBackColor` و`ColumnHeadersDefaultCellStyle.SelectionBackColor` لكل شبكة، و`KeyboardHelper.WireFocusHighlight` يقرأ `ActiveFieldColor` **حيّاً** عند كل دخول حقل بدل اللون الحرفي `0xD6E4F0`، ويعيد تلوين الحقل المركَّز الحالي عبر `RefreshFocusHighlight` من `ThemePalette.ApplyToOpenForms` بلا إغلاق الشاشة. **ممنوع:** كتابة `Color.FromArgb(0xD6,0xE4,0xF0)` أو `(255,255,180)` داخل أي شاشة جديدة (الشاشات القديمة تُحوَّل عند أول مساس بها — `RULE-N141`)، وممنوع `BackColor`/`SelectionBackColor` محلي لأي شبكة أو حقل نشط |
+| RULE-N54c | **الاقتراح الذكي لا يُكرَّر حكمه:** منطق اقتراح الألوان وقواعد التباين يعيش مرة واحدة في `ColorSuggestionHelper` (الاقتراح · السلم · الأفضل · القبول) فوق `ThemePalette.ContrastRatio`/`MinimumContrastFor`/`ContrastPartnerColor`. أي شاشة/خدمة تحتاج حكماً على لون تستهلك هذه الدوال — وممنوع نسخ معادلة WCAG أو خريطة الألوان الشريكة أو عتبات التباين في شاشة أو في تنفيذ Mock (`RULE-N169`…`RULE-N172`)، وممنوع أن تقترح الأداة لوناً يمكن أن يرفضه الحفظ (المقترَحات مُتحقَّق منها مسبقاً — `RULE-N167`) |
 | RULE-N154 | **مظهر التعطيل موحّد كالأزرار المعطّلة (لكل الشاشات):** كل عنصر إدخال معطّل — `TextBox` · `MaskedTextBox` · `ComboBox` · `NumericUpDown` · `DateTimePicker` · `Button` — يأخذ خلفية `GreenThemeHelper.DisabledBack` = `Color.FromArgb(224, 224, 224)` ونصاً `DisabledFore` = `Color.FromArgb(150, 150, 150)` **تلقائياً** عبر `KeyboardHelper.WireDisabledVisuals` الذي يستدعيه `GreenThemeHelper.Apply` (آخر سطر ثيم في كل شاشة) — فلا يُكتب لون تعطيل داخل أي شاشة ولا يُكرَّر (`RULE-N112`)، ويُعاد لون المصمّم حرفياً فور التفعيل؛ و`CheckBox`/`RadioButton` يُباهت نصّهما فقط بلا مسحة رمادية خلف النص. لونا التعطيل **لونا حالة** لا لونا تصميم: لا يُعلنان في `*.Designer.cs` (الاستثناء الوحيد على `RULE-N134`) لأنهما يُطبَّقان فقط ما دام `Enabled == false` |
 
 **قيم الثيم الأخضر:**
@@ -405,7 +407,8 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | أشرطة الأدوات/الإجراءات | `Color.FromArgb(235, 240, 235)` |
 | خلفية الشبكة | `Color.FromArgb(220, 240, 220)` · خطوط `(205, 225, 205)` |
 | رؤوس الأعمدة | `(14, 165, 103)` + نص أبيض، Tahoma 10 Bold |
-| التحديد | `Color.FromArgb(255, 255, 180)` |
+| التحديد (سطر/خلية الشبكة) | `Color.FromArgb(255, 255, 180)` — من `ThemePalette.SelectionRowColor` عبر `GreenThemeHelper.ApplyGrid` (`RULE-N54b`) |
+| الحقل النشط (تظليل التركيز) | `Color.FromArgb(214, 228, 240)` — من `ThemePalette.ActiveFieldColor` عبر `KeyboardHelper.WireFocusHighlight` حيّاً (`RULE-N54b`) |
 | نص مميّز | `Color.FromArgb(14, 82, 52)` |
 | عنصر معطّل (حقل أو زر) | خلفية `Color.FromArgb(224, 224, 224)` + نص `Color.FromArgb(150, 150, 150)` — من `DisabledBack`/`DisabledFore` عبر `KeyboardHelper.WireDisabledVisuals` (`RULE-N154`) |
 
@@ -430,7 +433,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 11 | ترتيب وتجميع أجزاء الشاشة (عنوان · أوامر · تصفية · محتوى · إجماليات · أسفل) | `RULE-N135`…`N138` | 🔄 بدأ | الشاشة النموذج المنفَّذة: `frmAccountStatementReport` — وبقية الشاشات عند أول مساس بها · ✅ **التقارير الـ31 كلها محقَّقة (2026-11-13، عدّ فعلي): `pnlReportRoot` معلن في 31/31 و`pnlReportNav` في 31/31، بستة صفوف + كتل معنونة («أوامر التقرير» · «بحث وتصفية» · «بيانات التقرير» · «الإجماليات» · الأسفل) — 28 تقريراً بـ`gbFilter` و3 بلا كتلة تصفية (`frmExpiredProductsReport` · `frmLowStockReport` · `frmStockBalanceReport`)، وصفر صندوق داخل صندوق وصفر صندوق فارغ** · الشاشات غير التقريرية: **128 صندوق مجموعة في 63 مصمّماً**، منها **25** مصمّماً فيه كتلة «بحث وتصفية» معنونة و**21** فيه كتلة «أوامر» — والباقي يُطبَّق عند أول مساس بالشاشة |
 | 12 | تطابق ألوان التشغيل مع المصمّم (بلا رمادي · حقول بيضاء · الشاشة المرجعية `frmProductMaster`) | `RULE-N140`…`N144` | 🔄 بدأ | ✅ **التقارير (2026-11-13، عدّ فعلي): 47/47 حقل إدخال في مصمّمات التقارير الـ31 بخلفية `Color.White` وخط `Tahoma` — صفر استثناء، و`SystemColors.Control` = 0** · الشاشات غير التقريرية: **62/62 تستدعي `GreenThemeHelper.Apply(this)`** و`SystemColors.Control` غائب عنها كلها (موضع واحد فقط في `frmMain.Designer`)، لكن **193 من 280 حقل إدخال (69%) فقط تُعلن `Color.White` صريحاً في المصمّم** — أي **87 حقلاً** تتلوّن وقت التشغيل فقط (معظمها `TextBox` في الماسترات: `frmProductMaster` 12 حقلاً · `frmListSales` · `frmListReturns` · `frmListPurchases` · `frmPurchaseItem` · `frmEmployeeMaster` …). **البند مفتوح** ويُغلق شاشة بشاشة (`RULE-N143`) |
 | 13 | وضع الإدخال: الحقول معطّلة افتراضياً + آلة حالة `Browsing/Adding/Editing` + تحديث تلقائي بعد الحفظ/الحذف | `RULE-N149`…`N152` | ✅ **2026-11-14: مكتملة 10/10** — `frmProductMaster` (المرجع) + `frmCategoryMaster` · `frmUnitMaster` · `frmWarehouseMaster` · `frmCashBoxMaster` · `frmUserMaster` · `frmEmployeeMaster` · `frmSupplierMaster` · `frmCustomerMaster` · `frmProductUnitMaster` — كلها بـ`EntryMode` + `_ApplyModeState` + تحديث تلقائي + `btnClearFilters` |
-| 14 | ألوان النظام قابلة للتخصيص من مكان واحد (`frmChangeSystemColorsSettings` + `ThemePalette`) | `RULE-N54a` + §2.19 | 🔄 **المرحلة أ (Mock) — 2026-11-14**: 23 لوناً في خمس مجموعات · `ThemePalette.Definitions` مصدر وحيد · `GreenThemeHelper`/`ThemeHelper` خصائص تمرير · `ApplyToOpenForms` تُعيد تلوين المفتوح فوراً · `IThemeColorDesktopService` + `MockThemeColorDesktopService` (رفض عربي + تحقق تباين WCAG) — **لا BLL/DB بعد**؛ المرحلة ب تبدأ فقط بموافقة المالك المكتوبة (`RULE-N166`) |
+| 14 | ألوان النظام قابلة للتخصيص من مكان واحد (`frmChangeSystemColorsSettings` + `ThemePalette`) | `RULE-N54a` + `RULE-N54b` + `RULE-N54c` + §2.19 | 🔄 **المرحلة أ (Mock) — 2026-11-14**: **24 لوناً في ست مجموعات** (منها «التحديد والحقل النشط») · `ThemePalette.Definitions` مصدر وحيد · `GreenThemeHelper`/`ThemeHelper` خصائص تمرير · `ApplyToOpenForms` تُعيد تلوين المفتوح فوراً (بما فيه الحقل المركَّز عبر `KeyboardHelper.RefreshFocusHighlight`) · `ApplyGrid` يبثّ لون السطر المحدد على كل شبكة · `ColorSuggestionHelper` (اقتراح/سلم/أفضل/قبول فوق `ThemePalette.ContrastRatio`) · `IThemeColorDesktopService` + `MockThemeColorDesktopService` (رفض عربي + تحقق تباين WCAG بلا نسخة ثانية من القواعد) — **لا BLL/DB بعد**؛ المرحلة ب تبدأ فقط بموافقة المالك المكتوبة (`RULE-N166`) |
 
 **مراحل التعميم:**
 
@@ -470,7 +473,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 7 | كل الستة من `KeyboardHelper` في المُنشئ (تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات) | = البند 23 (RULE-N95) | نص الاستدعاء |
 | 8 | تحديد القيمة الحالية يعمل بالفأرة وبلوحة المفاتيح | RULE-N41 | سلوك `KeyboardHelper` (تلقائي عند استدعاء البند 7) |
 | 9 | أسهم RTL: يمين/أعلى = السابق، يسار/أسفل = التالي | RULE-N45 | سلوك `KeyboardHelper` |
-| 10 | تظليل الحقل النشط `(0xD6,0xE4,0xF0)` | RULE-N46 | معامل `WireFocusHighlight` |
+| 10 | تظليل الحقل النشط `(214,228,240)` = `ThemePalette.ActiveFieldColor` حيّاً | RULE-N46 + RULE-N54b | معامل `WireFocusHighlight` (يُمرَّر `ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)` لا مفتاحاً نصياً) |
 | 11 | مؤشر الوضع `lblMode` يتحدث مع كل تغيير حالة (إضافة/تعديل) | RULE-N44 | `_UpdateModeHeader()` |
 | 12 | آلة حالة الأزرار + `WireButtonDisabledVisual` | RULE-N43 | `_UpdateButtonsState()` |
 | 13 | **الثيم الأخضر**: `GreenThemeHelper.ApplyHeader(lblMode)` + `GreenThemeHelper.ApplyGrid(dgv)` لكل شبكة + `GreenThemeHelper.Apply(this)` **كآخر سطر** في `ApplyUiTheme()` | RULE-N50…N54 | نهاية `ApplyUiTheme` |
@@ -492,6 +495,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | 29 | **المصمّم = وقت التشغيل:** كل لون/خط يطبّقه وقت التشغيل على عنصر موجود في المصمّم مُعلَن بقيمة حرفية مطابقة في `*.Designer.cs`، ووقت التشغيل لا يُعيد تلوين أي سطح لوّنه المصمّم | `RULE-N134` + `RULE-N139` + `RULE-N51a` | افتح النموذج في مصمّم VS وقارنه بالتشغيل (أخضر الشريط/الشبكة/الأزرار/التسميات) + `grep Color.FromArgb` في المصمّم مقابل ثوابت `GreenThemeHelper`، وتأكد أن اللوحات وصناديق المجموعة والتصفية والملخّص تحتفظ بلون المصمّم، وأن كل **عنصر دائم** تراه وقت التشغيل (زر «إخفاء/إظهار التصفية» · شرائط · حقول) موجود في المصمّم ولا يُبنى وقت التشغيل فقط (`RULE-N145`) + شريط تنقل التقارير (`pnlReportNav`) ظاهر في المصمّم لا وقت التشغيل فقط (`RULE-N146`) — ✅ **رُحِّلت شاشات الإدخال والقوائم والماسترات في 2026-11-13:** 62/62 تستدعي `GreenThemeHelper.Apply(this)` · 26/26 شاشة تصفية تُعلن `btnToggleFilters` في المصمّم · `SystemColors.Control` = 0 (موضع واحد في `frmMain.Designer`) · 31/31 تقريراً `pnlReportNav` معلن — **مع بقاء ما لم يُمسّ:** 87 حقلاً من 280 بلا لون أبيض معلن في المصمّم · 12 شاشة شبكة بلا `ContextMenuStrip` · 19 شاشة شبكة بلا `gbFilter` |
 | 30 | **الترتيب والتجميع:** الكتل بالترتيب الثابت وكل كتلة داخل صندوق مجموعة بعنوان | `RULE-N135`…`N138` | جدول العناصر في تقرير التسليم + فتح الشاشة وعدّ الصناديق والعناوين من أعلى لأسفل |
 | 31 | **الألوان: التشغيل = المصمّم بلا رمادي** — لا عنصر على `SystemColors.Control`/الافتراضي، والحقول بيضاء، وألوان الشاشة من ثوابت `GreenThemeHelper` | `RULE-N140`…`N144` | صورة للمصمّم مقابل صورة للتشغيل لنفس الشاشة + `grep SystemColors.Control` في المصمّم = 0 + جدول الألوان في تقرير التسليم |
+| 32 | **لا تكرار — المكان الواحد:** كل سلوك/دالة مشتركة يستهلكها الشاشة من بيتها المعلن (`Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`) ولا نسخة ثانية داخل `frm*.cs`، وأي سلوك جديد ذُكر بيته في تقرير التسليم | `RULE-N169`…`N172` | `grep` على اسم السلوك في `Screens/**` = مواضع استهلاك فقط (بلا جسم دالة مكرّر) + جدول «بيوت الكود المشترك» في تقرير التسليم |
 
 **الهيكل المرجعي للمُنشئ وشريط المظهر:**
 
@@ -504,7 +508,7 @@ public frmNewScreen(IServiceProvider serviceProvider)
     // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط
     KeyboardHelper.WireEnterAsTab(this);
     KeyboardHelper.WireSelectAllOnFocus(this);
-    KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+    KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N54b — لون حيّ من اللوحة
     KeyboardHelper.WireArrowNavigation(this);
     KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);   // RULE-N43
     KeyboardHelper.WireGlobalShortcuts(this,                                 // RULE-N47
@@ -650,12 +654,19 @@ private void ApplyUiTheme()
 | `ArabicNumberToWords` | `SalesSystem.Desktop/Helpers/ArabicNumberToWords.cs` | `ToWords` (التفقيط: مبلغ + عملة + كسر) |
 | `FilterPanelHelper` | `SalesSystem.Desktop/Helpers/FilterPanelHelper.cs` | `Attach` (يتبنّى زر `btnToggleFilters` المُعلَن في المصمّم ويُوصِّل طيّ التصفية + `F9` + حفظ الحالة — `RULE-N63`/`RULE-N145`) |
 
+**بيوت الكود المشترك الأخرى (لا تُنسخ محتوياتها — `RULE-N169`…`N172`، التفصيل في §2.30):**
+
+| البيت | الاستهلاك |
+|---|---|
+| `SalesSystem.Desktop/Global Classes/` | `clsGlobal._OpenForm(form)` لفتح أي نموذج من داخل نموذج (بدل `ShowDialog`/`Show` المخصّص — `RULE-N132`) · `clsFormat.DateToShort(DateTime)` لتنسيق التاريخ القصير · `clsValidatoin.ValidateEmail(string)` للتحقق · `clsInputFeedback.ShowRejectTooltip(control, message)` لتغذية الرفض البصري |
+| `SalesSystem.Common/Helpers/` | `Guard` · `StringExtensions` · `DateTimeExtensions` · `FileHelper` — أدوات محايدة لأي طبقة |
+
 **سطر الإلزام في كل مُنشئ شاشة:**
 
 ```csharp
 KeyboardHelper.WireEnterAsTab(this);
 KeyboardHelper.WireSelectAllOnFocus(this);
-KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0)); // RULE-N46
+KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)); // RULE-N46 + RULE-N54b
 KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
 KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete);      // RULE-N43
 KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F5, () => _RefreshAsync())); // RULE-N47
@@ -724,8 +735,22 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 | RULE-N112 | **إعادة الاستخدام أولاً:** كل لون/خط/تنقل/اختصار/تفقيط/تهريب فلترة يعيش في `SalesSystem.Desktop/Helpers/` فقط. أي سلوك مشترك جديد يُضاف إلى Helper أولاً ثم تُستهلكه الشاشات — وممنوع نسخه داخل شاشة (`RULE-N98`) |
 | RULE-N113 | **بوابة البساطة:** الحل الأصغر القابل للقراءة هو الصحيح. إن تطلّب الطلب أكثر من 3 تجريدات جديدة (واجهة + مصنع + وسيط…) توقّف وأبلغ المدير بسبب الحاجة الفعلية قبل الكتابة |
 | RULE-N114 | **الملفات المشتركة تُعدَّل من مكان واحد:** `Program.cs` و`appsettings.json` وملف الحل ومشروع `.csproj` يملكها وكيل واحد فقط في كل مهمة — البقية تُبلّغ المدير بالحاجة ولا تعدّلها |
+| RULE-N169 | **قانون المكان الواحد (Single Home) — قرار المالك 2026-11-14:** كل دالة/سلوك/قيمة تُستخدم في أكثر من موضع **تعيش في مكان واحد مُعلَن مرة واحدة** ويستهلكها كل من يحتاجها؛ ويُحرَّم إنشاء نسخة ثانية منها في أي ملف آخر. صياغة المالك: «كود نظيف قابل لإعادة الاستخدام وسهل الصيانة — يُكتب في مكان واحد ويُستهلك في النظام كله، فتُعدّله مرة واحدة بسرعة وبأقل وقت وأقل أخطاء». بيوت الكود المشترك في الجدول أدناه هي **الوجهة الوحيدة** لأي كود مشترك جديد (`RULE-N112` تبقى سارية) |
+| RULE-N170 | **ابحث قبل أن تكتب:** قبل كتابة أي دالة مساعدة يبحث الوكيل بالترتيب في `Desktop/Helpers/` ← `Desktop/Global Classes/` ← `Common/Helpers/` ← `Business/Helpers/` (وبـ`grep` على اسم السلوك)؛ فإن وُجدت **يستهلكها أو يوسّعها في بيتها**، وإن لم تُوجد يكتبها في بيتها الصحيح **مرة واحدة** ثم يستهلكها. ممنوع كتابة النسخة الأولى داخل شاشة بنيّة «نقلها لاحقاً» |
+| RULE-N171 | **معيار التعديل الواحد (One Edit Rule):** أي تعديل على سلوك مشترك يجب أن يتم في **ملف واحد** ويسري تلقائياً على كل من يستهلكه؛ وإذا استلزم التعديل لمس أكثر من ملف شاشة ⇒ فالسّلوك ليس في مكان واحد ⇒ **يُنقل إلى بيته الواحد أولاً** ثم يُنفَّذ التعديل — وممنوع «إصلاح» نفس السلوك في عدة شاشات |
+| RULE-N172 | **سقف التكرار:** نسختان لسلوك مالي/تحقّقي، أو ثلاث نسخ لأي سلوك آخر = مخالفة تُستخرج إلى بيتها الواحد في نفس الموجة، وتُرفض الشاشة/المهمة إن بقيت مكرّرة (`RULE-N55`). مراجعة الكود (بوابة `§2.37`) تفحص التكرار قبل القبول (RULE-N161) |
 
-**مصادر الحقيقة للـ Helpers (لا تُكرَّر قيمها):** `GreenThemeHelper` (كل ألوان النظام) · `KeyboardHelper` (التنقل/التحديد/التظليل/الأسهم/الأزرار/الاختصارات) · `LiveTafqeetHelper` (التفقيط الحيّ) · `RowFilterHelper` (تهريب قيم التصفية) · `ThemeHelper` (تنسيق النموذج/الزر الأساسي، يُستدعى قبل الثيم الأخضر) · `ReportUiStandardizer` (توحيد شاشات التقارير).
+**بيوت الكود المشترك (المكان الواحد — لا تُنسخ محتوياتها):**
+
+| البيت | ماذا يعيش فيه | نماذج قائمة |
+|---|---|---|
+| `SalesSystem.Desktop/Helpers/` | سلوك واجهة/عرض مشترك: ثيم · تنقل · تصفية · تفقيط · تصدير · توحيد التقارير | `GreenThemeHelper` · `KeyboardHelper` · `ThemePalette` · `LiveTafqeetHelper` · `RowFilterHelper` · `FilterPanelHelper` · `ExportHelper` · `ReportUiStandardizer` · `ReportNavigationHelper` · `ColorSuggestionHelper` |
+| `SalesSystem.Desktop/Global Classes/` | أدوات عامة صغيرة بصيغة `cls*` (namespace `SalesSystem.Desktop.GlobalClasses`) — **نمط المالك المرجعي** | `clsGlobal._OpenForm` (فتح النماذج ومنع التكرار) · `clsFormat.DateToShort` (تنسيق التواريخ) · `clsValidatoin.ValidateEmail` (تحقق) · `clsInputFeedback.ShowRejectTooltip` (تغذية الرفض البصري) |
+| `SalesSystem.Common/Helpers/` | أدوات محايدة لا تعرف الواجهة ولا قاعدة البيانات، مشتركة بين كل الطبقات | `Guard` · `StringExtensions` · `DateTimeExtensions` · `FileHelper` |
+| `SalesSystem.Business/Helpers/` | حسابات العمل المشتركة بين الخدمات | حسابات المجاميع · التقريب · الضريبة |
+| `SalesSystem.DTO/Common/` | عقود النتائج | `Result` · `Result<T>` |
+
+**مصادر الحقيقة للـ Helpers (لا تُكرَّر قيمها):** `GreenThemeHelper` (كل ألوان النظام) · `KeyboardHelper` (التنقل/التحديد/التظليل/الأسهم/الأزرار/الاختصارات) · `LiveTafqeetHelper` (التفقيط الحيّ) · `RowFilterHelper` (تهريب قيم التصفية) · `ThemeHelper` (تنسيق النموذج/الزر الأساسي، يُستدعى قبل الثيم الأخضر) · `ReportUiStandardizer` (توحيد شاشات التقارير) · `clsGlobal`/`clsFormat`/`clsValidatoin`/`clsInputFeedback` (أدوات `Global Classes/` العامة) · `Common/Helpers/` (`Guard`/`StringExtensions`/`DateTimeExtensions`/`FileHelper`).
 
 ---
 
@@ -910,6 +935,7 @@ public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Dam
 ❌ Clean Architecture: Domain/Application/Infrastructure/UseCases/MediatR/CQRS/AutoMapper (RULE-N110)
 ❌ `HttpClient` / `System.Net.Http` / أي نقطة HTTP — التسمية `I*DesktopService` (RULE-N111)
 ❌ نسخ لون/خط/اختصار/تنقل داخل شاشة بدل استخدام Helpers (RULE-N112)
+❌ كتابة دالة/سلوك مشترك داخل شاشة أو نسخه في ملف ثانٍ بدل بيته الواحد (`Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`) — ولا «إصلاح» نفس السلوك في عدة شاشات (RULE-N169…RULE-N172)
 ❌ كتابة أو تعديل أو تشغيل اختبارات آلية من أي وكيل (RULE-N115/RULE-N117)
 ```
 
@@ -1044,7 +1070,7 @@ SalesSystem.slnx
 | POS | ✅ Done | `frmPOS` (1371 سطراً) | ✅ `SalesService` (نفس مسار الفاتورة) | ✅ `SalesInvoices` |
 | Accounting Engine | ✅ Done | — (auto) | ✅ `AccountingIntegrationService` | ✅ `JournalEntries` |
 | Printing | ✅ Done | نوافذ طباعة داخلية (فاتورة شراء/مخزون) | ✅ `Business/Printing` · `DataAccess/Printing` (QuestPDF) | ✅ |
-| System Colors (Theme) | 🔄 Stage A (Mock) — 2026-11-14 | `frmChangeSystemColorsSettings` + `ThemePalette` (23 لوناً) — مسجَّلة في DI وتُفتح من «الإعدادات ← ألوان النظام» | ❌ لا خدمة BLL — المرحلة ب بانتظار موافقة المالك المكتوبة (`RULE-N166`) | ❌ لا حفظ حقيقي: `MockThemeColorDesktopService` + `ThemePalette` في الذاكرة |
+| System Colors (Theme) | 🔄 Stage A (Mock) — 2026-11-14 | `frmChangeSystemColorsSettings` + `ThemePalette` (**24 لوناً في ست مجموعات** + `ColorSuggestionHelper` للاقتراح الذكي) — مسجَّلة في DI وتُفتح من «الإعدادات ← ألوان النظام» | ❌ لا خدمة BLL — المرحلة ب بانتظار موافقة المالك المكتوبة (`RULE-N166`) | ❌ لا حفظ حقيقي: `MockThemeColorDesktopService` + `ThemePalette` في الذاكرة |
 
 > The former `API` column was removed — there is no HTTP/API layer; every module's Desktop layer goes straight to Business.
 >

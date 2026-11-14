@@ -346,8 +346,7 @@ public static class GreenThemeHelper
             dgv.DefaultCellStyle.BackColor = ThemePalette.Get(ThemePalette.GridCellBackgroundColor);
             dgv.DefaultCellStyle.ForeColor = ThemePalette.Get(ThemePalette.GridCellTextColor);
             dgv.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-            dgv.DefaultCellStyle.SelectionBackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
-            dgv.DefaultCellStyle.SelectionForeColor = ThemePalette.Get(ThemePalette.GridCellTextColor);
+            ApplySelectionColors(dgv);
             dgv.RowTemplate.Height = 32;
 
             // ── الأسطر المتبادلة ──
@@ -357,6 +356,66 @@ public static class GreenThemeHelper
         {
             Serilog.Log.Error(ex, "تعذر تطبيق ثيم الشبكة الأخضر");
         }
+    }
+
+    /// <summary>
+    /// لون التحديد على **مستوى الشبكة ثم كل عمود على حِدة**: يُطبَّق لون السطر المحدد
+    /// ونص الخلية من اللوحة، ولا يُلمس لون مخصّص كتبه المصمّم لعمود أو للشبكة
+    /// (RULE-N139/RULE-N142).
+    /// <para>
+    /// السبب: عمود له <c>DefaultCellStyle</c> خاص يبقى على لون تحديد قديم (أو
+    /// <see cref="Color.Empty"/>) فيختلف عن بقية الشبكة بعد تغيير لوحة الألوان —
+    /// والشاشات لا تُعدّل ولا عمود واحد.
+    /// </para>
+    /// </summary>
+    private static void ApplySelectionColors(DataGridView dgv)
+    {
+        var selectionBack = ThemePalette.Get(ThemePalette.SelectionRowColor);
+        var selectionFore = ThemePalette.Get(ThemePalette.GridCellTextColor);
+
+        if (IsPaletteOwnedColor(dgv.DefaultCellStyle.SelectionBackColor, ThemePalette.SelectionRowColor))
+            dgv.DefaultCellStyle.SelectionBackColor = selectionBack;
+
+        if (IsPaletteOwnedColor(dgv.DefaultCellStyle.SelectionForeColor, ThemePalette.GridCellTextColor))
+            dgv.DefaultCellStyle.SelectionForeColor = selectionFore;
+
+        foreach (DataGridViewColumn column in dgv.Columns)
+        {
+            var style = column?.DefaultCellStyle;
+            if (style is null) continue;
+
+            if (IsPaletteOwnedColor(style.SelectionBackColor, ThemePalette.SelectionRowColor))
+                style.SelectionBackColor = selectionBack;
+
+            if (IsPaletteOwnedColor(style.SelectionForeColor, ThemePalette.GridCellTextColor))
+                style.SelectionForeColor = selectionFore;
+        }
+    }
+
+    /// <summary>
+    /// هل لون التحديد الحالي «مملوك للوحة» فيجوز إعادة كتابته؟ نعم إذا كان:
+    /// (1) <see cref="Color.Empty"/> (لم يضبطه المصمّم)، (2) القيمة الحيّة للمفتاح،
+    /// (3) افتراضي المفتاح، (4) أي قيمة حيّة أو افتراضية لأي مفتاح في اللوحة،
+    /// (5) قيمة سبق أن طبّقتها اللوحة. أي لون آخر = لون مصمّم مخصّص ⇒ يُترك.
+    /// </summary>
+    private static bool IsPaletteOwnedColor(Color color, string key)
+    {
+        if (color.IsEmpty) return true;
+
+        int argb = color.ToArgb();
+
+        if (ThemePalette.Get(key).ToArgb() == argb) return true;
+        if (ThemePalette.DefaultFor(key).ToArgb() == argb) return true;
+        if (ThemePalette.WasAppliedValue(key, color)) return true;
+
+        foreach (var definition in ThemePalette.Definitions)
+        {
+            if (definition.DefaultValue.ToArgb() == argb) return true;
+            if (ThemePalette.Get(definition.Key).ToArgb() == argb) return true;
+            if (ThemePalette.WasAppliedValue(definition.Key, color)) return true;
+        }
+
+        return false;
     }
 
     // ═════════════════════════════════════════════════════════════════

@@ -213,15 +213,69 @@ public static class KeyboardHelper
         };
     }
 
+    /// <summary>سجل الجذور التي وُصِّل لها تظليل الحقل النشط (منع التوصيل المزدوج + حصر التحديث)</summary>
+    private static readonly ConditionalWeakTable<Control, object> FocusHighlightWired = new();
+
     /// <summary>
     /// تظليل الحقل النشط: عند دخول المؤشر إلى حقل إدخال تُصبغ خلفيته بلون التظليل،
     /// وعند مغادرته تُعاد خلفيته الأصلية. قاموس الألوان الأصلية واحد لكل استدعاء (يُبنى مرة واحدة)
     /// ⇒ الاستعادة صحيحة دائماً عند نداء <see cref="WireFocusHighlight"/> مرة واحدة لكل نموذج.
+    /// <para>
+    /// <b>اللون حيّ (RULE-N54a):</b> الشاشات تُمرّر اللون الحرفي القديم
+    /// <c>(214,228,240)</c> — أي <see cref="ThemePalette.DefaultFor"/> لمفتاح
+    /// <see cref="ThemePalette.ActiveFieldColor"/> — أو <see cref="Color.Empty"/>،
+    /// فيُستبدل عند كل <c>Enter</c> بالقيمة الحيّة من <see cref="ThemePalette.Get(string)"/>.
+    /// وأي لون مخصّص تمرّره شاشة يبقى كما هو (لا نُعيد كتابة اختيار الشاشة).
+    /// </para>
     /// </summary>
     public static void WireFocusHighlight(Control parent, Color focusColor)
     {
         var originalColors = new Dictionary<Control, Color>();
         WireFocusHighlightCore(parent, focusColor, originalColors);
+
+        // وسم الجذر: RefreshFocusHighlight لا تلمس إلا الشاشات الموصولة فعلاً.
+        MarkWired(FocusHighlightWired, parent);
+    }
+
+    /// <summary>
+    /// يُعيد تلوين **الحقل النشط الحالي** باللون الحيّ للحقل النشط بعد تغيير اللوحة
+    /// (تُستدعى من <see cref="ThemePalette.ApplyToOpenForms"/>). لا تفعل شيئاً إن لم
+    /// يكن الجذر موصولاً، أو لم يكن لشجرته حقل مركَّز، أو كان الحقل معطّلاً —
+    /// ولا تُغيّر أي حقل آخر، فلا تتأثر بقية ألوان الشاشة.
+    /// </summary>
+    public static void RefreshFocusHighlight(Control root)
+    {
+        if (root is null || root.IsDisposed) return;
+
+        // الجذر غير موصول ⇒ لا تظليل أصلاً ⇒ لا شيء نُعيد تلوينه.
+        if (!FocusHighlightWired.TryGetValue(root, out _)) return;
+
+        try
+        {
+            var focused = FindFocusedControl(root);
+
+            if (focused is null || !focused.Enabled || !IsFocusHighlightTarget(focused)) return;
+
+            focused.BackColor = ThemePalette.Get(ThemePalette.ActiveFieldColor);
+        }
+        catch
+        {
+            // تجاهل — لون لا يُسقط شاشة.
+        }
+    }
+
+    /// <summary>أعمق عنصر يحمل التركيز داخل الشجرة، أو <c>null</c>.</summary>
+    private static Control? FindFocusedControl(Control root)
+    {
+        if (root.Focused) return root;
+
+        foreach (Control child in root.Controls)
+        {
+            var found = FindFocusedControl(child);
+            if (found is not null) return found;
+        }
+
+        return null;
     }
 
     private static void WireFocusHighlightCore(Control parent, Color focusColor, Dictionary<Control, Color> originalColors)
@@ -237,7 +291,7 @@ public static class KeyboardHelper
                 {
                     try
                     {
-                        input.BackColor = focusColor;
+                        input.BackColor = ResolveFocusHighlightColor(focusColor);
                     }
                     catch
                     {
@@ -263,6 +317,24 @@ public static class KeyboardHelper
             if (ctrl.HasChildren)
                 WireFocusHighlightCore(ctrl, focusColor, originalColors);
         }
+    }
+
+    /// <summary>
+    /// يحسم لون التظليل عند كل <c>Enter</c>: اللون الحرفي القديم
+    /// <c>(214,228,240)</c> = <see cref="ThemePalette.DefaultFor"/> لمفتاح الحقل النشط،
+    /// أو <see cref="Color.Empty"/> ⇒ القيمة الحيّة من اللوحة؛ وأي لون آخر (اختيار
+    /// الشاشة المخصّص) يُحترم كما هو. لا لون حرفي هنا — المصدر <see cref="ThemePalette"/>.
+    /// </summary>
+    private static Color ResolveFocusHighlightColor(Color requested)
+    {
+        if (requested.IsEmpty)
+            return ThemePalette.Get(ThemePalette.ActiveFieldColor);
+
+        int requestedArgb = requested.ToArgb();
+
+        return requestedArgb == ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor).ToArgb()
+            ? ThemePalette.Get(ThemePalette.ActiveFieldColor)
+            : requested;
     }
 
     /// <summary>
@@ -521,20 +593,6 @@ public static class KeyboardHelper
             e.SuppressKeyPress = true;
             primary.PerformClick();
         };
-    }
-
-    /// <summary>يعيد العنصر الذي يحمل التركيز فعلياً داخل الشجرة (null = التركيز على الشاشة نفسها).</summary>
-    private static Control? FindFocusedControl(Control root)
-    {
-        foreach (Control child in root.Controls)
-        {
-            if (child.Focused) return child;
-
-            var nested = FindFocusedControl(child);
-            if (nested is not null) return nested;
-        }
-
-        return null;
     }
 
     /// <summary>

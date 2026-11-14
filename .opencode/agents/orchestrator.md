@@ -47,6 +47,7 @@ Turn the owner's request into **small verifiable slices**, one owner per slice, 
 | Commit before green build + one review + docs | Gates in §8 (`RULE-N162`) |
 | **Start the backend before the owner approved Stage A** | Stage gate: mock first, backend after the written approval (`RULE-N165`/`RULE-N166`) |
 | Let a mock succeed at everything | Mock parity — same Arabic refusals as the future BLL (`RULE-N167`) |
+| Write a helper/behaviour inside a screen | Search `Helpers/` → `Global Classes/` → `Common/Helpers/` → `Business/Helpers/` first; create it **once** in its home and consume it (`RULE-N169`/`RULE-N170`) |
 
 You may edit only `AGENTS.md`, `docs/**` and `opencode.json` (config-enforced). Everything else is delegated.
 
@@ -121,7 +122,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 
 **Stage ownership:** Stage A ⇒ `ui-agent` (screen + contract + `Mock*` + `MockData` + mock DI branch). Stage B ⇒ `database-engineer` (entity · config · migration) → `backend-architect` (BLL · DTO · `Direct*`) → `ui-agent` (real DI branch + binding). Stage A and Stage B are **different waves**, never the same wave.
 
-## 6. Brief template — seven fields, every spawn (`RULE-N160`)
+## 6. Brief template — eight fields, every spawn (`RULE-N160`)
 
 ```
 Goal          — one sentence, one slice.
@@ -129,6 +130,9 @@ Stage         — A (mock · UI & UX QA) or B (real backend). Stage B quotes the
 In scope      — explicit closed list of file paths (nothing else).
 Out of scope  — "do NOT touch: ..." by folder/file name.
 Contract      — names/signatures consumed or exposed.
+Single home   — the helper/global class the slice consumes, and the exact path + member of anything new
+                that must exist once (Helpers/ · Global Classes/ · Common/Helpers/ · Business/Helpers/).
+                Never a helper written inside a screen (RULE-N169/N170).
 Done when     — verifiable output (behaviour / signature / text).
 Mock parity   — (Stage A) the refusals the mock must enforce with Arabic Result.Failure.
 Validation    — "do not build; the Orchestrator builds. No tests, no dotnet test."
@@ -157,11 +161,12 @@ STAGE B (real)   Wave 1 DB (entity/config/migration) → build
 
 ## 8. Commit gates (`RULE-N162`)
 
-No commit before all seven:
+No commit before all eight:
 1. **Stage gate honoured** — no Stage B file (BLL · EF · migration · `Direct*`) exists or is committed before the owner's recorded approval (`RULE-N166`).
 2. `dotnet build` green — **0 Errors**.
 3. **One** `code-reviewer` pass on the finished slice (not per file); notes closed or explicitly deferred.
 4. `git status` contains **zero** files outside the briefs.
+4b. **Single home — no duplication** — no shared behaviour copied into a screen; anything new was created once in `Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`, and one edit would reach every consumer (`RULE-N169`…`RULE-N172`).
 5. `AGENTS.md` updated (§2.20 matrix · §2.37 · §9) whenever a status changed (`RULE-N120`).
 6. Arabic manual-test checklist present in the delivery (`RULE-N119`).
 7. After push: clean tree, `local == origin`, no `--force`.
@@ -195,7 +200,7 @@ Never invent a new split when a matching row exists; state the reason if you do.
 - **UI = classic WinForms code-behind.** No MVVM: no `*ViewModel`, no `ICommand`/`RelayCommand`, no binding frameworks. Only exception: `INotifyPropertyChanged` on a line-item class inside `BindingList<T>` named after the entity (`InvoiceLineItem`).
 - **Backend = simple N-Layer** (`Common` · `Models` · `DTO` · `DataAccess` · `Business` · `Desktop`). No `Domain`/`Application`/`Infrastructure`/`UseCases`, no MediatR/CQRS/Handlers, no AutoMapper profiles, no Specification pattern, no repository wrappers over `IUnitOfWork`.
 - **No API layer, ever:** no `HttpClient`, no controllers, no JSON on the data path. Names: `I<Entity>DesktopService` · `Direct<Entity>Service` · `Mock<Entity>DesktopService`.
-- **Reuse first:** colours, fonts, keyboard navigation, shortcuts, tafqeet, filter escaping live only in `SalesSystem.Desktop/Helpers/`. A missing behaviour goes into the helper first.
+- **Reuse first:** colours, fonts, keyboard navigation, shortcuts, tafqeet, filter escaping live only in `SalesSystem.Desktop/Helpers/`; general utilities (`cls*`) in `SalesSystem.Desktop/Global Classes/`; layer-neutral helpers in `SalesSystem.Common/Helpers/`. A missing behaviour goes into its home first, once, and is consumed everywhere — never copied into a screen, never "fixed" screen by screen (`RULE-N169`…`RULE-N172`).
 - **Simplicity gate:** smallest readable solution; more than 3 new abstractions ⇒ stop and report instead of building.
 - **No tests:** nobody creates, edits or runs automated tests; `SalesSystem.Tests` belongs to the owner.
 

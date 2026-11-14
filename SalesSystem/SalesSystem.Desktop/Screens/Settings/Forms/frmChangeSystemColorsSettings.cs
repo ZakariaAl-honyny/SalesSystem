@@ -48,6 +48,9 @@ public partial class frmChangeSystemColorsSettings : Form
 
     private string? _selectedKey;
 
+    /// <summary>خط أزرار الاقتراحات (مشترك — لا خط جديد لكل زر في كل إعادة بناء).</summary>
+    private static readonly Font SuggestionFont = new("Tahoma", 8F, FontStyle.Bold);
+
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
     private frmChangeSystemColorsSettings()
     {
@@ -59,23 +62,31 @@ public partial class frmChangeSystemColorsSettings : Form
     {
         _serviceProvider = serviceProvider;
 
-        // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط
+        // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (اللون من اللوحة القابلة للتخصيص)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0));
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor));
         KeyboardHelper.WireArrowNavigation(this);
 
         // RULE-N43 — مظهر التعطيل الموحّد لأزرار الحالة
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnReset, btnPickColor, btnClearFilters);
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnReset, btnPickColor, btnBestSuggestion, btnClearFilters);
 
-        // RULE-N47 — الاختصارات الموحّدة: F2 اختيار اللون · F5 تحديث · Esc إغلاق
+        // RULE-N47 — الاختصارات الموحّدة: F2 اختيار اللون · Ctrl+B أفضل اقتراح · Ctrl+V لصق قيمة اللون
+        //                  · F5 تحديث · Esc إغلاق
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F2, () => btnPickColor.PerformClick()),
+            (Keys.Control | Keys.B, () => btnBestSuggestion.PerformClick()),
+            (Keys.Control | Keys.V, () => _PasteColor()),
             (Keys.F5, () => { _ = _LoadAsync(); }),
             (Keys.Escape, Close));
 
         // RULE-N147 / RULE-N153 — Enter = «حفظ وتطبيق» خارج الشبكة فقط
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // حقل HEX يقبل الكتابة واللصق اليدوي: Enter يقرأ القيمة فوراً، وLeave يثبّتها قبل مغادرة الحقل.
+        // التحليل نفسه في ThemePalette.TryParseColorText وحده (RULE-N169…N172) — لا تحليل هنا.
+        txtHex.KeyDown += txtHex_KeyDown;
+        txtHex.Leave += txtHex_Leave;
 
         ApplyUiTheme();
 
@@ -95,6 +106,7 @@ public partial class frmChangeSystemColorsSettings : Form
         ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
         ThemeHelper.ApplyButtonStyle(btnFooterClose, ThemeHelper.ButtonType.Neutral);
         ThemeHelper.ApplyButtonStyle(btnPickColor, ThemeHelper.ButtonType.Primary);
+        ThemeHelper.ApplyButtonStyle(btnBestSuggestion, ThemeHelper.ButtonType.Success);
         ThemeHelper.ApplyButtonStyle(btnRefresh, ThemeHelper.ButtonType.Secondary);
 
         GreenThemeHelper.ApplyHeader(lblMode);
@@ -105,6 +117,8 @@ public partial class frmChangeSystemColorsSettings : Form
         lblNoData.ForeColor = GreenThemeHelper.TextStrong;
         lblPreviewCaption.ForeColor = GreenThemeHelper.TextStrong;
         lblPreviewHint.ForeColor = GreenThemeHelper.TextStrong;
+        lblSuggestions.ForeColor = GreenThemeHelper.TextStrong;
+        lblLadder.ForeColor = GreenThemeHelper.TextStrong;
         lblFooterHint.ForeColor = GreenThemeHelper.TextStrong;
 
         GreenThemeHelper.Apply(this); // ← الأخير دائماً
@@ -274,6 +288,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
         _RestoreSelection(selected);
         _UpdateSelectedColorPanel();
+        _RebuildSuggestions();
         _ApplyPreviewColors();
         _UpdateClearFiltersState();
         _ApplyModeState();
@@ -352,6 +367,7 @@ public partial class frmChangeSystemColorsSettings : Form
             _selectedKey = key;
 
         _UpdateSelectedColorPanel();
+        _RebuildSuggestions();
         _ApplyModeState();
     }
 
@@ -378,35 +394,64 @@ public partial class frmChangeSystemColorsSettings : Form
         _PickColor();
     }
 
-    /// <summary>إعادة تحديد سطر المفتاح المطلوب بعد إعادة بناء الشبكة، أو إفراغ التحديد.</summary>
+    /// <summary>
+    /// إعادة تحديد سطر المفتاح المطلوب بعد إعادة بناء الشبكة. إن تعذّرت الاستعادة (لا سطر سابق
+    /// أو لم يعد مطابقاً للتصفية) يُحدَّد السطر الأول بدل حالة «لا لون محدد» — فتُملأ العيّنة
+    /// و HEX والاقتراحات دائماً ما دامت الشبكة غير فارغة (RULE-N44).
+    /// </summary>
     private void _RestoreSelection(string? key)
     {
+        bool autoSelected = false;
+
         _isBinding = true;
         try
         {
             dgvColors.ClearSelection();
-
-            if (!string.IsNullOrEmpty(key))
-            {
-                foreach (DataGridViewRow row in dgvColors.Rows)
-                {
-                    if (row.Tag is string rowKey && string.Equals(rowKey, key, StringComparison.Ordinal))
-                    {
-                        row.Selected = true;
-                        dgvColors.CurrentCell = row.Cells["colLabel"];
-                        _selectedKey = key;
-                        return;
-                    }
-                }
-            }
-
             _selectedKey = null;
-            dgvColors.CurrentCell = null;
+
+            if (!string.IsNullOrEmpty(key) && _SelectRow(key, out var restored))
+            {
+                _selectedKey = restored;
+            }
+            else if (_SelectRow(null, out var first))
+            {
+                _selectedKey = first;
+                autoSelected = true;
+            }
+            else
+            {
+                dgvColors.CurrentCell = null;
+            }
         }
         finally
         {
             _isBinding = false;
         }
+
+        // التحديد التلقائي يمرّ بمسار تغيّر التحديد نفسه فيُحدّث الشريط والتلميحات (لا منطق ثانٍ).
+        if (autoSelected) dgvColors_SelectionChanged(dgvColors, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// يحدّد سطر المفتاح المطلوب (أو السطر الأول عندما يكون <paramref name="key"/> فارغاً)
+    /// ويضع المؤشر على خلية الاسم، ويُعيد المفتاح المحدَّد. يُستدعى داخل <c>_isBinding</c> فقط.
+    /// </summary>
+    private bool _SelectRow(string? key, out string? selectedKey)
+    {
+        selectedKey = null;
+
+        foreach (DataGridViewRow row in dgvColors.Rows)
+        {
+            if (row.Tag is not string rowKey) continue;
+            if (key is not null && !string.Equals(rowKey, key, StringComparison.Ordinal)) continue;
+
+            row.Selected = true;
+            dgvColors.CurrentCell = row.Cells["colLabel"];
+            selectedKey = rowKey;
+            return true;
+        }
+
+        return false;
     }
 
     private void _UpdateSelectedColorPanel()
@@ -450,27 +495,291 @@ public partial class frmChangeSystemColorsSettings : Form
 
         try
         {
+            // اللون الحالي هو نقطة البداية في الحوار (لا الأبيض) — الشفافية تأخذ اللون المختار.
+            var current = _Color(definition.Key);
+
             using var dialog = new ColorDialog
             {
                 FullOpen = true,
                 AllowFullOpen = true,
                 AnyColor = true,
-                Color = _Color(definition.Key)
+                Color = current,
+                // الصف «المخصّص» يعرض اللون الحالي كاملاً حتى لو لم يكن من الألوان الأساسية:
+                // ColorDialog.CustomColors يتوقّع BGR لا RGB ⇒ R + G*256 + B*65536.
+                CustomColors = BuildCustomColors(current)
             };
 
             if (dialog.ShowDialog(this) != DialogResult.OK) return;
 
-            _working[definition.Key] = dialog.Color;
-
-            _selectedKey = definition.Key;
-            _ApplyFilter();                     // السطر + HEX + الملخص + المعاينة + الحالة
-            _RestoreSelection(definition.Key);
+            // نفس مسار الاقتراحات الذكية: تعديل المسودّة فقط بلا مسّ بقية التطبيق.
+            _ApplyColorToWorking(definition.Key, dialog.Color);
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار لون النظام للمفتاح {Key}", definition.Key);
             MessageBox.Show("تعذر فتح لوحة الألوان. يرجى إعادة المحاولة.", "خطأ",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// صف الألوان المخصّصة في <see cref="ColorDialog"/>: اللون الحالي في كل الخانات الست عشرة
+    /// حتى يظهر «محدَّداً» بجلاء (الحوار الجديد يبدأ بخانات فارغة) — تحويل BGR كما يشترطه الحوار.
+    /// </summary>
+    private static int[] BuildCustomColors(Color color)
+    {
+        int bgr = color.R + (color.G * 256) + (color.B * 65536);
+
+        var custom = new int[16];
+        for (int i = 0; i < custom.Length; i++)
+            custom[i] = bgr;
+
+        return custom;
+    }
+
+    private void miPasteColor_Click(object? sender, EventArgs e) => _PasteColor();
+
+    /// <summary>
+    /// لصق قيمة لون من الحافظة على السطر المحدد (قائمة السياق · Ctrl+V). التحليل في
+    /// <see cref="ThemePalette.TryParseColorText"/> وحده، والتطبيق مسودّة فقط
+    /// (<see cref="_ApplyColorToWorking"/>) — لا مسّ ببقية التطبيق حتى «حفظ وتطبيق».
+    /// </summary>
+    private void _PasteColor()
+    {
+        var definition = _FindDefinition(_selectedKey);
+
+        if (definition is null)
+        {
+            MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        try
+        {
+            if (!Clipboard.ContainsText())
+            {
+                MessageBox.Show("الحافظة فارغة — انسخ قيمة لون مثل #0EA567 ثم ألصقها.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!ThemePalette.TryParseColorText(Clipboard.GetText(), out var color))
+            {
+                MessageBox.Show("قيمة اللون غير واضحة. استخدم صيغة مثل #0EA567 أو (14,165,103).", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _ApplyColorToWorking(definition.Key, color);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر لصق قيمة اللون للمفتاح {Key}", definition.Key);
+            MessageBox.Show("تعذر لصق قيمة اللون. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void txtHex_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyCode != Keys.Enter) return;
+
+        e.Handled = true;
+        e.SuppressKeyPress = true;
+        _CommitHexText();
+    }
+
+    private void txtHex_Leave(object? sender, EventArgs e) => _CommitHexText();
+
+    /// <summary>
+    /// يقرأ ما كُتب/لُصق في حقل HEX ويطبّقه على المسودّة عبر <see cref="ThemePalette.TryParseColorText"/>
+    /// وحده. النص غير المفهوم **لا يغيّر المسودّة** ويُعيد الحقل إلى القيمة الحقيقية حتى لا يكذب.
+    /// </summary>
+    private void _CommitHexText()
+    {
+        if (IsDisposed || Disposing) return;
+
+        var definition = _FindDefinition(_selectedKey);
+
+        if (definition is null)
+        {
+            if (!string.IsNullOrWhiteSpace(txtHex.Text))
+            {
+                txtHex.Text = string.Empty;
+                MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            return;
+        }
+
+        var current = _Color(definition.Key);
+
+        if (!ThemePalette.TryParseColorText(txtHex.Text, out var color))
+        {
+            txtHex.Text = ThemePalette.ToHex(current);   // لا مسودّة على نص ملتبس + الحقل لا يكذب
+            MessageBox.Show("قيمة اللون غير واضحة. استخدم صيغة مثل #0EA567 أو (14,165,103).", "تنبيه",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (color.ToArgb() == current.ToArgb())
+        {
+            txtHex.Text = ThemePalette.ToHex(current);   // تطبيع العرض فقط بلا إعادة بناء
+            return;
+        }
+
+        _ApplyColorToWorking(definition.Key, color);
+    }
+
+    // ── Suggestions (ColorSuggestionHelper — اقتراحات جاهزة مجرّبة التباين) ────
+
+    private void btnBestSuggestion_Click(object? sender, EventArgs e) => _ApplyBestSuggestion();
+
+    /// <summary>
+    /// «أفضل اقتراح» (Ctrl+B): يطبّق <see cref="ColorSuggestionHelper.BestFor"/> على السطر المحدد
+    /// **بنفس مسار اختيار اللون** — تعديل مسودّة غير محفوظة.
+    /// </summary>
+    private void _ApplyBestSuggestion()
+    {
+        var definition = _FindDefinition(_selectedKey);
+        if (definition is null)
+        {
+            MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        try
+        {
+            var best = ColorSuggestionHelper.BestFor(definition.Key);
+            if (best is null)
+            {
+                MessageBox.Show("لا يوجد اقتراح مناسب لهذا اللون.", "تنبيه",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _ApplyColorToWorking(definition.Key, best.Value);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء تطبيق أفضل اقتراح للمفتاح {Key}", definition.Key);
+            MessageBox.Show("تعذر تطبيق الاقتراح. يرجى إعادة المحاولة.", "خطأ",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    /// <summary>
+    /// المسار الوحيد لتغيير لون في المسودّة (اختيار يدوي · اقتراح ذكي · أفضل اقتراح):
+    /// يحدّث <c>_working</c> ثم السطر والعيّنة و HEX والملخص والمعاينة والحالة — بلا تطبيق على النظام.
+    /// </summary>
+    private void _ApplyColorToWorking(string key, Color color)
+    {
+        if (_FindDefinition(key) is null) return;
+
+        _working[key] = color;
+        _selectedKey = key;
+
+        _ApplyFilter();          // يعيد بناء السطر + الملخص + المعاينة + الاقتراحات + الحالة
+        _RestoreSelection(key);
+    }
+
+    /// <summary>
+    /// يعيد بناء شريطي الاقتراحات للسطر المحدد (تحميل · تحديد · تغيير لون · حفظ · استعادة).
+    /// الأزرار **محتوى بيانات** تُبنى وقت التشغيل (كأزرار تنقل التقارير)؛ أما اللوحات
+    /// والعناوين فمُعلَنة في المصمّم (RULE-N145). لا استثناء يخرج من هنا.
+    /// </summary>
+    private void _RebuildSuggestions()
+    {
+        try
+        {
+            _ClearSuggestionPanel(flpSuggestions);
+            _ClearSuggestionPanel(flpLadder);
+
+            var definition = _FindDefinition(_selectedKey);
+            if (definition is null) return;
+
+            // الاقتراحات المسمّاة ثم سلّم التدرّج — كلها من الـHelper وليس من الشاشة.
+            _AddSuggestionButtons(flpSuggestions, definition.Key,
+                ColorSuggestionHelper.For(definition.Key), 96, 30);
+
+            _AddSuggestionButtons(flpLadder, definition.Key,
+                ColorSuggestionHelper.LadderFor(definition.Key), 62, 30);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر بناء الاقتراحات الذكية للمفتاح {Key}", _selectedKey);
+        }
+    }
+
+    /// <summary>إفراغ لوحة الاقتراحات مع فصل التلميح والتخلّص من الأزرار (لا تسرّب موارد).</summary>
+    private void _ClearSuggestionPanel(FlowLayoutPanel panel)
+    {
+        while (panel.Controls.Count > 0)
+        {
+            var control = panel.Controls[0];
+            panel.Controls.RemoveAt(0);
+            toolTip.SetToolTip(control, string.Empty);   // فصل التلميح قبل التخلص من الزر
+            control.Dispose();
+        }
+    }
+
+    private void _AddSuggestionButtons(
+        FlowLayoutPanel panel,
+        string key,
+        IReadOnlyList<ColorSuggestion> suggestions,
+        int width,
+        int height)
+    {
+        if (suggestions is null) return;
+
+        foreach (var suggestion in suggestions)
+        {
+            var color = suggestion.Color;
+
+            var button = new Button
+            {
+                Text = suggestion.ArabicLabel,
+                Tag = color,
+                Size = new Size(width, height),
+                Margin = new Padding(0, 0, 4, 4),
+                FlatStyle = FlatStyle.Flat,
+                Font = SuggestionFont,
+                UseVisualStyleBackColor = false,
+                BackColor = color,
+                // RULE-N54c/N169: «أي نص مقروء فوق هذا اللون؟» قرار واحد في ColorSuggestionHelper
+                // (الحد الأدنى وعيّنة النص داخل الـHelper — لا رقم ولا لون أبيض في الشاشة).
+                ForeColor = ColorSuggestionHelper.ReadableForeFor(color),
+                Cursor = Cursors.Hand,
+                TabStop = false
+            };
+
+            button.FlatAppearance.BorderSize = 0;
+            toolTip.SetToolTip(button, ThemePalette.ToHex(color));
+
+            // الضغط يعدّل المسودّة فقط بلا حفظ ولا تطبيق على بقية التطبيق.
+            button.Click += (_, _) => _ApplyColorToWorking(key, color);
+
+            panel.Controls.Add(button);
+        }
+    }
+
+    /// <summary>هل للسطر المحدد «أفضل اقتراح» جاهز؟ يُدار به تفعيل الزر (RULE-N43).</summary>
+    private bool _HasBestSuggestion()
+    {
+        var definition = _FindDefinition(_selectedKey);
+        if (definition is null) return false;
+
+        try
+        {
+            return ColorSuggestionHelper.BestFor(definition.Key) is not null;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر قراءة أفضل اقتراح للمفتاح {Key}", definition.Key);
+            return false;
         }
     }
 
@@ -616,6 +925,7 @@ public partial class frmChangeSystemColorsSettings : Form
         btnClose.Enabled = true;
         btnFooterClose.Enabled = true;
         btnPickColor.Enabled = hasSelection;
+        btnBestSuggestion.Enabled = hasSelection && _HasBestSuggestion();
 
         lblMode.Text = hasChanges ? $"{Title} — تغييرات غير محفوظة" : Title;
 
@@ -641,9 +951,13 @@ public partial class frmChangeSystemColorsSettings : Form
 
         gbPreview.BackColor = _Color(ThemePalette.GroupBoxColor);
         flpPreviewButtons.BackColor = _Color(ThemePalette.GroupBoxColor);
+        flpSuggestions.BackColor = _Color(ThemePalette.GroupBoxColor);
+        flpLadder.BackColor = _Color(ThemePalette.GroupBoxColor);
 
         lblPreviewCaption.ForeColor = _Color(ThemePalette.TextStrongColor);
         lblPreviewHint.ForeColor = _Color(ThemePalette.TextStrongColor);
+        lblSuggestions.ForeColor = _Color(ThemePalette.TextStrongColor);
+        lblLadder.ForeColor = _Color(ThemePalette.TextStrongColor);
         lblSelectedColor.ForeColor = _Color(ThemePalette.TextStrongColor);
         lblPreviewField.ForeColor = _Color(ThemePalette.TextStrongColor);
         lblFooterHint.ForeColor = _Color(ThemePalette.TextStrongColor);

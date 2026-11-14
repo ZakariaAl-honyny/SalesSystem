@@ -29,6 +29,7 @@ partial class frmChangeSystemColorsSettings
         btnSave = new Button();
         btnReset = new Button();
         btnPickColor = new Button();
+        btnBestSuggestion = new Button();
         btnRefresh = new Button();
         btnClose = new Button();
         pnlFilters = new Panel();
@@ -55,7 +56,9 @@ partial class frmChangeSystemColorsSettings
         cmsColors = new ContextMenuStrip(components);
         miPickColor = new ToolStripMenuItem();
         miCopyHex = new ToolStripMenuItem();
+        miPasteColor = new ToolStripMenuItem();
         gbPreview = new GroupBox();
+        pnlPreviewScroll = new Panel();
         lblPreviewCaption = new Label();
         pnlPreviewShell = new Panel();
         lblPreviewHeader = new Label();
@@ -75,6 +78,10 @@ partial class frmChangeSystemColorsSettings
         pnlSwatch = new Panel();
         txtHex = new TextBox();
         lblPreviewHint = new Label();
+        lblSuggestions = new Label();
+        flpSuggestions = new FlowLayoutPanel();
+        lblLadder = new Label();
+        flpLadder = new FlowLayoutPanel();
         pnlFooter = new Panel();
         lblFooterHint = new Label();
         flpFooter = new FlowLayoutPanel();
@@ -90,9 +97,12 @@ partial class frmChangeSystemColorsSettings
         ((System.ComponentModel.ISupportInitialize)dgvColors).BeginInit();
         cmsColors.SuspendLayout();
         gbPreview.SuspendLayout();
+        pnlPreviewScroll.SuspendLayout();
         pnlPreviewShell.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)dgvPreview).BeginInit();
         flpPreviewButtons.SuspendLayout();
+        flpSuggestions.SuspendLayout();
+        flpLadder.SuspendLayout();
         pnlFooter.SuspendLayout();
         flpFooter.SuspendLayout();
         SuspendLayout();
@@ -140,6 +150,7 @@ partial class frmChangeSystemColorsSettings
         flpToolbar.Controls.Add(btnSave);
         flpToolbar.Controls.Add(btnReset);
         flpToolbar.Controls.Add(btnPickColor);
+        flpToolbar.Controls.Add(btnBestSuggestion);
         flpToolbar.Controls.Add(btnRefresh);
         flpToolbar.Controls.Add(btnClose);
         flpToolbar.Dock = DockStyle.Fill;
@@ -204,6 +215,24 @@ partial class frmChangeSystemColorsSettings
         btnPickColor.UseVisualStyleBackColor = false;
         btnPickColor.Click += btnPickColor_Click;
         // 
+        // btnBestSuggestion
+        // 
+        btnBestSuggestion.BackColor = Color.FromArgb(25, 135, 84);
+        btnBestSuggestion.Cursor = Cursors.Hand;
+        btnBestSuggestion.FlatAppearance.BorderSize = 0;
+        btnBestSuggestion.FlatStyle = FlatStyle.Flat;
+        btnBestSuggestion.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnBestSuggestion.ForeColor = Color.White;
+        btnBestSuggestion.Location = new Point(444, 0);
+        btnBestSuggestion.Margin = new Padding(0, 0, 8, 0);
+        btnBestSuggestion.Name = "btnBestSuggestion";
+        btnBestSuggestion.Size = new Size(140, 36);
+        btnBestSuggestion.TabIndex = 3;
+        btnBestSuggestion.Text = "أفضل اقتراح";
+        toolTip.SetToolTip(btnBestSuggestion, "تطبيق أفضل لون مقترح ومجرّب التباين على السطر المحدد (Ctrl+B)");
+        btnBestSuggestion.UseVisualStyleBackColor = false;
+        btnBestSuggestion.Click += btnBestSuggestion_Click;
+        // 
         // btnRefresh
         // 
         btnRefresh.BackColor = Color.FromArgb(248, 249, 250);
@@ -213,11 +242,11 @@ partial class frmChangeSystemColorsSettings
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 9F, FontStyle.Bold);
         btnRefresh.ForeColor = Color.FromArgb(33, 37, 41);
-        btnRefresh.Location = new Point(444, 0);
+        btnRefresh.Location = new Point(592, 0);
         btnRefresh.Margin = new Padding(0, 0, 8, 0);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(140, 36);
-        btnRefresh.TabIndex = 3;
+        btnRefresh.TabIndex = 4;
         btnRefresh.Text = "تحديث";
         toolTip.SetToolTip(btnRefresh, "إعادة تحميل الألوان من المخزن ومسح التصفية (F5)");
         btnRefresh.UseVisualStyleBackColor = false;
@@ -231,11 +260,11 @@ partial class frmChangeSystemColorsSettings
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 9F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(592, 0);
+        btnClose.Location = new Point(740, 0);
         btnClose.Margin = new Padding(0, 0, 8, 0);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 36);
-        btnClose.TabIndex = 4;
+        btnClose.TabIndex = 5;
         btnClose.Text = "إغلاق";
         toolTip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
         btnClose.UseVisualStyleBackColor = false;
@@ -409,7 +438,7 @@ partial class frmChangeSystemColorsSettings
         gbColors.Location = new Point(0, 292);
         gbColors.Name = "gbColors";
         gbColors.Padding = new Padding(8);
-        gbColors.Size = new Size(820, 472);
+        gbColors.Size = new Size(800, 472);
         gbColors.TabIndex = 4;
         gbColors.TabStop = false;
         gbColors.Text = "الألوان";
@@ -532,10 +561,10 @@ partial class frmChangeSystemColorsSettings
         // 
         // cmsColors
         // 
-        cmsColors.Items.AddRange(new ToolStripItem[] { miPickColor, miCopyHex });
+        cmsColors.Items.AddRange(new ToolStripItem[] { miPickColor, miCopyHex, miPasteColor });
         cmsColors.Name = "cmsColors";
         cmsColors.RightToLeft = RightToLeft.Yes;
-        cmsColors.Size = new Size(190, 52);
+        cmsColors.Size = new Size(190, 76);
         // 
         // miPickColor
         // 
@@ -551,21 +580,40 @@ partial class frmChangeSystemColorsSettings
         miCopyHex.Text = "نسخ قيمة اللون";
         miCopyHex.Click += miCopyHex_Click;
         // 
+        // miPasteColor
+        // 
+        miPasteColor.Name = "miPasteColor";
+        miPasteColor.Size = new Size(189, 24);
+        miPasteColor.Text = "لصق قيمة اللون";
+        miPasteColor.Click += miPasteColor_Click;
+        // 
+        // pnlPreviewScroll
+        // 
+        pnlPreviewScroll.Dock = DockStyle.Fill;
+        pnlPreviewScroll.AutoScroll = true;
+        pnlPreviewScroll.Controls.Add(lblPreviewCaption);
+        pnlPreviewScroll.Controls.Add(pnlPreviewShell);
+        pnlPreviewScroll.Controls.Add(lblSelectedColor);
+        pnlPreviewScroll.Controls.Add(pnlSwatch);
+        pnlPreviewScroll.Controls.Add(txtHex);
+        pnlPreviewScroll.Controls.Add(lblPreviewHint);
+        pnlPreviewScroll.Controls.Add(lblSuggestions);
+        pnlPreviewScroll.Controls.Add(flpSuggestions);
+        pnlPreviewScroll.Controls.Add(lblLadder);
+        pnlPreviewScroll.Controls.Add(flpLadder);
+        pnlPreviewScroll.Name = "pnlPreviewScroll";
+        pnlPreviewScroll.TabIndex = 0;
+        // 
         // gbPreview
         // 
         gbPreview.BackColor = Color.FromArgb(235, 245, 235);
-        gbPreview.Controls.Add(lblPreviewCaption);
-        gbPreview.Controls.Add(pnlPreviewShell);
-        gbPreview.Controls.Add(lblSelectedColor);
-        gbPreview.Controls.Add(pnlSwatch);
-        gbPreview.Controls.Add(txtHex);
-        gbPreview.Controls.Add(lblPreviewHint);
+        gbPreview.Controls.Add(pnlPreviewScroll);
         gbPreview.Dock = DockStyle.Right;
         gbPreview.Font = new Font("Tahoma", 10F);
-        gbPreview.Location = new Point(820, 292);
+        gbPreview.Location = new Point(800, 292);
         gbPreview.Name = "gbPreview";
         gbPreview.Padding = new Padding(8);
-        gbPreview.Size = new Size(380, 472);
+        gbPreview.Size = new Size(400, 472);
         gbPreview.TabIndex = 5;
         gbPreview.TabStop = false;
         gbPreview.Text = "معاينة فورية";
@@ -824,7 +872,7 @@ partial class frmChangeSystemColorsSettings
         txtHex.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         txtHex.Location = new Point(230, 350);
         txtHex.Name = "txtHex";
-        txtHex.ReadOnly = true;
+        txtHex.ReadOnly = false;
         txtHex.Size = new Size(106, 28);
         txtHex.TabIndex = 4;
         txtHex.TextAlign = HorizontalAlignment.Center;
@@ -837,6 +885,48 @@ partial class frmChangeSystemColorsSettings
         lblPreviewHint.Size = new Size(354, 50);
         lblPreviewHint.TabIndex = 5;
         lblPreviewHint.Text = "التغييرات تظهر في المعاينة فقط حتى تضغط «حفظ وتطبيق».";
+        // 
+        // lblSuggestions
+        // 
+        lblSuggestions.AutoSize = true;
+        lblSuggestions.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblSuggestions.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSuggestions.Location = new Point(12, 448);
+        lblSuggestions.Name = "lblSuggestions";
+        lblSuggestions.Size = new Size(238, 22);
+        lblSuggestions.TabIndex = 6;
+        lblSuggestions.Text = "اقتراحات ذكية (مجرّبة التباين):";
+        // 
+        // flpSuggestions
+        // 
+        flpSuggestions.AutoScroll = true;
+        flpSuggestions.BackColor = Color.FromArgb(235, 245, 235);
+        flpSuggestions.FlowDirection = FlowDirection.LeftToRight;
+        flpSuggestions.Location = new Point(10, 474);
+        flpSuggestions.Name = "flpSuggestions";
+        flpSuggestions.Size = new Size(356, 64);
+        flpSuggestions.TabIndex = 7;
+        // 
+        // lblLadder
+        // 
+        lblLadder.AutoSize = true;
+        lblLadder.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblLadder.ForeColor = Color.FromArgb(14, 82, 52);
+        lblLadder.Location = new Point(12, 546);
+        lblLadder.Name = "lblLadder";
+        lblLadder.Size = new Size(214, 22);
+        lblLadder.TabIndex = 8;
+        lblLadder.Text = "سلم ألوان مقترح (تدرّج):";
+        // 
+        // flpLadder
+        // 
+        flpLadder.AutoScroll = true;
+        flpLadder.BackColor = Color.FromArgb(235, 245, 235);
+        flpLadder.FlowDirection = FlowDirection.LeftToRight;
+        flpLadder.Location = new Point(10, 572);
+        flpLadder.Name = "flpLadder";
+        flpLadder.Size = new Size(356, 52);
+        flpLadder.TabIndex = 9;
         // 
         // pnlFooter
         // 
@@ -928,6 +1018,10 @@ partial class frmChangeSystemColorsSettings
         pnlPreviewShell.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)dgvPreview).EndInit();
         flpPreviewButtons.ResumeLayout(false);
+        flpSuggestions.ResumeLayout(false);
+        flpLadder.ResumeLayout(false);
+        pnlPreviewScroll.ResumeLayout(false);
+        pnlPreviewScroll.PerformLayout();
         pnlFooter.ResumeLayout(false);
         flpFooter.ResumeLayout(false);
         ResumeLayout(false);
@@ -940,6 +1034,7 @@ partial class frmChangeSystemColorsSettings
     private System.Windows.Forms.Button btnSave;
     private System.Windows.Forms.Button btnReset;
     private System.Windows.Forms.Button btnPickColor;
+    private System.Windows.Forms.Button btnBestSuggestion;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
     private System.Windows.Forms.Panel pnlFilters;
@@ -966,7 +1061,9 @@ partial class frmChangeSystemColorsSettings
     private System.Windows.Forms.ContextMenuStrip cmsColors;
     private System.Windows.Forms.ToolStripMenuItem miPickColor;
     private System.Windows.Forms.ToolStripMenuItem miCopyHex;
+    private System.Windows.Forms.ToolStripMenuItem miPasteColor;
     private System.Windows.Forms.GroupBox gbPreview;
+    private System.Windows.Forms.Panel pnlPreviewScroll;
     private System.Windows.Forms.Label lblPreviewCaption;
     private System.Windows.Forms.Panel pnlPreviewShell;
     private System.Windows.Forms.Label lblPreviewHeader;
@@ -986,6 +1083,10 @@ partial class frmChangeSystemColorsSettings
     private System.Windows.Forms.Panel pnlSwatch;
     private System.Windows.Forms.TextBox txtHex;
     private System.Windows.Forms.Label lblPreviewHint;
+    private System.Windows.Forms.Label lblSuggestions;
+    private System.Windows.Forms.FlowLayoutPanel flpSuggestions;
+    private System.Windows.Forms.Label lblLadder;
+    private System.Windows.Forms.FlowLayoutPanel flpLadder;
     private System.Windows.Forms.Panel pnlFooter;
     private System.Windows.Forms.Label lblFooterHint;
     private System.Windows.Forms.FlowLayoutPanel flpFooter;

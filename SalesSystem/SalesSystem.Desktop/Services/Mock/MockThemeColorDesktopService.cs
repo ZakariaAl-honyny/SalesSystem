@@ -11,7 +11,8 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// <para>
 /// <b>تكافؤ المحاكاة (RULE-N167):</b> ترفض ما سترفضه طبقة الأعمال في المرحلة ب:
 /// طلب فارغ · مفتاح مفقود · مفتاح غير معروف · قيمة ليست بصيغة <c>#RRGGBB</c> ·
-/// تباين ضعيف بين النص وخلفيته (WCAG). كل الرفض برسالة عربية عبر <see cref="Result.Failure"/>،
+/// تباين ضعيف بين النص وخلفيته (قواعد التباين وحدوده من <c>ThemePalette</c> — RULE-N112).
+/// كل الرفض برسالة عربية عبر <see cref="Result.Failure"/>،
 /// والحفظ لا يُطبَّق جزئياً أبداً: تُتحقّق كل المفاتيح أولاً ثم تُطبَّق دفعة واحدة.
 /// </para>
 /// <para>
@@ -23,10 +24,7 @@ public sealed class MockThemeColorDesktopService : IThemeColorDesktopService
     /// <summary>الصيغة الوحيدة المقبولة لقيمة اللون.</summary>
     private static readonly Regex HexPattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
 
-    // ── حدود التباين (WCAG) — نفس ما ستفرضه طبقة الأعمال ────────────────────
-    private const double MinHeadingContrast = 3.0;   // نص شريط العنوان / رؤوس الأعمدة
-    private const double MinBodyContrast = 4.5;      // نص الخلايا / النص المميّز
-    private const double MinDisabledContrast = 2.0;  // العنصر المعطّل
+    // ── التباين: العتبات تأتي من ThemePalette.MinimumContrastFor — لا ثوابت محلية ──
 
     public Task<Result<ThemeColorSettings>> GetAsync(CancellationToken ct = default)
     {
@@ -35,7 +33,9 @@ public sealed class MockThemeColorDesktopService : IThemeColorDesktopService
             var snapshot = ThemePalette.Snapshot();
             var colors = new Dictionary<string, string>(StringComparer.Ordinal);
 
-            // التعريفات هي المصدر الوحيد للقائمة (23 مفتاحاً) — لا قائمة ثانية هنا.
+            // التعريفات هي المصدر الوحيد للقائمة (24 مفتاحاً في ست مجموعات:
+            // الشاشة الرئيسية · الأزرار · الصناديق والأشرطة · الشبكة · التحديد والحقل النشط · حالات العرض)
+            // — لا قائمة ثانية هنا.
             foreach (var definition in ThemePalette.Definitions)
             {
                 Color color;
@@ -138,54 +138,64 @@ public sealed class MockThemeColorDesktopService : IThemeColorDesktopService
         }
     }
 
-    // ── التباين (WCAG relative luminance) ────────────────────────────────────
+    // ── التباين (RULE-N112: القواعد والمفاتيح والحدود من ThemePalette فقط) ───
 
-    /// <summary>يرجع أول رسالة رفض للتباين، أو <c>null</c> إن كانت كل الأزواج مقبولة.</summary>
+    /// <summary>
+    /// يمرّ على كل تعريفات اللوحة ويطبّق **قاعدة اللوحة نفسها**: لكل مفتاح له حد أدنى
+    /// (<see cref="ThemePalette.MinimumContrastFor"/>) وشريك (<see cref="ThemePalette.ContrastPartnerKey"/>)
+    /// يُقاس التباين بـ <see cref="ThemePalette.ContrastRatioRaw"/> — لا قاعدة ولا عتبة محلية هنا.
+    /// <para>
+    /// <b>لماذا الطلب لا القيمة الحيّة:</b> قد تُغيّر المسودة مفتاح النص **و**شريكه الخلفي
+    /// في نفس الحفظ، فلا يجوز الحكم على زوج (جديد، قديم) — يُقاس الزوج (جديد، جديد)
+    /// من الطلب المقدَّم نفسه؛ والقيمة الحيّة تُستخدم فقط إذا لم يكن الشريك في الطلب
+    /// (لا يحدث عملياً لأن كل المفاتيح إلزامية، لكنها تُبقي الدالة آمنة).
+    /// </para>
+    /// يرجع أول رسالة رفض عربية، أو <c>null</c> إن كانت كل الأزواج مقبولة.
+    /// </summary>
     private static string? ValidateContrast(IReadOnlyDictionary<string, Color> colors)
     {
-        if (ContrastRatio(colors, ThemePalette.HeaderTextColor, ThemePalette.HeaderBarColor) < MinHeadingContrast)
-            return "تباين نص شريط العنوان مع خلفيته ضعيف — اختر لوناً أغمق أو أفتح.";
+        foreach (var definition in ThemePalette.Definitions)
+        {
+            double minimum = ThemePalette.MinimumContrastFor(definition.Key);
+            if (minimum <= 0) continue;                       // لا متطلب لهذا المفتاح
 
-        if (ContrastRatio(colors, ThemePalette.GridHeaderTextColor, ThemePalette.GridHeaderColor) < MinHeadingContrast)
-            return "تباين نص رؤوس الأعمدة مع خلفيتها ضعيف — اختر لوناً أغمق أو أفتح.";
+            if (!colors.TryGetValue(definition.Key, out var candidate)) continue;
 
-        if (ContrastRatio(colors, ThemePalette.GridCellTextColor, ThemePalette.GridCellBackgroundColor) < MinBodyContrast)
-            return "تباين نص الخلايا مع خلفية الشبكة ضعيف — اختر لوناً أغمق أو أفتح.";
+            string? partnerKey = ThemePalette.ContrastPartnerKey(definition.Key);
+            if (partnerKey is null) continue;                 // لا شريك لهذا المفتاح
 
-        if (ContrastRatio(colors, ThemePalette.TextStrongColor, ThemePalette.FrmMainColor) < MinBodyContrast)
-            return "تباين النص المميّز مع خلفية الشاشة ضعيف — اختر لوناً أغمق أو أفتح.";
+            var partner = colors.TryGetValue(partnerKey, out var submitted)
+                ? submitted                                   // ★ الزوج (جديد، جديد) — المسودة كاملة
+                : ThemePalette.Get(partnerKey);               // احتياط: القيمة الحيّة
 
-        if (ContrastRatio(colors, ThemePalette.DisabledForeColor, ThemePalette.DisabledBackColor) < MinDisabledContrast)
-            return "تباين نص العنصر المعطّل مع خلفيته ضعيف.";
+            if (ThemePalette.ContrastRatioRaw(candidate, partner) < minimum)
+                return _ContrastMessage(definition.Key, definition.ArabicLabel);
+        }
 
         return null;
     }
 
-    private static double ContrastRatio(IReadOnlyDictionary<string, Color> colors, string textKey, string backKey)
+    /// <summary>
+    /// الرسائل العربية الخمس الأصلية مربوطة بمفتاحها؛ وأي مفتاح آخر له متطلب تباين
+    /// يأخذ رسالة عامة بنفس الصياغة (لا تُضاف رسالة لكل لون في الشاشة).
+    /// </summary>
+    private static string _ContrastMessage(string key, string arabicLabel) => key switch
     {
-        Color text = colors.TryGetValue(textKey, out var t) ? t : Color.Black;
-        Color back = colors.TryGetValue(backKey, out var b) ? b : Color.White;
+        ThemePalette.HeaderTextColor
+            => "تباين نص شريط العنوان مع خلفيته ضعيف — اختر لوناً أغمق أو أفتح.",
 
-        double textLum = RelativeLuminance(text);
-        double backLum = RelativeLuminance(back);
+        ThemePalette.GridHeaderTextColor
+            => "تباين نص رؤوس الأعمدة مع خلفيتها ضعيف — اختر لوناً أغمق أو أفتح.",
 
-        double lighter = Math.Max(textLum, backLum);
-        double darker = Math.Min(textLum, backLum);
+        ThemePalette.GridCellTextColor
+            => "تباين نص الخلايا مع خلفية الشبكة ضعيف — اختر لوناً أغمق أو أفتح.",
 
-        return (lighter + 0.05) / (darker + 0.05);
-    }
+        ThemePalette.TextStrongColor
+            => "تباين النص المميّز مع خلفية الشاشة ضعيف — اختر لوناً أغمق أو أفتح.",
 
-    /// <summary>الإضاءة النسبية للون وفق WCAG 2.x (0 = أسود · 1 = أبيض).</summary>
-    private static double RelativeLuminance(Color color)
-        => 0.2126 * LinearChannel(color.R)
-         + 0.7152 * LinearChannel(color.G)
-         + 0.0722 * LinearChannel(color.B);
+        ThemePalette.DisabledForeColor
+            => "تباين نص العنصر المعطّل مع خلفيته ضعيف.",
 
-    private static double LinearChannel(byte value)
-    {
-        double channel = value / 255d;
-        return channel <= 0.03928
-            ? channel / 12.92
-            : Math.Pow((channel + 0.055) / 1.055, 2.4);
-    }
+        _ => $"تباين «{arabicLabel}» مع اللون المرتبط به ضعيف — اختر لوناً أغمق أو أفتح."
+    };
 }

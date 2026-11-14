@@ -79,6 +79,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 1. **Identify the slice** the owner asked for (one screen · one layer · one repeated fix · one review).
 1b. **Decide the stage first:** does this slice create a new data path? ⇒ **Stage A (mock)** unless the owner's recorded approval for Stage B is in this conversation (`RULE-N165`/`RULE-N166`). A UI/UX fix inside an existing slice is one stage only.
 2. **List the expected files**: `frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · `I*DesktopService` · `Direct*` · `Mock*` · `Program.cs` (DI) · `AGENTS.md`.
+2b. **Search before you write:** every helper/behaviour the slice needs is looked up first in `Desktop/Helpers/` → `Desktop/Global Classes/` → `Common/Helpers/` → `Business/Helpers/`; consume it or extend it **in its home**, never copy it into a screen (`RULE-N170`). If a fix would touch several screens, the behaviour is not in one place yet — move it first (`RULE-N171`).
 3. **Classify S/M/L** using §3.
 4. **Fill the ownership table**: one file ↔ one agent. No duplicate rows.
 5. **Test for overlap**: any file appearing under two agents? ⇒ merge them into one agent, or re-partition.
@@ -122,6 +123,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 **In scope** — explicit closed list of file paths (nothing else).
 **Out of scope** — "do not touch: ..." by folder/file name.
 **Contract** — names/signatures consumed or exposed.
+**Single home** — which existing helper/global class the slice consumes (`Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`), and the exact path + member of anything new that must be created there once (`RULE-N169`/`RULE-N170`). No helper inside a screen.
 **Definition of done** — verifiable output (behaviour / signature / text).
 **Mock parity** — (Stage A only) the refusals the mock must enforce with Arabic `Result.Failure`.
 **Validation** — "do NOT build; the Orchestrator builds. No automated tests, no `dotnet test`."
@@ -232,6 +234,7 @@ STAGE B (real backend) — only after the written approval
 | 1 | Green build | `dotnet build` = **0 Errors** |
 | 2 | Zero scope creep | `git status` contains no file outside the brief |
 | 3 | Zero dead code | no declared control without `Controls.Add` (`RULE-N130`) · no unreferenced member |
+| 3b | **Single home — no duplication** | anything shared is consumed from its declared home; `grep` for the behaviour shows consumption inside `Screens/**`, never a copied body; one edit would change every consumer (`RULE-N169`…`RULE-N172`) |
 | 4 | Names preserved | control names / handlers called from outside the screen unchanged (`§2.21` item 20) |
 | 5 | Money & stock | `decimal` · `N2`/`N3` · one transaction · `InventoryTransactions` · no editing a posted invoice |
 | 6 | UI standard | §2.19 / §2.21 / §2.27 / §2.34 / §2.35 / §2.36 according to screen type |
@@ -240,7 +243,7 @@ STAGE B (real backend) — only after the written approval
 | 9 | Test checklist | Arabic table (screen · step · expected result) + the mandatory final line |
 | 10 | Clean repo | `git status --porcelain` empty · `local == origin` |
 
-**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`).
+**Immediate rejection reasons:** a feature with no declared designer element · a colour literal inside a screen · `HttpClient`/ViewModel · `SalesSystem.Business` inside `Screens` · any automated test written or run · a delivery without a manual-test checklist (`RULE-N119`) · **Stage B written or committed before the owner's recorded approval** (`RULE-N166`) · **a mock that always returns success** (`RULE-N167`) · **a shared helper/behaviour copied into a screen instead of its single home** (`RULE-N169`…`RULE-N172`).
 
 ---
 
@@ -310,6 +313,7 @@ STAGE B (real backend) — only after the written approval
 | Committing without a checklist or docs | violates `RULE-N119` / `RULE-N120` | gates in §8 |
 | Writing BLL/EF/migration for a screen the owner has not accepted | schema churn and a half-migrated DB for a UI that will change | Stage A mock first, Stage B only after the written approval (`RULE-N166`) |
 | A mock that returns success for everything | the owner's manual QA verifies nothing and the BLL later rejects real input | enforce the same Arabic refusals in `Mock*DesktopService` (`RULE-N167`) |
+| Writing a helper inside a screen "for now, I will move it later" | the second copy always follows, and then one fix must be repeated in N screens with N chances of error | create it once in its declared home (`Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`) and consume it (`RULE-N170`) |
 
 ---
 
@@ -317,7 +321,8 @@ STAGE B (real backend) — only after the written approval
 
 - [ ] Request split into S/M/L slices with a non-overlapping ownership table.
 - [ ] **Stage decided before the brief:** Stage A (mock) unless the owner's written approval for Stage B is on record (`RULE-N165`/`RULE-N166`).
-- [ ] Every brief carried §6.0 in full (stage + closed scope + out-of-scope + DoD).
+- [ ] Every brief carried §6.0 in full (stage + closed scope + out-of-scope + single home + DoD).
+- [ ] **Single home:** nothing shared was written inside a screen; anything new was created once in its declared home and named in the report (`RULE-N169`…`RULE-N172`).
 - [ ] Build green after **each** wave (not only once at the end).
 - [ ] Stage A left `UseMockData = true` and registered only `Mock*`; the mock enforces the real refusals (`RULE-N167`/`RULE-N168`).
 - [ ] Stage B briefs quote the owner's approval verbatim with its date.
@@ -337,4 +342,5 @@ STAGE B (real backend) — only after the written approval
 | 2026-11-14 | v1.1 — translated to English for better agent comprehension; content unchanged apart from wording; Arabic kept only for user-facing requirements (Arabic messages, Arabic manual-test checklist, mandatory final line). |
 | 2026-11-14 | v1.2 — registered as the `orchestrator` agent (`mode: primary`, `system` = this file) with two enforced denials (`dotnet test`, `SalesSystem.Tests/**`); §2 gained an enforcement note. |
 | 2026-11-14 | v1.3 — the role now lives in `.opencode/agents/orchestrator.md` (V2 frontmatter: `mode: primary`, `model: opencode-go/deepseek-v4.1-flash`, `permissions` array). The agent prompt is a condensed mirror of this playbook and carries the S/M/L law, the per-screen invariant, the 8-file S-batch cap, the 7-field brief, the waves and the commit gates; `edit` is denied outside `AGENTS.md`/`docs/**`/`opencode.json` and `dotnet test` is denied. `opencode.json` keeps only the schema and the MCP server (no duplicate agent definition). |
+| 2026-11-14 | v1.5 — **single-home law** added (`RULE-N169`…`RULE-N172`): shared code lives once in a declared home (`Desktop/Helpers/` · `Desktop/Global Classes/` · `Common/Helpers/` · `Business/Helpers/` · `DTO/Common/`), is searched before being written, and is fixed in one file for all consumers. New step 2b in the partition algorithm, `**Single home**` field in §6.0, gate 3b in §8, an anti-pattern in §12, a checklist item in §13. |
 | 2026-11-14 | v1.4 — **two-stage law** added (`RULE-N165`…`RULE-N168`): Stage A is the owner's UI & UX QA round on mock data (no BLL/EF/migration/`Direct*`), and Stage B (real backend + real DB save) starts only after the owner's explicit written approval, quoted with its date in every Stage B brief. New §2.5, stage step in the partition algorithm, stage ownership in §5, `**Stage**` + `**Mock parity**` fields in the brief, two-stage wave diagram in §7, gates 0/0b in §8, scenarios 19–21 in §9, two anti-patterns in §12, and pre-delivery checklist items in §13. |
