@@ -31,7 +31,7 @@
 | البند | ما نُفِّذ | الملف |
 |---|---|---|
 | `GAP-09` | حذف `form.BackColor = Color.White` من `ApplyMainFormStyle` · `ApplyDataGridViewStyle` صار تفويضاً لـ`GreenThemeHelper.ApplyGrid` · `ApplyToolbarStyle` → `BarBackground` · `ContentBg` → `GroupBackground` · `TextPrimary` → `TextStrong` · حذف `FocusHighlight` المكرّر واستهلاك `ThemePalette.SelectionRowColor` حيّاً | `Helpers/ThemeHelper.cs` |
-| `GAP-09` | حذف `FocusHighlight = 0xD6E4F0` واستهلاك `ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)` | `Helpers/ReportUiStandardizer.cs` |
+| `GAP-09` | حذف `FocusHighlight = 0xD6E4F0` واستهلاك `ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)` — والمفتاح نفسه صار مفتاحاً واحداً للتحديد والحقل النشط (2026-11-15) | `Helpers/ReportUiStandardizer.cs` |
 | `GAP-09` | `RejectFlashBack` → `GreenThemeHelper.RejectBackground` | `Global Classes/clsInputFeedback.cs` |
 | `GAP-03` (تأسيس) | إضافة **7 ثوابت حالة** في البيت الواحد: `StatusSuccess` · `StatusDanger` · `StatusWarning` · `StatusInfo` · `StatusNeutral` · `StatusMuted` · `RejectBackground` — **لم تُوصَّل بأي شاشة بعد (W8)** | `Helpers/GreenThemeHelper.cs` |
 | `GAP-05` | `SystemColors.ControlText` → `Color.FromArgb(33, 37, 41)` | `Screens/frmMain.Designer.cs` |
@@ -94,7 +94,7 @@
 | # | المخالفة | القاعدة | ملفات | مواضع | المالك | الحجم | الموجة | الحالة |
 |---|---|---|---|---|---|---|---|---|
 | **GAP-01** | `clsValidation` بلا أي مستهلك في الحل كله — 64 سطراً ميتة. **القرار (المالك): يُستهلك ولا يُحذف** — يُعتمد في W8 عبر `GAP-08b` | `RULE-N170` | 1 | 0 مستهلك | `ui-agent` | S | W8 | 🔄 قرار مثبَّت |
-| **GAP-02** | تمرير `Color.FromArgb(0xD6, 0xE4, 0xF0)` حرفياً إلى `WireFocusHighlight` بدل `ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)` | `RULE-N54b` · `RULE-N112` | **56** | **56** | `ui-agent` ×7 دفعات | S | W1–W7 | ⬜ |
+| **GAP-02** | تمرير `Color.FromArgb(0xD6, 0xE4, 0xF0)` حرفياً إلى `WireFocusHighlight` بدل `ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)` — ✅ **مغلقة (2026-11-15): صفر موضع حرفي في الحل كله**، والشاشات الـ58 كلها تمرّر `ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)` بعد دمج مفتاح الحقل النشط في مفتاح التحديد | `RULE-N54b` · `RULE-N112` | **56** | **0** | `ui-agent` | S | W1–W7 | ✅ مكتمل |
 | **GAP-03** | ألوان الحالة الدلالية حرفياً ومتناقضة — **51 موضعاً في 16 ملفاً** بالتفصيل في §4.3 | `RULE-N54` · `RULE-N172` | 16 | 51 | `ui-agent` | M | W8 | ⬜ |
 | **GAP-04** | صيغ رقمية/تاريخية حرفية بدل `clsFormat` — **240 موضعاً** (`FORMAT-COVERAGE`) | `RULE-N179` (جديد) | 67 شاشة | 240 | 46 وكيلاً (`FORMAT-PROGRESS`) | L | W9–W12 | ⬜ |
 | **GAP-05** | `frmMain.Designer.cs:945` `ForeColor = SystemColors.ControlText` — العنصر الوحيد على لون نظام | `RULE-N141` | 1 | 1 | `fast-agent` | S | W0 | ✅ مكتمل |
@@ -130,7 +130,7 @@
 | `ThemeHelper.cs` | 35 | `form.BackColor = Color.White` — **يمحو خلفية المصمّم الخضراء** | يُستهلك `GreenThemeHelper.FormBackground` |
 | `ThemeHelper.cs` | 89 · 109 · 122 · 126 · 132 · 137 | 6 ألوان حرفية للشبكة/الزر | `ThemePalette` |
 | `ThemeHelper.cs` | 147 | `FocusHighlight = (255, 255, 180)` — **يكرّر `ThemePalette.SelectionRowColor`** | يُحذف ويُستهلك المفتاح |
-| `ReportUiStandardizer.cs` | 97 | `FocusHighlight = (0xD6, 0xE4, 0xF0)` — **يكرّر `ThemePalette.ActiveFieldColor`** | يُحذف ويُستهلك `ThemePalette.DefaultFor` |
+| `ReportUiStandardizer.cs` | 97 | `FocusHighlight = (0xD6, 0xE4, 0xF0)` — **يكرّر `ThemePalette.SelectionRowColor`** | يُحذف ويُستهلك `ThemePalette.DefaultFor` |
 | `clsInputFeedback.cs` | 26 | `RejectFlashBack = (255, 220, 220)` — لون حالة | ثابتاً مسمّى في `GreenThemeHelper` |
 
 **ملاحظة:** `ColorSuggestionHelper` **بريء** — كل قواعده تقرأ `ThemePalette` (`ContrastRatioRaw` · `MinimumContrastFor` · `ContrastPartnerColor` · `DefaultFor`)، وقائمة اقتراحاته كتالوج اختيارات لا افتراضيات ثيم. وحساب WCAG يعيش **مرة واحدة** في `ThemePalette.RelativeLuminance`/`ContrastRatioRaw` — لا نسخة ثانية.
@@ -140,7 +140,7 @@
 ### 4.2 تفصيل `GAP-02` — 56 ملفاً (دفعات 7 × 8)
 
 `Screens/**` — كل ملف يستدعي `KeyboardHelper.WireFocusHighlight(this, Color.FromArgb(0xD6, 0xE4, 0xF0))` أو يعرّف `FocusColor` ثابتاً بالقيمة نفسها. الإصلاح **متطابق حرفياً** في كل ملف:
-`Color.FromArgb(0xD6, 0xE4, 0xF0)` → `ThemePalette.DefaultFor(ThemePalette.ActiveFieldColor)`.
+`Color.FromArgb(0xD6, 0xE4, 0xF0)` → `ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)`.
 الأمثلة المؤكَّدة: `frmCustomerStatement.cs:54` · `frmJournalEntries.cs:110` · `frmListSales.cs:17` · `frmListPurchases.cs:21` · `frmStocktakingNew.cs:49`. العدد الكامل يُستخرج بأمر واحد وقت التنفيذ (§6).
 
 ---
