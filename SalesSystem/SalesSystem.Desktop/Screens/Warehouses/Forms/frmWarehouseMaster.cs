@@ -671,9 +671,7 @@ public partial class frmWarehouseMaster : Form
         if (edit)
         {
             string editName = txtName.Text.Trim();
-            if (MessageBox.Show($"هل أنت متأكد من تعديل المخزن \"{editName}\"؟",
-                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+            if (!clsDialogs.ConfirmEdit($"هل أنت متأكد من تعديل المخزن \"{editName}\"؟"))
                 return;
         }
 

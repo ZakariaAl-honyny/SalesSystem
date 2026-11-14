@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.Forms;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Direct;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -240,7 +241,6 @@ static class Program
                     services.AddSingleton<ISessionService, SessionService>();
                     services.AddSingleton<INavigationService, NavigationService>();
                     services.AddSingleton<INotificationService, NotificationService>();
-                    services.AddSingleton<IDialogService, DialogService>();
                     
                     // Printing Services
                     services.AddTransient<IInvoicePrinter, InvoicePrinter>();
@@ -403,15 +403,15 @@ static class Program
                     if (!initResult.IsSuccess)
                     {
                         Log.Error("Database initialization failed: {Error}", initResult.Error);
-                        MessageBox.Show(initResult.Error ?? "تعذر تهيئة قاعدة البيانات.",
-                            "تهيئة قاعدة البيانات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        clsDialogs.Warning(initResult.Error ?? "تعذر تهيئة قاعدة البيانات.",
+                            "تهيئة قاعدة البيانات");
                     }
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Unexpected failure during database initialization");
-                    MessageBox.Show("تعذر تهيئة قاعدة البيانات. تحقق من الاتصال ثم أعد تشغيل النظام.",
-                        "تهيئة قاعدة البيانات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    clsDialogs.Warning("تعذر تهيئة قاعدة البيانات. تحقق من الاتصال ثم أعد تشغيل النظام.",
+                        "تهيئة قاعدة البيانات");
                 }
             }
 
@@ -425,7 +425,7 @@ static class Program
         catch (Exception ex)
         {
             Log.Fatal(ex, "Application terminated unexpectedly");
-            MessageBox.Show("حدث خطأ فادح أثناء بدء التشغيل. تم تسجيل التفاصيل في ملف السجل. أغلق التطبيق وأعد المحاولة.", "خطأ فادح", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ فادح أثناء بدء التشغيل. تم تسجيل التفاصيل في ملف السجل. أغلق التطبيق وأعد المحاولة.", "خطأ فادح");
         }
         finally
         {
@@ -436,13 +436,13 @@ static class Program
     private static void GlobalUIExceptionHandler(object sender, ThreadExceptionEventArgs e)
     {
         Log.Error(e.Exception, "Unhandled UI Thread Exception");
-        MessageBox.Show("عذراً، حدث خطأ غير متوقع في واجهة المستخدم. تم تسجيل التفاصيل للدعم الفني.", "خطأ بالنظام", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        clsDialogs.Error("عذراً، حدث خطأ غير متوقع في واجهة المستخدم. تم تسجيل التفاصيل للدعم الفني.", "خطأ بالنظام");
     }
 
     private static void GlobalBackgroundExceptionHandler(object sender, UnhandledExceptionEventArgs e)
     {
         var ex = e.ExceptionObject as Exception;
         Log.Error(ex, "Unhandled Background Exception");
-        MessageBox.Show("عذراً، حدث خطأ غير متوقع في العمليات الخلفية.", "خطأ بالنظام", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        clsDialogs.Error("عذراً، حدث خطأ غير متوقع في العمليات الخلفية.", "خطأ بالنظام");
     }
 }

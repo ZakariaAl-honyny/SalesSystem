@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
@@ -135,8 +136,7 @@ public partial class frmChangeSystemColorsSettings : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ غير متوقع أثناء تحميل شاشة ألوان النظام");
-            MessageBox.Show("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
         }
     }
 
@@ -154,8 +154,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
             if (!result.IsSuccess || settings is null)
             {
-                MessageBox.Show(result.Error ?? "تعذر تحميل ألوان النظام.", "خطأ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsDialogs.Error(result.Error ?? "تعذر تحميل ألوان النظام.");
                 return;
             }
 
@@ -185,8 +184,7 @@ public partial class frmChangeSystemColorsSettings : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحميل ألوان النظام");
-            MessageBox.Show("تعذر تحميل ألوان النظام. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحميل ألوان النظام. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -488,8 +486,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
         if (definition is null)
         {
-            MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
             return;
         }
 
@@ -517,8 +514,7 @@ public partial class frmChangeSystemColorsSettings : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء اختيار لون النظام للمفتاح {Key}", definition.Key);
-            MessageBox.Show("تعذر فتح لوحة الألوان. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح لوحة الألوان. يرجى إعادة المحاولة.");
         }
     }
 
@@ -550,8 +546,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
         if (definition is null)
         {
-            MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
             return;
         }
 
@@ -559,15 +554,13 @@ public partial class frmChangeSystemColorsSettings : Form
         {
             if (!Clipboard.ContainsText())
             {
-                MessageBox.Show("الحافظة فارغة — انسخ قيمة لون مثل #0EA567 ثم ألصقها.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("الحافظة فارغة — انسخ قيمة لون مثل #0EA567 ثم ألصقها.");
                 return;
             }
 
             if (!ThemePalette.TryParseColorText(Clipboard.GetText(), out var color))
             {
-                MessageBox.Show("قيمة اللون غير واضحة. استخدم صيغة مثل #0EA567 أو (14,165,103).", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("قيمة اللون غير واضحة. استخدم صيغة مثل #0EA567 أو (14,165,103).");
                 return;
             }
 
@@ -576,8 +569,7 @@ public partial class frmChangeSystemColorsSettings : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر لصق قيمة اللون للمفتاح {Key}", definition.Key);
-            MessageBox.Show("تعذر لصق قيمة اللون. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر لصق قيمة اللون. يرجى إعادة المحاولة.");
         }
     }
 
@@ -607,8 +599,7 @@ public partial class frmChangeSystemColorsSettings : Form
             if (!string.IsNullOrWhiteSpace(txtHex.Text))
             {
                 txtHex.Text = string.Empty;
-                MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
             }
 
             return;
@@ -619,8 +610,7 @@ public partial class frmChangeSystemColorsSettings : Form
         if (!ThemePalette.TryParseColorText(txtHex.Text, out var color))
         {
             txtHex.Text = ThemePalette.ToHex(current);   // لا مسودّة على نص ملتبس + الحقل لا يكذب
-            MessageBox.Show("قيمة اللون غير واضحة. استخدم صيغة مثل #0EA567 أو (14,165,103).", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("قيمة اللون غير واضحة. استخدم صيغة مثل #0EA567 أو (14,165,103).");
             return;
         }
 
@@ -646,8 +636,7 @@ public partial class frmChangeSystemColorsSettings : Form
         var definition = _FindDefinition(_selectedKey);
         if (definition is null)
         {
-            MessageBox.Show("يرجى اختيار لون من القائمة أولاً.", "تنبيه",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
             return;
         }
 
@@ -656,8 +645,7 @@ public partial class frmChangeSystemColorsSettings : Form
             var best = ColorSuggestionHelper.BestFor(definition.Key);
             if (best is null)
             {
-                MessageBox.Show("لا يوجد اقتراح مناسب لهذا اللون.", "تنبيه",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning("لا يوجد اقتراح مناسب لهذا اللون.");
                 return;
             }
 
@@ -666,8 +654,7 @@ public partial class frmChangeSystemColorsSettings : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تطبيق أفضل اقتراح للمفتاح {Key}", definition.Key);
-            MessageBox.Show("تعذر تطبيق الاقتراح. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تطبيق الاقتراح. يرجى إعادة المحاولة.");
         }
     }
 
@@ -790,14 +777,12 @@ public partial class frmChangeSystemColorsSettings : Form
             if (string.IsNullOrWhiteSpace(txtHex.Text)) return;
 
             Clipboard.SetText(txtHex.Text);
-            MessageBox.Show("تم نسخ قيمة اللون.", "تم النسخ",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Info("تم نسخ قيمة اللون.", "تم النسخ");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر نسخ قيمة اللون");
-            MessageBox.Show("تعذر نسخ قيمة اللون. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر نسخ قيمة اللون. يرجى إعادة المحاولة.");
         }
     }
 
@@ -815,8 +800,7 @@ public partial class frmChangeSystemColorsSettings : Form
             if (!result.IsSuccess)
             {
                 // رفض المحاكاة (RULE-N167): لا تغيير في الشاشة ولا في التطبيق.
-                MessageBox.Show(result.Error ?? "تعذر حفظ الألوان.", "لم يتم الحفظ",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning(result.Error ?? "تعذر حفظ الألوان.", "لم يتم الحفظ");
                 return;
             }
 
@@ -829,14 +813,12 @@ public partial class frmChangeSystemColorsSettings : Form
             _UpdateSelectedColorPanel();
             _ApplyPreviewColors();
 
-            MessageBox.Show("تم حفظ الألوان وتطبيقها.", "تم الحفظ",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تم حفظ الألوان وتطبيقها.", "تم الحفظ");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ ألوان النظام");
-            MessageBox.Show("حدث خطأ أثناء حفظ الألوان. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء حفظ الألوان. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -846,9 +828,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
     private async void btnReset_Click(object? sender, EventArgs e)
     {
-        if (MessageBox.Show("هل تريد استعادة الألوان الافتراضية؟", "تأكيد الاستعادة",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+        if (!clsDialogs.Confirm("هل تريد استعادة الألوان الافتراضية؟", "تأكيد الاستعادة"))
         {
             return;
         }
@@ -860,8 +840,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
             if (!result.IsSuccess)
             {
-                MessageBox.Show(result.Error ?? "تعذر استعادة الألوان الافتراضية.", "لم تتم الاستعادة",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                clsDialogs.Warning(result.Error ?? "تعذر استعادة الألوان الافتراضية.", "لم تتم الاستعادة");
                 return;
             }
 
@@ -872,14 +851,12 @@ public partial class frmChangeSystemColorsSettings : Form
             _UpdateSelectedColorPanel();
             _ApplyPreviewColors();
 
-            MessageBox.Show("تمت استعادة الألوان الافتراضية.", "تمت الاستعادة",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            clsDialogs.Success("تمت استعادة الألوان الافتراضية.", "تمت الاستعادة");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء استعادة الألوان الافتراضية");
-            MessageBox.Show("حدث خطأ أثناء استعادة الألوان. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("حدث خطأ أثناء استعادة الألوان. يرجى إعادة المحاولة.");
         }
         finally
         {
@@ -900,8 +877,7 @@ public partial class frmChangeSystemColorsSettings : Form
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء تحديث شاشة ألوان النظام");
-            MessageBox.Show("تعذر تحديث البيانات. يرجى إعادة المحاولة.", "خطأ",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
         }
     }
 

@@ -334,10 +334,10 @@ public partial class frmImportProductsExcel : Form
             if (skippedCount > 0)
                 message += $"\n{skippedCount} صفاً لم يُرسل لأنه غير صالح (سبب الرفض في عمود «ملاحظات»).";
 
-            MessageBox.Show(message,
-                successCount > 0 ? "نتيجة الاستيراد" : "تعذر الاستيراد",
-                MessageBoxButtons.OK,
-                successCount > 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            if (successCount > 0)
+                clsDialogs.Info(message, "نتيجة الاستيراد");
+            else
+                clsDialogs.Warning(message, "تعذر الاستيراد");
 
             if (successCount > 0)
             {

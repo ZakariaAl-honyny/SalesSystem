@@ -875,9 +875,7 @@ public partial class frmProductUnitMaster : Form
         if (edit)
         {
             string editName = _CurrentUnitName();
-            if (MessageBox.Show($"هل أنت متأكد من تعديل وحدة المنتج \"{editName}\"؟",
-                    "تأكيد التعديل", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
+            if (!clsDialogs.ConfirmEdit($"هل أنت متأكد من تعديل وحدة المنتج \"{editName}\"؟"))
                 return;
         }
 

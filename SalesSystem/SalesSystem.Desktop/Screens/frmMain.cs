@@ -143,8 +143,7 @@ public partial class frmMain : Form
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر فتح الشاشة {Screen}", screenName);
-            MessageBox.Show("تعذر فتح الشاشة المطلوبة. يرجى المحاولة مرة أخرى.",
-                "خطأ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            clsDialogs.Error("تعذر فتح الشاشة المطلوبة. يرجى المحاولة مرة أخرى.");
         }
     }
 
@@ -245,8 +244,8 @@ public partial class frmMain : Form
         => OpenScreen<frmPOS>();
 
     private void msbtnCurrencySelection_Click(object sender, EventArgs e)
-        => MessageBox.Show("وحدة العملات غير متوفرة في نسخة MVP الحالية؛ العملة الافتراضية هي الريال اليمني.",
-            "العملات", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        => clsDialogs.Info("وحدة العملات غير متوفرة في نسخة MVP الحالية؛ العملة الافتراضية هي الريال اليمني.",
+            "العملات");
 
     // ── الخزينة (Treasury) ───────────────────────────────────────────────────
 
