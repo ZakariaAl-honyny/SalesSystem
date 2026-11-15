@@ -8,11 +8,13 @@
 >
 > **حدود هذا الملف:** يحمل **الحصر** و**المخالفة** و**مكان الإصلاح**. تفاصيل شاشات التنسيق (67 شاشة × 240 مخالفة) مصدرها الوحيد `docs/FORMAT-COVERAGE.md`، ولوحة توزيع العمل في `docs/FORMAT-PROGRESS.md` — لا تُنسخ هنا (`RULE-N174` بالقياس).
 >
-> **آخر تحديث:** 2026-11-15 · **المرجع الملزم للقياس: §10.6.5** (القياس النهائي بعد الموجات 1–12) · البناء **0 أخطاء / 125 تحذيراً**. §3–§8 محضر تاريخي لموجة 2026-11-14، و§10.5/§10.6.1–§10.6.2 تجاوزها §10.6.5.
+> **آخر تحديث:** 2026-11-15 (الموجة 13) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 118 تحذيراً**. §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
 
 ---
 
 ## 0. نتيجة المراجعة في سطر
+
+> ⛔ **لقطة التدقيق الأولى (قبل الموجات 1–13) — تُقرأ للتاريخ فقط.** الحالة الملزمة الآن: **§10.6.5** (القياس) و**§10.6.1** (مغلق) و**§10.6.2** (مفتوح Stage A) و**§10.2** (Stage B مجمَّد). أرقام هذا القسم وُجدت في التدقيق الأول ثم أُغلقت في الموجات التالية.
 
 | البُعد | النتيجة |
 |---|---|
@@ -393,7 +395,7 @@
 |---|---|---|---|---|
 | P-13 | `IReportRepository` · `IPrintService` · `IPrintDataService` غير مسجَّلة في DI، و`PrintingBootstrapper.Initialize()` لا يُستدعى | `Program.cs` | الوضع الحقيقي: التقارير وفاتورة البيع/الطباعة تُفشل بالحلّ | `fast-agent` (سطر DI) — بعد موافقة الوحدة |
 | P-14 | تغيير «fail-closed» لتهيئة قاعدة البيانات (رسالة + `Environment.ExitCode = 1`) موجود في شجرة العمل من موجة متزامنة ولم تمرّ بمراجعة هذه الموجة | `Program.cs:399-437` | سلوك إقلاع جديد يحتاج اعتماد المالك صريحاً | قرار مالك |
-| P-15 | `Color.MistyRose`/`DarkRed` باقية كألوان حالة في `frmListSales` · `frmAccounts` · `frmJournalEntries` · `frmAddUpdateSalesInvoice:2960` | 4 شاشات | مخالفة `RULE-N54` (لون غير معلن) — لا انهيار | `ui-agent` (S) |
+| P-15 | ~~`Color.MistyRose`/`DarkRed` باقية كألوان حالة~~ | — | ✅ **مغلق (قياس 2026-11-15):** `Color.MistyRose|DarkRed|LemonChiffon|ForestGreen|DimGray` في `Screens/**` **= 0** — التلوين صار من `GridFormatHelper`/`GreenThemeHelper` | ✅ |
 
 ---
 
@@ -405,6 +407,8 @@
 > **المرحلة:** `A` = قابل للتنفيذ الآن داخل الـMock/الشاشة · `B` = يحتاج باك-إند أو عضواً في عقد ⇒ **مجمَّد** حتى موافقة الوحدة المكتوبة (`RULE-N177`).
 
 ### 10.1 مفتوح — المرحلة A (شاشة/محاكاة، بلا باك-إند)
+
+> ⛔ **هذا الجدول لقطة صباح 2026-11-15 — وليس المرآة الحالية.** صفوفه الكثيرة أُغلقت فعلاً في الموجات 1–13، والمرجع الملزم الآن: **§10.6.1** (مغلق بالقياس) · **§10.6.2** (مفتوح Stage A — قائمة العمل الحقيقية) · **§10.6.3/§10.2** (Stage B مجمَّد) · **§10.6.5** (القياس النهائي). الصفوف المغلقة (T-02 · T-06 · T-08 … T-37) تُقرأ **للتاريخ فقط**؛ لا تُعدّ عملاً مفتوحاً.
 
 | # | المهمة | الموضع | العيب المقيس | المالك | الحجم | الأهمية |
 |---|---|---|---|---|---|---|
@@ -418,16 +422,16 @@
 | **T-08** | `MockReportDesktopService.BuildMovements` يشتق حركات ثانية من الفواتير بدل `MockInventoryData.Movements` | `Services/Mock/MockReportDesktopService.cs` (~680+) | بيتان للحركة (`RULE-N169`) | `ui-agent` | S | ج |
 | **T-09** | `frmInventory` تعرض مجموعات Mock موازية بأسماء/حالات لا تطابق البذور | `Screens/Inventory/Forms/frmInventory.cs:215-282` | رصيد معروض ≠ الرصيد الحقيقي | `ui-agent` | M | ب |
 | **T-10** | أزرار «ترحيل/إلغاء التسوية» مفعّلة على أي سطر؛ النقر على غير المطابق يصمت | `frmListInventoryAdjustments.cs:333-335,405,442` | آلة حالة ناقصة | `ui-agent` | S | ج |
-| **T-11** | `frmInventoryAddProduct` غير موصول بأي شاشة (مسجَّل في DI بلا مستدعٍ) بعد أن صار حفظه حقيقياً | `Program.cs:379` · `frmMain` | ميزة يتيمة | `ui-agent` / قرار | S | ج |
+| **T-11** | ~~`frmInventoryAddProduct` غير موصول بأي شاشة~~ | `Program.cs:379` · `frmMain` | **✅ مغلق** — حُذفت الشاشة (15 نموذج مخزون الآن) وصفر مرجع (`RULE-N102`) | — | — | ✅ |
 | **T-12** | 4 نوافذ طباعة مخزون بلا مستدعٍ وبيانات مصنوعة (`INV-2026-001` · `TR-2026-001`) و«نجاح طباعة» بلا طابعة | `frmStocktakingPrint*.cs` · `frmWarehouseTransferPrint.cs` | واجهات كاذبة | `printing` / قرار | M | ب |
-| **T-13** | 7 نماذج شراء ميتة مسجَّلة في DI ببيانات وهمية (`frmPurchaseItem/Discount/Currency/OtherDetails/ItemInfo/InvoicePrint` · `frmSupplierStatement`) | `Program.cs:381-391` | واجهات معروضة بلا وظيفة | قرار مالك (ربط أو سحب) | M | ج |
+| **T-13** | 7 نماذج شراء ميتة مسجَّلة في DI ببيانات وهمية (`frmPurchaseItem` · `frmPurchaseDiscount` · `frmPurchaseCurrency` · `frmPurchaseOtherDetails` · `frmPurchaseItemInfo` · `frmPurchaseInvoicePrint` · `frmSupplierStatement`) | **مقيس:** `Program.cs:390,391,392,393,394,395,400` (لا `381-391`) | **تدقيق 2026-11-15 مكتمل:** كلها `ميت — مرجع واحد (Program.cs)` · **صفر** مرجع من `frmMain` (72 عنصر قائمة مُدقَّق) أو من أي شاشة · `frmPurchaseInvoice` ينفّذ وظائفها داخلياً بخدمات حقيقية ⇒ أي ربط = تكرار `RULE-N172` | قرار مالك — **التوصية: سحبها من DI وحذف 14 ملفاً** (لا `.resx`) | M | ج |
 | **T-14** | `frmDailyClosureReport` يستدعي **نفس** استدعاء ملخص الصناديق ⇒ «الإقفال اليومي» = إجماليات كل الزمن | `Screens/Reports/Forms/CashBox/frmDailyClosureReport.cs:43` | قراءة مالية مضلِّلة | `ui-agent` (لافتة صادقة) + عقد `B` | S | أ |
 | **T-15** | `frmProfitByCustomerReport` بلا عمود ربح، و`profit` محسوب «المتبقي» ثم غير مستخدم | `.../Sales/frmProfitByCustomerReport.cs:62` | تقرير بعنوان كاذب | قرار مالك (تسمية أو عقد ربح) | S | ب |
 | **T-16** | 7 تقارير ترسل رسائل عبر `INotificationService` بينما 24 عبر `clsDialogs` | `frmCustomerBalance` · `frmSupplierBalance` · `frmInventory` · `frmLowStock` · `frmProductMovement` · `frmPurchases` · `frmSales` | بيتان للرسالة | `ui-agent` | S | ج |
 | **T-17** | `frmPurchasesReport` يعيد تنفيذ تنسيق المال/التاريخ في `CellFormatting` | `.../Purchases/frmPurchasesReport.cs:138-154` | نسخة ثانية من `GridFormatHelper` | `ui-agent` | S | ج |
 | **T-18** | تلوين الرصيد أحمر/أخضر مكرّر في 4 تقارير بلا بيت | `frmCustomerBalance` · `frmSupplierBalance` · `frmInventory` · `frmLowStock` | `RULE-N172` | `ui-agent` (يضيفه لـ`GridFormatHelper`) | S | ج |
-| **T-19** | `frmTrialBalanceReport` 8 أعمدة مالية بلا أي تنسيق | `.../Accounting/frmTrialBalanceReport.cs:76-84` | بلا فواصل آلاف | `ui-agent` | S | ج |
-| **T-20** | 18 تقريراً لا تتحقق `من <= إلى` | قائمة في تقرير المراجعة (18 موضعاً) | «لا توجد بيانات» بلا رسالة | `ui-agent` (بيت واحد) | S | ب |
+| **T-19** | ~~`frmTrialBalanceReport` 8 أعمدة مالية بلا أي تنسيق~~ | `.../Accounting/frmTrialBalanceReport.cs` | **✅ مغلق + تصحيح قياس:** الـDTO يحمل **6** حقول مالية لا 8، وكلها منسّقة (`GridFormatHelper` 6/6) | — | — | ✅ |
+| **T-20** | ~~18 تقريراً لا تتحقق `من <= إلى`~~ — **تصحيح مقيس:** 12 تقريراً كانت ناقصة الحارس، **4 منها لا تملك منتقي تاريخ أصلاً** (`frmInventoryReport` · `frmStockBalanceReport` · `frmLowStockReport` · `frmExpiredProductsReport`) فلا حارس لها، و**3 تعمل بتاريخ واحد** (`frmTrialBalanceReport` · `frmBalanceSheetReport` · `frmWorkingCapitalReport` · `frmCashBoxSummaryReport`) | الحارس الآن: `clsValidation.IsDateRangeValid` = **21** استدعاءً + `EndOfDay` = **21** | **✅ مغلق بصدق** — لم يُقحم حارس وهمي على شاشة بلا مدى | — | — | ✅ |
 | **T-21** | نسب (`TaxRate`/`ProfitMargin`) منسّقة `Money` ⇒ «15.00» كمبلغ | `frmVatReport.cs:80` · `frmProductProfitabilityReport.cs:72` · `frmSalesByProductReport.cs:82` | دلالة خاطئة | `ui-agent` | S | ج |
 | **T-22** | تنسيق تاريخ موزّع على 3 آليات + 7 تقارير بلا تنسيق | 7 تقارير | `RULE-N169` | `ui-agent` | S | ج |
 | **T-23** | معالجات موصولة فارغة في 4 تقارير (`label4_Click` · `loadingPanel_Paint` · `ValueChanged` بلا فعل) | `frmAccountStatementReport` · `frmWorkingCapitalReport` · `frmWarehouseMovementReport` · `frmProfitByCustomerReport` | كود ميت يخدع المصمّم | `ui-agent` | S | ج |
@@ -459,14 +463,17 @@
 | **T-44** | صيغ `N0/N1/N2/N3/F2` حرفية في BLL/DataAccess (23 موضعاً، 18 في `FinancialReportService`) + `PrintHelper`/`InvoicePrinter` | `Business/**` · `DataAccess/Printing/**` · `Desktop/Printing/**` | الباك-إند مجمَّد | `printing` + `backend-architect` |
 | **T-45** | `IReportRepository` · `IPrintService` · `IPrintDataService` غير مسجَّلة في DI، و`PrintingBootstrapper.Initialize()` لا يُستدعى | `Program.cs` | P-13 أعلاه — الوضع الحقيقي يفشل بالحلّ | `fast-agent` (بعد موافقة) |
 | **T-46** | مخاطر أمنية إنتاجية: تجاوز كلمة السر عند `PasswordHash` الفارغ · كلمة سر افتراضية مكتوبة · حفظ+ترحيل في معاملتين · `PermanentDeleteAsync` موصول · connection string نصي وDPAPI ميت | `Business/**` · `DataAccess/**` · `appsettings.json` | الباك-إند مجمَّد | `security-auditor` (مراجعة) + `backend-architect` |
+| **T-65** | **خصم مزدوج في الباك-إند الحقيقي:** `DailySalesSummaryDto.NetAmount = g.Sum(si => si.NetTotal - si.DiscountAmount)` و`NetTotal` صافٍ أصلاً ⇒ «الصافي» ينقص بمقدار الخصم مرتين. **أُصلح في المحاكاة (`MockSalesReportDesktopService` — §11.13، الموجة 12) ولم يُصلح في BLL** | `SalesSystem.Business\Services\SalesReportService.cs:177` | منطق BLL · `frmDailySalesReport` يعرض `Sum(NetAmount)` ⇒ رقم مالي خاطئ في الوضع الحقيقي | `backend-architect` بعد موافقة |
+| **T-66** | **«المستحق» ≠ مجموع شرائح الأعمار في المستودع الحقيقي:** `totalDue = Σ RemainingAmount` (يشمل ≤ 0) بينما الشرائح تُجمع لـ`RemainingAmount > 0` فقط | `SalesSystem.DataAccess\Repositories\ReportRepository.cs:572-573` (+`579-580` شرط التخطي) | نفس عيب المحاكاة الذي أُغلق — ما زال قائماً في EF | `backend-architect` بعد موافقة |
+| **T-67** | عضو عقد يعيد `null` دائماً: `StockReportDto.ProductCode => null` (موضعان) و`PurchaseInvoiceDto.ProductCode => null` ⇒ العمود لا يُملأ أبداً (لا ضرر مرئي الآن لأن التقريرين يُخفيانه) | `SalesSystem.DTO\Responses\ReportDtos.cs:388,480` · `PurchaseInvoiceDtos.cs:67` | تنظيف عقد: `RULE-N110` (عضو بلا سلوك مقابل) | `backend-architect` بعد موافقة |
 
 ### 10.3 قرارات المالك المطلوبة (لا تُنفَّذ بلا نص)
 
 | # | القرار | الخيارات |
 |---|---|---|
 | **D-01** | `GAP-06` — تصدير Excel: أي الشاشات؟ | 36 شاشة: قوائم ⇐ تُصدَّر / محرّرات ⇐ لا (اقتراح) |
-| **D-02** | 5 شبكات إدخال بـ`AllowUserToAddRows = true` خارج الاستثناءين الموثَّقين (`frmInventoryAddProduct.dgvUnits` · `frmStocktakingNew.dgvLines` · `frmPurchaseInvoice.dgvItems` · `frmSalesReturn.dgvItems` · `frmPurchaseReturn.dgvItems`) | توسيع `RULE-N22a` أو إبقاء الاستثناءين |
-| **D-03** | 7 نماذج شراء ميتة (T-13) | ربط / سحب من DI والمشروع |
+| **D-02** | شبكات إدخال بـ`AllowUserToAddRows = true` خارج الاستثناءين الموثَّقين — **مقيس الآن: 4** (`frmStocktakingNew` · `frmPurchaseInvoice` · `frmSalesReturn` · `frmPurchaseReturn`) بعد حذف `frmInventoryAddProduct` و`frmPOS` (البند كان يعدّ 5) | توسيع `RULE-N22a` أو إبقاء الاستثناءين |
+| **D-03** | 7 نماذج شراء ميتة (T-13) — **تدقيق مكتمل 2026-11-15:** كلها `ميت — مرجع واحد (Program.cs)`، صفر مستدعٍ، وبياناتها مصنوعة (`INV-2026-001` · `MockSubtotal = 150000` · «تمت طباعة فاتورة 5003 بنجاح» بلا طابعة). وظائفها منفَّذة فعلاً داخل `frmPurchaseInvoice` بخدمات حقيقية | **التوصية: سحب من DI + حذف 14 ملفاً** (`Program.cs:390-395,400`) · الاستثناء الوحيد الذي يستحق قراراً منفصلاً: `frmSupplierStatement` (تغطّي وظيفة غير موجودة في القائمة — إن أردتها فالمسار الصحيح إعادة بنائها Stage A بعقد `ISupplierStatementDesktopService`) |
 | **D-04** | 4 نوافذ طباعة مخزون بلا مستدعٍ (T-12) | توصيل / سحب |
 | **D-05** | `frmProfitByCustomerReport` (T-15) | تسمية «المستحق حسب العميل» الآن / انتظار عقد الربح |
 | **D-06** | `MockAuthService : IAuthService` بلا مستهلك (GAP-24) | إزالة / احتياط |
@@ -552,7 +559,14 @@
 | **T-49** | نصوص المستند المكرّرة | **= 0** (`private const CashCustomerName` و`private _GetStatusText` = 0) — بيت جديد `Helpers\DocumentTextHelper.cs` (`CashCustomerName` · `CashCustomerNameOr` · `StatusText`) | 3 شاشات قوائم |
 | **T-50** | آخر `CellFormatting` في التقارير | **= 0** — `frmProductMovementReport` يستخدم `GridFormatHelper.ApplyColumns/ApplyColumn` | — |
 | **T-51** | نطاق زمني معكوس | `IsDateRangeValid` **= 19** استدعاءً (كانت 6) — 13 تقريراً جديداً يرفض النطاق المقلوب قبل أي استعلام برسالة واحدة من `clsValidation` | 13 تقريراً |
-| **T-52** | حرفيات `ThemeHelper`/`ExportHelper` | `ThemeHelper` **4 TODO** موثَّقة (لا مفتاح مطابق — قرار مالك) · `ExportHelper` يقرأ الحيّ أولاً والثابت احتياطاً موثَّقاً | بيتان |
+| **T-52** | حرفيات `ThemeHelper`/`ExportHelper` — ⚠️ **قرار مالك، لا يُغلق بالكود** | `ThemeHelper` **4 TODO** موثَّقة (لا مفتاح مطابق في `ThemePalette`) · `ExportHelper` يقرأ الحيّ أولاً والثابت احتياطاً موثَّقاً — **الحالة الحقيقية في §10.6.2** | بيتان |
+| **T-54** | `_ClampToPickerRange(DateTime)` — نسخة واحدة غير مكرّرة | **يُراقَب** — لا ثاني لها حتى اليوم | §10.6.2 |
+| **T-58** | `ShowLoading(bool)` مكرّر **31** مرة و`SetHeader` **30** مرة (بيتان بنفس الجسم في 31 تقريراً) | **= 0 جسم مكرّر** — بيت واحد `ReportUiStandardizer.ShowLoading(Form?, Control?, bool)` + `SetHeader(DataGridView?, string, string)` · **31** تفويضاً لـ`ShowLoading` و**30** لـ`SetHeader` · `loadingPanel.BringToFront` في `Screens/**` **= 0** | `Helpers\ReportUiStandardizer.cs` (الموجة 13) |
+| **T-59** | ~~T-23 «معالجات فارغة = 0»~~ — **تصحيح قياس:** الفحص السطري أخطأ 5 معالجات فارغة **متعددة الأسطر** | **= 0** بفحص متعدد الأسطر: حُذفت 4 من `frmAccountStatementReport` (`loadingPanel_Paint` · `loadingPanel_Paint_1` · `label4_Click` · `dtpTo_ValueChanged`) وواحدة من `frmGeneralLedgerReport` (`nudAccountId_ValueChanged`) **مع وصلات المصمّم** — ولا واحدة منها كانت تحمل سلوكاً (التحديث عبر `btnRefresh`/`Load`) | الموجة 13 |
+| **T-60** | **محاكاة كاذبة:** سند قبض `1001` للعميل **1** مخصَّص على الفاتورة **1002** التي تخصّ العميل **2**، بمبلغ 45,000 > متبقيها | **= 0** — صار السند 1001 (17,500) مخصَّصاً على فاتورته **1007** للعميل نفسه، والمتبقي 0 = 0؛ ورصيد العميل في «الأرصدة» = «كشف الحساب» = 0 | `MockCustomerReceiptsData.cs` |
+| **T-61** | تواريخ سندات القبض مطلقة (2026-09) بينما فواتير المحاكاة نسبية (`Today.AddDays(-n)`) ⇒ سند يسبق فاتورته بشهرين | **= 0** — كل سند مرحّل صار على يوم فاتورته، والمسودات/الملغى بقي ترتيبها الداخلي (تنبيه: الترتيب الرقمي الكامل مستحيل ما دامت المسودات في أيلول) | `MockCustomerReceiptsData.cs` |
+| **T-62** | تعليق `IStocktakingDesktopService.CancelAsync` يصف سلوكاً قديماً (المسودة لم تكن تُلغى) | **= 0** — التعليق يصرّح: المسودة تُلغى بلا حركة رصيد · المرحّل يُعكس بحارس كفاية · الملغي يُرفض | `Services\Interfaces\IStocktakingDesktopService.cs:27-33` |
+| **T-63** | سندات صرف الموردين `2003`/`2004` تدّعي سداد فاتورة محددة بينما `PurchaseInvoiceId = null` | **= 0** — النص صار «دفعة على الحساب» (والأرصدة تتسق لأن الخدمة تطرح المدفوعات من متبقي الفواتير المرحّلة) | `MockSupplierPaymentsData.cs` |
 | البيوت | `MessageBox` خارج `clsDialogs` **= 0** · `ex.Message` للمستخدم **= 0** · `ExportHelper` في 32/32 تقريراً · `GreenThemeHelper.Apply(this)` في كل نموذج غير تقريري **= 0 ناقص** · تسجيل DI **94/94** بأسماء مؤهَّلة | — | — |
 
 #### 10.6.2 ما زال مفتوحاً — المرحلة A (قابل للتنفيذ الآن)
@@ -564,6 +578,7 @@
 | **T-56** | `frmInventory` يقارن `StatusName` **نصاً** (`RowFilterHelper.EqualsText`) وعقد الخدمة يعيد «مرحّل» بالشدّة بينما نص البيت «مرحل» ⇒ توحيده يغيّر نتيجة التصفية (`frmInventory.cs:1102` `e.Value.ToString() switch`) | `frmInventory.cs:62,64,636,641,1102` | **مجمَّد**: الإصلاح الصحيح = عمود `Status` رقمي أو `StatusName` من البيت في العقد (`RULE-N177`) | `backend-architect` بعد موافقة | S |
 | ~~**T-57**~~ | ✅ **مغلق (الموجة 11)** — 7 شاشات تُبنى قوائم حالتها من `StatusOptions` بعد `InitializeComponent()`، والقائمة الثابتة أُزيلت من المصمّمات | §11.12 | كان `RULE-N169` | ✅ | — |
 | **T-54** | `_ClampToPickerRange(DateTime)` — منطق حصر تاريخ داخل مدى `DateTimePicker` (نسخة واحدة، غير مكرّرة) | `frmJournalEntries.cs:964` | لا مخالفة الآن؛ يُرقّى إلى بيت تواريخ إن تكرّر في شاشة ثانية | يُراقَب | — |
+| **T-64** | **نص «وضع التجربة» مكرّر:** `private const string RealModeNotice` بنفس النص حرفياً في 3 شاشات، و`MockOnlyNotice` بنص مختلف قليلاً في شاشة رابعة | `frmEmployeeMaster.cs:27` · `frmStocktakingNew.cs:35` · `frmWarehouseTransferNew.cs:36` · `frmInventory.cs:47` | `RULE-N169` — النص المشترك مكانه `DocumentTextHelper` (مثل `StatusOptions`)؛ **لم يُنفَّذ في الموجة 13** لأن توحيد الصياغة يغيّر نصاً يراه المالك ⇒ يُنفَّذ بقراره | `ui-agent` بعد قرار | S |
 
 > **ملاحظة قياس:** `_ToNullIfEmpty` **= 0** · `_Clamp` **= 0** (المتبقي `_ClampToPickerRange` وهو دالة أخرى) · `private const CashCustomerName` **= 0** · `private _GetStatusText` **= 0** · `CellFormatting` في التقارير **= 0** · `IsDateRangeValid` **= 21** استدعاءً · `NumericInputHelper` **13** مرجعاً · `DocumentTextHelper` **48** مرجعاً · `clsValidation.EndOfDay` **21** استدعاءً. **(كل هذه الأرقام تجاوزها §10.6.5 بعد الموجات 9–12.)**
 >
@@ -575,12 +590,12 @@
 
 #### 10.6.4 قرارات مالك معلَّقة (لا تُنفَّذ بلا نص)
 
-`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**3** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2.
+`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً.
 
 
 #### 10.6.5 القياس النهائي — بعد موجة الإصلاح الكاملة (2026-11-15، المرجع الحالي)
 
-> **البناء:** `dotnet build .\SalesSystem.slnx` ⇒ **0 أخطاء / 125 تحذيراً** (التحذيرات ليست بوابة).
+> **البناء:** `dotnet build .\SalesSystem.slnx` ⇒ **0 أخطاء / 118 تحذيراً** (كان 125 — حذف 5 معالجات ميتة و60 جسم دالة مكرّر أنقص 7 تحذيرات). التحذيرات ليست بوابة.
 > **كل رقم مقيس بأمر على الشجرة الحالية** — لا مقدَّر ولا منقول. الأمر المستخدم موثَّق في §10.6.
 
 | المقياس | القيمة الآن | كان | الحكم |
@@ -600,6 +615,10 @@
 | `":N2"` في **وقت التشغيل** داخل شاشة | **0** (المتبقي 14 في `*.Designer.cs` = تصريح تصميم مقبول `RULE-N134`) | 15 | ✅ |
 | `DocumentTextHelper` | **48** مرجعاً · `StatusOptions` في **7** شاشات قوائم | 0 | ✅ `T-49`/`T-55`/`T-57` |
 | `NumericInputHelper` | **13** مرجعاً | 0 | ✅ `T-48` |
+| `ReportUiStandardizer.ShowLoading` (بيت التحميل) | **2** عضوان في البيت · **31** استدعاءً من التقارير · **0** جسم مكرّر · `loadingPanel.BringToFront` في الشاشات = **0** | 31 نسخة من 4 أسطر | ✅ `T-58` |
+| `ReportUiStandardizer.SetHeader` (بيت العناوين) | **30** استدعاءً · **0** جسم مكرّر (تقرير واحد لا يملك العضو أصلاً) | 30 نسخة | ✅ `T-58` |
+| معالجات فارغة (`void X(...) { }`) بفحص **متعدد الأسطر** | **0** | 5 (كان الفحص السطري يعدّها 0 — قياس خاطئ) | ✅ `T-59` |
+| تخصيص سند قبض لفاتورة **عميل آخر** في المحاكاة | **0** | 1 (السند 1001 → الفاتورة 1002) | ✅ `T-60` |
 | `MessageBox` / ألوان دلالية حرفية / صيغة يدوية في التقارير الـ31 | **0** | — | ✅ |
 | `_ToNullIfEmpty` / `_Clamp` / `_GetStatusText` / `private const CashCustomerName` | **0 · 0 · 0 · 0** | 18 · 5 · 2 · 3 | ✅ |
 
@@ -793,12 +812,30 @@
 | `frmPurchasesReport.cs` · `frmSupplierBalanceReport.cs` | ✅ منتهٍ | أسماء أعمدة ميتة (`WarehouseName` · `Phone`) أُزيلت |
 | `Screens\Inventory\Forms\frmInventory.cs` | ⚠️ `T-56` فقط | `"N3"`/`"N2"` في مواصفة الأعمدة → `clsFormat.QuantityPattern`/`MoneyPattern` |
 
-### 11.14 ملخّص الحكم النهائي
+### 11.14 ملخّص الحكم حتى الموجة 12
+
+> الموجة 13 (§11.15) جاءت **بعد** هذا الملخّص — تُقرأ معه، وأرقامها في §10.6.5.
 
 | الحكم | العدد | الملفات |
 |---|---|---|
 | ✅ **منتهٍ** (لا عيب قائم من فئات §11.0) | **كل ما لم يُذكر في الصفّين التاليين** | كل الشاشات والمكوّنات والتقارير الـ31 والبيوت المذكورة في §11.2–§11.13 |
 | ⚠️ **مفتوح بسبب باك‑إند مجمَّد (`RULE-N177`)** | **10** | `frmOpeningStock` (تاريخ المستند) · `frmSupplierMaster` (`CategoryId => null`) · `frmListSupplierPayments` (`T-39`) · `frmAddUpdateCustomerReceipt` (حقول التعديل) · `frmPasswordChange` (تكافؤ الرفض) · `frmInventory` (`T-56`) · `frmPOS` (فحص المخزون المسبق) · `frmIncomeStatementReport` + `frmWorkingCapitalReport` (`T-43`) · `frmUserMaster` (إعادة تعيين كلمة المرور) |
-| ⚠️ **مفتوح بسبب قرار مالك** | **6** | `Helpers\ThemeHelper` (`T-52`) · `frmCalculator` (منسّق دقة كاملة + زر نسخ) · `frmCustomerStatement` (ازدواج النقد) · `frmBackup` (تنبيه إعادة التشغيل بعد الاستعادة) · 7 نماذج `D-03` · 4 نوافذ طباعة `D-04` |
+| ⚠️ **مفتوح بسبب قرار مالك** | **7** | `Helpers\ThemeHelper` (`T-52`) · `frmCalculator` (منسّق دقة كاملة + زر نسخ) · `frmCustomerStatement` (ازدواج النقد) · `frmBackup` (تنبيه إعادة التشغيل بعد الاستعادة) · **`T-64` نص «وضع التجربة» في 4 شاشات (`D-08`)** · 7 نماذج `D-03` · 4 نوافذ طباعة `D-04` |
 
 **ملاحظة صدق:** لا ملف في هذه الموجة يحمل «✅ منتهٍ» مع بند مفتوح يمكن إصلاحه داخل الشاشة — كل `⚠️` أعلاه إما عقد/باك‑إند مجمَّد أو قرار مالك مكتوب هنا. ونقطتان لا تُصلَح في شاشة ولا يُدَّعى إغلاقهما: `frmAddUpdateSalesInvoice` (`ExpiryDateFormat = "yyyy/MM/dd"` خاص داخل الشاشة — `clsFormat` لا يملك عضو **نمط تاريخ** لـ`DateTimePicker`، فتحويله يغيّر شكل العرض = قرار مالك) و`frmSupplierStatement` (مرشّح قرار `D-03`).
+
+### 11.15 الموجة 13 — بيت التحميل/العناوين + إصلاح محاكاة السندات (3 وكلاء)
+
+> **سبب الموجة:** مراجعة هذا السجل نفسه كشفت **تناقضاً بين اللوحة والكود**: §10.6.1 يقول «معالجات فارغة = 0» بينما الفحص السطري أخطأ **5** معالجات فارغة متعددة الأسطر؛ و§10.6.1 يقول «`SetHeader`/`ShowLoading` بيت واحد» بينما الجسم نفسه مكرّر في **31** تقريراً؛ ومحاكاة سندات القبض تخصّص سنداً لفاتورة **عميل آخر**. البناء بعد الموجة = **0 أخطاء / 118 تحذيراً**.
+
+| الملف | الحكم | ما نُفِّذ |
+|---|---|---|
+| `Helpers\ReportUiStandardizer.cs` | ✅ منتهٍ `T-58` | عضوان جديدان: `ShowLoading(Form?, Control?, bool)` (بحارس `IsDisposed/Disposing` واحد لكل التقارير) و`SetHeader(DataGridView?, string, string)` — **بيت واحد** بدل 60 نسخة |
+| 31 تقريراً في `Screens\Reports\Forms\**` | ✅ منتهٍ `T-58` | حُذف جسم `ShowLoading` المكرّر من **31** ملفاً و`SetHeader` من **30**، وصار كل منها **تفويض سطر واحد** (قرار متعمَّد: صفر تغيير في 127 موضع استدعاء ⇒ صفر خطر انحدار) · `loadingPanel.BringToFront` في الشاشات = **0** |
+| `Screens\Reports\Forms\Accounting\frmAccountStatementReport.cs` (+ مصمّم) | ✅ منتهٍ `T-59` | حُذفت 4 معالجات فارغة **متعددة الأسطر** (`loadingPanel_Paint` · `loadingPanel_Paint_1` · `label4_Click` · `dtpTo_ValueChanged`) مع وصلاتها — ولا واحدة تحمل سلوكاً (التحديث عبر `btnRefresh → LoadReportAsync`) |
+| `Screens\Reports\Forms\Accounting\frmGeneralLedgerReport.cs` (+ مصمّم) | ✅ منتهٍ `T-59` | `nudAccountId_ValueChanged` الفارغ ووصلته أُزيلا (التحميل عبر `Load`/`F5`) |
+| `Services\Mock\MockCustomerReceiptsData.cs` | ✅ منتهٍ `T-60`/`T-61` | السند **1001** كان مخصَّصاً للفاتورة **1002** التي تخصّ **عميلاً آخر** (ومبلغ 45,000 > متبقيها) ⇒ صار مخصَّصاً على فاتورة العميل نفسه **1007** بمبلغ **17,500**، فرصيد «أرصدة العملاء» = «كشف الحساب» = 0 · وتواريخ السندات المرحّلة صارت على يوم فاتورتها بدل أيلول المطلق (المسودات/الملغى بقي ترتيبها) |
+| `Services\Mock\MockSupplierPaymentsData.cs` | ✅ منتهٍ `T-63` | السندان `2003`/`2004` كانا يدّعيان سداد فاتورة محددة بينما `PurchaseInvoiceId = null` ⇒ النص صار «دفعة على الحساب» (والأرصدة تتسق: الخدمة تطرح المدفوعات من متبقي الفواتير المرحّلة) |
+| `Services\Interfaces\IStocktakingDesktopService.cs` | ✅ منتهٍ `T-62` | تعليق `CancelAsync` صار يطابق الكود: المسودة تُلغى بلا حركة · المرحّل يُعكس بحارس كفاية · الملغي يُرفض |
+
+**حكم المراجعة المستقلة (`code-reviewer` على دلتا الموجة):** **مقبول** — صفر Blocker · صفر Major · ملاحظتان صغيرتان أُغلقتا (هذا السطر يُثبت الحكم ولا يستبق المراجعة؛ سطر «نتيجة المراجعة: صفر Blocker» السابق أُعيد صياغته). ما تبقّى مفتوحاً مسجَّل في §10.6.2 (`T-52` قرار مالك · `T-54` مراقَب · `T-56` مجمَّد بالعقد · **`T-64`** نص «وضع التجربة» المكرّر في 4 شاشات = قرار مالك `D-08`) وفي §10.2 (`T-65` · `T-66` · `T-67` مجمَّدة بالباك-إند).

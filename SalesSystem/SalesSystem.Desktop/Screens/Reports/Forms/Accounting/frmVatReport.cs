@@ -92,7 +92,7 @@ public partial class frmVatReport : Form, IExportableReport
         GridFormatHelper.ApplyColumn(dgvReport, "TaxRate", GridFormatKind.Ratio);
     }
 
-    private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
+    private void SetHeader(string col, string text) => ReportUiStandardizer.SetHeader(dgvReport, col, text);
 
     private async Task ExportToExcelAsync()
     {
@@ -109,11 +109,5 @@ public partial class frmVatReport : Form, IExportableReport
         catch (Exception ex) { Log.Error(ex, "خطأ في تصدير تقرير الضريبة"); clsDialogs.Error("حدث خطأ أثناء التصدير."); }
     }
 
-    private void ShowLoading(bool show)
-    {
-        if (show) loadingPanel.BringToFront();
-        loadingPanel.Visible = show;
-        this.Enabled = !show;
-        this.UseWaitCursor = show;
-    }
+    private void ShowLoading(bool show) => ReportUiStandardizer.ShowLoading(this, loadingPanel, show);
 }

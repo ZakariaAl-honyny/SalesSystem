@@ -25,7 +25,11 @@ public interface IStocktakingDesktopService
     /// <summary>ترحيل مسودة: يطبّق فروق الجرد على الرصيد مرة واحدة.</summary>
     Task<Result<StocktakingDto>> PostAsync(int id, CancellationToken ct = default);
 
-    /// <summary>إلغاء محضر <b>مرحّل</b> بعكس أثره (RULE-004: حالة إلغاء لا حذف).</summary>
+    /// <summary>
+    /// إلغاء محضر: <b>المسودة</b> تُلغى بلا أي حركة رصيد (لا شيء يُعكس)، و<b>المرحّل</b> وحده يُعكس أثره
+    /// (الفائض يُسحب والعجز يُعاد) بعد التحقّق من كفاية الرصيد لسحب الفائض، و<b>الملغي</b> يُرفض إلغاؤه ثانية.
+    /// النتيجة حالة «ملغي» لا حذف (RULE-004) — والرفض نص عربي في <see cref="Result"/>.
+    /// </summary>
     Task<Result> CancelAsync(int id, CancellationToken ct = default);
 }
 

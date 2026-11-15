@@ -364,7 +364,6 @@ partial class frmAccountStatementReport
         label4.TabIndex = 9;
         label4.Text = "إلى:";
         label4.TextAlign = ContentAlignment.MiddleRight;
-        label4.Click += label4_Click;
         // 
         // dtpTo
         // 
@@ -375,7 +374,6 @@ partial class frmAccountStatementReport
         dtpTo.Name = "dtpTo";
         dtpTo.Size = new Size(175, 32);
         dtpTo.TabIndex = 10;
-        dtpTo.ValueChanged += dtpTo_ValueChanged;
         // 
         // pnlGrid
         // 
@@ -563,7 +561,6 @@ partial class frmAccountStatementReport
         loadingPanel.Size = new Size(1200, 680);
         loadingPanel.TabIndex = 31;
         loadingPanel.Visible = false;
-        loadingPanel.Paint += loadingPanel_Paint_1;
         // 
         // ll
         // 

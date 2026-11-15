@@ -2024,4 +2024,28 @@ public static class ReportUiStandardizer
 
         return false;
     }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  طبقة التحميل وعناوين الأعمدة — بيت واحد لكل التقارير (RULE-N169)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>إظهار/إخفاء طبقة التحميل مع حماية من الاستثناء بعد الإغلاق — بيت واحد لكل التقارير (RULE-N169).</summary>
+    public static void ShowLoading(Form? form, Control? loadingPanel, bool show)
+    {
+        if (form is null || loadingPanel is null) return;
+        if (form.IsDisposed || form.Disposing) return;
+
+        if (show) loadingPanel.BringToFront();
+        loadingPanel.Visible = show;
+        form.Enabled = !show;
+        form.UseWaitCursor = show;
+    }
+
+    /// <summary>تعيين عنوان عمود إن وُجد فعلاً (RULE-N169 — بيت واحد لكل التقارير).</summary>
+    public static void SetHeader(DataGridView? grid, string column, string text)
+    {
+        if (grid is null || string.IsNullOrEmpty(column)) return;
+        if (!grid.Columns.Contains(column)) return;
+        grid.Columns[column].HeaderText = text;
+    }
 }

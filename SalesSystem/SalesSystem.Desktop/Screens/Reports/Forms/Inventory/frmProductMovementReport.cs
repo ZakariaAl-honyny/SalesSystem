@@ -226,11 +226,5 @@ public partial class frmProductMovementReport : Form, IExportableReport
         }
     }
 
-    private void ShowLoading(bool show)
-    {
-        if (show) loadingPanel.BringToFront();
-        loadingPanel.Visible = show;
-        this.Enabled = !show;
-        this.UseWaitCursor = show;
-    }
+    private void ShowLoading(bool show) => ReportUiStandardizer.ShowLoading(this, loadingPanel, show);
 }

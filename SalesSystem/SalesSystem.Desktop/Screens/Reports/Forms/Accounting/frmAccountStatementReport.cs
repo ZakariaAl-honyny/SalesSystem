@@ -147,7 +147,7 @@ public partial class frmAccountStatementReport : Form, IExportableReport
         GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateShort);
     }
 
-    private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
+    private void SetHeader(string col, string text) => ReportUiStandardizer.SetHeader(dgvReport, col, text);
 
     private Task ExportToExcelAsync()
     {
@@ -165,32 +165,6 @@ public partial class frmAccountStatementReport : Form, IExportableReport
         return Task.CompletedTask;
     }
 
-    private void ShowLoading(bool show)
-    {
-        if (show) loadingPanel.BringToFront();
-        loadingPanel.Visible = show;
-        this.Enabled = !show;
-        this.UseWaitCursor = show;
-    }
-
-    private void loadingPanel_Paint(object sender, PaintEventArgs e)
-    {
-
-    }
-
-    private void loadingPanel_Paint_1(object sender, PaintEventArgs e)
-    {
-
-    }
-
-    private void label4_Click(object sender, EventArgs e)
-    {
-
-    }
-
-    private void dtpTo_ValueChanged(object sender, EventArgs e)
-    {
-
-    }
+    private void ShowLoading(bool show) => ReportUiStandardizer.ShowLoading(this, loadingPanel, show);
 }
 

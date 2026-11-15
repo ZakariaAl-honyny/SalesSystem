@@ -308,7 +308,6 @@ partial class frmGeneralLedgerReport
         nudAccountId.Size = new Size(103, 32);
         nudAccountId.TabIndex = 4;
         nudAccountId.Value = new decimal(new int[] { 1, 0, 0, 0 });
-        nudAccountId.ValueChanged += nudAccountId_ValueChanged;
         // 
         // label3
         // 

@@ -119,10 +119,7 @@ public partial class frmLowStockReport : Form, IExportableReport
         GridFormatHelper.ApplyBalanceColouring(dgvReport, "Quantity", "ReorderLevel");
     }
 
-    private void SetHeader(string col, string text)
-    {
-        if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text;
-    }
+    private void SetHeader(string col, string text) => ReportUiStandardizer.SetHeader(dgvReport, col, text);
 
     private async Task ExportToExcelAsync()
     {
@@ -153,11 +150,5 @@ public partial class frmLowStockReport : Form, IExportableReport
         }
     }
 
-    private void ShowLoading(bool show)
-    {
-        if (show) loadingPanel.BringToFront();
-        loadingPanel.Visible = show;
-        this.Enabled = !show;
-        this.UseWaitCursor = show;
-    }
+    private void ShowLoading(bool show) => ReportUiStandardizer.ShowLoading(this, loadingPanel, show);
 }

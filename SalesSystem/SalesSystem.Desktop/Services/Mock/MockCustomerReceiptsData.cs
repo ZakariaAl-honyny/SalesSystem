@@ -9,25 +9,28 @@ internal static class MockCustomerReceiptsData
 {
     public static List<CustomerReceiptDto> Receipts { get; } = new()
     {
-        // ─── سند 1: مرحل — أحمد محمد علي — نقدي ───
+        // ─── سند 1: مرحل — أحمد محمد علي — نقدي — سداد فاتورته 1007 ───
+        // الرصيد: كشف حساب العميل 1 = مدين 17,500 (الفاتورة المرحّلة 1007) − دائن هذا السند = 0
+        // = CurrentBalance (0) = مجموع متبقي الفواتير المرحّلة (0) — فأي مبلغ غير 17,500 يخالف الرصيد.
         new CustomerReceiptDto(
             Id: 1,
             ReceiptNo: 1001,
-            ReceiptDate: new DateTime(2026, 9, 1),
+            ReceiptDate: DateTime.Today, // نفس يوم الفاتورة 1007 (DateTime.Today في MockData)
             CustomerId: 1,
             CustomerName: "أحمد محمد علي",
             CashBoxId: 1,
             CashBoxName: "الصندوق الرئيسي (الخزينة المركزية)",
-            Amount: 45000m,
+            Amount: 17500m, // = صافي الفاتورة 1007 = المتبقي قبل التحصيل (لا يزيد عليه)
             PaymentMethod: 1, // Cash
             PaymentMethodName: "نقدي",
-            Notes: "تحصيل دفعة نقدية من العميل أحمد محمد علي",
+            Notes: "تحصيل نقدي من العميل أحمد محمد علي سداداً لفاتورة البيع رقم 1007",
             Status: 2, // Posted
             StatusName: "مرحّل",
-            PostedAt: new DateTime(2026, 9, 1, 10, 0, 0),
+            PostedAt: DateTime.Today.AddHours(10),
+            // التخصيص على فاتورة العميل نفسه فقط: العميل 1 → فاتورة 1007 (المدفوع عليها 17,500، المتبقي بعدها 0).
             Applications: new List<CustomerReceiptApplicationDto>
             {
-                new(1, 1, 2, 1002, 45000m, true)
+                new(1, 1, 7, 1007, 17500m, true)
             },
             IsActive: true
         ),
@@ -36,7 +39,7 @@ internal static class MockCustomerReceiptsData
         new CustomerReceiptDto(
             Id: 2,
             ReceiptNo: 1002,
-            ReceiptDate: new DateTime(2026, 9, 3),
+            ReceiptDate: DateTime.Today.AddDays(-3), // نفس يوم الفاتورة 1002 (DateTime.Today.AddDays(-3))
             CustomerId: 2,
             CustomerName: "شركة النور للتجارة",
             CashBoxId: 1,
@@ -47,7 +50,7 @@ internal static class MockCustomerReceiptsData
             Notes: "حوالة بنكية سداداً لفاتورة بيع جملة رقم 1002",
             Status: 2, // Posted
             StatusName: "مرحّل",
-            PostedAt: new DateTime(2026, 9, 3, 14, 30, 0),
+            PostedAt: DateTime.Today.AddDays(-3).AddHours(14).AddMinutes(30),
             Applications: new List<CustomerReceiptApplicationDto>
             {
                 new(2, 2, 2, 1002, 175000m, true)

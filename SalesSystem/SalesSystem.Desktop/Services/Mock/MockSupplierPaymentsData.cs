@@ -47,7 +47,7 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 2, // شيك
             PaymentDate: new DateOnly(2026, 9, 10),
             PurchaseInvoiceId: null,
-            Notes: "سداد فاتورة أرز بسمتي وحبوب بموجب شيك رقم 440915",
+            Notes: "سداد دفعة من مستحقات مؤسسة التضامن بموجب شيك رقم 440915",
             BranchId: 1),
 
         // ── سند 4: تحويل بنكي لشركة الكبوس ──
@@ -60,7 +60,7 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 3, // تحويل بنكي
             PaymentDate: new DateOnly(2026, 9, 15),
             PurchaseInvoiceId: null,
-            Notes: "سداد فاتورة شاي وبهارات",
+            Notes: "سداد دفعة على الحساب عن توريد شاي وبهارات",
             BranchId: 1),
 
         // ── سند 5: نقداً لمجموعة هائل سعيد (دفعة ثانية) ──

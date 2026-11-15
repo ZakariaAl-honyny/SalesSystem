@@ -82,7 +82,7 @@ public partial class frmProductProfitabilityReport : Form, IExportableReport
         GridFormatHelper.ApplyColumn(dgvReport, "ProfitMargin", GridFormatKind.Ratio);
     }
 
-    private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
+    private void SetHeader(string col, string text) => ReportUiStandardizer.SetHeader(dgvReport, col, text);
 
     private async Task ExportToExcelAsync()
     {
@@ -99,13 +99,7 @@ public partial class frmProductProfitabilityReport : Form, IExportableReport
         catch (Exception ex) { Log.Error(ex, "خطأ في تصدير أرباح الأصناف"); clsDialogs.Error("حدث خطأ أثناء التصدير."); }
     }
 
-    private void ShowLoading(bool show)
-    {
-        if (show) loadingPanel.BringToFront();
-        loadingPanel.Visible = show;
-        this.Enabled = !show;
-        this.UseWaitCursor = show;
-    }
+    private void ShowLoading(bool show) => ReportUiStandardizer.ShowLoading(this, loadingPanel, show);
 
     private void btnRefresh_Click(object? sender, EventArgs e)
     {

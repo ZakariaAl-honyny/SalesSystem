@@ -87,7 +87,7 @@ public partial class frmDailyClosureReport : Form, IExportableReport
         GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalIncome", "TotalExpense", "NetBalance");
     }
 
-    private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
+    private void SetHeader(string col, string text) => ReportUiStandardizer.SetHeader(dgvReport, col, text);
 
     private async Task ExportToExcelAsync()
     {
@@ -104,17 +104,7 @@ public partial class frmDailyClosureReport : Form, IExportableReport
         catch (Exception ex) { Log.Error(ex, "خطأ في تصدير التقرير اليومي"); clsDialogs.Error("حدث خطأ أثناء التصدير."); }
     }
 
-    private void ShowLoading(bool show)
-    {
-        // النموذج قد يكون أُغلق أثناء انتظار الخدمة؛ لمس عنصر متخلَّص منه يرمي
-        // ObjectDisposedException من finally فيسقط التحميل.
-        if (IsDisposed || Disposing) return;
-
-        if (show) loadingPanel.BringToFront();
-        loadingPanel.Visible = show;
-        this.Enabled = !show;
-        this.UseWaitCursor = show;
-    }
+    private void ShowLoading(bool show) => ReportUiStandardizer.ShowLoading(this, loadingPanel, show);
 
     private void btnRefresh_Click(object? sender, EventArgs e)
     {
