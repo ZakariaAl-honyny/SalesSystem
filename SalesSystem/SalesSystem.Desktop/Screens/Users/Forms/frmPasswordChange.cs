@@ -29,6 +29,7 @@ public partial class frmPasswordChange : Form
     private const string MismatchMessage = "كلمة المرور غير متطابقة";
     private const string SamePasswordMessage = "كلمة المرور الجديدة يجب أن تختلف عن الحالية";
     private const string UnknownUserMessage = "تعذر تحديد المستخدم الحالي. يرجى إعادة تسجيل الدخول.";
+    private const string UnknownTargetUserMessage = "تعذر تحديد المستخدم المطلوب تغيير كلمة مروره. يرجى إعادة المحاولة.";
     private const string ValidationSummaryMessage = "يرجى تصحيح الحقول المعلَّمة.";
     private const string SaveFailedMessage = "تعذر تغيير كلمة المرور. يرجى إعادة المحاولة.";
 
@@ -232,12 +233,16 @@ public partial class frmPasswordChange : Form
     {
         if (_isBusy) return;
 
-        // حارس الهوية: لا يُرسَل userId = 0 أبداً في وضع الخدمة الذاتية.
-        if (_isSelfService && _UserId <= 0)
+        // حارس الهوية: لا يُرسَل userId = 0 أبداً — في **الوضعين** (كان الحارس على الخدمة الذاتية
+        // وحدها، فكانت الإعادة الإدارية تُرسل userId = 0 فتنتهي الشاشة إلى طريق مسدود بلا رسالة).
+        if (_UserId <= 0)
         {
-            ShowError(UnknownUserMessage);
-            _Reject(txtCurrentPassword, UnknownUserMessage);
-            txtCurrentPassword.Focus();
+            var identityMessage = _isSelfService ? UnknownUserMessage : UnknownTargetUserMessage;
+            var identityField = _isSelfService ? txtCurrentPassword : txtNewPassword;
+
+            ShowError(identityMessage);
+            _Reject(identityField, identityMessage);
+            identityField.Focus();
             return;
         }
 
@@ -270,14 +275,21 @@ public partial class frmPasswordChange : Form
                 return;
             }
 
-            // رفض الخدمة (رسالة عربية): في الشاشة لا في صندوق رسالة، وتُفرَّغ حقول الإدخال.
-            // الترتيب مقصود: التفريغ أولاً (يُطلق TextChanged الذي يمسح الخطأ) ثم الرسالة والأيقونة.
+            // رفض الخدمة (رسالة عربية): في الشاشة لا في صندوق رسالة.
+            // وفي وضع الخدمة الذاتية لا ترفض الخدمة إلا بسبب الهوية أو كلمة المرور الحالية — فكل قواعد
+            // كلمة المرور الجديدة (الإلزام · الطول · التطابق · الاختلاف عن الحالية) تُتحقَّق محلياً قبل
+            // الإرسال. لذلك تُوجَّه الأيقونة إلى كلمة المرور الحالية، وتبقى كلمتا المرور الجديدتان كما
+            // هما: كانت الشاشة تُفرّغهما وتضع الأيقونة على «الجديدة» فيُعيد المستخدم كتابة حقلين صحيحين
+            // بسبب خطأ في الحقل الأول — رفض مضلِّل وفقدان لما كتبه.
             string error = string.IsNullOrWhiteSpace(result.Error) ? SaveFailedMessage : result.Error;
-            txtNewPassword.Clear();
-            txtConfirmPassword.Clear();
+
+            var rejectField = _isSelfService && txtCurrentPassword.Visible
+                ? txtCurrentPassword
+                : txtNewPassword;
+
             ShowError(error);
-            _Reject(txtNewPassword, error);
-            txtNewPassword.Focus();
+            _Reject(rejectField, error);
+            rejectField.Focus();
         }
         catch (Exception ex)
         {
@@ -304,11 +316,24 @@ public partial class frmPasswordChange : Form
     /// <summary>
     /// إعادة تعيين إدارية من دليل المستخدمين: تُخفى كلمة المرور الحالية (المدير لا يعرفها —
     /// استثناء موثّق) وتُعاد الصفوف المتبقية إلى أعلى بلا فجوة تخطيط.
+    /// <para>
+    /// الهدف هو المستخدم الحالي نفسه ⇒ الخدمة تعامل الطلب كخدمة ذاتية وتُلزم كلمة المرور الحالية،
+    /// فإخفاء صفّها يجعل الشاشة طريقاً مسدوداً — يُفتح الوضع الذاتي بدلاً منه.
+    /// والهدف غير الصالح (<paramref name="userId"/> ≤ 0) يبقى في الوضع الإداري بهوية 0 فيرفضه حارس
+    /// الحفظ برسالة عربية، بدل إرسال <c>userId = 0</c> إلى الخدمة أو تحويل الطلب إلى تغيير كلمة مرور
+    /// المستخدم الحالي (كتابة على الحساب الخطأ).
+    /// </para>
     /// </summary>
     public void _SetUpdateMode(int userId)
     {
+        if (userId > 0 && userId == (SessionService.Current?.UserId ?? 0))
+        {
+            _SetSelfServiceMode(userId);
+            return;
+        }
+
         _isSelfService = false;
-        _UserId = userId;
+        _UserId = Math.Max(userId, 0);
         lblMode.Text = "إعادة تعيين كلمة المرور";
         Text = "إعادة تعيين كلمة المرور";
 

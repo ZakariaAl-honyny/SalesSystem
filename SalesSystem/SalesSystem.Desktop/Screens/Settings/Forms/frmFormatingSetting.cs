@@ -7,7 +7,7 @@ using Serilog;
 namespace SalesSystem.Desktop.Screens.Settings.Forms;
 
 /// <summary>
-/// شاشة إعدادات التنسيق (المرحلة أ — Mock · UI &amp; UX QA).
+/// شاشة إعدادات التنسيق.
 /// <para>
 /// شاشة إعدادات واحدة يجمع فيها المالك **كل** تنسيقات الأرقام والتواريخ (10 إعدادات) في مكان
 /// واحد، مع معاينة فورية تُبنى من المنسّق الحقيقي نفسه قبل الحفظ.
@@ -18,8 +18,9 @@ namespace SalesSystem.Desktop.Screens.Settings.Forms;
 /// قاعدة تحقق داخل الشاشة (<c>RULE-N169</c>…<c>RULE-N172</c>).
 /// </para>
 /// <para>
-/// لا تحفظ الشاشة في أي قاعدة بيانات ولا تمسّ <c>SystemSettings</c>: تخاطب
-/// <see cref="IFormatSettingsDesktopService"/> فقط (المرحلة أ: <c>MockFormatSettingsDesktopService</c>)،
+/// الشاشة لا تمسّ <c>SystemSettings</c> مباشرة ولا أي طبقة أخرى: تخاطب
+/// <see cref="IFormatSettingsDesktopService"/> فقط — <c>MockFormatSettingsDesktopService</c> في وضع
+/// التجربة و<c>DirectFormatSettingsService</c> في الوضع الحقيقي (كلاهما في فرعيه المسجَّلين في DI)،
 /// ولا تُطبَّق القيم على بقية الشاشات إلا بعد نجاح «حفظ وتطبيق» — والمعاينة داخلها تعمل على
 /// <b>مسودّة</b> غير محفوظة تُمرَّر لمنسّقات <see cref="clsFormat"/> كوسيط <c>values</c>.
 /// </para>
@@ -34,6 +35,7 @@ public partial class frmFormatingSetting : Form
     // ── نصوص ثابتة ────────────────────────────────────────────────────────────
     private const string ModeSaved = "إعدادات التنسيق محفوظة";
     private const string ModeDirty = "إعدادات التنسيق — تغييرات غير محفوظة";
+    private const string ModeLoadFailed = "تعذر تحميل إعدادات التنسيق — أعد المحاولة بـF5";
 
     // ── عيّنات المعاينة (القيم فقط — الصيغة تأتي من clsFormat حصراً) ──────────
     private const decimal PreviewAmount = 1234567.891m;
@@ -74,9 +76,9 @@ public partial class frmFormatingSetting : Form
         // RULE-N43 — مظهر التعطيل الموحّد لأزرار الحالة
         KeyboardHelper.WireButtonDisabledVisual(btnSave, btnReset);
 
-        // RULE-N47 — الاختصارات الموحّدة: F5 تحديث · Esc إغلاق
+        // RULE-N47 — الاختصارات الموحّدة: F5 تحديث · Esc إغلاق (Esc يمرّ بـFormClosing فيسأل عن المسودّة)
         KeyboardHelper.WireGlobalShortcuts(this,
-            (Keys.F5, () => { _ = _LoadAsync(); }),
+            (Keys.F5, _RefreshAsync),
             (Keys.Escape, Close));
 
         // RULE-N147 — Enter = الزر الأساسي (خارج حقول الإدخال: Enter هناك = الحقل التالي)
@@ -200,7 +202,7 @@ public partial class frmFormatingSetting : Form
 
             if (!result.IsSuccess || settings is null)
             {
-                clsDialogs.Error(result.Error ?? "تعذر تحميل إعدادات التنسيق.");
+                _ShowLoadFailure(result.Error ?? "تعذر تحميل إعدادات التنسيق.");
                 return;
             }
 
@@ -222,19 +224,28 @@ public partial class frmFormatingSetting : Form
 
             _BindControls();
             _UpdatePreview();
-            _ValidateDraft();
-            _UpdateMode();
-            _UpdateSummary();
+            _ApplyState();
         }
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر تحميل إعدادات التنسيق");
-            clsDialogs.Error("تعذر تحميل إعدادات التنسيق. يرجى إعادة المحاولة.");
+            _ShowLoadFailure("تعذر تحميل إعدادات التنسيق. يرجى إعادة المحاولة.");
         }
         finally
         {
             Cursor = Cursors.Default;
         }
+    }
+
+    /// <summary>
+    /// مسار فشل التحميل: لا مسودّة صالحة ⇒ لا حفظ (والزر يُرى معطّلاً لا مفعّلاً بلا فعل)،
+    /// ومؤشر الوضع يدلّ على «F5» للاسترداد، ورسالة عربية واحدة.
+    /// </summary>
+    private void _ShowLoadFailure(string message)
+    {
+        btnSave.Enabled = false;
+        lblMode.Text = ModeLoadFailed;
+        clsDialogs.Error(message);
     }
 
     /// <summary>
@@ -391,7 +402,7 @@ public partial class frmFormatingSetting : Form
 
     /// <summary>
     /// المعالج الوحيد لكل عناصر القيم (قائمة منازل · فاصل الكسر · زوج أزرار نعم/لا · صيغة تاريخ).
-    /// كل تغيير يمرّ بالخط الأربعة نفسه بلا تكرار منطق في أي معالج آخر.
+    /// كل تغيير يمرّ بالخط الثلاثة نفسه بلا تكرار منطق في أي معالج آخر.
     /// </summary>
     private void Value_Changed(object? sender, EventArgs e)
     {
@@ -399,9 +410,7 @@ public partial class frmFormatingSetting : Form
 
         _RefreshDraft();
         _UpdatePreview();
-        _ValidateDraft();
-        _UpdateMode();
-        _UpdateSummary();
+        _ApplyState();
     }
 
     /// <summary>يقرأ العناصر إلى المسودّة — المفاتيح من <c>clsFormat</c> والقيم من خيارات القوائم وأزرار الاختيار.</summary>
@@ -450,36 +459,35 @@ public partial class frmFormatingSetting : Form
     }
 
     /// <summary>
-    /// التحقق الوحيد للدفعة عبر <c>clsFormat.ValidateAll</c> (لا قاعدة محلية). عند الرفض تُعرض
-    /// الرسالة العربية ويُعطَّل الحفظ، وتبقى المعاينة على آخر شكل صالح — لا تُفرَّغ.
+    /// **آلة الحالة الوحيدة** للشاشة (RULE-N43 · RULE-N44 · RULE-N147): تحقق واحد عبر
+    /// <c>clsFormat.ValidateAll</c> (لا قاعدة محلية — الرسالة العربية من البيت الواحد) + عدد
+    /// التغييرات مقابل المحفوظ، ومنهما تُشتق رسالة الرفض وتفعيل «حفظ وتطبيق» ومؤشر الوضع
+    /// وشريط الملخص والزر الأساسي — فلا تُعيَّن هذه الحالات متفرقة في أي معالج.
+    /// <para>
+    /// <b>لا حفظ بلا تغيير:</b> الزر معطّل على مسودّة مطابقة للمحفوظ، فلا يُعلَن «تم الحفظ» عن لا شيء،
+    /// وتبقى المعاينة على آخر شكل صالح عند الرفض — لا تُفرَّغ.
+    /// </para>
     /// </summary>
-    private void _ValidateDraft()
+    private void _ApplyState()
     {
         string? error = clsFormat.ValidateAll(_draft);
-
-        lblValidation.Text = error ?? string.Empty;
-        btnSave.Enabled = error is null;
-    }
-
-    /// <summary>مؤشر الوضع (RULE-N44): محفوظة ⟷ تغييرات غير محفوظة + عددها، وربط Enter بالزر الأساسي.</summary>
-    private void _UpdateMode()
-    {
         int changed = _ChangedCount();
 
-        lblMode.Text = changed == 0
-            ? ModeSaved
-            : $"{ModeDirty} ({changed})";
+        lblValidation.Text = error ?? string.Empty;
+
+        btnSave.Enabled = error is null && changed > 0;
+
+        lblMode.Text = changed == 0 ? ModeSaved : $"{ModeDirty} ({changed})";
+        lblSummary.Text = $"عدد الإعدادات: {clsFormat.Definitions.Count} · المعدّلة: {changed}";
 
         AcceptButton = _PrimaryActionButton();
     }
 
-    /// <summary>شريط الملخص (RULE-N61): عدد الإعدادات وعدد المعدّل منها.</summary>
-    private void _UpdateSummary()
-    {
-        lblSummary.Text = $"عدد الإعدادات: {clsFormat.Definitions.Count} · المعدّلة: {_ChangedCount()}";
-    }
-
-    private Button? _PrimaryActionButton() => btnSave;
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي (RULE-N147): «حفظ وتطبيق» فقط عند وجود تغيير صالح — وإلا فلا زر
+    /// أساسي، فلا يُنفَّذ حفظ بلا تغيير بـ <c>Enter</c>.
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnSave.Enabled ? btnSave : null;
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -487,10 +495,14 @@ public partial class frmFormatingSetting : Form
     {
         if (_isBusy) return;
 
+        // لا شيء لحفظه: لا نداء خدمة ولا رسالة «تم الحفظ» على مسودّة مطابقة للمحفوظ (RULE-N43).
+        if (_ChangedCount() == 0) return;
+
         Cursor = Cursors.WaitCursor;
         try
         {
             _isBusy = true;
+            _SetEditorsEnabled(false); // لا تعديل للمسودّة بين الإرسال وإعادة القراءة (RULE-N25)
 
             // نسخة مستقلة من المسودّة — لا يُلمس _draft بعد الإرسال.
             var batch = new Dictionary<string, string>(_draft, StringComparer.Ordinal);
@@ -520,6 +532,7 @@ public partial class frmFormatingSetting : Form
         }
         finally
         {
+            _SetEditorsEnabled(true);
             _isBusy = false;
             Cursor = Cursors.Default;
         }
@@ -538,6 +551,7 @@ public partial class frmFormatingSetting : Form
         try
         {
             _isBusy = true;
+            _SetEditorsEnabled(false);
 
             var result = await DesktopService.ResetToDefaultsAsync();
 
@@ -558,12 +572,70 @@ public partial class frmFormatingSetting : Form
         }
         finally
         {
+            _SetEditorsEnabled(true);
             _isBusy = false;
             Cursor = Cursors.Default;
         }
     }
 
     private void btnClose_Click(object? sender, EventArgs e) => Close();
+
+    /// <summary>
+    /// إعادة تحميل كل الإعدادات من المخزن (F5). عملية جارية ⇒ تُهمل؛ ومسودّة غير محفوظة ⇒ تأكيد
+    /// صريح قبل إهمالها (لا فقدان صامت لتغيير — `RULE-N25`).
+    /// </summary>
+    private async void _RefreshAsync()
+    {
+        if (_isBusy) return;
+
+        if (!_ConfirmDiscardDraft("التحديث")) return;
+
+        try
+        {
+            await _LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تحديث إعدادات التنسيق");
+            clsDialogs.Error("تعذر تحديث إعدادات التنسيق. يرجى إعادة المحاولة.");
+        }
+    }
+
+    /// <summary>
+    /// إغلاق الشاشة: يمنع الإغلاق أثناء عملية جارية، ويسأل قبل إهمال مسودّة غير محفوظة
+    /// (Esc · زر «إغلاق» · زر نافذة الإغلاق — كلها تمرّ من هنا).
+    /// </summary>
+    private void frmFormatingSetting_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        if (_isBusy)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        if (!_ConfirmDiscardDraft("الإغلاق")) e.Cancel = true;
+    }
+
+    /// <summary>تأكيد إهمال التغييرات غير المحفوظة — لا سؤال حين لا يوجد تغيير.</summary>
+    private bool _ConfirmDiscardDraft(string action)
+    {
+        int changed = _ChangedCount();
+        if (changed == 0) return true;
+
+        return clsDialogs.Confirm(
+            $"توجد تغييرات غير محفوظة ({changed}) — هل تريد إهمالها ومتابعة {action}؟",
+            "تغييرات غير محفوظة");
+    }
+
+    /// <summary>
+    /// يُعطّل محرّرات القيم أثناء عملية جارية فلا تُعدَّل المسودّة بين الإرسال وإعادة القراءة
+    /// (مظهر التعطيل موحّد عبر `KeyboardHelper.WireDisabledVisuals` — `RULE-N154`).
+    /// </summary>
+    private void _SetEditorsEnabled(bool enabled)
+    {
+        gbNumbers.Enabled = enabled;
+        gbDates.Enabled = enabled;
+    }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 

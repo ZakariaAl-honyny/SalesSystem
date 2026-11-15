@@ -7,8 +7,11 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// مبنية على INITIAL_USERS المرجعية.
 /// <para>
 /// كلمات المرور ليست مخزَّنة في <see cref="Users"/> (لا يوجد هاش في الوضع التجريبي)،
-/// بل في مخزن مستقل داخلي — كلمة مرور تجريبية واحدة معروفة لكل حساب أولي —
-/// حتى يتمكن المالك من اختبار مسار الرفض «كلمة المرور غير صحيحة» (<c>RULE-N167</c>).
+/// بل في مخزن واحد داخلي هنا (<see cref="Passwords"/>) — البيت الوحيد لكلمة مرور كل مستخدم،
+/// يستهلكه <c>MockUserDesktopService</c> (إنشاء/تعديل/إعادة تعيين/تعطيل) و<c>MockAuthDesktopService</c>
+/// (الدخول وتغيير كلمة المرور) معاً (<c>RULE-N169</c>/<c>RULE-N171</c>): فكلمة المرور المكتوبة في
+/// <c>frmUserMaster</c> هي بعينها التي يُقبل بها الدخول، ومسار الرفض «كلمة المرور غير صحيحة»
+/// يبقى قابلاً للاختبار (<c>RULE-N167</c>).
 /// </para>
 /// </summary>
 internal static class MockSecurityData
@@ -80,12 +83,12 @@ internal static class MockSecurityData
     // ═══════════════════════════════════════════════
 
     /// <summary>
-    /// مخزن كلمات المرور التجريبية في الذاكرة — مفتاحه اسم المستخدم (بلا حساسية لحالة الأحرف).
+    /// مخزن كلمات المرور التجريبية في الذاكرة — مفتاحه <c>UserId</c> (المعرّف الثابت للسجل) لا اسم
+    /// المستخدم، فتبقى كلمة المرور مرتبطة بالسجل نفسه ولا تتأثر بأي كتابة/تنسيق للاسم.
     /// يعيش ما دام التطبيق مثل <see cref="Users"/>، فلا تُصفَّر كلمة المرور عند إغلاق الشاشة
-    /// وإعادة فتحها، ولا يُصفَّر شيئاً إلا بإعادة تشغيل التطبيق.
+    /// وإعادة فتحها، ولا يُصفَّر شيء إلا بإعادة تشغيل التطبيق.
     /// </summary>
-    private static readonly Dictionary<string, string> Passwords =
-        new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<int, string> Passwords = new();
 
     /// <summary>
     /// يزرع كلمة المرور التجريبية الافتراضية لكل حساب أولي بعد تهيئة <see cref="Users"/>.
@@ -93,34 +96,46 @@ internal static class MockSecurityData
     static MockSecurityData()
     {
         foreach (var user in Users)
-            Passwords[user.UserName] = DefaultPassword;
+            Passwords[user.Id] = DefaultPassword;
     }
 
     /// <summary>
-    /// يقرأ كلمة المرور التجريبية لاسم مستخدم — <c>false</c> للاسم الفارغ أو غير المزروع.
-    /// عندها تستخدم خدمة المصادقة الافتراضية <see cref="DefaultPassword"/> (حساب أنشأه المستخدم).
+    /// يقرأ كلمة المرور التجريبية لمستخدم بمعرّفه — <c>false</c> للمعرّف غير الصالح أو غير المزروع.
+    /// وعندها تستخدم خدمة المصادقة الافتراضية <see cref="DefaultPassword"/> كسقوط آمن.
     /// </summary>
-    internal static bool TryGetPassword(string? userName, out string password)
+    internal static bool TryGetPassword(int userId, out string password)
     {
         password = DefaultPassword;
 
-        if (string.IsNullOrWhiteSpace(userName)) return false;
+        if (userId <= 0) return false;
 
-        if (!Passwords.TryGetValue(userName.Trim(), out var stored)) return false;
+        if (!Passwords.TryGetValue(userId, out var stored)) return false;
 
         password = stored;
         return true;
     }
 
     /// <summary>
-    /// يخزّن كلمة مرور جديدة لاسم مستخدم (يُستهلك بعد نجاح تغيير/إعادة تعيين كلمة المرور).
-    /// لا يُخزَّن نص فارغ إطلاقاً — تبقى الكلمة السابقة.
+    /// يخزّن كلمة مرور لمستخدم بمعرّفه (إنشاء · تعديل · إعادة تعيين)، ويعيد **الكلمة المخزَّنة فعلاً**
+    /// حتى تعرض الشاشة القيمة الحقيقية لا قيمة مخمَّنة. النص الفارغ يعني «الكلمة الافتراضية»
+    /// (<see cref="DefaultPassword"/>) — لا يبقى الحساب بلا كلمة مرور.
     /// </summary>
-    internal static void SetPassword(string? userName, string? password)
+    internal static string SetPassword(int userId, string? password)
     {
-        if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password)) return;
+        var effective = string.IsNullOrWhiteSpace(password) ? DefaultPassword : password;
 
-        Passwords[userName.Trim()] = password;
+        if (userId > 0) Passwords[userId] = effective;
+
+        return effective;
+    }
+
+    /// <summary>
+    /// يزيل كلمة مرور مستخدم (يُستهلك عند تعطيل الحساب)، فيعود القراءة إلى
+    /// الافتراضية عند أول كتابة جديدة له.
+    /// </summary>
+    internal static void RemovePassword(int userId)
+    {
+        if (userId > 0) Passwords.Remove(userId);
     }
 
     /// <summary>

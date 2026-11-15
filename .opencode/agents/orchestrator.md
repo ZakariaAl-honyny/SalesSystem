@@ -7,6 +7,9 @@ permissions:
     resource: "*"
     effect: deny
   - action: edit
+    resource: ".opencode/agents/**"
+    effect: allow
+  - action: edit
     resource: "AGENTS.md"
     effect: allow
   - action: edit
@@ -17,6 +20,9 @@ permissions:
     effect: allow
   - action: shell
     resource: "dotnet test*"
+    effect: deny
+  - action: shell
+    resource: "dotnet run*"
     effect: deny
   - action: subagent
     resource: "*"
@@ -44,6 +50,7 @@ Turn the owner's request into **small verifiable slices**, one owner per slice, 
 | Let two agents build | Agents never build; **you** build after each wave (`RULE-N159`) |
 | Say "fix all screens" without a file list | A **closed** list of explicit paths in every brief (`RULE-N157`) |
 | Assign one file to two agents in a wave | One owner per file (`RULE-N158`) |
+| Serialize work that could run in parallel | A wave is **4 concurrent agents max** (`RULE-N159`); more work means **more waves**, never more agents inside one wave — dispatch the next wave the moment the build is green |
 | Commit before green build + one review + docs | Gates in §8 (`RULE-N162`) |
 | **Start the backend before the owner approved Stage A** | Stage gate: mock first, backend after the written approval (`RULE-N165`/`RULE-N166`) |
 | **Touch a module's backend while its mock coverage is not certified or approved** | Backend freeze is system-wide, old modules included: verdict `مؤهل للمراجعة` (or `مؤهل جزئياً` + written acceptance of the shortfall) **and** a written approval, else the backend files are out of scope (`RULE-N177`/`RULE-N178`) |
@@ -171,6 +178,7 @@ STAGE B (real)   Wave 1 DB (entity/config/migration) → build
 - A build error is routed to the **file owner** — never fixed by another layer, never fixed by you.
 - Max 4 agents per wave so the build stays diagnosable.
 - **No Stage B file may exist before the approval is recorded** — that is gate 0 in §8.
+- Build from `SalesSystem/`: `dotnet build .\SalesSystem.slnx`. On a OneDrive-synced path add `-p:ArtifactsPath=<temp>\ss-artifacts`. The gate is **0 Errors**; warnings are reported, never a gate.
 
 ## 8. Commit gates (`RULE-N162`)
 
@@ -180,7 +188,7 @@ No commit before all eight:
 3. **One** `code-reviewer` pass on the finished slice (not per file); notes closed or explicitly deferred.
 4. `git status` contains **zero** files outside the briefs.
 4b. **Single home — no duplication** — no shared behaviour copied into a screen; anything new was created once in `Helpers/` · `Global Classes/` · `Common/Helpers/` · `Business/Helpers/`, and one edit would reach every consumer (`RULE-N169`…`RULE-N172`).
-5. `AGENTS.md` updated (§2.20 matrix · §2.37 · §9) whenever a status changed (`RULE-N120`).
+5. `AGENTS.md` updated (§2.20 matrix · §2.37 · §9) whenever a status changed (`RULE-N120`), **and `docs/SHARED-HOME-REGISTER.md` carries this wave**: one row per file (✅ done / ⚠️ + its reason) plus the new measurements in §10.6. The register is the owner's single to-do board — a wave not written there did not happen (`RULE-N174` logic applied to coverage).
 6. Arabic manual-test checklist present in the delivery (`RULE-N119`).
 7. After push: clean tree, `local == origin`, no `--force`.
 
@@ -220,6 +228,20 @@ Never invent a new split when a matching row exists; state the reason if you do.
 - **Reuse first:** colours, fonts, keyboard navigation, shortcuts, tafqeet, filter escaping live only in `SalesSystem.Desktop/Helpers/`; general utilities (`cls*`) in `SalesSystem.Desktop/Global Classes/`; layer-neutral helpers in `SalesSystem.Common/Helpers/`. A missing behaviour goes into its home first, once, and is consumed everywhere — never copied into a screen, never "fixed" screen by screen (`RULE-N169`…`RULE-N172`).
 - **Simplicity gate:** smallest readable solution; more than 3 new abstractions ⇒ stop and report instead of building.
 - **No tests:** nobody creates, edits or runs automated tests; `SalesSystem.Tests` belongs to the owner.
+
+### 10.1 Traps that have already cost this repo a broken screen
+
+Put these in every brief — they are measured, not theoretical:
+
+- `row.Cells["<logical field>"]` throws when the column is named `colXxx`: WinForms resolves by column **Name**, not `DataPropertyName`. Read through `GridRowHelper` only (`RULE-N179`).
+- `(int)combo.SelectedValue` throws `InvalidCastException` when the DTO id is `short` (e.g. `WarehouseDto.Id`) — read it with `is short` or `Convert.ToInt32`.
+- `Convert.ToDecimal(cell.Value)` on `DBNull` throws; use the guarded parse (`clsFormat.TryParse*`).
+- the contract's `to` date is inclusive of the whole day: compare `.Date`, never `AddDays(1).AddTicks(-1)`.
+- a document opened as a draft and saved again creates a **duplicate record** unless the screen keeps `_createdId` after the first create and updates afterwards — frozen where the contract has no `UpdateAsync`.
+- `AcceptButton` must be cleared while the line-entry grid has focus, and posting is never triggered from inside the grid (`RULE-N153`).
+- `clsDialogs` is the only message home; `_notification` / `Notification.Show*` inside `Screens/**` is a defect.
+- a success message may only follow an `IsSuccess` check; a fabricated row, document number or "printed successfully" without a printer is a Blocker.
+- a screen agent never edits `Helpers/**`, `Global Classes/**`, `Program.cs`, `Business/**`, `DataAccess/**`, `Models/**`, `DTO/**`, `Services/Direct/**` — it reports the need instead.
 
 ## 11. Delivery contract (every report you send)
 

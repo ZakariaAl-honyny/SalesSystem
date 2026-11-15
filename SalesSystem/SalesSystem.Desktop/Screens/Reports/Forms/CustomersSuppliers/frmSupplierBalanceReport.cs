@@ -26,10 +26,8 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
-        dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
-        dgvReport.CellFormatting += DgvReport_CellFormatting;
         ReportUiStandardizer.ApplyForm(this);
         ReportUiStandardizer.ApplyReferenceLook(this);
         ReportNavigationHelper.Attach(this, _serviceProvider);
@@ -63,13 +61,13 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!);
+                clsDialogs.Error(result.Error!);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل تقرير أرصدة الموردين");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
@@ -94,7 +92,7 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
     {
         if (dgvReport.Columns.Count == 0) return;
 
-        var hides = new[] { "SupplierId", "Phone" };
+        var hides = new[] { "SupplierId" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
@@ -104,37 +102,23 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
         SetHeader("SupplierName", "اسم المورد");
         SetHeader("OpeningBalance", "الرصيد الافتتاحي");
         SetHeader("TotalPurchases", "إجمالي المشتريات");
+        SetHeader("TotalReturns", "إجمالي المرتجعات");
         SetHeader("TotalPayments", "إجمالي المدفوعات");
+        SetHeader("TotalDebit", "إجمالي المدين");
         SetHeader("CurrentBalance", "الرصيد الحالي");
 
-        foreach (var col in new[] { "OpeningBalance", "TotalPurchases", "TotalPayments", "CurrentBalance" })
+        // كل أعمدة المال في SupplierBalanceReportDto تُنسَّق — وإلا ظهرت TotalReturns/TotalDebit كسلسلة كسور خام.
+        foreach (var col in new[] { "OpeningBalance", "TotalPurchases", "TotalReturns", "TotalPayments", "TotalDebit", "CurrentBalance" })
         {
             if (dgvReport.Columns.Contains(col))
             {
-                dgvReport.Columns[col].DefaultCellStyle.Format = "N2";
+                GridFormatHelper.ApplyColumn(dgvReport, col, GridFormatKind.Money);
                 dgvReport.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
         }
-    }
 
-    private void DgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-    {
-        if (e.RowIndex >= 0 && dgvReport.Columns[e.ColumnIndex].Name == "CurrentBalance")
-        {
-            var row = dgvReport.Rows[e.RowIndex];
-            if (row.DataBoundItem is SupplierBalanceReportDto item)
-            {
-                if (item.CurrentBalance > 0)
-                {
-                    e.CellStyle.ForeColor = Color.Red;
-                    e.CellStyle.Font = new Font(dgvReport.Font, FontStyle.Bold);
-                }
-                else if (item.CurrentBalance < 0)
-                {
-                    e.CellStyle.ForeColor = Color.Green;
-                }
-            }
-        }
+        // سالب أحمر وموجب أخضر — من البيت الواحد بدل معالج تلوين محلي (RULE-N169).
+        GridFormatHelper.ApplyBalanceColouring(dgvReport, "CurrentBalance");
     }
 
     private void SetHeader(string col, string text)
@@ -146,7 +130,7 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
     {
         if (_bindingSource.DataSource is not List<SupplierBalanceReportDto> data || data.Count == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("لا توجد بيانات للتصدير");
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -161,13 +145,13 @@ public partial class frmSupplierBalanceReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "كشف حساب موردين", dialog.FileName);
-                _serviceProvider.GetRequiredService<INotificationService>().ShowSuccess("تم تصدير التقرير بنجاح");
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تصدير تقرير أرصدة الموردين إلى Excel");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 

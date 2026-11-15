@@ -417,7 +417,6 @@ partial class frmWorkingCapitalReport
         label1.Size = new Size(145, 24);
         label1.TabIndex = 7;
         label1.Text = "عدد السجلات:";
-        label1.Click += label1_Click;
         // 
         // lblRecordsCount
         // 

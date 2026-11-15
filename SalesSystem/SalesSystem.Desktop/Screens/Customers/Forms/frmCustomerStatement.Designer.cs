@@ -613,8 +613,12 @@ partial class frmCustomerStatement
         // 
         // lblNoData
         // 
+        // لا Dock = Fill: الشبكة dgvStatement (Dock = Fill) تأخذ كل مساحة splitMain.Panel1 أولاً فتبقى
+        // هذه التسمية بلا مساحة فلا تظهر رسالة «لا توجد حركات» أبداً. تثبيت الحواف الأربعة
+        // + BringToFront (بالأسفل) يجعلها طبقة فوق الشبكة تُرى فعلاً عند فترة بلا حركات
+        // — بلا إعادة ترتيب Controls (RULE-N125)، بنفس نمط frmChangeSystemColorsSettings.
+        lblNoData.Anchor = ((AnchorStyles)((((AnchorStyles.Top | AnchorStyles.Bottom) | AnchorStyles.Left) | AnchorStyles.Right)));
         lblNoData.BackColor = Color.FromArgb(220, 240, 220);
-        lblNoData.Dock = DockStyle.Fill;
         lblNoData.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
         lblNoData.Location = new Point(0, 0);
@@ -636,6 +640,7 @@ partial class frmCustomerStatement
         // 
         splitMain.Panel1.Controls.Add(lblNoData);
         splitMain.Panel1.Controls.Add(dgvStatement);
+        lblNoData.BringToFront();                              // RULE-N125 — طبقة فوق الشبكة، بلا إعادة ترتيب Controls
         splitMain.Panel1.RightToLeft = RightToLeft.Yes;
         // 
         // splitMain.Panel2

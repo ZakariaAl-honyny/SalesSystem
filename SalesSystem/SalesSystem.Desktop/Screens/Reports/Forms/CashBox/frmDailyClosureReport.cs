@@ -25,14 +25,16 @@ public partial class frmDailyClosureReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
+        _ShowDataScopeNotice();   // لافتة الصدق دائمة — تُضبط مرة واحدة قبل أي تحميل (RULE-N166)
         ReportUiStandardizer.ApplyForm(this);
         ReportUiStandardizer.ApplyReferenceLook(this);
         ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
-    private async void frmDailyClosureReport_Load(object sender, EventArgs e)
+    private void frmDailyClosureReport_Load(object sender, EventArgs e)
     {
-        await LoadReportAsync();
+        // بلا async void: لا استثناء غير ملحوظ يصل إلى Application.ThreadException (نمط التقارير المرجعي).
+        _ = LoadReportAsync();
     }
 
     private async Task LoadReportAsync()
@@ -40,33 +42,49 @@ public partial class frmDailyClosureReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
+
+            // لا عقد إقفال يومي بعد (T-41 مجمَّد) ⇒ نفس خدمة ملخص الصناديق. ولا يُصنع فلتر يومي على العميل.
             var result = await _serviceProvider.GetRequiredService<ICashBoxReportDesktopService>().GetCashBoxSummaryAsync();
-            if (result.IsSuccess && result.Value != null)
+
+            if (!result.IsSuccess)
             {
-                var list = result.Value.ToList();
-                _bindingSource.DataSource = list;
-                UpdateSummary(list);
-                FormatGrid();
+                clsDialogs.Error(result.Error ?? "تعذر تحميل التقرير اليومي للصندوق");
+                return;
             }
-            else { clsDialogs.Error(result.Error!); }
+
+            var list = result.Value?.ToList() ?? new List<CashBoxSummaryDto>();
+            _bindingSource.DataSource = list;
+            UpdateSummary(list);
+            FormatGrid();
         }
         catch (Exception ex) { Log.Error(ex, "خطأ في تحميل التقرير اليومي للصندوق"); clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير."); }
         finally { ShowLoading(false); }
     }
 
+    /// <summary>
+    /// صدق نطاق البيانات (RULE-N166): لا يوجد عقد إقفال يومي في الباك-إند بعد، والخدمة المستدعاة
+    /// هي ملخص الصناديق التراكمي حتى تاريخ اليوم — فتُعلن الشاشة ذلك صراحةً على شريط العنوان الموجود
+    /// في المصمّم (بلا عنصر جديد — RULE-N145) **دائماً**: يُضبط في المُنشئ مرة واحدة، فلا يضيع في
+    /// مسار الخطأ/الاستثناء ولا يعتمد على نجاح التحميل. واسم التقرير يبقى في شريط عنوان النافذة
+    /// وفي شريط تنقّل التقارير.
+    /// </summary>
+    private void _ShowDataScopeNotice()
+        => lblMode.Text = "تنبيه: هذا التقرير يعرض ملخص الصناديق الإجمالي حتى يُعتمد عقد الإقفال اليومي في الباك-إند.";
+
+    /// <summary>
+    /// شريط الإجماليات: العدد والتاريخ من البيت الواحد <c>clsFormat</c> (<c>RULE-N169</c>) بدل
+    /// <c>ToString()</c> الخام — فيتبع منازل الأعداد والأرقام العربية ٠-٩ وصيغة التاريخ المحفوظة.
+    /// </summary>
     private void UpdateSummary(List<CashBoxSummaryDto> list)
-    {
-        if (list.Count == 0) { lblRecordsCount.Text = "0"; return; }
-        lblRecordsCount.Text = list.Count.ToString();
-    }
+        => lblRecordsCount.Text =
+            $"عدد الصناديق: {clsFormat.Number(list.Count)} — حتى تاريخ: {clsFormat.DateToShort(DateTime.Today)}";
 
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("CashBoxName", "اسم الصندوق"); SetHeader("TotalIncome", "الإيرادات");
         SetHeader("TotalExpense", "المصروفات"); SetHeader("NetBalance", "الصافي");
-        foreach (var c in new[] { "TotalIncome", "TotalExpense", "NetBalance" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalIncome", "TotalExpense", "NetBalance");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
@@ -88,6 +106,10 @@ public partial class frmDailyClosureReport : Form, IExportableReport
 
     private void ShowLoading(bool show)
     {
+        // النموذج قد يكون أُغلق أثناء انتظار الخدمة؛ لمس عنصر متخلَّص منه يرمي
+        // ObjectDisposedException من finally فيسقط التحميل.
+        if (IsDisposed || Disposing) return;
+
         if (show) loadingPanel.BringToFront();
         loadingPanel.Visible = show;
         this.Enabled = !show;

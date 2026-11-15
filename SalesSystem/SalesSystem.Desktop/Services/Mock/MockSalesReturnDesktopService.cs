@@ -1,7 +1,9 @@
+using System.Globalization;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using InventoryTxType = SalesSystem.Common.Enums.InventoryTransactionType;
 
 namespace SalesSystem.Desktop.Services.Mock;
 
@@ -165,7 +167,13 @@ public class MockSalesReturnDesktopService : ISalesReturnDesktopService
             var index = MockReturnsData.SalesReturns.IndexOf(existing);
 
             // الترحيل هو النقطة الوحيدة التي تُحرّك المخزون: بضاعة مرتجعة تعود إلى المخزن
-            MockStockLedger.Apply(QuantitiesOf(existing), direction: +1);
+            // الحركة تحمل سياقها الحقيقي: نوع «مرتجع بيع» + مخزن المرتجع + رقمه + تاريخه
+            MockStockLedger.Apply(QuantitiesOf(existing),
+                direction: +1,
+                type: InventoryTxType.SaleReturn,
+                warehouseId: (short)existing.WarehouseId,
+                reference: existing.ReturnNo.ToString(CultureInfo.InvariantCulture),
+                date: existing.ReturnDate);
 
             MockReturnsData.SalesReturns[index] = existing with { Status = 2, RefundAmount = existing.TotalAmount };
             return Task.FromResult(Result.Success());
@@ -200,7 +208,13 @@ public class MockSalesReturnDesktopService : ISalesReturnDesktopService
                 if (!MockStockLedger.HasSufficientStock(quantities))
                     return Task.FromResult(Result.Failure(InsufficientStockMessage));
 
-                MockStockLedger.Apply(quantities, direction: -1);
+                // قيد عكسي (تسوية): النوع الذي يحفظ إشارة الكمية — مع رقم المرتجع ومخزنه
+                MockStockLedger.Apply(quantities,
+                    direction: -1,
+                    type: InventoryTxType.Adjustment,
+                    warehouseId: (short)existing.WarehouseId,
+                    reference: existing.ReturnNo.ToString(CultureInfo.InvariantCulture),
+                    date: existing.ReturnDate);
             }
 
             MockReturnsData.SalesReturns[index] = existing with { Status = 3 };

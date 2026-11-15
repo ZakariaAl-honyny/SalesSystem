@@ -1,6 +1,7 @@
 using System.Data;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Common.Helpers;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
@@ -302,6 +303,10 @@ public partial class frmSupplierMaster : Form
             balanceColumn.HeaderText = "الرصيد الحالي";
             balanceColumn.Visible = false;
         }
+
+        // حد الائتمان مبلغ مالي ⇒ نمط المبالغ الحيّ من البيت الواحد (لا صيغة مكتوبة يدوياً — RULE-N169).
+        if (dgvSuppliers.Columns["CreditLimit"] is { } creditLimitColumn)
+            creditLimitColumn.DefaultCellStyle.Format = clsFormat.MoneyPattern;
     }
 
     private void _ApplyRowColoring()
@@ -659,7 +664,7 @@ public partial class frmSupplierMaster : Form
         txtEmail.Text = s.Email ?? "";
         txtAddress.Text = s.Address ?? "";
         txtTaxNumber.Text = s.TaxNumber ?? "";
-        numCreditLimit.Value = _Clamp(numCreditLimit, s.CreditLimit);
+        numCreditLimit.Value = NumericInputHelper.Clamp(numCreditLimit, s.CreditLimit);
         txtNotes.Text = s.Notes ?? "";
 
         // بعد تعبئة الحقول: تفعيل الحقول + ضبط الأزرار + تحديث شريط الوضع (RULE-N150).
@@ -868,11 +873,11 @@ public partial class frmSupplierMaster : Form
         try
         {
             string name = txtName.Text.Trim();
-            string? phone = _ToNullIfEmpty(txtPhone.Text);
-            string? email = _ToNullIfEmpty(txtEmail.Text);
-            string? address = _ToNullIfEmpty(txtAddress.Text);
-            string? taxNumber = _ToNullIfEmpty(txtTaxNumber.Text);
-            string? notes = _ToNullIfEmpty(txtNotes.Text);
+            string? phone = txtPhone.Text?.Trim().ToNullIfEmpty();
+            string? email = txtEmail.Text?.Trim().ToNullIfEmpty();
+            string? address = txtAddress.Text?.Trim().ToNullIfEmpty();
+            string? taxNumber = txtTaxNumber.Text?.Trim().ToNullIfEmpty();
+            string? notes = txtNotes.Text?.Trim().ToNullIfEmpty();
             decimal creditLimit = numCreditLimit.Value;
 
             Result<SupplierDto> result;
@@ -884,6 +889,12 @@ public partial class frmSupplierMaster : Form
                 // الحفاظ على حالة التنشيط الحالية للمورد أثناء التعديل (RULE-N90/N92)
                 bool isActive = _suppliersById.TryGetValue(id, out var current) && current.IsActive;
 
+                // تنبيه: لا يُمرَّر CategoryId = null — الحقل غير معروض في هذه الشاشة،
+                // وتمرير null كان يمحو تصنيف المورد المحفوظ صامتاً (فقد بيانات — RULE-N167).
+                int? categoryId = _suppliersById.TryGetValue(id, out var existing)
+                    ? existing.CategoryId
+                    : null;
+
                 var request = new UpdateSupplierRequest(
                     name,
                     phone,
@@ -892,7 +903,7 @@ public partial class frmSupplierMaster : Form
                     taxNumber,
                     notes,
                     creditLimit,
-                    CategoryId: null,
+                    CategoryId: categoryId,
                     IsActive: isActive);
 
                 result = await SupplierService.UpdateAsync(id, request);
@@ -1094,10 +1105,4 @@ public partial class frmSupplierMaster : Form
             }
         }
     }
-
-    private static string? _ToNullIfEmpty(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-    private static decimal _Clamp(NumericUpDown control, decimal value)
-        => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
 }

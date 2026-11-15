@@ -1,3 +1,4 @@
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -22,8 +23,12 @@ public class MockCategoryDesktopService : ICategoryDesktopService
 
     public Task<Result<CategoryDto>> CreateAsync(CreateCategoryRequest r, CancellationToken ct = default)
     {
-        // التحقق من عدم تكرار الاسم
-        if (MockLookupsData.Categories.Any(c => c.Name == r.Name))
+        // تكافؤ الرفض مع الـBLL (RULE-N167): الاسم مطلوب
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<CategoryDto>.Failure("اسم التصنيف مطلوب"));
+
+        // التحقق من عدم تكرار الاسم — المقارنة في البيت الواحد StringExtensions.SameText (RULE-N169)
+        if (MockLookupsData.Categories.Any(c => c.Name.SameText(r.Name)))
             return Task.FromResult(Result<CategoryDto>.Failure("اسم التصنيف مستخدم بالفعل"));
 
         var nextId = MockLookupsData.Categories.Count > 0
@@ -42,8 +47,12 @@ public class MockCategoryDesktopService : ICategoryDesktopService
         if (existing is null)
             return Task.FromResult(Result<CategoryDto>.Failure("التصنيف غير موجود"));
 
-        // التحقق من عدم تكرار الاسم (باستثناء السجل الحالي)
-        if (MockLookupsData.Categories.Any(c => c.Name == r.Name && c.Id != id))
+        // تكافؤ الرفض مع الـBLL (RULE-N167): الاسم مطلوب
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<CategoryDto>.Failure("اسم التصنيف مطلوب"));
+
+        // التحقق من عدم تكرار الاسم (باستثناء السجل الحالي) — المقارنة في البيت الواحد StringExtensions.SameText
+        if (MockLookupsData.Categories.Any(c => c.Id != id && c.Name.SameText(r.Name)))
             return Task.FromResult(Result<CategoryDto>.Failure("اسم التصنيف مستخدم بالفعل"));
 
         var updated = existing with

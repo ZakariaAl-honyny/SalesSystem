@@ -1,7 +1,9 @@
 using System.Data;
+using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.Services.Interfaces;
 using Serilog;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms
@@ -14,9 +16,15 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
     /// + §2.34 (عنوان ← أوامر ← تصفية ← محتوى ← إجماليات) + §2.35 (المصمّم = وقت التشغيل).
     /// </para>
     /// <para>
-    /// البيانات تجريبية في الذاكرة **في وضع التجربة فقط** (<see cref="AppSettings.Current"/> ·
-    /// <c>UseMockData</c>)، وفي الوضع الحقيقي تبقى الشبكات فارغة ويُعرض إشعار صريح في عناصر
-    /// قائمة بالفعل — لا صفوف ولا أرقام مُختلقة (RULE-N167). لا وصول لأي طبقة بيانات من الشاشة.
+    /// <b>البيانات من العقود لا من الشاشة (RULE-N167 / RULE-N173):</b> لا تُبنى في الشاشة أي
+    /// مجموعة صفوف مُختلقة — الأرصدة من <see cref="IInventoryDesktopService.GetStockByWarehouseAsync"/>،
+    /// ومحاضر الجرد من <see cref="IStocktakingDesktopService.GetAllAsync"/>، والتحويلات من
+    /// <see cref="IWarehouseTransferDesktopService.GetAllAsync"/> — فيرى المالك نفس ما تحفظه
+    /// الشاشات والعقود، ويختفي أي اسم/حالة لا وجود لها في بيانات التجربة.
+    /// </para>
+    /// <para>
+    /// وضع التجربة (<see cref="AppSettings.Current"/> · <c>UseMockData</c>) هو البيت الوحيد لاكتشاف الوضع؛
+    /// وفي الوضع الحقيقي تبقى الشبكات فارغة ويُعرض إشعار صريح في شريط الملخص (لا صفوف ولا أرقام مُختلقة).
     /// التصفية فورية (RULE-N59) بلا زر بحث، وبناء <c>DataView.RowFilter</c> يمرّ عبر
     /// <see cref="RowFilterHelper"/> على أعمدة معروفة فقط (RULE-N24/RULE-N60).
     /// </para>
@@ -28,7 +36,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
         /// <summary>
         /// وضع التجربة: البيت الواحد لاكتشاف الوضع هو <see cref="AppSettings.Current"/> (<c>UseMockData</c>)
-        /// — نفس ما يستهلكه <c>frmMain</c>؛ لا آلية ثانية. البيانات التجريبية تُبنى في وضع التجربة فقط.
+        /// — نفس ما يستهلكه <c>frmMain</c>؛ لا آلية ثانية. القراءة من العقود تقع في وضع التجربة فقط.
         /// </summary>
         private static bool IsMockMode => AppSettings.Current.UseMockData;
 
@@ -42,18 +50,18 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         /// <summary>نص سطر «لا توجد بيانات» الأصلي في المصمّم (وضع التجربة فقط).</summary>
         private const string EmptyStateText = "لا توجد بيانات للعرض";
 
+        /// <summary>قيمة عمود «السائق» حين لا يحمل عقد التحويل حقل سائق (لا يُختلق اسم).</summary>
+        private const string NotAvailableValue = "—";
+
         // ── ثوابت الحالات (RULE-N60: تُقارن بثوابت داخل الكود، لا بنص المستخدم) ─────
         private const string StockOut = "نفد";
         private const string StockLow = "محدود";
         private const string StockAvailable = "متوفر";
 
-        private const string CountDraft = "مسودة";
-        private const string CountDone = "مكتمل";
-        private const string CountPosted = "مرحّل";
-
-        private const string TransferDraft = "مسودة";
-        private const string TransferTransit = "قيد النقل";
-        private const string TransferReceived = "مستلم";
+        // حالات المستند (محضر جرد · سند تحويل): نفس أسماء الحالة التي يُعيدها العقد (StatusName)
+        private const string DocumentDraft = "مسودة";
+        private const string DocumentPosted = "مرحّل";
+        private const string DocumentCancelled = "ملغي";
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -71,33 +79,16 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         private DataTable _transfersTable = new();
         private DataView _transfersView = new();
 
-        // ── Status badge colors ─────────────────────────────────────────────────────
+        // ── شارات الحالة: ألوان الثيم الدلالية الموحّدة (RULE-N172 — لا لون حرفي في الشاشة) ─────
+        // قاموس واحد للحالتين (محضر جرد · سند تحويل): الحالات الثلاث نفسها بنفس النصوص،
+        // فلا تُكرَّر نسخة ثانية تتباعد قيمها عند أول تعديل (RULE-N169).
 
-        private static readonly Dictionary<string, Color> _countStatusColors = new()
+        private static readonly Dictionary<string, Color> _documentStatusColors = new()
         {
-            { CountDraft, Color.SlateGray },
-            { CountDone, Color.SteelBlue },
-            { CountPosted, Color.ForestGreen },
+            { DocumentDraft, GreenThemeHelper.StatusNeutralStrong },
+            { DocumentPosted, GreenThemeHelper.StatusSuccessStrong },
+            { DocumentCancelled, GreenThemeHelper.StatusDangerStrong },
         };
-
-        private static readonly Dictionary<string, Color> _transferStatusColors = new()
-        {
-            { TransferDraft, Color.SlateGray },
-            { TransferTransit, Color.Goldenrod },
-            { TransferReceived, Color.ForestGreen },
-        };
-
-        // ── Mock data models (UI-first prototype — no backend) ────────────────────
-
-        private sealed record MockProduct(
-            string Code, string Barcode, string Name, string Unit,
-            string Warehouse, decimal Stock, decimal ReorderLevel, decimal Cost, bool IsActive);
-
-        private sealed record MockCount(
-            string CountNo, DateTime Date, string Warehouse, string Committee, string Status);
-
-        private sealed record MockTransfer(
-            string TransferNo, DateTime Date, string From, string To, string Driver, string Status);
 
         public frmInventory(IServiceProvider serviceProvider)
         {
@@ -132,6 +123,28 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             // RULE-N63 — طيّ/إظهار صندوق التصفية، آخر سطر في المُنشئ.
             FilterPanelHelper.Attach(this, _serviceProvider);
         }
+
+        // ── الخدمات (RULE-N04 — تُحل من الحاوية، ولا تُنشأ يدوياً) ───────────────────
+
+        /// <summary>الأرصدة المخزنية لكل (صنف، مخزن) — أرصدة الأصناف.</summary>
+        private IInventoryDesktopService InventoryService
+            => _serviceProvider.GetRequiredService<IInventoryDesktopService>();
+
+        /// <summary>دليل المخازن — لازم لطلب رصيد كل مخزن (لا يُخترع معرّف مخزن في الشاشة).</summary>
+        private IWarehouseDesktopService WarehouseService
+            => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
+
+        /// <summary>دليل الأصناف — حد الطلب والباركود وحالة التنشيط (لا تُشتق في الشاشة).</summary>
+        private IProductDesktopService ProductService
+            => _serviceProvider.GetRequiredService<IProductDesktopService>();
+
+        /// <summary>محاضر الجرد الفعلي.</summary>
+        private IStocktakingDesktopService StocktakingService
+            => _serviceProvider.GetRequiredService<IStocktakingDesktopService>();
+
+        /// <summary>سندات التحويل المخزني.</summary>
+        private IWarehouseTransferDesktopService TransferService
+            => _serviceProvider.GetRequiredService<IWarehouseTransferDesktopService>();
 
         // ── الثيم ──────────────────────────────────────────────────────────────────
 
@@ -177,109 +190,180 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             toolTip1.SetToolTip(chkOnlyOutOfStock, "إظهار الأصناف النافدة فقط (الرصيد ≤ 0)");
         }
 
-        // ── Mock Data Builders ─────────────────────────────────────────────────────
+        // ── تحميل البيانات من العقود ────────────────────────────────────────────────
 
-        private void _BuildProductsTable()
+        /// <summary>
+        /// أرصدة الأصناف: رصيد كل (صنف، مخزن) من <see cref="IInventoryDesktopService"/> + ما يكمل الصف
+        /// من دليل الأصناف (حد الطلب · الباركود · التنشيط). لا صف واحد يُبنى خارج هذين المصدرين.
+        /// </summary>
+        private async Task _LoadProductsAsync()
         {
-            _productsTable = new DataTable();
-            _productsTable.Columns.Add("Code", typeof(string));
-            _productsTable.Columns.Add("Barcode", typeof(string));
-            _productsTable.Columns.Add("Name", typeof(string));
-            _productsTable.Columns.Add("Unit", typeof(string));
-            _productsTable.Columns.Add("WarehouseName", typeof(string));
-            _productsTable.Columns.Add("Stock", typeof(decimal));
-            _productsTable.Columns.Add("ReorderLevel", typeof(decimal));
-            _productsTable.Columns.Add("Cost", typeof(decimal));
-            _productsTable.Columns.Add("StockStatus", typeof(string));
-            _productsTable.Columns.Add("IsActive", typeof(bool));
+            _productsTable = _CreateProductsTable();
 
             // الوضع الحقيقي: الشبكة تبقى فارغة — لا تُبنى أي صفوف مُختلقة (RULE-N167).
             if (!IsMockMode) return;
 
-            foreach (var p in _MockProducts())
+            var productsResult = await ProductService.GetAllAsync(includeInactive: true);
+            if (!productsResult.IsSuccess || productsResult.Value is null)
             {
-                string status = p.Stock <= 0
-                    ? StockOut
-                    : p.Stock <= p.ReorderLevel ? StockLow : StockAvailable;
+                Log.Error("تعذر تحميل دليل الأصناف لأرصدة المخزون: {Error}", productsResult.Error);
+                clsDialogs.Error("تعذر تحميل أرصدة الأصناف. يرجى إعادة المحاولة.");
+                return;
+            }
 
-                _productsTable.Rows.Add(
-                    p.Code, p.Barcode, p.Name, p.Unit, p.Warehouse,
-                    p.Stock, p.ReorderLevel, p.Cost, status, p.IsActive);
+            var productsById = productsResult.Value.ToDictionary(p => p.Id);
+
+            var warehousesResult = await WarehouseService.GetAllAsync(includeInactive: true);
+            if (!warehousesResult.IsSuccess || warehousesResult.Value is null)
+            {
+                Log.Error("تعذر تحميل دليل المخازن لأرصدة المخزون: {Error}", warehousesResult.Error);
+                clsDialogs.Error("تعذر تحميل أرصدة المخازن. يرجى إعادة المحاولة.");
+                return;
+            }
+
+            foreach (var warehouse in warehousesResult.Value)
+            {
+                var stockResult = await InventoryService.GetStockByWarehouseAsync(warehouse.Id);
+
+                if (!stockResult.IsSuccess || stockResult.Value is null)
+                {
+                    // مخزن تعذّر رصيده لا يُسقِط بقية المخازن — يُسجّل ويُتخطّى بلا صفوف مُختلقة.
+                    Log.Error("تعذر تحميل رصيد المخزن {WarehouseId}: {Error}", warehouse.Id, stockResult.Error);
+                    continue;
+                }
+
+                foreach (var stock in stockResult.Value)
+                {
+                    productsById.TryGetValue(stock.ProductId, out var product);
+
+                    decimal reorderLevel = product?.ReorderLevel ?? 0m;
+
+                    string status = stock.Quantity <= 0m
+                        ? StockOut
+                        : stock.Quantity <= reorderLevel ? StockLow : StockAvailable;
+
+                    _productsTable.Rows.Add(
+                        // «الكود» = المعرّف النصي المسجَّل للصنف (لا يحمل العقد حقلاً منفصلاً للكود،
+                        // والباركود هو معرّفه النصي) — كان العمود يُملأ بفراغ دائم فتبقى تصفية «الكود» بلا نتائج.
+                        product?.Barcode ?? string.Empty,
+                        product?.Barcode ?? string.Empty,
+                        string.IsNullOrWhiteSpace(stock.ProductName) ? product?.Name ?? string.Empty : stock.ProductName,
+                        stock.UnitName ?? string.Empty,
+                        stock.WarehouseName ?? string.Empty,
+                        stock.Quantity,
+                        reorderLevel,
+                        stock.AvgCost,
+                        status,
+                        product?.IsActive ?? true);
+                }
             }
         }
 
-        /// <summary>
-        /// صفوف أرصدة الأصناف التجريبية — تُستهلك في **وضع التجربة فقط** (مراجعة المالك للشاشة)،
-        /// ولا تُبنى أبداً في الوضع الحقيقي فلا يظهر رقم مُختلق أمام قرار شراء/بيع (RULE-N167/N173).
-        /// </summary>
-        private static MockProduct[] _MockProducts() => new[]
+        /// <summary>محاضر الجرد: رقم المستند · التاريخ · المخزن · لجنة الجرد · الحالة — من عقد محاضر الجرد.</summary>
+        private async Task _LoadCountsAsync()
         {
-            new MockProduct("P-1001", "6251001234567", "سكر أبيض 1 كجم",           "كيس",     "الرئيسي", 0m,    20m,  32.50m,  true),
-            new MockProduct("P-1002", "6251001234568", "شاي أوراق سائب 250 جم",     "عبوة",    "الرئيسي", 15m,   25m,  18.75m,  true),
-            new MockProduct("P-1003", "6251001234569", "زيت عباد الشمس 1 لتر",      "زجاجة",   "المعرض",  120m,  40m,  46.00m,  true),
-            new MockProduct("P-1004", "6251001234570", "أرز بسمتي 5 كجم",           "كيس",     "الرئيسي", 8m,    30m,  145.00m, true),
-            new MockProduct("P-1005", "6251001234571", "دقيق أبيض فاخر 2 كجم",      "كيس",     "الرئيسي", 60m,   50m,  28.90m,  true),
-            new MockProduct("P-1006", "6251001234572", "حليب مجفف 2 كجم",           "علبة",    "المعرض",  0m,    15m,  95.00m,  true),
-            new MockProduct("P-1007", "6251001234573", "قهوة سريعة الذوبان 100 جم", "برطمان",  "الرئيسي", 45m,   20m,  22.40m,  true),
-            new MockProduct("P-1008", "6251001234574", "معجون طماطم 400 جم",        "علبة",    "المعرض",  18m,   35m,  12.75m,  true),
-            new MockProduct("P-1009", "6251001234575", "صابون سائل لليدين 500 مل",  "زجاجة",   "الرئيسي", 210m,  50m,  15.20m,  true),
-            new MockProduct("P-1010", "6251001234576", "مناديل ورقية 200 منديل",    "علبة",    "المعرض",  4m,    25m,  8.60m,   true),
-            new MockProduct("P-1011", "6251001234577", "عصير مانجو 1 لتر (موقوف)",  "كرتون",   "المعرض",  33m,   20m,  11.40m,  false),
-        };
+            _countsTable = _CreateCountsTable();
 
-        private void _BuildCountsTable()
-        {
-            _countsTable = new DataTable();
-            _countsTable.Columns.Add("CountNo", typeof(string));
-            _countsTable.Columns.Add("CountDate", typeof(DateTime));
-            _countsTable.Columns.Add("WarehouseName", typeof(string));
-            _countsTable.Columns.Add("Committee", typeof(string));
-            _countsTable.Columns.Add("Status", typeof(string));
-
-            // الوضع الحقيقي: لا محاضر جرد مُختلقة.
             if (!IsMockMode) return;
 
-            foreach (var c in _MockCounts())
+            var result = await StocktakingService.GetAllAsync(includeCancelled: true);
+            if (!result.IsSuccess || result.Value is null)
             {
-                _countsTable.Rows.Add(c.CountNo, c.Date, c.Warehouse, c.Committee, c.Status);
+                Log.Error("تعذر تحميل محاضر الجرد: {Error}", result.Error);
+                clsDialogs.Error("تعذر تحميل محاضر الجرد. يرجى إعادة المحاولة.");
+                return;
+            }
+
+            foreach (var document in result.Value)
+            {
+                _countsTable.Rows.Add(
+                    document.DocumentNo,
+                    document.Date,
+                    document.WarehouseName,
+                    _CommitteeOf(document.CommitteeHead, document.CommitteeMember),
+                    document.StatusName);
             }
         }
 
-        /// <summary>محاضر الجرد التجريبية — تُستهلك في **وضع التجربة فقط** (RULE-N167/N173).</summary>
-        private static MockCount[] _MockCounts() => new[]
+        /// <summary>سندات التحويل: رقم السند · التاريخ · من/إلى مخزن · السائق · الحالة — من عقد التحويل.</summary>
+        private async Task _LoadTransfersAsync()
         {
-            new MockCount("INV-2026-001", new DateTime(2026, 9, 5),  "الرئيسي", "رئيس: أحمد محمود / عضو: خالد سعيد", "مرحّل"),
-            new MockCount("INV-2026-002", new DateTime(2026, 9, 12), "المعرض",  "رئيس: سامي حسن / عضو: عمر يوسف",    "مكتمل"),
-            new MockCount("INV-2026-003", new DateTime(2026, 9, 18), "الرئيسي", "رئيس: أحمد محمود / عضو: ليلى إبراهيم", "مسودة"),
-        };
+            _transfersTable = _CreateTransfersTable();
 
-        private void _BuildTransfersTable()
-        {
-            _transfersTable = new DataTable();
-            _transfersTable.Columns.Add("TransferNo", typeof(string));
-            _transfersTable.Columns.Add("TransferDate", typeof(DateTime));
-            _transfersTable.Columns.Add("FromWarehouse", typeof(string));
-            _transfersTable.Columns.Add("ToWarehouse", typeof(string));
-            _transfersTable.Columns.Add("DriverName", typeof(string));
-            _transfersTable.Columns.Add("Status", typeof(string));
-
-            // الوضع الحقيقي: لا تحويلات مخزنية مُختلقة.
             if (!IsMockMode) return;
 
-            foreach (var t in _MockTransfers())
+            var result = await TransferService.GetAllAsync(includeCancelled: true);
+            if (!result.IsSuccess || result.Value is null)
             {
-                _transfersTable.Rows.Add(t.TransferNo, t.Date, t.From, t.To, t.Driver, t.Status);
+                Log.Error("تعذر تحميل سندات التحويل المخزني: {Error}", result.Error);
+                clsDialogs.Error("تعذر تحميل سندات التحويل المخزني. يرجى إعادة المحاولة.");
+                return;
+            }
+
+            foreach (var document in result.Value)
+            {
+                _transfersTable.Rows.Add(
+                    document.DocumentNo,
+                    document.Date,
+                    document.FromWarehouseName,
+                    document.ToWarehouseName,
+                    NotAvailableValue,   // عقد التحويل لا يحمل حقل سائق — لا يُختلق اسم
+                    document.StatusName);
             }
         }
 
-        /// <summary>التحويلات المخزنية التجريبية — تُستهلك في **وضع التجربة فقط** (RULE-N167/N173).</summary>
-        private static MockTransfer[] _MockTransfers() => new[]
+        /// <summary>نص لجنة الجرد من حقلي العقد (رئيس · عضو) — عرض فقط، لا اختلاق أعضاء.</summary>
+        private static string _CommitteeOf(string? head, string? member)
         {
-            new MockTransfer("TR-2026-001", new DateTime(2026, 9, 8),  "الرئيسي", "المعرض",  "محمد علي", "مستلم"),
-            new MockTransfer("TR-2026-002", new DateTime(2026, 9, 11), "المعرض",  "الرئيسي", "حسن فؤاد", "قيد النقل"),
-            new MockTransfer("TR-2026-003", new DateTime(2026, 9, 15), "الرئيسي", "المعرض",  "محمد علي", "مستلم"),
-            new MockTransfer("TR-2026-004", new DateTime(2026, 9, 19), "المعرض",  "الرئيسي", "—",        "مسودة"),
-        };
+            var parts = new List<string>(2);
+
+            if (!string.IsNullOrWhiteSpace(head))
+                parts.Add($"رئيس: {head.Trim()}");
+
+            if (!string.IsNullOrWhiteSpace(member))
+                parts.Add($"عضو: {member.Trim()}");
+
+            return parts.Count == 0 ? NotAvailableValue : string.Join(" / ", parts);
+        }
+
+        private static DataTable _CreateProductsTable()
+        {
+            var table = new DataTable();
+            table.Columns.Add("Code", typeof(string));
+            table.Columns.Add("Barcode", typeof(string));
+            table.Columns.Add("Name", typeof(string));
+            table.Columns.Add("Unit", typeof(string));
+            table.Columns.Add("WarehouseName", typeof(string));
+            table.Columns.Add("Stock", typeof(decimal));
+            table.Columns.Add("ReorderLevel", typeof(decimal));
+            table.Columns.Add("Cost", typeof(decimal));
+            table.Columns.Add("StockStatus", typeof(string));
+            table.Columns.Add("IsActive", typeof(bool));
+            return table;
+        }
+
+        private static DataTable _CreateCountsTable()
+        {
+            var table = new DataTable();
+            table.Columns.Add("CountNo", typeof(string));
+            table.Columns.Add("CountDate", typeof(DateTime));
+            table.Columns.Add("WarehouseName", typeof(string));
+            table.Columns.Add("Committee", typeof(string));
+            table.Columns.Add("Status", typeof(string));
+            return table;
+        }
+
+        private static DataTable _CreateTransfersTable()
+        {
+            var table = new DataTable();
+            table.Columns.Add("TransferNo", typeof(string));
+            table.Columns.Add("TransferDate", typeof(DateTime));
+            table.Columns.Add("FromWarehouse", typeof(string));
+            table.Columns.Add("ToWarehouse", typeof(string));
+            table.Columns.Add("DriverName", typeof(string));
+            table.Columns.Add("Status", typeof(string));
+            return table;
+        }
 
         // ── Grid Setup ─────────────────────────────────────────────────────────────
 
@@ -293,9 +377,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 new { Name = "Name",          Header = "الاسم",       Fill = 16, Min = 150, Format = (string?)null },
                 new { Name = "Unit",          Header = "الوحدة",      Fill = 7,  Min = 70, Format = (string?)null },
                 new { Name = "WarehouseName", Header = "المستودع",    Fill = 9,  Min = 90, Format = (string?)null },
-                new { Name = "Stock",         Header = "الرصيد",      Fill = 7,  Min = 70, Format = "N3" },
-                new { Name = "ReorderLevel",  Header = "حد الطلب",    Fill = 7,  Min = 70, Format = "N3" },
-                new { Name = "Cost",          Header = "التكلفة",     Fill = 8,  Min = 80, Format = "N2" },
+                new { Name = "Stock",         Header = "الرصيد",      Fill = 7,  Min = 70, Format = (string?)clsFormat.QuantityPattern },
+                new { Name = "ReorderLevel",  Header = "حد الطلب",    Fill = 7,  Min = 70, Format = (string?)clsFormat.QuantityPattern },
+                new { Name = "Cost",          Header = "التكلفة",     Fill = 8,  Min = 80, Format = (string?)clsFormat.MoneyPattern },
                 new { Name = "StockStatus",   Header = "حالة الرصيد", Fill = 9,  Min = 90, Format = (string?)null },
             };
 
@@ -470,7 +554,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                     3 => new[] { "Committee" },
                     _ => new[] { "CountNo", "WarehouseName", "Committee" },
                 }),
-                RowFilterHelper.EqualsText("Status", _SelectedCountsStatus()),
+                RowFilterHelper.EqualsText("Status", _SelectedDocumentStatus()),
                 RowFilterHelper.DateRange("CountDate", dtpFrom.Value, dtpTo.Value),
             };
 
@@ -491,7 +575,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                     4 => new[] { "DriverName" },
                     _ => new[] { "TransferNo", "FromWarehouse", "ToWarehouse", "DriverName" },
                 }),
-                RowFilterHelper.EqualsText("Status", _SelectedTransfersStatus()),
+                RowFilterHelper.EqualsText("Status", _SelectedDocumentStatus()),
                 RowFilterHelper.DateRange("TransferDate", dtpFrom.Value, dtpTo.Value),
             };
 
@@ -520,19 +604,12 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _ => null
         };
 
-        private string? _SelectedCountsStatus() => cbStatus.SelectedIndex switch
+        /// <summary>حالة المستند (محضر جرد أو سند تحويل) — 1 مسودة · 2 مرحّل · 3 ملغي كما يعيدها العقد.</summary>
+        private string? _SelectedDocumentStatus() => cbStatus.SelectedIndex switch
         {
-            1 => CountDraft,
-            2 => CountDone,
-            3 => CountPosted,
-            _ => null
-        };
-
-        private string? _SelectedTransfersStatus() => cbStatus.SelectedIndex switch
-        {
-            1 => TransferDraft,
-            2 => TransferTransit,
-            3 => TransferReceived,
+            1 => DocumentDraft,
+            2 => DocumentPosted,
+            3 => DocumentCancelled,
             _ => null
         };
 
@@ -553,12 +630,12 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 case 1:
                     lblSummary.Text = "محاضر الجرد — " + _Summarize(
                         _countsView, "Status",
-                        (CountDraft, "مسودة"), (CountDone, "مكتمل"), (CountPosted, "مرحّل"));
+                        (DocumentDraft, "مسودة"), (DocumentPosted, "مرحّل"), (DocumentCancelled, "ملغي"));
                     break;
                 case 2:
                     lblSummary.Text = "التحويلات المخزنية — " + _Summarize(
                         _transfersView, "Status",
-                        (TransferDraft, "مسودة"), (TransferTransit, "قيد النقل"), (TransferReceived, "مستلم"));
+                        (DocumentDraft, "مسودة"), (DocumentPosted, "مرحّل"), (DocumentCancelled, "ملغي"));
                     break;
                 default:
                     lblSummary.Text = _SummarizeProducts();
@@ -664,7 +741,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                         {
                             "الكل (رقم/مستودع/لجنة)", "رقم المحضر", "المستودع", "لجنة الجرد"
                         });
-                        cbStatus.Items.AddRange(new object[] { "الكل", "مسودة", "مكتمل", "مرحّل" });
+                        cbStatus.Items.AddRange(new object[] { "الكل", DocumentDraft, DocumentPosted, DocumentCancelled });
                         break;
 
                     case 2:
@@ -672,7 +749,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                         {
                             "الكل (رقم/مستودعات/سائق)", "رقم السند", "من مستودع", "إلى مستودع", "السائق"
                         });
-                        cbStatus.Items.AddRange(new object[] { "الكل", "مسودة", "قيد النقل", "مستلم" });
+                        cbStatus.Items.AddRange(new object[] { "الكل", DocumentDraft, DocumentPosted, DocumentCancelled });
                         break;
 
                     default:
@@ -869,16 +946,15 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
         // ── Form Events ────────────────────────────────────────────────────────────
 
-        private void frmInventory_Load(object sender, EventArgs e)
+        /// <summary>RULE-N25/N26: معالج async void مع try/catch واستعادة المؤشر في finally.</summary>
+        private async void frmInventory_Load(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
             _isInitializing = true;
 
             try
             {
-                _BuildProductsTable();
-                _BuildCountsTable();
-                _BuildTransfersTable();
+                await _LoadAllDataAsync();
 
                 _SetupProductsGrid();
                 _SetupCountsGrid();
@@ -892,7 +968,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "خطأ أثناء تحميل بيانات المخزون التجريبية");
+                Log.Error(ex, "خطأ أثناء تحميل بيانات المخزون من العقود");
                 clsDialogs.Error("حدث خطأ أثناء تحميل بيانات المخزون.");
             }
             finally
@@ -906,6 +982,14 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             txtFilterValue.Focus();
         }
 
+        /// <summary>قراءة التبويبات الثلاثة من عقودها — مكان واحد يُستهلك من التحميل والتحديث.</summary>
+        private async Task _LoadAllDataAsync()
+        {
+            await _LoadProductsAsync();
+            await _LoadCountsAsync();
+            await _LoadTransfersAsync();
+        }
+
         private void btnClose_Click(object sender, EventArgs e)
             => Close();
 
@@ -913,9 +997,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
         /// <summary>
         /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى الافتراضي (RULE-N148):
-        /// أدوات التصفية ← الدلائل (المستودعات) ← شبكة الأرصدة ← الملخّص والتحديد.
+        /// أدوات التصفية ← الشبكات (من العقود) ← الملخّص والتحديد.
         /// </summary>
-        private void btnRefresh_Click(object sender, EventArgs e)
+        private async void btnRefresh_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
             _isInitializing = true;
@@ -924,9 +1008,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             {
                 _ClearFilterInputs();        // التصفية تعود للافتراضي
 
-                _BuildProductsTable();       // إعادة تحميل البيانات (بدل الدلائل والشبكة)
-                _BuildCountsTable();
-                _BuildTransfersTable();
+                await _LoadAllDataAsync();   // إعادة قراءة البيانات من العقود
 
                 _BindGrids();                // إعادة الربط ⇒ الشبكة تعود بلا تحديد
                 _LoadFilterChoices();        // خيارات «تصفية بـ» و«الحالة» للتبويب النشط
@@ -1019,9 +1101,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             Color? color = e.Value.ToString() switch
             {
-                StockOut => (Color?)Color.Firebrick,
-                StockLow => (Color?)Color.Goldenrod,
-                StockAvailable => (Color?)Color.ForestGreen,
+                StockOut => (Color?)GreenThemeHelper.StatusDangerStrong,
+                StockLow => (Color?)GreenThemeHelper.StatusWarningStrong,
+                StockAvailable => (Color?)GreenThemeHelper.StatusSuccessStrong,
                 _ => null,
             };
 
@@ -1034,9 +1116,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         }
 
         private void dgvCounts_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-            => _ApplyStatusBadge(dgvCounts, e, _countStatusColors);
+            => _ApplyStatusBadge(dgvCounts, e, _documentStatusColors);
 
         private void dgvTransfers_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-            => _ApplyStatusBadge(dgvTransfers, e, _transferStatusColors);
+            => _ApplyStatusBadge(dgvTransfers, e, _documentStatusColors);
     }
 }

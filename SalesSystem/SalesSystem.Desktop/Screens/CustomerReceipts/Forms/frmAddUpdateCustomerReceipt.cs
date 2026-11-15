@@ -21,6 +21,24 @@ public partial class frmAddUpdateCustomerReceipt : Form
     private List<CustomerDto> _customers = new();
     private List<CashBoxDto> _cashBoxes = new();
 
+    /// <summary>حالة المسودة في العقد — السند المرحّل/الملغى ليس قابلاً للحفظ.</summary>
+    private const byte StatusDraft = 1;
+
+    /// <summary>حالة السند المحمَّل في وضع التعديل (تُقرأ من الخدمة — أساس حظر حفظ غير المسودة).</summary>
+    private byte _loadedStatus = StatusDraft;
+
+    /// <summary>
+    /// طريقة دفع السند المحمَّل — <see cref="UpdateCustomerReceiptRequest"/> بلا حقل ظاهر في الشاشة
+    /// وقيمته الافتراضية «نقدي» (1)، فإرسال الافتراضي كان يحوّل سنداً آجلاً إلى نقدي عند أي تعديل.
+    /// </summary>
+    private byte _loadedPaymentMethod = 1;
+
+    /// <summary>
+    /// مهمة تحميل القوائم المنسدلة المُنطلقة من المُنشئ — تُنتظر قبل تحميل السند حتى لا يضيع
+    /// العميل/الصندوق المحدد (ضبط <c>DataSource</c> يُعيد <c>SelectedIndex</c> إلى ‑1).
+    /// </summary>
+    private Task _comboBoxesLoadTask = Task.CompletedTask;
+
     /// <summary>RULE-N04: الخدمات عبر خصائص مطبوعة النوع.</summary>
     private ICustomerReceiptDesktopService ReceiptService => _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>();
     private ICustomerDesktopService CustomerService => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
@@ -42,6 +60,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
             (Keys.F4, () => { if (btnSave.Enabled) btnSave.PerformClick(); }),
             (Keys.F5, () => _ = _RefreshAsync()),
             (Keys.Escape, () => btnClose.PerformClick()));
+        KeyboardHelper.WireModeEnter(this, () => btnSave);
 
         // RULE-N97 — التفقيط الحيّ كتلميح على حقل المبلغ.
         LiveTafqeetHelper.Attach(liveTip, (numAmount, "المبلغ", LiveTafqeetHelper.ReadMode.Money));
@@ -52,7 +71,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         Text = "سند قبض جديد";
         _UpdateModeHeader();
         _UpdateNetTotal();
-        _ = LoadComboBoxesAsync();
+        _comboBoxesLoadTask = LoadComboBoxesAsync();   // تُنتظر قبل تحميل سند التعديل (إصلاح سباق القوائم)
     }
 
     /// <summary>منشئ التعديل: يُستخدم من شاشة الدليل بعد حل النموذج من الحاوية (RULE-N02).</summary>
@@ -104,11 +123,28 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
     // ── مؤشر الوضع وحالة الأزرار ────────────────────────────────────────────────
 
-    /// <summary>RULE-N44: مؤشر الوضع يتحدث مع كل تغيير للحالة.</summary>
+    /// <summary>RULE-N44: مؤشر الوضع يتحدث مع كل تغيير للحالة — ويُعلن أن السند المرحّل/الملغى للعرض فقط.</summary>
     private void _UpdateModeHeader()
     {
-        lblMode.Text = _isEditMode ? $"تعديل سند قبض رقم: {_editingId}" : "سند قبض جديد";
+        lblMode.Text = !_isEditMode
+            ? "سند قبض جديد"
+            : _loadedStatus == StatusDraft
+                ? $"تعديل سند قبض رقم: {_editingId}"
+                : $"عرض سند قبض رقم: {_editingId} — {DocumentTextHelper.StatusText(_loadedStatus)} (غير قابل للتعديل)";
+
         Text = lblMode.Text;
+        _ApplyImmutableFieldsLock();
+    }
+
+    /// <summary>
+    /// عقد التعديل (<see cref="UpdateCustomerReceiptRequest"/>) لا يحمل <c>CustomerId</c> ولا
+    /// <c>ReceiptDate</c>: إبقاؤهما قابلين للتحرير يوهم المستخدم بتغيير لا يُرسَل ولا يُحفظ
+    /// (بيانات تُعرض ثم تُهمَل بصمت). فيُقفلان في وضع التعديل ويُفتحان في وضع الإضافة.
+    /// </summary>
+    private void _ApplyImmutableFieldsLock()
+    {
+        cmbCustomer.Enabled = !_isEditMode;
+        dtpDate.Enabled = !_isEditMode;
     }
 
     /// <summary>إجمالي السند بصيغة N2 (RULE-001).</summary>
@@ -119,6 +155,8 @@ public partial class frmAddUpdateCustomerReceipt : Form
     private void _StartNewEntry()
     {
         _editingId = -1;
+        _loadedStatus = StatusDraft;   // وضع الإضافة: لا حظر حالة
+        _loadedPaymentMethod = 1;      // الافتراضي في العقد: نقدي
 
         dtpDate.Value = DateTime.Today;
         cmbCustomer.SelectedIndex = -1;
@@ -183,12 +221,15 @@ public partial class frmAddUpdateCustomerReceipt : Form
             if (result.IsSuccess && result.Value != null)
             {
                 var receipt = result.Value;
+                _loadedStatus = receipt.Status;   // يُستهلك في حظر حفظ سند مرحّل/ملغى
+                _loadedPaymentMethod = receipt.PaymentMethod;   // يُعاد إرسالها كما هي (لا تُحوَّل إلى نقدي)
                 cmbCustomer.SelectedValue = receipt.CustomerId;
                 cmbCashBox.SelectedValue = receipt.CashBoxId;
                 numAmount.Value = receipt.Amount;
                 dtpDate.Value = receipt.ReceiptDate;
                 txtNotes.Text = receipt.Notes ?? string.Empty;
                 _UpdateNetTotal();
+                _UpdateModeHeader();   // يعلن «عرض» إذا كان السند مرحّلاً/ملغى
             }
             else
             {
@@ -216,7 +257,8 @@ public partial class frmAddUpdateCustomerReceipt : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            await LoadComboBoxesAsync();
+            _comboBoxesLoadTask = LoadComboBoxesAsync();
+            await _comboBoxesLoadTask;
             if (_isEditMode) await LoadReceiptAsync();
         }
         catch (Exception ex)
@@ -236,15 +278,20 @@ public partial class frmAddUpdateCustomerReceipt : Form
     {
         bool isValid = true;
 
-        if (!_TryGetSelectedId(cmbCustomer, out _))
+        // العميل غير قابل للتغيير في وضع التعديل (العقد لا يحمل CustomerId) — فلا يُطالَب به،
+        // ولا يمنع تعديل المبلغ/الصندوق/البيان إن كان العميل قديماً ومعطّلاً وغير ظاهر في القائمة.
+        if (!_isEditMode)
         {
-            errorProvider.SetError(cmbCustomer, "يرجى اختيار العميل.");
-            clsInputFeedback.ShowRejectTooltip(cmbCustomer, "يرجى اختيار العميل.", toolTip1);   // GAP-08b
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbCustomer, string.Empty);
+            if (!_TryGetSelectedId(cmbCustomer, out _))
+            {
+                errorProvider.SetError(cmbCustomer, "يرجى اختيار العميل.");
+                clsInputFeedback.ShowRejectTooltip(cmbCustomer, "يرجى اختيار العميل.", toolTip1);   // GAP-08b
+                isValid = false;
+            }
+            else
+            {
+                errorProvider.SetError(cmbCustomer, string.Empty);
+            }
         }
 
         if (!_TryGetSelectedId(cmbCashBox, out _))
@@ -296,6 +343,13 @@ public partial class frmAddUpdateCustomerReceipt : Form
     /// <summary>RULE-N25/N26: async void + try/catch + Cursor.WaitCursor واستعادته في finally.</summary>
     private async void btnSave_Click(object sender, EventArgs e)
     {
+        // السند المرحّل/الملغى لا يُعدَّل — الحظر هنا لأن التعديل يصل من قائمة المدفوعات وقائمة السندات.
+        if (_isEditMode && _loadedStatus != StatusDraft)
+        {
+            clsDialogs.Warning("لا يمكن حفظ سند قبض مرحّل أو ملغى. السندات المرحّلة تُلغى ولا تُعدَّل.");
+            return;
+        }
+
         if (!_ValidateForm()) return;
         if (!_TryGetSelectedId(cmbCustomer, out int customerId)) return;
         if (!_TryGetSelectedId(cmbCashBox, out int cashBoxId)) return;
@@ -312,7 +366,8 @@ public partial class frmAddUpdateCustomerReceipt : Form
                 var request = new UpdateCustomerReceiptRequest(
                     CashBoxId: cashBoxId,
                     Amount: numAmount.Value,
-                    Notes: notes);
+                    Notes: notes,
+                    PaymentMethod: _loadedPaymentMethod);   // تُحفظ طريقة الدفع القائمة (لا تُحوَّل إلى نقدي)
 
                 var result = await ReceiptService.UpdateAsync(_editingId, request);
                 if (result.IsSuccess)
@@ -364,12 +419,35 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
     /// <summary>
     /// يضبط المحرر على وضع التعديل لسجل محدد — يُستدعى من شاشة الدليل بعد حل النموذج من DI.
+    /// <para>
+    /// التوقيع يبقى متزامناً لأن كل المنادين معالجات <c>void</c> (قائمة المدفوعات · قائمة سندات القبض)
+    /// أو منشئ لا يمكن أن ينتظر؛ والتحميل يُسلسَل داخلياً: **القوائم أولاً ثم السند** — وإلا أُعيد ضبط
+    /// <c>DataSource</c> بعد التحميل فيضيع العميل/الصندوق المحدد (سباق القوائم).
+    /// </para>
     /// </summary>
     public void _SetUpdateMode(int id)
     {
         _editingId = id;
         _UpdateModeHeader();
-        _ = LoadReceiptAsync();
+        _ = _LoadReceiptForEditAsync();
+    }
+
+    /// <summary>تحميل سند التعديل بعد اكتمال القوائم — مغلَّف بـ try/catch كي لا يهرب استثناء من مهمة مُطلَقة.</summary>
+    private async Task _LoadReceiptForEditAsync()
+    {
+        try
+        {
+            await _comboBoxesLoadTask;
+
+            if (IsDisposed || !_isEditMode) return;
+
+            await LoadReceiptAsync();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تحميل سند القبض للتحرير {ReceiptId}", _editingId);
+            clsDialogs.Error("تعذر تحميل بيانات السند. يرجى إعادة المحاولة.");
+        }
     }
 
     private void numAmount_ValueChanged(object? sender, EventArgs e)

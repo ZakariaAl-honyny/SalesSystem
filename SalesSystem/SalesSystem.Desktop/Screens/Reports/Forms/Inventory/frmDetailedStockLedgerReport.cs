@@ -37,10 +37,18 @@ public partial class frmDetailedStockLedgerReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetDetailedStockLedgerAsync(null, null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            // نهاية اليوم شاملة: ReportRepository.cs:376-377 يقارن CreatedAt (طابع زمني كامل) بـ to.Value.Date.AddDays(1).AddTicks(-1)، فتمرير .Date وحدها يُسقط حركات اليوم الأخير.
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetDetailedStockLedgerAsync(null, null, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();
@@ -56,8 +64,7 @@ public partial class frmDetailedStockLedgerReport : Form, IExportableReport
 
     private void UpdateSummary(List<DetailedStockLedgerDto> list)
     {
-        if (list.Count == 0) { lblRecordsCount.Text = "0"; return; }
-        lblRecordsCount.Text = list.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
     }
 
     private void FormatGrid()
@@ -66,10 +73,9 @@ public partial class frmDetailedStockLedgerReport : Form, IExportableReport
         SetHeader("Date", "التاريخ"); SetHeader("ReferenceNo", "رقم المرجع"); SetHeader("ReferenceType", "نوع المرجع");
         SetHeader("MovementType", "نوع الحركة"); SetHeader("QuantityBefore", "قبل"); SetHeader("QuantityChange", "التغيير");
         SetHeader("QuantityAfter", "بعد"); SetHeader("UnitCost", "التكلفة"); SetHeader("TotalCost", "الإجمالي"); SetHeader("CreatedBy", "أنشأه");
-        foreach (var c in new[] { "QuantityBefore", "QuantityChange", "QuantityAfter" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N3";
-        foreach (var c in new[] { "UnitCost", "TotalCost" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity, "QuantityBefore", "QuantityChange", "QuantityAfter");
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "UnitCost", "TotalCost");
+        GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateDayMonthYear);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

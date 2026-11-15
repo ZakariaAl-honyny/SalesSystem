@@ -24,6 +24,8 @@ public static class ThemeHelper
     public static Color BorderColor => GreenThemeHelper.GridLine;
 
     // ثابت قديم — لا مفتاح في ThemePalette بعد؛ يُرحَّل عند أول مساس (GAP-19)
+    // لا قيمة في اللوحة تساوي (33,43,54): أقربها نص خلايا الشبكة (33,37,41) — مختلفة، ويلزم مفتاح «شريط جانبي».
+    // TODO(ThemePalette key): لا مفتاح مطابق — إضافة مفتاح قرار مالك (RULE-N54a)
     private static readonly Color SidebarDark = Color.FromArgb(33, 43, 54);
 
     /// <summary>خلفية الشريط الجانبي في الشاشة الرئيسية.</summary>
@@ -39,6 +41,8 @@ public static class ThemeHelper
     public static Color TextSecondary => GreenThemeHelper.StatusMuted;
 
     // ثابت قديم — لا مفتاح في ThemePalette بعد؛ يُرحَّل عند أول مساس (GAP-19)
+    // لا قيمة في اللوحة تساوي (50,50,50) — أقربها نص خلايا الشبكة (33,37,41) مختلفة.
+    // TODO(ThemePalette key): لا مفتاح مطابق — إضافة مفتاح قرار مالك (RULE-N54a)
     private static readonly Color TextDark = Color.FromArgb(50, 50, 50);
 
     /// <summary>نص الخلايا الداكن.</summary>
@@ -49,6 +53,10 @@ public static class ThemeHelper
     /// حقول الإدخال (RULE-N143) — القيمة مُعلنة هنا مرة واحدة فقط، فلا يتكرر أي لون
     /// في الملف (GAP-19 / RULE-N169).
     /// </summary>
+    // قيمته تطابق HeaderTextColor/GridHeaderTextColor/GridCellBackgroundColor لوناً لا دوراً؛
+    // وربطه بها يجعل تغيير «نص شريط العنوان» يغيّر خلفية حقول الإدخال (RULE-N143 تشترط الأبيض)
+    // ونص كل الأزرار. يلزم مفتاح مستقل «نص على خلفية صلبة» بقرار المالك — لا يُخترع هنا (RULE-N112).
+    // TODO(ThemePalette key): لا مفتاح مطابق — إضافة مفتاح قرار مالك (RULE-N54a)
     private static readonly Color ButtonForeOnSolid = Color.White;
 
     // Standard Dimensions
@@ -121,6 +129,8 @@ public static class ThemeHelper
 
     /// <summary>لون تحويم الأزرار الشبحية/الثانوية (بلا مفتاح في اللوحة).</summary>
     // ثابت قديم — لا مفتاح في ThemePalette بعد؛ يُرحَّل عند أول مساس (GAP-19)
+    // لا قيمة في اللوحة تساوي (240,240,240) — خلفية العنصر المعطّل (224,224,224) لون حالة لا تحويم.
+    // TODO(ThemePalette key): لا مفتاح مطابق — إضافة مفتاح قرار مالك (RULE-N54a)
     private static readonly Color GhostHoverBack = Color.FromArgb(240, 240, 240);
 
     public static void ApplyToolbarStyle(Panel toolbar)
@@ -154,25 +164,6 @@ public static class ThemeHelper
         txt.BackColor = ButtonForeOnSolid;   // RULE-N143: حقول الإدخال بيضاء (نفس الأبيض المُعلَن مرة واحدة)
         // لون تظليل التركيز لا يُكتب هنا: مالكه KeyboardHelper.WireFocusHighlight
         // الذي يقرأ ThemePalette.SelectionRowColor حيّاً (RULE-N54b) — فلا توصيل مزدوج.
-    }
-
-    public static void WireFocusIndicator(params Control[] controls)
-    {
-        foreach (Control ctrl in controls)
-        {
-            if (ctrl == null) continue;
-            Color originalBack = ctrl.BackColor;
-            ctrl.Enter += (s, e) =>
-            {
-                // قراءة حيّة من اللوحة في كل دخول (RULE-N46 / RULE-N54b).
-                if (ctrl.Enabled) ctrl.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
-            };
-            ctrl.Leave += (s, e) => ctrl.BackColor = originalBack;
-            ctrl.EnabledChanged += (s, e) =>
-            {
-                if (!ctrl.Enabled) ctrl.BackColor = originalBack;
-            };
-        }
     }
 
     public static void ApplyDialogStyle(Form form)

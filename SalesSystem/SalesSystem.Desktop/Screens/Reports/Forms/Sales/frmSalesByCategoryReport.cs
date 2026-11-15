@@ -36,10 +36,17 @@ public partial class frmSalesByCategoryReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetSalesByCategoryAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetSalesByCategoryAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();
@@ -64,7 +71,7 @@ public partial class frmSalesByCategoryReport : Form, IExportableReport
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("CategoryName", "التصنيف"); SetHeader("InvoiceCount", "عدد الفواتير"); SetHeader("TotalAmount", "الإجمالي");
-        if (dgvReport.Columns.Contains("TotalAmount")) dgvReport.Columns["TotalAmount"].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "TotalAmount", GridFormatKind.Money);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

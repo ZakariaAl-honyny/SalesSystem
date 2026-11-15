@@ -28,6 +28,13 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         private DateTime _defaultFrom = DateTime.Today;
         private DateTime _defaultTo = DateTime.Today;
 
+        /// <summary>
+        /// T-39 (عقد مجمَّد): <c>ISupplierPaymentDesktopService</c> لا يعرّض <c>UpdateAsync</c> — لا مسار
+        /// تعديل لسند صرف بعد حفظه، فلا يُفتح سند جديد فارغ بدل السند المحدد (كان يُنشئ سنداً مكرراً).
+        /// </summary>
+        private const string SupplierEditUnavailableMessage =
+            "تعديل سند الصرف غير متاح — لا يتيح العقد تعديل سند صرف بعد حفظه. أنشئ سنداً جديداً إن لزم.";
+
         public frmListPayments(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -96,13 +103,18 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 });
 
                 cbStatus.Items.Clear();
-                cbStatus.Items.AddRange(new object[] { "الكل", "مرحّل", "ملغى" });
+                cbStatus.Items.Add("الكل");   // العنصر المحايد ليس نص حالة
+
+                // RULE-N169: نصوص الحالات من البيت الواحد — لا تُكرَّر هنا (RULE-N172).
+                foreach (var option in DocumentTextHelper.StatusOptions)
+                    cbStatus.Items.Add(option.Text);
 
                 cbFilterBy.SelectedIndex = 1;   // المستفيد/المورد
                 cbStatus.SelectedIndex = 0;     // الكل
 
-                // نطاق ابتدائي واسع كي لا تُخفى السندات القديمة عند فتح الشاشة،
-                // و«هذا الشهر» متاح بزر وبتصفير Esc (RULE-N59).
+                // نطاق ابتدائي واسع (آخر 4 أشهر) كي لا تُخفى السندات القديمة عند فتح الشاشة،
+                // وهو **الافتراضي الوحيد** الذي يعيده «مسح التصفية» وEsc عبر _defaultFrom/_defaultTo
+                // (RULE-N148 / RULE-N169) — لا قيمة افتراضية ثانية في الشاشة.
                 var today = DateTime.Today;
                 dtpFrom.Value = new DateTime(today.Year, today.Month, 1).AddMonths(-3);
                 dtpTo.Value = today;
@@ -126,7 +138,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         {
             toolTip1.SetToolTip(cbFilterBy, "اختر الحقل الذي تُصفّي به السندات");
             toolTip1.SetToolTip(txtFilterValue, "اكتب قيمة التصفية — تُطبَّق فوراً (Enter يطبّق)");
-            toolTip1.SetToolTip(cbStatus, "حالة السند: الكل / مرحّل / ملغى (سندات القبض)");
+            toolTip1.SetToolTip(cbStatus, "حالة السند: الكل / مسودة / مرحل / ملغي (سندات القبض)");
             toolTip1.SetToolTip(dtpFrom, "تاريخ البداية (من)");
             toolTip1.SetToolTip(dtpTo, "تاريخ النهاية (إلى)");
             toolTip1.SetToolTip(btnRangeToday, "تصفية سندات اليوم فقط");
@@ -225,10 +237,9 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
             if (chkOnlyCancelled.Checked)
                 parts.Add("Status = 3");
-            else if (cbStatus.SelectedIndex == 1)
-                parts.Add("Status = 2");    // مرحّل
-            else if (cbStatus.SelectedIndex == 2)
-                parts.Add("Status = 3");    // ملغى
+            else if (cbStatus.SelectedIndex > 0)
+                // القيمة الرقمية للحالة من العنصر المختار — 1 مسودة · 2 مرحل · 3 ملغي (RULE-N60)
+                parts.Add($"Status = {cbStatus.SelectedIndex}");
 
             string text = txtFilterValue.Text.Trim();
             int filterBy = cbFilterBy.SelectedIndex;
@@ -249,7 +260,8 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                         parts.Add(RowFilterHelper.Like("Notes", text));
                         break;
                     case 4:
-                        parts.Add(decimal.TryParse(text, out decimal amount)
+                        // RULE-N169: قارئ الأرقام الواحد (يتكفّل بالفاصل الحيّ والأرقام العربية) — لا decimal.TryParse محلي.
+                        parts.Add(clsFormat.TryParseMoney(text, out decimal amount)
                             ? $"Amount = {amount.ToString(CultureInfo.InvariantCulture)}"
                             : "Amount < 0");
                         break;
@@ -284,7 +296,8 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                         parts.Add(RowFilterHelper.Like("Notes", text));
                         break;
                     case 4:
-                        parts.Add(decimal.TryParse(text, out decimal amount)
+                        // RULE-N169: قارئ الأرقام الواحد (يتكفّل بالفاصل الحيّ والأرقام العربية) — لا decimal.TryParse محلي.
+                        parts.Add(clsFormat.TryParseMoney(text, out decimal amount)
                             ? $"Amount = {amount.ToString(CultureInfo.InvariantCulture)}"
                             : "Amount < 0");
                         break;
@@ -390,29 +403,29 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             return value == null || value == DBNull.Value ? (byte)0 : Convert.ToByte(value);
         }
 
-        /// <summary>RULE-N59: Esc يمسح كل التصفية ويُعيد «هذا الشهر».</summary>
+        /// <summary>
+        /// معرّف السند المحدد — من العمود الداخلي «Id» في <see cref="DataView"/> (لا من ترتيب الأعمدة المعروضة).
+        /// </summary>
+        private static int _GetSelectedId(DataGridView grid)
+        {
+            if (grid.CurrentRow?.DataBoundItem is not DataRowView row)
+                return -1;
+
+            if (!row.Row.Table.Columns.Contains("Id"))
+                return -1;
+
+            object? value = row["Id"];
+            return value == null || value == DBNull.Value ? -1 : Convert.ToInt32(value);
+        }
+
+        /// <summary>
+        /// RULE-N59/RULE-N148: Esc يمسح كل التصفية ويعيد **نفس** الافتراضي الذي يعيده
+        /// «مسح التصفية» — مصدر واحد (<c>_ClearFilterInputs</c> + <c>_defaultFrom/_defaultTo</c>)
+        /// فلا يعود النطاق إلى «هذا الشهر» بينما افتراضي الشاشة نطاق أوسع.
+        /// </summary>
         private void _ResetFilters()
         {
-            _isInitializing = true;
-            try
-            {
-                txtFilterValue.Clear();
-                cbFilterBy.SelectedIndex = 1;
-                cbStatus.SelectedIndex = 0;
-                chkOnlyCancelled.Checked = false;
-
-                var today = DateTime.Today;
-                dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-                dtpTo.Value = today;
-
-                txtFilterValue.Visible = true;
-            }
-            finally
-            {
-                _isInitializing = false;
-            }
-
-            _ApplyFilter();
+            _ClearAllFilters();
             txtFilterValue.Focus();
         }
 
@@ -612,6 +625,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             try
             {
                 _customerTable = new DataTable();
+                _customerTable.Columns.Add("Id", typeof(int));        // داخلي: ربط سطر «تعديل» بالمعرّف (غير معروض — RULE-N22)
                 _customerTable.Columns.Add("ReceiptNo", typeof(int));
                 _customerTable.Columns.Add("CustomerName", typeof(string));
                 _customerTable.Columns.Add("Amount", typeof(decimal));
@@ -626,6 +640,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                     foreach (var p in result.Value)
                     {
                         _customerTable.Rows.Add(
+                            p.Id,
                             p.ReceiptNo,
                             p.CustomerName ?? "",
                             p.Amount,
@@ -647,10 +662,14 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
             finally
             {
-                _customerView = new DataView(_customerTable);
-                dgvCustomerPayments.DataSource = _customerView;
-                _ApplyFilter();
-                Cursor = dgvCustomerPayments.Cursor = Cursors.Default;
+                // الشاشة قد تُغلق أثناء التحميل — لا لمس لعناصر متخلَّصة (RULE-N26).
+                if (!IsDisposed)
+                {
+                    _customerView = new DataView(_customerTable);
+                    dgvCustomerPayments.DataSource = _customerView;
+                    _ApplyFilter();
+                    Cursor = dgvCustomerPayments.Cursor = Cursors.Default;
+                }
             }
         }
 
@@ -693,10 +712,14 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
             finally
             {
-                _supplierView = new DataView(_supplierTable);
-                dgvSupplierPayments.DataSource = _supplierView;
-                _ApplyFilter();
-                Cursor = dgvSupplierPayments.Cursor = Cursors.Default;
+                // الشاشة قد تُغلق أثناء التحميل — لا لمس لعناصر متخلَّصة (RULE-N26).
+                if (!IsDisposed)
+                {
+                    _supplierView = new DataView(_supplierTable);
+                    dgvSupplierPayments.DataSource = _supplierView;
+                    _ApplyFilter();
+                    Cursor = dgvSupplierPayments.Cursor = Cursors.Default;
+                }
             }
         }
 
@@ -740,7 +763,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             }
             finally
             {
-                Cursor = Cursors.Default;
+                if (!IsDisposed) Cursor = Cursors.Default;
             }
         }
 
@@ -785,7 +808,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         private void btnAddSupplierPayment_Click(object sender, EventArgs e)
         {
             var dialog = _serviceProvider.GetRequiredService<frmSupplierPaymentDialog>();
-            dialog.ShowDialog();
+            dialog.ShowDialog(this);   // RULE-N09: نمطي بمالك — لا يهرب خلف النافذة الرئيسية
             _RefreshSupplierPayments();
         }
 
@@ -808,7 +831,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         {
             bool hasRows = dgvSupplierPayments.Rows.Count > 0 && dgvSupplierPayments.CurrentRow != null;
             tsmiSupplierRefresh.Enabled = true;
-            tsmiSupplierEdit.Enabled = hasRows;
+            tsmiSupplierEdit.Enabled = false;   // T-39: لا UpdateAsync في العقد ⇒ لا «تعديل» (RULE-N167)
             tsmiSupplierAdd.Enabled = true;
             cmsSupplierPayments.Enabled = hasRows;
         }
@@ -818,11 +841,28 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             _RefreshCustomerPayments();
         }
 
+        /// <summary>«تعديل»: يفتح السند المحدد في وضع التعديل، ويمنع فتح سند مرحّل/ملغى (RULE-N167).</summary>
         private void tsmiCustomerEdit_Click(object sender, EventArgs e)
         {
-            if (dgvCustomerPayments.CurrentRow == null) return;
-            btnAddCustomerPayment_Click(sender, e);
+            int id = _GetSelectedId(dgvCustomerPayments);
+            if (id <= 0) return;
+
+            if (_SelectedCustomerStatus() != 1)
+            {
+                clsDialogs.Warning("لا يمكن تعديل سند قبض مرحّل أو ملغى. السندات المرحّلة تُلغى ولا تُعدَّل.");
+                return;
+            }
+
+            // «تعديل» = فتح السند المحدد في وضع التعديل (لا سند جديد فارغ).
+            using var dialog = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
+            dialog._SetUpdateMode(id);
+            dialog.ShowDialog(this);   // RULE-N09: نمطي بمالك
+            _RefreshCustomerPayments();
         }
+
+        /// <summary>حالة السند المحدد في شبكة المقبوضات — من العمود الداخلي «Status» (بلا ربط بترتيب الأعمدة).</summary>
+        private byte _SelectedCustomerStatus()
+            => dgvCustomerPayments.CurrentRow?.DataBoundItem is DataRowView row ? _StatusOf(row) : (byte)0;
 
         private void tsmiCustomerAdd_Click(object sender, EventArgs e)
         {
@@ -837,7 +877,10 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         private void tsmiSupplierEdit_Click(object sender, EventArgs e)
         {
             if (dgvSupplierPayments.CurrentRow == null) return;
-            btnAddSupplierPayment_Click(sender, e);
+
+            // T-39 (عقد مجمَّد): لا UpdateAsync في ISupplierPaymentDesktopService — وفتح حوار سند جديد
+            // بدل السند المحدد كان يُنشئ سند صرف مكرراً ويوهم المستخدم بأنه يعدّل. الشاشة تبقى صادقة.
+            clsDialogs.Info(SupplierEditUnavailableMessage, "تعديل السند");
         }
 
         private void tsmiSupplierAdd_Click(object sender, EventArgs e)

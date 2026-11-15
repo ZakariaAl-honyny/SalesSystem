@@ -67,5 +67,21 @@ namespace SalesSystem.Desktop.GlobalClasses
         /// <summary>يقرأ قيمة عشرية من النص بثقافة ثابتة — <c>false</c> للنص الفارغ أو غير الرقمي.</summary>
         public static bool TryParseDecimal(string? value, out decimal result)
             => clsFormat.TryParseMoney(value, out result);
+
+        /// <summary>
+        /// نص الرفض العربي الوحيد لنطاق تاريخ معكوس — تستهلكه كل شاشة تصفية بمدى تاريخي،
+        /// فلا يُكتب النص في شاشة ولا في خدمة (<c>RULE-N169</c>).
+        /// </summary>
+        public const string DateRangeErrorMessage = "تاريخ البداية يجب أن يكون قبل تاريخ النهاية.";
+
+        /// <summary>
+        /// هل نطاق التاريخ صالح؟ يُقارن الجزء اليومي وحده (<c>.Date</c>)، فيوم واحد (<c>from == to</c>) نطاق صالح،
+        /// والمعكوس (<c>from &gt; to</c>) مرفوض — وهو نفس حكم الواجهات الخلفية.
+        /// </summary>
+        public static bool IsDateRangeValid(DateTime from, DateTime to)
+            => from.Date <= to.Date;
+
+        /// <summary>آخر لحظة في اليوم المحدد — الحد الأعلى الشامل لأي مدى زمني (لا يُسقط اليوم الأخير ولا ثانيته).</summary>
+        public static DateTime EndOfDay(DateTime date) => date.Date.AddDays(1).AddTicks(-1);
     }
 }

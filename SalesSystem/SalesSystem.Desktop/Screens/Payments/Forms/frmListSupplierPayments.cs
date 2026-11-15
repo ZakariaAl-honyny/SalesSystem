@@ -17,6 +17,14 @@ public partial class frmListSupplierPayments : Form
 
     private readonly IServiceProvider _serviceProvider;
 
+    /// <summary>
+    /// نصّ واحد لمحاولة «تعديل سند صرف»: <c>ISupplierPaymentDesktopService</c> لا يعرّض
+    /// <c>UpdateAsync</c> ولا لـ<c>frmSupplierPaymentDialog</c> مدخل تعديل، فالتعديل مستحيل
+    /// بدون تغيير عقد (مجمَّد) — فلا يُفتح سند جديد فارغ بدل السند المطلوب (RULE-N167).
+    /// </summary>
+    private const string EditUnavailableMessage =
+        "تعديل سند الصرف غير متاح حتى يُعتمد عقد التعديل في الباك-إند. يمكنك إلغاء السند وإنشاء سند جديد.";
+
     /// <summary>جدول البيانات الكامل (بدون تصفية) — أساس شريط الملخص «من M» (RULE-N61).</summary>
     private DataTable _supplierTable;
 
@@ -97,7 +105,7 @@ public partial class frmListSupplierPayments : Form
         toolTip1.SetToolTip(btnRangeToday, "سندات اليوم فقط");
         toolTip1.SetToolTip(btnRangeMonth, "من بداية الشهر الحالي حتى اليوم");
         toolTip1.SetToolTip(btnRange30, "آخر 30 يوماً");
-        toolTip1.SetToolTip(dgvSupplierPayments, "انقر نقراً مزدوجاً لعرض السند");
+        toolTip1.SetToolTip(dgvSupplierPayments, "القائمة للعرض فقط — «صرف جديد» لإضافة سند، وزر الفأرة الأيمن للأوامر");
     }
 
     private void _SetupGrid()
@@ -108,12 +116,13 @@ public partial class frmListSupplierPayments : Form
 
         var columns = new[]
         {
-            new { Name = "Id",             Header = "رقم السند",     Width = 80 },
+            // «Id» الداخلي غير معروض: كان يُعرض بعنوان «رقم السند» فيظهر رقم قاعدة البيانات بوصفه
+            // رقم السند، ورقم السند الحقيقي (PaymentNo) يُعرض «رقم المرجع» — عمودان مكرّران ومضلّلان.
+            new { Name = "ReferenceNo",    Header = "رقم السند",     Width = 100 },
             new { Name = "SupplierName",   Header = "اسم المورد",    Width = 200 },
             new { Name = "Amount",         Header = "المبلغ",        Width = 120 },
             new { Name = "PaymentDate",    Header = "التاريخ",       Width = 110 },
             new { Name = "PaymentMethod",  Header = "طريقة الدفع",   Width = 120 },
-            new { Name = "ReferenceNo",    Header = "رقم المرجع",    Width = 100 },
         };
 
         foreach (var c in columns)
@@ -200,7 +209,7 @@ public partial class frmListSupplierPayments : Form
         }
         finally
         {
-            Cursor = Cursors.Default;
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 
@@ -280,8 +289,9 @@ public partial class frmListSupplierPayments : Form
             }
         }
 
-        lblSummary.Text = $"المعروض: {shown} من {total} — الإجمالي: {clsFormat.Money(totalAmount)}";
-        lblRecordsCount.Text = shown.ToString();
+        lblSummary.Text =
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — الإجمالي: {clsFormat.Money(totalAmount)}";
+        lblRecordsCount.Text = clsFormat.Number(shown);
     }
 
     private void _UpdateEmptyState()
@@ -430,7 +440,10 @@ public partial class frmListSupplierPayments : Form
 
     private void btnAddNew_Click(object sender, EventArgs e)
     {
-        _serviceProvider.GetRequiredService<frmSupplierPaymentDialog>().ShowDialog();
+        // RULE-N09: نمطي بمالك — و«using» حتى لا تبقى نسخة الحوار بلا تخلّص.
+        using (var dialog = _serviceProvider.GetRequiredService<frmSupplierPaymentDialog>())
+            dialog.ShowDialog(this);
+
         _RefreshPayments();
     }
 
@@ -498,7 +511,8 @@ public partial class frmListSupplierPayments : Form
         if (e.RowIndex < 0 || dgvSupplierPayments.CurrentRow == null)
             return;
 
-        tsmiEdit_Click(sender, EventArgs.Empty);
+        // لا مسار تعديل/عرض حقيقي في العقد: النقر المزدوج كان يفتح سند صرف جديداً فارغاً.
+        clsDialogs.Info(EditUnavailableMessage, "عرض/تعديل السند");
     }
 
     // ── Context Menu ───────────────────────────────────────────────────────────
@@ -507,7 +521,8 @@ public partial class frmListSupplierPayments : Form
     {
         bool hasRows = dgvSupplierPayments.Rows.Count > 0 && dgvSupplierPayments.CurrentRow != null;
         tsmiRefresh.Enabled = true;
-        tsmiEdit.Enabled = hasRows;
+        // لا UpdateAsync في العقد ⇒ لا «تعديل»: العنصر معطّل دائماً (يبقى «صرف جديد» و«تحديث»).
+        tsmiEdit.Enabled = false;
         tsmiAdd.Enabled = true;
         cmsSupplierPayments.Enabled = hasRows;
     }
@@ -521,7 +536,9 @@ public partial class frmListSupplierPayments : Form
     private void tsmiEdit_Click(object sender, EventArgs e)
     {
         if (dgvSupplierPayments.CurrentRow == null) return;
-        btnAddNew_Click(sender, e);
+
+        // كان يستدعي «صرف جديد» فيفتح سنداً فارغاً ويُوهم المستخدم بأنه يعدّل السند المحدد.
+        clsDialogs.Info(EditUnavailableMessage, "تعديل السند");
     }
 
     private void tsmiAdd_Click(object sender, EventArgs e)

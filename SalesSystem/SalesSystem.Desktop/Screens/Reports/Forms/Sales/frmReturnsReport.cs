@@ -37,10 +37,17 @@ public partial class frmReturnsReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetReturnsReportAsync(null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), null, default);
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetReturnsReportAsync(null, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), null, default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();
@@ -56,8 +63,11 @@ public partial class frmReturnsReport : Form, IExportableReport
 
     private void UpdateSummary(List<ReturnsReportDto> list)
     {
-        if (list.Count == 0) { lblRecordsCount.Text = "0"; return; }
-        lblRecordsCount.Text = list.Count.ToString();
+        if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
+
+        // RULE-N179 — العدد والمبلغ من بيتهما الواحد clsFormat، والإجمالي المالي جزء من شريط الإجماليات
+        var total = list.Sum(x => x.Amount);
+        lblRecordsCount.Text = $"عدد المرتجعات: {clsFormat.Number(list.Count)} | الإجمالي: {clsFormat.Money(total)}";
     }
 
     private void FormatGrid()
@@ -66,10 +76,10 @@ public partial class frmReturnsReport : Form, IExportableReport
         SetHeader("ReturnNo", "رقم المرتجع"); SetHeader("Date", "التاريخ"); SetHeader("Type", "النوع");
         SetHeader("PartyName", "الطرف"); SetHeader("ProductName", "المنتج"); SetHeader("Quantity", "الكمية");
         SetHeader("Amount", "المبلغ"); SetHeader("Reason", "السبب"); SetHeader("Status", "الحالة");
-        foreach (var c in new[] { "Quantity" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N3";
-        foreach (var c in new[] { "Amount" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "Quantity", GridFormatKind.Quantity);
+        GridFormatHelper.ApplyColumn(dgvReport, "Amount", GridFormatKind.Money);
+        // التاريخ بصيغة النظام الحيّة (يوم/شهر/سنة) بدل عرض DateTime الخام مع وقت اليوم.
+        GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateDayMonthYear);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

@@ -44,6 +44,9 @@ partial class frmProfitByCustomerReport
     private Label label3;
     private Label label4;
 
+    // RULE-N145 — لافتة نقص حقل الربح في عقد البيانات مُعلَنة في المصمّم (عنصر دائم لا يُبنى وقت التشغيل)
+    private Label lblContractNote;
+
     // RULE-N146 — شريط تنقل التقارير مُعلَن في المصمّم لا وقت التشغيل (RULE-N145)
     private Panel pnlReportNav;
     private Label lblNavCaption;
@@ -74,6 +77,7 @@ partial class frmProfitByCustomerReport
         dtpFrom = new DateTimePicker();
         label4 = new Label();
         dtpTo = new DateTimePicker();
+        lblContractNote = new Label();
         pnlGrid = new Panel();
         gbGrid = new GroupBox();
         dgvReport = new DataGridView();
@@ -267,6 +271,7 @@ partial class frmProfitByCustomerReport
         flpFilterControls.Controls.Add(dtpFrom);
         flpFilterControls.Controls.Add(label4);
         flpFilterControls.Controls.Add(dtpTo);
+        flpFilterControls.Controls.Add(lblContractNote);
         flpFilterControls.Dock = DockStyle.Fill;
         flpFilterControls.FlowDirection = FlowDirection.RightToLeft;
         flpFilterControls.Location = new Point(8, 33);
@@ -287,7 +292,6 @@ partial class frmProfitByCustomerReport
         label3.TabIndex = 9;
         label3.Text = "من:";
         label3.TextAlign = ContentAlignment.MiddleRight;
-        label3.Click += label3_Click;
         // 
         // dtpFrom
         // 
@@ -320,6 +324,18 @@ partial class frmProfitByCustomerReport
         dtpTo.Name = "dtpTo";
         dtpTo.Size = new Size(168, 32);
         dtpTo.TabIndex = 12;
+        // 
+        // lblContractNote
+        // 
+        lblContractNote.AutoSize = true;
+        lblContractNote.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblContractNote.ForeColor = Color.FromArgb(14, 82, 52);
+        lblContractNote.Location = new Point(330, 12);
+        lblContractNote.Margin = new Padding(16, 8, 0, 0);
+        lblContractNote.Name = "lblContractNote";
+        lblContractNote.Size = new Size(360, 22);
+        lblContractNote.TabIndex = 13;
+        lblContractNote.Text = "ملاحظة: البيانات الحالية لا تتضمن ربحاً لكل عميل — المعروض: المبيعات والمدفوع والمستحق.";
         // 
         // pnlGrid
         // 

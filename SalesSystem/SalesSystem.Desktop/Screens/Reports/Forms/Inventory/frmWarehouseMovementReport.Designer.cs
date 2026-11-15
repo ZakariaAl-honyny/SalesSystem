@@ -282,7 +282,6 @@ partial class frmWarehouseMovementReport
         label3.TabIndex = 3;
         label3.Text = "من:";
         label3.TextAlign = ContentAlignment.MiddleRight;
-        label3.Click += label3_Click;
         // 
         // dtpFrom
         // 

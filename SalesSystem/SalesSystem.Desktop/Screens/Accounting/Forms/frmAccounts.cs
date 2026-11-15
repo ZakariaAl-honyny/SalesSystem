@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Common.Helpers;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
 using SalesSystem.Desktop.GlobalClasses;
@@ -68,13 +69,13 @@ public partial class frmAccounts : Form
             (Keys.F2, () => btnNew.PerformClick()),
             (Keys.F3, () => btnEdit.PerformClick()),
             (Keys.F5, () => _ = _RefreshAsync()),
-            (Keys.Control | Keys.S, () => btnSave.PerformClick()),
+            (Keys.Control | Keys.S, () => _PrimaryActionButton().PerformClick()),
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
 
-        // RULE-N147: Enter = الزر الأساسي — لا وضع إدخال في هذه الشاشة، فالأساسي «جديد» دائماً.
-        KeyboardHelper.WireModeEnter(this, () => btnNew);
-        AcceptButton = btnNew;
+        // RULE-N147: Enter = الزر الأساسي للوضع الحالي (يُقرأ عند كل ضغطة)، و«AcceptButton»
+        // يُضبط مركزياً في _UpdateActionButtons (RULE-N150) لا هنا.
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
 
         ApplyUiTheme();
 
@@ -170,6 +171,9 @@ public partial class frmAccounts : Form
         toolTip.SetToolTip(btnRefresh, "تحديث البيانات (F5)");
         toolTip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
         toolTip.SetToolTip(txtFilterValue, "بحث فوري — Esc يمسح كل التصفية");
+        toolTip.SetToolTip(chkIsSystem,
+            "الحسابات النظامية تُنشأ من بذور النظام ومزامنته فقط — العلم للعرض ولا يُنشئ حساباً نظامياً من الشاشة");
+        toolTip.SetToolTip(txtAccountCode, "رمز الحساب يُولّده النظام ولا يُعدَّل يدوياً");
     }
 
     // ── Load ─────────────────────────────────────────────────────────────────
@@ -337,11 +341,17 @@ public partial class frmAccounts : Form
     {
         int? previousParentId = (cbParent.SelectedItem as ParentOption)?.Id;
 
+        // الحساب الأب الحالي للحساب المفتوح يبقى في القائمة دائماً (ولو كان معطّلاً أو ورقياً):
+        // لو اختفى لظهر المحرر على «بلا أب» وحُفظ التعديل بالحساب في الجذر — فقدان صلة صامت.
+        int? currentParentId = _editId is int openId && _accountsById.TryGetValue(openId, out var openAccount)
+            ? openAccount.ParentId
+            : null;
+
         cbParent.Items.Clear();
         cbParent.Items.Add(new ParentOption(null, "(بلا أب — حساب رئيسي)"));
 
         foreach (var candidate in _accounts
-                     .Where(a => !a.IsLeaf && a.IsActive)
+                     .Where(a => a.Id == currentParentId || (!a.IsLeaf && a.IsActive))
                      .OrderBy(a => a.AccountCode, StringComparer.Ordinal))
         {
             if (_editId is int editingId
@@ -353,8 +363,11 @@ public partial class frmAccounts : Form
             cbParent.Items.Add(new ParentOption(candidate.Id, $"{candidate.AccountCode} — {candidate.NameAr}"));
         }
 
+        // عند فتح حساب: يُحدَّد أبوه الفعلي (لا التحديد السابق للقائمة).
+        int? selectionId = _editId is not null ? currentParentId : previousParentId;
+
         var match = cbParent.Items.OfType<ParentOption>()
-            .FirstOrDefault(o => o.Id == previousParentId);
+            .FirstOrDefault(o => o.Id == selectionId);
 
         cbParent.SelectedItem = match ?? cbParent.Items[0];
     }
@@ -386,6 +399,7 @@ public partial class frmAccounts : Form
         if (!_accountsById.TryGetValue(accountId, out var account))
             return;
 
+        bool wasLoadingSelection = _loadingSelection;
         _loadingSelection = true;
         try
         {
@@ -414,6 +428,9 @@ public partial class frmAccounts : Form
             txtDescription.Text = account.Description ?? string.Empty;
             txtNotes.Text = account.Notes ?? string.Empty;
 
+            // الحساب النظامي للعرض فقط: الخدمة ترفض تعديله، فلا تُترك حقول مفتوحة لا يمكن حفظها.
+            _SetEditorReadOnly(account.IsSystem);
+
             _LoadParentOptions();
 
             var parentOption = cbParent.Items.OfType<ParentOption>()
@@ -425,15 +442,22 @@ public partial class frmAccounts : Form
         }
         finally
         {
-            _loadingSelection = false;
+            _loadingSelection = wasLoadingSelection;
         }
 
         _UpdateModeHeader();
         _UpdateActionButtons();
     }
 
-    private void _ResetForm()
+    /// <summary>
+    /// إعادة المحرر إلى وضع «إضافة حساب جديد»: تفريغ الحقول + بلا تحديد في الشبكة + تحديث شريط الوضع والأزرار.
+    /// </summary>
+    /// <param name="focusNameAr">
+    /// <c>false</c> عند إعادة الضبط بسبب تصفية أزالت السجل المعروض — لا يُسلَب التركيز من صندوق البحث.
+    /// </param>
+    private void _ResetForm(bool focusNameAr = true)
     {
+        bool wasLoadingSelection = _loadingSelection;
         _loadingSelection = true;
         try
         {
@@ -448,8 +472,13 @@ public partial class frmAccounts : Form
                 cbNature.SelectedIndex = 0;
 
             chkIsLeaf.Checked = false;
+            // الحسابات النظامية تُنشأ من بذور/مزامنة النظام فقط، والخدمة تتجاهل هذا العلم —
+            // فالعلم للعرض فقط دائماً ولا يوهم المستخدم بإنشاء حساب نظامي (RULE-N167).
             chkIsSystem.Checked = false;
-            chkIsSystem.Enabled = true;               // ذو معنى في وضع الإنشاء فقط
+            chkIsSystem.Enabled = false;
+            errorProvider.SetError(chkIsSystem, string.Empty);
+
+            _SetEditorReadOnly(false);                // وضع الإضافة: كل حقول الإدخال مفتوحة
 
             numOpeningBalance.Value = 0;
             numOpeningBalance.Enabled = true;         // الرصيد الافتتاحي في وضع الإنشاء فقط
@@ -465,23 +494,50 @@ public partial class frmAccounts : Form
         }
         finally
         {
-            _loadingSelection = false;
+            _loadingSelection = wasLoadingSelection;
         }
 
         _UpdateModeHeader();
         _UpdateActionButtons();
-        txtNameAr.Focus();
+
+        if (focusNameAr)
+            txtNameAr.Focus();
     }
 
     /// <summary>RULE-N44: مؤشر الوضع أعلى الشاشة.</summary>
     private void _UpdateModeHeader()
     {
-        lblMode.Text = _editId is int id && _accountsById.TryGetValue(id, out var account)
-            ? $"دليل الحسابات — تعديل الحساب: {account.NameAr}"
-            : "دليل الحسابات — إضافة حساب جديد";
+        if (_editId is int id && _accountsById.TryGetValue(id, out var account))
+        {
+            lblMode.Text = account.IsSystem
+                ? $"دليل الحسابات — حساب نظامي (عرض فقط): {account.NameAr}"
+                : $"دليل الحسابات — تعديل الحساب: {account.NameAr}";
+            return;
+        }
+
+        lblMode.Text = "دليل الحسابات — إضافة حساب جديد";
     }
 
-    /// <summary>RULE-N43/RULE-N92: آلة حالة الأزرار حسب الوضع والسجل المحدد.</summary>
+    /// <summary>
+    /// RULE-N43/RULE-N149: قفل حقول المحرر للحساب النظامي (الخدمة ترفض تعديله) —
+    /// فلا يُترك إدخال يمكن كتابته بلا أي طريق للحفظ. تُفتح كلها في وضع الإضافة.
+    /// </summary>
+    private void _SetEditorReadOnly(bool readOnly)
+    {
+        txtNameAr.ReadOnly = readOnly;
+        txtNameEn.ReadOnly = readOnly;
+        txtDescription.ReadOnly = readOnly;
+        txtNotes.ReadOnly = readOnly;
+
+        cbNature.Enabled = !readOnly;
+        cbParent.Enabled = !readOnly;
+        chkIsLeaf.Enabled = !readOnly;
+    }
+
+    /// <summary>
+    /// RULE-N43/RULE-N147/RULE-N150: آلة الحالة الوحيدة للأزرار وقائمة السياق والزر الأساسي —
+    /// تُستدعى بعد كل انتقال (تحميل · جديد · اختيار سطر · حفظ · تعطيل · حذف · تحديث · تصفية تُخفي السجل).
+    /// </summary>
     private void _UpdateActionButtons()
     {
         bool hasSelection = _editId.HasValue;
@@ -491,10 +547,21 @@ public partial class frmAccounts : Form
 
         btnNew.Enabled = !_actionButtonsBusy;                                    // «جديد» متاح دائماً للخروج من وضع التعديل
         btnSave.Enabled = !hasSelection && !_actionButtonsBusy;                   // الحفظ في وضع الإضافة
-        btnEdit.Enabled = hasSelection && !_actionButtonsBusy;
-        btnDelete.Enabled = hasSelection && !_actionButtonsBusy;
-        btnPermanentDelete.Enabled = hasSelection && !isSystem && !_actionButtonsBusy; // النظامي لا يُحذف نهائياً
+        // الحساب النظامي محمي: الخدمة ترفض تعديله وتعطيله وحذفه نهائياً — فلا يُفعَّل زر لعملية مرفوضة.
+        btnEdit.Enabled = hasSelection && !isSystem && !_actionButtonsBusy;
+        btnDelete.Enabled = hasSelection && !isSystem && !_actionButtonsBusy;
+        btnPermanentDelete.Enabled = hasSelection && !isSystem && !_actionButtonsBusy;
+
+        // RULE-N43: بنود قائمة السياق تتبع نفس الآلة — لا بند يُنقَر بلا أثر (الزر المعطّل لا يُنفَّذ بـ PerformClick).
+        cmsEdit.Enabled = btnEdit.Enabled;
+        cmsDelete.Enabled = btnDelete.Enabled;
+
+        // RULE-N147/RULE-N150: الزر الأساسي لِـ Enter يُضبط في المكان الواحد لا في المُنشئ.
+        AcceptButton = _PrimaryActionButton();
     }
+
+    /// <summary>RULE-N147: الزر الأساسي للوضع — إضافة ⇒ «حفظ» · تعديل ⇒ «تعديل».</summary>
+    private Button _PrimaryActionButton() => _editId.HasValue ? btnEdit : btnSave;
 
     // ── Grid ─────────────────────────────────────────────────────────────────
 
@@ -712,9 +779,26 @@ public partial class frmAccounts : Form
             _accountsView.RowFilter = string.Empty;
         }
 
+        // RULE-N150: التصفية قد تُخفي السجل المفتوح في المحرر — فلا يبقى «تعديل/تعطيل» فعّالاً
+        // على سجل غير معروض في الشبكة (والتركيز يبقى في صندوق البحث).
+        if (_editId is int editedId && !_IsRowVisible(editedId))
+            _ResetForm(focusNameAr: false);
+
         _UpdateSummary();
         _UpdateEmptyState();
         _UpdateClearFiltersState(); // RULE-N148: حالة زر «مسح التصفية» بعد كل تطبيق
+    }
+
+    /// <summary>هل السجل <paramref name="accountId"/> معروض في الشبكة بعد التصفية الحالية؟</summary>
+    private bool _IsRowVisible(int accountId)
+    {
+        foreach (DataGridViewRow row in dgvAccounts.Rows)
+        {
+            if (row.DataBoundItem is DataRowView view && view["Id"] is int rowId && rowId == accountId)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>RULE-N61: شريط الملخص — عدد المعروض من الإجمالي + توزيع الأنواع.</summary>
@@ -739,9 +823,11 @@ public partial class frmAccounts : Form
             }
         }
 
+        // الأعداد تُنسَّق من البيت الواحد clsFormat.Number — لا إدراج خام في النص (RULE-N169)
         lblSummary.Text =
-            $"المعروض: {shown} من {_totalCount} — أصول: {assets} · خصوم: {liabilities} · " +
-            $"حقوق ملكية: {equity} · إيرادات: {revenue} · مصروفات: {expenses}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_totalCount)} — "
+            + $"أصول: {clsFormat.Number(assets)} · خصوم: {clsFormat.Number(liabilities)} · "
+            + $"حقوق ملكية: {clsFormat.Number(equity)} · إيرادات: {clsFormat.Number(revenue)} · مصروفات: {clsFormat.Number(expenses)}";
     }
 
     /// <summary>عند عدم وجود نتائج تُعرض طبقة «لا توجد بيانات» مكان جسم الشبكة.</summary>
@@ -764,6 +850,7 @@ public partial class frmAccounts : Form
         errorProvider.SetError(cbNature, string.Empty);
         errorProvider.SetError(cbParent, string.Empty);
         errorProvider.SetError(numOpeningBalance, string.Empty);
+        errorProvider.SetError(chkIsLeaf, string.Empty);
 
         if (!clsValidation.IsRequired(txtNameAr.Text))
         {
@@ -787,6 +874,27 @@ public partial class frmAccounts : Form
             errorProvider.SetError(cbParent, "لا يمكن اختيار الحساب نفسه أو أحد فروعه كحساب أب");
             clsInputFeedback.ShowRejectTooltip(cbParent,
                 "لا يمكن اختيار الحساب نفسه أو أحد فروعه كحساب أب", toolTip);   // GAP-08b
+            isValid = false;
+        }
+
+        // حساب له فروع لا يصبح «قابلاً للترحيل»: يصير أباً ورقةً فينكسر تسلسل الشجرة (الخدمة لا تفحصه).
+        if (_editId is int leafTargetId && chkIsLeaf.Checked
+            && _accounts.Exists(a => a.ParentId == leafTargetId))
+        {
+            const string leafError =
+                "هذا الحساب له حسابات فرعية — لا يمكن تحويله إلى حساب فرعي قابل للترحيل قبل نقل فروعه";
+            errorProvider.SetError(chkIsLeaf, leafError);
+            clsInputFeedback.ShowRejectTooltip(chkIsLeaf, leafError, toolTip);
+            isValid = false;
+        }
+
+        // الترحيل على الحسابات التفصيلية فقط: رصيد افتتاحي على حساب تجميعي يفسد أرصدة الشجرة.
+        if (_editId is null && !chkIsLeaf.Checked && numOpeningBalance.Value > 0)
+        {
+            const string openingError =
+                "الرصيد الافتتاحي يُسجَّل على حساب فرعي قابل للترحيل — فعّل «حساب فرعي قابل للترحيل»";
+            errorProvider.SetError(numOpeningBalance, openingError);
+            clsInputFeedback.ShowRejectTooltip(numOpeningBalance, openingError, toolTip);
             isValid = false;
         }
 
@@ -864,19 +972,23 @@ public partial class frmAccounts : Form
         try
         {
             string nameAr = txtNameAr.Text.Trim();
-            string? nameEn = _ToNullIfEmpty(txtNameEn.Text);
+            string? nameEn = txtNameEn.Text?.Trim().ToNullIfEmpty();
             byte nature = ((NatureOption)cbNature.SelectedItem!).Value;
             bool isLeaf = chkIsLeaf.Checked;
             int? parentId = (cbParent.SelectedItem as ParentOption)?.Id;
-            string? description = _ToNullIfEmpty(txtDescription.Text);
-            string? notes = _ToNullIfEmpty(txtNotes.Text);
+            string? description = txtDescription.Text?.Trim().ToNullIfEmpty();
+            string? notes = txtNotes.Text?.Trim().ToNullIfEmpty();
 
             int? savedId;
 
             if (isUpdate && requestedId is int id)
             {
+                // التصنيف (CategoryId) ليس له حقل في هذه الشاشة — نُمرّر المحفوظ كما هو
+                // بدل تصفيره، وإلا فُقد تصنيف الحساب صامتاً عند أول تعديل.
+                short? categoryId = _accountsById.TryGetValue(id, out var stored) ? stored.CategoryId : null;
+
                 var request = new UpdateAccountRequest(
-                    nameAr, nameEn, nature, isLeaf, parentId, null, description, notes);
+                    nameAr, nameEn, nature, isLeaf, parentId, categoryId, description, notes);
 
                 var result = await AccountService.UpdateAsync(id, request);
 
@@ -890,8 +1002,10 @@ public partial class frmAccounts : Form
             }
             else
             {
+                // الحسابات النظامية تُنشأ من بذور/مزامنة النظام فقط، والخدمة تُهمل هذا العلم وتُنشئ
+                // الحساب عادياً (AccountService.CreateAsync) — فإرسال ما لا يُطبَّق نجاح كاذب؛ القيمة ثابتة false.
                 var request = new CreateAccountRequest(
-                    nameAr, nameEn, nature, isLeaf, parentId, chkIsSystem.Checked,
+                    nameAr, nameEn, nature, isLeaf, parentId, false,
                     null, description, notes, numOpeningBalance.Value);
 
                 var result = await AccountService.CreateAsync(request);
@@ -940,7 +1054,8 @@ public partial class frmAccounts : Form
 
         if (account.IsSystem)
         {
-            clsDialogs.Warning("هذا حساب نظامي لا يمكن تعطيله. يمكنك تعديل بياناته فقط.");
+            // الحساب النظامي محمي في الخدمة نفسها: لا تعديل ولا تعطيل ولا حذف نهائي.
+            clsDialogs.Warning("هذا حساب نظامي — لا يمكن تعطيله أو تعديله أو حذفه من هذه الشاشة.");
             return;
         }
 
@@ -1104,9 +1219,4 @@ public partial class frmAccounts : Form
         foreach (var child in node.Children)
             _AppendTreeNode(builder, child, depth + 1);
     }
-
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
-    private static string? _ToNullIfEmpty(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

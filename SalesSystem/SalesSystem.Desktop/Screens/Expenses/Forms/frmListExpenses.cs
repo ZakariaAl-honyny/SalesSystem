@@ -31,6 +31,7 @@ public partial class frmListExpenses : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+        _LoadStatusOptions();   // نصوص الحالة من البيت الواحد — مرة واحدة في المُنشئ (RULE-N169)
 
         var today = DateTime.Today;
         _defaultFrom = new DateTime(today.Year, today.Month, 1);
@@ -67,6 +68,23 @@ public partial class frmListExpenses : Form
     /// <summary>RULE-N147: الزر الأساسي للشاشة — «جديد» (لا آلة حالة إدخال في شاشة القائمة).</summary>
     private Button? _PrimaryActionButton() => btnAddNew;
 
+    /// <summary>
+    /// خيارات تصفية الحالة: «الكل» عنصر محايد محلي (ليس نص حالة)، وبقية النصوص من البيت الواحد
+    /// <see cref="DocumentTextHelper.StatusOptions"/> فلا تُكرَّر في الشاشة (RULE-N169/RULE-N172).
+    /// الترتيب «الكل» ثم 1 (مسودة) · 2 (مرحل) · 3 (ملغي)، فيبقى <c>cbStatus.SelectedIndex</c>
+    /// مساوياً لقيمة الحالة الرقمية في التصفية (RULE-N60).
+    /// </summary>
+    private void _LoadStatusOptions()
+    {
+        cbStatus.Items.Clear();
+        cbStatus.Items.Add("الكل");   // عنصر محايد محلي — ليس نص حالة
+
+        foreach (var option in DocumentTextHelper.StatusOptions)
+            cbStatus.Items.Add(option.Text);
+
+        cbStatus.SelectedIndex = 0;   // الافتراضي: «الكل» (بلا تغيير)
+    }
+
     /// <summary>تلميحات الأزرار مع اختصاراتها (RULE-N47).</summary>
     private void _SetupToolTips()
     {
@@ -102,7 +120,8 @@ public partial class frmListExpenses : Form
 
         var columns = new[]
         {
-            new { Name = "Id",              Header = "رقم المصروف",    Fill = 8,  Min = 100 },
+            // «Id» الداخلي ليس عموداً معروضاً: عرضه بجانب «رقم السند» عمودان مكرّران (يُقرأ المعرّف
+            // كرقم سند). يُربط السطر بمعرّفه عبر Tag كما في قائمة سندات القبض.
             new { Name = "ExpenseNo",       Header = "رقم السند",       Fill = 8,  Min = 100 },
             new { Name = "ExpenseDate",     Header = "التاريخ",         Fill = 12, Min = 120 },
             new { Name = "ExpenseAccountName", Header = "حساب المصروف", Fill = 15, Min = 150 },
@@ -219,14 +238,14 @@ public partial class frmListExpenses : Form
         _UpdateClearFiltersState();   // RULE-N148: الزر مفعّل فقط عند وجود تصفية نشطة
     }
 
-    /// <summary>تصفية المبلغ: مطابقة رقمية إن أمكن، وإلا مطابقة نصية منسّقة.</summary>
+    /// <summary>
+    /// تصفية المبلغ: قراءة النص بقارئ الأرقام الواحد <c>clsFormat.TryParseMoney</c> (يتكفّل بالفاصل
+    /// الحيّ والأرقام العربية) — لا طرح فواصل يدوياً ولا <c>decimal.TryParse</c> محلي (RULE-N169).
+    /// </summary>
     private static IEnumerable<ExpenseDto> _FilterByAmount(IEnumerable<ExpenseDto> query, string text)
     {
-        string normalized = text.Replace(",", string.Empty);
-
-        if (decimal.TryParse(normalized, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal amount))
-            return query.Where(x => x.Amount == amount
-                                 || clsFormat.Money(x.Amount).Contains(text, StringComparison.OrdinalIgnoreCase));
+        if (clsFormat.TryParseMoney(text, out decimal amount))
+            return query.Where(x => x.Amount == amount);
 
         return query.Where(x => clsFormat.Money(x.Amount).Contains(text, StringComparison.OrdinalIgnoreCase));
     }
@@ -247,8 +266,7 @@ public partial class frmListExpenses : Form
 
         foreach (var ex in _filteredExpenses)
         {
-            dgvExpenses.Rows.Add(
-                ex.Id,
+            int rowIndex = dgvExpenses.Rows.Add(
                 ex.ExpenseNo,
                 clsFormat.DateToShort(ex.ExpenseDate),
                 ex.ExpenseAccountName ?? "",
@@ -257,6 +275,9 @@ public partial class frmListExpenses : Form
                 ex.Notes ?? "",
                 ex.StatusName ?? ""
             );
+
+            // الربط بالمعرّف لا بترتيب السطر ولا بعمود معروض.
+            dgvExpenses.Rows[rowIndex].Tag = ex.Id;
         }
 
         // سطر «لا توجد بيانات» — طبقة نصية فوق الشبكة عند فراغ النتيجة.
@@ -290,21 +311,20 @@ public partial class frmListExpenses : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {_filteredExpenses.Count} من {_allExpenses.Count} — الإجمالي: {clsFormat.Money(total)} · مرحّل: {posted} · ملغى: {cancelled}";
+            $"المعروض: {clsFormat.Number(_filteredExpenses.Count)} من {clsFormat.Number(_allExpenses.Count)} — الإجمالي: {clsFormat.Money(total)} · مرحّل: {clsFormat.Number(posted)} · ملغى: {clsFormat.Number(cancelled)}";
 
         _UpdateRecordsCount();
     }
 
     private void _UpdateRecordsCount()
     {
-        lblRecordsCount.Text = _filteredExpenses.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(_filteredExpenses.Count);
     }
 
     private int _GetSelectedId()
     {
         if (dgvExpenses.CurrentRow == null) return -1;
-        if (dgvExpenses.CurrentRow.Cells[0].Value is not int id) return -1;
-        return id;
+        return dgvExpenses.CurrentRow.Tag is int id ? id : -1;
     }
 
     private byte _GetSelectedStatus()
@@ -314,10 +334,36 @@ public partial class frmListExpenses : Form
         return item?.Status ?? 0;
     }
 
-    private void _OpenForm(Form form)
+    /// <summary>
+    /// RULE-N09 + RULE-N132: شاشة الإدخال تُفتح **نمطياً بمالك** ثم تُعاد القائمة بعد إغلاقها —
+    /// الفتح غير النمطي عبر <c>clsGlobal._OpenForm</c> كان يُعيد التحميل **قبل** الحفظ فلا يظهر المصروف الجديد.
+    /// </summary>
+    private void _ShowEntryDialog(Form form)
     {
-        clsGlobal._OpenForm(form);
+        using (form)
+            form.ShowDialog(this);
+
         _ReloadForm();
+    }
+
+    /// <summary>
+    /// «تعديل»: يفتح المصروف المحدد في وضع التعديل، ويمنع فتح مصروف مرحّل/ملغى
+    /// (لا يُعدَّل بعد الترحيل — <c>RULE-N167</c> وتكافؤ رفض الخدمة).
+    /// </summary>
+    private void _OpenForEdit()
+    {
+        int id = _GetSelectedId();
+        if (id <= 0) return;
+
+        if (_GetSelectedStatus() != 1)
+        {
+            clsDialogs.Warning("لا يمكن تعديل مصروف مرحّل أو ملغى. المصروفات المرحّلة تُلغى ولا تُعدَّل.");
+            return;
+        }
+
+        var form = _serviceProvider.GetRequiredService<frmAddUpdateExpense>();
+        form._SetUpdateMode(id);
+        _ShowEntryDialog(form);
     }
 
     // ── الأحداث ────────────────────────────────────────────────────────────────
@@ -345,7 +391,7 @@ public partial class frmListExpenses : Form
 
     private void btnAddNew_Click(object sender, EventArgs e)
     {
-        _OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateExpense>());
+        _ShowEntryDialog(_serviceProvider.GetRequiredService<frmAddUpdateExpense>());
     }
 
     /// <summary>
@@ -458,15 +504,25 @@ public partial class frmListExpenses : Form
         _ApplyFilter();
     }
 
-    /// <summary>«هذا الشهر» = من أول الشهر الحالي حتى اليوم (زر النطاق السريع).</summary>
+    /// <summary>«هذا الشهر» = من أول الشهر الحالي حتى اليوم (زر النطاق السريع) — تصفية واحدة بعد الضبط.</summary>
     private void _SetDateRangeThisMonth()
     {
         var today = DateTime.Today;
-        dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
-        dtpTo.Value = today;
 
-        if (!_isInitializing)
-            _ApplyFilter();
+        // منع تصفية وسيطة عند كل ضبط حقل — كانت تُطبَّق مرتين (ValueChanged) ثم مرة ثالثة هنا.
+        bool wasInitializing = _isInitializing;
+        _isInitializing = true;
+        try
+        {
+            dtpFrom.Value = new DateTime(today.Year, today.Month, 1);
+            dtpTo.Value = today;
+        }
+        finally
+        {
+            _isInitializing = wasInitializing;
+        }
+
+        _ApplyFilter();
     }
 
     /// <summary>
@@ -529,13 +585,7 @@ public partial class frmListExpenses : Form
 
     private void editToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        int id = _GetSelectedId();
-        if (id > 0)
-        {
-            var frm = _serviceProvider.GetRequiredService<frmAddUpdateExpense>();
-            frm._SetUpdateMode(id);
-            _OpenForm(frm);
-        }
+        _OpenForEdit();
     }
 
     private void postToolStripMenuItem_Click(object sender, EventArgs e)
@@ -681,13 +731,7 @@ public partial class frmListExpenses : Form
 
     private void dgvExpenses_DoubleClick(object sender, EventArgs e)
     {
-        int id = _GetSelectedId();
-        if (id > 0)
-        {
-            var frm = _serviceProvider.GetRequiredService<frmAddUpdateExpense>();
-            frm._SetUpdateMode(id);
-            _OpenForm(frm);
-        }
+        _OpenForEdit();
     }
 
     private void cmsExpenses_Opening(object sender, System.ComponentModel.CancelEventArgs e)

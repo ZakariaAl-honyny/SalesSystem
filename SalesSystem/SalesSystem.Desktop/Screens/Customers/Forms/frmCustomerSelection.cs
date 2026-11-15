@@ -19,6 +19,9 @@ public partial class frmCustomerSelection : Form
     private DataTable? _customersTable;
     private DataView? _customersView;
 
+    /// <summary>سجلات الخدمة الحقيقية — مصدر <see cref="SelectedCustomer"/> (لا يُبنى العميل من نص الشبكة).</summary>
+    private readonly List<CustomerDto> _customers = [];
+
     /// <summary>العميل المختار — العقد الذي تقرأه الشاشات المستدعية (لا يُغيَّر).</summary>
     public CustomerDto? SelectedCustomer { get; private set; }
 
@@ -87,13 +90,16 @@ public partial class frmCustomerSelection : Form
                 return;
             }
 
+            _customers.Clear();
+            _customers.AddRange(result.Value);
+
             _customersTable = new DataTable();
             _customersTable.Columns.Add("Id", typeof(int));
             _customersTable.Columns.Add("Name", typeof(string));
             _customersTable.Columns.Add("Phone", typeof(string));
             _customersTable.Columns.Add("Email", typeof(string));
 
-            foreach (var c in result.Value)
+            foreach (var c in _customers)
                 _customersTable.Rows.Add(c.Id, c.Name, c.Phone ?? string.Empty, c.Email ?? string.Empty);
 
             _customersView = new DataView(_customersTable);
@@ -165,28 +171,25 @@ public partial class frmCustomerSelection : Form
         btnSelect.Enabled = dgvCustomers.CurrentRow is not null && dgvCustomers.Rows.Count > 0;
     }
 
+    /// <summary>
+    /// يُرجع <c>CustomerDto</c> الحقيقي القادم من الخدمة — لا نسخة مبنيّة من نص الشبكة،
+    /// فيبقى حدّ الدين والرصيد والحساب المحاسبي والفرع والرقم الضريبي كما هي في قاعدة البيانات.
+    /// </summary>
     private void _SelectCurrent()
     {
         if (dgvCustomers.CurrentRow?.DataBoundItem is not DataRowView row) return;
 
-        int id = row["Id"] == DBNull.Value ? 0 : Convert.ToInt32(row["Id"]);
-        if (id <= 0) return;
+        if (row["Id"] is not int id || id <= 0) return;
 
-        string name = row["Name"] as string ?? string.Empty;
-        string phone = row["Phone"] as string ?? string.Empty;
-        string email = row["Email"] as string ?? string.Empty;
+        // لا يُبنى العميل من نص الشبكة: لو غاب سجل الخدمة نرفض التحديد برسالة عربية صريحة (لا نجاح كاذب).
+        CustomerDto? customer = _customers.Find(c => c.Id == id);
+        if (customer is null)
+        {
+            clsDialogs.Warning("تعذر جلب بيانات العميل المحدد. حدّث القائمة (F5) ثم أعد المحاولة.");
+            return;
+        }
 
-        SelectedCustomer = new CustomerDto(
-            id,
-            name,
-            string.IsNullOrEmpty(phone) ? null : phone,
-            string.IsNullOrEmpty(email) ? null : email,
-            null,
-            null,
-            0,
-            true,
-            0
-        );
+        SelectedCustomer = customer;
 
         DialogResult = DialogResult.OK;
         Close();

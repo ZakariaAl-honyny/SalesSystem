@@ -55,27 +55,35 @@ public partial class frmSalesReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetSalesAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            // نهاية اليوم شاملة: ReportRepository.cs:24,30 يطبّع الحد بنفسه إلى to.Date.AddDays(1).AddTicks(-1)، فالقيمة نهاية آخر لحظة في اليوم مطابقة له ولا تُسقط اليوم الأخير.
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetSalesAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
 
-            if (result.IsSuccess)
+            if (result.IsSuccess && result.Value != null)
             {
-                var list = result.Value!.ToList();
+                var list = result.Value.ToList();
                 _bindingSource.DataSource = list;
                 UpdateSummary(list);
                 FormatGrid();
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!);
+                clsDialogs.Error(result.Error!);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل تقرير المبيعات");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
@@ -104,7 +112,9 @@ public partial class frmSalesReport : Form, IExportableReport
     {
         if (dgvReport.Columns.Count == 0) return;
 
-        var hides = new[] { "InvoiceId", "WarehouseName", "SubTotal", "DiscountAmount", "TaxAmount" };
+        // الأعمدة التقنية لا تُعرض في تقرير مالي: معرّف الفاتورة اسمه في DTO هو Id (لا InvoiceId)،
+        // ورقم الفاتورة المرئي هو InvoiceNo — فحجب الاسم الخطأ كان يترك عمود المعرّف مكرَّراً على الشاشة.
+        var hides = new[] { "Id", "SubTotal", "DiscountAmount", "TaxAmount" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
@@ -121,13 +131,13 @@ public partial class frmSalesReport : Form, IExportableReport
         {
             if (dgvReport.Columns.Contains(col))
             {
-                dgvReport.Columns[col].DefaultCellStyle.Format = "N2";
+                GridFormatHelper.ApplyColumn(dgvReport, col, GridFormatKind.Money);
                 dgvReport.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
         }
 
         if (dgvReport.Columns.Contains("InvoiceDate"))
-            dgvReport.Columns["InvoiceDate"].DefaultCellStyle.Format = clsFormat.Get(clsFormat.DateShortPattern);
+            GridFormatHelper.ApplyColumn(dgvReport, "InvoiceDate", GridFormatKind.DateShort);
     }
 
     private void SetHeader(string col, string text)
@@ -139,7 +149,7 @@ public partial class frmSalesReport : Form, IExportableReport
     {
         if (_bindingSource.DataSource is not List<SalesReportDto> data || data.Count == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("لا توجد بيانات للتصدير");
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -154,13 +164,13 @@ public partial class frmSalesReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "تقرير المبيعات", dialog.FileName);
-                _serviceProvider.GetRequiredService<INotificationService>().ShowSuccess("تم تصدير التقرير بنجاح");
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تصدير تقرير المبيعات إلى Excel");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 

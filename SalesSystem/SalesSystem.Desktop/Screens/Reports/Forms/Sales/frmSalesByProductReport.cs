@@ -48,10 +48,17 @@ public partial class frmSalesByProductReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetSalesByProductAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetSalesByProductAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();
@@ -66,6 +73,9 @@ public partial class frmSalesByProductReport : Form, IExportableReport
 
     private void UpdateSummary(List<SalesByProductDto> list)
     {
+        // عدد السجلات يبقى في تسميته label1 «عدد السجلات:» — كان يبقى على «0» من المصمّم فيكذب على الشاشة.
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
+
         if (list.Count == 0) { lblSummary.Text = "لا توجد بيانات"; return; }
         var total = list.Sum(x => x.TotalAmount);
         var profit = list.Sum(x => x.TotalProfit);
@@ -78,10 +88,11 @@ public partial class frmSalesByProductReport : Form, IExportableReport
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("ProductName", "اسم المنتج"); SetHeader("Quantity", "الكمية"); SetHeader("TotalAmount", "إجمالي المبيعات");
         SetHeader("TotalCost", "التكلفة"); SetHeader("TotalProfit", "الربح"); SetHeader("ProfitMargin", "نسبة الربح");
-        foreach (var c in new[] { "Quantity" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N3";
-        foreach (var c in new[] { "TotalAmount", "TotalCost", "TotalProfit", "ProfitMargin" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity, "Quantity");
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalAmount", "TotalCost", "TotalProfit");
+        // ProfitMargin نسبة على مقياس 0..100 (الربح ÷ المبيعات × 100) — «Ratio» لا «Money» ولا «Percent»
+        // لأن نمط النسبة في clsFormat هو "P" و.NET تضربه بـ100 مرة ثانية.
+        GridFormatHelper.ApplyColumn(dgvReport, "ProfitMargin", GridFormatKind.Ratio);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

@@ -9,7 +9,9 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms;
 /// </summary>
 public partial class frmCalculator : Form
 {
-    private readonly IServiceProvider _serviceProvider;
+    // ---- رسائل الرفض (عربية · البيت الواحد داخل الشاشة) ----
+    private const string DivisionByZeroMessage = "لا يمكن القسمة على صفر";
+    private const string OutOfRangeMessage = "الرقم خارج النطاق المسموح";
 
     // ---- حالة الآلة الحاسبة (في الذاكرة فقط) ----
     private string _input = "0";              // الرقم الحالي المُدخل
@@ -18,9 +20,12 @@ public partial class frmCalculator : Form
     private bool _isNewEntry = true;          // الرقم التالي يبدأ إدخالاً جديداً
     private bool _isError;                    // حالة خطأ (القسمة على صفر ... إلخ)
 
+    /// <summary>
+    /// يُحلّ من الحاوية (<c>RULE-N02</c>/<c>RULE-N03</c>). الشاشة أداة حساب محلية لا تستهلك
+    /// أي خدمة بيانات، فلا تُخزَّن <see cref="IServiceProvider"/> في حقل (لا حقل ميت).
+    /// </summary>
     public frmCalculator(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider;
         InitializeComponent();
 
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
@@ -91,8 +96,15 @@ public partial class frmCalculator : Form
     {
         if (_isError) return;
 
-        if (!_isNewEntry && TryParseInput(out decimal current))
+        if (!_isNewEntry)
         {
+            // رقم مُدخل خارج مدى decimal كان يُهمَل بصمت فتبقى قيمة قديمة في المجمِّع (RULE-N167).
+            if (!TryParseInput(out decimal current))
+            {
+                ShowError(OutOfRangeMessage);
+                return;
+            }
+
             if (_pendingOperator != null)
             {
                 if (!TryCompute(_accumulator, current, _pendingOperator, out decimal result))
@@ -117,8 +129,13 @@ public partial class frmCalculator : Form
     {
         if (_isError || _pendingOperator == null || _isNewEntry) return;
 
-        if (TryParseInput(out decimal current)
-            && TryCompute(_accumulator, current, _pendingOperator, out decimal result))
+        if (!TryParseInput(out decimal current))
+        {
+            ShowError(OutOfRangeMessage);
+            return;
+        }
+
+        if (TryCompute(_accumulator, current, _pendingOperator, out decimal result))
         {
             _accumulator = result;
             _input = FormatNumber(result);
@@ -205,7 +222,7 @@ public partial class frmCalculator : Form
                 case "÷":
                     if (right == 0m)
                     {
-                        ShowError();
+                        ShowError(DivisionByZeroMessage);   // رفض عربي صريح لا كلمة «خطأ» عامة
                         return false;
                     }
                     result = left / right;
@@ -215,7 +232,7 @@ public partial class frmCalculator : Form
         }
         catch (OverflowException)
         {
-            ShowError();
+            ShowError(OutOfRangeMessage);
             return false;
         }
     }
@@ -225,14 +242,14 @@ public partial class frmCalculator : Form
 
     private void UpdateDisplay() => txtDisplay.Text = _input;
 
-    private void ShowError()
+    private void ShowError(string message)
     {
         _isError = true;
         _input = "0";
         _accumulator = 0m;
         _pendingOperator = null;
         _isNewEntry = true;
-        txtDisplay.Text = "خطأ";
+        txtDisplay.Text = message;
     }
 
     private void ResetAll()

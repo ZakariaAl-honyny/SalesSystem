@@ -1,12 +1,14 @@
 using System.Data;
+using SalesSystem.Desktop.Configuration;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
-/// شاشة «كشف حساب مورد» — نموذج واجهة (UI Shape) يعمل ببيانات وهمية في الذاكرة
-/// دون أي اتصال بقاعدة البيانات (وضع التجربة / UI-First).
+/// شاشة «كشف حساب مورد» — نموذج واجهة (UI Shape) ببيانات وهمية في الذاكرة **في وضع التجربة فقط**
+/// (<see cref="AppSettings.Current"/> · <c>UseMockData</c>)؛ وفي الوضع الحقيقي يبقى الكشف فارغاً
+/// بإشعار صريح — لا حركات ولا أرصدة مُختلقة (RULE-N167).
 /// <para>
 /// الرصيد الجاري يُحسب تراكمياً حسب الترتيب الزمني (منطق محفوظ كما هو):
 /// فاتورة شراء = مدين (تزيد الرصيد) · دفع / مردود = دائن (تخفض الرصيد).
@@ -19,6 +21,22 @@ public partial class frmSupplierStatement : Form
 
     /// <summary>RULE-N46: لون الحقل النشط — القيمة المعتمدة في §2.21.</summary>
     private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
+
+    /// <summary>
+    /// وضع التجربة: البيت الواحد لاكتشاف الوضع هو <see cref="AppSettings.Current"/> (<c>UseMockData</c>)
+    /// — نفس ما يستهلكه <c>frmMain</c>؛ لا آلية ثانية.
+    /// </summary>
+    private static bool IsMockMode => AppSettings.Current.UseMockData;
+
+    /// <summary>
+    /// إشعار الوضع الحقيقي — يُعرض في شريط الملخص وسطر «لا توجد حركات» القائمين في المصمّم
+    /// (RULE-N134/N145: بلا عنصر واجهة جديد).
+    /// </summary>
+    private const string MockOnlyNotice =
+        "لا توجد بيانات: هذه الشاشة تُعرض في وضع التجربة فقط حتى اعتماد الباك-إند";
+
+    /// <summary>نص سطر «لا توجد حركات» الأصلي في المصمّم (وضع التجربة فقط).</summary>
+    private const string EmptyStateText = "لا توجد حركات مطابقة للمعايير الحالية";
 
     private const string RowKindOpening = "Opening";
     private const string RowKindNormal = "Normal";
@@ -38,7 +56,29 @@ public partial class frmSupplierStatement : Form
         public decimal Credit { get; set; }           // دائن (دفع / مردود)
     }
 
-    private readonly List<StatementLine> _allLines = new()
+    /// <summary>
+    /// حركات الكشف — **لا تُملأ في الوضع الحقيقي** (RULE-N167): تبدأ فارغة وتُغذّى من
+    /// <see cref="_MockLines"/> في وضع التجربة فقط، فلا تُحسب أرصدة من أرقام مُختلقة.
+    /// </summary>
+    private readonly List<StatementLine> _allLines = new();
+
+    /// <summary>
+    /// يحمّل حركات الكشف: بيانات تجريبية في وضع التجربة فقط، وفي الوضع الحقيقي تبقى القائمة فارغة
+    /// (يعاد استدعاؤه عند «تحديث» F5 فلا يتراكم شيء).
+    /// </summary>
+    private void _LoadLines()
+    {
+        _allLines.Clear();
+
+        if (IsMockMode)
+            _allLines.AddRange(_MockLines());
+    }
+
+    /// <summary>
+    /// حركات الكشف التجريبية — تُستهلك في **وضع التجربة فقط** (مراجعة المالك للشاشة)، ولا تُبنى
+    /// أبداً في الوضع الحقيقي (RULE-N167/N173). الوضع الحقيقي سيتغذّى من خدمة BLL في المرحلة ب.
+    /// </summary>
+    private static List<StatementLine> _MockLines() => new()
     {
         new() { Date = new DateTime(2026, 9, 1),  Type = "فاتورة", Reference = "مشتريات-2026-0001", Debit = 250000.00m },
         new() { Date = new DateTime(2026, 9, 3),  Type = "دفع",    Reference = "سند-صرف-2026-0142", Credit = 100000.00m },
@@ -189,6 +229,7 @@ public partial class frmSupplierStatement : Form
             // لا يوجد اتصال بيانات (وضع تجربة) — الإبقاء على نمط المعالجات غير المتزامنة.
             await Task.Yield();
 
+            _LoadLines();                 // وضع التجربة فقط (RULE-N167)
             _ReloadLookups();
             _SetDefaultRange();
             _CaptureDefaultRange();       // RULE-N148: الافتراضي المعتمد = النطاق الكامل للكشف
@@ -386,7 +427,13 @@ public partial class frmSupplierStatement : Form
         _UpdateClearFiltersState();   // RULE-N43/RULE-N148: حالة الزر تتبع وجود تصفية نشطة
     }
 
-    /// <summary>شريط الملخص (RULE-N61): عدد الحركات + مدين + دائن + الرصيد.</summary>
+    /// <summary>
+    /// شريط الملخص (RULE-N61): عدد الحركات + مدين + دائن + الرصيد.
+    /// <para>
+    /// في الوضع الحقيقي لا مدين/دائن/رصيد مُختلق: يُعرض الإشعار في <c>lblSummary</c> وسطر
+    /// «لا توجد حركات» — والعنصران قائمان في المصمّم (RULE-N134/N145)، والرصيد الختامي صفر معلن.
+    /// </para>
+    /// </summary>
     private void _UpdateSummary()
     {
         int moves = 0;
@@ -394,6 +441,18 @@ public partial class frmSupplierStatement : Form
         decimal credit = 0m;
         decimal closing = 0m;
         bool any = false;
+
+        if (!IsMockMode)
+        {
+            // الوضع الحقيقي: لا أرقام مُختلقة — إشعار صريح بدل مجاميع وهمية (RULE-N167).
+            lblSummary.Text = MockOnlyNotice;
+            txtClosingBalance.Text = clsFormat.Money(0m);
+
+            emptyState.Text = MockOnlyNotice;
+            emptyState.Visible = _view is null || _view.Count == 0;
+            if (emptyState.Visible) emptyState.BringToFront();
+            return;
+        }
 
         if (_view is not null)
         {
@@ -413,6 +472,7 @@ public partial class frmSupplierStatement : Form
         lblSummary.Text = $"عدد الحركات: {clsFormat.Number(moves)} · مدين: {clsFormat.Money(debit)} · دائن: {clsFormat.Money(credit)}";
         txtClosingBalance.Text = clsFormat.Money(closing);
 
+        emptyState.Text = EmptyStateText;
         emptyState.Visible = _view is null || _view.Count == 0;
         if (emptyState.Visible) emptyState.BringToFront();
     }
@@ -471,10 +531,13 @@ public partial class frmSupplierStatement : Form
             || dtpTo.Value.Date != _defaultTo;
     }
 
-    /// <summary>إعادة قراءة الدلائل (المورد المعروض) — ثابت في وضع التجربة، والبنية جاهزة لوصل الخدمة.</summary>
+    /// <summary>
+    /// إعادة قراءة الدلائل (المورد المعروض) — اسم تجريبي في وضع التجربة فقط، وفي الوضع الحقيقي
+    /// يبقى «—» حتى يُقرأ من الخدمة في المرحلة ب (لا اسم مُختلق — RULE-N167).
+    /// </summary>
     private void _ReloadLookups()
     {
-        lblSupplierValue.Text = StatementSupplierName;
+        lblSupplierValue.Text = IsMockMode ? StatementSupplierName : NoValue;
     }
 
     /// <summary>يلتقط النطاق الافتراضي المعتمد الذي يعود إليه «مسح التصفية» (RULE-N148).</summary>
@@ -578,6 +641,7 @@ public partial class frmSupplierStatement : Form
         try
         {
             _ClearFilterInputs();   // التصفية تعود للافتراضي
+            _LoadLines();           // إعادة تحميل الحركات (وضع التجربة فقط)
             _ReloadLookups();       // إعادة قراءة المورد المعروض
 
             // لا قراءة خدمة في وضع التجربة — الإبقاء على نمط المعالجات غير المتزامنة.

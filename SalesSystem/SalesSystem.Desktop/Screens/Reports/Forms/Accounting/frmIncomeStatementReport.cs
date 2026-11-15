@@ -48,10 +48,17 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetIncomeStatementAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetIncomeStatementAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), default);
 
             if (result.IsSuccess && result.Value != null)
             {
@@ -78,17 +85,13 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
 
     private void UpdateSummary(List<IncomeStatementDto> list)
     {
-        if (list.Count == 0)
-        {
-            lblRecordsCount.Text = "لا توجد بيانات";
-            return;
-        }
-
-        var totalRevenue = list.Where(x => x.Category == "إيرادات المبيعات" || x.Category == "الإيرادات").Sum(x => x.Amount);
-        var totalCost = list.Where(x => x.Category == "تكلفة المشتريات" || x.Category == "المصروفات" || x.Category == "تكلفة المبيعات").Sum(x => Math.Abs(x.Amount));
-        var netProfit = totalRevenue - totalCost;
-
-        lblRecordsCount.Text = $"إجمالي الإيرادات: {clsFormat.Money(totalRevenue)} | إجمالي التكاليف: {clsFormat.Money(totalCost)} | صافي الربح: {clsFormat.Money(netProfit)}";
+        // T-43 (باك-إند مجمَّد — لا يُصلَح هنا): مصدر البيانات يصنّف السطور بنص عربي في Category لا بإشارة
+        // المبلغ، وسطور الإجماليات تأتي داخل التصنيف نفسه؛ فجمع الإيرادات والمصروفات محلياً إمّا يضاعف
+        // الإجماليات أو يخمّن إشارة غير موجودة. لذلك لا تُعرض مجاميع محسوبة هنا إطلاقاً (بدل أصفار كاذبة)،
+        // ويُحال المستخدم إلى سطور الإجماليات التي يبنيها المصدر داخل الشبكة.
+        lblRecordsCount.Text = list.Count == 0
+            ? "لا توجد بيانات"
+            : $"{clsFormat.Number(list.Count)} — المجاميع في سطور الإجماليات داخل الشبكة";
     }
 
     private void FormatGrid()
@@ -101,7 +104,7 @@ public partial class frmIncomeStatementReport : Form, IExportableReport
 
         if (dgvReport.Columns.Contains("Amount"))
         {
-            dgvReport.Columns["Amount"].DefaultCellStyle.Format = "N2";
+            GridFormatHelper.ApplyColumn(dgvReport, "Amount", GridFormatKind.Money);
             dgvReport.Columns["Amount"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
         }
     }

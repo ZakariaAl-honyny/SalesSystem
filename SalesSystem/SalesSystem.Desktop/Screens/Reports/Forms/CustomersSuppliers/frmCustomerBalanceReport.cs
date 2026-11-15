@@ -21,6 +21,9 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
 
     private IReadOnlyList<CustomerDto> _customers = new List<CustomerDto>();
 
+    // يمنع إعادة التحميل أثناء تعبئة قائمة العملاء (SelectedIndexChanged الناتج عن التعبئة).
+    private bool _suppressCustomerReload;
+
     public frmCustomerBalanceReport(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -29,10 +32,12 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
-        dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
-        dgvReport.CellFormatting += DgvReport_CellFormatting;
+
+        // RULE-N59 — تصفية العميل فورية: كانت القائمة معروضة بلا معالج فلا يحدث شيء عند الاختيار.
+        cmbCustomer.SelectedIndexChanged += cmbCustomer_SelectedIndexChanged;
+
         ReportUiStandardizer.ApplyForm(this);
         ReportUiStandardizer.ApplyReferenceLook(this);
         ReportNavigationHelper.Attach(this, _serviceProvider);
@@ -51,6 +56,12 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
 
     private void btnExport_Click(object? sender, EventArgs e) => _ = ExportToExcelAsync();
 
+    private void cmbCustomer_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_suppressCustomerReload) return;
+        _ = LoadReportAsync();   // LoadReportAsync يحمي نفسه بـ try/catch/finally
+    }
+
     private async Task LoadCustomersAsync()
     {
         try
@@ -59,23 +70,32 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
             if (custResult.IsSuccess)
             {
                 _customers = custResult.Value;
-                cmbCustomer.Items.Clear();
-                cmbCustomer.Items.Add(new ComboBoxItem { Text = "جميع العملاء", Value = null });
-                foreach (var cust in _customers)
+
+                _suppressCustomerReload = true;
+                try
                 {
-                    cmbCustomer.Items.Add(new ComboBoxItem { Text = cust.Name, Value = cust.Id });
+                    cmbCustomer.Items.Clear();
+                    cmbCustomer.Items.Add(new ComboBoxItem { Text = "جميع العملاء", Value = null });
+                    foreach (var cust in _customers)
+                    {
+                        cmbCustomer.Items.Add(new ComboBoxItem { Text = cust.Name, Value = cust.Id });
+                    }
+                    cmbCustomer.SelectedIndex = 0;
                 }
-                cmbCustomer.SelectedIndex = 0;
+                finally
+                {
+                    _suppressCustomerReload = false;
+                }
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(custResult.Error ?? "حدث خطأ في تحميل قائمة العملاء");
+                clsDialogs.Error(custResult.Error ?? "حدث خطأ في تحميل قائمة العملاء");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل قائمة العملاء");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء تحميل قائمة العملاء.");
+            clsDialogs.Error("حدث خطأ أثناء تحميل قائمة العملاء.");
         }
     }
 
@@ -96,13 +116,13 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!);
+                clsDialogs.Error(result.Error!);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل تقرير أرصدة العملاء");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
@@ -121,25 +141,28 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
 
     private void UpdateSummary(List<CustomerBalanceReportDto> list)
     {
-        lblRecordsCount.Text = list.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
         if (list.Count == 0)
         {
             lblSummary.Text = "لا توجد بيانات";
             return;
         }
 
+        // الرصيد الحالي فقط مبلغ حقيقي في CustomerBalanceReportDto؛
+        // OpeningBalance/TotalSales/TotalPayments خصائص توافق قديم تُعيد 0m دائماً،
+        // فجمعها كان يُظهر «0.00» كإجمالي مبيعات/مدفوعات (رقم كاذب).
         var totalBalance = list.Sum(x => x.CurrentBalance);
-        var totalSales = list.Sum(x => x.TotalSales);
-        var totalPayments = list.Sum(x => x.TotalPayments);
 
-        lblSummary.Text = $"عدد العملاء: {clsFormat.Number(list.Count)} | إجمالي المبيعات: {clsFormat.Money(totalSales)} | إجمالي المدفوعات: {clsFormat.Money(totalPayments)} | الرصيد: {clsFormat.Money(totalBalance)}";
+        lblSummary.Text = $"عدد العملاء: {clsFormat.Number(list.Count)} | إجمالي الرصيد الحالي: {clsFormat.Money(totalBalance)}";
     }
 
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
 
-        var hides = new[] { "CustomerId", "Phone" };
+        // أسماء الحقول كما في CustomerBalanceReportDto (المعرّف Id لا CustomerId)،
+        // وتُخفى الأعمدة المكرّرة والقيم الثابتة صفراً بدل عرضها كأرقام حقيقية.
+        var hides = new[] { "Id", "Phone", "Name", "OpeningBalance", "TotalSales", "TotalPayments" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
@@ -147,39 +170,22 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
 
         SetHeader("CustomerCode", "كود العميل");
         SetHeader("CustomerName", "اسم العميل");
-        SetHeader("OpeningBalance", "الرصيد الافتتاحي");
-        SetHeader("TotalSales", "إجمالي المبيعات");
-        SetHeader("TotalPayments", "إجمالي المدفوعات");
+        SetHeader("GroupName", "المجموعة");
+        SetHeader("CreditLimit", "حد الائتمان");
         SetHeader("CurrentBalance", "الرصيد الحالي");
+        SetHeader("BalanceStatus", "حالة الرصيد");
 
-        foreach (var col in new[] { "OpeningBalance", "TotalSales", "TotalPayments", "CurrentBalance" })
+        foreach (var col in new[] { "CreditLimit", "CurrentBalance" })
         {
             if (dgvReport.Columns.Contains(col))
             {
-                dgvReport.Columns[col].DefaultCellStyle.Format = "N2";
+                GridFormatHelper.ApplyColumn(dgvReport, col, GridFormatKind.Money);
                 dgvReport.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
         }
-    }
 
-    private void DgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-    {
-        if (e.RowIndex >= 0 && dgvReport.Columns[e.ColumnIndex].Name == "CurrentBalance")
-        {
-            var row = dgvReport.Rows[e.RowIndex];
-            if (row.DataBoundItem is CustomerBalanceReportDto item)
-            {
-                if (item.CurrentBalance > 0)
-                {
-                    e.CellStyle.ForeColor = Color.Red;
-                    e.CellStyle.Font = new Font(dgvReport.Font, FontStyle.Bold);
-                }
-                else if (item.CurrentBalance < 0)
-                {
-                    e.CellStyle.ForeColor = Color.Green;
-                }
-            }
-        }
+        // سالب أحمر وموجب أخضر — من البيت الواحد بدل معالج تلوين محلي (RULE-N169).
+        GridFormatHelper.ApplyBalanceColouring(dgvReport, "CurrentBalance");
     }
 
     private void SetHeader(string col, string text)
@@ -191,7 +197,7 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
     {
         if (_bindingSource.DataSource is not List<CustomerBalanceReportDto> data || data.Count == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("لا توجد بيانات للتصدير");
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -206,13 +212,13 @@ public partial class frmCustomerBalanceReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "كشف حساب عملاء", dialog.FileName);
-                _serviceProvider.GetRequiredService<INotificationService>().ShowSuccess("تم تصدير التقرير بنجاح");
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تصدير تقرير أرصدة العملاء إلى Excel");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 

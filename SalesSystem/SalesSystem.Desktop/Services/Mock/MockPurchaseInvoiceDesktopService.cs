@@ -1,8 +1,10 @@
-﻿using SalesSystem.Desktop.Services.Interfaces;
+﻿using System.Globalization;
+using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Enums;
 using SalesSystem.DTO.Requests;
+using InventoryTxType = SalesSystem.Common.Enums.InventoryTransactionType;
 
 namespace SalesSystem.Desktop.Services.Mock;
 
@@ -20,7 +22,7 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// يعكس المستندات <b>المرحّلة وغير الملغاة</b> فقط: الحفظ كمسودة (<c>Status = 1</c>) لا يزيد أي رصيد،
 /// والزيادة تقع <b>مرة واحدة</b> في <see cref="PostAsync"/> عند نجاح الانتقال مسودة → مرحلة،
 /// و<see cref="CancelAsync"/> يخصم الكميات <b>مرة واحدة</b> فقط إن كانت الفاتورة مرحلة.
-/// لا توجد في المحاكاة مجموعة حركات مخزون مسجّلة، فلا تُنشأ حركة وهمية هنا.
+/// وكل حركة تُسجَّل في سجل الحركات الواحد (<c>MockStockLedger</c>) بنوع «شراء» ومخزن الفاتورة ورقمها.
 /// </para>
 /// </summary>
 public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
@@ -211,7 +213,13 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
             var index = MockPurchasesData.Purchases.IndexOf(existing);
 
             // الترحيل هو النقطة الوحيدة التي تُحرّك المخزون (Draft → Posted): إضافة الكميات المشتراة
-            MockStockLedger.Apply(QuantitiesOf(existing), direction: +1);
+            // الحركة تحمل سياقها الحقيقي: نوع «شراء» + مخزن الفاتورة + رقمها + تاريخها (RULE-N167)
+            MockStockLedger.Apply(QuantitiesOf(existing),
+                direction: +1,
+                type: InventoryTxType.Purchase,
+                warehouseId: (short)existing.WarehouseId,
+                reference: existing.InvoiceNo.ToString(CultureInfo.InvariantCulture),
+                date: existing.InvoiceDate.ToDateTime(TimeOnly.MinValue));
 
             MockPurchasesData.Purchases[index] = existing with { Status = 2 };
             return Task.FromResult(Result.Success());
@@ -246,7 +254,13 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
                 if (!MockStockLedger.HasSufficientStock(quantities))
                     return Task.FromResult(Result.Failure(InsufficientStockMessage));
 
-                MockStockLedger.Apply(quantities, direction: -1);
+                // قيد عكسي (تسوية): النوع الذي يحفظ إشارة الكمية — مع رقم الفاتورة ومخزنها
+                MockStockLedger.Apply(quantities,
+                    direction: -1,
+                    type: InventoryTxType.Adjustment,
+                    warehouseId: (short)existing.WarehouseId,
+                    reference: existing.InvoiceNo.ToString(CultureInfo.InvariantCulture),
+                    date: existing.InvoiceDate.ToDateTime(TimeOnly.MinValue));
             }
 
             MockPurchasesData.Purchases[index] = existing with { Status = 3 };

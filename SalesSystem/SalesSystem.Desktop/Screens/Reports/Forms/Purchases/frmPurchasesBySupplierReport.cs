@@ -36,10 +36,17 @@ public partial class frmPurchasesBySupplierReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IPurchaseReportDesktopService>().GetPurchasesBySupplierAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IPurchaseReportDesktopService>().GetPurchasesBySupplierAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();
@@ -63,10 +70,14 @@ public partial class frmPurchasesBySupplierReport : Form, IExportableReport
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
+
+        // المعرّف التقني لا يُعرض في تقرير عربي (RULE-N28).
+        if (dgvReport.Columns.Contains("SupplierId")) dgvReport.Columns["SupplierId"].Visible = false;
+
         SetHeader("SupplierName", "اسم المورد"); SetHeader("InvoiceCount", "عدد الفواتير"); SetHeader("TotalAmount", "الإجمالي");
         SetHeader("PaidAmount", "المدفوع"); SetHeader("DueAmount", "المتبقي");
-        foreach (var c in new[] { "TotalAmount", "PaidAmount", "DueAmount" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "InvoiceCount", GridFormatKind.Number);
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalAmount", "PaidAmount", "DueAmount");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

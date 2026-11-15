@@ -62,13 +62,53 @@ public class MockInventoryDesktopService : IInventoryDesktopService
     // ═══════════════════════════════════════════════
     // حركات المخزون — Transactions
     // ═══════════════════════════════════════════════
+
+    /// <summary>
+    /// حركات المخزون من بيت البيانات الواحد <see cref="MockInventoryData.Movements"/> (RULE-N169) —
+    /// الخدمة <b>قارئة فقط</b>: تصفية بالصنف/المخزن/نوع الحركة ثم ترقيم الصفحات، الأحدث أولاً.
+    /// </summary>
+    /// <remarks>
+    /// التصفية الزمنية تُطبَّق في الشاشة على <c>DataView</c> (لا معامل تاريخ في العقد)،
+    /// والفلترة بالصنف تُحلّ من وحدة الصنف في البنود لأن الحركة تحمل وحدات لا أصنافاً.
+    /// </remarks>
     public Task<Result<IReadOnlyList<InventoryTransactionDto>>> GetMovementsAsync(
         int? productId = null, int? warehouseId = null, int? movementType = null,
         int page = 1, int pageSize = 50, CancellationToken ct = default)
     {
-        // لا توجد حركات مخزون مسجّلة في بيانات التجربة — نعيد قائمة فارغة.
-        IReadOnlyList<InventoryTransactionDto> empty = new List<InventoryTransactionDto>().AsReadOnly();
-        return Task.FromResult(Result<IReadOnlyList<InventoryTransactionDto>>.Success(empty));
+        try
+        {
+            IEnumerable<InventoryTransactionDto> query = MockInventoryData.Movements;
+
+            if (productId.HasValue)
+            {
+                int wantedProductId = productId.Value;
+                query = query.Where(t => t.Lines is { Count: > 0 } && t.Lines.Any(line =>
+                    MockData.ProductUnits.FirstOrDefault(u => u.Id == line.ProductUnitId)?.ProductId == wantedProductId));
+            }
+
+            if (warehouseId.HasValue)
+                query = query.Where(t => t.WarehouseId == warehouseId.Value);
+
+            if (movementType.HasValue)
+                query = query.Where(t => t.MovementType == movementType.Value);
+
+            int size = pageSize > 0 ? pageSize : 50;
+            int pageNumber = page > 0 ? page : 1;
+
+            var rows = query
+                .OrderByDescending(t => t.CreatedAt)
+                .ThenByDescending(t => t.Id)
+                .Skip((pageNumber - 1) * size)
+                .Take(size)
+                .ToList()
+                .AsReadOnly();
+
+            return Task.FromResult(Result<IReadOnlyList<InventoryTransactionDto>>.Success(rows));
+        }
+        catch (Exception)
+        {
+            return Task.FromResult(Result<IReadOnlyList<InventoryTransactionDto>>.Failure("تعذر تحميل حركات المخزون"));
+        }
     }
 
     public Task<Result<InventoryTransactionDto>> CreateInventoryTransactionAsync(
@@ -81,6 +121,23 @@ public class MockInventoryDesktopService : IInventoryDesktopService
     public Task<Result<InventoryTransactionDto>> CancelInventoryTransactionAsync(int id, CancellationToken ct = default)
         => Task.FromResult(Result<InventoryTransactionDto>.Failure(UnsupportedMessage, ErrorCodes.InvalidOperation));
 
+    /// <summary>
+    /// حركة واحدة بالمعرّف من بيت البيانات الواحد <see cref="MockInventoryData.Movements"/> —
+    /// يستهلكها نقر «التفاصيل» المزدوج في شاشة حركات المخزون.
+    /// </summary>
     public Task<Result<InventoryTransactionDto>> GetInventoryTransactionByIdAsync(int id, CancellationToken ct = default)
-        => Task.FromResult(Result<InventoryTransactionDto>.Failure(UnsupportedMessage, ErrorCodes.InvalidOperation));
+    {
+        try
+        {
+            var transaction = MockInventoryData.Movements.FirstOrDefault(t => t.Id == id);
+
+            return transaction is null
+                ? Task.FromResult(Result<InventoryTransactionDto>.Failure("حركة المخزون غير موجودة"))
+                : Task.FromResult(Result<InventoryTransactionDto>.Success(transaction));
+        }
+        catch (Exception)
+        {
+            return Task.FromResult(Result<InventoryTransactionDto>.Failure("تعذر تحميل حركة المخزون"));
+        }
+    }
 }

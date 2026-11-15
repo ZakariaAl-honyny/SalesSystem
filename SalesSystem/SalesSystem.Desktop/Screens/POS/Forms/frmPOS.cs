@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -49,6 +48,7 @@ public partial class frmPOS : Form
     private bool _isBusy;                // حارس ضد الحفظ المزدوج
     private int _updateDepth;            // حارس إعادة الدخول (re-entrancy)
     private int? _pendingInvoiceId;      // فاتورة أُنشئت ولم تُرحَّل بعد
+    private bool _draftChangedSinceSave; // تغيّرت بيانات الفاتورة بعد حفظ المسودة ⇒ لا تُرحَّل بلا تأكيد
 
     private bool IsUpdating => _updateDepth > 0;
 
@@ -75,7 +75,7 @@ public partial class frmPOS : Form
         // RULE-N147 — Enter = الزر الأساسي للشاشة («حفظ وترحيل»)، ولا يعمل داخل حقل أو شبكة
         // (Enter في الباركود = بحث فوري RULE-N42، وفي السلة = تنقّل بين السطور RULE-N80/N85).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
-        AcceptButton = _PrimaryActionButton();
+        SyncAcceptButton();                       // RULE-N153 — حالة AcceptButton تُزامَن مع التركيز
 
         WireEvents();
         SetupGrid();
@@ -93,6 +93,13 @@ public partial class frmPOS : Form
         return btnSave;
     }
 
+    /// <summary>
+    /// RULE-N153 — يُفرَّغ <see cref="Form.AcceptButton"/> فور دخول التركيز إلى شبكة السلة أو حقل
+    /// الباركود ويُعاد عند خروجه، فلا يُرحَّل مستند من داخل شبكة السطور أبداً. القرار يبقى في
+    /// <see cref="_PrimaryActionButton"/> وحده (مكان واحد).
+    /// </summary>
+    private void SyncAcceptButton() => AcceptButton = _PrimaryActionButton();
+
     // ═════════════════════════════════════════════════════════════════
     //  الخدمات — كلها عبر الواجهات فقط (RULE-N03/N04/N05)
     // ═════════════════════════════════════════════════════════════════
@@ -103,6 +110,23 @@ public partial class frmPOS : Form
     private IWarehouseDesktopService WarehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
     private ICashBoxDesktopService CashBoxApi => _serviceProvider.GetRequiredService<ICashBoxDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
+
+    /// <summary>
+    /// ينشر تحديث «تغيّرت فاتورة بيع» بعد نجاح الترحيل. الفشل في النشر (خطأ في مستمع لوحة التحكم)
+    /// لا يجوز أن يُحوِّل بيعاً مُرحَّلاً إلى رسالة خطأ — وإلا أعاد المستخدم المحاولة فتُنشأ فاتورة
+    /// ثانية. لذلك يُسجَّل التحذير ويبقى البيع ناجحاً (RULE-N167 — لا فشل مضلِّل).
+    /// </summary>
+    private void PublishInvoiceChanged(int invoiceId)
+    {
+        try
+        {
+            EventBus.Publish(new SaleInvoiceChangedMessage(invoiceId));
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "تعذر نشر تحديث فاتورة البيع رقم {InvoiceId}", invoiceId);
+        }
+    }
 
     // ═════════════════════════════════════════════════════════════════
     //  المظهر (RULE-N50…N54)
@@ -169,20 +193,31 @@ public partial class frmPOS : Form
     {
         dgvCart.AutoGenerateColumns = false;
         dgvCart.DataSource = _cart;
+
+        // دلالات التنسيق من البيت الواحد (RULE-N169): منازل المبالغ/الكميات حيّة من clsFormat
+        // بدل نص تنسيق مكتوب — ولا يُلمس ReadOnly/SelectionMode/AllowUserToAddRows (RULE-N52).
+        GridFormatHelper.ApplyColumns(dgvCart, GridFormatKind.Quantity, nameof(colQuantity));
+        GridFormatHelper.ApplyColumns(dgvCart, GridFormatKind.Money,
+            nameof(colUnitPrice), nameof(colDiscount), nameof(colTotal));
     }
 
     private void WireEvents()
     {
         txtBarcode.KeyDown += txtBarcode_KeyDown;
+        txtBarcode.Enter += (s, e) => SyncAcceptButton();          // RULE-N153
+        txtBarcode.Leave += (s, e) => SyncAcceptButton();
 
         txtProductSearch.TextChanged += txtProductSearch_TextChanged;
         cbCategory.SelectedIndexChanged += cbCategory_SelectedIndexChanged;
         btnRefreshCatalog.Click += btnRefreshCatalog_Click;
 
         dgvCart.SelectionChanged += dgvCart_SelectionChanged;
+        dgvCart.CellBeginEdit += (s, e) => SyncAcceptButton();     // RULE-N153 — لا زر أساسي أثناء تحرير خلية
         dgvCart.CellEndEdit += dgvCart_CellEndEdit;
         dgvCart.CellValueChanged += dgvCart_CellValueChanged;
         dgvCart.DataError += dgvCart_DataError;
+        dgvCart.Enter += (s, e) => SyncAcceptButton();
+        dgvCart.Leave += (s, e) => SyncAcceptButton();
 
         btnApplyLine.Click += btnApplyLine_Click;
         btnRemoveLine.Click += btnRemoveLine_Click;
@@ -467,6 +502,7 @@ public partial class frmPOS : Form
     private async void ProductCard_Click(object? sender, EventArgs e)
     {
         if ((sender as Control)?.Tag is not ProductDto product) return;
+        if (_isBusy) return;                      // حفظ جارٍ — لا تُعدَّل السلة المُرسَلة للخدمة
 
         try
         {
@@ -524,6 +560,9 @@ public partial class frmPOS : Form
         e.Handled = true;
         e.SuppressKeyPress = true;
 
+        // حفظ جارٍ: لا تُضاف بنود إلى سلة أُرسلت بالفعل — يبقى الباركود في الحقل ليُعاد بعد الحفظ
+        if (_isBusy) return;
+
         var code = txtBarcode.Text.Trim();
         if (code.Length == 0) return;
 
@@ -560,7 +599,14 @@ public partial class frmPOS : Form
     /// </summary>
     private async Task AddProductToCartAsync(ProductDto product, string? scannedBarcode)
     {
-        var units = await GetUnitsAsync(product.Id);
+        var (units, unitsError) = await GetUnitsAsync(product.Id);
+        if (unitsError is not null)
+        {
+            // فشل الخدمة يُعلَن بصدق — ولا يُقدَّم للمستخدم على أنه «لا توجد وحدة» (RULE-N167)
+            clsDialogs.Warning(unitsError);
+            return;
+        }
+
         if (units.Count == 0)
         {
             clsDialogs.Warning($"لا توجد وحدة بيع معرّفة للصنف «{product.Name}».");
@@ -600,23 +646,29 @@ public partial class frmPOS : Form
 
         RecalculateTotals();
         SelectCartRow(line);
+        MarkDraftChanged();
 
         _lastAddedInfo = $"{product.Name} — {unit.UnitName} — {clsFormat.Money(unit.SalePrice)}";
         UpdateInvoiceInfoLabel();
     }
 
-    private async Task<List<ProductUnitDto>> GetUnitsAsync(int productId)
+    /// <summary>
+    /// وحدات الصنف وكاشها. تُعيد الخطأ منفصلاً عن النتيجة الفارغة: «لا توجد وحدة بيع معرّفة»
+    /// حالة نجاح بلا وحدات، أما فشل الخدمة فيُعلَن برسالته العربية ولا يُخزَّن في الكاش (ليُعاد السؤال).
+    /// </summary>
+    private async Task<(List<ProductUnitDto> Units, string? Error)> GetUnitsAsync(int productId)
     {
         if (_unitsCache.TryGetValue(productId, out var cached))
-            return cached;
+            return (cached, null);
 
         var result = await ProductApi.GetProductUnitsAsync(productId);
-        var units = result.IsSuccess && result.Value is not null
-            ? result.Value.ToList()
-            : new List<ProductUnitDto>();
+        if (!result.IsSuccess)
+            return (new List<ProductUnitDto>(),
+                    string.IsNullOrWhiteSpace(result.Error) ? "تعذر تحميل وحدات الصنف." : result.Error);
 
+        var units = result.Value?.ToList() ?? new List<ProductUnitDto>();
         _unitsCache[productId] = units;
-        return units;
+        return (units, null);
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -625,11 +677,15 @@ public partial class frmPOS : Form
 
     private decimal ComputeSubTotal() => _cart.Sum(l => l.LineTotal);
 
-    private decimal ComputeInvoiceDiscount()
-    {
-        var subTotal = ComputeSubTotal();
-        return Math.Clamp(numInvoiceDiscount.Value, 0m, subTotal);
-    }
+    /// <summary>
+    /// خصم الفاتورة المطبَّق فعلاً: مقيَّد بين صفر والمجموع الفرعي.
+    /// الحد الأعلى يُحمى بـ <see cref="Math.Max(decimal, decimal)"/> لأن <c>Math.Clamp</c> يرمي
+    /// <c>ArgumentException</c> إذا كان الحد الأدنى أكبر من الأعلى (مجموع سالب).
+    /// </summary>
+    private decimal ComputeInvoiceDiscount() => NormalizeInvoiceDiscount(ComputeSubTotal());
+
+    private decimal NormalizeInvoiceDiscount(decimal subTotal)
+        => Math.Clamp(numInvoiceDiscount.Value, 0m, Math.Max(0m, subTotal));
 
     private decimal ComputeNetTotal() => ComputeSubTotal() - ComputeInvoiceDiscount();
 
@@ -642,7 +698,7 @@ public partial class frmPOS : Form
         try
         {
             decimal subTotal = ComputeSubTotal();
-            decimal invoiceDiscount = Math.Clamp(numInvoiceDiscount.Value, 0m, subTotal);
+            decimal invoiceDiscount = NormalizeInvoiceDiscount(subTotal);
             decimal netTotal = subTotal - invoiceDiscount;
 
             lblSubTotal.Text = $"المجموع الفرعي: {clsFormat.Money(subTotal)}";
@@ -700,6 +756,7 @@ public partial class frmPOS : Form
             _cart.Clear();
             _editingLine = null;
             _lastAddedInfo = null;
+            _draftChangedSinceSave = false;
             lblSelectedProduct.Text = "لم يُحدد سطر";
             numInvoiceDiscount.Value = 0m;
             _autoPaid = true;
@@ -720,6 +777,18 @@ public partial class frmPOS : Form
 
         if (focusBarcode)
             txtBarcode.Focus();
+
+        SyncAcceptButton();                    // RULE-N153 — بعد إعادة التركيز إلى السكانر
+    }
+
+    /// <summary>
+    /// يسجّل أن بيانات الفاتورة (السلة · الخصم · المدفوع · طريقة الدفع · العميل · المخزن · الصندوق)
+    /// تغيّرت بعد حفظ مسودة معلّقة: الترحيل التالي سيرسل المسودة المحفوظة لا ما يراه المستخدم،
+    /// فلا يُرحَّل إلا بتأكيد صريح (RULE-N167 — لا نجاح مضلِّل).
+    /// </summary>
+    private void MarkDraftChanged()
+    {
+        if (_pendingInvoiceId is not null) _draftChangedSinceSave = true;
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -777,6 +846,8 @@ public partial class frmPOS : Form
 
     private void btnApplyLine_Click(object? sender, EventArgs e)
     {
+        if (_isBusy) return;                      // حفظ جارٍ — لا تُعدَّل السلة المُرسَلة للخدمة
+
         if (_editingLine is null || !_cart.Contains(_editingLine))
         {
             clsDialogs.Warning("حدد سطراً في الشبكة أولاً.");
@@ -795,19 +866,20 @@ public partial class frmPOS : Form
 
         RefreshCartRow(_cart.IndexOf(_editingLine));
         RecalculateTotals();
+        MarkDraftChanged();
         SelectCartRow(_editingLine);
     }
 
     private void btnRemoveLine_Click(object? sender, EventArgs e) => DeleteSelectedLine();
 
     /// <summary>
-    /// Delete كاختصار على الشاشة: يُهمل داخل أي حقل إدخال خارج <c>dgvCart</c>
-    /// (باركود · بحث · قوائم · حقول رقمية) فيبقى للحقل نفسه (حذف حرف) ولا يُسحب
-    /// لحذف سطر السلة صامتاً — نمط <c>IsInputFocused</c> في frmAddUpdateSalesInvoice (RULE-N47).
+    /// Delete كاختصار على الشاشة: يعمل فقط عندما تكون شبكة السلة هي ذات التركيز — فلا يُحذف
+    /// سطر صامتاً والمؤشر على زر أو حقل آخر، ويبقى Delete داخل أي حقل إدخال للحقل نفسه
+    /// (RULE-N47 / RULE-N153).
     /// </summary>
     private void DeleteSelectedLineIfAllowed()
     {
-        if (IsInputFocused()) return;
+        if (!dgvCart.ContainsFocus || IsInputFocused()) return;
         DeleteSelectedLine();
     }
 
@@ -824,6 +896,7 @@ public partial class frmPOS : Form
 
     private void DeleteSelectedLine()
     {
+        if (_isBusy) return;                           // حفظ جارٍ — لا تُعدَّل السلة المُرسَلة للخدمة
         if (dgvCart.IsCurrentCellInEditMode) return;   // Delete داخل الخلية = حذف نص
 
         var line = _editingLine ?? dgvCart.CurrentRow?.DataBoundItem as CartLine;
@@ -834,6 +907,7 @@ public partial class frmPOS : Form
 
         _cart.RemoveAt(index);
         RenumberLines();
+        MarkDraftChanged();
 
         BeginUpdate();
         try
@@ -878,36 +952,58 @@ public partial class frmPOS : Form
     {
         if (IsUpdating) return;
         if (e.RowIndex < 0 || e.RowIndex >= _cart.Count || e.ColumnIndex < 0) return;
+        if (e.ColumnIndex >= dgvCart.Columns.Count) return;
 
         var property = dgvCart.Columns[e.ColumnIndex].DataPropertyName;
         if (string.IsNullOrEmpty(property)) return;
 
-        var line = _cart[e.RowIndex];
-        var entered = dgvCart.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
-
-        if (!TryReadDecimal(entered, out var value))
+        // حفظ جارٍ: لا تُقبل تعديلات على سلة أُرسلت بالفعل — تُعاد القيمة المحفوظة
+        if (_isBusy)
         {
             RefreshCartRow(e.RowIndex);
             return;
         }
 
-        switch (property)
+        bool isQuantity = property == nameof(CartLine.Quantity);
+        bool isMoney = property == nameof(CartLine.UnitPrice) || property == nameof(CartLine.Discount);
+        if (!isQuantity && !isMoney) return;
+
+        var line = _cart[e.RowIndex];
+        var entered = dgvCart.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+
+        // القراءة من البيت الواحد (clsFormat) لا من نسخة محلية للتحليل الرقمي — RULE-N169
+        if (!TryReadDecimal(entered, isMoney, out var value))
         {
-            case nameof(CartLine.Quantity):
-                line.Quantity = value;
-                break;
-            case nameof(CartLine.UnitPrice):
-                line.UnitPrice = value;
-                break;
-            case nameof(CartLine.Discount):
-                line.Discount = value;
-                break;
-            default:
+            RefreshCartRow(e.RowIndex);
+            return;
+        }
+
+        if (isQuantity)
+        {
+            if (value <= 0m)
+            {
+                // كمية صفر/سالب في الشبكة: رفض عربي فوري وإرجاع القيمة السابقة — لا تحويل صامت
+                var error = "الكمية يجب أن تكون أكبر من صفر.";
+                errorProvider.SetError(dgvCart, error);
+                clsInputFeedback.ShowRejectTooltip(dgvCart, error, toolTip);
+                RefreshCartRow(e.RowIndex);
                 return;
+            }
+
+            line.Quantity = value;
+        }
+        else if (property == nameof(CartLine.UnitPrice))
+        {
+            line.UnitPrice = value;
+        }
+        else
+        {
+            line.Discount = value;
         }
 
         RefreshCartRow(e.RowIndex);   // يعكس أي تقييد طبّقه النموذج على القيمة
         RecalculateTotals();
+        MarkDraftChanged();
 
         if (ReferenceEquals(line, _editingLine))
         {
@@ -961,7 +1057,12 @@ public partial class frmPOS : Form
         }
     }
 
-    private static bool TryReadDecimal(object? raw, out decimal value)
+    /// <summary>
+    /// يقرأ قيمة رقمية من خانة الشبكة. القيم المكتوبة تُقرأ عبر
+    /// <see cref="clsFormat.TryParseMoney"/> / <see cref="clsFormat.TryParseQuantity"/> (البيت الواحد
+    /// للتحليل الرقمي — أرقام عربية وفواصل حيّة — <c>RULE-N169</c>) بدل نسخة محلية ثانية.
+    /// </summary>
+    private static bool TryReadDecimal(object? raw, bool money, out decimal value)
     {
         value = 0m;
 
@@ -970,24 +1071,19 @@ public partial class frmPOS : Form
             case null:
             case DBNull:
                 return false;
-            case decimal d:
-                value = d;
+            case decimal typed:
+                value = typed;
                 return true;
-            case int i:
-                value = i;
+            case int intValue:
+                value = intValue;
                 return true;
-            case long l:
-                value = l;
+            case long longValue:
+                value = longValue;
                 return true;
         }
 
-        var text = raw.ToString();
-        if (string.IsNullOrWhiteSpace(text)) return false;
-
-        text = text.Trim().Replace("٫", ".").Replace(",", string.Empty);
-
-        return decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out value)
-               || decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out value);
+        var text = raw?.ToString();
+        return money ? clsFormat.TryParseMoney(text, out value) : clsFormat.TryParseQuantity(text, out value);
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -1020,20 +1116,26 @@ public partial class frmPOS : Form
     private void InvoiceDiscount_ValueChanged(object? sender, EventArgs e)
     {
         if (IsUpdating) return;
+        if (_isBusy) return;                      // حفظ جارٍ — الخصم أُرسل بالفعل
+        MarkDraftChanged();
         RecalculateTotals();
     }
 
     private void Paid_ValueChanged(object? sender, EventArgs e)
     {
         if (IsUpdating) return;
+        if (_isBusy) return;                      // حفظ جارٍ — المدفوع أُرسل بالفعل
 
         _autoPaid = false;        // المستخدم عدّل المبلغ يدوياً
+        MarkDraftChanged();
         RecalculateTotals();
     }
 
     private void PaymentType_CheckedChanged(object? sender, EventArgs e)
     {
         if (IsUpdating) return;
+        if (_isBusy) return;                      // حفظ جارٍ — طريقة الدفع أُرسلت بالفعل
+        MarkDraftChanged();
 
         BeginUpdate();
         try
@@ -1061,6 +1163,7 @@ public partial class frmPOS : Form
     private void Lookup_SelectedIndexChanged(object? sender, EventArgs e)
     {
         if (IsUpdating) return;
+        MarkDraftChanged();                       // المخزن/الصندوق/العميل تغيّرا بعد حفظ مسودة
         UpdateInvoiceInfoLabel();
     }
 
@@ -1092,6 +1195,7 @@ public partial class frmPOS : Form
             }
 
             _pendingInvoiceId = null;   // تبقى مسودة في النظام (لا يوجد حذف من نقطة البيع)
+            _draftChangedSinceSave = false;
         }
 
         if (_cart.Count > 0 &&
@@ -1128,6 +1232,17 @@ public partial class frmPOS : Form
             // فاتورة أُنشئت ولم تُرحَّل بعد: لا نُنشئ ثانية — نُعيد الترحيل فقط (يمنع ازدواج المخزون/النقد/القيد)
             if (_pendingInvoiceId is int pendingInvoiceId)
             {
+                // تغيّرت بيانات الفاتورة بعد حفظ المسودة ⇒ الترحيل سيرسل المسودة المحفوظة لا ما يراه المستخدم.
+                // لا ترحيل صامت: تأكيد صريح يوضّح أن التعديلات الحالية لن تُحفظ (RULE-N167).
+                if (_draftChangedSinceSave &&
+                    !clsDialogs.Confirm(
+                        $"الفاتورة رقم {pendingInvoiceId} محفوظة كمسودة ببياناتها السابقة، وقد تغيّرت بيانات الفاتورة بعد الحفظ " +
+                        "(البنود أو الخصم أو المدفوع أو طريقة الدفع أو العميل أو المخزن أو الصندوق).\n" +
+                        "سيتم ترحيل المسودة كما حُفظت (وليس التعديلات الحالية) ثم إفراغ الشاشة. هل تريد المتابعة؟"))
+                {
+                    return;
+                }
+
                 _isBusy = true;
                 Cursor = Cursors.WaitCursor;
 
@@ -1143,7 +1258,7 @@ public partial class frmPOS : Form
                 }
 
                 _pendingInvoiceId = null;
-                EventBus.Publish(new SaleInvoiceChangedMessage(pendingInvoiceId)); // تحديث لوحة التحكم
+                PublishInvoiceChanged(pendingInvoiceId);                       // تحديث لوحة التحكم
 
                 clsDialogs.Success($"تم ترحيل الفاتورة المحفوظة كمسودة رقم {pendingInvoiceId} بنجاح.");
 
@@ -1214,7 +1329,7 @@ public partial class frmPOS : Form
 
             _pendingInvoiceId = null;                                      // تم الترحيل — لا مسودة معلّقة
 
-            EventBus.Publish(new SaleInvoiceChangedMessage(created.Id));   // تحديث لوحة التحكم
+            PublishInvoiceChanged(created.Id);                             // تحديث لوحة التحكم
 
             clsDialogs.Success($"تم حفظ وترحيل الفاتورة رقم {created.InvoiceNo} بنجاح.");
 
@@ -1292,9 +1407,9 @@ public partial class frmPOS : Form
                 return false;
             }
 
-            if (line.UnitPrice < 0m)
+            if (line.UnitPrice <= 0m)
             {
-                error = $"سعر الصنف «{line.Name}» لا يمكن أن يكون سالباً.";
+                error = $"سعر الصنف «{line.Name}» يجب أن يكون أكبر من صفر.";
                 errorProvider.SetError(dgvCart, error);
                 clsInputFeedback.ShowRejectTooltip(dgvCart, error!, toolTip);   // GAP-08b
                 return false;
@@ -1309,19 +1424,29 @@ public partial class frmPOS : Form
             }
         }
 
+        decimal subTotal = ComputeSubTotal();
         decimal netTotal = ComputeNetTotal();
 
-        if (paymentType == DtoPaymentType.Cash)
+        // خصم الفاتورة لا يتجاوز المجموع الفرعي — رفض عربي صريح بدل تقييد صامت (RULE-N167)
+        if (numInvoiceDiscount.Value > subTotal)
         {
-            if (numPaid.Value < 0m || numPaid.Value > netTotal)
-            {
-                error = $"المبلغ المدفوع نقداً يجب أن يكون بين {clsFormat.Money(0m)} و {clsFormat.Money(netTotal)}.";
-                errorProvider.SetError(numPaid, error);
-                clsInputFeedback.ShowRejectTooltip(numPaid, error!, toolTip);   // GAP-08b
-                return false;
-            }
+            error = $"خصم الفاتورة ({clsFormat.Money(numInvoiceDiscount.Value)}) أكبر من المجموع الفرعي " +
+                    $"({clsFormat.Money(subTotal)}). عدّل قيمة الخصم.";
+            errorProvider.SetError(numInvoiceDiscount, error);
+            clsInputFeedback.ShowRejectTooltip(numInvoiceDiscount, error!, toolTip);   // GAP-08b
+            return false;
         }
-        else if (customerId <= 0)
+
+        // المدفوع مقيَّد بالصافي في الوضعين (نقدي وآجل) — نفس رفض الخدمة (RULE-N167)
+        if (numPaid.Value < 0m || numPaid.Value > netTotal)
+        {
+            error = $"المبلغ المدفوع يجب أن يكون بين {clsFormat.Money(0m)} و {clsFormat.Money(netTotal)}.";
+            errorProvider.SetError(numPaid, error);
+            clsInputFeedback.ShowRejectTooltip(numPaid, error!, toolTip);   // GAP-08b
+            return false;
+        }
+
+        if (paymentType == DtoPaymentType.Credit && customerId <= 0)
         {
             error = "البيع الآجل يتطلب اختيار عميل.";
             errorProvider.SetError(cbCustomer, error);
@@ -1377,15 +1502,20 @@ public partial class frmPOS : Form
             }
         }
 
-        /// <summary>الكمية decimal(18,3) — أي قيمة غير موجبة تُقيَّد إلى 0.001 (RULE-002).</summary>
+        /// <summary>
+        /// الكمية decimal(18,3) — تُقرَّب إلى 3 منازل، والقيمة غير الموجبة تبقى <c>0</c> لتُرفض
+        /// عربياً عند الإدخال/الحفظ. ممنوع تحويل الصفر صامتاً إلى كمية دنيا (0.001): كان ذلك
+        /// يُرحّل بيعاً بكمية 0 لم يطلبها المستخدم ويُفرِّغ فحص «الكمية > 0» من معناه (RULE-002).
+        /// </summary>
         public decimal Quantity
         {
             get => _quantity;
             set
             {
-                var normalized = Math.Round(value <= 0m ? 0.001m : value, 3, MidpointRounding.AwayFromZero);
+                var normalized = Math.Round(Math.Max(value, 0m), 3, MidpointRounding.AwayFromZero);
                 if (_quantity == normalized) return;
                 _quantity = normalized;
+                ReclampDiscount();
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LineTotal));
             }
@@ -1400,6 +1530,7 @@ public partial class frmPOS : Form
                 var normalized = Math.Round(value < 0m ? 0m : value, 2, MidpointRounding.AwayFromZero);
                 if (_unitPrice == normalized) return;
                 _unitPrice = normalized;
+                ReclampDiscount();
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LineTotal));
             }
@@ -1411,8 +1542,7 @@ public partial class frmPOS : Form
             get => _discount;
             set
             {
-                var max = Quantity * UnitPrice;
-                var normalized = Math.Round(Math.Clamp(value, 0m, max), 2, MidpointRounding.AwayFromZero);
+                var normalized = Math.Round(Math.Clamp(value, 0m, LineGross), 2, MidpointRounding.AwayFromZero);
                 if (_discount == normalized) return;
                 _discount = normalized;
                 OnPropertyChanged();
@@ -1420,8 +1550,23 @@ public partial class frmPOS : Form
             }
         }
 
+        /// <summary>قيمة السطر قبل الخصم (الكمية × السعر) — الحد الأعلى لخصم السطر.</summary>
+        private decimal LineGross => Quantity * UnitPrice;
+
+        /// <summary>
+        /// يعيد تقييد الخصم على قيمة السطر بعد تغيّر الكمية أو السعر، فلا يصبح إجمالي السطر
+        /// سالباً (سطر يخصم من مجاميع الفاتورة) ولا يرمي تقييد خصم الفاتورة استثناءً.
+        /// </summary>
+        private void ReclampDiscount()
+        {
+            if (_discount <= LineGross) return;
+
+            _discount = Math.Round(Math.Max(0m, LineGross), 2, MidpointRounding.AwayFromZero);
+            OnPropertyChanged(nameof(Discount));
+        }
+
         /// <summary>إجمالي السطر: (الكمية × السعر) − الخصم.</summary>
-        public decimal LineTotal => (Quantity * UnitPrice) - Discount;
+        public decimal LineTotal => LineGross - Discount;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

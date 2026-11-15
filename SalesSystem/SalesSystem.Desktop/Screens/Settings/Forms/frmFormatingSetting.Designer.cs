@@ -778,6 +778,7 @@ partial class frmFormatingSetting
         StartPosition = FormStartPosition.CenterParent;
         Text = "إعدادات التنسيق";
         Load += frmFormatingSetting_Load;
+        FormClosing += frmFormatingSetting_FormClosing;
         pnlHeader.ResumeLayout(false);
         gbNumbers.ResumeLayout(false);
         gbNumbers.PerformLayout();

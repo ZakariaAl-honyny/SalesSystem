@@ -15,6 +15,7 @@
             lblMode = new Label();
             pnlHost = new Panel();
             btnClose = new Button();
+            toolTip = new ToolTip(components);
             SuspendLayout();
             // 
             // lblMode — شريط عنوان الشاشة (RULE-N27 / RULE-N53)
@@ -48,6 +49,7 @@
             btnClose.Name = "btnClose";
             btnClose.TabIndex = 2;
             btnClose.Text = "إغلاق";
+            toolTip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
             btnClose.UseVisualStyleBackColor = false;
             btnClose.Click += btnClose_Click;
             // 
@@ -80,5 +82,6 @@
         private Label lblMode;
         private Panel pnlHost;
         private Button btnClose;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

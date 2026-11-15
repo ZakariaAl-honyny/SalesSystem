@@ -45,7 +45,7 @@ public partial class frmExpiredProductsReport : Form, IExportableReport
             {
                 var list = result.Value.ToList();
                 _bindingSource.DataSource = list;
-                lblRecordsCount.Text = list.Count.ToString();
+                lblRecordsCount.Text = clsFormat.Number(list.Count);
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }
@@ -60,7 +60,8 @@ public partial class frmExpiredProductsReport : Form, IExportableReport
         SetHeader("ProductName", "المنتج"); SetHeader("CategoryName", "التصنيف"); SetHeader("WarehouseName", "المستودع");
         SetHeader("CurrentStock", "الكمية"); SetHeader("ExpirationDate", "تاريخ الانتهاء"); SetHeader("DaysExpired", "الأيام المنتهية");
         if (dgvReport.Columns.Contains("ProductId")) dgvReport.Columns["ProductId"].Visible = false;
-        if (dgvReport.Columns.Contains("CurrentStock")) dgvReport.Columns["CurrentStock"].DefaultCellStyle.Format = "N3";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity, "CurrentStock");
+        GridFormatHelper.ApplyColumn(dgvReport, "ExpirationDate", GridFormatKind.DateDayMonthYear);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

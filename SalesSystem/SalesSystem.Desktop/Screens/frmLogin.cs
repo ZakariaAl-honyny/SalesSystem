@@ -428,7 +428,16 @@ public partial class frmLogin : Form
             Token = loginResponse.Token
         });
 
+        // كلمة المرور لا تبقى في الذاكرة بعد نجاح الدخول: الشاشة تبقى حيّة (مخفيّة) فلا تُترك فيها.
+        txtPassword.Clear();
+
         var mainForm = _serviceProvider.GetRequiredService<frmMain>();
+
+        // شاشة الدخول هي النموذج الرئيسي لـ Application.Run في Program.cs: إخفاؤها يُبقي حلقة
+        // الرسائل حيّة، فكان إغلاق frmMain يترك عملية غير مرئية بلا نافذة. إغلاق الشاشة المخفيّة
+        // عند إغلاق frmMain يُنهي التطبيق كما يتوقع المستخدم.
+        mainForm.FormClosed += (_, _) => Close();
+
         mainForm.Show();
         this.Hide();
     }

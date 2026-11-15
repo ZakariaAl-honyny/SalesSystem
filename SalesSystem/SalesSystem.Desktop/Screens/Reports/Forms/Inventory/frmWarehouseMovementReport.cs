@@ -37,15 +37,23 @@ public partial class frmWarehouseMovementReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetWarehouseMovementsAsync(null, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            // نهاية اليوم شاملة: ReportRepository.cs:295-296 يقارن CreatedAt (طابع زمني كامل) بـ to.Value.Date.AddDays(1).AddTicks(-1)، فتمرير .Date وحدها يُسقط حركات اليوم الأخير.
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetWarehouseMovementsAsync(null, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();
                 _bindingSource.DataSource = list;
-                lblRecordsCount.Text = list.Count.ToString();
+                lblRecordsCount.Text = clsFormat.Number(list.Count);
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }
@@ -61,8 +69,9 @@ public partial class frmWarehouseMovementReport : Form, IExportableReport
         SetHeader("MovementType", "نوع الحركة"); SetHeader("QuantityChange", "التغيير");
         SetHeader("QuantityBefore", "قبل"); SetHeader("QuantityAfter", "بعد"); SetHeader("ReferenceType", "المرجع");
         if (dgvReport.Columns.Contains("ReferenceId")) dgvReport.Columns["ReferenceId"].Visible = false;
-        foreach (var c in new[] { "QuantityChange", "QuantityBefore", "QuantityAfter" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N3";
+        if (dgvReport.Columns.Contains("ProductId")) dgvReport.Columns["ProductId"].Visible = false;
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity, "QuantityChange", "QuantityBefore", "QuantityAfter");
+        GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateDayMonthYear);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
@@ -102,9 +111,4 @@ public partial class frmWarehouseMovementReport : Form, IExportableReport
 
     private void btnClose_Click(object sender, EventArgs e)
         => Close();
-
-    private void label3_Click(object sender, EventArgs e)
-    {
-
-    }
 }

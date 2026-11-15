@@ -591,7 +591,15 @@ public partial class frmAddUpdateSalesInvoice : Form
         cmbWarehouse.SelectedValue = Convert.ToInt16(_invoice.WarehouseId);
         if (_invoice.CashBoxId is int cashBoxId && cashBoxId > 0)
             cmbCashBox.SelectedValue = cashBoxId;
-        //cmbPaymentType.SelectedIndex = _invoice.PaymentType - 1;
+
+        // نوع الدفع يُستعاد من الفاتورة المحفوظة: كانت الأزرار تبقى على «نقدي» الافتراضي
+        // فتُرفض مسودة آجلة غير مدفوعة بقاعدة «الدفع الكامل»، أو تُحفظ الآجلة كنقدية فيضيع رصيد العميل.
+        // الشاشة تعرض نقدي/آجل فقط ⇒ «مختلط» يُعامل آجلاً (الدفع الجزئي مسموح والمتبقي يبقى على الحساب).
+        bool isCreditInvoice = _invoice.PaymentType is
+            (byte)SalesSystem.DTO.Enums.PaymentType.Credit or
+            (byte)SalesSystem.DTO.Enums.PaymentType.Mixed;
+        rbtnPaymentTypeCredit.Checked = isCreditInvoice;
+        rbtnPaymentTypeCash.Checked = !isCreditInvoice;
 
         // Restore discount type (مبلغ / نسبة) then its value
         var discType = (SalesSystem.DTO.Enums.DiscountType)_invoice.DiscountType;
@@ -628,7 +636,6 @@ public partial class frmAddUpdateSalesInvoice : Form
                 ExpiryDate = item.ExpiryDate          // تاريخ انتهاء السطر (اختياري)
             });
         }
-        UpdatePaymentTypeUI();
         CalculateTotals();
 
         // تحميل الوحدات ومعاملات التحويل لا يتم هنا — يستدعيه المستدعي وينتظره
@@ -664,7 +671,10 @@ public partial class frmAddUpdateSalesInvoice : Form
         lblInvoiceNo.Text = "جديد";
         dtpDate.Value = DateTime.Now;
         SelectDefaultCashCustomer(); // "عميل نقدي" إن وُجد، وإلا "--- اختر عميل ---"
-        //cmbPaymentType.SelectedIndex = 0;
+
+        // نوع الدفع يعود إلى «نقدي» في الفاتورة الجديدة — لا يورّث نوع الفاتورة السابقة المحمَّلة.
+        rbtnPaymentTypeCash.Checked = true;
+        rbtnPaymentTypeCredit.Checked = false;
 
         // الصندوق الافتراضي = أول صندوق نشط
         if (cmbCashBox.Items.Count > 0) cmbCashBox.SelectedIndex = 0;
@@ -1181,6 +1191,18 @@ public partial class frmAddUpdateSalesInvoice : Form
         string unitName = cmbUnit.Text;
         DateTime? lineExpiry = dtpLineExpiry.Checked ? dtpLineExpiry.Value.Date : (DateTime?)null;
 
+        // خصم السطر لا يتجاوز قيمة السطر (الكمية × السعر) — نفس تقييد شبكة الأصناف.
+        // بدونه يُعرض إجمالي السطر مقصوصاً عند الصفر بينما يُرسل إجمالي سالب (شاشة ≠ محفوظ).
+        decimal lineMaxDiscount = Math.Max(0m, quantity * unitPrice);
+        if (lineDiscount > lineMaxDiscount)
+        {
+            lineDiscount = lineMaxDiscount;
+            txtLineDiscount.Text = lineDiscount.ToString("G");   // يُعيد حساب المعروض عبر TextChanged
+            clsDialogs.Info(
+                $"لا يمكن أن يتجاوز خصم السطر قيمة السطر ({clsFormat.Money(lineMaxDiscount)}).\n" +
+                $"تم تقييد الخصم إلى {clsFormat.Money(lineMaxDiscount)}.");
+        }
+
         // ── MERGE QUANTITY: if product already exists, add qty to existing row ──
         if (!_editingLineKey.HasValue)
         {
@@ -1196,8 +1218,9 @@ public partial class frmAddUpdateSalesInvoice : Form
                     return;
                 }
                 existingRow.Quantity = newQty;
-                // Update discount only if non-zero entered
-                if (lineDiscount > 0m) existingRow.DiscountAmount = lineDiscount;
+                // الخصم لا يتجاوز قيمة السطر بعد الدمج (الكمية المدمجة × السعر)
+                if (lineDiscount > 0m)
+                    existingRow.DiscountAmount = Math.Min(lineDiscount, Math.Max(0m, newQty * existingRow.UnitPrice));
                 existingRow.ExpiryDate = lineExpiry;
                 ResetEntryState();
                 CalculateTotals();
@@ -1745,7 +1768,13 @@ public partial class frmAddUpdateSalesInvoice : Form
 
                 var product = _allProducts.FirstOrDefault(p =>
                     p.Barcode != null && p.Barcode.Equals(barcode, StringComparison.OrdinalIgnoreCase));
-                if (product == null) return;
+                if (product == null)
+                {
+                    // لا يُضاف سطر بلا صنف: السطر يبقى معروضاً في الشبكة وغير محسوب في الإجمالي
+                    // ولا يُحفظ ⇒ إبلاغ المستخدم بدل الإسقاط الصامت.
+                    clsDialogs.Warning("لم يتم العثور على صنف بهذا الباركود — لم تُضَف السطر.");
+                    return;
+                }
 
                 if (IsDuplicateProduct(product.Id))
                 {
@@ -1771,6 +1800,13 @@ public partial class frmAddUpdateSalesInvoice : Form
                     parsedQty = 1m;
                 decimal parsedUnitPrice = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colUnitPrice.Index].Value);
 
+                // خصم السطر الجديد لا يتجاوز قيمته (الكمية × السعر) — نفس تقييد خلية الخصم
+                // حتى لا يُحسب سطر بإجمالي سالب بينما المعروض مقصوص عند الصفر.
+                decimal parsedDiscount = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colDiscount.Index].Value);
+                decimal lineGross = parsedQty * parsedUnitPrice;
+                if (parsedDiscount < 0m) parsedDiscount = 0m;
+                if (parsedDiscount > lineGross) parsedDiscount = Math.Max(0m, lineGross);
+
                 var line = new InvoiceLineItem
                 {
                     ProductId = product.Id,
@@ -1782,7 +1818,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                     UnitName = matchedUnit?.UnitName ?? lineUnitName,
                     ProductUnitId = matchedUnit?.Id ?? 0,
                     ConversionFactor = matchedUnit != null && matchedUnit.ConversionFactor > 0m ? matchedUnit.ConversionFactor : 1m,
-                    DiscountAmount = TryParseCellDecimal(dgvItems.Rows[e.RowIndex].Cells[colDiscount.Index].Value),
+                    DiscountAmount = parsedDiscount,
                     ExpiryDate = ParseExpiryText(dgvItems.Rows[e.RowIndex].Cells[colExpiry.Index].Value?.ToString())
                 };
 
@@ -2641,19 +2677,29 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private async Task SaveInvoiceAsync(bool post)
     {
-        errorProvider.Clear();
-
-        // الفاتورة مقفلة (مرحّلة/ملغاة) — لا حفظ ولا ترحيل
-        if (IsLocked)
+        // ── ما قبل الحفظ (تحقق + تأكيد) داخل حارس: المستدعي async void فلا يجوز تسريب استثناء ──
+        try
         {
-            clsDialogs.Info("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديلها أو ترحيلها مرة أخرى.");
+            errorProvider.Clear();
+
+            // الفاتورة مقفلة (مرحّلة/ملغاة) — لا حفظ ولا ترحيل
+            if (IsLocked)
+            {
+                clsDialogs.Info("الفاتورة مقفلة (مرحّلة أو ملغاة) — لا يمكن تعديلها أو ترحيلها مرة أخرى.");
+                return;
+            }
+
+            if (!_ValidateForm()) return;
+
+            if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل الفاتورة؟ لا يمكن تعديلها بعد الترحيل."))
+                return;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء التحقق من فاتورة البيع قبل الحفظ");
+            clsDialogs.Error("تعذر التحقق من بيانات الفاتورة. يرجى إعادة المحاولة.");
             return;
         }
-
-        if (!_ValidateForm()) return;
-
-        if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل الفاتورة؟ لا يمكن تعديلها بعد الترحيل."))
-            return;
 
         btnSaveDraft.Enabled = btnPost.Enabled = false;
         try
@@ -2966,7 +3012,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         // ── مؤشر القفل (القفل تلقائي — لا زر) ──
         lblLockIndicator.Text = locked ? "🔒 مقفلة" : "✏ قابلة للتعديل";
         lblLockIndicator.BackColor = locked ? GreenThemeHelper.StatusDangerBack : GreenThemeHelper.StatusSuccessBack;
-        lblLockIndicator.ForeColor = locked ? Color.Firebrick : Color.DarkGreen;
+        lblLockIndicator.ForeColor = locked ? GreenThemeHelper.StatusDangerStrong : GreenThemeHelper.StatusPositiveDeep;
 
         btnSaveDraft.Visible = editable;
         btnPost.Visible = editable;
@@ -2979,17 +3025,18 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         lblStatus.Text = _invoice?.Status switch
         {
-            (byte)InvoiceStatus.Draft => "مسودة",
-            (byte)InvoiceStatus.Posted => "تم الترحيل — مقفلة",
-            (byte)InvoiceStatus.Cancelled => "ملغاة",
+            // نص الحالة من البيت الواحد (RULE-N169) + دلالة القفل الخاصة بشاشة التحرير.
+            (byte)InvoiceStatus.Draft => DocumentTextHelper.StatusText((byte)InvoiceStatus.Draft),
+            (byte)InvoiceStatus.Posted => $"{DocumentTextHelper.StatusText((byte)InvoiceStatus.Posted)} — مقفلة",
+            (byte)InvoiceStatus.Cancelled => DocumentTextHelper.StatusText((byte)InvoiceStatus.Cancelled),
             _ => "جديد"
         };
 
         lblStatus.BackColor = _invoice?.Status switch
         {
-            (byte)InvoiceStatus.Draft => Color.Gray,
-            (byte)InvoiceStatus.Posted => Color.Green,
-            (byte)InvoiceStatus.Cancelled => Color.Red,
+            (byte)InvoiceStatus.Draft => GreenThemeHelper.StatusMutedSoft,
+            (byte)InvoiceStatus.Posted => GreenThemeHelper.StatusPositive,
+            (byte)InvoiceStatus.Cancelled => GreenThemeHelper.StatusNegative,
             _ => ThemeHelper.Primary   // «جديد» — نفس لون المصمّم (RULE-N134)
         };
 
@@ -3008,18 +3055,11 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private void _ValidateEmptyTextBox(object sender, CancelEventArgs e)
     {
-        TextBox Temp = ((TextBox)sender);
-        if (!clsValidation.IsRequired(Temp.Text))   // GAP-08b — بيت التحقق الواحد (RULE-N169)
-        {
-            e.Cancel = true;
-            errorProvider.SetError(Temp, "هذا الحقل مطلوب");
-            clsInputFeedback.ShowRejectTooltip(Temp, "هذا الحقل مطلوب", tooltip);   // GAP-08b
-        }
-        else
-        {
-            e.Cancel = false;
-            errorProvider.SetError(Temp, null);
-        }
+        // الحقل المربوط بهذا المعالج في المصمّم هو «الملاحظات» — حقل اختياري (Notes في الطلب يقبل null).
+        // كان يفرض «هذا الحقل مطلوب» على حقل اختياري ويُظهر أيقونة خطأ لكل فاتورة بلا ملاحظات.
+        e.Cancel = false;
+        if (sender is Control control)
+            errorProvider.SetError(control, null);
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -3169,33 +3209,6 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             e.Handled = true;
         }
-    }
-
-    private void cmbPaymentType_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        if (_isUpdating) return;
-        UpdatePaymentTypeUI();
-        CalculateTotals();
-    }
-
-    private void UpdatePaymentTypeUI()
-    {
-        bool isCredit = rbtnPaymentTypeCredit.Checked;   // آجل
-        bool isCash = rbtnPaymentTypeCash.Checked;     // نقدي
-
-        if (isCredit)
-        {
-        }
-        else if (isCash)
-        {
-        }
-    }
-
-    private void chkApplyTax_CheckedChanged(object? sender, EventArgs e)
-    {
-        // أُزيلت وحدة الضرائب (V2) — يبقى اختيار الضريبة معطلاً دائماً.
-        //cmbTax.Enabled = false;
-        CalculateTotals();
     }
 }
 

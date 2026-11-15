@@ -54,6 +54,9 @@ public partial class frmBackup : Form
     /// <summary>تُصبح true بعد اكتمال التوصيل في المُنشئ — تحمي من أحداث المصمّم المبكرة.</summary>
     private bool _uiReady;
 
+    /// <summary>هل فشل تحميل القائمة في آخر محاولة؟ (يمنع تأكيد «لا توجد نسخ» بعد فشل — RULE-N169).</summary>
+    private bool _loadFailed;
+
     /// <summary>
     /// حارس ضغطة Esc الواحدة: نفس الضغطة قد تُمرَّر على مسارين — KeyDown في
     /// <see cref="KeyboardHelper.WireGlobalShortcuts"/> و<c>ProcessDialogKey</c> الذي يُنفّذ
@@ -68,8 +71,16 @@ public partial class frmBackup : Form
     private const string EmptyNoMatchText =
         "لا توجد نتائج مطابقة للتصفية الحالية — اضغط «مسح التصفية» لعرض كل النسخ.";
 
+    /// <summary>
+    /// نصّ حالة الفراغ بعد **فشل** التحميل — لأن «لا توجد نسخ بعد» بعد فشل قراءة القائمة
+    /// تصريح غير صحيح عن البيانات (قد تكون موجودة)، وكانت الشاشة تقوله بعد كل فشل.
+    /// </summary>
+    private const string EmptyLoadFailedText =
+        "تعذر تحميل قائمة النسخ الاحتياطية — اضغط «تحديث» لإعادة المحاولة.";
+
     private const string BusyCreateText = "جارٍ إنشاء النسخة الاحتياطية…";
     private const string BusyRestoreText = "جارٍ استعادة النسخة…";
+    private const string BusyRefreshText = "جارٍ تحديث قائمة النسخ الاحتياطية…";
 
     // ── أعمدة البيانات (أسماء ثابتة — لا يُبنى منها اسم من إدخال المستخدم) ─────
     private const string ColumnFileName = "FileName";
@@ -305,6 +316,7 @@ public partial class frmBackup : Form
         {
             _backupsTable = table;
             _backupsView = new DataView(_backupsTable);
+            _loadFailed = errorMessage is not null;   // فشل التحميل ≠ لا نسخ موجودة
 
             dgvBackups.DataSource = _backupsView;
             _ApplyFilter();
@@ -523,6 +535,14 @@ public partial class frmBackup : Form
         if (lblSummary is null) return;
 
         var shown = _backupsView?.Count ?? 0;
+
+        // بعد فشل التحميل لا تُكتب «عدد النسخ: 0» — فهي تعني «لا نسخ موجودة» وليست الحقيقة.
+        if (_loadFailed && shown == 0)
+        {
+            lblSummary.Text = EmptyLoadFailedText;
+            return;
+        }
+
         var newest = DateTime.MinValue;
         var hasDate = false;
 
@@ -554,7 +574,9 @@ public partial class frmBackup : Form
 
         var isEmpty = _backupsView is null || _backupsView.Count == 0;
 
-        lblEmpty.Text = _backupsTable.Rows.Count == 0 ? EmptyNoDataText : EmptyNoMatchText;
+        lblEmpty.Text = _backupsTable.Rows.Count == 0
+            ? (_loadFailed ? EmptyLoadFailedText : EmptyNoDataText)
+            : EmptyNoMatchText;
 
         lblEmpty.Visible = isEmpty;
         gbBackups.Visible = !isEmpty;
@@ -671,6 +693,8 @@ public partial class frmBackup : Form
 
         if (!created) return;
 
+        // إعادة القراءة أيضاً عملية مُعلَنة: فجوة الـawait لا تُترك والأزرار مفعّلة (RULE-N43).
+        _SetBusy(true, BusyRefreshText);
         Cursor = Cursors.WaitCursor;
 
         try
@@ -686,7 +710,7 @@ public partial class frmBackup : Form
         finally
         {
             Cursor = Cursors.Default;
-            _ApplyState();
+            _SetBusy(false, null);
         }
     }
 
@@ -742,11 +766,17 @@ public partial class frmBackup : Form
     /// <summary>
     /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاع أدوات التصفية إلى
     /// الافتراضي. وليس بديلاً عن «مسح التصفية» (RULE-N148).
+    /// <para>
+    /// التشغيل نفسه صار عملية مُعلَنة (<c>_SetBusy</c>) مثل الإنشاء والاستعادة: كانت الزر الوحيد
+    /// الذي لا يدخل حالة انشغال، فيبقى كل شيء مفعّلاً أثناء <c>await</c> فتتزامن عمليتان على
+    /// القائمة نفسها (ضغطتان على F5، أو «إنشاء نسخة» فوق تحديث جارٍ) — RULE-N43.
+    /// </para>
     /// </summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
     {
         if (_isBusy) return;
 
+        _SetBusy(true, BusyRefreshText);
         Cursor = Cursors.WaitCursor;
 
         try
@@ -762,7 +792,7 @@ public partial class frmBackup : Form
         finally
         {
             Cursor = Cursors.Default;
-            _ApplyState();
+            _SetBusy(false, null);   // يُعيد آلة الحالة (RULE-N43) ويُفرّغ نصّ الحالة
         }
     }
 

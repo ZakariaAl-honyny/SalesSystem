@@ -81,6 +81,12 @@ public partial class frmTrialBalanceReport : Form, IExportableReport
         SetHeader("TransactionDebit", "حركات مدين"); SetHeader("TransactionCredit", "حركات دائن");
         SetHeader("ClosingDebit", "ختامي مدين"); SetHeader("ClosingCredit", "ختامي دائن");
         SetHeader("AccountTypeLabel", "النوع");
+
+        // الأعمدة المالية الستة — من البيت الواحد (RULE-N169). لا عمود تاريخ في TrialBalanceDto.
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money,
+            "OpeningDebit", "OpeningCredit",
+            "TransactionDebit", "TransactionCredit",
+            "ClosingDebit", "ClosingCredit");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

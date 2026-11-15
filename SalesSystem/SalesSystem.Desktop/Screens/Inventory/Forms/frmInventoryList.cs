@@ -532,14 +532,16 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             var changeColumn = dgvMovements.Columns["QuantityChange"];
             if (changeColumn == null || e.ColumnIndex != changeColumn.Index || e.Value is null) return;
 
-            decimal qty = (decimal)e.Value;
+            // القيمة قد تصل DBNull/نصاً من مصدر البيانات ⇒ لا تُفكّ بعنف في دورة الرسم (RULE-N179).
+            if (e.Value is not decimal qty) return;
+
             if (qty < 0)
             {
-                e.CellStyle.ForeColor = Color.Red;
+                e.CellStyle.ForeColor = GreenThemeHelper.StatusNegative;   // نقص مخزون
             }
             else if (qty > 0)
             {
-                e.CellStyle.ForeColor = Color.Green;
+                e.CellStyle.ForeColor = GreenThemeHelper.StatusPositive;   // زيادة مخزون
             }
         }
     }

@@ -41,7 +41,8 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     private bool _isDraft;
 
     /// <summary>اسم حالة المستند كما ورد من الخدمة (مسودة · مرحّل · ملغي) — يُعرض في <c>lblMode</c> (RULE-N44).</summary>
-    private string _statusName = "مسودة";
+    /// <remarks>RULE-N171/N172: نص المسودة من البيت الواحد <see cref="DocumentTextHelper.StatusText(byte)"/> (1 = Draft).</remarks>
+    private string _statusName = DocumentTextHelper.StatusText(1);
 
     /// <summary>الوحدة المختارة من منتقي الأصناف — التكلفة تُملأ من سعرها وتُستهلك عند «إضافة صنف».</summary>
     private ProductUnitDto? _pickedUnit;
@@ -226,16 +227,16 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     // ── Data Loading ───────────────────────────────────────────────────────────────
 
     /// <summary>RULE-N25/N26: تحميل غير متزامن مع WaitCursor واستعادته في finally.</summary>
-    private async Task _LoadAdjustmentDataAsync()
+    private async Task<bool> _LoadAdjustmentDataAsync()
     {
-        if (_adjustmentId is null) return;
+        if (_adjustmentId is null) return false;
 
         var result = await AdjustmentService.GetByIdAsync(_adjustmentId.Value);
 
         if (!result.IsSuccess || result.Value is null)
         {
             clsDialogs.Error(result.Error ?? "تعذر تحميل بيانات التسوية");
-            return;
+            return false;
         }
 
         var adj = result.Value;
@@ -254,7 +255,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         txtReason.Text = adj.Reason ?? "";
         _isDraft = adj.Status == 1;
-        _statusName = string.IsNullOrWhiteSpace(adj.StatusName) ? "مسودة" : adj.StatusName!;
+        _statusName = string.IsNullOrWhiteSpace(adj.StatusName) ? DocumentTextHelper.StatusText(1) : adj.StatusName!;   // 1 = Draft (RULE-019)
 
         // Load lines
         _CreateLinesTable();
@@ -277,6 +278,8 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         _UpdateTotals();
         _ApplyDocumentState();   // RULE-N43/N44 — حالة الأزرار والحقول تتبع حالة المستند (مسودة/غيرها)
+
+        return true;
     }
 
     private async Task _LoadWarehousesAsync()
@@ -288,7 +291,11 @@ public partial class frmAddUpdateInventoryAdjustment : Form
             cmbWarehouse.DisplayMember = "Name";
             cmbWarehouse.ValueMember = "Id";
             cmbWarehouse.DataSource = result.Value.ToList();
+            return;
         }
+
+        // فشل صامت كان يُترك المستخدم أمام قائمة فارغة بلا سبب — الرسالة العربية من الخدمة تُعرض الآن.
+        clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة المستودعات");
     }
 
     private void _LoadAdjustmentTypes()
@@ -608,9 +615,18 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
         if (_adjustmentId is null)
         {
+            // لا قيمة افتراضية صامتة: مستودع/نوع غير مقروءين من القائمة ⇒ رفض عربي بدل مستند بمخزن صفر أو نوع «إضافة» مُخترع.
+            if (cmbWarehouse.SelectedValue is not short warehouseId || warehouseId <= 0
+                || cmbAdjustmentType.SelectedValue is not byte adjustmentType)
+            {
+                clsDialogs.Error("بيانات رأس التسوية غير مكتملة — يرجى اختيار المستودع ونوع التسوية.");
+                _ApplyDocumentState();
+                return false;
+            }
+
             var request = new CreateInventoryAdjustmentRequest(
-                WarehouseId: cmbWarehouse.SelectedValue is short warehouseId ? warehouseId : (short)0,
-                AdjustmentType: cmbAdjustmentType.SelectedValue is byte adjustmentType ? adjustmentType : (byte)1,
+                WarehouseId: warehouseId,
+                AdjustmentType: adjustmentType,
                 Reason: txtReason.Text.Trim());
 
             var created = await AdjustmentService.CreateAsync(request);
@@ -623,7 +639,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
             _adjustmentId = created.Value.Id;
             _isDraft = true;
-            _statusName = "مسودة";
+            _statusName = DocumentTextHelper.StatusText(1);   // 1 = Draft (RULE-019)
             headerCreatedNow = true;
             txtAdjustmentNo.Text = created.Value.AdjustmentNo;
         }
@@ -632,10 +648,10 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         {
             // تعويض: رأس أُنشئ في هذه المحاولة ولم تُحفظ بنوده ⇒ يُلغى حتى لا تبقى مسودة فارغة في القائمة.
             // (سبب الرفض يظهر للمستخدم من رسالة الخدمة العربية أعلاه.)
-            if (headerCreatedNow && _adjustmentId is int orphanId)
+            // ولا يُفرَّغ المعرّف إلا إذا نجح الإلغاء فعلاً — وإلا لحُذف من الشاشة وبقي في القائمة
+            // فأنشأ الحفظ التالي رأساً ثانياً مكرراً.
+            if (headerCreatedNow && _adjustmentId is int orphanId && await _CancelDraftQuietlyAsync(orphanId))
             {
-                await _CancelDraftQuietlyAsync(orphanId);
-
                 _adjustmentId = null;
                 _isDraft = false;
                 txtAdjustmentNo.Text = string.Empty;
@@ -645,9 +661,10 @@ public partial class frmAddUpdateInventoryAdjustment : Form
             return false;
         }
 
-        await _LoadAdjustmentDataAsync();   // إعادة تحميل موثوقة: معرّفات البنود تأتي من الخدمة
+        bool reloaded = await _LoadAdjustmentDataAsync();   // إعادة تحميل موثوقة: معرّفات البنود تأتي من الخدمة
 
-        if (showSuccess)
+        // لا «نجاح» بعد رسالة فشل التحميل: الرسالة تتبع نتيجة إعادة التحميل فعلاً.
+        if (showSuccess && reloaded)
             clsDialogs.Success("تم حفظ مسودة التسوية بنجاح");
 
         return true;
@@ -682,16 +699,22 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         return true;
     }
 
-    /// <summary>إلغاء مسودة أُنشئت في محاولة فاشلة — بلا رسالة ولا إسقاط للشاشة.</summary>
-    private async Task _CancelDraftQuietlyAsync(int adjustmentId)
+    /// <summary>إلغاء مسودة أُنشئت في محاولة فاشلة — بلا رسالة ولا إسقاط للشاشة، ويُعيد نتيجة الإلغاء.</summary>
+    private async Task<bool> _CancelDraftQuietlyAsync(int adjustmentId)
     {
         try
         {
-            await AdjustmentService.CancelAsync(adjustmentId);
+            var result = await AdjustmentService.CancelAsync(adjustmentId);
+
+            if (!result.IsSuccess)
+                Log.Warning("تعذر إلغاء مسودة تسوية فارغة رقم {AdjustmentId}: {Error}", adjustmentId, result.Error);
+
+            return result.IsSuccess;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "تعذر إلغاء مسودة تسوية فارغة رقم {AdjustmentId}", adjustmentId);
+            return false;
         }
     }
 
@@ -893,6 +916,13 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
     private void btnClose_Click(object sender, EventArgs e)
     {
+        // بنود أُدخلت ولم تُرسل إلى الخدمة بعد تُفقد بالإغلاق — تأكيد صريح بدل الضياع الصامت.
+        if (_HasPendingLines()
+            && !clsDialogs.Confirm("لديك بنود غير محفوظة — الإغلاق سيُهملها. هل تريد المتابعة؟"))
+        {
+            return;
+        }
+
         Close();
     }
 

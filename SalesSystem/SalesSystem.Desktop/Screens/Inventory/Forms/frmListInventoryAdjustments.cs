@@ -18,6 +18,11 @@ public partial class frmListInventoryAdjustments : Form
     private DataView _adjustmentsView = new();
     private InventoryAdjustmentDto? _selectedAdjustment;
 
+    // ── حالة التسوية كما يخزّنها العمود الخفي «Status» (نفس اصطلاح المستندات: 1 مسودة · 2 مرحّل · 3 ملغى) ──
+    private const string StatusColumn = "Status";
+    private const byte AdjustmentDraft = 1;
+    private const byte AdjustmentPosted = 2;
+
     // يبدأ true حتى لا تنطلق تصفية من داخل المنشئ قبل اكتمال تهيئة أدوات التصفية.
     private bool _isInitializing = true;
 
@@ -35,6 +40,7 @@ public partial class frmListInventoryAdjustments : Form
         _defaultTo = today;
 
         InitializeComponent();
+        _LoadStatusOptions();   // نصوص الحالة من البيت الواحد — مرة واحدة في المُنشئ (RULE-N169)
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل وأسهم RTL.
         KeyboardHelper.WireEnterAsTab(this);
@@ -90,7 +96,7 @@ public partial class frmListInventoryAdjustments : Form
         toolTip1.SetToolTip(btnAdd, "تسوية مخزون جديدة (F2)");
         toolTip1.SetToolTip(btnView, "عرض تفاصيل التسوية المحددة");
         toolTip1.SetToolTip(btnPost, "ترحيل التسوية المحددة (مسودة فقط)");
-        toolTip1.SetToolTip(btnCancelAdjustment, "إلغاء ترحيل التسوية المحددة (Delete)");
+        toolTip1.SetToolTip(btnCancelAdjustment, "إلغاء ترحيل التسوية المحددة — المرحّلة فقط (Delete)");
         toolTip1.SetToolTip(btnRefresh, "تحديث القائمة من الخدمة (F5)");
         toolTip1.SetToolTip(btnClose, "إغلاق الشاشة");
         toolTip1.SetToolTip(cbFilterBy, "اختر الحقل الذي تُصفّي به");
@@ -146,6 +152,9 @@ public partial class frmListInventoryAdjustments : Form
         dgvAdjustments.Columns.Add(_MakeColumn("StatusName", "الحالة", 8, 80));
         dgvAdjustments.Columns.Add(_MakeColumn("Reason", "السبب", 15, 150));
         dgvAdjustments.Columns.Add(_MakeColumn("CreatedAt", "تاريخ الإنشاء", 12, 130));
+
+        // RULE-N179 — التاريخ يُعرض بالصيغة الحيّة من البيت الواحد (لا صيغة مكتوبة في الشاشة).
+        GridFormatHelper.ApplyColumn(dgvAdjustments, "CreatedAt", GridFormatKind.DateLong);
     }
 
     // ── Data Loading ───────────────────────────────────────────────────────────────
@@ -174,7 +183,8 @@ public partial class frmListInventoryAdjustments : Form
                         a.AdjustmentTypeName ?? "",
                         a.StatusName ?? "",
                         a.Reason ?? "",
-                        a.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
+                        a.CreatedAt,
+                        clsFormat.DateToLong(a.CreatedAt),
                         a.Status);
                 }
             }
@@ -211,7 +221,8 @@ public partial class frmListInventoryAdjustments : Form
         table.Columns.Add("AdjustmentTypeName", typeof(string));
         table.Columns.Add("StatusName", typeof(string));
         table.Columns.Add("Reason", typeof(string));
-        table.Columns.Add("CreatedAt", typeof(string));   // "yyyy-MM-dd HH:mm" — مقارنة ISO قابلة للترتيب
+        table.Columns.Add("CreatedAt", typeof(DateTime)); // يُعرض بالصيغة الحيّة (GridFormatHelper.DateLong)
+        table.Columns.Add("CreatedAtKey", typeof(string)); // "yyyy-MM-dd HH:mm" — مفتاح النطاق الزمني القابل للمقارنة
         table.Columns.Add("Status", typeof(int));         // 1 مسودة · 2 مرحّل · 3 ملغى (لا يُعرض)
         return table;
     }
@@ -245,7 +256,8 @@ public partial class frmListInventoryAdjustments : Form
             parts.Add("Status = 3");
 
         // 3) النطاق الزمني على تاريخ الإنشاء (نطاق معكوس = يُبادَل طرفاه داخل الأداة).
-        parts.Add(RowFilterHelper.DateRangeText("CreatedAt", dtpFrom.Value, dtpTo.Value, exclusiveEnd: true));
+        //    عمود "CreatedAtKey" النصي هو مفتاح المقارنة، وعمود "CreatedAt" يُعرض بالصيغة الحيّة فقط.
+        parts.Add(RowFilterHelper.DateRangeText("CreatedAtKey", dtpFrom.Value, dtpTo.Value, exclusiveEnd: true));
 
         // 4) نص التصفية على الحقل المختار (RULE-N60: القيمة تُهرَّب وأسماء الأعمدة ثابتة).
         parts.Add(RowFilterHelper.Text(txtFilterValue.Text.Trim(), cbFilterBy.SelectedIndex switch
@@ -262,8 +274,9 @@ public partial class frmListInventoryAdjustments : Form
         }
         catch (Exception ex)
         {
-            Serilog.Log.Error(ex, "تعذر تطبيق تصفية تسويات المخزون");
-            _adjustmentsView.RowFilter = string.Empty;
+            // صيغة غير صالحة: تُترك التصفية السابقة كما هي — إسقاطها إلى «بلا تصفية»
+            // يعرض كل السجلات ويُوهم بأنها نتيجة التصفية المطلوبة.
+            Serilog.Log.Error(ex, "تعذر تطبيق تصفية تسويات المخزون — أُبقيت التصفية السابقة كما هي");
         }
 
         _UpdateSummary();
@@ -311,14 +324,35 @@ public partial class frmListInventoryAdjustments : Form
             lblEmpty.BringToFront();
     }
 
-    /// <summary>RULE-N43: أزرار الإجراءات مفعّلة فقط عند وجود سجل محدد.</summary>
+    /// <summary>RULE-N43: كل زر إجراء مفعّل فقط حين تنطبق حالته على السطر المحدد (لا «أي سطر»).</summary>
     private void _UpdateButtonsState()
     {
         bool hasSelection = dgvAdjustments.SelectedRows.Count > 0;
+        byte status = hasSelection ? _SelectedRowStatus() : (byte)0;
 
         btnView.Enabled = hasSelection;
-        btnPost.Enabled = hasSelection;
-        btnCancelAdjustment.Enabled = hasSelection;
+        btnPost.Enabled = status == AdjustmentDraft;              // الترحيل: المسودة فقط
+        btnCancelAdjustment.Enabled = status == AdjustmentPosted; // الإلغاء: المرحّل فقط
+
+        // قائمة السياق تنفّذ نفس الإجراءات ⇒ تخضع لنفس آلة الحالة (لا ترحيل/إلغاء من سطر غير مطابق).
+        tsmiView.Enabled = btnView.Enabled;
+        tsmiPost.Enabled = btnPost.Enabled;
+        tsmiCancel.Enabled = btnCancelAdjustment.Enabled;
+    }
+
+    /// <summary>
+    /// حالة السطر المحدد من العمود الخفي <c>Status</c> (1 مسودة · 2 مرحّل · 3 ملغى) —
+    /// قراءة محلية بلا نداء خدمة، فتتحدث الأزرار فور تغيير التحديد.
+    /// </summary>
+    private byte _SelectedRowStatus()
+    {
+        if (dgvAdjustments.SelectedRows.Count == 0)
+            return 0;
+
+        return dgvAdjustments.SelectedRows[0].DataBoundItem is DataRowView drv
+               && drv.Row.Table.Columns.Contains(StatusColumn)
+            ? Convert.ToByte(drv[StatusColumn])
+            : (byte)0;
     }
 
     // ── Selection ──────────────────────────────────────────────────────────────────
@@ -388,8 +422,18 @@ public partial class frmListInventoryAdjustments : Form
             Cursor = Cursors.WaitCursor;
             await _SelectAdjustmentAsync();
 
-            if (_selectedAdjustment is null || _selectedAdjustment.Status != 1)   // Draft only
+            if (_selectedAdjustment is null)
+            {
+                clsDialogs.Warning("تعذر قراءة التسوية المحددة. يرجى تحديث القائمة والمحاولة مرة أخرى.");
                 return;
+            }
+
+            // رسالة واحدة صريحة بدل الصمت حين لا تنطبق حالة السطر على الترحيل (RULE-N43)
+            if (_selectedAdjustment.Status != AdjustmentDraft)
+            {
+                clsDialogs.Warning("لا يمكن ترحيل هذه التسوية: الترحيل متاح للمسودات فقط.");
+                return;
+            }
 
             if (!clsDialogs.Confirm("هل أنت متأكد من ترحيل تسوية المخزون؟"))
                 return;
@@ -425,8 +469,18 @@ public partial class frmListInventoryAdjustments : Form
             Cursor = Cursors.WaitCursor;
             await _SelectAdjustmentAsync();
 
-            if (_selectedAdjustment is null || _selectedAdjustment.Status != 2)   // Posted only
+            if (_selectedAdjustment is null)
+            {
+                clsDialogs.Warning("تعذر قراءة التسوية المحددة. يرجى تحديث القائمة والمحاولة مرة أخرى.");
                 return;
+            }
+
+            // رسالة واحدة صريحة بدل الصمت حين لا تنطبق حالة السطر على الإلغاء (RULE-N43)
+            if (_selectedAdjustment.Status != AdjustmentPosted)
+            {
+                clsDialogs.Warning("لا يمكن إلغاء هذه التسوية: الإلغاء متاح للتسويات المرحّلة فقط.");
+                return;
+            }
 
             if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء تسوية المخزون؟ لا يمكن التراجع عن هذا الإجراء."))
                 return;
@@ -658,6 +712,23 @@ public partial class frmListInventoryAdjustments : Form
     {
         _ClearAllFilters();
         txtFilterValue.Focus();
+    }
+
+    /// <summary>
+    /// خيارات تصفية الحالة: «الكل» عنصر محايد محلي (ليس نص حالة)، وبقية النصوص من البيت الواحد
+    /// <see cref="DocumentTextHelper.StatusOptions"/> فلا تُكرَّر في الشاشة (RULE-N169/RULE-N172).
+    /// الترتيب «الكل» ثم 1 (مسودة) · 2 (مرحل) · 3 (ملغي)، فيبقى <c>cbStatus.SelectedIndex</c>
+    /// مساوياً لقيمة الحالة الرقمية في التصفية (RULE-N60).
+    /// </summary>
+    private void _LoadStatusOptions()
+    {
+        cbStatus.Items.Clear();
+        cbStatus.Items.Add("الكل");   // عنصر محايد محلي — ليس نص حالة
+
+        foreach (var option in DocumentTextHelper.StatusOptions)
+            cbStatus.Items.Add(option.Text);
+
+        cbStatus.SelectedIndex = 0;   // الافتراضي: «الكل» (بلا تغيير)
     }
 
     /// <summary>

@@ -61,7 +61,7 @@ public partial class frmBalanceSheetReport : Form, IExportableReport
                             foreach (var line in section.Lines)
                                 allLines.Add(new { Section = section.Name, line.AccountName, line.AccountCode, line.Balance });
                 _bindingSource.DataSource = allLines;
-                UpdateSummary(result.Value);
+                UpdateSummary(result.Value, allLines.Count);
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }
@@ -70,16 +70,19 @@ public partial class frmBalanceSheetReport : Form, IExportableReport
         finally { ShowLoading(false); }
     }
 
-    private void UpdateSummary(BalanceSheetDto bs)
+    private void UpdateSummary(BalanceSheetDto bs, int recordCount)
     {
-        lblSummary.Text = $"إجمالي الأصول: {clsFormat.Money(bs.TotalAssets)} | إجمالي الخصوم: {clsFormat.Money(bs.TotalLiabilities)} | حقوق الملكية: {clsFormat.Money(bs.TotalEquity)} | {(bs.IsBalanced ? "متوازن" : "غير متوازن")}";
+        // RULE-N61 — شريط الملخص يعدّ النتائج فعلاً بدل بقاء «0»، ويعرض طرفي المقارنة
+        // (الأصول مقابل الخصوم + حقوق الملكية) فيكون حكم «متوازن» قابلاً للتحقق من الأرقام المعروضة.
+        lblRecordsCount.Text = clsFormat.Number(recordCount);
+        lblSummary.Text = $"إجمالي الأصول: {clsFormat.Money(bs.TotalAssets)} | إجمالي الخصوم: {clsFormat.Money(bs.TotalLiabilities)} | حقوق الملكية: {clsFormat.Money(bs.TotalEquity)} | الخصوم + حقوق الملكية: {clsFormat.Money(bs.TotalLiabilitiesAndEquity)} | {(bs.IsBalanced ? "متوازن" : "غير متوازن")}";
     }
 
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("Section", "القسم"); SetHeader("AccountName", "اسم الحساب"); SetHeader("AccountCode", "كود الحساب"); SetHeader("Balance", "الرصيد");
-        if (dgvReport.Columns.Contains("Balance")) dgvReport.Columns["Balance"].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "Balance", GridFormatKind.Money);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

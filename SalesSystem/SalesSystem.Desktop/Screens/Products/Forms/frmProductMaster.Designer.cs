@@ -637,7 +637,6 @@ partial class frmProductMaster
         dgvProducts.Size = new Size(1432, 282);
         dgvProducts.TabIndex = 0;
         dgvProducts.CellClick += dgvProducts_CellClick;
-        dgvProducts.ChangeUICues += dgvProducts_ChangeUICues;
         // 
         // pnlFilters
         // 

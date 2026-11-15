@@ -24,6 +24,9 @@ public partial class frmProductSelection : Form
     private readonly List<ProductUnitDto> _units = new();
     private readonly Dictionary<int, decimal> _stockByProduct = new();
 
+    /// <summary>الأصناف كما وردت من الخدمة — مصدر <see cref="SelectedProduct"/> (لا DTO مصطنع من الشبكة).</summary>
+    private readonly Dictionary<int, ProductDto> _productsById = new();
+
     private bool _loadingProducts;
     private bool _unitsLoadFailed;
     private int _unitsProductId;
@@ -120,10 +123,14 @@ public partial class frmProductSelection : Form
 
             var result = await ServiceProvider.GetRequiredService<IProductDesktopService>().GetAllAsync();
 
+            _productsById.Clear();
+
             if (result.IsSuccess && result.Value != null)
             {
                 foreach (var p in result.Value)
                 {
+                    _productsById[p.Id] = p;
+
                     _productsTable.Rows.Add(
                         p.Id,
                         p.Name,
@@ -139,12 +146,15 @@ public partial class frmProductSelection : Form
 
             _productsView = new DataView(_productsTable);
             dgvProducts.DataSource = _productsView;
-            lblRecordsCount.Text = _productsView.Count.ToString();
+            lblRecordsCount.Text = clsFormat.Number(_productsView.Count);
 
             // RULE-N22: إشعار «لا توجد بيانات» داخل الشاشة بدل نافذة منبثقة.
             lblNoData.Visible = _productsView.Count == 0;
 
             _loadingProducts = false;
+
+            // تحديث الأرصدة يجب أن يصل إلى شبكة الوحدات أيضاً — وإلا بقيت كمياتها المتاحة قديمة (F5).
+            _unitsProductId = 0;
             await _RefreshUnitsAsync();
         }
         catch (Exception ex)
@@ -196,8 +206,9 @@ public partial class frmProductSelection : Form
     private decimal _GetBaseAvailable(int productId)
         => _stockByProduct.TryGetValue(productId, out decimal quantity) ? quantity : 0m;
 
+    /// <summary>الكمية المعروضة بصيغة النظام الموحّدة (منازل الكميات من إعدادات التنسيق — §2.30).</summary>
     private static string _FormatQuantity(decimal value)
-        => value.ToString("G", CultureInfo.CurrentCulture);
+        => clsFormat.Quantity(value);
 
     // ── شبكة الوحدات (التفصيل) ───────────────────────────────────────────────
     private async Task _RefreshUnitsAsync()
@@ -333,7 +344,7 @@ public partial class frmProductSelection : Form
                 + " OR " + RowFilterHelper.Like("CategoryName", search);
         }
 
-        lblRecordsCount.Text = _productsView.Count.ToString();
+        lblRecordsCount.Text = clsFormat.Number(_productsView.Count);
         lblNoData.Visible = _productsView.Count == 0;
     }
 
@@ -522,23 +533,13 @@ public partial class frmProductSelection : Form
 
     private void _CommitProduct(ProductUnitDto? unit)
     {
-        if (dgvProducts.CurrentRow?.DataBoundItem is not DataRowView row) return;
+        int id = _CurrentProductId();
+        if (id <= 0) return;
 
-        int id = (int)row["Id"];
-        string name = row["Name"] as string ?? string.Empty;
+        // الصنف الحقيقي من الخدمة — لا DTO مصطنع من الشبكة يصفّر التصنيف والحد الأدنى وحالة التنشيط.
+        if (!_productsById.TryGetValue(id, out var product)) return;
 
-        SelectedProduct = new ProductDto(
-            id,
-            name,
-            0,
-            row["CategoryName"] as string,
-            null,
-            0,
-            false,
-            null,
-            true,
-            row["Barcode"] as string
-        );
+        SelectedProduct = product;
         SelectedUnit = unit;
 
         DialogResult = DialogResult.OK;

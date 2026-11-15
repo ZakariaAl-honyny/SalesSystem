@@ -22,6 +22,12 @@ public partial class frmCashBoxTransactions : Form
     private const string DocKindReceipt = "Receipt";
     private const string DocKindExpense = "Expense";
 
+    /// <summary>
+    /// سعة رقم المستند داخل مفتاح الترتيب الرقمي: كل نوع مستند يأخذ نطاقاً مستقلاً
+    /// (<c>رقم المستند &lt; 1,000,000,000</c>)، فلا يتقاطع نوعان في المفتاح نفسه.
+    /// </summary>
+    private const long DocumentSortSpan = 1_000_000_000L;
+
     /// <summary>اتجاه الحركة: 1 = وارد إلى الصندوق · -1 = صادر من الصندوق.</summary>
     private const int DirectionIn = 1;
     private const int DirectionOut = -1;
@@ -55,6 +61,7 @@ public partial class frmCashBoxTransactions : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+        _LoadStatusOptions();   // نصوص الحالة من البيت الواحد — مرة واحدة في المُنشئ (RULE-N169)
 
         // RULE-N148: النطاق الافتراضي (بداية الشهر الحالي ← اليوم) يُلتقط عند الإنشاء،
         // ليعيده «مسح التصفية» بلا إعادة تحميل ولتُقارن به حالة تفعيل الزر.
@@ -151,7 +158,7 @@ public partial class frmCashBoxTransactions : Form
         toolTip1.SetToolTip(cmbCashBox, "اختر الصندوق لعرض حركاته");
         toolTip1.SetToolTip(cbFilterBy, "اختر الحقل الذي تُصفّي به");
         toolTip1.SetToolTip(txtFilterValue, "اكتب قيمة التصفية — التصفية فورية (Esc يمسحها)");
-        toolTip1.SetToolTip(cbStatus, "تصفية بالحالة: مسودة / مرحّل / ملغى");
+        toolTip1.SetToolTip(cbStatus, "تصفية بالحالة: مسودة / مرحل / ملغي");
         toolTip1.SetToolTip(dtpFrom, "بداية النطاق الزمني");
         toolTip1.SetToolTip(dtpTo, "نهاية النطاق الزمني");
         toolTip1.SetToolTip(btnRangeToday, "حركات اليوم فقط");
@@ -171,8 +178,8 @@ public partial class frmCashBoxTransactions : Form
 
         _AddColumn("DocNo", "رقم المستند", 100, 8);
         _AddColumn("Type", "النوع", 80, 6);
-        _AddColumn("Amount", "المبلغ", 100, 9, "N2");
-        _AddColumn("RunningBalance", "الرصيد الجاري", 110, 9, "N2");
+        _AddColumn("Amount", "المبلغ", 100, 9, clsFormat.MoneyPattern);
+        _AddColumn("RunningBalance", "الرصيد الجاري", 110, 9, clsFormat.MoneyPattern);
         _AddColumn("Description", "البيان", 200, 20);
         _AddColumn("StatusName", "الحالة", 90, 7);
         _AddColumn("MovementDate", "التاريخ", 110, 9, clsFormat.Get(clsFormat.DateShortPattern));
@@ -306,7 +313,8 @@ public partial class frmCashBoxTransactions : Form
                         receipt.StatusName ?? string.Empty,
                         receipt.ReceiptDate,
                         receipt.IsActive,
-                        receipt.Status == 3);
+                        receipt.Status == 3,
+                        _DocumentSortSequence(DocKindReceipt, receipt.Id));
                 }
             }
             else
@@ -332,7 +340,8 @@ public partial class frmCashBoxTransactions : Form
                         expense.StatusName ?? string.Empty,
                         expense.ExpenseDate,
                         expense.IsActive,
-                        expense.Status == 3);
+                        expense.Status == 3,
+                        _DocumentSortSequence(DocKindExpense, expense.Id));
                 }
             }
             else
@@ -375,6 +384,13 @@ public partial class frmCashBoxTransactions : Form
         table.Columns.Add("MovementDate", typeof(DateTime));
         table.Columns.Add("IsActive", typeof(bool));
         table.Columns.Add("IsCancelled", typeof(bool));
+
+        // عمود الترتيب الرقمي (غير معروض في الشبكة، وآخر عمود لأن أعمدة الجدول تُملأ
+        // بترتيبها): رقم المستند نصّي في `DocNo`، والترتيب النصّي يقلب ترتيب اليوم الواحد
+        // («10» قبل «9») فيُكتب الرصيد الجاري على السطر الخطأ. المفتاح رقمي ثابت
+        // و`DocNo` يبقى معروضاً كما هو.
+        table.Columns.Add("SortSeq", typeof(long));
+
         return table;
     }
 
@@ -447,8 +463,20 @@ public partial class frmCashBoxTransactions : Form
         }
 
         var view = table.DefaultView;
-        view.RowFilter = _BuildFilterExpression();
-        view.Sort = "MovementDate ASC, DocNo ASC";
+
+        // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
+        try
+        {
+            view.RowFilter = _BuildFilterExpression();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تطبيق تصفية حركات الصندوق — أُبقيت التصفية السابقة كما هي");
+        }
+
+        // الترتيب: التاريخ أولاً ثم المفتاح الرقمي — لا `DocNo` النصّي، وإلا انقلب
+        // ترتيب حركات اليوم نفسه فيُكتب الرصيد الجاري على السطر الخطأ.
+        view.Sort = "MovementDate ASC, SortSeq ASC";
 
         _RecalculateRunningBalance(view);
 
@@ -467,9 +495,11 @@ public partial class frmCashBoxTransactions : Form
             else if (direction == DirectionOut) outflow += amount;
         }
 
-        lblRecordsCount.Text = view.Count.ToString();
+        // الأعداد والمبالغ من البيت الواحد clsFormat — لا ToString() ولا صيغة مكرّرة (RULE-N169)
+        lblRecordsCount.Text = clsFormat.Number(view.Count);
         lblSummary.Text =
-            $"المعروض: {view.Count} من {table.Rows.Count} — الوارد: {clsFormat.Money(inflow)} · الصادر: {clsFormat.Money(outflow)} · الرصيد: {clsFormat.Money(inflow - outflow)}";
+            $"المعروض: {clsFormat.Number(view.Count)} من {clsFormat.Number(table.Rows.Count)} — "
+            + $"الوارد: {clsFormat.Money(inflow)} · الصادر: {clsFormat.Money(outflow)} · الرصيد: {clsFormat.Money(inflow - outflow)}";
 
         lblEmpty.Visible = view.Count == 0;
         if (lblEmpty.Visible) lblEmpty.BringToFront();
@@ -485,13 +515,27 @@ public partial class frmCashBoxTransactions : Form
         if (dgvTransactions.IsDisposed) return;
 
         dgvTransactions.DataSource = null;
-        lblRecordsCount.Text = "0";
-        lblSummary.Text = "المعروض: 0 من 0 — الوارد: 0.00 · الصادر: 0.00 · الرصيد: 0.00";
+        lblRecordsCount.Text = clsFormat.Number(0);
+        lblSummary.Text =
+            $"المعروض: {clsFormat.Number(0)} من {clsFormat.Number(0)} — "
+            + $"الوارد: {clsFormat.Money(0m)} · الصادر: {clsFormat.Money(0m)} · الرصيد: {clsFormat.Money(0m)}";
         lblEmpty.Visible = true;
         lblEmpty.BringToFront();
     }
 
-    /// <summary>يعيد احتساب الرصيد الجاري على المدى المعروض بالترتيب الزمني (RULE-001).</summary>
+    /// <summary>
+    /// مفتاح ترتيب **رقمي** للمستند: `(رتبة النوع × السعة) + رقم المستند`.
+    /// رقم المستند في <c>DocNo</c> نصّي (يُعرض كما هو)، والترتيب النصّي يقلب ترتيب
+    /// اليوم الواحد («10» قبل «9») فيُكتب الرصيد الجاري على السطر الخطأ — لذا
+    /// يُرتَّب بـ<c>SortSeq</c>. الترتيب داخل اليوم ثابت: سندات القبض ثم المصروفات.
+    /// </summary>
+    private static long _DocumentSortSequence(string docKind, int docId)
+        => (docKind == DocKindExpense ? 2L : 1L) * DocumentSortSpan + docId;
+
+    /// <summary>
+    /// يعيد احتساب الرصيد الجاري على المدى المعروض بترتيب العرض نفسه (التاريخ ثم المفتاح
+    /// الرقمي <c>SortSeq</c>) — فلا يُكتب رصيد سطر بترتيب غير ترتيب ظهوره (RULE-001).
+    /// </summary>
     private static void _RecalculateRunningBalance(DataView view)
     {
         decimal running = 0m;
@@ -515,6 +559,23 @@ public partial class frmCashBoxTransactions : Form
     /// </summary>
     private void btnClearFilters_Click(object sender, EventArgs e)
         => _ClearAllFilters();   // يمسح ثم يُعيد التركيز إلى حقل التصفية (RULE-N148)
+
+    /// <summary>
+    /// خيارات تصفية الحالة: «الكل» عنصر محايد محلي (ليس نص حالة)، وبقية النصوص من البيت الواحد
+    /// <see cref="DocumentTextHelper.StatusOptions"/> فلا تُكرَّر في الشاشة (RULE-N169/RULE-N172).
+    /// الترتيب «الكل» ثم 1 (مسودة) · 2 (مرحل) · 3 (ملغي)، فيبقى <c>cbStatus.SelectedIndex</c>
+    /// مساوياً لقيمة الحالة الرقمية في شرط التصفية (RULE-N60).
+    /// </summary>
+    private void _LoadStatusOptions()
+    {
+        cbStatus.Items.Clear();
+        cbStatus.Items.Add("الكل");   // عنصر محايد محلي — ليس نص حالة
+
+        foreach (var option in DocumentTextHelper.StatusOptions)
+            cbStatus.Items.Add(option.Text);
+
+        cbStatus.SelectedIndex = 0;   // الافتراضي: «الكل» (بلا تغيير)
+    }
 
     /// <summary>
     /// تفريغ أدوات التصفية وحدها بلا تطبيق ولا إعادة تحميل (RULE-N148).

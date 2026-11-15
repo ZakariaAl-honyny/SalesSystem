@@ -1,6 +1,9 @@
+using System.Globalization;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
+using InventoryTxType = SalesSystem.Common.Enums.InventoryTransactionType;
+using RefType = SalesSystem.Common.Enums.InventoryReferenceType;
 
 namespace SalesSystem.Desktop.Services.Mock;
 
@@ -35,6 +38,13 @@ public class MockReportDesktopService : IReportDesktopService
     private const string SalesReturnMovement = "مرتجع مبيعات";
     private const string PurchaseReturnMovement = "مرتجع مشتريات";
     private const string AdjustmentMovement = "تسوية";
+    private const string TransferOutMovement = "تحويل صادر";
+    private const string TransferInMovement = "تحويل وارد";
+    private const string CountMovement = "جرد";
+    private const string DamageMovement = "تالف";
+    private const string OpeningBalanceMovement = "رصيد افتتاحي";
+    private const string InternalIssueMovement = "صرف داخلي";
+    private const string InternalReceiptMovement = "استلام داخلي";
 
     private const string SalesError = "حدث خطأ أثناء جلب تقرير المبيعات";
     private const string PurchasesError = "حدث خطأ أثناء جلب تقرير المشتريات";
@@ -49,6 +59,7 @@ public class MockReportDesktopService : IReportDesktopService
     private const string DetailedLedgerError = "حدث خطأ أثناء جلب دفتر حركة المخزون التفصيلي";
     private const string ReturnsError = "حدث خطأ أثناء جلب تقرير المرتجعات";
     private const string AgingError = "حدث خطأ أثناء جلب تقرير الأعمار";
+    private const string ThresholdDaysError = "عدد الأيام يجب أن تكون صفراً أو أكثر";
 
     // ═══════════════════════════════════════════════
     // 1) تقرير المبيعات
@@ -211,6 +222,18 @@ public class MockReportDesktopService : IReportDesktopService
                         .Sum(p => p.Amount));
                     var debit = Money(payments + returns);
 
+                    // ── الرصيد الحالي: مصدر حقيقة واحد = المستندات ──
+                    // الرصيد = مجموع RemainingAmount لفواتير الشراء **المرحّلة** فقط، وهو نفس
+                    // رقم «المستحق/الرصيد» في تقرير الأعمار (BuildAgingRow) ونفس ما يقيّده دفتر
+                    // الأستاذ على حساب الدائنين 211 ونفس ما تعرضه لوحة التحكم (TotalPayables).
+                    // ولا تُطرح سندات الصرف والمرتجعات مرة ثانية هنا: المدفوع على فاتورة مسجّل
+                    // أصلاً في PaidAmount، وطرح السندات فوقه يجعل نفس المورد يظهر برقمين
+                    // مختلفين في تقريرين (وهو العيب الذي أُصلح). أعمدة الحركة تبقى كما هي
+                    // (إجمالي المشتريات/المرتجعات/المدفوعات/المدين) للعرض فقط.
+                    var currentBalance = Money(postedPurchases
+                        .Where(p => p.SupplierId == s.Id)
+                        .Sum(p => p.RemainingAmount));
+
                     return new SupplierBalanceReportDto(
                         SupplierId: s.Id,
                         SupplierName: s.Name,
@@ -219,7 +242,7 @@ public class MockReportDesktopService : IReportDesktopService
                         TotalReturns: returns,
                         TotalPayments: payments,
                         TotalDebit: debit,
-                        CurrentBalance: Money(purchases - debit));
+                        CurrentBalance: currentBalance);
                 })
                 .ToList();
 
@@ -321,10 +344,14 @@ public class MockReportDesktopService : IReportDesktopService
     public Task<Result<IReadOnlyList<ExpiredProductDto>>> GetExpiredProductsAsync(
         int thresholdDays = 0, CancellationToken ct = default)
     {
+        // تكافؤ الرفض (RULE-N167): نفس رفض طبقة الأعمال — لا كتم للقيمة السالبة بـ Math.Max
+        if (thresholdDays < 0)
+            return Task.FromResult(Result<IReadOnlyList<ExpiredProductDto>>.Failure(ThresholdDaysError));
+
         try
         {
             var today = DateTime.Today;
-            var limit = today.AddDays(Math.Max(0, thresholdDays));
+            var limit = today.AddDays(thresholdDays);
 
             var rows = MockInventoryData.Batches
                 .Where(b => b.ExpiryDate.HasValue)
@@ -552,6 +579,11 @@ public class MockReportDesktopService : IReportDesktopService
                               || partyType.Equals("Customers", StringComparison.OrdinalIgnoreCase)
                               || partyType.Equals("العملاء", StringComparison.OrdinalIgnoreCase);
 
+            // تكافؤ السلوك: النوع غير المعروف لا يُفسَّر كـ«موردين» (كان يُعيد بيانات موردين لطلب غير مفهوم)
+            // بل يُعيد قائمة فارغة بنجاح — نفس ما تفعله طبقة الأعمال/المستودع مع النوع غير المعروف.
+            var isSuppliers = string.Equals(partyType, "Suppliers", StringComparison.OrdinalIgnoreCase)
+                              || string.Equals(partyType, "الموردون", StringComparison.OrdinalIgnoreCase);
+
             if (isCustomers)
             {
                 foreach (var customer in MockData.Customers
@@ -568,7 +600,7 @@ public class MockReportDesktopService : IReportDesktopService
                         DayNumber(today)));
                 }
             }
-            else
+            else if (isSuppliers)
             {
                 foreach (var supplier in MockSuppliersData.Suppliers
                              .Where(s => s.IsActive)
@@ -676,120 +708,45 @@ public class MockReportDesktopService : IReportDesktopService
         return rows;
     }
 
-    /// <summary>الحركات المخزنية من فواتير البيع/الشراء والمرتجعات والتسويات المرحّلة.</summary>
+    /// <summary>
+    /// حركات المخزون من <b>سجل الحركات الواحد</b> <see cref="MockInventoryData.Movements"/> (RULE-N169) —
+    /// لا تُشتق من الفواتير هنا بعد اليوم: بيت الحركات واحد، فما يراه المالك في شاشة حركات المخزون
+    /// هو نفسه ما يُقرأ في التقارير (وعاء واحد لا نسختان تتباعدان).
+    /// <para>
+    /// الإشارة تُقرأ بـ <see cref="MockStockLedger.SignedChangeOf"/> (نفس قاعدة الكتابة في السجل):
+    /// الجرد/التسوية يحفظان إشارتهما، وبقية الأنواع تُستنتج إشارتها من نوع الحركة.
+    /// </para>
+    /// </summary>
     private static List<StockMovement> BuildMovements()
     {
         var movements = new List<StockMovement>();
-        var createdBy = UserNameOf(1);
 
-        foreach (var invoice in MockData.Invoices.Where(i => i.Status == Posted))
+        foreach (var transaction in MockInventoryData.Movements)
         {
-            foreach (var line in invoice.Items)
+            var type = (InventoryTxType)transaction.MovementType;
+
+            foreach (var line in transaction.Lines)
             {
-                movements.Add(new StockMovement(
-                    invoice.InvoiceDate.Date,
-                    line.ProductId,
-                    ProductNameOf(line.ProductId, line.ProductName),
-                    invoice.WarehouseId,
-                    WarehouseNameOf(invoice.WarehouseId),
-                    SalesMovement,
-                    invoice.InvoiceNo.ToString(),
-                    "SalesInvoice",
-                    invoice.Id,
-                    -line.Quantity,
-                    Money(UnitCostOf(line.ProductId, line.ProductUnitId, line.UnitCost)),
-                    createdBy));
-            }
-        }
-
-        foreach (var invoice in MockPurchasesData.Purchases.Where(p => p.Status == Posted))
-        {
-            var date = invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue).Date;
-
-            foreach (var line in invoice.Items)
-            {
-                movements.Add(new StockMovement(
-                    date,
-                    line.ProductId,
-                    ProductNameOf(line.ProductId, line.ProductName),
-                    invoice.WarehouseId,
-                    WarehouseNameOf(invoice.WarehouseId),
-                    PurchaseMovement,
-                    invoice.InvoiceNo.ToString(),
-                    "PurchaseInvoice",
-                    invoice.Id,
-                    line.Quantity,
-                    Money(line.UnitPrice),
-                    createdBy));
-            }
-        }
-
-        foreach (var salesReturn in MockReturnsData.SalesReturns.Where(r => r.Status == Posted))
-        {
-            foreach (var item in salesReturn.Items)
-            {
-                movements.Add(new StockMovement(
-                    salesReturn.ReturnDate.Date,
-                    item.ProductId,
-                    ProductNameOf(item.ProductId, item.ProductName),
-                    salesReturn.WarehouseId,
-                    WarehouseNameOf(salesReturn.WarehouseId),
-                    SalesReturnMovement,
-                    salesReturn.ReturnNo.ToString(),
-                    "SalesReturn",
-                    salesReturn.Id,
-                    item.Quantity,
-                    Money(UnitCostOf(item.ProductId, item.ProductUnitId, 0m)),
-                    createdBy));
-            }
-        }
-
-        foreach (var purchaseReturn in MockReturnsData.PurchaseReturns.Where(r => r.Status == Posted))
-        {
-            var date = purchaseReturn.ReturnDate.ToDateTime(TimeOnly.MinValue).Date;
-
-            foreach (var item in purchaseReturn.Items)
-            {
-                movements.Add(new StockMovement(
-                    date,
-                    item.ProductId,
-                    ProductNameOf(item.ProductId, item.ProductName),
-                    purchaseReturn.WarehouseId,
-                    WarehouseNameOf(purchaseReturn.WarehouseId),
-                    PurchaseReturnMovement,
-                    purchaseReturn.ReturnNo.ToString(),
-                    "PurchaseReturn",
-                    purchaseReturn.Id,
-                    -item.Quantity,
-                    Money(item.UnitCost),
-                    createdBy));
-            }
-        }
-
-        foreach (var adjustment in MockInventoryData.Adjustments.Where(a => a.Status == Posted))
-        {
-            foreach (var line in adjustment.Lines)
-            {
+                // الحركة تحمل وحدة الصنف لا الصنف نفسه — والصنف يُقرأ من وحدة السطر
                 var unit = MockData.ProductUnits.FirstOrDefault(u => u.Id == line.ProductUnitId);
-                var productId = unit?.ProductId ?? 0;
-                if (productId == 0)
+                if (unit is null)
                     continue;
 
-                var change = Qty(line.ActualQuantity - line.ExpectedQuantity);
-
                 movements.Add(new StockMovement(
-                    adjustment.CreatedAt.Date,
-                    productId,
-                    ProductNameOf(productId, line.ProductUnitName),
-                    adjustment.WarehouseId,
-                    WarehouseNameOf(adjustment.WarehouseId),
-                    AdjustmentMovement,
-                    adjustment.AdjustmentNo,
-                    "InventoryAdjustment",
-                    adjustment.Id,
-                    change,
+                    transaction.CreatedAt.Date,
+                    unit.ProductId,
+                    ProductNameOf(unit.ProductId, line.ProductUnitName),
+                    transaction.WarehouseId,
+                    transaction.WarehouseName ?? WarehouseNameOf(transaction.WarehouseId),
+                    MovementTypeNameOf(type),
+                    transaction.ReferenceId.HasValue
+                        ? transaction.ReferenceId.Value.ToString(CultureInfo.InvariantCulture)
+                        : transaction.TransactionNo,
+                    ReferenceTypeNameOf(transaction.ReferenceType),
+                    transaction.ReferenceId,
+                    MockStockLedger.SignedChangeOf(line.Quantity, type),
                     Money(line.UnitCost),
-                    createdBy));
+                    UserNameOf(transaction.CreatedByUserId)));
             }
         }
 
@@ -798,6 +755,36 @@ public class MockReportDesktopService : IReportDesktopService
             .ThenBy(m => m.ReferenceNo, StringComparer.Ordinal)
             .ToList();
     }
+
+    /// <summary>اسم نوع الحركة العربي المعروض في عمود «نوع الحركة» — لكل نوع في <see cref="InventoryTxType"/> نص واحد.</summary>
+    private static string MovementTypeNameOf(InventoryTxType type) => type switch
+    {
+        InventoryTxType.Purchase => PurchaseMovement,
+        InventoryTxType.PurchaseReturn => PurchaseReturnMovement,
+        InventoryTxType.Sale => SalesMovement,
+        InventoryTxType.SaleReturn => SalesReturnMovement,
+        InventoryTxType.TransferOut => TransferOutMovement,
+        InventoryTxType.TransferIn => TransferInMovement,
+        InventoryTxType.Count => CountMovement,
+        InventoryTxType.Damage => DamageMovement,
+        InventoryTxType.OpeningBalance => OpeningBalanceMovement,
+        InventoryTxType.InternalIssue => InternalIssueMovement,
+        InventoryTxType.InternalReceipt => InternalReceiptMovement,
+        _ => AdjustmentMovement
+    };
+
+    /// <summary>اسم نوع المستند المرجعي المحفوظ في الحركة (نفس ألفاظ التقارير القائمة).</summary>
+    private static string? ReferenceTypeNameOf(byte? referenceType) => referenceType switch
+    {
+        (byte)RefType.PurchaseInvoice => "PurchaseInvoice",
+        (byte)RefType.SalesInvoice => "SalesInvoice",
+        (byte)RefType.PurchaseReturn => "PurchaseReturn",
+        (byte)RefType.SalesReturn => "SalesReturn",
+        (byte)RefType.Transfer => "Transfer",
+        (byte)RefType.Count => "Count",
+        (byte)RefType.Adjustment => "InventoryAdjustment",
+        _ => null
+    };
 
     /// <summary>الرصيد قبل/بعد لكل حركة، محسوباً لكل (صنف، مخزن) على كل الحركات قبل الفلترة.</summary>
     private static List<MovementBalance> ApplyRunningBalances(List<StockMovement> movements)
@@ -822,8 +809,10 @@ public class MockReportDesktopService : IReportDesktopService
         string name, IEnumerable<(DateTime Date, decimal Due)> invoices, int todayNumber)
     {
         var items = invoices.ToList();
-        var totalDue = Money(items.Sum(i => i.Due));
 
+        // القاعدة الموحّدة: الشرائح تُبنى على المتبقي الموجب فقط (Due > 0)، و«المستحق»
+        // = مجموع الشرائح الخمس **كما تُعرض** (بعد التقريب نفسه) — فيتساوى العمود مع مجموع أعمدته دائماً.
+        // و«الرصيد الحالي» = صافي كل المتبقي (مدين ودائن) لأنه رصيد الطرف لا مجموع أعماره.
         decimal current = 0m, days1To30 = 0m, days31To60 = 0m, days61To90 = 0m, days90Plus = 0m;
 
         foreach (var invoice in items.Where(i => i.Due > 0m))
@@ -837,14 +826,23 @@ public class MockReportDesktopService : IReportDesktopService
             else days90Plus += invoice.Due;
         }
 
+        current = Money(current);
+        days1To30 = Money(days1To30);
+        days31To60 = Money(days31To60);
+        days61To90 = Money(days61To90);
+        days90Plus = Money(days90Plus);
+
+        var totalDue = Money(current + days1To30 + days31To60 + days61To90 + days90Plus);
+        var totalBalance = Money(items.Sum(i => i.Due));
+
         return new AgingReportDto(
             name,
-            totalDue,
-            Money(current),
-            Money(days1To30),
-            Money(days31To60),
-            Money(days61To90),
-            Money(days90Plus),
+            totalBalance,
+            current,
+            days1To30,
+            days31To60,
+            days61To90,
+            days90Plus,
             totalDue);
     }
 
@@ -900,18 +898,9 @@ public class MockReportDesktopService : IReportDesktopService
                 wholesale?.ConversionFactor ?? 1m);
     }
 
-    private static decimal UnitCostOf(int productId, int productUnitId, decimal lineCost)
-    {
-        if (lineCost > 0m)
-            return lineCost;
+    private static decimal Qty(decimal value) => Math.Round(value, 3, MidpointRounding.AwayFromZero);
 
-        var unit = MockData.ProductUnits.FirstOrDefault(u => u.Id == productUnitId);
-        if (unit is not null && unit.ProductId == productId)
-            return unit.CostPrice;
-
-        return BaseUnitCostOf(productId);
-    }
-
+    /// <summary>اسم مستخدم بيانات التجربة الذي تُنسب إليه الحركة — وإلا «النظام».</summary>
     private static string? UserNameOf(int userId)
     {
         var user = MockSecurityData.Users.FirstOrDefault(u => u.Id == userId);
@@ -923,6 +912,4 @@ public class MockReportDesktopService : IReportDesktopService
     private static int DayNumber(DateTime date) => DateOnly.FromDateTime(date).DayNumber;
 
     private static decimal Money(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
-
-    private static decimal Qty(decimal value) => Math.Round(value, 3, MidpointRounding.AwayFromZero);
 }

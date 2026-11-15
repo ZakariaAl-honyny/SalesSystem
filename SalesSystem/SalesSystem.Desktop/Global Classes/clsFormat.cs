@@ -65,6 +65,16 @@ namespace SalesSystem.Desktop.GlobalClasses
         private const string InvariantExamplePattern = "dd/MM/yyyy";
         private const int MaxPatternLength = 32;
 
+        /// <summary>
+        /// منازل معامل النسبة (<see cref="Ratio"/>) — <b>ثابت واحد بلا مفتاح إعداد</b>:
+        /// إضافة مفتاح جديد تفرض مساساً بشاشة <c>frmFormatingSetting</c> وخدمتها الوهمية، وهو قرار مالك مؤجل،
+        /// فلا يُخترع هنا مفتاح ولا يُكرَّر الرقم 2 في أي ملف آخر (<c>RULE-N169</c>).
+        /// <para>
+        /// المعامل <b>ليس</b> نسبة مئوية: لا يُضرب بـ100 ولا يُقرَّب لعدد صحيح (1.85 ⇒ «1.85»).
+        /// </para>
+        /// </summary>
+        public const int RatioDecimals = 2;
+
         /// <summary>جدول التعريفات — بهذا الترتيب وهذه الافتراضيات حصراً (مصدر الحقيقة الوحيد للشاشة والخدمة).</summary>
         public static IReadOnlyList<FormatSettingDefinition> Definitions { get; } = BuildDefinitions();
 
@@ -315,6 +325,33 @@ namespace SalesSystem.Desktop.GlobalClasses
         public static string Percent(decimal value, IReadOnlyDictionary<string, string>? values = null)
             => _FormatNumber(value, PercentDecimals, "%", values);
 
+        // ── الأنماط الحيّة (نمط عرض لا نص جاهز — للشبكات والتقارير) ──
+        // تُقرأ من نفس المفاتيح الحيّة ومن نفس الدالة _Decimals التي تتكفّل بالمدى من التعريفات،
+        // فلا تُكرَّر قيمة 2 أو 3 ولا يُعاد تنفيذ التقييد هنا (RULE-N169/RULE-N171).
+        // خصائص معبَّرة (لا static readonly) حتى تلتقط القيمة الحيّة بعد أي حفظ لإعدادات التنسيق.
+
+        /// <summary>نمط منازل المبالغ الحيّة (<c>"N2"</c> افتراضاً).</summary>
+        public static string MoneyPattern => "N" + _Decimals(MoneyDecimals, null).ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>نمط منازل الكميات الحيّة (<c>"N3"</c> افتراضاً).</summary>
+        public static string QuantityPattern => "N" + _Decimals(QuantityDecimals, null).ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>نمط منازل الأعداد الحيّة (<c>"N0"</c> افتراضاً).</summary>
+        public static string NumberPattern => "N" + _Decimals(NumberDecimals, null).ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>نمط منازل النسب الحيّة مع علامة <c>%</c> (<c>"P2"</c> افتراضاً).</summary>
+        public static string PercentPattern => "P" + _Decimals(PercentDecimals, null).ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>نمط معامل النسبة (<c>"N2"</c> دائماً — من <see cref="RatioDecimals"/> وحده).</summary>
+        public static string RatioPattern => "N" + RatioDecimals.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        /// معامل نسبة (مثل 1.85) بمنازل <see cref="RatioDecimals"/> — <b>لا يُضرب بـ100 ولا يُقرَّب لعدد صحيح</b>.
+        /// فاصل الآلاف وفاصل الكسر والأرقام العربية تتبع الإعدادات الحيّة تماماً كما في <see cref="Money"/>/<see cref="Number"/>.
+        /// </summary>
+        public static string Ratio(decimal value, IReadOnlyDictionary<string, string>? values = null)
+            => _FormatNumber(value, RatioDecimals, string.Empty, values);
+
         // ───────────────────────────── القراءة ─────────────────────────────
 
         /// <summary>
@@ -505,13 +542,27 @@ namespace SalesSystem.Desktop.GlobalClasses
             return format;
         }
 
+        /// <summary>
+        /// ينسّق رقماً بمنازل مفتاح إعداد حيّ — يقرأ عدد المنازل ثم يفوّض للمتن الوحيد
+        /// <c>_FormatNumber(value, decimals, suffix, values)</c> الذي يأخذ عدد المنازل صريحاً.
+        /// </summary>
         private static string _FormatNumber(
             decimal value,
             string decimalsKey,
             string suffix,
             IReadOnlyDictionary<string, string>? values)
+            => _FormatNumber(value, _Decimals(decimalsKey, values), suffix, values);
+
+        /// <summary>
+        /// المتن الوحيد لتنسيق رقم بمنازل صريحة (تعمل به المبالغ والكميات والأعداد والنسب والمعامل) —
+        /// فاصل الآلاف/الكسر والأرقام العربية من الإعدادات الحيّة في مكان واحد فقط (<c>RULE-N169</c>).
+        /// </summary>
+        private static string _FormatNumber(
+            decimal value,
+            int decimals,
+            string suffix,
+            IReadOnlyDictionary<string, string>? values)
         {
-            var decimals = _Decimals(decimalsKey, values);
             var format = "N" + decimals.ToString(CultureInfo.InvariantCulture);
 
             return _ApplyDigits(value.ToString(format, _NumberFormat(values)) + suffix, values);

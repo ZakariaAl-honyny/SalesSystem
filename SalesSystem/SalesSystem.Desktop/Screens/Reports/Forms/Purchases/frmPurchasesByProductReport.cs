@@ -36,14 +36,22 @@ public partial class frmPurchasesByProductReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IPurchaseReportDesktopService>().GetPurchasesByProductAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<IPurchaseReportDesktopService>().GetPurchasesByProductAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
-                _bindingSource.DataSource = result.Value.ToList();
-                UpdateSummary(result.Value.ToList());
+                var list = result.Value.ToList();      // قائمة واحدة للشبكة والملخص معاً (RULE-N61)
+                _bindingSource.DataSource = list;
+                UpdateSummary(list);
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }
@@ -62,11 +70,13 @@ public partial class frmPurchasesByProductReport : Form, IExportableReport
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
+
+        // المعرّف التقني لا يُعرض في تقرير عربي (RULE-N28) — نفس نمط بقية تقارير المجموعة.
+        if (dgvReport.Columns.Contains("ProductId")) dgvReport.Columns["ProductId"].Visible = false;
+
         SetHeader("ProductName", "اسم المنتج"); SetHeader("Quantity", "الكمية"); SetHeader("TotalCost", "التكلفة");
-        foreach (var c in new[] { "Quantity" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N3";
-        foreach (var c in new[] { "TotalCost" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "Quantity", GridFormatKind.Quantity);
+        GridFormatHelper.ApplyColumn(dgvReport, "TotalCost", GridFormatKind.Money);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

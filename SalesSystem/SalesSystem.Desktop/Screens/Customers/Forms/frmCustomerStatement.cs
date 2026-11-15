@@ -20,7 +20,6 @@ public partial class frmCustomerStatement : Form
     private sealed class StatementMovement
     {
         public DateTime Date { get; set; }
-        public string SortKey => Date.ToString("yyyyMMddHHmmss");
         public string Type { get; set; } = "";
         public string Reference { get; set; } = "";
         public string Description { get; set; } = "";
@@ -94,10 +93,13 @@ public partial class frmCustomerStatement : Form
     {
         _SetupGridColumns();
         _SetupAgingGridColumns();
-        await _LoadBaseDataAsync();
 
-        dtpFrom.Value = new DateTime(2026, 9, 1);
+        // الفترة الافتراضية = أول الشهر الحالي ← اليوم. تُضبط قبل أول تحميل
+        // حتى لا يُعاد الكشف مرتين إضافيتين عبر ValueChanged (RULE-N113: بلا راية كتم وبلا Helper).
+        dtpFrom.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         dtpTo.Value = DateTime.Today;
+
+        await _LoadBaseDataAsync();
 
         ApplyGreenTheme();
     }
@@ -109,35 +111,57 @@ public partial class frmCustomerStatement : Form
         Cursor = Cursors.WaitCursor;
         try
         {
+            // فشل أي تحميل يُعلَن ويوقف الكشف: كشف ناقص التحميل يعرض رصيداً كاذباً بلا أي تحذير.
+
             // تحميل العملاء
             var customerResult = await _serviceProvider.GetRequiredService<ICustomerDesktopService>()
                 .GetAllAsync(includeInactive: false);
-            if (customerResult.IsSuccess && customerResult.Value != null)
-                _customers = customerResult.Value.ToList();
+            if (!customerResult.IsSuccess)
+            {
+                clsDialogs.Error(customerResult.Error ?? "تعذر تحميل قائمة العملاء.");
+                return;
+            }
+            _customers = customerResult.Value?.ToList() ?? new();
 
             // تحميل فواتير البيع
             var invoiceResult = await _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>()
                 .GetAllAsync(status: 2); // المرحلة فقط
-            if (invoiceResult.IsSuccess && invoiceResult.Value != null)
-                _allInvoices = invoiceResult.Value.ToList();
+            if (!invoiceResult.IsSuccess)
+            {
+                clsDialogs.Error(invoiceResult.Error ?? "تعذر تحميل فواتير البيع.");
+                return;
+            }
+            _allInvoices = invoiceResult.Value?.ToList() ?? new();
 
             // تحميل مرتجعات المبيعات
             var returnResult = await _serviceProvider.GetRequiredService<ISalesReturnDesktopService>()
                 .GetAllAsync();
-            if (returnResult.IsSuccess && returnResult.Value != null)
-                _allReturns = returnResult.Value.ToList();
+            if (!returnResult.IsSuccess)
+            {
+                clsDialogs.Error(returnResult.Error ?? "تعذر تحميل مرتجعات المبيعات.");
+                return;
+            }
+            _allReturns = returnResult.Value?.ToList() ?? new();
 
             // تحميل سندات القبض
             var receiptResult = await _serviceProvider.GetRequiredService<ICustomerReceiptDesktopService>()
                 .GetAllAsync();
-            if (receiptResult.IsSuccess && receiptResult.Value != null)
-                _allReceipts = receiptResult.Value.ToList();
+            if (!receiptResult.IsSuccess)
+            {
+                clsDialogs.Error(receiptResult.Error ?? "تعذر تحميل سندات القبض.");
+                return;
+            }
+            _allReceipts = receiptResult.Value?.ToList() ?? new();
 
             // تحميل القيود اليومية
             var journalResult = await _serviceProvider.GetRequiredService<IJournalEntryDesktopService>()
                 .GetAllAsync();
-            if (journalResult.IsSuccess && journalResult.Value != null)
-                _allJournalEntries = journalResult.Value.ToList();
+            if (!journalResult.IsSuccess)
+            {
+                clsDialogs.Error(journalResult.Error ?? "تعذر تحميل القيود اليومية.");
+                return;
+            }
+            _allJournalEntries = journalResult.Value?.ToList() ?? new();
 
             // تعبئة قائمة العملاء
             cmbCustomer.Items.Clear();
@@ -207,6 +231,14 @@ public partial class frmCustomerStatement : Form
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
+
+        // عمود رقمي مخفي: يحمل الرصيد **عدداً** (decimal)، لأن ColBalance يحمل نصاً منسّقاً
+        // بـclsFormat.Money — وتحليل نص منسّق يفشل مع فاصلة الآلاف/الأرقام العربية فيبقى
+        // لون الرصيد بلا تمييز. القراءة عبر GridRowHelper فقط (RULE-N179).
+        dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
+        {
+            Name = "ColBalanceValue", HeaderText = "قيمة الرصيد", Visible = false, ReadOnly = true
+        });
     }
 
     // ── إعداد أعمدة شبكة تحليل الأعمار ─────────────────────────────────────────
@@ -246,15 +278,25 @@ public partial class frmCustomerStatement : Form
 
     private async void _RefreshStatement()
     {
-        if (cmbCustomer.SelectedIndex < 0) return;
+        // حارس مزدوج: لا عميل محدد (أو قائمة أقدم من الاختيار) · ولا إعادة دخول أثناء تنفيذ الكشف.
+        if (cmbCustomer.SelectedIndex < 0 || cmbCustomer.SelectedIndex >= _customers.Count) return;
+        if (!btnRefresh.Enabled) return;
+
+        DateTime from = dtpFrom.Value.Date;
+        DateTime to = dtpTo.Value.Date;
+
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(from, to))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
 
         _SetBusy(true);
         Cursor = Cursors.WaitCursor;
         try
         {
             var customer = _customers[cmbCustomer.SelectedIndex];
-            DateTime from = dtpFrom.Value.Date;
-            DateTime to = dtpTo.Value.Date.AddDays(1).AddTicks(-1);
 
             // ── جمع الحركات الخام ──────────────────────────────────────────────
             var rawMovements = new List<StatementMovement>();
@@ -384,14 +426,17 @@ public partial class frmCustomerStatement : Form
                         }
                     }
                 }
-                catch
+                catch (Exception detailEx)
                 {
-                    // تجاهل أخطاء القيود الفردية
+                    // قيد واحد معطوب لا يُسقط الكشف كله — يُسجَّل ولا يُعرض للمستخدم (RULE-N29).
+                    Serilog.Log.Warning(detailEx, "تعذر تحميل تفاصيل القيد {EntryId}", entry.Id);
                 }
             }
 
             // ── ترتيب زمني ─────────────────────────────────────────────────────
-            rawMovements = rawMovements.OrderBy(m => m.SortKey).ToList();
+            // الترتيب على التاريخ نفسه (بلا مفتاح نصي مكتوب يدوياً) وOrderBy مستقرّ،
+            // فيبقى ترتيب حركات اليوم الواحد كما أُضيفت: الفاتورة ثم دفعتِها.
+            rawMovements = rawMovements.OrderBy(m => m.Date).ToList();
 
             // ── حساب الرصيد السابق (قبل الفترة) ───────────────────────────────
             decimal openingBalance = 0m;
@@ -399,11 +444,11 @@ public partial class frmCustomerStatement : Form
 
             foreach (var m in rawMovements)
             {
-                if (m.Date < from)
+                if (m.Date.Date < from)
                 {
                     openingBalance += m.Debit - m.Credit;
                 }
-                else if (m.Date <= to)
+                else if (m.Date.Date <= to)
                 {
                     periodMovements.Add(m);
                 }
@@ -422,7 +467,8 @@ public partial class frmCustomerStatement : Form
                     "الرصيد المحمل من فترة سابقة",
                     "",
                     "",
-                    clsFormat.Money(openingBalance));
+                    clsFormat.Money(openingBalance),
+                    openingBalance);          // ColBalanceValue — رقم للّون لا نص منسّق
                 dgvStatement.Rows[rowIdx].Tag = "Opening";
             }
 
@@ -442,7 +488,8 @@ public partial class frmCustomerStatement : Form
                     m.Description,
                     m.Debit > 0 ? clsFormat.Money(m.Debit) : "",
                     m.Credit > 0 ? clsFormat.Money(m.Credit) : "",
-                    clsFormat.Money(running));
+                    clsFormat.Money(running),
+                    running);                 // ColBalanceValue — رقم للّون لا نص منسّق
             }
 
             // ── بطاقات الملخص ──────────────────────────────────────────────────
@@ -462,7 +509,9 @@ public partial class frmCustomerStatement : Form
             lblNoData.Visible = dgvStatement.Rows.Count == 0;
 
             // ── تحليل أعمار الديون ──────────────────────────────────────────────
-            _CalculateAging(customer.Id, from);
+            // العمر يُقاس إلى **نهاية الفترة** (تاريخ الكشف) لا بدايتها، وإلا صُنِّف الدَّين
+            // المتأخر أحدث مما هو عليه فعلاً.
+            _CalculateAging(customer.Id, to);
         }
         catch (Exception ex)
         {
@@ -521,10 +570,11 @@ public partial class frmCustomerStatement : Form
 
         decimal totalOverdue = b0_30.Amount + b31_60.Amount + b61_90.Amount + b91Plus.Amount;
 
-        b0_30.Percentage = totalOverdue > 0 ? Math.Round(b0_30.Amount / totalOverdue * 100, 1) : 0;
-        b31_60.Percentage = totalOverdue > 0 ? Math.Round(b31_60.Amount / totalOverdue * 100, 1) : 0;
-        b61_90.Percentage = totalOverdue > 0 ? Math.Round(b61_90.Amount / totalOverdue * 100, 1) : 0;
-        b91Plus.Percentage = totalOverdue > 0 ? Math.Round(b91Plus.Amount / totalOverdue * 100, 1) : 0;
+        // بلا تقريب محلي: نص النسبة يُصاغ في بيته الواحد clsFormat.Percent بقيمته الكاملة.
+        b0_30.Percentage = totalOverdue > 0 ? b0_30.Amount / totalOverdue * 100 : 0;
+        b31_60.Percentage = totalOverdue > 0 ? b31_60.Amount / totalOverdue * 100 : 0;
+        b61_90.Percentage = totalOverdue > 0 ? b61_90.Amount / totalOverdue * 100 : 0;
+        b91Plus.Percentage = totalOverdue > 0 ? b91Plus.Amount / totalOverdue * 100 : 0;
 
         var buckets = new[] { b0_30, b31_60, b61_90, b91Plus };
 
@@ -553,6 +603,7 @@ public partial class frmCustomerStatement : Form
     private void dgvStatement_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
     {
         if (e.RowIndex < 0 || e.RowIndex >= dgvStatement.Rows.Count) return;
+        if (e.ColumnIndex < 0 || e.ColumnIndex >= dgvStatement.Columns.Count) return;
 
         bool isOpeningRow = dgvStatement.Rows[e.RowIndex].Tag as string == "Opening";
 
@@ -564,7 +615,8 @@ public partial class frmCustomerStatement : Form
             return;
         }
 
-        string type = dgvStatement.Rows[e.RowIndex].Cells["ColType"].Value?.ToString() ?? "";
+        // RULE-N179 — القراءة عبر GridRowHelper وحده (اسم العمود ثم DataPropertyName)، لا Cells["..."].
+        string type = GridRowHelper.GetText(dgvStatement.Rows[e.RowIndex], "ColType");
 
         switch (dgvStatement.Columns[e.ColumnIndex].Name)
         {
@@ -597,8 +649,12 @@ public partial class frmCustomerStatement : Form
                 break;
 
             case "ColBalance":
-                if (decimal.TryParse(e.Value?.ToString(), out decimal balance))
+                // اللون من **الرقم** المخزَّن (ColBalanceValue) لا من النص المنسّق للخلية
+                // — تحليل نص منسّق يفشل مع فاصلة الآلاف/الأرقام العربية. القراءة عبر
+                // GridRowHelper وحده (RULE-N179) فلا حلّ ثانٍ للخلية بالاسم.
                 {
+                    decimal balance = GridRowHelper.GetDecimal(dgvStatement.Rows[e.RowIndex], "ColBalanceValue");
+
                     e.CellStyle.Font = new Font(dgvStatement.Font, FontStyle.Bold);
                     e.CellStyle.ForeColor = balance > 0
                         ? GreenThemeHelper.StatusDanger    // مدين
@@ -617,7 +673,7 @@ public partial class frmCustomerStatement : Form
         if (dgvAging.Rows[e.RowIndex].Tag as string == "Total")
         {
             e.CellStyle.BackColor = GreenThemeHelper.StatusNeutral;
-            e.CellStyle.ForeColor = Color.White;
+            e.CellStyle.ForeColor = GreenThemeHelper.HeaderForeground;   // نص فاتح على شريط غامق — من البيت الواحد
             e.CellStyle.Font = new Font(dgvAging.Font, FontStyle.Bold);
         }
     }
@@ -659,7 +715,8 @@ public partial class frmCustomerStatement : Form
 
         string Cell(string columnName)
         {
-            string value = row.Cells[columnName].Value?.ToString() ?? string.Empty;
+            // RULE-N179 — القراءة عبر GridRowHelper وحده (اسم العمود ثم DataPropertyName)، لا Cells["..."].
+            string value = GridRowHelper.GetText(row, columnName);
             return string.IsNullOrWhiteSpace(value) ? "—" : value;
         }
 

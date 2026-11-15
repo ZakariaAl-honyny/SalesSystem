@@ -1,8 +1,10 @@
+using System.Globalization;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Enums;
 using SalesSystem.DTO.Requests;
+using InventoryTxType = SalesSystem.Common.Enums.InventoryTransactionType;
 
 namespace SalesSystem.Desktop.Services.Mock;
 
@@ -19,8 +21,8 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// يعكس المستندات <b>المرحّلة وغير الملغاة</b> فقط: الحفظ كمسودة (<c>Status = 1</c>) لا يحرّك أي رصيد،
 /// والخصم يقع <b>مرة واحدة</b> في <see cref="PostAsync"/> عند نجاح الانتقال مسودة → مرحلة،
 /// و<see cref="CancelAsync"/> يعيد الكميات <b>مرة واحدة</b> فقط إن كانت الفاتورة مرحلة
-/// (المسودة لم تخصم شيئاً فلا يُعاد لها شيء). لا توجد في المحاكاة مجموعة حركات مخزون مسجّلة،
-/// فلا تُنشأ حركة وهمية هنا.
+/// (المسودة لم تخصم شيئاً فلا يُعاد لها شيء). وكل حركة تُسجَّل في سجل الحركات الواحد
+/// (<c>MockStockLedger</c>) بنوع «بيع» ومخزن الفاتورة ورقمها — فتُقرأ في شاشة الحركات والتقارير.
 /// </para>
 /// </summary>
 public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
@@ -217,7 +219,13 @@ public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
                 return Task.FromResult(Result.Failure(InsufficientStockMessage));
 
             // الترحيل هو النقطة الوحيدة التي تُحرّك المخزون (Draft → Posted)
-            MockStockLedger.Apply(quantities, direction: -1);
+            // الحركة تحمل سياقها الحقيقي: نوع «بيع» + مخزن الفاتورة + رقمها + تاريخها (RULE-N167)
+            MockStockLedger.Apply(quantities,
+                direction: -1,
+                type: InventoryTxType.Sale,
+                warehouseId: (short)existing.WarehouseId,
+                reference: existing.InvoiceNo.ToString(CultureInfo.InvariantCulture),
+                date: existing.InvoiceDate);
 
             MockData.Invoices[index] = existing with { Status = 2 };
             return Task.FromResult(Result.Success());
@@ -244,8 +252,15 @@ public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
 
             // الإلغاء يعكس الأثر مرة واحدة فقط: المرحّلة (2) خصمت عند الترحيل فتُعاد كمياتها،
             // والمسودة (1) لم تخصم شيئاً فلا يُضاف لها شيء.
+            // القيد العكسي يُسجَّل بنوع «تسوية» لأنه النوع الذي يحفظ إشارة الكمية في السجل،
+            // فيبقى اتجاه الحركة (إعادة 45 إلى المخزن) مقروءاً في تقرير الحركة — مع رقم الفاتورة.
             if (existing.Status == 2)
-                MockStockLedger.Apply(QuantitiesOf(existing), direction: +1);
+                MockStockLedger.Apply(QuantitiesOf(existing),
+                    direction: +1,
+                    type: InventoryTxType.Adjustment,
+                    warehouseId: (short)existing.WarehouseId,
+                    reference: existing.InvoiceNo.ToString(CultureInfo.InvariantCulture),
+                    date: existing.InvoiceDate);
 
             MockData.Invoices[index] = existing with { Status = 3 };
             return Task.FromResult(Result.Success());
@@ -333,76 +348,4 @@ public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
     private static Dictionary<int, decimal> QuantitiesOf(SalesInvoiceDto invoice)
         => MockStockLedger.QuantitiesByProduct(
             (invoice.Items ?? Array.Empty<SalesInvoiceLineDto>()).Select(i => (i.ProductId, i.Quantity)));
-}
-
-/// <summary>
-/// <b>بيت واحد لأثر المخزون في وضع التجربة (RULE-N169 / RULE-N172):</b> تُستهلك من
-/// فاتورة البيع · فاتورة الشراء · مرتجع البيع · مرتجع الشراء — ولا تُنسخ نسخة ثانية في أي منها.
-/// <para>
-/// <b>الثابت الملزم (RULE-N167):</b> رصيد بيانات التجربة يعكس المستندات
-/// <b>المرحّلة وغير الملغاة</b> فقط — الحفظ/التعديل كمسودة لا يحرّك رصيداً،
-/// والحركة تقع مرة واحدة عند الترحيل، وتُعكس مرة واحدة عند إلغاء مستند مرحّل.
-/// </para>
-/// <para>
-/// لا تُنشأ حركة مخزون لأن المحاكاة لا تملك مجموعة حركات؛ الأثر على
-/// <c>MockData.Products.CurrentStock</c> وحده.
-/// </para>
-/// </summary>
-internal static class MockStockLedger
-{
-    /// <summary>نص رفض نقص المخزون — مصدر واحد لكل الخدمات الأربع (نفس نص رفض BLL في المرحلة ب).</summary>
-    internal const string ShortageMessage = "الكمية المطلوبة أكبر من المتاح في المخزن";
-
-    /// <summary>مجاميع الكميات لكل صنف من سطور مستند (يجمع السطور المتكررة لنفس الصنف).</summary>
-    internal static Dictionary<int, decimal> QuantitiesByProduct(IEnumerable<(int ProductId, decimal Quantity)> lines)
-    {
-        var result = new Dictionary<int, decimal>();
-        foreach (var line in lines)
-            result[line.ProductId] = (result.TryGetValue(line.ProductId, out var qty) ? qty : 0m) + line.Quantity;
-
-        return result;
-    }
-
-    /// <summary>
-    /// هل يكفي الرصيد لكل الأصناف المطلوبة؟ يُستدعى **قبل** أي خصم حتى لا تحدث حركة جزئية.
-    /// صنف بلا رصيد في بيانات التجربة لا يُقارن (لا رصيد معروف له).
-    /// </summary>
-    internal static bool HasSufficientStock(IReadOnlyDictionary<int, decimal> quantities)
-    {
-        foreach (var (productId, quantity) in quantities)
-        {
-            if (quantity <= 0m)
-                continue;
-
-            var product = MockData.Products.FirstOrDefault(p => p.Id == productId);
-            if (product is null)
-                continue;
-
-            if (quantity > product.CurrentStock)
-                return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// يطبّق الأثر على الأرصدة دفعة واحدة: <c>direction = -1</c> خصم (بيع · مرتجع شراء)
-    /// و<c>+1</c> إضافة (شراء · مرتجع بيع).
-    /// </summary>
-    internal static void Apply(IReadOnlyDictionary<int, decimal> quantities, int direction)
-    {
-        foreach (var (productId, quantity) in quantities)
-        {
-            decimal change = direction * quantity;
-            if (change == 0m)
-                continue;
-
-            var product = MockData.Products.FirstOrDefault(p => p.Id == productId);
-            if (product is null)
-                continue; // لا رصيد في بيانات التجربة لهذا الصنف
-
-            var index = MockData.Products.IndexOf(product);
-            MockData.Products[index] = product with { CurrentStock = product.CurrentStock + change };
-        }
-    }
 }

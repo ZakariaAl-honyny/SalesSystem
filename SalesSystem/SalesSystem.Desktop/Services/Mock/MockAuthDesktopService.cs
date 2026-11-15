@@ -2,9 +2,9 @@
 // MockAuthDesktopService.cs — النسخة الوهمية لعقد المصادقة (المرحلة أ)
 //
 // الوضع التجريبي يعمل بلا قاعدة بيانات وبلا Business/** وبلا HTTP (AGENTS.md §2.16):
-// يبحث عن المستخدم في MockSecurityData.Users ويطابق كلمة المرور مع المخزن التجريبي
-// في MockSecurityData (كلمة المرور الأولية «123456» لكل حساب — لا هاش في الذاكرة)،
-// ثم يعيد جلسة صالحة للبيانات الأولية نفسها.
+// يبحث عن المستخدم في MockSecurityData.Users ويطابق كلمة المرور مع مخزن كلمات المرور الواحد
+// في MockSecurityData (المفتاح UserId — لا هاش في الذاكرة): «123456» لكل حساب أولي، وكلمة
+// المرور التي كتبها المالك في frmUserMaster لحساب أنشأه هو، فلا يفرق ما يُكتب عمّا يُقبل.
 //
 // تكافؤ المحاكاة (RULE-N167) — يرفض ما ترفضه الخدمة الحقيقية/طبقة الأعمال:
 // الدخول (بالترتيب — AGENTS.md §2.16، صف «Login»):
@@ -12,10 +12,11 @@
 //   2) اسم مستخدم غير مزروع            ⇒ «اسم المستخدم أو كلمة المرور غير صحيحة»
 //   3) حساب مقفل مسبقاً (IsLocked)     ⇒ «الحساب مقفل بسبب محاولات دخول خاطئة — راجع المدير»
 //   4) حساب معطّل (IsActive=false)      ⇒ «الحساب معطّل — لا يمكن تسجيل الدخول»
-//   5) كلمة مرور لا تساوي «123456»      ⇒ «كلمة المرور غير صحيحة» (تُزيد المحاولات في المخزن،
-//      وعند المحاولة الخامسة يُقفل الحساب فيصير الرفض 3 في المحاولة التالية — RULE-N37)
+//   5) كلمة مرور لا تساوي كلمة المستخدم في المخزن ⇒ «كلمة المرور غير صحيحة» (تُزيد المحاولات في
+//      المخزن، وعند المحاولة الخامسة يُقفل الحساب فيصير الرفض 3 في المحاولة التالية — RULE-N37)
 //   6) النجاح                          ⇒ تصفير المحاولات + LastLoginAt = الآن + جلسة السجل المزروع نفسه
-//   وكلمة المرور الفارغة رفضها محلي في frmLogin، وهي هنا لا تساوي «123456» ⇒ الرفض 5.
+//   وكلمة المرور الفارغة رفضها محلي في frmLogin، وهي هنا لا تساوي كلمة المستخدم ⇒ الرفض 5.
+//   ومن لا سطر له في المخزن (لا يحدث بعد الزرع) يُقبل بكلمة المرور الافتراضية «123456».
 //
 // تغيير كلمة المرور — الخدمة الذاتية (المستخدم الحالي نفسه):
 //   الحالية فارغة · الحالية لا تطابق المخزن · الجديدة فارغة · الجديدة أقصر من الحد الأدنى
@@ -60,7 +61,7 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
     /// <summary>رسالة رفض الحساب المعطّل.</summary>
     private const string InactiveUserMessage = "الحساب معطّل — لا يمكن تسجيل الدخول";
 
-    /// <summary>رسالة رفض كلمة المرور التي لا تساوي الكلمة التجريبية «123456».</summary>
+    /// <summary>رسالة رفض كلمة المرور التي لا تساوي كلمة المستخدم في المخزن التجريبي.</summary>
     private const string WrongPasswordMessage = "كلمة المرور غير صحيحة";
 
     /// <summary>رسالة رفض كلمة المرور الحالية الفارغة عند التغيير.</summary>
@@ -108,8 +109,8 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
 
     /// <summary>
     /// دخول تجريبي (AGENTS.md §2.16 — صف «Login»): اسم المستخدم المزروع وحده يُقبل، وكلمة مروره
-    /// التجريبية <see cref="MockSecurityData.DefaultPassword"/> («123456») — لا قاعدة بيانات،
-    /// ويُحدّث المحاولات/آخر دخول في <see cref="MockSecurityData"/>.
+    /// من مخزن <see cref="MockSecurityData"/> (أولياً «123456»، أو ما كتبه المالك عند إنشاء/تعديل
+    /// الحساب) — لا قاعدة بيانات، ويُحدّث المحاولات/آخر دخول في <see cref="MockSecurityData"/>.
     /// </summary>
     public Task<Result<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
@@ -136,13 +137,13 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
             if (!user.IsActive)
                 return Task.FromResult(Result<LoginResponse>.Failure(InactiveUserMessage, ErrorCodes.Unauthorized));
 
-            // 5) كلمة المرور: الكلمة التجريبية للحساب المزروع — «123456» لكل حساب أولي
-            //    (والحساب الذي أنشأه المستخدم من الدليل لا سجل له في المخزن ⇒ الكلمة الافتراضية).
-            var demoPassword = MockSecurityData.TryGetPassword(user.UserName, out var stored)
+            // 5) كلمة المرور: كلمة المستخدم من المخزن الواحد (أولياً «123456»، أو ما كتبه المالك
+            //    عند إنشاء/تعديل الحساب) — ومن لا سطر له في المخزن يُقبل بالافتراضية «123456».
+            var storedPassword = MockSecurityData.TryGetPassword(user.Id, out var stored)
                 ? stored
                 : MockSecurityData.DefaultPassword;
 
-            if (!string.Equals(request.Password, demoPassword, StringComparison.Ordinal))
+            if (!string.Equals(request.Password, storedPassword, StringComparison.Ordinal))
                 return RejectWrongPassword(user);
 
             // 6) النجاح: تصفير المحاولات + آخر دخول، ثم جلسة السجل المزروع نفسه (لا قيم مصطنعة).
@@ -208,7 +209,7 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
                 if (string.IsNullOrWhiteSpace(request.CurrentPassword))
                     return Task.FromResult(Result.Failure(MissingCurrentPasswordMessage, ErrorCodes.ValidationError));
 
-                var storedPassword = MockSecurityData.TryGetPassword(user.UserName, out var stored)
+                var storedPassword = MockSecurityData.TryGetPassword(user.Id, out var stored)
                     ? stored
                     : MockSecurityData.DefaultPassword;
 
@@ -229,7 +230,7 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
                 return Task.FromResult(Result.Failure(PasswordMismatchMessage, ErrorCodes.ValidationError));
 
             // الحفظ الحقيقي في الذاكرة: الكلمة الجديدة + إغلاق إلزام التغيير + تصفير المحاولات.
-            MockSecurityData.SetPassword(user.UserName, request.NewPassword);
+            MockSecurityData.SetPassword(user.Id, request.NewPassword);
             MockSecurityData.ReplaceUser(user, user with { MustChangePassword = false, LoginAttempts = 0 });
 
             return Task.FromResult(Result.Success());
@@ -242,9 +243,9 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
     }
 
     /// <summary>
-    /// يرفض كلمة مرور لا تساوي «123456» بالرسالة الثابتة «كلمة المرور غير صحيحة»، ويُزيد
-    /// <c>LoginAttempts</c> ويقفل الحساب عند بلوغ <see cref="MaxFailedAttempts"/> — فيصير الرفض
-    /// بعدها رفض «حساب مقفل» (الخطوة 3) — سلوك <c>RULE-N37</c> نفسه.
+    /// يرفض كلمة مرور لا تساوي كلمة المستخدم في المخزن بالرسالة الثابتة «كلمة المرور غير صحيحة»،
+    /// ويُزيد <c>LoginAttempts</c> ويقفل الحساب عند بلوغ <see cref="MaxFailedAttempts"/> — فيصير
+    /// الرفض بعدها رفض «حساب مقفل» (الخطوة 3) — سلوك <c>RULE-N37</c> نفسه.
     /// </summary>
     private static Task<Result<LoginResponse>> RejectWrongPassword(UserDto user)
     {

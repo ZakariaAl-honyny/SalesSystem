@@ -60,6 +60,10 @@ public class MockAccountDesktopService : IAccountDesktopService
 
     public Task<Result<int>> CreateAsync(CreateAccountRequest request, CancellationToken ct = default)
     {
+        // تكافؤ الرفض مع الـBLL (RULE-N167): اسم الحساب مطلوب
+        if (string.IsNullOrWhiteSpace(request.NameAr))
+            return Task.FromResult(Result<int>.Failure("اسم الحساب مطلوب"));
+
         var nextId = MockAccountsData.Accounts.Count > 0
             ? MockAccountsData.Accounts.Max(a => a.Id) + 1
             : 1;
@@ -110,6 +114,10 @@ public class MockAccountDesktopService : IAccountDesktopService
 
         if (existing.IsSystem)
             return Task.FromResult(Result.Failure("لا يمكن تعديل حساب نظامي"));
+
+        // تكافؤ الرفض مع الـBLL (RULE-N167): اسم الحساب مطلوب
+        if (string.IsNullOrWhiteSpace(request.NameAr))
+            return Task.FromResult(Result.Failure("اسم الحساب مطلوب"));
 
         var updated = existing with
         {

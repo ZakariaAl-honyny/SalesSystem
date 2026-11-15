@@ -29,10 +29,6 @@ public partial class frmPurchasesReport : Form, IExportableReport
         dgvReport.AutoGenerateColumns = true;
         dgvReport.DataSource = _bindingSource;
 
-        // RULE-N179: عرض الأرقام والتواريخ من البيت الواحد clsFormat — بلا صيغة حرفية في العمود.
-        dgvReport.CellFormatting -= dgvReport_CellFormatting;
-        dgvReport.CellFormatting += dgvReport_CellFormatting;
-
         // القيم الابتدائية للفترة كانت تُضبط في تهيئة التبويب — تبقى كما هي.
         dtpTo.Value = DateTime.Today;
         dtpFrom.Value = DateTime.Today.AddMonths(-1);
@@ -59,10 +55,18 @@ public partial class frmPurchasesReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetPurchasesAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            // نهاية اليوم شاملة: ReportRepository.cs:50,59 يطبّع الحد بنفسه إلى to.Date.AddDays(1).AddTicks(-1)، فالقيمة نهاية آخر لحظة في اليوم مطابقة له ولا تُسقط اليوم الأخير.
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetPurchasesAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
 
             if (result.IsSuccess)
             {
@@ -73,13 +77,13 @@ public partial class frmPurchasesReport : Form, IExportableReport
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!);
+                clsDialogs.Error(result.Error!);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل تقرير المشتريات");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
@@ -108,7 +112,8 @@ public partial class frmPurchasesReport : Form, IExportableReport
     {
         if (dgvReport.Columns.Count == 0) return;
 
-        var hides = new[] { "InvoiceId", "WarehouseName", "SubTotal", "DiscountAmount", "TaxAmount" };
+        // أسماء الحقول كما في PurchaseReportDto: المعرّف هو Id (لا InvoiceId)، ورقم الفاتورة يُعرض عبر InvoiceNo.
+        var hides = new[] { "Id", "SubTotal", "DiscountAmount", "TaxAmount" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
@@ -128,29 +133,10 @@ public partial class frmPurchasesReport : Form, IExportableReport
                 dgvReport.Columns[col].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
         }
-    }
 
-    /// <summary>
-    /// RULE-N179 — كل رقم/تاريخ معروض في الشبكة يمرّ عبر البيت الواحد <see cref="clsFormat"/>،
-    /// فلا تثبيت لصيغة حرفية في العمود. القيمة الأصلية (decimal/DateTime) تبقى في <c>Value</c>
-    /// فيحتفظ الترتيب والتصدير بنوعيهما.
-    /// </summary>
-    private void dgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-    {
-        if (e.RowIndex < 0 || e.Value is null or DBNull) return;
-
-        string column = dgvReport.Columns[e.ColumnIndex].Name;
-
-        if (e.Value is decimal amount && column is "TotalAmount" or "PaidAmount" or "DueAmount")
-        {
-            e.Value = clsFormat.Money(amount);
-            e.FormattingApplied = true;
-        }
-        else if (e.Value is DateTime date && column == "InvoiceDate")
-        {
-            e.Value = clsFormat.DateToShort(date);
-            e.FormattingApplied = true;
-        }
+        // RULE-N169 — تنسيق المبالغ والتاريخ من البيت الواحد بدل معالج CellFormatting محلي.
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalAmount", "PaidAmount", "DueAmount");
+        GridFormatHelper.ApplyColumn(dgvReport, "InvoiceDate", GridFormatKind.DateShort);
     }
 
     private void SetHeader(string col, string text)
@@ -162,7 +148,7 @@ public partial class frmPurchasesReport : Form, IExportableReport
     {
         if (_bindingSource.DataSource is not List<PurchaseReportDto> data || data.Count == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("لا توجد بيانات للتصدير");
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -177,13 +163,13 @@ public partial class frmPurchasesReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "تقرير المشتريات", dialog.FileName);
-                _serviceProvider.GetRequiredService<INotificationService>().ShowSuccess("تم تصدير التقرير بنجاح");
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تصدير تقرير المشتريات إلى Excel");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 

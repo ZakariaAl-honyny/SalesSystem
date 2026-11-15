@@ -16,6 +16,14 @@
 // لمكوّن UserControl يُضاف إلى حاضن حتى لو أُضيف قبل عرض النموذج؛ يُطلق مرة
 // واحدة عند إنشاء مقبض النافذة (CreateControl) لحظة ظهور النموذج الحاضن.
 //
+// ملاحظة دورة الحياة (حماية من التسريب والتحديث المضلِّل):
+//   • ناقل الأحداث يحفظ المعالج بمرجع ضعيف ⇒ نحتفظ بالمعالجات في حقول صريحة،
+//     وإلا جمعها الـ GC فتوقّف التحديث الحيّ بلا رسالة.
+//   • حدث من خيط آخر يُمرَّر إلى خيط الواجهة قبل أي لمس لعنصر (InvokeRequired).
+//   • تحديث واحد في الوقت (لا نتيجتان متعاكستان تكتبان فوق بعضهما) + تجميع
+//     الأحداث المتقاربة بدل إسقاطها (حتى لا تبقى أرقام قديمة بعد ترحيل فاتورة).
+//   • Dispose يلغي التحميل الجاري ويوقف المؤقّت ويفكّ الاشتراكات كلها.
+//
 // ملاحظة الاختصارات (RULE-N47): `KeyboardHelper.WireGlobalShortcuts` يعمل على
 // النماذج فقط (Form)، لذا F5 يُوصَّل في النموذج الحاضن على `RefreshAsync` —
 // كل حاضن (frmDashboard الآن، وأي حاضن آخر لاحقاً) يسطّر استدعاءً واحداً.
@@ -40,7 +48,16 @@ public partial class ctrlDashboard : UserControl
     /// <summary>أدنى فاصل زمني بين تحديثين متتاليين (يمنع سيل التحديثات عند ترحيل فاتورة).</summary>
     private const int RefreshThrottleMs = 500;
 
+    /// <summary>بديل الرقم عندما لا يوجد رقم حقيقي من الخدمة — لا نعرض صفراً مُفترضاً.</summary>
+    private const string Placeholder = "—";
+
     private readonly IServiceProvider _serviceProvider;
+
+    // معالجات الحدث في حقول صريحة: ناقل الأحداث يحفظ المعالج بمرجع ضعيف (WeakReference)،
+    // فلو مُرّر كـ lambda داخلية لجُمع بالـ GC وتوقّف التحديث الحيّ بلا أي رسالة.
+    private readonly Action<SaleInvoiceChangedMessage> _onSaleInvoiceChanged;
+    private readonly Action<PurchaseInvoiceChangedMessage> _onPurchaseInvoiceChanged;
+    private readonly Action<StockChangedMessage> _onStockChanged;
 
     private IDisposable? _subSaleInvoice;
     private IDisposable? _subPurchaseInvoice;
@@ -48,6 +65,13 @@ public partial class ctrlDashboard : UserControl
 
     private Form? _hostForm;
     private bool _subscribed;
+    private bool _isRefreshing;
+    private bool _refreshPending;
+    private System.Windows.Forms.Timer? _refreshTimer;
+
+    /// <summary>يُلغى عند تفريغ المكوّن فيوقف أي تحميل جارٍ بدل أن يكتب في عناصر مُنتهية.</summary>
+    private CancellationTokenSource? _lifetimeCts = new();
+
     private DateTime _lastRefreshUtc = DateTime.MinValue;
 
     // ── الخدمات (RULE-N04) ───────────────────────────────────────────────────
@@ -58,6 +82,11 @@ public partial class ctrlDashboard : UserControl
     public ctrlDashboard(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+        // مراجع قوية للمعالجات (انظر تعليق الحقول) — تُنشأ مرة واحدة لكل مكوّن
+        _onSaleInvoiceChanged = _ => ScheduleRefresh();
+        _onPurchaseInvoiceChanged = _ => ScheduleRefresh();
+        _onStockChanged = _ => ScheduleRefresh();
 
         InitializeComponent();
 
@@ -81,6 +110,7 @@ public partial class ctrlDashboard : UserControl
 
         ApplyRoleVisibility();
         ApplyWelcomeText();
+        ClearCards();          // لا أصفار مُفترضة قبل أول تحميل — «—» حتى تصل الأرقام
         ApplyUiTheme();
     }
 
@@ -95,8 +125,17 @@ public partial class ctrlDashboard : UserControl
     public async Task RefreshAsync()
     {
         // الحاضن قد يغلق الشاشة قبل وصول الرد — لا نلمس عناصر مُنتهية
-        if (IsDisposed) return;
+        if (IsDisposed || Disposing) return;
 
+        // تحميل جارٍ بالفعل: لا نُطلق تحميلاً متوازياً (نتيجتان متعاكستان تكتبان
+        // فوق بعضهما فتبقى أرقام قديمة) — نُسجّل طلباً واحداً يُنفَّذ بعد الانتهاء
+        if (_isRefreshing)
+        {
+            _refreshPending = true;
+            return;
+        }
+
+        _isRefreshing = true;
         var previousCursor = Cursor;
 
         try
@@ -106,9 +145,9 @@ public partial class ctrlDashboard : UserControl
 
             _lastRefreshUtc = DateTime.UtcNow;
 
-            var result = await DesktopService.GetSummaryAsync().ConfigureAwait(true);
+            var result = await DesktopService.GetSummaryAsync(RefreshToken).ConfigureAwait(true);
 
-            if (IsDisposed) return;
+            if (IsDisposed || Disposing) return;
 
             if (result is null)
             {
@@ -126,17 +165,33 @@ public partial class ctrlDashboard : UserControl
 
             ApplySummary(result.Value);
         }
+        catch (OperationCanceledException)
+        {
+            // الشاشة أُغلقت أثناء التحميل — لا شيء لعرضه
+        }
         catch (Exception ex)
         {
             // فشل غير حرج: نُسجّل تحذيراً ونعرض «لا توجد بيانات» بدل نافذة خطأ
             Log.Warning(ex, "لوحة المعلومات: فشل تحديث الأرقام — ستُعاد المحاولة عند الحدث التالي");
-            if (!IsDisposed) ShowEmptyState();
+            if (!IsDisposed && !Disposing) ShowEmptyState();
         }
         finally
         {
-            if (!IsDisposed) Cursor = previousCursor;   // RULE-N26 — الاستعادة دائماً
+            _isRefreshing = false;
+
+            if (!IsDisposed && !Disposing) Cursor = previousCursor;   // RULE-N26 — الاستعادة دائماً
+
+            if (_refreshPending)
+            {
+                _refreshPending = false;
+                if (!IsDisposed && !Disposing) _ = RefreshAsync();
+            }
         }
     }
+
+    /// <summary>رمز إلغاء عمر المكوّن — يبقى صالحاً (ملغى) بعد تفريغ المكوّن بلا استثناء.</summary>
+    private CancellationToken RefreshToken
+        => _lifetimeCts?.Token ?? new CancellationToken(canceled: true);
 
     // ═════════════════════════════════════════════════════════════════
     //  عرض البيانات
@@ -144,28 +199,23 @@ public partial class ctrlDashboard : UserControl
 
     private void ApplySummary(DashboardSummaryDto s)
     {
-        // المبالغ N2 (RULE-001) — والعدادات أعداد صحيحة (لا كميات في هذا الملخص)
+        // المبالغ والأعداد من البيت الواحد فقط (RULE-N169): clsFormat.Money للمال (RULE-001)
+        // وclsFormat.Number للعدادات — لا صيغة رقمية مكرّرة ولا ToString() داخل الشاشة.
         cardSalesValue.Text = clsFormat.Money(s.TotalSalesToday);
         cardPurchasesValue.Text = clsFormat.Money(s.TotalPurchasesToday);
-        cardCustomersValue.Text = s.ActiveCustomersCount.ToString();
-        cardLowStockValue.Text = s.LowStockItemsCount.ToString();
+        cardCustomersValue.Text = clsFormat.Number(s.ActiveCustomersCount);
+        cardLowStockValue.Text = clsFormat.Number(s.LowStockItemsCount);
         cardReceivablesValue.Text = clsFormat.Money(s.TotalReceivables);
         cardPayablesValue.Text = clsFormat.Money(s.TotalPayables);
 
         // الأسطر الثانوية داخل البطاقات
-        lblSalesSub.Text = $"عدد الفواتير اليوم: {s.NumberOfSalesToday}\nهذا الشهر: {s.TotalSalesMonth:N2}";
-        lblPurchasesSub.Text = $"هذا الشهر: {s.TotalPurchasesMonth:N2}";
-        lblCustomersSub.Text = $"الموردون النشطون: {s.ActiveSuppliersCount}";
-        lblStockSub.Text = $"إجمالي الأصناف: {s.TotalProductsCount}";
+        lblSalesSub.Text = $"عدد الفواتير اليوم: {clsFormat.Number(s.NumberOfSalesToday)}\nهذا الشهر: {clsFormat.Money(s.TotalSalesMonth)}";
+        lblPurchasesSub.Text = $"هذا الشهر: {clsFormat.Money(s.TotalPurchasesMonth)}";
+        lblCustomersSub.Text = $"الموردون النشطون: {clsFormat.Number(s.ActiveSuppliersCount)}";
+        lblStockSub.Text = $"إجمالي الأصناف: {clsFormat.Number(s.TotalProductsCount)}";
 
-        // كتلة التفاصيل «ملخص الأرقام» — كل المبالغ N2 والأعداد بلا كسور
-        lblDetails.Text =
-            $"مبيعات اليوم: {s.TotalSalesToday:N2}   |   عدد فواتير اليوم: {s.NumberOfSalesToday}\n" +
-            $"مبيعات الشهر: {s.TotalSalesMonth:N2}   |   مشتريات الشهر: {s.TotalPurchasesMonth:N2}\n" +
-            $"مشتريات اليوم: {s.TotalPurchasesToday:N2}\n" +
-            $"مستحقات لنا (عملاء): {s.TotalReceivables:N2}   |   مستحقات علينا (موردون): {s.TotalPayables:N2}\n" +
-            $"العملاء النشطون: {s.ActiveCustomersCount}   |   الموردون النشطون: {s.ActiveSuppliersCount}\n" +
-            $"إجمالي الأصناف: {s.TotalProductsCount}   |   أصناف بمخزون منخفض: {s.LowStockItemsCount}";
+        // كتلة التفاصيل «ملخص الأرقام» — كل المبالغ من clsFormat.Money والأعداد من clsFormat.Number
+        lblDetails.Text = BuildDetailsText(s);
 
         // هل هناك حركة فعلاً؟ إن لا، نقولها للمستخدم بصراحة بدل أصفار صامتة
         bool noMovement = s.TotalSalesToday == 0m
@@ -179,11 +229,60 @@ public partial class ctrlDashboard : UserControl
             : "آخر تحديث: " + DateTime.Now.ToString("HH:mm:ss"));
     }
 
+    /// <summary>
+    /// نص «ملخص الأرقام». يحترم ما أخفاه <see cref="ApplyRoleVisibility"/>:
+    /// لا يُعاد رقم بطاقة مخفية داخل النص (أمين الصندوق لا يرى المشتريات ولا المستحقات علينا).
+    /// </summary>
+    private string BuildDetailsText(DashboardSummaryDto s)
+    {
+        bool showPurchases = cardPurchases.Visible;
+        bool showPayables = cardPayables.Visible;
+
+        var lines = new List<string>
+        {
+            $"مبيعات اليوم: {clsFormat.Money(s.TotalSalesToday)}   |   عدد فواتير اليوم: {clsFormat.Number(s.NumberOfSalesToday)}",
+            showPurchases
+                ? $"مبيعات الشهر: {clsFormat.Money(s.TotalSalesMonth)}   |   مشتريات الشهر: {clsFormat.Money(s.TotalPurchasesMonth)}"
+                : $"مبيعات الشهر: {clsFormat.Money(s.TotalSalesMonth)}"
+        };
+
+        if (showPurchases)
+            lines.Add($"مشتريات اليوم: {clsFormat.Money(s.TotalPurchasesToday)}");
+
+        lines.Add(showPayables
+            ? $"مستحقات لنا (عملاء): {clsFormat.Money(s.TotalReceivables)}   |   مستحقات علينا (موردون): {clsFormat.Money(s.TotalPayables)}"
+            : $"مستحقات لنا (عملاء): {clsFormat.Money(s.TotalReceivables)}");
+
+        lines.Add($"العملاء النشطون: {clsFormat.Number(s.ActiveCustomersCount)}   |   الموردون النشطون: {clsFormat.Number(s.ActiveSuppliersCount)}");
+        lines.Add($"إجمالي الأصناف: {clsFormat.Number(s.TotalProductsCount)}   |   أصناف بمخزون منخفض: {clsFormat.Number(s.LowStockItemsCount)}");
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
     /// <summary>حالة «لا توجد بيانات» — تُعرض بدل أي استثناء أو نافذة خطأ.</summary>
     private void ShowEmptyState()
     {
+        // لا نُبقي أرقام تحميل سابق: بطاقة تعرض رقماً لم تُرجعه الخدمة الآن = بيانات كاذبة
+        ClearCards();
+
         lblDetails.Text = "لا توجد بيانات لعرضها حالياً.\nستُحدَّث الأرقام تلقائياً عند تسجيل أول حركة.";
         SetStatus("لا توجد بيانات — آخر محاولة: " + DateTime.Now.ToString("HH:mm:ss"));
+    }
+
+    /// <summary>تفريغ أرقام البطاقات (تُستدعى عند الفشل وعند أول تحميل) — بلا أي رقم مُفترض.</summary>
+    private void ClearCards()
+    {
+        cardSalesValue.Text = Placeholder;
+        cardPurchasesValue.Text = Placeholder;
+        cardCustomersValue.Text = Placeholder;
+        cardLowStockValue.Text = Placeholder;
+        cardReceivablesValue.Text = Placeholder;
+        cardPayablesValue.Text = Placeholder;
+
+        lblSalesSub.Text = Placeholder;
+        lblPurchasesSub.Text = Placeholder;
+        lblCustomersSub.Text = Placeholder;
+        lblStockSub.Text = Placeholder;
     }
 
     private void SetStatus(string text) => lblDataStatus.Text = text;
@@ -274,9 +373,10 @@ public partial class ctrlDashboard : UserControl
         try
         {
             var bus = EventBus;
-            _subSaleInvoice = bus.Subscribe<SaleInvoiceChangedMessage>(_ => ScheduleRefresh());
-            _subPurchaseInvoice = bus.Subscribe<PurchaseInvoiceChangedMessage>(_ => ScheduleRefresh());
-            _subStock = bus.Subscribe<StockChangedMessage>(_ => ScheduleRefresh());
+            // نمرّر الحقول لا lambda داخلية: الناقل يحفظ المعالج بمرجع ضعيف
+            _subSaleInvoice = bus.Subscribe<SaleInvoiceChangedMessage>(_onSaleInvoiceChanged);
+            _subPurchaseInvoice = bus.Subscribe<PurchaseInvoiceChangedMessage>(_onPurchaseInvoiceChanged);
+            _subStock = bus.Subscribe<StockChangedMessage>(_onStockChanged);
             _subscribed = true;
         }
         catch (Exception ex)
@@ -303,10 +403,69 @@ public partial class ctrlDashboard : UserControl
 
     private void HostForm_Activated(object? sender, EventArgs e) => ScheduleRefresh();
 
-    /// <summary>تحديث محدود التكرار: يمنع عشرات الاستدعاءات عند ترحيل فاتورة بسطور كثيرة.</summary>
+    /// <summary>
+    /// تحديث مُجمَّع: يمنع عشرات الاستدعاءات عند ترحيل فاتورة بسطور كثيرة،
+    /// ولا يُسقط الحدث — الإسقاط كان يُبقي أرقاماً قديمة على الشاشة بعد الترحيل.
+    /// </summary>
     private void ScheduleRefresh()
     {
-        if ((DateTime.UtcNow - _lastRefreshUtc).TotalMilliseconds < RefreshThrottleMs) return;
+        if (IsDisposed || Disposing) return;
+
+        // قد يصل الحدث من خيط غير خيط الواجهة — يُمرَّر إلى خيط الواجهة أولاً
+        if (InvokeRequired)
+        {
+            try
+            {
+                BeginInvoke(new Action(ScheduleRefresh));
+            }
+            catch (InvalidOperationException)
+            {
+                // أُغلق المقبض أو فُرِّغ المكوّن بين الفحص والتنفيذ (يشمل ObjectDisposedException)
+            }
+
+            return;
+        }
+
+        if (_isRefreshing)
+        {
+            _refreshPending = true;
+            return;
+        }
+
+        var remainingMs = RefreshThrottleMs - (DateTime.UtcNow - _lastRefreshUtc).TotalMilliseconds;
+
+        if (remainingMs <= 0)
+        {
+            _ = RefreshAsync();
+            return;
+        }
+
+        // داخل نافذة الحظر: نجمع الأحداث في مؤقّت واحد يطلق التحديث عند انتهائها
+        var timer = _refreshTimer ??= CreateRefreshTimer();
+        timer.Stop();
+        timer.Interval = Math.Max(1, (int)Math.Ceiling(remainingMs));
+        timer.Start();
+    }
+
+    private System.Windows.Forms.Timer CreateRefreshTimer()
+    {
+        var timer = new System.Windows.Forms.Timer { Interval = RefreshThrottleMs };
+        timer.Tick += RefreshTimer_Tick;
+        return timer;
+    }
+
+    private void RefreshTimer_Tick(object? sender, EventArgs e)
+    {
+        _refreshTimer?.Stop();
+
+        if (IsDisposed || Disposing) return;
+
+        if (_isRefreshing)
+        {
+            _refreshPending = true;
+            return;
+        }
+
         _ = RefreshAsync();
     }
 
@@ -318,6 +477,19 @@ public partial class ctrlDashboard : UserControl
     {
         if (disposing)
         {
+            // إيقاف أي تحميل جارٍ أولاً — فلا يكتب في عناصر فُرِّغت بعد قليل
+            _lifetimeCts?.Cancel();
+            _lifetimeCts?.Dispose();
+            _lifetimeCts = null;
+
+            if (_refreshTimer != null)
+            {
+                _refreshTimer.Stop();
+                _refreshTimer.Tick -= RefreshTimer_Tick;
+                _refreshTimer.Dispose();
+                _refreshTimer = null;
+            }
+
             _subSaleInvoice?.Dispose();
             _subPurchaseInvoice?.Dispose();
             _subStock?.Dispose();

@@ -1,3 +1,4 @@
+using SalesSystem.Common.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
@@ -31,8 +32,12 @@ public class MockUnitDesktopService : IUnitDesktopService
 
     public Task<Result<UnitDto>> CreateAsync(CreateUnitRequest r, CancellationToken ct = default)
     {
-        // التحقق من عدم تكرار الاسم
-        if (MockLookupsData.Units.Any(u => u.Name == r.Name))
+        // تكافؤ الرفض مع الـBLL (RULE-N167): الاسم مطلوب
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<UnitDto>.Failure("اسم الوحدة مطلوب"));
+
+        // التحقق من عدم تكرار الاسم — المقارنة في البيت الواحد StringExtensions.SameText (RULE-N169)
+        if (MockLookupsData.Units.Any(u => u.Name.SameText(r.Name)))
             return Task.FromResult(Result<UnitDto>.Failure("اسم الوحدة مستخدم بالفعل"));
 
         var nextId = MockLookupsData.Units.Count > 0
@@ -51,8 +56,12 @@ public class MockUnitDesktopService : IUnitDesktopService
         if (existing is null)
             return Task.FromResult(Result<UnitDto>.Failure("الوحدة غير موجودة"));
 
-        // التحقق من عدم تكرار الاسم (باستثناء السجل الحالي)
-        if (MockLookupsData.Units.Any(u => u.Name == r.Name && u.Id != id))
+        // تكافؤ الرفض مع الـBLL (RULE-N167): الاسم مطلوب
+        if (string.IsNullOrWhiteSpace(r.Name))
+            return Task.FromResult(Result<UnitDto>.Failure("اسم الوحدة مطلوب"));
+
+        // التحقق من عدم تكرار الاسم (باستثناء السجل الحالي) — المقارنة في البيت الواحد StringExtensions.SameText
+        if (MockLookupsData.Units.Any(u => u.Id != id && u.Name.SameText(r.Name)))
             return Task.FromResult(Result<UnitDto>.Failure("اسم الوحدة مستخدم بالفعل"));
 
         var updated = existing with
@@ -68,16 +77,32 @@ public class MockUnitDesktopService : IUnitDesktopService
         return Task.FromResult(Result<UnitDto>.Success(updated));
     }
 
+    /// <summary>
+    /// حذف الوحدة (تعطيل) — <b>يرفض حذف وحدة مستخدمة في أي صنف</b>
+    /// (تكافؤ <c>DeleteBehavior.Restrict</c> في الـBLL — RULE-N167):
+    /// المرجع هو <c>MockData.ProductUnits.UnitId</c>.
+    /// </summary>
     public Task<Result> DeleteAsync(int id, CancellationToken ct = default)
     {
-        var existing = MockLookupsData.Units.FirstOrDefault(u => u.Id == id);
-        if (existing is null)
-            return Task.FromResult(Result.Failure("الوحدة غير موجودة"));
+        try
+        {
+            var existing = MockLookupsData.Units.FirstOrDefault(u => u.Id == id);
+            if (existing is null)
+                return Task.FromResult(Result.Failure("الوحدة غير موجودة"));
 
-        var index = MockLookupsData.Units.IndexOf(existing);
-        MockLookupsData.Units[index] = existing with { IsActive = false };
+            // التحقق قبل أي تغيير — لا تعطيل لوحدة يعتمد عليها صنف
+            if (MockData.ProductUnits.Any(pu => pu.UnitId == id))
+                return Task.FromResult(Result.Failure("لا يمكن حذف وحدة مستخدمة في أصناف."));
 
-        return Task.FromResult(Result.Success());
+            var index = MockLookupsData.Units.IndexOf(existing);
+            MockLookupsData.Units[index] = existing with { IsActive = false };
+
+            return Task.FromResult(Result.Success());
+        }
+        catch (Exception)
+        {
+            return Task.FromResult(Result.Failure("تعذر حذف الوحدة"));
+        }
     }
 
     public Task<Result> ReactivateAsync(int id, CancellationToken ct = default)

@@ -23,52 +23,59 @@ namespace SalesSystem.Desktop.GlobalClasses
         /// </summary>
         internal const string ConfirmEditTitle = "تأكيد التعديل";
 
+        /// <summary>
+        /// النص البديل الوحيد حين يصل <c>message</c> فارغاً أو مسافات فقط (يحدث فعلاً من نداءات
+        /// <c>result.Error!</c> على نص قد يكون <c>null</c>) — فلا يظهر صندوق رسالة فارغ أبداً.
+        /// يُعرَّف هنا مرة واحدة ويُستهلك من <see cref="Show"/> و<see cref="Ask"/> فقط.
+        /// </summary>
+        private const string FallbackMessage = "تعذر إكمال العملية.";
+
         /// <summary>رسالة معلومة للمستخدم بعنوان «معلومة».</summary>
         public static void Info(string message)
         {
-            Show(message, InfoTitle, MessageBoxIcon.Information);
+            Show(message, InfoTitle, InfoTitle, MessageBoxIcon.Information);
         }
 
         /// <summary>رسالة معلومة بعنوان مخصص — حين لا يناسب العنوان الثابت سياق الشاشة.</summary>
         public static void Info(string message, string title)
         {
-            Show(message, title, MessageBoxIcon.Information);
+            Show(message, title, InfoTitle, MessageBoxIcon.Information);
         }
 
         /// <summary>رسالة نجاح بعد إتمام عملية (حفظ · حذف · إعادة تنشيط) بعنوان «تم بنجاح».</summary>
         public static void Success(string message)
         {
-            Show(message, SuccessTitle, MessageBoxIcon.Information);
+            Show(message, SuccessTitle, SuccessTitle, MessageBoxIcon.Information);
         }
 
         /// <summary>رسالة نجاح بعنوان مخصص.</summary>
         public static void Success(string message, string title)
         {
-            Show(message, title, MessageBoxIcon.Information);
+            Show(message, title, SuccessTitle, MessageBoxIcon.Information);
         }
 
         /// <summary>رسالة تنبيه (بيانات ناقصة · تحقق من الإدخال) بعنوان «تنبيه».</summary>
         public static void Warning(string message)
         {
-            Show(message, WarningTitle, MessageBoxIcon.Warning);
+            Show(message, WarningTitle, WarningTitle, MessageBoxIcon.Warning);
         }
 
         /// <summary>رسالة تنبيه بعنوان مخصص.</summary>
         public static void Warning(string message, string title)
         {
-            Show(message, title, MessageBoxIcon.Warning);
+            Show(message, title, WarningTitle, MessageBoxIcon.Warning);
         }
 
         /// <summary>رسالة خطأ بنص عربي فقط — بلا تفاصيل تقنية، بعنوان «خطأ».</summary>
         public static void Error(string message)
         {
-            Show(message, ErrorTitle, MessageBoxIcon.Error);
+            Show(message, ErrorTitle, ErrorTitle, MessageBoxIcon.Error);
         }
 
         /// <summary>رسالة خطأ بعنوان مخصص — بلا تفاصيل تقنية أيضاً.</summary>
         public static void Error(string message, string title)
         {
-            Show(message, title, MessageBoxIcon.Error);
+            Show(message, title, ErrorTitle, MessageBoxIcon.Error);
         }
 
         /// <summary>
@@ -85,19 +92,19 @@ namespace SalesSystem.Desktop.GlobalClasses
                 // فشل التسجيل لا يمنع عرض الرسالة العربية.
             }
 
-            Show(userMessage, ErrorTitle, MessageBoxIcon.Error);
+            Show(userMessage, ErrorTitle, ErrorTitle, MessageBoxIcon.Error);
         }
 
         /// <summary>تأكيد نعم/لا بعنوان «تأكيد» — الافتراضي «لا» كي لا يُنفَّذ إجراء خطير بضغطة Enter عابرة.</summary>
         public static bool Confirm(string message)
         {
-            return Ask(message, ConfirmTitle, MessageBoxDefaultButton.Button2);
+            return Ask(message, ConfirmTitle, ConfirmTitle, MessageBoxDefaultButton.Button2);
         }
 
         /// <summary>تأكيد نعم/لا بعنوان مخصص — الافتراضي يبقى «لا».</summary>
         public static bool Confirm(string message, string title)
         {
-            return Ask(message, title, MessageBoxDefaultButton.Button2);
+            return Ask(message, title, ConfirmTitle, MessageBoxDefaultButton.Button2);
         }
 
         /// <summary>
@@ -106,15 +113,23 @@ namespace SalesSystem.Desktop.GlobalClasses
         /// </summary>
         public static bool ConfirmEdit(string message)
         {
-            return Ask(message, ConfirmEditTitle, MessageBoxDefaultButton.Button1);
+            return Ask(message, ConfirmEditTitle, ConfirmEditTitle, MessageBoxDefaultButton.Button1);
         }
 
+        /// <summary>النص النهائي: رسالة حقيقية كما هي، أو <see cref="FallbackMessage"/> حين تكون فارغة/مسافات.</summary>
+        private static string MessageOrFallback(string message)
+            => string.IsNullOrWhiteSpace(message) ? FallbackMessage : message;
+
+        /// <summary>العنوان النهائي: مخصص حقيقي كما هو، أو عنوان العضو الافتراضي حين يكون فارغاً/مسافات.</summary>
+        private static string TitleOrDefault(string title, string defaultTitle)
+            => string.IsNullOrWhiteSpace(title) ? defaultTitle : title;
+
         /// <summary>العرض الوحيد لكل رسالة إخبارية: عنوان + أيقونة صريحة + اتجاه عربي.</summary>
-        private static void Show(string message, string title, MessageBoxIcon icon)
+        private static void Show(string message, string title, string defaultTitle, MessageBoxIcon icon)
         {
             MessageBox.Show(
-                message ?? string.Empty,
-                title,
+                MessageOrFallback(message),
+                TitleOrDefault(title, defaultTitle),
                 MessageBoxButtons.OK,
                 icon,
                 MessageBoxDefaultButton.Button1,
@@ -122,11 +137,11 @@ namespace SalesSystem.Desktop.GlobalClasses
         }
 
         /// <summary>العرض الوحيد لكل سؤال نعم/لا (تأكيد أو تأكيد تعديل): افتراضي الزر يُمرَّر صريحاً.</summary>
-        private static bool Ask(string message, string title, MessageBoxDefaultButton defaultButton)
+        private static bool Ask(string message, string title, string defaultTitle, MessageBoxDefaultButton defaultButton)
         {
             DialogResult result = MessageBox.Show(
-                message ?? string.Empty,
-                title,
+                MessageOrFallback(message),
+                TitleOrDefault(title, defaultTitle),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 defaultButton,

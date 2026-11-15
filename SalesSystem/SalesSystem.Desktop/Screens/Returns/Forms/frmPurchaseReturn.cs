@@ -23,13 +23,20 @@ public partial class frmPurchaseReturn : Form
     private ISupplierDesktopService _supplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
     private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
     private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
-    private INotificationService _notification => _serviceProvider.GetRequiredService<INotificationService>();
+    // RULE-N169: بيت الرسائل الواحد هو clsDialogs — لا خدمة إشعارات ثانية داخل الشاشة.
     private IEventBus _eventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     private PurchaseReturnDto? _invoice;
     private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
     private bool _isUpdating = false;
+
+    /// <summary>
+    /// معرّف المرتجع الذي أنشأته الشاشة فعلاً في محاولة سابقة. يمنع إنشاء مستند ثانٍ
+    /// عندما ينجح الإنشاء ويفشل الترحيل ثم يعيد المستخدم المحاولة (F4/«ترحيل»)،
+    /// فيُرحَّل المستند نفسه بدل تكرار المستند المالي. يُصفَّر في <see cref="ResetForm"/>.
+    /// </summary>
+    private int? _createdId;
 
     public frmPurchaseReturn(IServiceProvider serviceProvider)
     {
@@ -48,8 +55,8 @@ public partial class frmPurchaseReturn : Form
         // RULE-N47 — الاختصارات الموحّدة على الأزرار الموجودة فعلاً في الشاشة.
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.F2, () => btnAddItem.PerformClick()),        // جديد = سطر صنف جديد
-            (Keys.F3, () => btnSaveDraft.PerformClick()),      // حفظ/عرض المسودة
-            (Keys.F4, () => btnPost.PerformClick()),           // ترحيل
+            (Keys.F3, _SaveDraftIfAllowed),                    // حفظ/عرض المسودة
+            (Keys.F4, _PostIfAllowed),                         // ترحيل
             (Keys.F5, _RefreshAsync),                          // تحديث
             (Keys.Delete, _GlobalDelete),                      // حذف السطر المحدد
             (Keys.Escape, _GlobalEscape));                     // خروج
@@ -67,9 +74,10 @@ public partial class frmPurchaseReturn : Form
 
     public void LoadData(PurchaseReturnDto? invoice)
     {
+        // لا يُربط المرتجع بالقوائم هنا: تُستدعى LoadData قبل Show() فلم تُملأ ComboBox بعد،
+        // فيُسند المورد/المستودع الخطأ ثم يُحفظ المرتجع بجهة غير جهته. الربط في OnLoad بعد LoadLookups.
         _invoice = invoice;
-        if (_invoice != null) BindInvoice();
-        else ResetForm();
+        if (_invoice == null) ResetForm();
         UpdateUIState();
     }
 
@@ -113,7 +121,23 @@ public partial class frmPurchaseReturn : Form
         // وضع العرض (مرتجع مرحّل أو ملغي): الشاشة للقراءة فقط ⇒ لا زر أساسي.
         if (_invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft) return null;
 
-        return btnPost.Enabled ? btnPost : null;
+        return btnPost is { Visible: true, Enabled: true } ? btnPost : null;
+    }
+
+    /// <summary>
+    /// F3 = حفظ المسودة — لا يُفعَّل إلا من زر ظاهر ومفعَّل (RULE-N47).
+    /// عند عرض مرتجع مرحَّل/ملغي يُخفى الزر، وButton.PerformClick() يفحص Enabled لا Visible
+    /// ⇒ كان F3/F4 يبنيان طلباً جديداً من سطور مرتجع مرحَّل (تكرار أثر مخزني/مالي).
+    /// </summary>
+    private void _SaveDraftIfAllowed()
+    {
+        if (btnSaveDraft is { Visible: true, Enabled: true }) btnSaveDraft.PerformClick();
+    }
+
+    /// <summary>F4 = ترحيل — نفس حارس الزر الظاهر والمفعَّل المذكور أعلاه (RULE-N47).</summary>
+    private void _PostIfAllowed()
+    {
+        if (btnPost is { Visible: true, Enabled: true }) btnPost.PerformClick();
     }
 
     /// <summary>F5: إعادة تحميل القوائم وإعادة حساب الإجماليات (RULE-N47).</summary>
@@ -124,8 +148,10 @@ public partial class frmPurchaseReturn : Form
             Cursor = Cursors.WaitCursor;
 
             // نحفظ الاختيارات قبل إعادة الربط حتى لا تتغير بيانات المرتجع الحالي.
+            // نوع القيمة المحفوظة = نوع خاصية ValueMember بالضبط (المستودع short): إسناد int إلى
+            // قائمة قيمها short لا يطابق شيئاً فيُفرَّغ الاختيار — كان F5 يمسح المستودع المختار.
             int supplierId = Convert.ToInt32(cmbSupplier.SelectedValue ?? 0);
-            int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
+            short warehouseId = Convert.ToInt16(cmbWarehouse.SelectedValue ?? 0);
 
             await LoadLookups();
 
@@ -176,14 +202,19 @@ public partial class frmPurchaseReturn : Form
         {
             base.OnLoad(e);
             await LoadLookups();
+
+            // الترتيب إلزامي: ربط المرتجع بعد اكتمال القوائم فقط — وإلا تُسند ComboBox الفارغة
+            // المورد/المستودع الخطأ فيُحفظ المرتجع على جهة غير جهته.
             if (_invoice == null) ResetForm(); // Default state
+            else BindInvoice();
             ApplyUiTheme();
 
             // RULE-N22a — الشبكة شبكة إدخال: التحرير والصف الجديد مملوكان للشاشة (RULE-N52).
-            dgvItems.AllowUserToAddRows = true;
+            // والتحرير للمرتجع الجديد فقط: العقد لا يحوي UpdateAsync، فتحرير مستند محفوظ يُعرض ولا يُرسَل.
+            dgvItems.AllowUserToAddRows = _IsEditable();
             dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
             dgvItems.MultiSelect = true;
-            dgvItems.ReadOnly = _invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft;
+            dgvItems.ReadOnly = !_IsEditable();
         }
         catch (Exception ex)
         {
@@ -196,7 +227,9 @@ public partial class frmPurchaseReturn : Form
     {
         try
         {
-            var warehouseRes = await _warehouseApi.GetAllAsync();
+            // includeInactive: مرتجع قديم لمورد/مستودع مُعطَّل يجب أن يُربط بجهته الصحيحة،
+            // وإلا بقي الاختيار على أول عنصر فحُفظ على جهة غير جهته.
+            var warehouseRes = await _warehouseApi.GetAllAsync(includeInactive: true);
             if (warehouseRes.IsSuccess)
             {
                 cmbWarehouse.DataSource = warehouseRes.Value;
@@ -204,7 +237,7 @@ public partial class frmPurchaseReturn : Form
                 cmbWarehouse.ValueMember = "Id";
             }
 
-            var supplierRes = await _supplierApi.GetAllAsync();
+            var supplierRes = await _supplierApi.GetAllAsync(includeInactive: true);
             if (supplierRes.IsSuccess)
             {
                 cmbSupplier.DataSource = supplierRes.Value;
@@ -225,11 +258,17 @@ public partial class frmPurchaseReturn : Form
     private void BindInvoice()
     {
         _isUpdating = true;
-        this.Text = $"مرتجع مشتريات - {_invoice!.ReturnNo}";
+
+        // المرتجع المحمَّل مستند قائم فعلاً: معرّفه يمنع إنشاء نسخة ثانية عند «حفظ/ترحيل»،
+        // فكان فتح مسودة من القائمة ثم ترحيلها يُنشئ مرتجعاً جديداً ويترك المسودة القديمة معلّقة.
+        _createdId = _invoice!.Id;
+
+        this.Text = $"مرتجع مشتريات - {_invoice.ReturnNo}";
         lblInvoiceNo.Text = _invoice.ReturnNo.ToString();
         dtpDate.Value = _invoice.ReturnDate.ToDateTime(TimeOnly.MinValue);
         cmbSupplier.SelectedValue = _invoice.SupplierId;
-        cmbWarehouse.SelectedValue = _invoice.WarehouseId;
+        // WarehouseDto.Id من نوع short ⇒ الإسناد بـ short وإلا لم تُطابق أي عنصر وبقي المستودع بلا اختيار.
+        cmbWarehouse.SelectedValue = (short)_invoice.WarehouseId;
         txtNotes.Text = _invoice.Notes;
 
         _lines.Clear();
@@ -251,6 +290,8 @@ public partial class frmPurchaseReturn : Form
 
     private void ResetForm()
     {
+        // مرتجع جديد ⇒ لا مستند مُنشأ سابقاً يُعاد ترحيله (RULE: لا تكرار للمستند).
+        _createdId = null;
         this.Text = "مرتجع مشتريات جديد";
         lblInvoiceNo.Text = "جديد";
         dtpDate.Value = DateTime.Now;
@@ -270,8 +311,12 @@ public partial class frmPurchaseReturn : Form
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 100, ReadOnly = true });
         dgvItems.DataSource = _lines;
         dgvItems.CellEndEdit += (s, e) => {
-            if (_isUpdating || e.RowIndex < 0) return;
-            var row = _lines[e.RowIndex];
+            if (_isUpdating || e.RowIndex < 0 || e.RowIndex >= dgvItems.Rows.Count) return;
+
+            // السطر يُقرأ من DataBoundItem لا بفهرس القائمة: صف الإدخال الجديد في الشبكة قد يكون
+            // فهرسه خارج حدود _lines فيرمي ArgumentOutOfRangeException عند أول إدخال.
+            if (dgvItems.Rows[e.RowIndex].DataBoundItem is not InvoiceLineItem row) return;
+
             if (dgvItems.Columns[e.ColumnIndex].Name == "ColCode") {
                 var p = _allProducts.FirstOrDefault(x => x.Barcode != null && x.Barcode == row.ProductCode);
                 if (p != null) { row.ProductId = p.Id; row.ProductName = p.Name; if (row.Quantity == 0) row.Quantity = 1; }
@@ -285,21 +330,35 @@ public partial class frmPurchaseReturn : Form
 
     private void CalculateTotals()
     {
-        decimal total = _lines.Sum(x => x.LineTotal);
+        // الإجمالي المعروض = مجموع السطور التي ستُرسَل فعلاً (ProductId > 0)؛ كان يجمع السطور
+        // غير المرتبطة بصنف وهي تُسقط من الطلب ⇒ إجمالي على الشاشة يخالف ما يُحفظ (RULE-N167).
+        decimal total = _lines.Where(x => x.ProductId > 0).Sum(x => x.LineTotal);
         lblTotalVal.Text = clsFormat.Money(total);
     }
 
     private void UpdateUIState()
     {
-        bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+        // المحرر والسطور للمرتجع الجديد فقط (لا UpdateAsync في العقد ⇒ تحرير محفوظ لا يُرسَل).
+        bool editable = _IsEditable();
         pnlHeader.Enabled = editable;
         dgvItems.ReadOnly = !editable;
+        dgvItems.AllowUserToAddRows = editable;
         pnlFooter.Enabled = editable;
         btnAddItem.Enabled = editable;
         btnRemoveItem.Enabled = editable;
         btnSaveDraft.Visible = editable;
-        btnPost.Visible = editable;
-        lblStatus.Text = _invoice?.Status switch { 1 => "مسودة", 2 => "مرحل", 3 => "ملغي", _ => "جديد" };
+        btnSaveDraft.Enabled = editable;
+
+        // «ترحيل» يبقى متاحاً للمسودة المحفوظة التي لم تُرحَّل: إعادة المحاولة تُرحّل نفس المعرّف (_createdId).
+        // ولا يُترك الزر مفعّلاً وهو مخفي: Button.PerformClick() يفحص Enabled ولا يفحص Visible.
+        bool postable = _IsPostable();
+        btnPost.Visible = postable;
+        btnPost.Enabled = postable;
+        // RULE-N171/N172: نص الحالة من البيت الواحد DocumentTextHelper (1..3 — RULE-019)؛
+        // و«جديد» حين لا يوجد مستند بعد.
+        lblStatus.Text = _invoice is null
+            ? "جديد"
+            : DocumentTextHelper.StatusText(_invoice.Status);
 
         // ألوان الحالة من ثوابت ThemeHelper (لا أرقام لون داخل الشاشة) — مطابقة لقيمة المصمّم.
         lblStatus.BackColor = _invoice?.Status switch
@@ -316,6 +375,15 @@ public partial class frmPurchaseReturn : Form
         _UpdateModeHeader();
     }
 
+    /// <summary>
+    /// هل بيانات المرتجع قابلة للتحرير؟ للجديد فقط: العقد لا يحوي <c>UpdateAsync</c>، فتحرير مستند
+    /// محفوظ (مسودة أو مرحَّل/ملغي) لا يمكن إرساله ⇒ يُقفل بدل أن يُعرض ولا يُحفظ.
+    /// </summary>
+    private bool _IsEditable() => _invoice == null;
+
+    /// <summary>هل يمكن ترحيل المرتجع؟ الجديد يُنشأ ثم يُرحَّل، والمسودة المحفوظة تُرحَّل بمعرّفها.</summary>
+    private bool _IsPostable() => _invoice?.Status is null or (byte)InvoiceStatus.Draft;
+
     private void btnAddItem_Click(object sender, EventArgs e) { _lines.Add(new InvoiceLineItem()); dgvItems.Focus(); }
     private void btnRemoveItem_Click(object sender, EventArgs e) { if (dgvItems.CurrentRow?.DataBoundItem is InvoiceLineItem line) { _lines.Remove(line); CalculateTotals(); } }
 
@@ -326,7 +394,9 @@ public partial class frmPurchaseReturn : Form
     {
         bool isValid = true;
 
-        if (cmbSupplier.SelectedValue == null || (int)cmbSupplier.SelectedValue <= 0)
+        // القراءة عبر Convert لا بالتحويل الصريح: SelectedValue قيمة مُعلَّبة (boxed) بنوع خاصية
+        // المورد/المستودع، والمستودع Id من نوع short ⇒ (int) يرمي InvalidCastException.
+        if (Convert.ToInt32(cmbSupplier.SelectedValue ?? 0) <= 0)
         {
             const string supplierMessage = "يرجى اختيار المورد";
             errorProvider.SetError(cmbSupplier, supplierMessage);
@@ -339,7 +409,7 @@ public partial class frmPurchaseReturn : Form
             errorProvider.SetError(cmbSupplier, "");
         }
 
-        if (cmbWarehouse.SelectedValue == null || (int)cmbWarehouse.SelectedValue <= 0)
+        if (Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0) <= 0)
         {
             const string warehouseMessage = "يرجى اختيار المستودع";
             errorProvider.SetError(cmbWarehouse, warehouseMessage);
@@ -363,6 +433,31 @@ public partial class frmPurchaseReturn : Form
             errorProvider.SetError(dgvItems, "");
         }
 
+        // تحقق السطور: كمية > 0 وسعر وحدة غير سالب لكل سطر مُسنَد لصنف.
+        // بلا هذا الفحص يُرسَل سطر بكمية صفر/سالب فيفسد المخزون ورصيد المورد بصمت.
+        var invalidQtyLine = _lines.FirstOrDefault(l => l.ProductId > 0 && l.Quantity <= 0);
+        var invalidPriceLine = _lines.FirstOrDefault(l => l.ProductId > 0 && l.UnitPrice < 0);
+
+        // سطر فيه كود/كمية بلا صنف محلول: كان يُسقط من الطلب بصمت ويُحسب في الإجمالي.
+        var unresolvedLine = _lines.FirstOrDefault(l => l.ProductId <= 0 &&
+            (!string.IsNullOrWhiteSpace(l.ProductCode) || l.Quantity != 0m || l.UnitPrice != 0m));
+
+        if (invalidQtyLine != null || invalidPriceLine != null || unresolvedLine != null)
+        {
+            string lineMessage = invalidQtyLine != null
+                ? $"الكمية يجب أن تكون أكبر من صفر ({invalidQtyLine.ProductName})"
+                : invalidPriceLine != null
+                    ? $"سعر الوحدة لا يمكن أن يكون سالباً ({invalidPriceLine.ProductName})"
+                    : $"السطر «{unresolvedLine!.ProductCode}» غير مرتبط بصنف مسجَّل — صحّح الكود/الباركود أو احذف السطر";
+            errorProvider.SetError(dgvItems, lineMessage);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, lineMessage, toolTip);
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(dgvItems, "");   // لا يبقى تلميح رفض قديم بعد تصحيح السطور
+        }
+
         if (!isValid)
         {
             clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
@@ -373,6 +468,10 @@ public partial class frmPurchaseReturn : Form
 
     private async Task SaveInvoiceAsync(bool post)
     {
+        // حاجز الأمان: لا يُبنى طلب جديد من مرتجع ليس مسودة (مرحَّل/ملغي) —
+        // يحمي من إعادة الحفظ/الترحيل عبر الاختصارات F3/F4 أو أي مسار آخر.
+        if (_invoice is not null && _invoice.Status != (byte)InvoiceStatus.Draft) return;
+
         if (!_ValidateForm()) return;
 
         if (post && !clsDialogs.Confirm("ترحيل المرتجع؟ سيتم تقليل المخزون وتقليل رصيد المورد.")) return;
@@ -380,42 +479,100 @@ public partial class frmPurchaseReturn : Form
         btnSaveDraft.Enabled = btnPost.Enabled = false;
         Cursor = Cursors.WaitCursor;
         try {
-            var items = _lines.Where(l => l.ProductId > 0).Select(l => new CreatePurchaseReturnItemRequest(
-                0, l.ProductId, 1, l.Quantity, l.UnitCost, l.LineTotal)).ToList();
-            int supplierId = Convert.ToInt32(cmbSupplier.SelectedValue ?? 0);
-            int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
-            var request = new CreatePurchaseReturnRequest(
-                null,
-                supplierId,
-                warehouseId,
-                dtpDate.Value,
-                null,
-                null,
-                txtNotes.Text,
-                items);
-            
-            var result = await _returnApi.CreateAsync(request);
-            if (result.IsSuccess) {
-                if (post) {
-                    var postRes = await _returnApi.PostAsync(result.Value.Id);
-                    if (postRes.IsSuccess) { _notification.ShowSuccess("تم الترحيل"); foreach (var item in items) _eventBus.Publish(new StockChangedMessage(item.ProductId)); }
-                    else _notification.ShowError(postRes.Error!);
-                } else _notification.ShowSuccess("تم الحفظ");
-                _eventBus.Publish(new PurchaseReturnChangedMessage(result.Value.Id));
-                this.DialogResult = DialogResult.OK; this.Close();
-            } else _notification.ShowError(result.Error!);
+            // ⚠️ لا مستند مالي مكرر: إذا نجح الإنشاء في محاولة سابقة وفشل الترحيل،
+            // فإعادة المحاولة تُرحّل المستند نفسه (_createdId) ولا تنشئ مرتجعاً ثانياً.
+            int documentId;
+
+            if (_createdId is int existingId)
+            {
+                documentId = existingId;
+            }
+            else
+            {
+                // سطر المرتجع: السعر المرسَل هو نفسه سعر وحدة السطر المعروض والمُتحقَّق منه
+                // (UnitPrice، الذي يُملأ أيضاً من UnitCost عند تحميل مرتجع محفوظ) — كان
+                // يُرسَل UnitCost وهو دائماً صفر فيُحفظ كل سطر بتكلفة صفر.
+                var items = _lines.Where(l => l.ProductId > 0).Select(l => new CreatePurchaseReturnItemRequest(
+                    0, l.ProductId, 1, l.Quantity, l.UnitPrice, l.LineTotal)).ToList();
+                int supplierId = Convert.ToInt32(cmbSupplier.SelectedValue ?? 0);
+                int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
+                var request = new CreatePurchaseReturnRequest(
+                    null,
+                    supplierId,
+                    warehouseId,
+                    dtpDate.Value,
+                    null,
+                    null,
+                    txtNotes.Text,
+                    items);
+
+                var result = await _returnApi.CreateAsync(request);
+                if (!result.IsSuccess || result.Value is not { } created)
+                {
+                    clsDialogs.Error(result.Error);
+                    return;
+                }
+
+                // نُثبّت المستند المُنشأ: المعرّف يمنع الإنشاء المكرر، والـDTO يُعرض في الشاشة.
+                _createdId = created.Id;
+                _invoice = created;
+                lblInvoiceNo.Text = created.ReturnNo.ToString();
+                UpdateUIState();
+                documentId = created.Id;
+            }
+
+            if (post)
+            {
+                var postRes = await _returnApi.PostAsync(documentId);
+                if (!postRes.IsSuccess)
+                {
+                    // لا إغلاق عند فشل الترحيل: المرتجع محفوظ كمسودة، وإعادة المحاولة تُرحّله.
+                    _LockAfterCreate();
+                    // رسالة واحدة فقط: التحذير التفصيلي أدناه هو ما يقرأه المستخدم (RULE-N169).
+                    clsDialogs.Warning(
+                        $"أُنشئ المرتجع كمسودة برقم {_createdId} وتعذر ترحيله.\n" +
+                        "لم يُنشأ مستند جديد: أعد الضغط على «ترحيل» (F4) لترحيل نفس المسودة.\n" +
+                        "سطور المرتجع مقفلة الآن لأنها محفوظة كمسودة.",
+                        "لم يُرحَّل المرتجع");
+                    return;
+                }
+
+                clsDialogs.Success("تم الترحيل");
+                foreach (var line in _lines.Where(l => l.ProductId > 0))
+                    _eventBus.Publish(new StockChangedMessage(line.ProductId));
+            }
+            else clsDialogs.Success("تم الحفظ");
+
+            _eventBus.Publish(new PurchaseReturnChangedMessage(documentId));
+            this.DialogResult = DialogResult.OK; this.Close();
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في حفظ مرتجع المشتريات");
-            _notification.ShowError("خطأ في حفظ المرتجع. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("خطأ في حفظ المرتجع. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
             Cursor = Cursors.Default;
-            btnSaveDraft.Enabled = btnPost.Enabled = true;
+
+            // الحالة تُعاد من المصدر الواحد (RULE-N150): كان تفعيل الزرين هنا يُفعّل «حفظ مسودة» وهو
+            // مخفي على مرتجع محفوظ — وButton.PerformClick() يفحص Enabled ولا يفحص Visible.
+            // والحارس يمنع لمس الحالة بعد نجاح الحفظ وإغلاق النموذج (Close يُدمّر النموذج غير النمطي).
+            if (!IsDisposed) UpdateUIState();
         }
     }
 
     private void btnClose_Click(object sender, EventArgs e) => this.Close();
+
+    /// <summary>
+    /// يقفل سطور المرتجع بعد أن أُنشئ المستند فعلاً (وفشل ترحيله): فالبيانات المعروضة على الشاشة
+    /// هي بالضبط ما ستُرحّله إعادة المحاولة — لا تعديل يُخالف المسودة المحفوظة.
+    /// </summary>
+    private void _LockAfterCreate()
+    {
+        dgvItems.ReadOnly = true;
+        dgvItems.AllowUserToAddRows = false;
+        btnAddItem.Enabled = false;
+        btnRemoveItem.Enabled = false;
+    }
 }

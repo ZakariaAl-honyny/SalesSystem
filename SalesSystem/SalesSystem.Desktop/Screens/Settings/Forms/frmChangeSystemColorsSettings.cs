@@ -7,7 +7,7 @@ using Serilog;
 namespace SalesSystem.Desktop.Screens.Settings.Forms;
 
 /// <summary>
-/// شاشة ألوان النظام (المرحلة أ — Mock · UI &amp; UX QA).
+/// شاشة ألوان النظام.
 /// <para>
 /// شاشة إعدادات واحدة: تعرض الألوان الـ23 القادمة من <see cref="ThemePalette.Definitions"/>
 /// (المصدر الوحيد للصفوف والتسميات والمجموعات والقيم الافتراضية)، وتسمح بتغيير لون واحد
@@ -15,8 +15,9 @@ namespace SalesSystem.Desktop.Screens.Settings.Forms;
 /// «حفظ وتطبيق».
 /// </para>
 /// <para>
-/// لا تحفظ الشاشة في أي قاعدة بيانات: تخاطب <see cref="IThemeColorDesktopService"/> فقط
-/// (المرحلة أ: <c>MockThemeColorDesktopService</c>). ولا تُطبَّق الألوان على النوافذ المفتوحة
+/// الشاشة لا تمسّ قاعدة البيانات ولا أي طبقة أخرى: تخاطب <see cref="IThemeColorDesktopService"/>
+/// فقط — <c>MockThemeColorDesktopService</c> في وضع التجربة و<c>DirectThemeColorService</c> في
+/// الوضع الحقيقي (كلاهما في فرعيه المسجَّلين في DI). ولا تُطبَّق الألوان على النوافذ المفتوحة
 /// إلا بعد نجاح الحفظ عبر <c>ThemePalette.ApplyToOpenForms()</c>.
 /// </para>
 /// </summary>
@@ -33,7 +34,6 @@ public partial class frmChangeSystemColorsSettings : Form
 
     private const string Title = "ألوان النظام — إعدادات العرض";
     private const string AllGroups = "كل المجموعات";
-    private const string FilterAll = "الكل";
 
     // ── State ────────────────────────────────────────────────────────────────
     /// <summary>الألوان الحالية في الشاشة (مسودّة غير محفوظة بعد).</summary>
@@ -46,6 +46,9 @@ public partial class frmChangeSystemColorsSettings : Form
 
     /// <summary>يمنع إعادة الدخول إلى التصفية/الملخص أثناء البناء البرمجي.</summary>
     private bool _isBinding;
+
+    /// <summary>صحيح بعد الموافقة على الإغلاق — يمنع سؤالاً ثانياً ومنع رسائل الحقول أثناء الإغلاق.</summary>
+    private bool _isClosing;
 
     private string? _selectedKey;
 
@@ -83,6 +86,11 @@ public partial class frmChangeSystemColorsSettings : Form
 
         // RULE-N147 / RULE-N153 — Enter = «حفظ وتطبيق» خارج الشبكة فقط
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // RULE-N153 — دخول المؤشر إلى الشبكة ⇒ لا زر أساسي (Enter داخل الشبكة لا يحفظ أبداً)،
+        // ويُعاد عند مغادرتها؛ القاعدة نفسها في _PrimaryActionButton بلا نسخة ثانية.
+        dgvColors.Enter += (_, _) => AcceptButton = _PrimaryActionButton();
+        dgvColors.Leave += (_, _) => AcceptButton = _PrimaryActionButton();
 
         // حقل HEX يقبل الكتابة واللصق اليدوي: Enter يقرأ القيمة فوراً، وLeave يثبّتها قبل مغادرة الحقل.
         // التحليل نفسه في ThemePalette.TryParseColorText وحده (RULE-N169…N172) — لا تحليل هنا.
@@ -141,6 +149,31 @@ public partial class frmChangeSystemColorsSettings : Form
     }
 
     /// <summary>
+    /// لا يُغلق النموذج وفيه ألوان معدَّلة لم تُحفظ: يسأل بالعربية أولاً (Esc · «إغلاق» · زر النافذة).
+    /// و<b>لا يُطبَّق شيء على النظام</b> في كل الأحوال — المسودّة تُهمل فقط بموافقة المستخدم.
+    /// </summary>
+    private void frmChangeSystemColorsSettings_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        if (_isClosing) return;
+
+        if (!_HasUnsavedChanges())
+        {
+            _isClosing = true;   // لا سؤال، ويمنع رسائل حقول أثناء الإغلاق
+            return;
+        }
+
+        if (!clsDialogs.Confirm(
+                "توجد ألوان معدَّلة لم تُحفظ. هل تريد إغلاق الشاشة وإهمال التغييرات؟",
+                "تغييرات غير محفوظة"))
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        _isClosing = true;
+    }
+
+    /// <summary>
     /// يقرأ الألوان من المخزن ويبني الشبكة والمعاينة وكل الحالات. لا يرمي استثناءً
     /// (كل المسارات محمية) لذلك يصلح للاستدعاء من «تحديث»/F5 مباشرة.
     /// </summary>
@@ -167,9 +200,11 @@ public partial class frmChangeSystemColorsSettings : Form
             {
                 Color color = definition.DefaultValue;
 
+                // القيمة المخزّنة تُقرأ بـ ThemePalette.TryParseColorText (البيت الواحد للتحليل،
+                // أوسع من #RRGGBB) حتى لا يُستبدل محفوظ بصيغة أخرى بالافتراضي بصمت.
                 if (settings.Colors is not null
                     && settings.Colors.TryGetValue(definition.Key, out var hex)
-                    && ThemePalette.TryParseHex(hex, out var parsed))
+                    && ThemePalette.TryParseColorText(hex, out var parsed))
                 {
                     color = parsed;
                 }
@@ -238,7 +273,7 @@ public partial class frmChangeSystemColorsSettings : Form
     private void _ApplyFilter()
     {
         string text = txtFilterValue.Text.Trim();
-        string mode = cbFilterBy.SelectedItem as string ?? FilterAll;
+        int mode = cbFilterBy.SelectedIndex;   // RULE-N60: التصفية بالرقم لا بنص العنصر العربي
         string group = cbGroup.SelectedItem as string ?? AllGroups;
         bool onlyChanged = chkOnlyChanged.Checked;
 
@@ -292,10 +327,15 @@ public partial class frmChangeSystemColorsSettings : Form
         _ApplyModeState();
     }
 
+    /// <summary>
+    /// يطابق سطراً واحداً بالتصفية. <paramref name="mode"/> هو <c>cbFilterBy.SelectedIndex</c>
+    /// (RULE-N60: لا مقارنة بنص عربي): 0 = الكل · 1 = اللون · 2 = المفتاح · 3 = المجموعة —
+    /// نفس ترتيب عناصر القائمة المُعلَنة في المصمّم.
+    /// </summary>
     private static bool _Matches(
         ThemeColorDefinition definition,
         string text,
-        string mode,
+        int mode,
         string group,
         bool onlyChanged,
         bool isChanged)
@@ -314,9 +354,9 @@ public partial class frmChangeSystemColorsSettings : Form
 
         return mode switch
         {
-            "اللون" => labelHit,
-            "المفتاح" => keyHit,
-            "المجموعة" => groupHit,
+            1 => labelHit,
+            2 => keyHit,
+            3 => groupHit,
             _ => labelHit || keyHit || groupHit
         };
     }
@@ -390,6 +430,19 @@ public partial class frmChangeSystemColorsSettings : Form
 
         _UpdateSelectedColorPanel();
         _PickColor();
+    }
+
+    /// <summary>
+    /// RULE-N23: نقر الفأرة الأيمن يحدّد **السطر الذي تحته** قبل فتح قائمة السياق،
+    /// فلا يعمل «اختيار اللون/نسخ/لصق» على سطر آخر غير الذي نُقر عليه.
+    /// تغيير <c>CurrentCell</c> يمرّ بمسار <c>SelectionChanged</c> نفسه (لا منطق حالة ثانٍ).
+    /// </summary>
+    private void dgvColors_CellMouseDown(object? sender, DataGridViewCellMouseEventArgs e)
+    {
+        if (e.Button != MouseButtons.Right || e.RowIndex < 0) return;
+        if (dgvColors.Rows[e.RowIndex].Tag is not string) return;
+
+        dgvColors.CurrentCell = dgvColors.Rows[e.RowIndex].Cells["colLabel"];
     }
 
     /// <summary>
@@ -539,19 +592,37 @@ public partial class frmChangeSystemColorsSettings : Form
     /// لصق قيمة لون من الحافظة على السطر المحدد (قائمة السياق · Ctrl+V). التحليل في
     /// <see cref="ThemePalette.TryParseColorText"/> وحده، والتطبيق مسودّة فقط
     /// (<see cref="_ApplyColorToWorking"/>) — لا مسّ ببقية التطبيق حتى «حفظ وتطبيق».
+    /// <para>
+    /// وإن كان المؤشر داخل حقل HEX فالنص يُلصق <b>في الحقل</b> ويُثبَّت بـ
+    /// <see cref="_CommitHexText"/> (الإدخال اليدوي/اللصق المعلن في الشاشة) — لأن الاختصار
+    /// على مستوى النموذج كان يبتلع لصق الحقل نفسه (RULE-N47 بلا تعطيل حقل).
+    /// </para>
     /// </summary>
     private void _PasteColor()
     {
-        var definition = _FindDefinition(_selectedKey);
-
-        if (definition is null)
-        {
-            clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
-            return;
-        }
-
         try
         {
+            if (txtHex.Focused)
+            {
+                if (!Clipboard.ContainsText())
+                {
+                    clsDialogs.Warning("الحافظة فارغة — انسخ قيمة لون مثل #0EA567 ثم ألصقها.");
+                    return;
+                }
+
+                txtHex.Text = Clipboard.GetText().Trim();
+                _CommitHexText();   // نفس مسار Enter/Leave: قبول المفهوم أو رفضه وإرجاع القيمة الحقيقية
+                return;
+            }
+
+            var definition = _FindDefinition(_selectedKey);
+
+            if (definition is null)
+            {
+                clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
+                return;
+            }
+
             if (!Clipboard.ContainsText())
             {
                 clsDialogs.Warning("الحافظة فارغة — انسخ قيمة لون مثل #0EA567 ثم ألصقها.");
@@ -568,7 +639,7 @@ public partial class frmChangeSystemColorsSettings : Form
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "تعذر لصق قيمة اللون للمفتاح {Key}", definition.Key);
+            Log.Error(ex, "تعذر لصق قيمة اللون للمفتاح {Key}", _selectedKey);
             clsDialogs.Error("تعذر لصق قيمة اللون. يرجى إعادة المحاولة.");
         }
     }
@@ -590,7 +661,8 @@ public partial class frmChangeSystemColorsSettings : Form
     /// </summary>
     private void _CommitHexText()
     {
-        if (IsDisposed || Disposing) return;
+        // أثناء الإغلاق لا نفتح أي حوار من LostFocus (كان يُقاطع إغلاق الشاشة).
+        if (IsDisposed || Disposing || _isClosing) return;
 
         var definition = _FindDefinition(_selectedKey);
 
@@ -772,11 +844,18 @@ public partial class frmChangeSystemColorsSettings : Form
 
     private void miCopyHex_Click(object? sender, EventArgs e)
     {
+        var definition = _FindDefinition(_selectedKey);
+
+        if (definition is null)
+        {
+            clsDialogs.Warning("يرجى اختيار لون من القائمة أولاً.");
+            return;
+        }
+
         try
         {
-            if (string.IsNullOrWhiteSpace(txtHex.Text)) return;
-
-            Clipboard.SetText(txtHex.Text);
+            // القيمة الحقيقية للمسودّة (لا نص الحقل الذي قد يكون نصف مكتوب).
+            Clipboard.SetText(ThemePalette.ToHex(_Color(definition.Key)));
             clsDialogs.Info("تم نسخ قيمة اللون.", "تم النسخ");
         }
         catch (Exception ex)
@@ -799,7 +878,7 @@ public partial class frmChangeSystemColorsSettings : Form
 
             if (!result.IsSuccess)
             {
-                // رفض المحاكاة (RULE-N167): لا تغيير في الشاشة ولا في التطبيق.
+                // رفض الخدمة (RULE-N167): لا تغيير في الشاشة ولا في التطبيق.
                 clsDialogs.Warning(result.Error ?? "تعذر حفظ الألوان.", "لم يتم الحفظ");
                 return;
             }
@@ -892,7 +971,7 @@ public partial class frmChangeSystemColorsSettings : Form
     /// </summary>
     private void _ApplyModeState()
     {
-        bool hasChanges = _working.Any(pair => _IsChanged(pair.Key));
+        bool hasChanges = _HasUnsavedChanges();
         bool hasSelection = _FindDefinition(_selectedKey) is not null;
 
         btnSave.Enabled = hasChanges;
@@ -910,7 +989,9 @@ public partial class frmChangeSystemColorsSettings : Form
 
     /// <summary>RULE-N153: Enter داخل الشبكة لا يحفظ أبداً.</summary>
     private Button? _PrimaryActionButton()
-        => dgvColors.ContainsFocus || dgvColors.IsCurrentCellInEditMode ? null : btnSave;
+        => dgvColors.ContainsFocus || dgvColors.IsCurrentCellInEditMode
+            ? null
+            : btnSave.Enabled ? btnSave : null;
 
     // ── Live preview ──────────────────────────────────────────────────────────
 
@@ -971,6 +1052,8 @@ public partial class frmChangeSystemColorsSettings : Form
     private static void _PaintPreviewButton(Button button, Color backColor)
     {
         button.BackColor = backColor;
+        // نص الزر في النظام كله أبيض على اللون الصلب (ThemeHelper.ButtonForeOnSolid) — فالمعاينة
+        // تُطابق التشغيل. تحويله إلى مفتاح لوحة قابل للتخصيص هو قرار المالك T-52 (خارج نطاق هذه المهمة).
         button.ForeColor = Color.White;
         button.FlatStyle = FlatStyle.Flat;
         button.FlatAppearance.BorderSize = 0;
@@ -987,6 +1070,13 @@ public partial class frmChangeSystemColorsSettings : Form
         => _working.TryGetValue(key, out var current)
         && _baseline.TryGetValue(key, out var baseline)
         && current.ToArgb() != baseline.ToArgb();
+
+    /// <summary>
+    /// هل في الشاشة أي لون معدَّل لم يُحفظ؟ البيت الواحد للحكم — يستهلكه شريط الوضع
+    /// وزر «حفظ» وسؤال الإغلاق (RULE-N169…N172: صياغة واحدة للقاعدة).
+    /// </summary>
+    private bool _HasUnsavedChanges()
+        => _working.Any(pair => _IsChanged(pair.Key));
 
     private ThemeColorDefinition? _FindDefinition(string? key)
     {

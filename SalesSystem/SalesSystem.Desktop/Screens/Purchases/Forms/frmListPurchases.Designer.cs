@@ -274,7 +274,7 @@
             cbStatus.FlatStyle = FlatStyle.Flat;
             cbStatus.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cbStatus.FormattingEnabled = true;
-            cbStatus.Items.AddRange(new object[] { "الكل", "مسودة", "مرحل", "ملغي" });
+            // عناصر الحالة تُملأ وقت التشغيل من DocumentTextHelper.StatusOptions (RULE-N169) — لا قائمة مكرّرة في المصمّم.
             cbStatus.Location = new Point(1290, 22);
             cbStatus.Margin = new Padding(0);
             cbStatus.Name = "cbStatus";

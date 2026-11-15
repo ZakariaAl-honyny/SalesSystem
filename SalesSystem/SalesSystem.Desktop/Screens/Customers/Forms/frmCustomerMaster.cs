@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Common.Helpers;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
@@ -304,6 +305,10 @@ public partial class frmCustomerMaster : Form
             balanceColumn.HeaderText = "الرصيد الحالي";
             balanceColumn.Visible = false;
         }
+
+        // حد الائتمان مبلغ مالي ⇒ نمط المبالغ الحيّ من البيت الواحد (لا صيغة مكتوبة يدوياً — RULE-N169).
+        if (dgvCustomers.Columns["CreditLimit"] is { } creditLimitColumn)
+            creditLimitColumn.DefaultCellStyle.Format = clsFormat.MoneyPattern;
     }
 
     private void _ApplyRowColoring()
@@ -659,7 +664,7 @@ public partial class frmCustomerMaster : Form
         txtEmail.Text = c.Email ?? "";
         txtAddress.Text = c.Address ?? "";
         txtTaxNumber.Text = c.TaxNumber ?? "";
-        numCreditLimit.Value = _Clamp(numCreditLimit, c.CreditLimit);
+        numCreditLimit.Value = NumericInputHelper.Clamp(numCreditLimit, c.CreditLimit);
         txtNotes.Text = c.Notes ?? "";
 
         // بعد تعبئة الحقول: تفعيلها + ضبط الأزرار + تحديث شريط الوضع (حالة واحدة مركزية).
@@ -690,7 +695,7 @@ public partial class frmCustomerMaster : Form
         btnRefresh.Enabled = true;
         btnClose.Enabled = true;
 
-        btnSave.Enabled = _mode == EntryMode.Adding;
+        btnSave.Enabled = _mode == EntryMode.Adding && !_actionButtonsBusy;
         btnEdit.Enabled = _mode == EntryMode.Editing && hasSelection && !_actionButtonsBusy;
         btnDelete.Enabled = _mode == EntryMode.Editing && hasSelection && isActive && !_actionButtonsBusy;
         btnReactivate.Enabled = _mode == EntryMode.Editing && hasSelection && !isActive && !_actionButtonsBusy;
@@ -832,6 +837,8 @@ public partial class frmCustomerMaster : Form
     /// </summary>
     private async Task _SaveAsync(bool edit)
     {
+        if (_actionButtonsBusy) return;
+
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
@@ -859,11 +866,11 @@ public partial class frmCustomerMaster : Form
         try
         {
             string name = txtName.Text.Trim();
-            string? phone = _ToNullIfEmpty(txtPhone.Text);
-            string? email = _ToNullIfEmpty(txtEmail.Text);
-            string? address = _ToNullIfEmpty(txtAddress.Text);
-            string? taxNumber = _ToNullIfEmpty(txtTaxNumber.Text);
-            string? notes = _ToNullIfEmpty(txtNotes.Text);
+            string? phone = txtPhone.Text?.Trim().ToNullIfEmpty();
+            string? email = txtEmail.Text?.Trim().ToNullIfEmpty();
+            string? address = txtAddress.Text?.Trim().ToNullIfEmpty();
+            string? taxNumber = txtTaxNumber.Text?.Trim().ToNullIfEmpty();
+            string? notes = txtNotes.Text?.Trim().ToNullIfEmpty();
             decimal creditLimit = numCreditLimit.Value;
 
             Result<CustomerDto> result;
@@ -1076,10 +1083,4 @@ public partial class frmCustomerMaster : Form
             }
         }
     }
-
-    private static string? _ToNullIfEmpty(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-    private static decimal _Clamp(NumericUpDown control, decimal value)
-        => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
 }

@@ -12,8 +12,6 @@ public partial class frmListSales : Form
     /// <summary>عنصر قائمة الحالة: قيمة رقمية (byte?) + نص عربي — لا ربط بالـ SelectedIndex.</summary>
     private sealed record StatusOption(byte? Value, string Text);
 
-    private const string CashCustomerName = "عميل نقدي";
-
     private static Color FocusColor => ThemePalette.DefaultFor(ThemePalette.SelectionRowColor);
 
     private readonly IServiceProvider _serviceProvider;
@@ -74,6 +72,11 @@ public partial class frmListSales : Form
 
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvSales);
+
+        // خط عمود الحالة يُضبط مرة واحدة على العمود — بدل إنشاء Font داخل كل CellFormatting
+        // (كان كل رسم خانة يُنشئ خطاً جديداً = تراكم مقابض GDI بلا تحرير).
+        if (dgvSales.Columns.Contains(colStatus.Name))
+            colStatus.DefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
 
         // RULE-N22/RULE-N52: السلوك تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
         dgvSales.ReadOnly = true;
@@ -146,16 +149,17 @@ public partial class frmListSales : Form
         KeyboardHelper.WireButtonDisabledVisual(btnView, btnPost, btnCancel, btnClearFilters);
     }
 
-    /// <summary>قائمة الحالة: «الكل» (null) ثم قيم enum الحقيقية 1/2/3.</summary>
+    /// <summary>قائمة الحالة: «الكل» (null) ثم قيم enum الحقيقية 1/2/3 من البيت الواحد (RULE-N169).</summary>
     private void _LoadStatusOptions()
     {
         var options = new List<StatusOption>
         {
-            new(null, "الكل"),
-            new(1, "مسودة"),
-            new(2, "مرحل"),
-            new(3, "ملغي")
+            new(null, "الكل")   // عنصر محايد محلي — ليس نص حالة
         };
+
+        // أزواج (القيمة ↔ النص) من DocumentTextHelper.StatusOptions — لا تُكتب في الشاشة.
+        foreach (var (value, text) in DocumentTextHelper.StatusOptions)
+            options.Add(new(value, text));
 
         cbStatus.DisplayMember = nameof(StatusOption.Text);
         cbStatus.ValueMember = nameof(StatusOption.Value);
@@ -334,8 +338,8 @@ public partial class frmListSales : Form
             query = filterBy switch
             {
                 1 => query.Where(i => i.InvoiceNo.ToString().StartsWith(text, StringComparison.Ordinal)),
-                2 => query.Where(i => (i.CustomerName ?? CashCustomerName).Contains(text, StringComparison.OrdinalIgnoreCase)),
-                3 => query.Where(i => _GetStatusText(i.Status).Contains(text, StringComparison.Ordinal)),
+                2 => query.Where(i => DocumentTextHelper.CashCustomerNameOr(i.CustomerName).Contains(text, StringComparison.OrdinalIgnoreCase)),
+                3 => query.Where(i => DocumentTextHelper.StatusText(i.Status).Contains(text, StringComparison.Ordinal)),
                 _ => query
             };
         }
@@ -361,11 +365,11 @@ public partial class frmListSales : Form
             int rowIndex = dgvSales.Rows.Add(
                 inv.InvoiceNo,
                 clsFormat.DateToShort(inv.InvoiceDate),
-                string.IsNullOrWhiteSpace(inv.CustomerName) ? CashCustomerName : inv.CustomerName,
+                DocumentTextHelper.CashCustomerNameOr(inv.CustomerName),
                 clsFormat.Money(inv.TotalAmount),
                 clsFormat.Money(inv.PaidAmount),
                 clsFormat.Money(inv.DueAmount),
-                _GetStatusText(inv.Status),
+                DocumentTextHelper.StatusText(inv.Status),
                 inv.Notes ?? string.Empty);
 
             var row = dgvSales.Rows[rowIndex];
@@ -467,14 +471,6 @@ public partial class frmListSales : Form
         return _invoicesById.TryGetValue(invoiceId, out var invoice) ? invoice : null;
     }
 
-    private static string _GetStatusText(byte status) => status switch
-    {
-        1 => "مسودة",
-        2 => "مرحل",
-        3 => "ملغي",
-        _ => "غير معروف"
-    };
-
     private void _SetDateRange(DateTime from, DateTime to)
     {
         _isInitializing = true;
@@ -493,8 +489,26 @@ public partial class frmListSales : Form
 
     private void _OpenForm(Form form)
     {
+        // clsGlobal._OpenForm يفتح النموذج غير نمطي (Show) ⇒ إعادة القراءة تجري عند إغلاقه،
+        // لا فور فتحه (كانت القائمة تُصفَّر قبل أن يتمكّن المستخدم من الحفظ فتبقى بيانات قديمة حتى F5).
+        form.FormClosed -= _OnEditorClosed;
+        form.FormClosed += _OnEditorClosed;
+
         clsGlobal._OpenForm(form);
-        _ReloadForm();
+
+        // نسخة مفتوحة أُعيد تنشيطها بدل فتح هذه ⇒ لا إغلاق قادم لها، فتُحدَّث القائمة الآن.
+        if (!form.Visible)
+            _ReloadForm();
+    }
+
+    /// <summary>إعادة قراءة القائمة بعد إغلاق المحرر حتى لا تعرض الشاشة بيانات قديمة.</summary>
+    private void _OnEditorClosed(object? sender, FormClosedEventArgs e)
+    {
+        if (sender is Form form)
+            form.FormClosed -= _OnEditorClosed;
+
+        if (!IsDisposed)
+            _ReloadForm();
     }
 
     private async void _PostSelectedAsync()
@@ -754,13 +768,22 @@ public partial class frmListSales : Form
         if (statusColumn == null || e.ColumnIndex != statusColumn.Index || e.Value == null)
             return;
 
-        e.CellStyle.ForeColor = e.Value.ToString() switch
+        // RULE-N171/N172: المقارنة بالحالة الرقمية (2 = Posted · 3 = Cancelled — RULE-019) لا بنص عربي،
+        // والنص المعروض نفسه يأتي من البيت الواحد DocumentTextHelper في _PopulateGrid.
+        byte status = 0;
+        if (e.RowIndex >= 0
+            && dgvSales.Rows[e.RowIndex].Tag is int invoiceId
+            && _invoicesById.TryGetValue(invoiceId, out var invoice))
         {
-            "مرحل" => GreenThemeHelper.StatusSuccess,
-            "ملغي" => GreenThemeHelper.StatusDanger,
+            status = invoice.Status;
+        }
+
+        e.CellStyle.ForeColor = status switch
+        {
+            2 => GreenThemeHelper.StatusSuccess,
+            3 => GreenThemeHelper.StatusDanger,
             _ => GreenThemeHelper.StatusInfo
         };
-        e.CellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
     }
 
     // ── Context Menu ───────────────────────────────────────────────────────────

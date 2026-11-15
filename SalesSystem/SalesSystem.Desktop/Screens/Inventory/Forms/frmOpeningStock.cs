@@ -199,10 +199,7 @@ public partial class frmOpeningStock : Form
         decimal total = 0m;
 
         foreach (DataRow row in _dtLines.Rows)
-        {
-            if (row.IsNull("TotalCost")) continue;
-            total += Convert.ToDecimal(row["TotalCost"]);
-        }
+            total += _DecimalOf(row, "TotalCost");
 
         lblItemCountValue.Text = clsFormat.Number(_dtLines.Rows.Count);
         txtTotalCost.Text = clsFormat.Money(total);
@@ -210,6 +207,13 @@ public partial class frmOpeningStock : Form
         _UpdateButtonsState();
         _UpdateModeHeader();
     }
+
+    /// <summary>
+    /// قراءة عشرية من سطر جدول المستند: الخلية الفارغة (<c>DBNull</c>) تُقرأ صفراً بلا رمي —
+    /// كان <c>Convert.ToDecimal</c> عليها يُسقط الشاشة إذا فرّغ المستخدم خلية كمية أو تكلفة.
+    /// </summary>
+    private static decimal _DecimalOf(DataRow row, string column)
+        => row[column] is decimal value ? value : 0m;
 
     // ── إضافة/حذف الأصناف ─────────────────────────────────────────────
 
@@ -230,6 +234,14 @@ public partial class frmOpeningStock : Form
             }
 
             var units = await LoadProductUnitsAsync(dialog.SelectedProduct.Id);
+            if (units.Count == 0)
+            {
+                // بلا وحدات لا يمكن تحديد وحدتها الأساسية ⇒ سطر لا يُحفظ. كان يُضاف سطر
+                // بوحدة صفرية فيرفضه التحقق لاحقاً بلا سبب ظاهر للمستخدم.
+                clsDialogs.Warning("تعذر تحميل وحدات هذا المنتج — لا يمكن إضافته. راجع وحدات المنتج في دليل الأصناف.");
+                return;
+            }
+
             var baseUnit = units.FirstOrDefault(pu => pu.IsBaseUnit) ?? units.FirstOrDefault();
 
             _dtLines.Rows.Add(
@@ -342,8 +354,8 @@ public partial class frmOpeningStock : Form
             return;
 
         var row = _dtLines.Rows[rowIndex];
-        decimal qty = Convert.ToDecimal(row["Quantity"]);
-        decimal cost = Convert.ToDecimal(row["UnitCost"]);
+        decimal qty = _DecimalOf(row, "Quantity");
+        decimal cost = _DecimalOf(row, "UnitCost");
         row["TotalCost"] = qty * cost;
 
         _UpdateTotals();
@@ -357,7 +369,6 @@ public partial class frmOpeningStock : Form
         var row = _dtLines.Rows[rowIndex];
         int unitId = Convert.ToInt32(row["ProductUnitId"]);
         int productId = Convert.ToInt32(row["ProductId"]);
-
         if (_productUnitsCache.TryGetValue(productId, out var units))
         {
             var unit = units.FirstOrDefault(u => u.Id == unitId);
@@ -428,7 +439,7 @@ public partial class frmOpeningStock : Form
                 break;
             }
 
-            decimal qty = Convert.ToDecimal(row["Quantity"]);
+            decimal qty = _DecimalOf(row, "Quantity");
             if (qty <= 0)
             {
                 clsDialogs.Warning("الكمية يجب أن تكون أكبر من صفر.");
@@ -472,12 +483,13 @@ public partial class frmOpeningStock : Form
 
             int adjustmentId = createResult.Value.Id;
             int successCount = 0;
+            int failedCount = 0;
 
             foreach (DataRow row in _dtLines.Rows)
             {
                 int productUnitId = Convert.ToInt32(row["ProductUnitId"]);
-                decimal quantity = Convert.ToDecimal(row["Quantity"]);
-                decimal unitCost = Convert.ToDecimal(row["UnitCost"]);
+                decimal quantity = _DecimalOf(row, "Quantity");
+                decimal unitCost = _DecimalOf(row, "UnitCost");
 
                 if (productUnitId <= 0 || quantity <= 0) continue;
 
@@ -491,11 +503,22 @@ public partial class frmOpeningStock : Form
                 var lineResult = await adjustmentApi.AddLineAsync(adjustmentId, lineRequest);
                 if (lineResult.IsSuccess)
                     successCount++;
+                else
+                    failedCount++;   // لا تسقيط صامت: يُحسب ويُبلَّغ قبل الترحيل
             }
 
             if (successCount == 0)
             {
                 clsDialogs.Error("فشل إضافة جميع المنتجات. تحقق من البيانات.");
+                return;
+            }
+
+            if (failedCount > 0)
+            {
+                // لا ترحيل بمستند ناقص: تبقى التسوية مسودة ويُبلَّغ المستخدم بالعدد الحقيقي
+                // (كان يُرحَّل الناقص وتقول الرسالة إن كل شيء نجح).
+                clsDialogs.Error(
+                    $"تعذر إضافة {clsFormat.Number(failedCount)} من {clsFormat.Number(_dtLines.Rows.Count)} صنفاً، ولم يُرحَّل المستند. راجع بيانات الأصناف المتعذرة وأعد المحاولة.");
                 return;
             }
 
@@ -506,7 +529,7 @@ public partial class frmOpeningStock : Form
                 return;
             }
 
-            clsDialogs.Success($"تم حفظ وترحيل {successCount} منتج بنجاح كبضاعة أول المدة.");
+            clsDialogs.Success($"تم حفظ وترحيل {clsFormat.Number(successCount)} منتج بنجاح كبضاعة أول المدة.");
 
             DialogResult = DialogResult.OK;
             Close();

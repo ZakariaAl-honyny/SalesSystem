@@ -24,10 +24,23 @@ public partial class frmPurchaseInvoice : Form
     private ISupplierDesktopService _supplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
     private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
     private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
-    private INotificationService _notification => _serviceProvider.GetRequiredService<INotificationService>();
+    // RULE-N169: بيت الرسائل الواحد هو clsDialogs — لا خدمة إشعارات ثانية داخل الشاشة.
     private IEventBus _eventBus => _serviceProvider.GetRequiredService<IEventBus>();
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
     private ISettingsDesktopService _settingsApi => _serviceProvider.GetRequiredService<ISettingsDesktopService>();
+
+    /// <summary>معرّف المورد المحدد (0 إذا لم يُحدَّد) — <c>SupplierDto.Id</c> من نوع <c>int</c>.</summary>
+    private int _SelectedSupplierId => cmbSupplier.SelectedValue is int supplierId ? supplierId : 0;
+
+    /// <summary>
+    /// معرّف المستودع المحدد (0 إذا لم يُحدَّد).
+    /// <para>
+    /// <c>WarehouseDto.Id</c> من نوع <c>short</c>، فالتحويل الصريح <c>(int)cmbWarehouse.SelectedValue</c>
+    /// يرمي <c>InvalidCastException</c> (فكّ صندوق <c>short</c> إلى <c>int</c> غير صالح) فيسقط الحفظ كله؛
+    /// والقراءة هنا بالنمط <c>is short</c> كما في بقية الشاشات (<c>frmAddUpdateSalesInvoice</c> · <c>frmOpeningStock</c>).
+    /// </para>
+    /// </summary>
+    private int _SelectedWarehouseId => cmbWarehouse.SelectedValue is short warehouseId ? warehouseId : 0;
 
     private PurchaseInvoiceDto? _invoice;
     private BindingList<InvoiceLineItem> _lines = new();
@@ -108,13 +121,14 @@ public partial class frmPurchaseInvoice : Form
             Cursor = Cursors.WaitCursor;
 
             // نحفظ الاختيارات قبل إعادة الربط حتى لا تتغير بيانات الفاتورة الحالية.
-            int supplierId = Convert.ToInt32(cmbSupplier.SelectedValue ?? 0);
-            int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
+            int supplierId = _SelectedSupplierId;
+            int warehouseId = _SelectedWarehouseId;
 
             await LoadLookups();
 
             if (supplierId > 0) cmbSupplier.SelectedValue = supplierId;
-            if (warehouseId > 0) cmbWarehouse.SelectedValue = warehouseId;
+            // WarehouseDto.Id من نوع short — الإسناد بقيمة int لا يطابق أي عنصر فيضيع المستودع بعد التحديث.
+            if (warehouseId > 0) cmbWarehouse.SelectedValue = Convert.ToInt16(warehouseId);
 
             CalculateTotals();
         }
@@ -125,7 +139,7 @@ public partial class frmPurchaseInvoice : Form
         }
         finally
         {
-            Cursor = Cursors.Default;
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 
@@ -191,23 +205,38 @@ public partial class frmPurchaseInvoice : Form
         try
         {
             base.OnLoad(e);
+            Cursor = Cursors.WaitCursor;
             await LoadLookups();
 
-            if (_invoice != null) BindInvoice();
+            if (_invoice is not null)
+            {
+                // المستند الكامل يُقرأ بالمعرّف: شاشة القائمة قد تُمرّر رأس الفاتورة بلا سطور، وفتح مسودة
+                // بلا سطور يجعل إعادة الحفظ تُسقط أصنافها (فقد بيانات)، وكذلك تُقرأ الحالة الحقيقية
+                // فلا يُعدَّل مستند رُحّل من شاشة أخرى.
+                var full = await _purchaseApi.GetByIdAsync(_invoice.Id);
+                if (full.IsSuccess && full.Value is not null) _invoice = full.Value;
+                else clsDialogs.Error(full.Error ?? "تعذر تحميل تفاصيل الفاتورة.");
+
+                BindInvoice();
+            }
             else ResetForm();
 
             UpdateUIState();
             CalculateTotals();
             ApplyUiTheme();
 
-            // RULE-N22a — الشبكة شبكة إدخال: التحرير والصف الجديد مملوكان للشاشة (RULE-N52).
-            dgvItems.AllowUserToAddRows = true;
+            // RULE-N22a — الشبكة شبكة إدخال: صف الإدخال الجديد يُتاح في وضع التحرير فقط
+            // (UpdateUIState يضبطه حسب الحالة) والتحرير داخل الخلية مملوك للشاشة (RULE-N52).
             dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل النموذج");
             clsDialogs.Error("حدث خطأ في تحميل البيانات. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 
@@ -216,28 +245,38 @@ public partial class frmPurchaseInvoice : Form
         try
         {
             var supplierRes = await _supplierApi.GetAllAsync();
-            if (supplierRes.IsSuccess)
+            if (supplierRes.IsSuccess && supplierRes.Value is not null)
             {
                 cmbSupplier.DataSource = supplierRes.Value;
                 cmbSupplier.DisplayMember = "Name";
                 cmbSupplier.ValueMember = "Id";
             }
+            else
+            {
+                // نتيجة فاشلة لا تُهمَل: قائمة فارغة بلا سبب تُظهر للمستخدم «يرجى اختيار المورد» بلا تفسير.
+                clsDialogs.Error(supplierRes.Error ?? "تعذر تحميل قائمة الموردين.");
+            }
 
             var warehouseRes = await _warehouseApi.GetAllAsync();
-            if (warehouseRes.IsSuccess)
+            if (warehouseRes.IsSuccess && warehouseRes.Value is not null)
             {
                 cmbWarehouse.DataSource = warehouseRes.Value;
                 cmbWarehouse.DisplayMember = "Name";
                 cmbWarehouse.ValueMember = "Id";
                 if (_invoice == null)
                 {
-                    var def = warehouseRes.Value!.FirstOrDefault(w => w.IsDefault);
+                    var def = warehouseRes.Value.FirstOrDefault(w => w.IsDefault);
                     if (def != null) cmbWarehouse.SelectedValue = def.Id;
                 }
             }
+            else
+            {
+                clsDialogs.Error(warehouseRes.Error ?? "تعذر تحميل قائمة المستودعات.");
+            }
 
             var productRes = await _productApi.GetAllAsync();
-            if (productRes.IsSuccess) _allProducts = productRes.Value!.ToList();
+            if (productRes.IsSuccess && productRes.Value is not null) _allProducts = productRes.Value.ToList();
+            else clsDialogs.Error(productRes.Error ?? "تعذر تحميل قائمة الأصناف.");
         }
         catch (Exception ex)
         {
@@ -249,30 +288,44 @@ public partial class frmPurchaseInvoice : Form
     private void BindInvoice()
     {
         _isUpdating = true;
-        this.Text = $"فاتورة مشتريات - {_invoice!.InvoiceNo}";
-        lblInvoiceNo.Text = _invoice.InvoiceNo.ToString();
-        dtpDate.Value = _invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue);
-        cmbSupplier.SelectedValue = _invoice.SupplierId;
-        cmbWarehouse.SelectedValue = _invoice.WarehouseId;
-        cmbPaymentType.SelectedIndex = (byte)_invoice.PaymentType - 1;
-        numInvoiceDiscount.Value = _invoice.DiscountAmount;
-        txtPaid.Text = clsFormat.Money(_invoice.PaidAmount);
-        txtNotes.Text = _invoice.Notes;
-
-        _lines.Clear();
-        foreach (var item in _invoice.Items)
+        try
         {
-            _lines.Add(new InvoiceLineItem {
-                ProductId = item.ProductId,
-                ProductCode = item.ProductCode,
-                ProductName = item.ProductName,
-                Quantity = item.Quantity,
-                UnitCost = item.UnitCost,
-                UnitPrice = item.UnitCost,      // عرض فقط: تُبقي LineTotal صحيحة عند فتح فاتورة محفوظة
-                DiscountAmount = item.DiscountAmount
-            });
+            this.Text = $"فاتورة مشتريات - {_invoice!.InvoiceNo}";
+            lblInvoiceNo.Text = _invoice.InvoiceNo.ToString();
+            dtpDate.Value = _invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue);
+            cmbSupplier.SelectedValue = _invoice.SupplierId;
+            // WarehouseDto.Id من نوع short — الإسناد بقيمة int لا يطابق أي عنصر فيُفرغ المستودع المحفوظ.
+            cmbWarehouse.SelectedValue = Convert.ToInt16(_invoice.WarehouseId);
+            cmbPaymentType.SelectedIndex = (byte)_invoice.PaymentType - 1;
+
+            // سقف الحقل من المصمّم لا يكفي لخصم أكبر: نوسّعه قبل الإسناد بدل رمي ArgumentOutOfRangeException
+            // أو قصّ الخصم بصمت (المعروض = المحفوظ).
+            if (numInvoiceDiscount.Maximum < _invoice.DiscountAmount)
+                numInvoiceDiscount.Maximum = _invoice.DiscountAmount;
+            numInvoiceDiscount.Value = _invoice.DiscountAmount;
+            txtPaid.Text = clsFormat.Money(_invoice.PaidAmount);
+            txtNotes.Text = _invoice.Notes;
+
+            _lines.Clear();
+            foreach (var item in _invoice.Items)
+            {
+                _lines.Add(new InvoiceLineItem {
+                    ProductId = item.ProductId,
+                    ProductCode = item.ProductCode,
+                    ProductName = item.ProductName,
+                    // الوحدة المحفوظة على السطر تُحمَل لتعود كما هي عند إعادة الحفظ (لا تُستبدل بالوحدة الأساسية).
+                    ProductUnitId = item.ProductUnitId,
+                    Quantity = item.Quantity,
+                    UnitCost = item.UnitPrice,
+                    UnitPrice = item.UnitPrice,    // ما يُرسل عند الحفظ هو سعر الوحدة — فيُعرض هو لا التكلفة المستقرّة
+                    DiscountAmount = item.DiscountAmount
+                });
+            }
         }
-        _isUpdating = false;
+        finally
+        {
+            _isUpdating = false;
+        }
 
         _UpdateModeHeader();
     }
@@ -300,10 +353,19 @@ public partial class frmPurchaseInvoice : Form
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColQty", HeaderText = "الكمية", DataPropertyName = "Quantity", Width = 80 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColCost", HeaderText = "التكلفة", DataPropertyName = "UnitCost", Width = 100 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColDisc", HeaderText = "خصم", DataPropertyName = "DiscountAmount", Width = 80 });
-        dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 120, ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { Format = "N2", ForeColor = GreenThemeHelper.TextStrong, Font = new Font(dgvItems.Font, FontStyle.Bold) } });
+        dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 120, ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { ForeColor = GreenThemeHelper.TextStrong, Font = new Font(dgvItems.Font, FontStyle.Bold) } });
+
+        // RULE-N169: الدلالة تُعلَن (مبلغ مالي) والنمط يأتي من clsFormat الحيّ عبر البيت الواحد — لا "N2" مكتوبة هنا.
+        GridFormatHelper.ApplyColumns(dgvItems, GridFormatKind.Money, "ColTotal");
 
         dgvItems.DataSource = _lines;
         dgvItems.CellEndEdit += DgvItems_CellEndEdit;
+
+        // RULE-N153 — Enter داخل شبكة السطور تنقّل/تحرير ولا ينفّذ الزر الأساسي أبداً:
+        // AcceptButton يُفرَّغ عند دخول الشبكة أو بدء تحرير خلية ويُعاد عند مغادرتها.
+        dgvItems.Enter += (_, _) => _SyncAcceptButton();
+        dgvItems.Leave += (_, _) => _SyncAcceptButton();
+        dgvItems.CellBeginEdit += (_, _) => _SyncAcceptButton();
     }
 
     // ── أحداث الحقول (كما كانت مربوطة في المصمّم) ────────────────────────────
@@ -313,7 +375,12 @@ public partial class frmPurchaseInvoice : Form
 
     private void DgvItems_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
     {
-        if (_isUpdating || e.RowIndex < 0) return;
+        // RULE-N153: بعد نهاية التحرير يعود Enter لمتابعة تنقّل الشبكة لا لتنفيذ الزر الأساسي.
+        _SyncAcceptButton();
+
+        if (_isUpdating || e.RowIndex < 0 || e.ColumnIndex < 0) return;
+        if (e.RowIndex >= _lines.Count) return;   // صف الإدخال الجديد قبل إضافته للقائمة المربوطة
+
         var row = _lines[e.RowIndex];
         var colName = dgvItems.Columns[e.ColumnIndex].Name;
 
@@ -353,7 +420,7 @@ public partial class frmPurchaseInvoice : Form
         lblSubTotalVal.Text = clsFormat.Money(subTotal);
         lblTotalVal.Text = clsFormat.Money(totalAmount);
         lblDueVal.Text = clsFormat.Money(dueAmount);
-        lblDueVal.ForeColor = dueAmount > 0 ? Color.Red : Color.Green;
+        lblDueVal.ForeColor = dueAmount > 0 ? GreenThemeHelper.StatusNegative : GreenThemeHelper.StatusPositive;
     }
 
     private void UpdateUIState()
@@ -361,14 +428,21 @@ public partial class frmPurchaseInvoice : Form
         bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
         pnlHeader.Enabled = editable;
         dgvItems.ReadOnly = !editable;
+        // RULE-N22a: صف الإدخال الجديد يظهر في وضع التحرير فقط، فلا يُعرض صف فارغ على مستند مرحّل/ملغى.
+        dgvItems.AllowUserToAddRows = editable;
         pnlFooter.Enabled = editable;
         btnAddItem.Enabled = editable;
         btnRemoveItem.Enabled = editable;
-        btnSaveDraft.Visible = editable;
-        btnPost.Visible = editable;
-        btnCancelInvoice.Visible = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
+        // الإخفاء وحده لا يمنع الاختصارات (F3/F4) — التعطيل إلزامي (RULE-N43/N152)، ويُفعَّل فقط في وضع التحرير.
+        btnSaveDraft.Visible = btnSaveDraft.Enabled = editable;
+        btnPost.Visible = btnPost.Enabled = editable;
+        btnCancelInvoice.Visible = btnCancelInvoice.Enabled = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
 
-        lblStatus.Text = _invoice?.Status switch { 1 => "مسودة", 2 => "مرحل", 3 => "ملغي", _ => "جديد" };
+        // RULE-N171/N172: نص الحالة من البيت الواحد DocumentTextHelper (1..3 — RULE-019)؛
+        // و«جديد» حين لا يوجد مستند بعد.
+        lblStatus.Text = _invoice is null
+            ? "جديد"
+            : DocumentTextHelper.StatusText(_invoice.Status);
 
         // ألوان الحالة من ثوابت ThemeHelper (لا أرقام لون داخل الشاشة) — مطابقة لقيمة المصمّم.
         lblStatus.BackColor = _invoice?.Status switch
@@ -404,9 +478,13 @@ public partial class frmPurchaseInvoice : Form
 
     private bool _ValidateForm()
     {
+        // RULE-N22a: قيمة الخلية الجاري تحريرها تُثبَّت أولاً، فلا تبقى كمية/تكلفة مكتوبة خارج ما يُرسل.
+        dgvItems.EndEdit();
+        dgvItems.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
         bool isValid = true;
 
-        if (cmbSupplier.SelectedValue == null || (int)cmbSupplier.SelectedValue <= 0)
+        if (_SelectedSupplierId <= 0)
         {
             const string supplierMessage = "يرجى اختيار المورد";
             errorProvider.SetError(cmbSupplier, supplierMessage);
@@ -419,7 +497,7 @@ public partial class frmPurchaseInvoice : Form
             errorProvider.SetError(cmbSupplier, "");
         }
 
-        if (cmbWarehouse.SelectedValue == null || (int)cmbWarehouse.SelectedValue <= 0)
+        if (_SelectedWarehouseId <= 0)
         {
             const string warehouseMessage = "يرجى اختيار المستودع";
             errorProvider.SetError(cmbWarehouse, warehouseMessage);
@@ -431,16 +509,46 @@ public partial class frmPurchaseInvoice : Form
             errorProvider.SetError(cmbWarehouse, "");
         }
 
-        if (!_lines.Any(l => l.ProductId > 0))
+        // كل سطر ملموس يجب أن يشير إلى صنف وكمية وتكلفة صحيحة — لا سطر يُعرض ويُسقط بصمت من الطلب.
+        string? lineError = _FirstLineError();
+        if (lineError is not null)
         {
-            const string itemsMessage = "يجب إضافة صنف واحد على الأقل للفاتورة";
-            errorProvider.SetError(dgvItems, itemsMessage);
-            clsInputFeedback.ShowRejectTooltip(dgvItems, itemsMessage, toolTip);
+            errorProvider.SetError(dgvItems, lineError);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, lineError, toolTip);
             isValid = false;
         }
         else
         {
             errorProvider.SetError(dgvItems, "");
+        }
+
+        // الحساب من **نفس** مجموعة الأسطر المرسلة (ProductId > 0) — فالمعروض في الشاشة = المحفوظ.
+        decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(l => l.LineTotal);
+        decimal invoiceDiscount = numInvoiceDiscount.Value;
+        decimal netTotal = subTotal - invoiceDiscount;
+
+        if (invoiceDiscount > subTotal)
+        {
+            const string discountMessage = "خصم الفاتورة أكبر من مجموع الأصناف.";
+            errorProvider.SetError(numInvoiceDiscount, discountMessage);
+            clsInputFeedback.ShowRejectTooltip(numInvoiceDiscount, discountMessage, toolTip);
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(numInvoiceDiscount, "");
+        }
+
+        if (txtPaid.DecimalValue > netTotal)
+        {
+            const string paidMessage = "المبلغ المدفوع أكبر من إجمالي الفاتورة.";
+            errorProvider.SetError(txtPaid, paidMessage);
+            clsInputFeedback.ShowRejectTooltip(txtPaid, paidMessage, toolTip);
+            isValid = false;
+        }
+        else
+        {
+            errorProvider.SetError(txtPaid, "");
         }
 
         if (!isValid)
@@ -451,19 +559,74 @@ public partial class frmPurchaseInvoice : Form
         return isValid;
     }
 
+    /// <summary>
+    /// أول خطأ في سطور الأصناف أو <c>null</c> — رسالة واحدة محددة لكل حالة
+    /// (تكافؤ الرفض: لا صنف مجهول · لا كمية صفر · لا تكلفة صفر — <c>RULE-N167</c>).
+    /// </summary>
+    private string? _FirstLineError()
+    {
+        if (_lines.All(l => l.ProductId <= 0))
+            return "يجب إضافة صنف واحد على الأقل للفاتورة";
+
+        for (int i = 0; i < _lines.Count; i++)
+        {
+            var line = _lines[i];
+            int rowNo = i + 1;
+
+            // صف الإدخال الجديد الفارغ تماماً لا يمنع الحفظ ولا يُرسل.
+            bool touched = line.ProductId > 0
+                           || line.Quantity != 0m
+                           || line.UnitCost != 0m
+                           || line.DiscountAmount != 0m
+                           || !string.IsNullOrWhiteSpace(line.ProductCode);
+            if (!touched) continue;
+
+            if (line.ProductId <= 0)
+                return $"السطر {rowNo}: الصنف غير محدد — ابحث عن الصنف بالكود أو احذف السطر.";
+
+            if (line.Quantity <= 0m)
+                return $"السطر {rowNo}: الكمية يجب أن تكون أكبر من صفر.";
+
+            if (line.UnitCost <= 0m)
+                return $"السطر {rowNo}: التكلفة يجب أن تكون أكبر من صفر.";
+        }
+
+        return null;
+    }
+
     private async Task SaveInvoiceAsync(bool post)
     {
+        // حارس المسودة: فاتورة غير مسودة (مرحّلة/ملغاة) لا تُحفظ ولا تُرحّل من أي مسار — زر مخفي
+        // لا يمنع اختصار F3/F4، وهذا الحارس يقطعه قبل أي تحقق أو طلب للخدمة.
+        if (_invoice is not null && _invoice.Status != (byte)InvoiceStatus.Draft)
+        {
+            clsDialogs.Warning("لا يمكن تعديل أو إعادة حفظ فاتورة غير مسودة.");
+            return;
+        }
+
         if (!_ValidateForm()) return;
 
         if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل فاتورة المشتريات؟ سيتم زيادة المخزون.")) return;
 
         btnSaveDraft.Enabled = btnPost.Enabled = false;
+        Cursor = Cursors.WaitCursor;
         try
         {
-            var items = _lines.Where(l => l.ProductId > 0).Select(l => new CreatePurchaseInvoiceLineRequest(l.ProductId, 1, l.Quantity, l.UnitCost)).ToList();
+            // خصم السطر مبلغٌ ثابت: DiscountType.Amount + DiscountRate = المبلغ نفسه (بلا أي حساب)،
+            // فيتساوى المحفوظ مع ما يعرضه اللصق والشبكة. الأسطر بلا خصم تبقى على الافتراضيات (null/null).
+            // والوحدة المحفوظة على السطر تُعاد كما هي؛ السطر الجديد بلا وحدة يأخذ الوحدة الأساسية (1).
+            var items = _lines
+                .Where(l => l.ProductId > 0)
+                .Select(l => l.DiscountAmount > 0m
+                    ? new CreatePurchaseInvoiceLineRequest(
+                        l.ProductId, l.ProductUnitId > 0 ? l.ProductUnitId : 1, l.Quantity, l.UnitCost,
+                        SalesSystem.DTO.Enums.DiscountType.Amount, l.DiscountAmount)
+                    : new CreatePurchaseInvoiceLineRequest(
+                        l.ProductId, l.ProductUnitId > 0 ? l.ProductUnitId : 1, l.Quantity, l.UnitCost))
+                .ToList();
             var request = new CreatePurchaseInvoiceRequest(
-                (int)(cmbWarehouse.SelectedValue ?? 0),
-                (int)(cmbSupplier.SelectedValue ?? 0),
+                _SelectedWarehouseId,
+                _SelectedSupplierId,
                 null,
                 dtpDate.Value,
                 (SalesSystem.DTO.Enums.PaymentType)(cmbPaymentType.SelectedIndex + 1),
@@ -479,33 +642,53 @@ public partial class frmPurchaseInvoice : Form
                 items
             );
 
-            var result = await _purchaseApi.CreateAsync(request);
+            // فاتورة جديدة ⇒ إنشاء · فاتورة محفوظة (مسودة) ⇒ تعديل نفس السجل فلا تُنشأ نسخة ثانية.
+            int? existingId = _invoice?.Id;
+            Result<PurchaseInvoiceDto> result;
+            if (existingId.HasValue)
+                result = await _purchaseApi.UpdateAsync(existingId.Value, request);
+            else
+                result = await _purchaseApi.CreateAsync(request);
+
             if (result.IsSuccess)
             {
-                if (post)
+                // المعرّف من التحديث أو من الخدمة عند الإنشاء — بلا فكّ مرجعي أعمى لقيمة قد تكون null.
+                int invoiceId = existingId ?? result.Value?.Id ?? 0;
+
+                if (post && invoiceId > 0)
                 {
-                    var postRes = await _purchaseApi.PostAsync(result.Value.Id);
+                    var postRes = await _purchaseApi.PostAsync(invoiceId);
                     if (postRes.IsSuccess)
                     {
-                        _notification.ShowSuccess("تم الترحيل بنجاح");
+                        clsDialogs.Success("تم الترحيل بنجاح");
                         foreach (var item in items) _eventBus.Publish(new StockChangedMessage(item.ProductId));
                     }
-                    else _notification.ShowError("تم الحفظ ولكن فشل الترحيل: " + postRes.Error);
+                    else clsDialogs.Error("تم الحفظ ولكن فشل الترحيل: " + (postRes.Error ?? "خطأ غير معروف"));
                 }
-                else _notification.ShowSuccess("تم الحفظ بنجاح");
+                else if (post)
+                {
+                    clsDialogs.Warning("تم الحفظ كمسودة، لكن تعذر ترحيلها لأن الخدمة لم تُرجع رقم الفاتورة.");
+                }
+                else clsDialogs.Success("تم الحفظ بنجاح");
 
-                _eventBus.Publish(new PurchaseInvoiceChangedMessage(result.Value.Id));
+                _eventBus.Publish(new PurchaseInvoiceChangedMessage(invoiceId));
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
-            else _notification.ShowError(result.Error!);
+            else clsDialogs.Error(result.Error);
         }
         catch (Exception ex) 
         { 
             Log.Error(ex, "حدث خطأ أثناء حفظ فاتورة المشتريات");
-            _notification.ShowError("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل للدعم الفني."); 
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل للدعم الفني."); 
         }
-        finally { btnSaveDraft.Enabled = btnPost.Enabled = true; }
+        finally
+        {
+            // استعادة الحالة حسب الوضع: المسودة/الجديدة فقط تُعيد تفعيل أزرار الحفظ والترحيل.
+            bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+            btnSaveDraft.Enabled = btnPost.Enabled = editable;
+            if (!IsDisposed) Cursor = Cursors.Default;
+        }
     }
 
     private async void btnCancelInvoice_Click(object? sender, EventArgs e)
@@ -519,22 +702,22 @@ public partial class frmPurchaseInvoice : Form
             var result = await _purchaseApi.CancelAsync(_invoice.Id);
             if (result.IsSuccess)
             {
-                _notification.ShowSuccess("تم الإلغاء بنجاح");
+                clsDialogs.Success("تم الإلغاء بنجاح");
                 _eventBus.Publish(new PurchaseInvoiceChangedMessage(_invoice.Id));
                 foreach (var item in _invoice.Items) _eventBus.Publish(new StockChangedMessage(item.ProductId));
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
-            else _notification.ShowError(result.Error!);
+            else clsDialogs.Error(result.Error);
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ أثناء إلغاء فاتورة المشتريات");
-            _notification.ShowError("حدث خطأ أثناء الإلغاء. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء الإلغاء. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
-            Cursor = Cursors.Default;
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 
@@ -552,7 +735,7 @@ public partial class frmPurchaseInvoice : Form
             var settingsRes = await _settingsApi.GetSettingsAsync();
             if (!settingsRes.IsSuccess)
             {
-                _notification.ShowError("فشل تحميل إعدادات المتجر: " + settingsRes.Error);
+                clsDialogs.Error("فشل تحميل إعدادات المتجر: " + settingsRes.Error);
                 return;
             }
 
@@ -566,11 +749,11 @@ public partial class frmPurchaseInvoice : Form
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ أثناء طباعة فاتورة المشتريات A4");
-            _notification.ShowError("حدث خطأ أثناء الطباعة. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء الطباعة. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
-            Cursor = Cursors.Default;
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 

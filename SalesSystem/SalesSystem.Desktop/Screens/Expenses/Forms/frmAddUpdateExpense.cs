@@ -19,6 +19,24 @@ public partial class frmAddUpdateExpense : Form
     private bool _isEditMode => _editingId > 0;
     private List<CashBoxDto> _cashBoxes = new();
 
+    /// <summary>حالة المصروف المحمَّل في وضع التعديل — أساس حظر حفظ مصروف مرحّل/ملغى (تكافؤ رفض الباك-إند).</summary>
+    private const byte StatusDraft = 1;
+
+    /// <summary>حالة المصروف المحمَّل (تُقرأ من الخدمة — المصروف المرحّل/الملغى لا يُحفظ).</summary>
+    private byte _loadedStatus = StatusDraft;
+
+    /// <summary>
+    /// حساب المصروف للمصروف المحمَّل — يُعاد إرساله كما هو في التعديل، لأن
+    /// <see cref="UpdateExpenseRequest"/> يحمل <c>ExpenseAccountId</c> وإرسال 0 يمحو حساب المصروف القائم.
+    /// </summary>
+    private int _loadedExpenseAccountId;
+
+    /// <summary>
+    /// مهمة تحميل قائمة الصناديق المُنطلقة من المُنشئ — تُنتظر قبل تحميل المصروف حتى لا يضيع
+    /// الصندوق المحدد (ضبط <c>DataSource</c> يُعيد <c>SelectedIndex</c> إلى ‑1).
+    /// </summary>
+    private Task _comboBoxesLoadTask = Task.CompletedTask;
+
     /// <summary>RULE-N04: الخدمات عبر خصائص مطبوعة النوع، لا استدعاء مباشر لأي طبقة أخرى.</summary>
     private IExpenseDesktopService ExpenseService => _serviceProvider.GetRequiredService<IExpenseDesktopService>();
     private ICashBoxDesktopService CashBoxService => _serviceProvider.GetRequiredService<ICashBoxDesktopService>();
@@ -39,6 +57,7 @@ public partial class frmAddUpdateExpense : Form
             (Keys.F4, () => { if (btnSave.Enabled) btnSave.PerformClick(); }),
             (Keys.F5, () => _ = _RefreshAsync()),
             (Keys.Escape, () => btnClose.PerformClick()));
+        KeyboardHelper.WireModeEnter(this, () => btnSave);
 
         // RULE-N97 — التفقيط الحيّ كتلميح على حقل المبلغ.
         LiveTafqeetHelper.Attach(liveTip, (numAmount, "المبلغ", LiveTafqeetHelper.ReadMode.Money));
@@ -49,7 +68,7 @@ public partial class frmAddUpdateExpense : Form
         Text = "إضافة مصروف جديد";
         _UpdateModeHeader();
         _UpdateNetTotal();
-        _ = LoadComboBoxesAsync();
+        _comboBoxesLoadTask = LoadComboBoxesAsync();   // تُنتظر قبل تحميل مصروف التعديل (إصلاح سباق القوائم)
     }
 
     /// <summary>منشئ التعديل: يُستخدم من شاشة الدليل بعد حل النموذج من الحاوية (RULE-N02).</summary>
@@ -100,10 +119,15 @@ public partial class frmAddUpdateExpense : Form
 
     // ── مؤشر الوضع وحالة الأزرار ────────────────────────────────────────────────
 
-    /// <summary>RULE-N44: مؤشر الوضع يتحدث مع كل تغيير للحالة.</summary>
+    /// <summary>RULE-N44: مؤشر الوضع يتحدث مع كل تغيير للحالة — ويُعلن أن المصروف المرحّل/الملغى للعرض فقط.</summary>
     private void _UpdateModeHeader()
     {
-        lblMode.Text = _isEditMode ? $"تعديل مصروف رقم: {_editingId}" : "إضافة مصروف جديد";
+        lblMode.Text = !_isEditMode
+            ? "إضافة مصروف جديد"
+            : _loadedStatus == StatusDraft
+                ? $"تعديل مصروف رقم: {_editingId}"
+                : $"عرض مصروف رقم: {_editingId} — {DocumentTextHelper.StatusText(_loadedStatus)} (غير قابل للتعديل)";
+
         Text = lblMode.Text;
     }
 
@@ -115,6 +139,8 @@ public partial class frmAddUpdateExpense : Form
     private void _StartNewEntry()
     {
         _editingId = -1;
+        _loadedStatus = StatusDraft;   // وضع الإضافة: لا حظر حالة
+        _loadedExpenseAccountId = 0;   // لا حساب مصروف محمَّل في وضع الإضافة
 
         dtpDate.Value = DateTime.Today;
         cmbCashBox.SelectedIndex = -1;
@@ -164,10 +190,14 @@ public partial class frmAddUpdateExpense : Form
             if (result.IsSuccess && result.Value != null)
             {
                 var expense = result.Value;
+                _loadedStatus = expense.Status;                       // أساس حظر حفظ مصروف غير مسودة
+                _loadedExpenseAccountId = expense.ExpenseAccountId;    // يُعاد إرساله كما هو (لا يُمحى بالحفظ)
                 dtpDate.Value = expense.ExpenseDate;
+                cmbCashBox.SelectedValue = expense.CashBoxId;   // استعادة الصندوق المحدد في وضع التعديل
                 numAmount.Value = expense.Amount;
                 txtNotes.Text = expense.Notes ?? string.Empty;
                 _UpdateNetTotal();
+                _UpdateModeHeader();   // يعلن «عرض» إذا كان المصروف مرحّلاً/ملغى
             }
             else
             {
@@ -195,7 +225,8 @@ public partial class frmAddUpdateExpense : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            await LoadComboBoxesAsync();
+            _comboBoxesLoadTask = LoadComboBoxesAsync();
+            await _comboBoxesLoadTask;
             if (_isEditMode) await LoadExpenseAsync();
         }
         catch (Exception ex)
@@ -275,6 +306,13 @@ public partial class frmAddUpdateExpense : Form
     /// <summary>RULE-N25/N26: async void + try/catch + Cursor.WaitCursor واستعادته في finally.</summary>
     private async void btnSave_Click(object sender, EventArgs e)
     {
+        // المصروف المرحّل/الملغى لا يُعدَّل — حظر مطابق لرفض الخدمة (RULE-N167) كي لا يُوهم المستخدم بحفظ لا يقع.
+        if (_isEditMode && _loadedStatus != StatusDraft)
+        {
+            clsDialogs.Warning("لا يمكن حفظ مصروف مرحّل أو ملغى. المصروفات المرحّلة تُلغى ولا تُعدَّل.");
+            return;
+        }
+
         if (!_ValidateForm()) return;
         if (!_TryGetCashBoxId(out int cashBoxId)) return;
 
@@ -289,7 +327,8 @@ public partial class frmAddUpdateExpense : Form
             {
                 var request = new UpdateExpenseRequest(
                     ExpenseDate: dtpDate.Value,
-                    ExpenseAccountId: 0,
+                    // حساب المصروف المحمَّل يُعاد كما هو — إرسال 0 يمحو حساب المصروف القائم (الشاشة بلا منتقي حساب).
+                    ExpenseAccountId: _loadedExpenseAccountId,
                     CashBoxId: cashBoxId,
                     Amount: numAmount.Value,
                     Notes: notes);
@@ -310,6 +349,8 @@ public partial class frmAddUpdateExpense : Form
             {
                 var request = new CreateExpenseRequest(
                     ExpenseDate: dtpDate.Value,
+                    // لا منتقي «حساب مصروف» في مصمّم الشاشة (المصمّم خارج نطاق هذه المراجعة):
+                    // 0 = بلا حساب محدد ويُحلّ في الباك-إند — مكتوب صريحاً لا كقيمة غامضة.
                     ExpenseAccountId: 0,
                     CashBoxId: cashBoxId,
                     Amount: numAmount.Value,
@@ -345,12 +386,34 @@ public partial class frmAddUpdateExpense : Form
 
     /// <summary>
     /// يضبط المحرر على وضع التعديل لسجل محدد — يُستدعى من شاشة الدليل بعد حل النموذج من DI.
+    /// <para>
+    /// التوقيع متزامن لأن كل المنادين معالجات <c>void</c> أو منشئ؛ والتحميل يُسلسَل داخلياً:
+    /// **قائمة الصناديق أولاً ثم المصروف** — وإلا فقد ضبط <c>DataSource</c> الصندوق المحدد.
+    /// </para>
     /// </summary>
     public void _SetUpdateMode(int id)
     {
         _editingId = id;
         _UpdateModeHeader();
-        _ = LoadExpenseAsync();
+        _ = _LoadExpenseForEditAsync();
+    }
+
+    /// <summary>تحميل مصروف التعديل بعد اكتمال القوائم — مغلَّف بـ try/catch كي لا يهرب استثناء من مهمة مُطلَقة.</summary>
+    private async Task _LoadExpenseForEditAsync()
+    {
+        try
+        {
+            await _comboBoxesLoadTask;
+
+            if (IsDisposed || !_isEditMode) return;
+
+            await LoadExpenseAsync();
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تحميل المصروف للتحرير {ExpenseId}", _editingId);
+            clsDialogs.Error("تعذر تحميل بيانات المصروف. يرجى إعادة المحاولة.");
+        }
     }
 
     private void numAmount_ValueChanged(object? sender, EventArgs e)

@@ -48,10 +48,17 @@ public partial class frmVatReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetVatReportAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetVatReportAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), default);
             if (result.IsSuccess && result.Value != null)
             {
                 var list = result.Value.ToList();
@@ -77,8 +84,12 @@ public partial class frmVatReport : Form, IExportableReport
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("InvoiceNumber", "رقم الفاتورة"); SetHeader("InvoiceDate", "التاريخ"); SetHeader("PartyName", "الطرف");
         SetHeader("TaxableAmount", "الضريبية"); SetHeader("TaxRate", "النسبة"); SetHeader("TaxAmount", "الضريبة");
-        foreach (var c in new[] { "TaxableAmount", "TaxRate", "TaxAmount" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TaxableAmount", "TaxAmount");
+        // عمود التاريخ من البيت الواحد — لا صيغة ثقافة الجهاز (RULE-N169).
+        GridFormatHelper.ApplyColumn(dgvReport, "InvoiceDate", GridFormatKind.DateShort);
+        // TaxRate نسبة على مقياس 0..100 (المبلغ الضريبي ÷ الوعاء × 100) — لا «Money» ولا «Percent»
+        // لأن نمط النسبة في clsFormat هو "P" و.NET تضربه بـ100 مرة ثانية فتظهر 15% كـ1,500%.
+        GridFormatHelper.ApplyColumn(dgvReport, "TaxRate", GridFormatKind.Ratio);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

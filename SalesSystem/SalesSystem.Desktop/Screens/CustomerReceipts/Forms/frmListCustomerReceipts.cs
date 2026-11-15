@@ -125,23 +125,24 @@ public partial class frmListCustomerReceipts : Form
 
     // ── خيارات التصفية ─────────────────────────────────────────────────────────
 
-    /// <summary>RULE-N60: التصفية بالـ SelectedIndex لا بمقارنة نص عربي.</summary>
+    /// <summary>
+    /// RULE-N60: التصفية على القيمة الرقمية للحالة لا بمقارنة نص عربي — ونصوص الحالات من البيت الواحد
+    /// <see cref="DocumentTextHelper.StatusOptions"/> فلا تُكرَّر نصوص «مسودة/مرحل/ملغي» في الشاشة (RULE-N172).
+    /// الترتيب: 0 = الكل · 1 = مسودة · 2 = مرحل · 3 = ملغي كما في <see cref="_GetStatusFilter"/>.
+    /// </summary>
     private void _LoadStatusOptions()
     {
         cbStatus.Items.Clear();
-        cbStatus.Items.Add("الكل");
-        cbStatus.Items.Add("مرحّل");
-        cbStatus.Items.Add("ملغى");
+        cbStatus.Items.Add("الكل");   // العنصر المحايد ليس نص حالة (DocumentTextHelper.StatusText)
+
+        foreach (var option in DocumentTextHelper.StatusOptions)
+            cbStatus.Items.Add(option.Text);
+
         cbStatus.SelectedIndex = 0;
     }
 
-    /// <summary>0 = الكل · 1 = مرحّل (2) · 2 = ملغى (3).</summary>
-    private byte? _GetStatusFilter() => cbStatus.SelectedIndex switch
-    {
-        1 => StatusPosted,
-        2 => StatusCancelled,
-        _ => null
-    };
+    /// <summary>0 = الكل · 1 = مسودة (1) · 2 = مرحل (2) · 3 = ملغي (3) — قيمة الحالة الرقمية (RULE-N60).</summary>
+    private byte? _GetStatusFilter() => cbStatus.SelectedIndex > 0 ? (byte)cbStatus.SelectedIndex : null;
 
     private static DateTime _StartOfCurrentMonth()
     {
@@ -172,7 +173,6 @@ public partial class frmListCustomerReceipts : Form
 
         var columns = new[]
         {
-            new { Name = "Id",                Header = "رقم السند",     Fill = 8,  Min = 100 },
             new { Name = "ReceiptNo",         Header = "رقم السند",     Fill = 8,  Min = 100 },
             new { Name = "ReceiptDate",       Header = "التاريخ",       Fill = 12, Min = 120 },
             new { Name = "CustomerName",      Header = "العميل",        Fill = 15, Min = 150 },
@@ -275,10 +275,19 @@ public partial class frmListCustomerReceipts : Form
     {
         1 => r.ReceiptNo.ToString().Contains(text, StringComparison.Ordinal),
         2 => (r.Notes ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase),
-        3 => clsFormat.Money(r.Amount).Contains(text, StringComparison.Ordinal)
-             || r.Amount.ToString("0.###").Contains(text, StringComparison.Ordinal),
+        3 => _MatchesAmount(r, text),
         _ => (r.CustomerName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase),
     };
+
+    /// <summary>
+    /// تصفية المبلغ: قراءة النص بقارئ الأرقام الواحد <c>clsFormat.TryParseMoney</c> (يتكفّل بالفاصل
+    /// الحيّ والأرقام العربية) — لا نص تنسيق مكتوب في الشاشة (RULE-N169)، مع مطابقة نصية
+    /// للمبلغ المنسَّق كي يعمل البحث الجزئي أثناء الكتابة.
+    /// </summary>
+    private static bool _MatchesAmount(CustomerReceiptDto r, string text)
+        => clsFormat.TryParseMoney(text, out decimal amount)
+            ? r.Amount == amount || clsFormat.Money(r.Amount).Contains(text, StringComparison.Ordinal)
+            : clsFormat.Money(r.Amount).Contains(text, StringComparison.Ordinal);
 
     private static decimal _GetAppliedAmount(CustomerReceiptDto r)
         => r.Applications?.Where(a => a.IsActive).Sum(a => a.AppliedAmount) ?? 0m;
@@ -355,7 +364,6 @@ public partial class frmListCustomerReceipts : Form
         foreach (var r in _filteredReceipts)
         {
             int rowIndex = dgvReceipts.Rows.Add(
-                r.Id,
                 r.ReceiptNo,
                 clsFormat.DateToDayMonthYear(r.ReceiptDate),
                 r.CustomerName ?? "",
@@ -399,10 +407,11 @@ public partial class frmListCustomerReceipts : Form
         lblRecordsCount.Text = clsFormat.Number(_filteredReceipts.Count);
     }
 
+    /// <summary>معرّف السند المحدد — يُقرأ من <c>Tag</c> السطر (لا من عمود معروض — لا عمود «Id» في الشبكة).</summary>
     private int _GetSelectedId()
     {
         if (dgvReceipts.CurrentRow == null) return -1;
-        return dgvReceipts.CurrentRow.Cells[0].Value is int id ? id : -1;
+        return dgvReceipts.CurrentRow.Tag is int id ? id : -1;
     }
 
     private byte _GetSelectedStatus()
@@ -412,10 +421,36 @@ public partial class frmListCustomerReceipts : Form
         return item?.Status ?? 0;
     }
 
-    private void _OpenForm(Form form)
+    /// <summary>
+    /// RULE-N09 + RULE-N132: شاشة الإدخال تُفتح **نمطياً بمالك** ثم تُعاد القائمة بعد إغلاقها —
+    /// الفتح غير النمطي عبر <c>clsGlobal._OpenForm</c> كان يُعيد التحميل **قبل** الحفظ فلا يظهر السند الجديد.
+    /// </summary>
+    private void _ShowEntryDialog(Form form)
     {
-        clsGlobal._OpenForm(form);
+        using (form)
+            form.ShowDialog(this);
+
         _ReloadForm();
+    }
+
+    /// <summary>
+    /// «تعديل»: يفتح السند المحدد في وضع التعديل، ويمنع فتح سند مرحّل/ملغى
+    /// (السندات المرحّلة تُلغى ولا تُعدَّل — <c>RULE-N167</c> وتكافؤ رفض الباك-إند).
+    /// </summary>
+    private void _OpenForEdit()
+    {
+        int id = _GetSelectedId();
+        if (id <= 0) return;
+
+        if (_GetSelectedStatus() != StatusDraft)
+        {
+            clsDialogs.Warning("لا يمكن تعديل سند قبض مرحّل أو ملغى. السندات المرحّلة تُلغى ولا تُعدَّل.");
+            return;
+        }
+
+        var form = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
+        form._SetUpdateMode(id);
+        _ShowEntryDialog(form);
     }
 
     private void frmListCustomerReceipts_Load(object sender, EventArgs e)
@@ -489,7 +524,7 @@ public partial class frmListCustomerReceipts : Form
 
     private void btnAddNew_Click(object sender, EventArgs e)
     {
-        _OpenForm(_serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>());
+        _ShowEntryDialog(_serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>());
     }
 
     private void btnRefresh_Click(object sender, EventArgs e)
@@ -519,13 +554,7 @@ public partial class frmListCustomerReceipts : Form
 
     private void editToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        int id = _GetSelectedId();
-        if (id > 0)
-        {
-            var frm = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
-            frm._SetUpdateMode(id);
-            _OpenForm(frm);
-        }
+        _OpenForEdit();
     }
 
     private void postToolStripMenuItem_Click(object sender, EventArgs e)
@@ -571,7 +600,7 @@ public partial class frmListCustomerReceipts : Form
         }
         finally
         {
-            Cursor = Cursors.Default;
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 
@@ -618,19 +647,13 @@ public partial class frmListCustomerReceipts : Form
         }
         finally
         {
-            Cursor = Cursors.Default;
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 
     private void dgvReceipts_DoubleClick(object sender, EventArgs e)
     {
-        int id = _GetSelectedId();
-        if (id > 0)
-        {
-            var frm = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
-            frm._SetUpdateMode(id);
-            _OpenForm(frm);
-        }
+        _OpenForEdit();
     }
 
     private void cmsReceipts_Opening(object sender, System.ComponentModel.CancelEventArgs e)

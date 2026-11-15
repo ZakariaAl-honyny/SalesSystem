@@ -10,8 +10,6 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms;
 
 public partial class frmListReturns : Form
 {
-    private const string CashCustomerName = "عميل نقدي";
-
     private readonly IServiceProvider _serviceProvider;
     private ISalesReturnDesktopService _salesReturnService => _serviceProvider.GetRequiredService<ISalesReturnDesktopService>();
     private IPurchaseReturnDesktopService _purchaseReturnService => _serviceProvider.GetRequiredService<IPurchaseReturnDesktopService>();
@@ -40,6 +38,7 @@ public partial class frmListReturns : Form
         _defaultTo = today;
 
         InitializeComponent();
+        _LoadStatusOptions();   // نصوص الحالة من البيت الواحد — مرة واحدة في المُنشئ (RULE-N169)
 
         // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط
         KeyboardHelper.WireEnterAsTab(this);
@@ -102,6 +101,23 @@ public partial class frmListReturns : Form
     }
 
     // ── Filter Initialization (RULE-N57/N58/N59) ──────────────────────────────
+
+    /// <summary>
+    /// خيارات تصفية الحالة: «الكل» عنصر محايد محلي (ليس نص حالة)، وبقية النصوص من البيت الواحد
+    /// <see cref="DocumentTextHelper.StatusOptions"/> فلا تُكرَّر في الشاشة (RULE-N169/RULE-N172).
+    /// الترتيب «الكل» ثم 1 (مسودة) · 2 (مرحل) · 3 (ملغي)، فيبقى <c>cbStatus.SelectedIndex</c>
+    /// مساوياً لقيمة الحالة الرقمية في التصفية (RULE-N60).
+    /// </summary>
+    private void _LoadStatusOptions()
+    {
+        cbStatus.Items.Clear();
+        cbStatus.Items.Add("الكل");   // عنصر محايد محلي — ليس نص حالة
+
+        foreach (var option in DocumentTextHelper.StatusOptions)
+            cbStatus.Items.Add(option.Text);
+
+        cbStatus.SelectedIndex = 0;   // الافتراضي: «الكل» (بلا تغيير)
+    }
 
     /// <summary>القيم الابتدائية: بلا نص، الحالة «الكل»، والمدى «هذا الشهر».</summary>
     private void _InitializeFilters()
@@ -226,17 +242,13 @@ public partial class frmListReturns : Form
                 return d >= fromDate && d <= toDate;
             });
 
-        // (2) الحالة — بالـ SelectedIndex لا بنص عربي (RULE-N60): 0 الكل · 1 مرحّل(2) · 2 ملغى(3).
-        int statusIndex = cbStatus.SelectedIndex;
-        if (statusIndex == 1)
+        // (2) الحالة — القيمة الرقمية للحالة من العنصر المختار لا نص عربي (RULE-N60):
+        // 0 الكل · 1 مسودة · 2 مرحل · 3 ملغي — وهي نفس قيم DocumentTextHelper.StatusOptions.
+        byte statusFilter = cbStatus.SelectedIndex > 0 ? (byte)cbStatus.SelectedIndex : (byte)0;
+        if (statusFilter > 0)
         {
-            sales = sales.Where(r => r.Status == 2);
-            purchases = purchases.Where(r => r.Status == 2);
-        }
-        else if (statusIndex == 2)
-        {
-            sales = sales.Where(r => r.Status == 3);
-            purchases = purchases.Where(r => r.Status == 3);
+            sales = sales.Where(r => r.Status == statusFilter);
+            purchases = purchases.Where(r => r.Status == statusFilter);
         }
 
         // (3) «الملغاة فقط» (RULE-N58).
@@ -253,7 +265,7 @@ public partial class frmListReturns : Form
             switch (cbFilterBy.SelectedIndex)
             {
                 case 0: // العميل / المورد
-                    sales = sales.Where(r => _CustomerText(r).Contains(text, StringComparison.OrdinalIgnoreCase));
+                    sales = sales.Where(r => DocumentTextHelper.CashCustomerNameOr(r.CustomerName).Contains(text, StringComparison.OrdinalIgnoreCase));
                     purchases = purchases.Where(r => (r.SupplierName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase));
                     break;
 
@@ -269,9 +281,9 @@ public partial class frmListReturns : Form
                     purchases = purchases.Where(r => (r.Notes ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase));
                     break;
 
-                case 3: // المبلغ
-                    sales = sales.Where(r => r.TotalAmount.ToString("0.##", CultureInfo.InvariantCulture).Contains(text, StringComparison.Ordinal));
-                    purchases = purchases.Where(r => r.TotalAmount.ToString("0.##", CultureInfo.InvariantCulture).Contains(text, StringComparison.Ordinal));
+                case 3: // المبلغ — البحث في النص المعروض نفسه (clsFormat.Money)، لا صيغة مكتوبة داخل الشاشة
+                    sales = sales.Where(r => clsFormat.Money(r.TotalAmount).Contains(text, StringComparison.Ordinal));
+                    purchases = purchases.Where(r => clsFormat.Money(r.TotalAmount).Contains(text, StringComparison.Ordinal));
                     break;
             }
         }
@@ -320,9 +332,6 @@ public partial class frmListReturns : Form
             || dtpTo.Value.Date != _defaultTo;
     }
 
-    private static string _CustomerText(SalesReturnDto r)
-        => string.IsNullOrWhiteSpace(r.CustomerName) ? CashCustomerName : r.CustomerName;
-
     private void _PopulateSalesGrid()
     {
         dgvSales.Rows.Clear();
@@ -332,9 +341,9 @@ public partial class frmListReturns : Form
             dgvSales.Rows.Add(
                 r.ReturnNo,
                 clsFormat.DateToShort(r.ReturnDate),
-                _CustomerText(r),
+                DocumentTextHelper.CashCustomerNameOr(r.CustomerName),
                 clsFormat.Money(r.TotalAmount),
-                r.StatusDisplay
+                DocumentTextHelper.StatusText(r.Status)   // البيت الواحد لنص الحالة (RULE-N169)
             );
         }
 
@@ -354,7 +363,7 @@ public partial class frmListReturns : Form
                 clsFormat.DateToShort(r.ReturnDate.ToDateTime(TimeOnly.MinValue)),   // PurchaseReturnDto.ReturnDate = DateOnly
                 r.SupplierName,
                 clsFormat.Money(r.TotalAmount),
-                r.StatusDisplay
+                DocumentTextHelper.StatusText(r.Status)   // البيت الواحد لنص الحالة (RULE-N169)
             );
         }
 
@@ -571,19 +580,24 @@ public partial class frmListReturns : Form
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// فتح محرر مرتجع المبيعات — وإعادة تحميل القائمة عند **إغلاقه** لا قبله:
+    /// الإعادة الفورية كانت تسبق الحفظ فتبقى القائمة قديمة بعد «تم الحفظ» (RULE-N151/RULE-N132).
+    /// </summary>
     private void OpenSalesReturnForm(SalesReturnDto? dto)
     {
         var form = _serviceProvider.GetRequiredService<frmSalesReturn>();
         form.LoadData(dto);
+        form.FormClosed += (s, e) => { if (!IsDisposed) _ReloadForm(); };
         clsGlobal._OpenForm(form);
-        _ReloadForm();
     }
 
+    /// <summary>فتح محرر مرتجع المشتريات — وإعادة تحميل القائمة عند إغلاقه (نفس السبب أعلاه).</summary>
     private void OpenPurchaseReturnForm(PurchaseReturnDto? dto)
     {
         var form = _serviceProvider.GetRequiredService<frmPurchaseReturn>();
         form.LoadData(dto);
+        form.FormClosed += (s, e) => { if (!IsDisposed) _ReloadForm(); };
         clsGlobal._OpenForm(form);
-        _ReloadForm();
     }
 }

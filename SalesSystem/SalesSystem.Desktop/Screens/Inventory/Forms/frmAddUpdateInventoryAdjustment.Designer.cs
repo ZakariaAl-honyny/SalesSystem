@@ -46,6 +46,17 @@
             groupLines = new GroupBox();
             dgvLines = new DataGridView();
             lblEmpty = new Label();
+            pnlLineEntry = new Panel();
+            lblEntryProduct = new Label();
+            txtEntryProduct = new TextBox();
+            btnPickProduct = new Button();
+            lblEntryExpected = new Label();
+            txtEntryExpected = new TextBox();
+            lblEntryActual = new Label();
+            txtEntryActual = new TextBox();
+            lblEntryUnitCost = new Label();
+            txtEntryUnitCost = new TextBox();
+            btnAddLine = new Button();
 
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             cmsLines.SuspendLayout();
@@ -54,6 +65,7 @@
             gbTotals.SuspendLayout();
             groupLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvLines).BeginInit();
+            pnlLineEntry.SuspendLayout();
             SuspendLayout();
 
             // 
@@ -383,6 +395,7 @@
             groupLines.BackColor = Color.FromArgb(235, 245, 235);
             groupLines.Controls.Add(dgvLines);
             groupLines.Controls.Add(lblEmpty);
+            groupLines.Controls.Add(pnlLineEntry);
             groupLines.Dock = DockStyle.Fill;
             groupLines.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             groupLines.ForeColor = Color.FromArgb(14, 82, 52);
@@ -419,7 +432,7 @@
             dgvLines.Dock = DockStyle.Fill;
             dgvLines.EnableHeadersVisualStyles = false;
             dgvLines.GridColor = Color.FromArgb(205, 225, 205);
-            dgvLines.Location = new Point(8, 31);
+            dgvLines.Location = new Point(8, 123);
             dgvLines.Margin = new Padding(0);
             dgvLines.MultiSelect = false;
             dgvLines.Name = "dgvLines";
@@ -428,8 +441,8 @@
             dgvLines.RowHeadersWidth = 62;
             dgvLines.RowTemplate.Height = 32;
             dgvLines.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvLines.Size = new Size(1344, 427);
-            dgvLines.TabIndex = 0;
+            dgvLines.Size = new Size(1344, 335);
+            dgvLines.TabIndex = 1;
             dgvLines.TabStop = false;
             // 
             // lblEmpty
@@ -438,14 +451,152 @@
             lblEmpty.Dock = DockStyle.Fill;
             lblEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold);
             lblEmpty.ForeColor = Color.FromArgb(14, 82, 52);
-            lblEmpty.Location = new Point(8, 31);
+            lblEmpty.Location = new Point(8, 123);
             lblEmpty.Margin = new Padding(0);
             lblEmpty.Name = "lblEmpty";
-            lblEmpty.Size = new Size(1344, 427);
-            lblEmpty.TabIndex = 1;
+            lblEmpty.Size = new Size(1344, 335);
+            lblEmpty.TabIndex = 2;
             lblEmpty.Text = "لا توجد بنود في هذه التسوية";
             lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
             lblEmpty.Visible = false;
+            // 
+            // pnlLineEntry
+            // 
+            pnlLineEntry.BackColor = Color.FromArgb(235, 240, 235);
+            pnlLineEntry.Controls.Add(lblEntryProduct);
+            pnlLineEntry.Controls.Add(txtEntryProduct);
+            pnlLineEntry.Controls.Add(btnPickProduct);
+            pnlLineEntry.Controls.Add(lblEntryExpected);
+            pnlLineEntry.Controls.Add(txtEntryExpected);
+            pnlLineEntry.Controls.Add(lblEntryActual);
+            pnlLineEntry.Controls.Add(txtEntryActual);
+            pnlLineEntry.Controls.Add(lblEntryUnitCost);
+            pnlLineEntry.Controls.Add(txtEntryUnitCost);
+            pnlLineEntry.Controls.Add(btnAddLine);
+            pnlLineEntry.Dock = DockStyle.Top;
+            pnlLineEntry.Location = new Point(8, 31);
+            pnlLineEntry.Margin = new Padding(0);
+            pnlLineEntry.Name = "pnlLineEntry";
+            pnlLineEntry.Size = new Size(1344, 92);
+            pnlLineEntry.TabIndex = 0;
+            // 
+            // lblEntryProduct
+            // 
+            lblEntryProduct.Font = new Font("Tahoma", 10F);
+            lblEntryProduct.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryProduct.Location = new Point(1250, 20);
+            lblEntryProduct.Name = "lblEntryProduct";
+            lblEntryProduct.Size = new Size(70, 26);
+            lblEntryProduct.TabIndex = 2;
+            lblEntryProduct.Text = "الصنف:";
+            lblEntryProduct.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // txtEntryProduct
+            // 
+            txtEntryProduct.BackColor = Color.White;
+            txtEntryProduct.Font = new Font("Tahoma", 10F);
+            txtEntryProduct.Location = new Point(940, 14);
+            txtEntryProduct.Name = "txtEntryProduct";
+            txtEntryProduct.ReadOnly = true;
+            txtEntryProduct.Size = new Size(300, 32);
+            txtEntryProduct.TabIndex = 1;
+            txtEntryProduct.TabStop = false;
+            txtEntryProduct.TextAlign = HorizontalAlignment.Right;
+            // 
+            // btnPickProduct
+            // 
+            btnPickProduct.BackColor = Color.FromArgb(13, 110, 253);
+            btnPickProduct.Cursor = Cursors.Hand;
+            btnPickProduct.FlatAppearance.BorderSize = 0;
+            btnPickProduct.FlatStyle = FlatStyle.Flat;
+            btnPickProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnPickProduct.ForeColor = Color.White;
+            btnPickProduct.Location = new Point(790, 13);
+            btnPickProduct.Name = "btnPickProduct";
+            btnPickProduct.Size = new Size(130, 34);
+            btnPickProduct.TabIndex = 0;
+            btnPickProduct.Text = "اختيار صنف (F2)";
+            btnPickProduct.UseVisualStyleBackColor = false;
+            btnPickProduct.Click += btnPickProduct_Click;
+            // 
+            // lblEntryExpected
+            // 
+            lblEntryExpected.Font = new Font("Tahoma", 10F);
+            lblEntryExpected.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryExpected.Location = new Point(1200, 62);
+            lblEntryExpected.Name = "lblEntryExpected";
+            lblEntryExpected.Size = new Size(140, 26);
+            lblEntryExpected.TabIndex = 3;
+            lblEntryExpected.Text = "الكمية المتوقعة:";
+            lblEntryExpected.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // txtEntryExpected
+            // 
+            txtEntryExpected.BackColor = Color.White;
+            txtEntryExpected.Font = new Font("Tahoma", 10F);
+            txtEntryExpected.Location = new Point(1050, 56);
+            txtEntryExpected.Name = "txtEntryExpected";
+            txtEntryExpected.Size = new Size(140, 32);
+            txtEntryExpected.TabIndex = 4;
+            txtEntryExpected.TextAlign = HorizontalAlignment.Right;
+            // 
+            // lblEntryActual
+            // 
+            lblEntryActual.Font = new Font("Tahoma", 10F);
+            lblEntryActual.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryActual.Location = new Point(900, 62);
+            lblEntryActual.Name = "lblEntryActual";
+            lblEntryActual.Size = new Size(140, 26);
+            lblEntryActual.TabIndex = 5;
+            lblEntryActual.Text = "الكمية الفعلية:";
+            lblEntryActual.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // txtEntryActual
+            // 
+            txtEntryActual.BackColor = Color.White;
+            txtEntryActual.Font = new Font("Tahoma", 10F);
+            txtEntryActual.Location = new Point(750, 56);
+            txtEntryActual.Name = "txtEntryActual";
+            txtEntryActual.Size = new Size(140, 32);
+            txtEntryActual.TabIndex = 6;
+            txtEntryActual.TextAlign = HorizontalAlignment.Right;
+            // 
+            // lblEntryUnitCost
+            // 
+            lblEntryUnitCost.Font = new Font("Tahoma", 10F);
+            lblEntryUnitCost.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryUnitCost.Location = new Point(610, 62);
+            lblEntryUnitCost.Name = "lblEntryUnitCost";
+            lblEntryUnitCost.Size = new Size(130, 26);
+            lblEntryUnitCost.TabIndex = 7;
+            lblEntryUnitCost.Text = "تكلفة الوحدة:";
+            lblEntryUnitCost.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // txtEntryUnitCost
+            // 
+            txtEntryUnitCost.BackColor = Color.White;
+            txtEntryUnitCost.Font = new Font("Tahoma", 10F);
+            txtEntryUnitCost.Location = new Point(460, 56);
+            txtEntryUnitCost.Name = "txtEntryUnitCost";
+            txtEntryUnitCost.Size = new Size(140, 32);
+            txtEntryUnitCost.TabIndex = 8;
+            txtEntryUnitCost.TextAlign = HorizontalAlignment.Right;
+            // 
+            // btnAddLine
+            // 
+            btnAddLine.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddLine.Cursor = Cursors.Hand;
+            btnAddLine.FlatAppearance.BorderSize = 0;
+            btnAddLine.FlatStyle = FlatStyle.Flat;
+            btnAddLine.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnAddLine.ForeColor = Color.White;
+            btnAddLine.Location = new Point(310, 55);
+            btnAddLine.Name = "btnAddLine";
+            btnAddLine.Size = new Size(140, 34);
+            btnAddLine.TabIndex = 9;
+            btnAddLine.Text = "إضافة صنف";
+            btnAddLine.UseVisualStyleBackColor = false;
+            btnAddLine.Click += btnAddLine_Click;
             // 
             // frmAddUpdateInventoryAdjustment
             // 
@@ -478,6 +629,8 @@
             gbTotals.PerformLayout();
             groupLines.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvLines).EndInit();
+            pnlLineEntry.ResumeLayout(false);
+            pnlLineEntry.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -512,6 +665,17 @@
         private GroupBox groupLines;
         private DataGridView dgvLines;
         private Label lblEmpty;
+        private Panel pnlLineEntry;
+        private Label lblEntryProduct;
+        private TextBox txtEntryProduct;
+        private Button btnPickProduct;
+        private Label lblEntryExpected;
+        private TextBox txtEntryExpected;
+        private Label lblEntryActual;
+        private TextBox txtEntryActual;
+        private Label lblEntryUnitCost;
+        private TextBox txtEntryUnitCost;
+        private Button btnAddLine;
         #endregion
     }
 }

@@ -23,6 +23,7 @@ partial class frmWarehouseTransferNew
         lblMode = new Label();
         gbToolbar = new GroupBox();
         btnSave = new Button();
+        btnPost = new Button();
         btnCancel = new Button();
         grpHeader = new GroupBox();
         lblReference = new Label();
@@ -101,6 +102,7 @@ partial class frmWarehouseTransferNew
         // gbToolbar
         // 
         gbToolbar.BackColor = Color.FromArgb(235, 245, 235);
+        gbToolbar.Controls.Add(btnPost);
         gbToolbar.Controls.Add(btnCancel);
         gbToolbar.Controls.Add(btnSave);
         gbToolbar.Dock = DockStyle.Top;
@@ -131,7 +133,25 @@ partial class frmWarehouseTransferNew
         btnSave.Text = "حفظ السند";
         btnSave.UseVisualStyleBackColor = false;
         btnSave.Click += btnSave_Click;
-        tooltip.SetToolTip(btnSave, "حفظ سند التحويل (F4)");
+        tooltip.SetToolTip(btnSave, "حفظ سند التحويل كمسودة دون تحريك رصيد (F4)");
+        // 
+        // btnPost
+        // 
+        btnPost.BackColor = Color.FromArgb(25, 135, 84);
+        btnPost.Cursor = Cursors.Hand;
+        btnPost.FlatAppearance.BorderSize = 0;
+        btnPost.FlatStyle = FlatStyle.Flat;
+        btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnPost.ForeColor = Color.White;
+        btnPost.Location = new Point(172, 16);
+        btnPost.MinimumSize = new Size(100, 34);
+        btnPost.Name = "btnPost";
+        btnPost.Size = new Size(150, 36);
+        btnPost.TabIndex = 1;
+        btnPost.Text = "ترحيل";
+        btnPost.UseVisualStyleBackColor = false;
+        btnPost.Click += btnPost_Click;
+        tooltip.SetToolTip(btnPost, "ترحيل سند التحويل وخصم الكميات من المستودع المصدر (F4)");
         // 
         // btnCancel
         // 
@@ -142,11 +162,11 @@ partial class frmWarehouseTransferNew
         btnCancel.FlatStyle = FlatStyle.Flat;
         btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnCancel.ForeColor = Color.White;
-        btnCancel.Location = new Point(172, 16);
+        btnCancel.Location = new Point(332, 16);
         btnCancel.MinimumSize = new Size(100, 34);
         btnCancel.Name = "btnCancel";
         btnCancel.Size = new Size(140, 36);
-        btnCancel.TabIndex = 1;
+        btnCancel.TabIndex = 2;
         btnCancel.Text = "إلغاء";
         btnCancel.UseVisualStyleBackColor = false;
         btnCancel.Click += btnCancel_Click;
@@ -495,6 +515,7 @@ partial class frmWarehouseTransferNew
     private Label lblMode;
     private GroupBox gbToolbar;
     private Button btnSave;
+    private Button btnPost;
     private Button btnCancel;
     private GroupBox grpHeader;
     private Label lblTransferNo;

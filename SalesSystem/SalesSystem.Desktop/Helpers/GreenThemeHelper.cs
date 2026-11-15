@@ -156,6 +156,42 @@ public static class GreenThemeHelper
     /// <summary>خلفية حالة محايدة.</summary>
     public static Color StatusNeutralBack { get; } = Color.FromArgb(241, 242, 246);
 
+    // ---- الدرجات المشبعة لألوان الحالة (RULE-N172 — بيت واحد لشارات الحالة) ----
+    // تُستهلك لخلفية شارة الحالة (بنص أبيض) أو لنص حالة غامق. قيمها هي نفس القيم
+    // الحرفية التي كانت مكتوبة داخل الشاشات (ForestGreen · Goldenrod · Firebrick ·
+    // SlateGray) ⇒ لا تغيّر بصرياً إطلاقاً، لكنها لم تبقَ مكرّرة في أي شاشة (RULE-N169).
+    /// <summary>حالة نجاح مشبعة (خلفية شارة «متوفر/مرحّل/مستلم») — ForestGreen اليوم.</summary>
+    public static Color StatusSuccessStrong { get; } = Color.FromArgb(34, 139, 34);
+
+    /// <summary>حالة تحذير مشبعة (خلفية شارة «محدود/قيد النقل») — Goldenrod اليوم.</summary>
+    public static Color StatusWarningStrong { get; } = Color.FromArgb(218, 165, 32);
+
+    /// <summary>حالة خطر مشبعة (خلفية شارة «نفد/ملغي») — Firebrick اليوم.</summary>
+    public static Color StatusDangerStrong { get; } = Color.FromArgb(178, 34, 34);
+
+    /// <summary>حالة محايدة مشبعة (خلفية شارة «مسودة») — SlateGray اليوم.</summary>
+    public static Color StatusNeutralStrong { get; } = Color.FromArgb(112, 128, 144);
+
+    // ---- إشارة الرقم: موجب/سالب (RULE-N172 — بيت واحد) ----
+    // لون «زيادة/نقص» في شبكات الحركات والمبالغ المستحقة: لا يُكتب Color.Green/Color.Red
+    // داخل أي شاشة — القيم نفسها محفوظة حرفياً فلا تغيير بصري.
+    /// <summary>رقم موجب (زيادة مخزون · لا مستحق) — Green اليوم.</summary>
+    public static Color StatusPositive { get; } = Color.FromArgb(0, 128, 0);
+
+    /// <summary>رقم سالب (نقص مخزون · مستحق على العميل) — Red اليوم.</summary>
+    public static Color StatusNegative { get; } = Color.FromArgb(255, 0, 0);
+
+    /// <summary>موجب غامق (مؤشر «مقفل» غير المحرَّر) — DarkGreen اليوم.</summary>
+    public static Color StatusPositiveDeep { get; } = Color.FromArgb(0, 100, 0);
+
+    // ---- درجتان محايدتان إضافيتان (RULE-N172) ----
+    // تُستهلك لنص ثانوي/تلميح على سطح الملصق ولحالة «مسودة» غير المشبعة.
+    /// <summary>نص باهت أفتح (تلميح · حالة «مسودة» في محرر الفاتورة) — Gray اليوم.</summary>
+    public static Color StatusMutedSoft { get; } = Color.FromArgb(128, 128, 128);
+
+    /// <summary>نص باهت أغمق (سطر معلومات على ملصق الباركود) — DimGray اليوم.</summary>
+    public static Color StatusMutedDeep { get; } = Color.FromArgb(105, 105, 105);
+
     // ---- ألوان السطر «غير النشط» في شبكات الأدلة (RULE-N169 — بيت واحد) ----
     // لونا «حالة» لا لونا تصميم: يعيشان هنا مرة واحدة فقط، ولأنهما لونا حالة لا يُعلنان
     // في أي *.Designer.cs ولا يُستهلكان من ThemePalette (كألوان Status* أعلاه).

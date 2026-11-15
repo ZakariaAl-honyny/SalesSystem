@@ -62,12 +62,19 @@ public partial class frmStockBalanceReport : Form, IExportableReport
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
+
+        // معرّفات داخلية وعمود منطقي (IsLowStock) لا يُعرضان: حالته تُقرأ من «حالة الرصيد» (RULE-N28).
+        var hides = new[] { "ProductId", "WarehouseId", "IsLowStock" };
+        foreach (var h in hides)
+        {
+            if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
+        }
+
         SetHeader("ProductName", "المنتج"); SetHeader("CategoryName", "التصنيف"); SetHeader("WarehouseName", "المستودع");
         SetHeader("CurrentStock", "الكمية"); SetHeader("ReorderLevel", "حد إعادة الطلب"); SetHeader("Cost", "التكلفة"); SetHeader("TotalValue", "القيمة");
-        foreach (var c in new[] { "CurrentStock", "ReorderLevel" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N3";
-        foreach (var c in new[] { "Cost", "TotalValue" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        SetHeader("BalanceStatus", "حالة الرصيد");
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity, "CurrentStock", "ReorderLevel");
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "Cost", "TotalValue");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

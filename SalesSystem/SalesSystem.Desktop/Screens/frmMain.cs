@@ -37,6 +37,18 @@ public partial class frmMain : Form
     private readonly ISessionService _sessionService;
     private readonly IServiceProvider _serviceProvider;
 
+    /// <summary>لاحقة عنوان النافذة في وضع التجربة (§2.16) — تُضاف **مرة واحدة** لا بالتراكم.</summary>
+    private const string MockModeTitleSuffix = "  — وضع التجربة (Mock)";
+
+    /// <summary>
+    /// سبب تعطيل شاشات المرحلة أ في الوضع الحقيقي — يُعرض في تلميح العنصر بدل
+    /// رسالة «تعذر فتح الشاشة» بلا سبب (RULE-N165 / RULE-N168).
+    /// </summary>
+    private const string MockOnlyScreenHint = "هذه الشاشة تعمل في وضع التجربة فقط حتى اعتماد الباك-إند";
+
+    /// <summary>عنوان النافذة الأصلي كما في المصمّم — تُبنى منه لاحقة الوضع بلا تكرار.</summary>
+    private string _baseWindowTitle = string.Empty;
+
     public frmMain(ISessionService sessionService, IServiceProvider serviceProvider)
     {
         _sessionService = sessionService;
@@ -48,8 +60,8 @@ public partial class frmMain : Form
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
 
-        // MVP: إخفاء شاشات النسخة الثانية (V2) — الكود سليم ومحفوظ لإعادة التفعيل لاحقاً
-        ApplyMvpMenuVisibility();
+        // حالة القوائم في مكان واحد: إخفاء المؤجل إلى V2 + تعطيل شاشات المرحلة أ في الوضع الحقيقي
+        ApplyMenuState();
 
         ApplyUiTheme();   // RULE-N50 — آخر خطوة في تهيئة المظهر
     }
@@ -68,6 +80,9 @@ public partial class frmMain : Form
     {
         msMainMenu.BackColor = GreenThemeHelper.BarBackground;   // RULE-N54
         msMainMenu.ForeColor = GreenThemeHelper.TextStrong;      // RULE-N53
+
+        // لون نص النموذج = نفس قيمة المصمّم (Color.FromArgb(33,37,41)) من اللوحة الحيّة (RULE-N140)
+        ForeColor = ThemePalette.Get(ThemePalette.GridCellTextColor);
 
         GreenThemeHelper.Apply(this);                            // ← الأخير دائماً (RULE-N50)
     }
@@ -88,6 +103,51 @@ public partial class frmMain : Form
         msbtnUpdateCheck.Visible = false; // V2
     }
 
+    /// <summary>
+    /// حالة عناصر القائمة في مكان واحد — تُستدعى من المُنشئ وبعد التحميل، وهي آمنة للتكرار.
+    /// </summary>
+    private void ApplyMenuState()
+    {
+        ApplyMvpMenuVisibility();   // V2 — إخفاء
+        ApplyStageGate();           // المرحلة أ — تعطيل في الوضع الحقيقي
+    }
+
+    /// <summary>
+    /// بوابة المرحلة أ (RULE-N165 / RULE-N168): ثلاث شاشات مخزنية تعتمد عقوداً مسجَّلة في
+    /// فرع الـMock **فقط** (<c>IStocktakingDesktopService</c> · <c>IWarehouseTransferDesktopService</c>)،
+    /// ففتحها في الوضع الحقيقي يُطلق استثناء حاوية DI ويُظهر «تعذر فتح الشاشة المطلوبة» بلا سبب.
+    /// لذلك تُعطَّل هنا بصدق في الوضع الحقيقي مع سبب عربي في تلميحها، وتبقى مفعّلة في وضع التجربة.
+    /// </summary>
+    private void ApplyStageGate()
+    {
+        bool mockMode = AppSettings.Current.UseMockData;
+        string hint = mockMode ? string.Empty : MockOnlyScreenHint;
+
+        msbtnInventory.Enabled = mockMode;
+        msbtnInventory.ToolTipText = hint;
+
+        msbtnInventoryTransfer.Enabled = mockMode;
+        msbtnInventoryTransfer.ToolTipText = hint;
+
+        msbtnInventoryCounts.Enabled = mockMode;
+        msbtnInventoryCounts.ToolTipText = hint;
+    }
+
+    /// <summary>
+    /// عنوان النافذة = العنوان المصمَّم + لاحقة الوضع إن كان التطبيق على البيانات الوهمية.
+    /// <see cref="AppSettings.Current"/> هو البيت الوحيد لاكتشاف الوضع (§2.16 / RULE-N168)،
+    /// والكتابة هنا **إحلال** لا إضافة، فلا تتكرر اللاحقة مع كل تحميل.
+    /// </summary>
+    private void ApplyWindowTitle()
+    {
+        if (_baseWindowTitle.Length == 0)
+            _baseWindowTitle = Text;
+
+        Text = AppSettings.Current.UseMockData
+            ? _baseWindowTitle + MockModeTitleSuffix
+            : _baseWindowTitle;
+    }
+
     private void frmMain_Load(object sender, EventArgs e)
     {
         if (!_sessionService.IsAuthenticated)
@@ -104,14 +164,11 @@ public partial class frmMain : Form
         if (MdiContainerPage != null)
             MdiContainerPage.BackColor = GreenThemeHelper.FormBackground;
 
-        // MVP: إخفاء شاشات V2 (يُطبَّق أيضاً في المنشئ — إبقاء العناصر المؤجلة مخفية بعد التحميل)
-        ApplyMvpMenuVisibility();
+        // MVP + المرحلة أ: إعادة تطبيق حالة القوائم بعد التحميل (آمنة للتكرار)
+        ApplyMenuState();
 
-        // Mock-mode visual indicator
-        if (AppSettings.Current.UseMockData)
-        {
-            this.Text += "  — وضع التجربة (Mock)";
-        }
+        // لاحقة وضع التجربة (§2.16) — إحلال لا تراكم
+        ApplyWindowTitle();
     }
 
     // ── فتح الشاشات (RULE-N02 / RULE-N132 / RULE-N133) ────────────────────────
@@ -429,16 +486,34 @@ public partial class frmMain : Form
 
     private void msbtnLogout_Click(object sender, EventArgs e)
     {
-        _sessionService.SignOut();
-        Application.Restart();
+        try
+        {
+            _sessionService.SignOut();
+            Application.Restart();
+        }
+        catch (Exception ex)
+        {
+            // إعادة التشغيل قد تُرفض من المضيف — لا نُبقي شاشة رئيسية بجلسة مسجَّلة الخروج
+            Log.Error(ex, "تعذر إعادة تشغيل التطبيق بعد تسجيل الخروج");
+            Application.Exit();
+        }
     }
 
     // ── ملف (File) ────────────────────────────────────────────────────────────
 
     private void msbtnChangePassword_Click(object sender, EventArgs e)
     {
-        using var frm = _serviceProvider.GetRequiredService<frmPasswordChange>();
-        frm.ShowDialog(this);
+        try
+        {
+            using var frm = _serviceProvider.GetRequiredService<frmPasswordChange>();
+            frm.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            // نفس نمط OpenScreen: لا يُترك الاستثناء للمعالج العام برسالة «خطأ غير متوقع»
+            Log.Error(ex, "تعذر فتح شاشة تغيير كلمة المرور");
+            clsDialogs.Error("تعذر فتح شاشة تغيير كلمة المرور. يرجى المحاولة مرة أخرى.");
+        }
     }
 
     private void msbtnExit_Click(object sender, EventArgs e)

@@ -41,7 +41,13 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
         }
 
         /// <summary>F5 — يفوّض التحديث للمكوّن بلا أي قراءة بيانات داخل النموذج (RULE-N66).</summary>
-        private void RefreshDashboardCommand() => _ = _dashboard.RefreshAsync();
+        private void RefreshDashboardCommand()
+        {
+            // قد يبقى الاختصار موصولاً لحظة بعد الإغلاق — لا نلمس مكوّناً مُنتهياً
+            if (_dashboard.IsDisposed || _dashboard.Disposing) return;
+
+            _ = _dashboard.RefreshAsync();
+        }
 
         private void ApplyUiTheme()
         {

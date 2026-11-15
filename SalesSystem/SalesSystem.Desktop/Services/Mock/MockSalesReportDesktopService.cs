@@ -120,14 +120,17 @@ public class MockSalesReportDesktopService : ISalesReportDesktopService
 
         var invoices = PostedInvoices(from, to);
 
+        // NetTotal محفوظ صافياً أصلاً (SubTotal − خصم الفاتورة + الضريبة + مصاريف أخرى)،
+        // فالخصم لا يُطرح مرة ثانية: «الصافي» = صافي الفاتورة المحفوظ، و«الإجمالي» = قبل خصم الفاتورة
+        // (NetTotal + DiscountAmount) — فيتحقق دائماً: الإجمالي − الخصم = الصافي.
         var list = invoices
             .GroupBy(i => i.InvoiceDate.Date)
             .Select(g => new DailySalesSummaryDto(
                 g.Key,
                 g.Count(),
-                Money(g.Sum(i => i.NetTotal)),
+                Money(g.Sum(i => i.NetTotal + i.DiscountAmount)),
                 Money(g.Sum(i => i.DiscountAmount)),
-                Money(g.Sum(i => i.NetTotal - i.DiscountAmount))))
+                Money(g.Sum(i => i.NetTotal))))
             .OrderBy(d => d.Date)
             .ToList();
 

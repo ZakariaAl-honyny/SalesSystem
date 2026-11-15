@@ -19,6 +19,9 @@ public partial class frmSupplierSelection : Form
     private DataTable? _suppliersTable;
     private DataView? _suppliersView;
 
+    /// <summary>سجلات الخدمة الحقيقية — مصدر <see cref="SelectedSupplier"/> (لا يُبنى المورد من نص الشبكة).</summary>
+    private readonly List<SupplierDto> _suppliers = [];
+
     /// <summary>المورد المختار — العقد الذي تقرأه الشاشات المستدعية (لا يُغيَّر).</summary>
     public SupplierDto? SelectedSupplier { get; private set; }
 
@@ -87,13 +90,16 @@ public partial class frmSupplierSelection : Form
                 return;
             }
 
+            _suppliers.Clear();
+            _suppliers.AddRange(result.Value);
+
             _suppliersTable = new DataTable();
             _suppliersTable.Columns.Add("Id", typeof(int));
             _suppliersTable.Columns.Add("Name", typeof(string));
             _suppliersTable.Columns.Add("Phone", typeof(string));
             _suppliersTable.Columns.Add("Email", typeof(string));
 
-            foreach (var s in result.Value)
+            foreach (var s in _suppliers)
                 _suppliersTable.Rows.Add(s.Id, s.Name, s.Phone ?? string.Empty, s.Email ?? string.Empty);
 
             _suppliersView = new DataView(_suppliersTable);
@@ -165,29 +171,25 @@ public partial class frmSupplierSelection : Form
         btnSelect.Enabled = dgvSuppliers.CurrentRow is not null && dgvSuppliers.Rows.Count > 0;
     }
 
+    /// <summary>
+    /// يُرجع <c>SupplierDto</c> الحقيقي القادم من الخدمة — لا نسخة مبنيّة من نص الشبكة،
+    /// فيبقى حدّ الدين والحساب المحاسبي والفرع والرقم الضريبي كما هي في قاعدة البيانات.
+    /// </summary>
     private void _SelectCurrent()
     {
         if (dgvSuppliers.CurrentRow?.DataBoundItem is not DataRowView row) return;
 
-        int id = row["Id"] == DBNull.Value ? 0 : Convert.ToInt32(row["Id"]);
-        if (id <= 0) return;
+        if (row["Id"] is not int id || id <= 0) return;
 
-        string name = row["Name"] as string ?? string.Empty;
-        string phone = row["Phone"] as string ?? string.Empty;
-        string email = row["Email"] as string ?? string.Empty;
+        // لا يُبنى المورد من نص الشبكة: لو غاب سجل الخدمة نرفض التحديد برسالة عربية صريحة (لا نجاح كاذب).
+        SupplierDto? supplier = _suppliers.Find(s => s.Id == id);
+        if (supplier is null)
+        {
+            clsDialogs.Warning("تعذر جلب بيانات المورد المحدد. حدّث القائمة (F5) ثم أعد المحاولة.");
+            return;
+        }
 
-        SelectedSupplier = new SupplierDto(
-            id,
-            name,
-            string.IsNullOrEmpty(phone) ? null : phone,
-            string.IsNullOrEmpty(email) ? null : email,
-            null,
-            null,
-            null,
-            0,
-            true,
-            0
-        );
+        SelectedSupplier = supplier;
 
         DialogResult = DialogResult.OK;
         Close();

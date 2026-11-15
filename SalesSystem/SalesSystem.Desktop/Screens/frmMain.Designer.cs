@@ -152,6 +152,8 @@
             msMainMenu.Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             msMainMenu.GripStyle = ToolStripGripStyle.Visible;
             msMainMenu.ImageScalingSize = new Size(24, 24);
+            // تلميحات عناصر القائمة (سبب تعطيل شاشات المرحلة أ في الوضع الحقيقي — RULE-N145)
+            msMainMenu.ShowItemToolTips = true;
             msMainMenu.Items.AddRange(new ToolStripItem[] {
                 msbtnDashboard, msFile, msSale, msBuy, msBasis, msStore, msRevenue,
                 msAccounting, msData, msReport, msTools, msSettings, msAccoutSettings

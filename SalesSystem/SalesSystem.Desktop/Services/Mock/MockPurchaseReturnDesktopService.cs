@@ -1,8 +1,10 @@
-﻿using SalesSystem.Desktop.Services.Interfaces;
+﻿using System.Globalization;
+using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Enums;
 using SalesSystem.DTO.Requests;
+using InventoryTxType = SalesSystem.Common.Enums.InventoryTransactionType;
 
 namespace SalesSystem.Desktop.Services.Mock;
 
@@ -184,7 +186,13 @@ public class MockPurchaseReturnDesktopService : IPurchaseReturnDesktopService
             if (!MockStockLedger.HasSufficientStock(quantities))
                 return Task.FromResult(Result.Failure(InsufficientStockMessage));
 
-            MockStockLedger.Apply(quantities, direction: -1);
+            // الحركة تحمل سياقها الحقيقي: نوع «مرتجع شراء» + مخزن المرتجع + رقمه + تاريخه
+            MockStockLedger.Apply(quantities,
+                direction: -1,
+                type: InventoryTxType.PurchaseReturn,
+                warehouseId: (short)existing.WarehouseId,
+                reference: existing.ReturnNo.ToString(CultureInfo.InvariantCulture),
+                date: existing.ReturnDate.ToDateTime(TimeOnly.MinValue));
 
             MockReturnsData.PurchaseReturns[index] = existing with { Status = 2 };
             return Task.FromResult(Result.Success());
@@ -210,8 +218,14 @@ public class MockPurchaseReturnDesktopService : IPurchaseReturnDesktopService
 
             // الإلغاء يعكس الأثر مرة واحدة فقط على المرتجع المرحّل (البضاعة تعود إلى المخزن)؛
             // والمسودة لم تُخرج شيئاً فلا يُضاف لها شيء.
+            // قيد عكسي (تسوية): النوع الذي يحفظ إشارة الكمية — مع رقم المرتجع ومخزنه
             if (existing.Status == 2)
-                MockStockLedger.Apply(QuantitiesOf(existing), direction: +1);
+                MockStockLedger.Apply(QuantitiesOf(existing),
+                    direction: +1,
+                    type: InventoryTxType.Adjustment,
+                    warehouseId: (short)existing.WarehouseId,
+                    reference: existing.ReturnNo.ToString(CultureInfo.InvariantCulture),
+                    date: existing.ReturnDate.ToDateTime(TimeOnly.MinValue));
 
             MockReturnsData.PurchaseReturns[index] = existing with { Status = 3 };
             return Task.FromResult(Result.Success());

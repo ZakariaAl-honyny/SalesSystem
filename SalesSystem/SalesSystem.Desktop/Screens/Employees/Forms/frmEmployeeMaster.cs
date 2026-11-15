@@ -48,6 +48,12 @@ public partial class frmEmployeeMaster : Form
     private bool _reactivateBusy;
 
     /// <summary>
+    /// قفل عملية كتابة جارية (حفظ/تعطيل): يمنع إرسال طلبين متتاليين ويُعطّل أزرار الوضع
+    /// عبر <see cref="_ApplyModeState"/> وحدها — لا تُضبط حالة أي زر داخل المعالجات (RULE-N150).
+    /// </summary>
+    private bool _busy;
+
+    /// <summary>
     /// حالة الشاشة (آلة الحالة): تبدأ دائماً بوضع العرض <see cref="EntryMode.Browsing"/>
     /// حيث كل حقول الإدخال **معطّلة**، ولا تُفعَّل إلا بزر «جديد» أو باختيار سجل من الشبكة (RULE-N149).
     /// </summary>
@@ -110,17 +116,9 @@ public partial class frmEmployeeMaster : Form
             (numBasicSalary, "الراتب الأساسي", LiveTafqeetHelper.ReadMode.Money));
         FilterPanelHelper.Attach(this, _serviceProvider);
 
-        // المرحلة أ — وضع حقيقي بلا حفظ: تُعطَّل أوامر الكتابة فوراً ويُعلَن السبب على شريط الوضع
-        // (العنصر lblMode قائم في المصمّم — RULE-N134/RULE-N145). الشاشة تبقى مفتوحة وقابلة للقراءة.
-        if (_persistenceDisabled)
-        {
-            btnNew.Enabled = false;
-            btnSave.Enabled = false;
-            btnEdit.Enabled = false;
-            btnDelete.Enabled = false;
-            btnReactivate.Enabled = false;
-            lblMode.Text = $"{FormTitle} — وضع العرض — {RealModeNotice}";
-        }
+        // المرحلة أ — لا تُضبط حالة أي زر هنا: آلة الحالة المركزية هي المصدر الوحيد (RULE-N150)،
+        // وهي تُبقي أوامر الكتابة معطّلة في الوضع الحقيقي وتُعلن السبب على شريط الوضع (RULE-N149).
+        _ApplyModeState();
     }
 
     // ── Global Shortcuts ──────────────────────────────────────────────────────
@@ -520,7 +518,7 @@ public partial class frmEmployeeMaster : Form
         txtJobTitle.Text = e.JobTitle ?? "";
         txtPhone.Text = e.Phone ?? "";
         txtNationalId.Text = e.NationalId ?? "";
-        numBasicSalary.Value = _Clamp(numBasicSalary, e.BasicSalary);
+        numBasicSalary.Value = NumericInputHelper.Clamp(numBasicSalary, e.BasicSalary);
 
         if (e.HireDate.HasValue)
         {
@@ -550,14 +548,14 @@ public partial class frmEmployeeMaster : Form
         _SetEditorEnabled(editingSession);
 
         // آلة حالة الأزرار (RULE-N43): «جديد/تحديث/خروج» متاحة دائماً،
-        // «إضافة» في وضع الإضافة، «تعديل/حذف» عند وجود سجل محدد.
+        // «إضافة» في وضع الإضافة، «تعديل» عند وجود سجل محدد، و«تعطيل» للسجل **النشط** فقط (RULE-N92).
         // وفي الوضع الحقيقي (بلا باك-إند للموظفين) تبقى أوامر الكتابة معطّلة دائماً — لا حفظ في الذاكرة.
         btnNew.Enabled = !_persistenceDisabled;
         btnRefresh.Enabled = true;
         btnClose.Enabled = true;
-        btnSave.Enabled = !_persistenceDisabled && _mode == EntryMode.Adding;
-        btnEdit.Enabled = !_persistenceDisabled && _mode == EntryMode.Editing;
-        btnDelete.Enabled = !_persistenceDisabled && _mode == EntryMode.Editing;
+        btnSave.Enabled = !_persistenceDisabled && _mode == EntryMode.Adding && !_busy;
+        btnEdit.Enabled = !_persistenceDisabled && _mode == EntryMode.Editing && !_busy;
+        btnDelete.Enabled = !_persistenceDisabled && _mode == EntryMode.Editing && _SelectedIsActive() && !_busy;
 
         _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
 
@@ -616,14 +614,16 @@ public partial class frmEmployeeMaster : Form
     {
         bool hasSelection = _editId.HasValue;
 
-        bool isActive = hasSelection
-            && _employeesById.TryGetValue(_editId!.Value, out var employee)
-            && employee.IsActive;
-
         btnReactivate.Enabled =
             !_persistenceDisabled                                        // لا كتابة في الوضع الحقيقي
-            && _mode == EntryMode.Editing && hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
+            && _mode == EntryMode.Editing && hasSelection && !_SelectedIsActive() && !_reactivateBusy && !_busy;   // RULE-N92
     }
+
+    /// <summary>هل السجل المحدد في المحرّر نشط؟ (يُقرأ من النسخة المحفوظة لا من نص الحقل).</summary>
+    private bool _SelectedIsActive()
+        => _editId is int id
+           && _employeesById.TryGetValue(id, out var employee)
+           && employee.IsActive;
 
     /// <summary>
     /// إعادة الشاشة إلى **وضع العرض** (الحالة الافتراضية): تفريغ الحقول، تعطيل كل حقول الإدخال،
@@ -745,6 +745,8 @@ public partial class frmEmployeeMaster : Form
     /// </summary>
     private async Task _SaveAsync(bool edit)
     {
+        if (_busy) return;
+
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
@@ -766,8 +768,8 @@ public partial class frmEmployeeMaster : Form
         }
 
         Cursor = Cursors.WaitCursor;
-        btnSave.Enabled = false;   // حارس مؤقت أثناء العملية — يُستعاد في finally عبر _ApplyModeState
-        btnEdit.Enabled = false;
+        _busy = true;               // حارس أثناء العملية — يُستعاد في finally عبر _ApplyModeState
+        _ApplyModeState();
 
         try
         {
@@ -808,6 +810,7 @@ public partial class frmEmployeeMaster : Form
         finally
         {
             // استعادة الحالة الكاملة (حقول + أزرار + شريط الوضع) حسب الوضع الحالي للنموذج.
+            _busy = false;
             _ApplyModeState();
             Cursor = Cursors.Default;
         }
@@ -815,6 +818,8 @@ public partial class frmEmployeeMaster : Form
 
     private async void btnDelete_Click(object? sender, EventArgs e)
     {
+        if (_busy) return;
+
         if (_editId is not int id)
         {
             clsDialogs.Warning("يرجى اختيار موظف من القائمة أولاً.");
@@ -827,7 +832,8 @@ public partial class frmEmployeeMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
-        btnDelete.Enabled = false;   // حارس مؤقت أثناء العملية — يُستعاد في finally عبر _ApplyModeState
+        _busy = true;              // حارس أثناء العملية — يُستعاد في finally عبر _ApplyModeState
+        _ApplyModeState();
 
         try
         {
@@ -855,6 +861,7 @@ public partial class frmEmployeeMaster : Form
         finally
         {
             // بعد الحذف الناجح يعود النموذج إلى وضع العرض → «جديد» فقط هو المتاح.
+            _busy = false;
             _ApplyModeState();
             Cursor = Cursors.Default;
         }
@@ -866,6 +873,8 @@ public partial class frmEmployeeMaster : Form
     /// </summary>
     private async void btnReactivate_Click(object? sender, EventArgs e)
     {
+        if (_busy) return;
+
         if (_editId is not int id)
         {
             clsDialogs.Warning("يرجى اختيار موظف معطّل من القائمة أولاً.");
@@ -891,6 +900,7 @@ public partial class frmEmployeeMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
+        _busy = true;
         _reactivateBusy = true;
         _UpdateReactivateButton();
 
@@ -924,6 +934,7 @@ public partial class frmEmployeeMaster : Form
         }
         finally
         {
+            _busy = false;
             _reactivateBusy = false;
             _ApplyModeState();
             Cursor = Cursors.Default;
@@ -944,9 +955,6 @@ public partial class frmEmployeeMaster : Form
             }
         }
     }
-
-    private static decimal _Clamp(NumericUpDown control, decimal value)
-        => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
 
     // ── Context Menu / Double click (RULE-N23) ────────────────────────────────
 

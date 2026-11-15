@@ -488,6 +488,7 @@ partial class frmChangeSystemColorsSettings
         dgvColors.TabIndex = 0;
         dgvColors.CellDoubleClick += dgvColors_CellDoubleClick;
         dgvColors.CellFormatting += dgvColors_CellFormatting;
+        dgvColors.CellMouseDown += dgvColors_CellMouseDown;
         dgvColors.SelectionChanged += dgvColors_SelectionChanged;
         // 
         // colNo
@@ -546,8 +547,11 @@ partial class frmChangeSystemColorsSettings
         // 
         // lblNoData
         // 
+        // لا Dock = Fill: الشبكة (Dock = Fill) تأخذ كل مساحة gbColors أولاً فيبقى هذا التسمية بلا مساحة
+        // فلا تظهر رسالة «لا توجد بيانات» أبداً. تثبيت الحواف الأربعة + BringToFront (بالأسفل) يجعلها
+        // طبقة فوق الشبكة تُرى فعلاً عند تصفية بلا نتائج — بلا إعادة ترتيب Controls (RULE-N125).
+        lblNoData.Anchor = ((AnchorStyles)((((AnchorStyles.Top | AnchorStyles.Bottom) | AnchorStyles.Left) | AnchorStyles.Right)));
         lblNoData.BackColor = Color.FromArgb(220, 240, 220);
-        lblNoData.Dock = DockStyle.Fill;
         lblNoData.Font = new Font("Tahoma", 12F, FontStyle.Bold);
         lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
         lblNoData.Location = new Point(8, 30);
@@ -1001,6 +1005,7 @@ partial class frmChangeSystemColorsSettings
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
         Text = "ألوان النظام";
+        FormClosing += frmChangeSystemColorsSettings_FormClosing;
         Load += frmChangeSystemColorsSettings_Load;
         pnlHeader.ResumeLayout(false);
         gbToolbar.ResumeLayout(false);

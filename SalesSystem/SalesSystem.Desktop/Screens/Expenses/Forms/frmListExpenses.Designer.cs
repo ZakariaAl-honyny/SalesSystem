@@ -280,7 +280,7 @@ partial class frmListExpenses
         cbStatus.BackColor = Color.White;
         cbStatus.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbStatus.FormattingEnabled = true;
-        cbStatus.Items.AddRange(new object[] { "الكل", "مسودة", "مرحّل", "ملغى" });
+        // عناصر الحالة تُملأ وقت التشغيل من DocumentTextHelper.StatusOptions (RULE-N169) — لا قائمة مكرّرة في المصمّم.
         cbStatus.Location = new Point(978, 26);
         cbStatus.Margin = new Padding(0);
         cbStatus.Name = "cbStatus";

@@ -13,6 +13,10 @@ namespace SalesSystem.Desktop.Screens.Reports.Forms;
 public partial class frmProfitByCustomerReport : Form, IExportableReport
 {
     public DataGridView GetDataGridView() => dgvReport;
+
+    // العنوان «الربح حسب العميل» مملوك لقائمة التقارير (ReportNavigationHelper.Catalog في Helpers/ — للقراءة فقط هنا)،
+    // وعقد البيانات SalesByCustomerDto لا يحمل حقل ربح لكل عميل؛ فلا يُخترع حقل ولا ربح محلي:
+    // الشاشة تُظهر النقص في lblContractNote وتعرض المستحق (DueAmount) بصدق في شريط الإجماليات.
     public string GetReportName() => "الربح حسب العميل";
 
     private readonly IServiceProvider _serviceProvider;
@@ -36,10 +40,17 @@ public partial class frmProfitByCustomerReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetSalesByCustomerAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetSalesByCustomerAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();
@@ -58,19 +69,22 @@ public partial class frmProfitByCustomerReport : Form, IExportableReport
     private void UpdateSummary(List<SalesByCustomerDto> list)
     {
         if (list.Count == 0) { lblRecordsCount.Text = "لا توجد بيانات"; return; }
+
+        // عقد البيانات SalesByCustomerDto لا يحمل حقل ربح لكل عميل، فالمعروض هو
+        // «المستحق» (DueAmount) منقولاً بصدق — لا ربحاً محسوباً بمعادلة محلية
+        // (كان الحساب الميت profit = TotalAmount - PaidAmount مرفوضاً: المستحق ليس ربحاً).
         var sales = list.Sum(x => x.TotalAmount);
-        var profit = list.Sum(x => x.TotalAmount - x.PaidAmount);
+        var due = list.Sum(x => x.DueAmount);
         // RULE-N179 — كل مبلغ من البيت الواحد clsFormat
-        lblRecordsCount.Text = $"إجمالي المبيعات: {clsFormat.Money(sales)}";
+        lblRecordsCount.Text = $"إجمالي المبيعات: {clsFormat.Money(sales)} | المستحق: {clsFormat.Money(due)}";
     }
 
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("CustomerName", "العميل"); SetHeader("TotalAmount", "المبيعات"); SetHeader("PaidAmount", "المدفوع");
-        SetHeader("DueAmount", "المتبقي"); SetHeader("InvoiceCount", "عدد الفواتير");
-        foreach (var c in new[] { "TotalAmount", "PaidAmount", "DueAmount" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        SetHeader("DueAmount", "المستحق"); SetHeader("InvoiceCount", "عدد الفواتير");
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalAmount", "PaidAmount", "DueAmount");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
@@ -110,10 +124,5 @@ public partial class frmProfitByCustomerReport : Form, IExportableReport
 
     private void btnClose_Click(object sender, EventArgs e)
         => Close();
-
-    private void label3_Click(object sender, EventArgs e)
-    {
-
-    }
 }
 

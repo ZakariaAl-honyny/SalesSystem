@@ -9,7 +9,8 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// محاكاة خدمة تسويات المخزون — تعيد بيانات من MockInventoryData.
 /// </summary>
 /// <remarks>
-/// RULE-N167 — تكافؤ الرفض: تسوية بلا أصناف · بند بكمية صفر أو سالبة · خصم يتجاوز الرصيد المتاح.
+/// RULE-N167 — تكافؤ الرفض: تسوية بلا أصناف · بند بكمية صفر أو سالبة · خصم يتجاوز الرصيد المتاح ·
+/// إلغاء تسوية مرحّلة سبق بيع كميتها المضافة (سحب لا يجعل الرصيد سالباً — <see cref="MockStockLedger.ShortageMessage"/>).
 /// «الرصيد المتاح» في وضع التجربة = مجموع <c>QuantityRemaining</c> لدفعات الصنف في مخزن التسوية
 /// (<c>MockInventoryData.Batches</c>) — وهو البديل الوحيد لجدول <c>WarehouseStocks</c> في هذه الطبقة.
 /// </remarks>
@@ -105,7 +106,14 @@ public class MockInventoryAdjustmentDesktopService : IInventoryAdjustmentDesktop
                 return Task.FromResult(Result<InventoryAdjustmentDto>.Failure("الكمية يجب أن تكون أكبر من صفر"));
 
             // RULE-N167 + §2.7 — لا خصم يتجاوز الرصيد المتاح في مخزن التسوية.
-            if (existing.AdjustmentType == DeductionType && _HasStockShortage(existing, lines))
+            // كل الأثر (خارج/داخل) يُحسب ويُتحقق منه **قبل** أي كتابة على الرصيد — فلا حركة جزئية عند الرفض.
+            var (inboundQuantities, outboundQuantities) = _StockEffectOf(existing);
+
+            if (_HasStockShortage(existing))
+                return Task.FromResult(Result<InventoryAdjustmentDto>.Failure("الكمية المخصومة أكبر من الرصيد المتاح"));
+
+            // RULE-N167 + §2.7 — تحقّق ثانٍ من رصيد الصنف نفسه قبل الكتابة (لا رصيد سالب).
+            if (!MockStockLedger.HasSufficientStock(outboundQuantities))
                 return Task.FromResult(Result<InventoryAdjustmentDto>.Failure("الكمية المخصومة أكبر من الرصيد المتاح"));
 
             var index = MockInventoryData.Adjustments.IndexOf(existing);
@@ -115,6 +123,12 @@ public class MockInventoryAdjustmentDesktopService : IInventoryAdjustmentDesktop
                 StatusName = "مرحّل",
                 PostedAt = DateTime.Now
             };
+
+            // الأثر المخزني: MockStockLedger هو البيت الوحيد الذي يكتب CurrentStock (RULE-N171) —
+            // خارج = −1 (خصم) ثم داخل = +1 (إضافة)، والسطور المتوازنة في التسوية الواحدة تُطبَّق مرة واحدة.
+            MockStockLedger.Apply(outboundQuantities, -1);
+            MockStockLedger.Apply(inboundQuantities, +1);
+
             MockInventoryData.Adjustments[index] = posted;
             return Task.FromResult(Result<InventoryAdjustmentDto>.Success(posted));
         }
@@ -134,6 +148,22 @@ public class MockInventoryAdjustmentDesktopService : IInventoryAdjustmentDesktop
 
             if (existing.Status == 3)
                 return Task.FromResult(Result.Failure("التسوية ملغاة بالفعل"));
+
+            // RULE-N167 + RULE-004 — عكس أثر المخزون للمرحّل فقط: المسودة لم تحرّك رصيداً فلا شيء يُعكس،
+            // والملغاة سبق رفضها أعلاه. ولا حذف نهائي — الإلغاء حالة لا حذف.
+            if (existing.Status == 2)
+            {
+                var (inboundQuantities, outboundQuantities) = _StockEffectOf(existing);
+
+                // RULE-N167 + §2.7 — سحب ما سبق إضافته عند الترحيل لا يجعل الرصيد سالباً إن بيعت الكمية بعده؛
+                // والتحقق **قبل** أي كتابة على الرصيد (لا حركة جزئية عند الرفض)، بنفس نص الرفض الموحّد.
+                if (!MockStockLedger.HasSufficientStock(inboundQuantities))
+                    return Task.FromResult(Result.Failure(MockStockLedger.ShortageMessage));
+
+                // عكس الإشارة: ما خُصم عند الترحيل يعود +1، وما أُضيف يُسحب −1 (MockStockLedger وحده يكتب الرصيد).
+                MockStockLedger.Apply(outboundQuantities, +1);
+                MockStockLedger.Apply(inboundQuantities, -1);
+            }
 
             var index = MockInventoryData.Adjustments.IndexOf(existing);
             MockInventoryData.Adjustments[index] = existing with
@@ -212,30 +242,45 @@ public class MockInventoryAdjustmentDesktopService : IInventoryAdjustmentDesktop
         };
 
     /// <summary>
-    /// RULE-N167 — هل يتجاوز مجموع الخصم لكل صنف رصيده المتاح في مخزن التسوية؟
+    /// RULE-N172 — أثر التسوية على الرصيد في مكان واحد، يستهلكه <c>PostAsync</c> و<c>CancelAsync</c>:
+    /// قاموس «داخل» (زيادة) وقاموس «خارج» (نقص) لكل صنف. الإشارة: إضافة = + · خصم = − ·
+    /// تصحيح = إشارة الفرق (الفعلي − المتوقع). والتجميع عبر
+    /// <see cref="MockStockLedger.QuantitiesByProduct"/> — لا تجميع ثانٍ هنا (RULE-N169).
     /// </summary>
-    private static bool _HasStockShortage(InventoryAdjustmentDto adjustment, List<InventoryAdjustmentLineDto> lines)
+    private static (Dictionary<int, decimal> Inbound, Dictionary<int, decimal> Outbound) _StockEffectOf(
+        InventoryAdjustmentDto adjustment)
     {
-        var requiredPerProduct = new Dictionary<int, decimal>();
+        var inbound = new List<(int ProductId, decimal Quantity)>();
+        var outbound = new List<(int ProductId, decimal Quantity)>();
 
-        foreach (var line in lines)
+        foreach (var line in adjustment.Lines ?? new List<InventoryAdjustmentLineDto>())
         {
             if (_ProductIdOf(line.ProductUnitId) is not int productId) continue;
 
-            decimal quantity = _EffectiveQuantity(DeductionType, line.ExpectedQuantity, line.ActualQuantity);
-            if (quantity <= 0m) continue;
+            decimal signedQuantity = adjustment.AdjustmentType switch
+            {
+                AdditionType => _EffectiveQuantity(AdditionType, line.ExpectedQuantity, line.ActualQuantity),
+                DeductionType => -_EffectiveQuantity(DeductionType, line.ExpectedQuantity, line.ActualQuantity),
+                _ => line.ActualQuantity - line.ExpectedQuantity
+            };
 
-            requiredPerProduct[productId] = requiredPerProduct.TryGetValue(productId, out decimal current)
-                ? current + quantity
-                : quantity;
+            if (signedQuantity > 0m)
+                inbound.Add((productId, signedQuantity));
+            else if (signedQuantity < 0m)
+                outbound.Add((productId, -signedQuantity));
         }
 
-        foreach (var (productId, requiredQuantity) in requiredPerProduct)
-        {
-            if (requiredQuantity > _AvailableStock(productId, adjustment.WarehouseId)) return true;
-        }
+        return (MockStockLedger.QuantitiesByProduct(inbound), MockStockLedger.QuantitiesByProduct(outbound));
+    }
 
-        return false;
+    /// <summary>
+    /// RULE-N167 — هل يتجاوز مجموع النقص لكل صنف (خصم · أو تصحيح خافض) رصيده المتاح في مخزن التسوية؟
+    /// </summary>
+    private static bool _HasStockShortage(InventoryAdjustmentDto adjustment)
+    {
+        var (_, outbound) = _StockEffectOf(adjustment);
+
+        return outbound.Any(pair => pair.Value > _AvailableStock(pair.Key, adjustment.WarehouseId));
     }
 
     /// <summary>معرّف الصنف من معرّف وحدة الصنف (البنود تحمل وحدة لا صنفاً).</summary>

@@ -594,13 +594,13 @@ public partial class frmProductMaster : Form
         txtForeignName.Text = p.ForeignName ?? "";
         txtLocationInStore.Text = p.LocationInStore ?? "";
         txtNotes.Text = p.Description ?? "";
-        numExpiryAlertDays.Value = _Clamp(numExpiryAlertDays, p.ExpiryAlertDays ?? 0);
+        numExpiryAlertDays.Value = NumericInputHelper.Clamp(numExpiryAlertDays, p.ExpiryAlertDays ?? 0);
 
         // الباركود الرئيسي للصنف يُخزَّن في ProductDto.Barcode.
         txtMainUnitBarcode.Text = p.Barcode ?? "";
 
         chkTrackExpiry.Checked = p.TrackExpiry;
-        numReorderLevel.Value = _Clamp(numReorderLevel, p.ReorderLevel);
+        numReorderLevel.Value = NumericInputHelper.Clamp(numReorderLevel, p.ReorderLevel);
 
         _SelectCategory(p.CategoryId);
 
@@ -647,6 +647,10 @@ public partial class frmProductMaster : Form
             {
                 Log.Error("تعذر إنشاء الوحدة الأساسية للصنف {ProductId}. السبب: {Error}",
                     productId, addUnit.Error);
+
+                // الرسالة تقول الحقيقة: الصنف محفوظ، لكن السعر/التكلفة/الخصم المُدخل لم يُحفظ.
+                clsDialogs.Warning(
+                    $"تم حفظ الصنف، لكن تعذر إنشاء وحدته الرئيسية فلم يُحفظ سعر البيع/التكلفة/الخصم المُدخل.\n{addUnit.Error}\nأعد إدخالها من زر «الوحدات والأسعار».");
                 return;
             }
 
@@ -656,8 +660,13 @@ public partial class frmProductMaster : Form
                     new CreateProductPriceRequest(addUnit.Value.Id, numMainUnitSalePrice.Value, DateTime.Today, null));
 
                 if (!priceResult.IsSuccess)
+                {
                     Log.Error("تعذر حفظ سعر الوحدة الأساسية للصنف {ProductId}. السبب: {Error}",
                         productId, priceResult.Error);
+
+                    clsDialogs.Warning(
+                        $"تم حفظ الصنف ووحدته، لكن تعذر حفظ سعر البيع في سجل الأسعار.\n{priceResult.Error}");
+                }
             }
         }
         catch (Exception ex)
@@ -795,9 +804,9 @@ public partial class frmProductMaster : Form
             // سعر البيع المحفوظ على الوحدة أولاً (هو ما يُحفظ من هذه الشاشة)، ثم سطر السعر الأحدث.
             decimal salePrice = unit.SalePrice > 0m ? unit.SalePrice : rowPrice ?? 0m;
 
-            numMainUnitSalePrice.Value = _Clamp(numMainUnitSalePrice, salePrice);
-            numMainUnitCostPrice.Value = _Clamp(numMainUnitCostPrice, unit.CostPrice);
-            numMainUnitMaxDiscount.Value = _Clamp(numMainUnitMaxDiscount, unit.MaxDiscountAmount ?? 0m);
+            numMainUnitSalePrice.Value = NumericInputHelper.Clamp(numMainUnitSalePrice, salePrice);
+            numMainUnitCostPrice.Value = NumericInputHelper.Clamp(numMainUnitCostPrice, unit.CostPrice);
+            numMainUnitMaxDiscount.Value = NumericInputHelper.Clamp(numMainUnitMaxDiscount, unit.MaxDiscountAmount);
         }
         catch (Exception ex)
         {
@@ -861,7 +870,9 @@ public partial class frmProductMaster : Form
         btnClose.Enabled = true;
         btnSave.Enabled = _mode == EntryMode.Adding;
         btnEdit.Enabled = _mode == EntryMode.Editing;
-        btnDelete.Enabled = _mode == EntryMode.Editing;
+
+        // «تعطيل» على السجل النشط المحدد فقط — السطر المعطّل زرّه هو «إعادة التنشيط» (RULE-N92/RULE-N122).
+        btnDelete.Enabled = _mode == EntryMode.Editing && _IsSelectedProductActive();
         btnManageUnits.Enabled = _mode == EntryMode.Editing;   // تحتاج صنفاً محفوظاً
 
         _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
@@ -919,12 +930,18 @@ public partial class frmProductMaster : Form
     private void _UpdateReactivateButton()
     {
         bool hasSelection = _editId.HasValue;
-        bool isActive = hasSelection
-            && _productsById.TryGetValue(_editId!.Value, out var product)
-            && product.IsActive;
+        bool isActive = _IsSelectedProductActive();
 
         btnReactivate.Enabled = hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
     }
+
+    /// <summary>
+    /// هل السجل المحدد في المحرر صنف **نشط**؟ مصدر واحد لحكم «تعطيل» و«إعادة تنشيط» (RULE-N92).
+    /// </summary>
+    private bool _IsSelectedProductActive()
+        => _editId is int id
+           && _productsById.TryGetValue(id, out var product)
+           && product.IsActive;
 
     // ── Reset / New entry ─────────────────────────────────────────────────────
 
@@ -1427,9 +1444,6 @@ public partial class frmProductMaster : Form
         }
     }
 
-    private static decimal _Clamp(NumericUpDown control, decimal value)
-        => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
-
     // ── Barcode Scanner ───────────────────────────────────────────────────────
 
     /// <summary>
@@ -1477,10 +1491,5 @@ public partial class frmProductMaster : Form
         {
             Cursor = Cursors.Default;
         }
-    }
-
-    private void dgvProducts_ChangeUICues(object sender, UICuesEventArgs e)
-    {
-
     }
 }

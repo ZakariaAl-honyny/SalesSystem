@@ -184,7 +184,9 @@ public partial class frmInventoryFifo : Form
                 priority,
                 batch.BatchNo,
                 string.IsNullOrWhiteSpace(batch.WarehouseName) ? "—" : batch.WarehouseName,
-                batch.ExpiryDate?.ToString("yyyy-MM-dd") ?? "—",
+                batch.ExpiryDate is DateOnly expiry
+                    ? clsFormat.DateToShort(expiry.ToDateTime(TimeOnly.MinValue))
+                    : "—",
                 batch.ExpiryStatus,
                 batch.QuantityRemaining,
                 batch.UnitCost,

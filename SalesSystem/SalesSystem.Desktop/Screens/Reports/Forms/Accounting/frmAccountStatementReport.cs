@@ -62,6 +62,13 @@ public partial class frmAccountStatementReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
@@ -81,13 +88,15 @@ public partial class frmAccountStatementReport : Form, IExportableReport
             IReadOnlyList<AccountStatementDto>? list = null;
             if (cmbPartyType.SelectedIndex == 0)
             {
-                var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetAccountStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+                // نهاية اليوم شاملة: FinancialReportService.cs:659 يقارن InvoiceDate (طابع زمني كامل) بـ to مباشرةً بلا تطبيع.
+                var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetAccountStatementAsync(partyId, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), default);
                 if (result.IsSuccess) list = result.Value;
                 else { clsDialogs.Error(result.Error!); return; }
             }
             else
             {
-                var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetSupplierStatementAsync(partyId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), default);
+                // نهاية اليوم شاملة: FinancialReportService.cs:612,714 يأخذ DateOnly من to مباشرةً، و:530 يقارن VoucherDate بطابع زمني كامل — فنهاية آخر لحظة في اليوم صحيحة للثلاثة.
+                var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetSupplierStatementAsync(partyId, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), default);
                 if (result.IsSuccess) list = result.Value;
                 else { clsDialogs.Error(result.Error!); return; }
             }
@@ -115,9 +124,13 @@ public partial class frmAccountStatementReport : Form, IExportableReport
 
         var debit = list.Sum(x => x.Debit);
         var credit = list.Sum(x => x.Credit);
-        var balance = debit - credit;
 
-        lblRecordsCount.Text = $"عدد الحركات: {list.Count}";
+        // الرصيد الختامي = رصيد آخر حركة كما تحسبه الخدمة (عميل: مدين−دائن · مورد: دائن−مدين).
+        // لا تُكرَّر قاعدة إشارة طبيعة الحساب داخل الشاشة، وإلا خالف الملخّص شبكة السطور في كشف المورد
+        // (RULE-N169 — الملخّص من نفس مصدر أرقام الشبكة لا من قاعدة ثانية).
+        var balance = list[^1].Balance;
+
+        lblRecordsCount.Text = $"عدد الحركات: {clsFormat.Number(list.Count)}";
         lblSummary.Text = $"مدين: {clsFormat.Money(debit)}    |    دائن: {clsFormat.Money(credit)}    |    الرصيد: {clsFormat.Money(balance)}";
 
         try { _summaryTip.SetToolTip(lblSummary, "الرصيد تفقيطاً: " + ArabicNumberToWords.ToWords(balance)); }
@@ -129,8 +142,9 @@ public partial class frmAccountStatementReport : Form, IExportableReport
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("Date", "التاريخ"); SetHeader("Description", "البيان"); SetHeader("ReferenceNumber", "رقم المرجع");
         SetHeader("Debit", "مدين"); SetHeader("Credit", "دائن"); SetHeader("Balance", "الرصيد");
-        foreach (var c in new[] { "Debit", "Credit", "Balance" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "Debit", "Credit", "Balance");
+        // عمود التاريخ من البيت الواحد أيضاً — وإلا عُرض بصيغة ثقافة الجهاز لا بصيغة clsFormat (RULE-N169).
+        GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateShort);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

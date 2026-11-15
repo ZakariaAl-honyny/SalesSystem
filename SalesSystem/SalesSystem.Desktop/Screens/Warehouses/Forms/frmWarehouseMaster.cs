@@ -46,6 +46,12 @@ public partial class frmWarehouseMaster : Form
     /// </summary>
     private bool _reactivateBusy;
 
+    /// <summary>
+    /// قفل عملية كتابة جارية (حفظ/تعطيل/تعيين افتراضي): يمنع إرسال طلبين متتاليين ويُعطّل أزرار الوضع
+    /// عبر <see cref="_ApplyModeState"/> وحدها — لا تُضبط حالة أي زر داخل المعالجات (RULE-N150).
+    /// </summary>
+    private bool _busy;
+
     /// <summary>أوضاع شاشة الإدخال — آلة الحالة التي تحكم تفعيل الحقول والأزرار (RULE-N149…N152).</summary>
     private enum EntryMode
     {
@@ -449,7 +455,8 @@ public partial class frmWarehouseMaster : Form
             else inactive++;
         }
 
-        lblSummary.Text = $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}";
+        lblSummary.Text = $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — "
+                          + $"نشط: {clsFormat.Number(active)} · معطّل: {clsFormat.Number(inactive)}";
 
         // «لا توجد بيانات» يُعلن في شريط الملخص بدل إضافة صف وهمي إلى الشبكة
         // (الصف الوهمي يُفسد التصدير والتصفية — RULE-N22 / RULE-N61).
@@ -505,14 +512,15 @@ public partial class frmWarehouseMaster : Form
     {
         _SetEditorEnabled(_mode != EntryMode.Browsing);
 
-        // آلة حالة الأزرار (RULE-N43): «جديد» في العرض، «إضافة» في الإضافة، «تعديل/حذف/افتراضي» عند وجود سجل محدد.
+        // آلة حالة الأزرار (RULE-N43): «جديد» في العرض، «إضافة» في الإضافة، «تعديل/افتراضي» عند وجود سجل محدد،
+        // و«تعطيل» للسجل **النشط** فقط (RULE-N92: لا يُعطَّل سجل معطّل أصلاً).
         btnNew.Enabled = true;
         btnRefresh.Enabled = true;
         btnClose.Enabled = true;
-        btnSave.Enabled = _mode == EntryMode.Adding;
-        btnEdit.Enabled = _mode == EntryMode.Editing;
-        btnDelete.Enabled = _mode == EntryMode.Editing;
-        btnSetDefault.Enabled = _mode == EntryMode.Editing;
+        btnSave.Enabled = _mode == EntryMode.Adding && !_busy;
+        btnEdit.Enabled = _mode == EntryMode.Editing && !_busy;
+        btnDelete.Enabled = _mode == EntryMode.Editing && _SelectedIsActive() && !_busy;
+        btnSetDefault.Enabled = _mode == EntryMode.Editing && !_busy;
 
         _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
         _UpdateModeHeader();         // RULE-N44
@@ -541,12 +549,15 @@ public partial class frmWarehouseMaster : Form
         if (btnReactivate is null) return;
 
         bool hasSelection = _mode == EntryMode.Editing && _editId.HasValue;
-        bool isActive = hasSelection
-            && _warehousesById.TryGetValue(_editId!.Value, out var warehouse)
-            && warehouse.IsActive;
 
-        btnReactivate.Enabled = hasSelection && !isActive && !_reactivateBusy;   // RULE-N92
+        btnReactivate.Enabled = hasSelection && !_SelectedIsActive() && !_reactivateBusy;   // RULE-N92
     }
+
+    /// <summary>هل السجل المحدد في المحرّر نشط؟ (يُقرأ من النسخة المحفوظة لا من نص الحقل).</summary>
+    private bool _SelectedIsActive()
+        => _editId is int id
+           && _warehousesById.TryGetValue(id, out var warehouse)
+           && warehouse.IsActive;
 
     /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
     private Control[] _EditorInputs() => new Control[]
@@ -650,6 +661,8 @@ public partial class frmWarehouseMaster : Form
     /// </summary>
     private async Task _SaveAsync(bool edit)
     {
+        if (_busy) return;
+
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
@@ -667,8 +680,8 @@ public partial class frmWarehouseMaster : Form
         }
 
         Cursor = Cursors.WaitCursor;
-        btnSave.Enabled = false;
-        btnEdit.Enabled = false;
+        _busy = true;
+        _ApplyModeState();   // تعطيل أزرار الوضع أثناء العملية (المصدر الوحيد لحالة الأزرار)
 
         try
         {
@@ -725,6 +738,7 @@ public partial class frmWarehouseMaster : Form
         finally
         {
             // استعادة الحالة الكاملة (حقول + أزرار + شريط الوضع) حسب الوضع الحالي للنموذج.
+            _busy = false;
             _ApplyModeState();
             Cursor = Cursors.Default;
         }
@@ -732,6 +746,8 @@ public partial class frmWarehouseMaster : Form
 
     private async void btnDelete_Click(object? sender, EventArgs e)
     {
+        if (_busy) return;
+
         if (_editId is not int id)
         {
             clsDialogs.Warning("يرجى اختيار مخزن من القائمة أولاً.");
@@ -744,7 +760,8 @@ public partial class frmWarehouseMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
-        btnDelete.Enabled = false;
+        _busy = true;
+        _ApplyModeState();   // تعطيل أزرار الوضع أثناء العملية (RULE-N150)
 
         try
         {
@@ -785,6 +802,7 @@ public partial class frmWarehouseMaster : Form
         finally
         {
             // بعد الحذف الناجح يعود النموذج إلى وضع العرض → «جديد» فقط هو المتاح.
+            _busy = false;
             _ApplyModeState();
             Cursor = Cursors.Default;
         }
@@ -792,6 +810,8 @@ public partial class frmWarehouseMaster : Form
 
     private async void btnSetDefault_Click(object? sender, EventArgs e)
     {
+        if (_busy) return;
+
         if (_editId is not int id)
         {
             clsDialogs.Warning("يرجى اختيار مخزن من القائمة أولاً.");
@@ -804,7 +824,8 @@ public partial class frmWarehouseMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
-        btnSetDefault.Enabled = false;
+        _busy = true;
+        _ApplyModeState();   // تعطيل أزرار الوضع أثناء العملية (RULE-N150)
 
         try
         {
@@ -828,6 +849,7 @@ public partial class frmWarehouseMaster : Form
         }
         finally
         {
+            _busy = false;
             _ApplyModeState();   // RULE-N150: الحالة تُستعاد من آلة الحالة المركزية
             Cursor = Cursors.Default;
         }
@@ -839,6 +861,8 @@ public partial class frmWarehouseMaster : Form
     /// </summary>
     private async void btnReactivate_Click(object? sender, EventArgs e)
     {
+        if (_busy) return;
+
         if (_editId is not int id)
         {
             clsDialogs.Warning("يرجى اختيار مخزن معطّل من القائمة أولاً.");
@@ -864,6 +888,7 @@ public partial class frmWarehouseMaster : Form
             return;
 
         Cursor = Cursors.WaitCursor;
+        _busy = true;
         _reactivateBusy = true;
         _UpdateReactivateButton();   // RULE-N43: تعطيل فوري أثناء التنفيذ
 
@@ -900,6 +925,7 @@ public partial class frmWarehouseMaster : Form
         }
         finally
         {
+            _busy = false;
             _reactivateBusy = false;
             _ApplyModeState();   // RULE-N150: الحالة تُستعاد من آلة الحالة المركزية
             Cursor = Cursors.Default;
@@ -912,16 +938,13 @@ public partial class frmWarehouseMaster : Form
     {
         foreach (DataGridViewRow row in dgvWarehouses.Rows)
         {
-            if (row.DataBoundItem is not DataRowView dataRow) continue;
-            if (dataRow["Id"] is not int id || id != warehouseId) continue;
+            if (!GridRowHelper.TryGetInt(row, "Id", out var id) || id != warehouseId) continue;
 
             row.Selected = true;
 
-            // أعمدة الشبكة مُولَّدة تلقائياً من DataView (Id/Name/Phone/Address/IsActive)
-            // — يُبحث العمود بالاسم بدل حقل ميّت كان null فيتحطّم المسار (RULE-N130).
-            var nameColumn = dgvWarehouses.Columns["Name"];
-            if (nameColumn is not null && row.Index >= 0)
-                dgvWarehouses.CurrentCell = row.Cells[nameColumn.Index];
+            // قراءة الخلية بالاسم المنطقي عبر البيت الواحد (RULE-N179) — لا فهرس عمود ولا Cells["..."].
+            if (GridRowHelper.Cell(row, "Name") is { } nameCell)
+                dgvWarehouses.CurrentCell = nameCell;
 
             break;
         }

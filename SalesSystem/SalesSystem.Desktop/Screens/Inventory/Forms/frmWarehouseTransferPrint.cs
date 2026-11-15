@@ -11,7 +11,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// «سند تحويل مخزني»، رقم السند، التاريخ، من مستودع، إلى مستودع، السائق،
 /// لوحة المركبة، عدد الأصناف، وملاحظة الاستلام «يُستلم في المستودع الوجهة»،
 /// ثم فاصل متقطع وتذييل توقيعات (أمين المستودع / المستلم).
-/// زر الطباعة يعرض رسالة نجاح فقط (محاكاة). تُعرض النافذة عبر ShowDialog().
+/// زر المعاينة يعرض تفاصيل السند ويوضّح أنّه لم يُرسَل أي نسخة إلى الطابعة. تُعرض النافذة عبر ShowDialog().
 /// </summary>
 public partial class frmWarehouseTransferPrint : Form
 {
@@ -110,17 +110,17 @@ public partial class frmWarehouseTransferPrint : Form
     {
         try
         {
-            clsDialogs.Success(
-                $"تمت طباعة سند التحويل رقم {_transfer.TransferNo} بنجاح.\n" +
+            clsDialogs.Info(
+                $"معاينة سند التحويل رقم {_transfer.TransferNo} — بيانات تجريبية للعرض فقط.\n" +
                 $"من: {_transfer.FromWarehouse} — إلى: {_transfer.ToWarehouse}\n" +
                 $"السائق: {_transfer.Driver} — عدد الأصناف: {clsFormat.Number(_transfer.ItemCount)}\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
+                "لم تُرسَل أي نسخة إلى الطابعة — هذه النافذة معاينة فقط.");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
-            Serilog.Log.Error(ex, "تعذرت طباعة سند التحويل {TransferNo}", _transfer.TransferNo);
-            clsDialogs.Error("تعذر طباعة سند التحويل المخزني. يرجى إعادة المحاولة.");
+            Serilog.Log.Error(ex, "تعذرت معاينة سند التحويل {TransferNo}", _transfer.TransferNo);
+            clsDialogs.Error("تعذر عرض معاينة سند التحويل المخزني. يرجى إعادة المحاولة.");
         }
     }
 

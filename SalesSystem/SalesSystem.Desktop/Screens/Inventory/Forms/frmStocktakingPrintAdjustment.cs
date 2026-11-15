@@ -11,7 +11,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// «سند تسوية جرد»، رقم السند، التاريخ، المستودع، سبب التسوية (تلف / انتهاء صلاحية /
 /// فائض / عجز)، عدد الأصناف، وإجمالي قيمة التسوية بارزاً، ثم فاصل متقطع
 /// وتذييل توقيعات (أمين المخزن / المحاسب / مدير المخزون).
-/// زر الطباعة يعرض رسالة نجاح فقط (محاكاة). تُعرض النافذة عبر ShowDialog().
+/// زر المعاينة يعرض تفاصيل السند ويوضّح أنّه لم يُرسَل أي نسخة إلى الطابعة. تُعرض النافذة عبر ShowDialog().
 /// </summary>
 public partial class frmStocktakingPrintAdjustment : Form
 {
@@ -104,17 +104,17 @@ public partial class frmStocktakingPrintAdjustment : Form
     {
         try
         {
-            clsDialogs.Success(
-                $"تمت طباعة سند تسوية الجرد رقم {_voucher.VoucherNo} بنجاح.\n" +
+            clsDialogs.Info(
+                $"معاينة سند تسوية الجرد رقم {_voucher.VoucherNo} — بيانات تجريبية للعرض فقط.\n" +
                 $"المستودع: {_voucher.Warehouse} — سبب التسوية: {_voucher.Reason}\n" +
                 $"عدد الأصناف: {clsFormat.Number(_voucher.ItemCount)} — إجمالي قيمة التسوية: {clsFormat.Money(_voucher.TotalValue)} ريال يمني\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
+                "لم تُرسَل أي نسخة إلى الطابعة — هذه النافذة معاينة فقط.");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
-            Serilog.Log.Error(ex, "تعذرت طباعة سند تسوية الجرد {VoucherNo}", _voucher.VoucherNo);
-            clsDialogs.Error("تعذر طباعة سند تسوية الجرد. يرجى إعادة المحاولة.");
+            Serilog.Log.Error(ex, "تعذرت معاينة سند تسوية الجرد {VoucherNo}", _voucher.VoucherNo);
+            clsDialogs.Error("تعذر عرض معاينة سند تسوية الجرد. يرجى إعادة المحاولة.");
         }
     }
 

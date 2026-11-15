@@ -35,6 +35,15 @@ public partial class frmListInventoryTransactions : Form
     // حارس بسيط ضد التنفيذ المزدوج لعرض التفاصيل (نقر مزدوج + قائمة سياق أثناء الانتظار).
     private bool _isViewingDetails;
 
+    /// <summary>
+    /// حجم الصفحة المقروءة من عقد الحركات: العقد يقرأ صفحة واحدة (بلا تصفّح صفحات)، فبلوغ هذا الحد
+    /// يعني احتمال وجود حركات أقدم غير محمَّلة — يُعلَن في شريط الملخص بدل عرض ناقص صامت.
+    /// </summary>
+    private const int PageSize = 500;
+
+    /// <summary>تنبيه نطاق التحميل (يُملأ عند بلوغ سقف الصفحة) — يُلحَق بشريط الملخص.</summary>
+    private string _pageSizeNotice = string.Empty;
+
     public frmListInventoryTransactions(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -182,6 +191,7 @@ public partial class frmListInventoryTransactions : Form
         Cursor = Cursors.WaitCursor;
         dgvTransactions.Cursor = Cursors.WaitCursor;
         btnRefresh.Enabled = false;
+        _pageSizeNotice = string.Empty;
 
         try
         {
@@ -198,10 +208,21 @@ public partial class frmListInventoryTransactions : Form
             table.Columns.Add("Quantity", typeof(decimal));
             table.Columns.Add("Notes", typeof(string));
 
-            var result = await DesktopService.GetMovementsAsync(pageSize: 500, ct: _loadCts.Token);
+            var result = await DesktopService.GetMovementsAsync(pageSize: PageSize, ct: _loadCts.Token);
 
             if (result.IsSuccess && result.Value is { Count: > 0 })
             {
+                // بلوغ سقف الصفحة يعني احتمال وجود حركات أقدم لم تُقرأ — يُعلَن في الملخص ولا يُخفى.
+                if (result.Value.Count >= PageSize)
+                {
+                    _pageSizeNotice =
+                        $" — تنبيه: تُعرض أحدث {clsFormat.Number(PageSize)} حركة فقط؛ ضيّق النطاق الزمني لرؤية ما قبلها";
+
+                    Serilog.Log.Warning(
+                        "حركات المخزون: بلغت الصفحة سقفها ({PageSize}) — قد توجد حركات أقدم غير محمَّلة",
+                        PageSize);
+                }
+
                 foreach (var t in result.Value)
                 {
                     table.Rows.Add(
@@ -348,7 +369,16 @@ public partial class frmListInventoryTransactions : Form
             _ => "Products",
         }));
 
-        _transactionsView.RowFilter = RowFilterHelper.Build(conditions);
+        // إن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»
+        // فيُعرض كل شيء كأنه نتيجة التصفية) — ولا يُسمح للاستثناء بالخروج من معالج الحدث.
+        try
+        {
+            _transactionsView.RowFilter = RowFilterHelper.Build(conditions);
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "تعذر تطبيق تصفية حركات المخزون — أُبقيت التصفية السابقة كما هي");
+        }
 
         _UpdateSummary();
         _UpdateClearFiltersState();   // RULE-N148: حالة زر «مسح التصفية» بعد كل تطبيق
@@ -374,7 +404,8 @@ public partial class frmListInventoryTransactions : Form
         }
 
         lblSummary.Text =
-            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_transactionsTable.Rows.Count)} — وارد: {clsFormat.Quantity(inQuantity)} · صادر: {clsFormat.Quantity(outQuantity)}";
+            $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_transactionsTable.Rows.Count)} — وارد: {clsFormat.Quantity(inQuantity)} · صادر: {clsFormat.Quantity(outQuantity)}" +
+            _pageSizeNotice;   // نطاق تحميل ناقص يُعلَن ولا يُخفى
 
         lblRecordsCount.Text = clsFormat.Number(shown);
 

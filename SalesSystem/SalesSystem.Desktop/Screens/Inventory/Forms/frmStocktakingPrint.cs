@@ -11,7 +11,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// عنوان «محضر جرد فعلي»، رقم المحضر، التاريخ، المستودع، لجنة الجرد
 /// (رئيس / عضو / أمين)، عدد الأصناف، إجمالي الفائض، إجمالي العجز، ثم فاصل متقطع
 /// وتذييل توقيعات اللجنة.
-/// زر الطباعة يعرض رسالة نجاح فقط (محاكاة). تُعرض النافذة عبر ShowDialog().
+/// زر المعاينة يعرض تفاصيل المحضر ويوضّح أنّه لم يُرسَل أي نسخة إلى الطابعة. تُعرض النافذة عبر ShowDialog().
 /// </summary>
 public partial class frmStocktakingPrint : Form
 {
@@ -112,17 +112,17 @@ public partial class frmStocktakingPrint : Form
     {
         try
         {
-            clsDialogs.Success(
-                $"تمت طباعة محضر الجرد رقم {_session.DocNo} بنجاح.\n" +
+            clsDialogs.Info(
+                $"معاينة محضر الجرد رقم {_session.DocNo} — بيانات تجريبية للعرض فقط.\n" +
                 $"المستودع: {_session.Warehouse} — لجنة الجرد: {_session.CommitteeHead} / {_session.CommitteeMember} / {_session.Storekeeper}\n" +
                 $"عدد الأصناف: {clsFormat.Number(_session.ItemCount)} — إجمالي الفائض: {clsFormat.Quantity(_session.TotalSurplus)} — إجمالي العجز: {clsFormat.Quantity(_session.TotalDeficit)}\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
+                "لم تُرسَل أي نسخة إلى الطابعة — هذه النافذة معاينة فقط.");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
-            Serilog.Log.Error(ex, "تعذرت طباعة محضر الجرد {DocNo}", _session.DocNo);
-            clsDialogs.Error("تعذر طباعة محضر الجرد. يرجى إعادة المحاولة.");
+            Serilog.Log.Error(ex, "تعذرت معاينة محضر الجرد {DocNo}", _session.DocNo);
+            clsDialogs.Error("تعذر عرض معاينة محضر الجرد. يرجى إعادة المحاولة.");
         }
     }
 

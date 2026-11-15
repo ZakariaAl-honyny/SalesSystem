@@ -11,7 +11,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// عنوان «كرت حركة صنف»، بيانات الصنف (الصنف / الباركود / المستودع / الرصيد الحالي)،
 /// جدول حركات الصنف (التاريخ / النوع / الوارد / الصادر / الرصيد) برصيد جارٍ،
 /// ثم فاصل متقطع وتذييل توقيعات (أمين المستودع / مدقق المخزون).
-/// زر الطباعة يعرض رسالة نجاح فقط (محاكاة). تُعرض النافذة عبر ShowDialog().
+/// زر المعاينة يعرض تفاصيل الكرت ويوضّح أنّه لم يُرسَل أي نسخة إلى الطابعة. تُعرض النافذة عبر ShowDialog().
 /// </summary>
 public partial class frmStocktakingPrintCard : Form
 {
@@ -100,6 +100,12 @@ public partial class frmStocktakingPrintCard : Form
         GreenThemeHelper.ApplyHeader(lblTitle);   // RULE-N53
         GreenThemeHelper.ApplyGrid(dgvMovements); // RULE-N51/N52 — لا يلمس ReadOnly/SelectionMode
 
+        // RULE-N179 — تنسيق أعمدة الحركات وقت التشغيل من البيت الواحد (كميات + تاريخ).
+        // المصمّم يحمل القيمة التصميمية فقط (RULE-N134)، وهذه السطور تجعلها حيّة.
+        GridFormatHelper.ApplyColumn(dgvMovements, "colDate", GridFormatKind.DateDayMonthYear);
+        GridFormatHelper.ApplyColumns(dgvMovements, GridFormatKind.Quantity,
+            "colInQty", "colOutQty", "colBalance");
+
         // الكرت الورقي يحتاج صفوفاً مضغوطة لتظهر الحركات الخمس كاملة داخل مساحة المعاينة
         // (القيم نفسها المعلنة في المصمّم — RULE-N134).
         dgvMovements.ColumnHeadersHeight = 32;
@@ -132,17 +138,17 @@ public partial class frmStocktakingPrintCard : Form
     {
         try
         {
-            clsDialogs.Success(
-                $"تمت طباعة كرت صنف «{_card.ProductName}» بنجاح.\n" +
+            clsDialogs.Info(
+                $"معاينة كرت صنف «{_card.ProductName}» — بيانات تجريبية للعرض فقط.\n" +
                 $"الباركود: {_card.Barcode} — المستودع: {_card.Warehouse}\n" +
                 $"الرصيد الحالي: {clsFormat.Quantity(_card.CurrentBalance)} — عدد الحركات: {clsFormat.Number(_movements.Count)}\n" +
-                "(وضع تجريبي — تمت معاينة الطباعة دون اتصال بالطابعة)");
+                "لم تُرسَل أي نسخة إلى الطابعة — هذه النافذة معاينة فقط.");
         }
         catch (Exception ex)
         {
             // RULE-N29: التفاصيل للسجل فقط، والمستخدم يرى رسالة عربية.
-            Serilog.Log.Error(ex, "تعذرت طباعة كرت الصنف {ProductName}", _card.ProductName);
-            clsDialogs.Error("تعذر طباعة كرت الصنف. يرجى إعادة المحاولة.");
+            Serilog.Log.Error(ex, "تعذرت معاينة كرت الصنف {ProductName}", _card.ProductName);
+            clsDialogs.Error("تعذر عرض معاينة كرت الصنف. يرجى إعادة المحاولة.");
         }
     }
 

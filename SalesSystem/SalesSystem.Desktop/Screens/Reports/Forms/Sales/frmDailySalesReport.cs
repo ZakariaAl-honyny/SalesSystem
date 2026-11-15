@@ -36,10 +36,18 @@ public partial class frmDailySalesReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetDailySalesSummaryAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            // نهاية اليوم شاملة: SalesReportService.cs:167 يقارن InvoiceDate (طابع زمني كامل) بـ to مباشرةً بلا تطبيع، فتمرير .Date وحدها يُسقط فواتير اليوم الأخير.
+            var result = await _serviceProvider.GetRequiredService<ISalesReportDesktopService>().GetDailySalesSummaryAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
                 _bindingSource.DataSource = result.Value.ToList();
@@ -66,8 +74,9 @@ public partial class frmDailySalesReport : Form, IExportableReport
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("Date", "التاريخ"); SetHeader("InvoiceCount", "عدد الفواتير"); SetHeader("TotalAmount", "الإجمالي");
         SetHeader("DiscountAmount", "الخصم"); SetHeader("NetAmount", "الصافي");
-        foreach (var c in new[] { "TotalAmount", "DiscountAmount", "NetAmount" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalAmount", "DiscountAmount", "NetAmount");
+        // التاريخ بصيغة النظام الحيّة (يوم/شهر/سنة) بدل عرض DateTime الخام مع وقت اليوم.
+        GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateDayMonthYear);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

@@ -20,7 +20,7 @@ public partial class frmSupplierPaymentDialog : Form
     private ISupplierPaymentDesktopService PaymentApi => _serviceProvider.GetRequiredService<ISupplierPaymentDesktopService>();
     private ISupplierDesktopService SupplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
     private IPurchaseInvoiceDesktopService PurchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();
-    private INotificationService Notification => _serviceProvider.GetRequiredService<INotificationService>();
+    // RULE-N169: بيت الرسائل الواحد هو clsDialogs — لا خدمة إشعارات ثانية داخل الشاشة.
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
 
     private List<SupplierDto> _suppliers = new();
@@ -42,6 +42,7 @@ public partial class frmSupplierPaymentDialog : Form
             (Keys.F4, () => { if (btnSave.Enabled) btnSave.PerformClick(); }),
             (Keys.F5, () => _ = _RefreshAsync()),
             (Keys.Escape, () => btnCancel.PerformClick()));
+        KeyboardHelper.WireModeEnter(this, () => btnSave);
 
         // RULE-N97 — التفقيط الحيّ كتلميح على حقل المبلغ.
         LiveTafqeetHelper.Attach(liveTip, (numAmount, "المبلغ المدفوع", LiveTafqeetHelper.ReadMode.Money));
@@ -94,8 +95,17 @@ public partial class frmSupplierPaymentDialog : Form
     {
         base.OnLoad(e);
 
-        ApplyUiTheme();   // RULE-N50 — الأخير في مسار التحميل
-        await _LoadSuppliersAsync();
+        try
+        {
+            ApplyUiTheme();   // RULE-N50 — الأخير في مسار التحميل
+            await _LoadSuppliersAsync();
+        }
+        catch (Exception ex)
+        {
+            // RULE-N25/N29 — لا يهرب استثناء من async void، والتفاصيل للتسجيل فقط.
+            Log.Error(ex, "تعذر تهيئة حوار سند الصرف");
+            clsDialogs.Error("تعذر تهيئة شاشة سند الصرف. يرجى إعادة المحاولة.");
+        }
     }
 
     private async Task _LoadSuppliersAsync()
@@ -115,13 +125,13 @@ public partial class frmSupplierPaymentDialog : Form
             }
             else
             {
-                Notification.ShowError(res.Error ?? "تعذر تحميل قائمة الموردين.");
+                clsDialogs.Error(res.Error ?? "تعذر تحميل قائمة الموردين.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل قائمة الموردين في سند صرف");
-            Notification.ShowError("حدث خطأ في تحميل البيانات.");
+            clsDialogs.Error("حدث خطأ في تحميل البيانات.");
         }
         finally
         {
@@ -146,8 +156,8 @@ public partial class frmSupplierPaymentDialog : Form
         numAmount.Value = 0m;
         dtpDate.Value = DateTime.Today;
         txtNotes.Clear();
-        lblBalanceVal.Text = "0.00";
-        lblBalanceVal.ForeColor = Color.Blue;
+        lblBalanceVal.Text = clsFormat.Money(0m);                                                 // RULE-001: N2 من البيت الواحد
+        lblBalanceVal.ForeColor = GreenThemeHelper.StatusInfo;                                    // RULE-N54: لا لون حرفي
         errorProvider.Clear();
 
         cmbSupplier.Focus();
@@ -169,19 +179,32 @@ public partial class frmSupplierPaymentDialog : Form
 
     private async Task OnSupplierChanged()
     {
+        // لا مورد محدد (أو أُلغي الاختيار): تُفرَّغ الفواتير والرصيد — كان يبقى ربط فواتير المورد
+        // السابق فيُحفظ السند على فاتورة مورد آخر (خطأ مالي).
         if (cmbSupplier.SelectedValue is not int supplierId)
+        {
+            _currentBalance = 0m;
+            lblBalanceVal.Text = clsFormat.Money(0m);
+            lblBalanceVal.ForeColor = GreenThemeHelper.StatusInfo;   // RULE-N54
+            cmbInvoice.DataSource = null;
             return;
+        }
 
         var supplier = _suppliers.FirstOrDefault(s => s.Id == supplierId);
         if (supplier != null)
         {
             _currentBalance = supplier.CurrentBalance;
             lblBalanceVal.Text = clsFormat.Money(_currentBalance);
-            lblBalanceVal.ForeColor = _currentBalance > 0 ? Color.Red : Color.Blue;
+            lblBalanceVal.ForeColor = _currentBalance > 0 ? GreenThemeHelper.StatusDanger : GreenThemeHelper.StatusInfo;   // RULE-N54
         }
 
         // تحميل فواتير الشراء غير المسددة للمورد (المرحّلة فقط).
         var invoicesRes = await PurchaseApi.GetAllAsync(status: 2);
+
+        // سباق القوائم: تغيّر المورد أثناء التحميل ⇒ لا يُربط الجواب القديم على المورد الجديد.
+        if (cmbSupplier.SelectedValue is not int currentSupplierId || currentSupplierId != supplierId)
+            return;
+
         if (invoicesRes.IsSuccess && invoicesRes.Value != null)
         {
             var list = invoicesRes.Value.Where(i => i.SupplierId == supplierId && i.DueAmount > 0).ToList();
@@ -189,6 +212,10 @@ public partial class frmSupplierPaymentDialog : Form
             cmbInvoice.DisplayMember = "InvoiceNo";
             cmbInvoice.ValueMember = "Id";
             cmbInvoice.SelectedIndex = -1;
+        }
+        else
+        {
+            cmbInvoice.DataSource = null;   // لا يبقى ربط فواتير قديم عند فشل التحميل
         }
     }
 
@@ -256,20 +283,20 @@ public partial class frmSupplierPaymentDialog : Form
             var res = await PaymentApi.CreateAsync(request);
             if (res.IsSuccess)
             {
-                Notification.ShowSuccess("تم حفظ السداد بنجاح");
+                clsDialogs.Success("تم حفظ السداد بنجاح");
                 EventBus.Publish(new SupplierPaymentChangedMessage(res.Value.Id));
                 DialogResult = DialogResult.OK;
                 Close();
             }
             else
             {
-                Notification.ShowError(res.Error ?? "تعذر حفظ سند الصرف.");
+                clsDialogs.Error(res.Error ?? "تعذر حفظ سند الصرف.");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في حفظ سند الصرف");
-            Notification.ShowError("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء الحفظ. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {

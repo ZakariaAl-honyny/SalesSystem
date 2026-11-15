@@ -62,7 +62,7 @@ public partial class frmWorkingCapitalReport : Form, IExportableReport
                             foreach (var line in section.Lines)
                                 accounts.Add(new WorkingCapitalAccountDto(line.AccountName, line.AccountCode, line.Balance, section.Name));
                 _bindingSource.DataSource = accounts;
-                UpdateSummary(new WorkingCapitalSummaryDto(bs.TotalAssets, bs.TotalLiabilities, bs.TotalAssets - bs.TotalLiabilities, bs.TotalLiabilities > 0 ? bs.TotalAssets / bs.TotalLiabilities : 0, accounts));
+                UpdateSummary(bs, accounts.Count);
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }
@@ -71,18 +71,23 @@ public partial class frmWorkingCapitalReport : Form, IExportableReport
         finally { ShowLoading(false); }
     }
 
-    private void UpdateSummary(WorkingCapitalSummaryDto report)
+    private void UpdateSummary(BalanceSheetDto bs, int recordCount)
     {
-        // نسبة التداول معامل (أصول ÷ خصوم) لا نسبة مئوية — تُعرض بمنزلتين عبر منسّق المبالغ،
-        // إذ لا يوجد منسّق «نسبة/معامل» في clsFormat بعد (RULE-N169: لا صيغة مكرّرة هنا).
-        lblSummary.Text = $"الأصول المتداولة: {clsFormat.Money(report.CurrentAssets)} | الخصوم المتداولة: {clsFormat.Money(report.CurrentLiabilities)} | رأس المال العامل: {clsFormat.Money(report.WorkingCapital)} | نسبة التداول: {clsFormat.Money(report.CurrentRatio)}";
+        // T-43 (باك-إند مجمَّد — لا يُصلَح هنا): المصدر يوفّر إجمالي الأصول والخصوم فقط، ولا يوفّر تصنيفاً
+        // «متداول/غير متداول»، فأرقام الشاشة إجماليات. لذلك تُسمّى بما هي فعلاً بدل «أصول/خصوم متداولة»،
+        // وتُصرَّح حدود التقرير في الشريط — لا ادّعاء بتصنيف غير موجود (RULE-N167).
+        // النسبة معامل (أصول ÷ خصوم) لا نسبة مئوية ولا مبلغ: تُعرض بمنسّق المعامل من بيته الواحد clsFormat.Ratio.
+        var ratio = bs.TotalLiabilities > 0m ? bs.TotalAssets / bs.TotalLiabilities : 0m;
+
+        lblRecordsCount.Text = clsFormat.Number(recordCount);
+        lblSummary.Text = $"إجمالي الأصول: {clsFormat.Money(bs.TotalAssets)} | إجمالي الخصوم: {clsFormat.Money(bs.TotalLiabilities)} | صافي الأصول (أصول − خصوم): {clsFormat.Money(bs.TotalAssets - bs.TotalLiabilities)} | نسبة الأصول إلى الخصوم: {clsFormat.Ratio(ratio)} | تنبيه: تصنيف متداول/غير متداول غير متوفر (إجماليات)";
     }
 
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("AccountCode", "كود الحساب"); SetHeader("AccountName", "اسم الحساب"); SetHeader("Balance", "الرصيد"); SetHeader("Type", "النوع");
-        if (dgvReport.Columns.Contains("Balance")) dgvReport.Columns["Balance"].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "Balance", GridFormatKind.Money);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
@@ -108,10 +113,5 @@ public partial class frmWorkingCapitalReport : Form, IExportableReport
         loadingPanel.Visible = show;
         this.Enabled = !show;
         this.UseWaitCursor = show;
-    }
-
-    private void label1_Click(object sender, EventArgs e)
-    {
-
     }
 }

@@ -26,7 +26,6 @@ public partial class frmProductMovementReport : Form, IExportableReport
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvReport.CellFormatting += DgvReport_CellFormatting;
         this.Load += OnLoadHandler;
         ReportUiStandardizer.ApplyForm(this);
         ReportUiStandardizer.ApplyReferenceLook(this);
@@ -66,13 +65,13 @@ public partial class frmProductMovementReport : Form, IExportableReport
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error ?? "حدث خطأ في تحميل قائمة المنتجات");
+                clsDialogs.Error(result.Error ?? "حدث خطأ في تحميل قائمة المنتجات");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ في تحميل قائمة المنتجات");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل قائمة المنتجات. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل قائمة المنتجات. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 
@@ -80,17 +79,29 @@ public partial class frmProductMovementReport : Form, IExportableReport
     {
         if (cmbProduct.SelectedValue is not int productId || productId == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("يرجى اختيار منتج");
+            clsDialogs.Warning("يرجى اختيار منتج");
+            return;
+        }
+
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
             return;
         }
 
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetMovementsAsync(productId, null, dtpFrom.Value, dtpTo.Value);
+            // نهاية اليوم شاملة: ReportRepository.cs:196 يقارن CreatedAt (طابع زمني كامل) بـ to.Value.Date.AddDays(1).AddTicks(-1)، فتمرير .Date وحدها يُسقط حركات اليوم الأخير (MockReportDesktopService.cs:259-260 يقارن بالتاريخ فقط فلا يتأثر).
+            var result = await _serviceProvider.GetRequiredService<IReportDesktopService>().GetMovementsAsync(productId, null, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess)
             {
-                var data = result.Value.ToList();
+                // نوع الحركة يُعرض عربياً دائماً (RULE-N28): ما يصل عربياً (بيانات التجربة) يبقى كما هو،
+                // واسم التعداد الإنجليزي القادم من طبقة البيانات يُترجم عبر خريطة واحدة في هذه الشاشة.
+                var data = result.Value
+                    .Select(x => x with { MovementType = MovementTypeLabel(x.MovementType) })
+                    .ToList();
                 _bindingSource.DataSource = data;
 
                 // عمود «قبل» غير مرتبط بالبيانات — يُملأ بقيمة رقمية بعد الربط حتى يخرج في التصدير
@@ -100,23 +111,51 @@ public partial class frmProductMovementReport : Form, IExportableReport
                         row.Cells[colBefore.Name].Value = item.QuantityAfter - item.QuantityChange;
                 }
 
+                FormatGrid();
                 UpdateSummary(data);
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error ?? "حدث خطأ");
+                clsDialogs.Error(result.Error ?? "حدث خطأ");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل تقرير حركة المنتج");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل البيانات. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل البيانات. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
             ShowLoading(false);
         }
     }
+
+    /// <summary>
+    /// اسم نوع الحركة بالعربية — النص العربي (بيانات التجربة والحالات المترجَمة) يُعاد كما هو،
+    /// واسم التعداد الإنجليزي القادم من طبقة البيانات يُترجم بمفردات تقرير المخزون نفسها.
+    /// <para>
+    /// <b>البيت الصحيح لهذه الخريطة طبقة البيانات</b> (مالكها: مالك تقرير حركة المنتج في المرحلة ب)،
+    /// وتُعلَن هنا مرة واحدة فقط لأن لا بيت مشترك لأسماء أنواع الحركة في <c>Helpers/</c> —
+    /// وشاشة عربية لا تعرض نصاً إنجليزياً (<c>RULE-N28</c>). تُنقل إلى بيتها عند إنشائه (<c>RULE-N170</c>).
+    /// </para>
+    /// </summary>
+    private static string MovementTypeLabel(string? movementType) => movementType switch
+    {
+        null or "" => string.Empty,
+        "Purchase" => "مشتريات",
+        "PurchaseReturn" => "مرتجع مشتريات",
+        "Sale" => "مبيعات",
+        "SaleReturn" => "مرتجع مبيعات",
+        "TransferOut" => "تحويل صادر",
+        "TransferIn" => "تحويل وارد",
+        "Count" => "جرد",
+        "Adjustment" => "تسوية",
+        "Damage" => "تالف",
+        "OpeningBalance" => "رصيد افتتاحي",
+        "InternalIssue" => "صرف داخلي",
+        "InternalReceipt" => "استلام داخلي",
+        _ => movementType ?? string.Empty
+    };
 
     private void UpdateSummary(List<ProductMovementReportDto> data)
     {
@@ -134,24 +173,31 @@ public partial class frmProductMovementReport : Form, IExportableReport
         lblSummary.Text = $"إجمالي الحركات: {clsFormat.Number(data.Count)} | الوارد: {clsFormat.Quantity(totalIn)} | الصادر: {clsFormat.Quantity(totalOut)}";
     }
 
-    private void DgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+    /// <summary>
+    /// RULE-N169 — تنسيق أعمدة التقرير من بيته الواحد <see cref="GridFormatHelper"/>: الشاشة تعلن
+    /// <b>الدلالة</b> لا نص التنسيق، فتأتي منازل الكميات وصيغة التاريخ من <c>clsFormat</c> الحيّ
+    /// ويقرأها <c>ExportHelper</c> عند التصدير.
+    /// <para>
+    /// أسماء الأعمدة هي <c>Name</c> المعلن في المصمّم لا اسم حقل البيانات (<c>RULE-N179</c>)، والعمود
+    /// غير الموجود يُتجاهل بصمت. ولا يلمس الـHelper أي سلوك بنيوي في الشبكة (<c>RULE-N52</c>).
+    /// </para>
+    /// </summary>
+    private void FormatGrid()
     {
-        if (e.RowIndex < 0) return;
+        if (dgvReport.Columns.Count == 0) return;
 
-        // عمود «قبل» غير مرتبط: يُحسب من (بعد - التغير)
-        if (dgvReport.Columns[e.ColumnIndex].Name == "colBefore"
-            && dgvReport.Rows[e.RowIndex].DataBoundItem is ProductMovementReportDto item)
-        {
-            e.Value = clsFormat.Quantity(item.QuantityAfter - item.QuantityChange);
-            e.FormattingApplied = true;
-        }
+        // كميات: التغير · «قبل» (غير مرتبط بالبيانات، يملؤه LoadReportAsync) · بعد
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity, "colQtyChange", "colBefore", "colAfter");
+
+        // التاريخ: صيغة يوم/شهر/سنة الحيّة — مطابقة لقيمة المصمّم "dd/MM/yyyy"
+        GridFormatHelper.ApplyColumn(dgvReport, "colDate", GridFormatKind.DateDayMonthYear);
     }
 
     private async Task ExportToExcelAsync()
     {
         if (_bindingSource.DataSource is not List<ProductMovementReportDto> data || data.Count == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("لا توجد بيانات للتصدير");
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -170,13 +216,13 @@ public partial class frmProductMovementReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "حركة منتج", dialog.FileName);
-                _serviceProvider.GetRequiredService<INotificationService>().ShowSuccess("تم تصدير التقرير بنجاح");
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تصدير تقرير حركة المنتج إلى Excel");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 

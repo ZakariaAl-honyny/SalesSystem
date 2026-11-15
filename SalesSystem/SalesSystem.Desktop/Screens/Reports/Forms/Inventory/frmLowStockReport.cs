@@ -26,10 +26,8 @@ public partial class frmLowStockReport : Form, IExportableReport
         dgvReport.DataSource = _bindingSource;
         dgvReport.ReadOnly = true;
         dgvReport.AllowUserToAddRows = false;
-        dgvReport.BackgroundColor = Color.White;
         dgvReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvReport.AutoGenerateColumns = true;
-        dgvReport.CellFormatting += DgvReport_CellFormatting;
         ReportUiStandardizer.ApplyForm(this);
         ReportUiStandardizer.ApplyReferenceLook(this);
         ReportNavigationHelper.Attach(this, _serviceProvider);
@@ -63,13 +61,13 @@ public partial class frmLowStockReport : Form, IExportableReport
             }
             else
             {
-                _serviceProvider.GetRequiredService<INotificationService>().ShowError(result.Error!);
+                clsDialogs.Error(result.Error!);
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تحميل تقرير التنبيهات للمخزون المنخفض");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير. تم تسجيل التفاصيل للدعم الفني.");
         }
         finally
         {
@@ -94,34 +92,31 @@ public partial class frmLowStockReport : Form, IExportableReport
     {
         if (dgvReport.Columns.Count == 0) return;
 
-        var hides = new[] { "ProductId", "WarehouseId" };
+        // الأعمدة المخفية: المعرّف · «كود المنتج» (يعيده الـDTO بقيمة null دائماً) · العمودان
+        // الخامان المكرّران لنفس كمية «Quantity»/«ReorderLevel» المحسوبين · معامل التحويل (رقم تقني).
+        var hides = new[] { "ProductId", "ProductCode", "CurrentRetailQty", "ReorderLevelRetailQty", "ConversionFactor" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
         }
 
-        SetHeader("ProductCode", "كود المنتج");
         SetHeader("ProductName", "اسم المنتج");
+        SetHeader("CategoryName", "التصنيف");
         SetHeader("UnitName", "الوحدة");
         SetHeader("WarehouseName", "المستودع");
         SetHeader("Quantity", "الكمية الحالية");
         SetHeader("ReorderLevel", "الحد الأدنى");
+        SetHeader("DeficitRetailQty", "النقص");
+        SetHeader("SuggestedWholesaleBoxes", "المقترح (وحدات كبرى)");
+        SetHeader("SuggestedRetailRemainder", "المتبقي (وحدات صغرى)");
+        SetHeader("WholesaleUnitName", "الوحدة الكبرى");
+        SetHeader("RetailUnitName", "الوحدة الصغرى");
 
-        if (dgvReport.Columns.Contains("Quantity"))
-            dgvReport.Columns["Quantity"].DefaultCellStyle.Format = "N3";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Quantity,
+            "Quantity", "ReorderLevel", "DeficitRetailQty", "SuggestedWholesaleBoxes", "SuggestedRetailRemainder");
 
-        if (dgvReport.Columns.Contains("ReorderLevel"))
-            dgvReport.Columns["ReorderLevel"].DefaultCellStyle.Format = "N3";
-    }
-
-    private void DgvReport_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-    {
-        if (e.RowIndex >= 0 && dgvReport.Columns[e.ColumnIndex].Name == "Quantity")
-        {
-            e.CellStyle.BackColor = GreenThemeHelper.StatusDangerBack;
-            e.CellStyle.ForeColor = GreenThemeHelper.StatusDanger;
-            e.CellStyle.Font = new Font(dgvReport.Font, FontStyle.Bold);
-        }
+        // الكمية أقل من الحد الأدنى تُلوَّن حمراء — من البيت الواحد بدل معالج تلوين محلي (RULE-N169).
+        GridFormatHelper.ApplyBalanceColouring(dgvReport, "Quantity", "ReorderLevel");
     }
 
     private void SetHeader(string col, string text)
@@ -133,7 +128,7 @@ public partial class frmLowStockReport : Form, IExportableReport
     {
         if (_bindingSource.DataSource is not List<LowStockReportDto> data || data.Count == 0)
         {
-            _serviceProvider.GetRequiredService<INotificationService>().ShowWarning("لا توجد بيانات للتصدير");
+            clsDialogs.Warning("لا توجد بيانات للتصدير");
             return;
         }
 
@@ -148,13 +143,13 @@ public partial class frmLowStockReport : Form, IExportableReport
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 ExportHelper.ExportToExcel(dgvReport, "تنبيه المخزون المنخفض", dialog.FileName);
-                _serviceProvider.GetRequiredService<INotificationService>().ShowSuccess("تم تصدير التقرير بنجاح");
+                clsDialogs.Success("تم تصدير التقرير بنجاح");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "حدث خطأ في تصدير تقرير التنبيهات للمخزون المنخفض إلى Excel");
-            _serviceProvider.GetRequiredService<INotificationService>().ShowError("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
+            clsDialogs.Error("حدث خطأ أثناء التصدير. تم تسجيل التفاصيل للدعم الفني.");
         }
     }
 

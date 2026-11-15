@@ -596,11 +596,11 @@ public partial class frmProductUnitMaster : Form
                 cmbUnit.SelectedIndex = -1;
 
             txtBarcode.Text = unit.Barcode ?? "";
-            numFactor.Value = _Clamp(numFactor, unit.ConversionFactor);
-            numSalePrice.Value = _Clamp(numSalePrice, unit.SalePrice);
-            numWholesalePrice.Value = _Clamp(numWholesalePrice, unit.WholesalePrice ?? 0m);
-            numCostPrice.Value = _Clamp(numCostPrice, unit.CostPrice);
-            numMaxDiscount.Value = _Clamp(numMaxDiscount, unit.MaxDiscountAmount ?? 0m);
+            numFactor.Value = NumericInputHelper.Clamp(numFactor, unit.ConversionFactor);
+            numSalePrice.Value = NumericInputHelper.Clamp(numSalePrice, unit.SalePrice);
+            numWholesalePrice.Value = NumericInputHelper.Clamp(numWholesalePrice, unit.WholesalePrice);
+            numCostPrice.Value = NumericInputHelper.Clamp(numCostPrice, unit.CostPrice);
+            numMaxDiscount.Value = NumericInputHelper.Clamp(numMaxDiscount, unit.MaxDiscountAmount);
         }
         finally
         {
@@ -637,7 +637,9 @@ public partial class frmProductUnitMaster : Form
         btnClose.Enabled = true;
         btnSave.Enabled = _mode == EntryMode.Adding;
         btnEdit.Enabled = _mode == EntryMode.Editing;
-        btnDelete.Enabled = _mode == EntryMode.Editing;
+
+        // «حذف» على السجل المحدد فقط، ولا يُفعَّل على الوحدة الأساسية (لا تُحذف — تُعدَّل أسعارها فقط).
+        btnDelete.Enabled = _mode == EntryMode.Editing && !_IsBaseUnitSelected();
 
         _UpdateModeHeader();   // RULE-N44
 
@@ -681,6 +683,14 @@ public partial class frmProductUnitMaster : Form
         => _editId is int id && _unitsById.TryGetValue(id, out var unit)
             ? unit.UnitName ?? ""
             : cmbUnit.Text ?? "";
+
+    /// <summary>
+    /// هل السجل المحدد هو الوحدة الأساسية للصنف؟ (لا تُحذف — عليها يعتمد معامل التحويل — RULE-N92).
+    /// </summary>
+    private bool _IsBaseUnitSelected()
+        => _editId is int id
+           && _unitsById.TryGetValue(id, out var unit)
+           && unit.IsBaseUnit;
 
     /// <summary>
     /// شريط الوضع (RULE-N44): «وضع العرض» افتراضياً · «إضافة وحدة جديدة» · «تعديل وحدة: &lt;الاسم&gt;».
@@ -992,7 +1002,9 @@ public partial class frmProductUnitMaster : Form
 
         string unitName = _CurrentUnitName();
 
-        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف (تعطيل) وحدة المنتج \"{unitName}\"؟"))
+        // الحذف هنا نهائي فعلاً (DeleteStrategy.Permanent أدناه) — الرسالة تقول الأثر الحقيقي
+        // ولا تدّعي «تعطيلاً» (RULE-N28: كل رسالة تقول ما سيحدث فعلاً).
+        if (!clsDialogs.Confirm($"هل أنت متأكد من حذف وحدة المنتج \"{unitName}\" حذفاً نهائياً؟ لا يمكن التراجع عن هذا الحذف."))
             return;
 
         Cursor = Cursors.WaitCursor;
@@ -1088,7 +1100,4 @@ public partial class frmProductUnitMaster : Form
             }
         }
     }
-
-    private static decimal _Clamp(NumericUpDown control, decimal value)
-        => Math.Min(Math.Max(value, control.Minimum), control.Maximum);
 }

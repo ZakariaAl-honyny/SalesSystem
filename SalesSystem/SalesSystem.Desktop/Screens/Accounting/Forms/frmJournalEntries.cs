@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Data;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Common.Helpers;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
@@ -44,6 +45,16 @@ public partial class frmJournalEntries : Form
     private int _currentStatus;
     private string _currentEntryNumber = string.Empty;
     private string _currentStatusDisplay = string.Empty;
+
+    /// <summary>
+    /// مرجع المستند المصدر للقيد (فاتورة/سند) كما حُمّل من الخدمة — يُعاد في طلب التحديث
+    /// حتى لا يُقطع ارتباط القيد بمستنده عند حفظ مسودة مُولَّدة آلياً.
+    /// </summary>
+    private string? _currentReferenceType;
+    private int? _currentReferenceId;
+
+    /// <summary>بصمة المحرر عند آخر تحميل/حفظ — تكشف التعديلات غير المحفوظة قبل الترحيل.</summary>
+    private string _editorSignatureOnLoad = string.Empty;
 
     private bool _busy;
     private bool _loadingSelection;
@@ -192,7 +203,12 @@ public partial class frmJournalEntries : Form
         dgvLines.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvLines.MultiSelect = false;
 
-        lblEmptyState.BackColor = Color.White;
+        // تنسيق أعمدة المال والتاريخ من البيت الواحد (clsFormat الحيّ) لا نص حرفي في المصمّم (RULE-N169).
+        GridFormatHelper.ApplyColumns(dgvEntries, GridFormatKind.Money, "colTotalDebit", "colTotalCredit");
+        GridFormatHelper.ApplyColumn(dgvEntries, "colEntryDate", GridFormatKind.DateDayMonthYear);
+        GridFormatHelper.ApplyColumns(dgvLines, GridFormatKind.Money, "colLineDebit", "colLineCredit");
+
+        // خلفية lblEmptyState مُعلنة في المصمّم — لا تُكتب هنا كلون حرفي (RULE-N134).
         lblEmptyState.ForeColor = GreenThemeHelper.TextStrong;
         lblEntryInfo.ForeColor = GreenThemeHelper.TextStrong;
         lblTotals.ForeColor = GreenThemeHelper.TextStrong;
@@ -224,14 +240,16 @@ public partial class frmJournalEntries : Form
         cbEntryTypeFilter.SelectedIndex = 0;
     }
 
-    /// <summary>حالة القيد: «كل الحالات» = 0 ثم قيم قاعدة البيانات 1/2/3.</summary>
+    /// <summary>حالة القيد: «كل الحالات» = 0 (محلي) ثم قيم قاعدة البيانات 1/2/3 من البيت الواحد (RULE-N169).</summary>
     private void _BindStatusFilter()
     {
         cbStatusFilter.Items.Clear();
-        cbStatusFilter.Items.Add(new StatusOption(0, "كل الحالات"));
-        cbStatusFilter.Items.Add(new StatusOption(StatusDraft, "مسودة"));
-        cbStatusFilter.Items.Add(new StatusOption(StatusPosted, "مُرحَّل"));
-        cbStatusFilter.Items.Add(new StatusOption(StatusCancelled, "ملغى"));
+        cbStatusFilter.Items.Add(new StatusOption(0, "كل الحالات"));   // عنصر محايد محلي — ليس نص حالة
+
+        // أزواج (القيمة ↔ النص) من DocumentTextHelper.StatusOptions — لا تُكتب في الشاشة.
+        foreach (var (value, text) in DocumentTextHelper.StatusOptions)
+            cbStatusFilter.Items.Add(new StatusOption(value, text));
+
         cbStatusFilter.SelectedIndex = 0;
     }
 
@@ -589,9 +607,12 @@ public partial class frmJournalEntries : Form
     private DateTime? _FromDateOrNull()
         => _dateRangeActive ? dtpFrom.Value.Date : null;
 
-    /// <summary>نهاية النطاق = بداية اليوم التالي (شامل لليوم المختار).</summary>
+    /// <summary>
+    /// نهاية النطاق = آخر لحظة في اليوم المختار (شامل لليوم نفسه) — الخدمة تقارن بـ <c>&lt;=</c>،
+    /// فتمرير بداية اليوم التالي كان يُدخل قيود يومٍ زائد في الشبكة والمجاميع.
+    /// </summary>
     private DateTime? _ToDateOrNull()
-        => _dateRangeActive ? dtpTo.Value.Date.AddDays(1) : null;
+        => _dateRangeActive ? clsValidation.EndOfDay(dtpTo.Value) : null;
 
     private void txtFilterValue_TextChanged(object? sender, EventArgs e) => _OnFiltersChanged();
 
@@ -705,9 +726,9 @@ public partial class frmJournalEntries : Form
     }
 
     /// <summary>
-    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد شبكة القيود إلى وضعها الافتراضي،
-    /// بلا إعادة تحميل ولا لمس لمحرر القيد ولا لشبكة البنود (RULE-N148).
-    /// «تحديث» (F5) هو المسؤول عن إعادة قراءة البيانات.
+    /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد شبكة القيود إلى قائمتها الافتراضية،
+    /// بلا لمس محرر القيد ولا شبكة البنود ولا إعادة تحميل دليل الحسابات (RULE-N148).
+    /// «تحديث» (F5) هو المسؤول عن إعادة قراءة **كل** بيانات الشاشة وإرجاع المحرر للافتراضي.
     /// </summary>
     private void btnClearFilters_Click(object? sender, EventArgs e)
     {
@@ -743,11 +764,22 @@ public partial class frmJournalEntries : Form
         }
     }
 
-    /// <summary>يمسح كل أدوات التصفية ثم يعيد تطبيق التصفية الافتراضية على القيود المحمَّلة (بلا تحميل) — RULE-N59.</summary>
+    /// <summary>
+    /// يمسح كل أدوات التصفية ثم يستعيد القائمة الافتراضية — RULE-N59.
+    /// <para>
+    /// التصفية هنا تُنفَّذ على الخادم (النوع/الحالة/النطاق/البحث)، فمسح أدواتها لا يكفي لاستعادة
+    /// كل القيود: تُعاد قراءة **القائمة وحدها** (لا المحرر ولا دليل الحسابات ولا إعدادات الشاشة)،
+    /// وإلا بقي المعروض مجموعة مفلترة بينما الأدوات تقول «كل الحالات» (RULE-N148).
+    /// </para>
+    /// </summary>
     private void _ClearAllFilters()
     {
         _ClearFilterInputs();
-        _ApplyFilter(_currentEntryId);
+
+        if (_loaded)
+            _ = _RefreshFromFiltersAsync();
+        else
+            _ApplyFilter(_currentEntryId);
     }
 
     /// <summary>RULE-N43/RULE-N148: زر «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الوضع الافتراضي.</summary>
@@ -785,6 +817,8 @@ public partial class frmJournalEntries : Form
             _currentEntryId = entry.Id;
             _currentStatus = entry.Status;
             _currentEntryNumber = entry.EntryNumber;
+            _currentReferenceType = entry.ReferenceType;
+            _currentReferenceId = entry.ReferenceId;
             _currentStatusDisplay = string.IsNullOrWhiteSpace(entry.StatusDisplay)
                 ? _StatusText(entry.Status)
                 : entry.StatusDisplay;
@@ -821,6 +855,9 @@ public partial class frmJournalEntries : Form
             _UpdateTotals();
             _UpdateModeHeader();
             _UpdateActionButtons();
+
+            // بصمة المحرر بعد التحميل — أساس كشف التعديلات غير المحفوظة قبل الترحيل.
+            _editorSignatureOnLoad = _EditorSignature();
         }
         catch (Exception ex)
         {
@@ -896,6 +933,8 @@ public partial class frmJournalEntries : Form
         _currentStatus = 0;
         _currentEntryNumber = string.Empty;
         _currentStatusDisplay = string.Empty;
+        _currentReferenceType = null;
+        _currentReferenceId = null;
 
         _suppressFilterEvents = true;
         try
@@ -927,6 +966,7 @@ public partial class frmJournalEntries : Form
 
         _UpdateModeHeader();
         _UpdateActionButtons();
+        _editorSignatureOnLoad = _EditorSignature();
         txtEntryDescription.Focus();
     }
 
@@ -1037,7 +1077,8 @@ public partial class frmJournalEntries : Form
                 break;
 
             default:
-                e.CellStyle.BackColor = Color.White;
+                // لون الحالة من الثيم لا من لون حرفي (RULE-N54/RULE-N142).
+                e.CellStyle.BackColor = GreenThemeHelper.StatusNeutralBack;
                 e.CellStyle.ForeColor = GreenThemeHelper.StatusNeutral;
                 e.CellStyle.SelectionForeColor = GreenThemeHelper.StatusNeutral;
                 break;
@@ -1152,6 +1193,13 @@ public partial class frmJournalEntries : Form
 
     // ── التحقق (RULE-N28/N29) ────────────────────────────────────────────────
 
+    /// <summary>
+    /// حكم توازن القيد المزدوج — يُستهلك في التحقق قبل الحفظ وفي التحقق قبل الترحيل،
+    /// فلا تتكرر المقارنة المالية في موضعين (RULE-N172). الأرضية <c>0.001</c> مطابقة لتسامح الخدمة.
+    /// </summary>
+    private static bool _IsBalanced(decimal totalDebit, decimal totalCredit)
+        => Math.Abs(totalDebit - totalCredit) <= 0.001m;
+
     private bool _ValidateEntry()
     {
         errorProvider.SetError(txtEntryDescription, string.Empty);
@@ -1208,7 +1256,7 @@ public partial class frmJournalEntries : Form
         decimal totalDebit = _lines.Sum(l => l.Debit);
         decimal totalCredit = _lines.Sum(l => l.Credit);
 
-        if (Math.Abs(totalDebit - totalCredit) > 0.001m)
+        if (!_IsBalanced(totalDebit, totalCredit))
         {
             string balanceMessage =
                 $"القيد غير متوازن — مجموع المدين {clsFormat.Money(totalDebit)} لا يساوي مجموع الدائن {clsFormat.Money(totalCredit)}";
@@ -1261,7 +1309,7 @@ public partial class frmJournalEntries : Form
         DateTime entryDate = dtpEntryDate.Value.Date;
         string description = txtEntryDescription.Text.Trim();
         JournalEntryType entryType = _CurrentEntryType();
-        string? referenceNumber = _ToNullIfEmpty(txtReferenceNumber.Text);
+        string? referenceNumber = txtReferenceNumber.Text?.Trim().ToNullIfEmpty();
 
         Cursor = Cursors.WaitCursor;
         _busy = true;
@@ -1274,7 +1322,9 @@ public partial class frmJournalEntries : Form
             if (isUpdate && requestedId is int id)
             {
                 var request = new UpdateJournalEntryRequest(
-                    entryDate, description, entryType, null, null, referenceNumber, lines);
+                    entryDate, description, entryType,
+                    _currentReferenceType, _currentReferenceId,   // المرجع المصدر يُعاد كما حُمّل — لا يُقطع ارتباط القيد بمستنده
+                    referenceNumber, lines);
 
                 var result = await JournalService.UpdateAsync(id, request);
 
@@ -1339,6 +1389,29 @@ public partial class frmJournalEntries : Form
         if (_currentStatus != StatusDraft)
         {
             clsDialogs.Warning("لا يمكن ترحيل هذا القيد — القيود المُرحَّلة أو الملغاة لا تُرحَّل مرة أخرى.");
+            return;
+        }
+
+        // الترحيل يُرسل نسخة الخادم: لو كان المحرر يحمل تعديلات غير محفوظة لَرُحِّل القيد ببيانات
+        // قديمة وأُسقط ما يراه المستخدم على الشاشة — يُطلب الحفظ أولاً.
+        if (_EditorSignature() != _editorSignatureOnLoad)
+        {
+            clsDialogs.Warning(
+                "توجد تعديلات غير محفوظة على القيد — احفظها أولاً (Ctrl+S) ثم أعد المحاولة،\n" +
+                "حتى لا يُرحَّل القيد ببيانات سابقة لإدخالك.");
+            return;
+        }
+
+        // لا يُرحَّل قيد غير متوازن — الترحيل المالي لا يمرّ بلا تحقق من التوازن.
+        decimal totalDebit = _lines.Sum(l => l.Debit);
+        decimal totalCredit = _lines.Sum(l => l.Credit);
+
+        if (_lines.Count < 2 || !_IsBalanced(totalDebit, totalCredit))
+        {
+            clsDialogs.Error(
+                $"لا يمكن ترحيل قيد غير متوازن أو ناقص البنود — " +
+                $"مجموع المدين {clsFormat.Money(totalDebit)} ومجموع الدائن {clsFormat.Money(totalCredit)}، " +
+                $"وعدد البنود {clsFormat.Number(_lines.Count)}.");
             return;
         }
 
@@ -1563,9 +1636,18 @@ public partial class frmJournalEntries : Form
     private Button? _PrimaryActionButton()
         => dgvEntries.ContainsFocus || dgvLines.ContainsFocus ? null : btnNew;
 
-    /// <summary>Delete يحذف المسودة فقط عندما لا يكون المؤشر داخل حقل إدخال.</summary>
+    /// <summary>
+    /// Delete: داخل شبكة البنود يحذف **البند** المحدد (الشبكة مكان الإدخال — RULE-N153)،
+    /// وداخل حقل إدخال لا يفعل شيئاً، وخارجها يحذف مسودة القيد المحدد.
+    /// </summary>
     private void _HandleDeleteShortcut()
     {
+        if (dgvLines.ContainsFocus)
+        {
+            if (btnRemoveLine.Enabled) btnRemoveLine.PerformClick();
+            return;
+        }
+
         if (ActiveControl is TextBoxBase or NumericUpDown or ComboBox) return;
         if (!btnDeleteDraft.Enabled) return;
 
@@ -1590,14 +1672,23 @@ public partial class frmJournalEntries : Form
 
     // ── أدوات ────────────────────────────────────────────────────────────────
 
-    private static string _StatusText(int status) => status switch
+    /// <summary>
+    /// بصمة المحرر (التاريخ · النوع · البيان · المرجع · بنود الشبكة) — تُقارن ببصمة آخر تحميل/حفظ
+    /// لكشف التعديلات غير المحفوظة قبل الترحيل. تعتمد التنسيق الثابت للثقافة حتى لا تتغيّر البصمة
+    /// بتغيّر إعدادات العرض، وهي للمقارنة الداخلية فقط ولا تُعرض للمستخدم.
+    /// </summary>
+    private string _EditorSignature()
     {
-        StatusDraft => "مسودة",
-        StatusPosted => "مُرحَّل",
-        StatusCancelled => "ملغى",
-        _ => "غير معروف"
-    };
+        string lines = string.Join('|', _lines.Select(l =>
+            FormattableString.Invariant($"{l.AccountId}:{l.Debit}:{l.Credit}:{l.Description}")));
 
-    private static string? _ToNullIfEmpty(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        return FormattableString.Invariant(
+            $"{dtpEntryDate.Value.Date.Ticks}|{_CurrentEntryType()}|{txtEntryDescription.Text.Trim()}|{txtReferenceNumber.Text.Trim()}|{lines}");
+    }
+
+    /// <summary>
+    /// نص حالة القيد للعرض — يُفوَّض إلى البيت الواحد <see cref="DocumentTextHelper.StatusText(byte)"/>
+    /// (RULE-N171/N172): كانت هذه الدالة تكرّر الترجمة محلياً بشكل مختلف عن بقية الشاشات.
+    /// </summary>
+    private static string _StatusText(int status) => DocumentTextHelper.StatusText((byte)status);
 }

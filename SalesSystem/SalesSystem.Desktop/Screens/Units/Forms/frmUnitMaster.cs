@@ -429,7 +429,8 @@ public partial class frmUnitMaster : Form
             else inactive++;
         }
 
-        lblSummary.Text = $"المعروض: {shown} من {total} — نشط: {active} · معطّل: {inactive}";
+        lblSummary.Text = $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — "
+                          + $"نشط: {clsFormat.Number(active)} · معطّل: {clsFormat.Number(inactive)}";
 
         // «لا توجد بيانات» يُعلن في شريط الملخص بدل إضافة صف وهمي إلى الشبكة
         // (الصف الوهمي يُفسد التصدير والتصفية — RULE-N22 / RULE-N61).
@@ -483,13 +484,14 @@ public partial class frmUnitMaster : Form
 
         _SetEditorEnabled(editingSession);
 
-        // آلة حالة الأزرار (RULE-N43): «جديد/حفظ» في الإضافة، «تعديل/حذف» عند وجود سجل محدد.
+        // آلة حالة الأزرار (RULE-N43): «جديد/حفظ» في الإضافة، «تعديل» عند وجود سجل محدد،
+        // و«تعطيل» للسجل **النشط** فقط (RULE-N92: لا يُعطَّل سجل معطّل أصلاً).
         btnNew.Enabled = true;
         btnRefresh.Enabled = true;
         btnClose.Enabled = true;
         btnSave.Enabled = _mode == EntryMode.Adding && !_busy;
         btnEdit.Enabled = _mode == EntryMode.Editing && !_busy;
-        btnDelete.Enabled = _mode == EntryMode.Editing && !_busy;
+        btnDelete.Enabled = _mode == EntryMode.Editing && _SelectedIsActive() && !_busy;
 
         _UpdateReactivateButton();   // RULE-N92: إعادة التنشيط للسجل المعطّل فقط
 
@@ -517,12 +519,17 @@ public partial class frmUnitMaster : Form
     private void _UpdateReactivateButton()
     {
         bool isInactiveRecord = _mode == EntryMode.Editing
-            && _editId is int id
-            && _unitsById.TryGetValue(id, out var unit)
-            && !unit.IsActive;
+            && _editId.HasValue
+            && !_SelectedIsActive();
 
         btnReactivate.Enabled = isInactiveRecord && !_busy;   // RULE-N92
     }
+
+    /// <summary>هل السجل المحدد في المحرّر نشط؟ (يُقرأ من النسخة المحفوظة لا من نص الحقل).</summary>
+    private bool _SelectedIsActive()
+        => _editId is int id
+           && _unitsById.TryGetValue(id, out var unit)
+           && unit.IsActive;
 
     /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل (txtCode للقراءة دائماً).</summary>
     private Control[] _EditorInputs() => new Control[] { txtName, txtSymbol };

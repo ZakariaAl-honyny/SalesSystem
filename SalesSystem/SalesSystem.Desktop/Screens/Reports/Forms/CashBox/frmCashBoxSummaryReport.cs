@@ -30,9 +30,10 @@ public partial class frmCashBoxSummaryReport : Form, IExportableReport
         ReportNavigationHelper.Attach(this, _serviceProvider);
     }
 
-    private async void frmCashBoxSummaryReport_Load(object sender, EventArgs e)
+    private void frmCashBoxSummaryReport_Load(object sender, EventArgs e)
     {
-        await LoadReportAsync();
+        // بلا async void: لا استثناء غير ملحوظ يصل إلى Application.ThreadException (نمط التقارير المرجعي).
+        _ = LoadReportAsync();
     }
 
     private async Task LoadReportAsync()
@@ -40,33 +41,42 @@ public partial class frmCashBoxSummaryReport : Form, IExportableReport
         try
         {
             ShowLoading(true);
+
+            // نطاق البيانات: العقد يمنح تاريخاً واحداً (asOfDate) لا مدى، وافتراضه DateTime.Today
+            // في BLL وMock معاً ⇒ لا يوجد «نطاق مقلوب» هنا، ولا يُصنع فلتر على العميل.
             var result = await _serviceProvider.GetRequiredService<ICashBoxReportDesktopService>().GetCashBoxSummaryAsync();
-            if (result.IsSuccess && result.Value != null)
+
+            if (!result.IsSuccess)
             {
-                var list = result.Value.ToList();
-                _bindingSource.DataSource = list;
-                UpdateSummary(list);
-                FormatGrid();
+                clsDialogs.Error(result.Error ?? "تعذر تحميل ملخص الصناديق النقدية");
+                return;
             }
-            else { clsDialogs.Error(result.Error!); }
+
+            var list = result.Value?.ToList() ?? new List<CashBoxSummaryDto>();
+            _bindingSource.DataSource = list;
+            UpdateSummary(list);
+            FormatGrid();
         }
         catch (Exception ex) { Log.Error(ex, "خطأ في تحميل ملخص الصناديق النقدية"); clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل التقرير."); }
         finally { ShowLoading(false); }
     }
 
+    /// <summary>
+    /// شريط الإجماليات: العدد والتاريخ من البيت الواحد <c>clsFormat</c> (<c>RULE-N169</c>) فلا تُتجاهل
+    /// منازل الأعداد ولا الأرقام العربية ٠-٩ ولا صيغة التاريخ المحفوظة — بدل <c>ToString()</c> الخام.
+    /// ويُعلن نطاق البيانات صراحةً (تراكمي حتى تاريخ اليوم) لأن العقد <c>GetCashBoxSummaryAsync(asOfDate)</c>
+    /// افتراضه <c>DateTime.Today</c> — فلا يقرأ المستخدم الرقم على أنه حركة يوم واحد.
+    /// </summary>
     private void UpdateSummary(List<CashBoxSummaryDto> list)
-    {
-        if (list.Count == 0) { lblRecordsCount.Text = "0"; return; }
-        lblRecordsCount.Text = list.Count.ToString();
-    }
+        => lblRecordsCount.Text =
+            $"عدد الصناديق: {clsFormat.Number(list.Count)} — حتى تاريخ: {clsFormat.DateToShort(DateTime.Today)}";
 
     private void FormatGrid()
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("CashBoxName", "اسم الصندوق"); SetHeader("TotalIncome", "الإيرادات");
         SetHeader("TotalExpense", "المصروفات"); SetHeader("NetBalance", "الصافي");
-        foreach (var c in new[] { "TotalIncome", "TotalExpense", "NetBalance" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "TotalIncome", "TotalExpense", "NetBalance");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }
@@ -88,6 +98,10 @@ public partial class frmCashBoxSummaryReport : Form, IExportableReport
 
     private void ShowLoading(bool show)
     {
+        // النموذج قد يكون أُغلق أثناء انتظار الخدمة؛ لمس عنصر متخلَّص منه يرمي
+        // ObjectDisposedException من finally فيسقط التحميل.
+        if (IsDisposed || Disposing) return;
+
         if (show) loadingPanel.BringToFront();
         loadingPanel.Visible = show;
         this.Enabled = !show;

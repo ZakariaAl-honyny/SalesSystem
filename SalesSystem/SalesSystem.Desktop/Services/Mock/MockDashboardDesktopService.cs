@@ -79,8 +79,15 @@ public class MockDashboardDesktopService : IDashboardDesktopService
             // ═══════════════════════════════════════════════
             // الأرصدة والعدادات
             // ═══════════════════════════════════════════════
-            decimal totalReceivables = sales.Sum(i => i.RemainingAmount);
-            decimal totalPayables = purchases.Sum(p => p.RemainingAmount);
+            // ذمم العملاء/الموردين = مجموع متبقي المستندات **المرحّلة** فقط (Status = 2) — نفس
+            // قاعدة «أرصدة العملاء/الموردين» و«أعمار الديون» ودفتر الأستاذ (113/211)،
+            // وإلا عرضت اللوحة رقماً ثانياً لنفس الطرف. المسودة/الملغاة ليست استحقاقاً.
+            decimal totalReceivables = MockData.Invoices
+                .Where(i => i.Status == 2)
+                .Sum(i => i.RemainingAmount);
+            decimal totalPayables = MockPurchasesData.Purchases
+                .Where(p => p.Status == 2)
+                .Sum(p => p.RemainingAmount);
 
             int activeCustomers = MockData.Customers.Count(c => c.IsActive);
             int activeSuppliers = MockSuppliersData.Suppliers.Count(s => s.IsActive);
@@ -112,8 +119,8 @@ public class MockDashboardDesktopService : IDashboardDesktopService
                 ActiveCustomersCount: 6,
                 ActiveSuppliersCount: 4,
                 TotalProductsCount: 10,
-                TotalReceivables: 395550m,
-                TotalPayables: 153700m,
+                TotalReceivables: 12500m,
+                TotalPayables: 52500m,
                 TotalSalesMonth: 795050m,
                 TotalPurchasesMonth: 227700m);
 

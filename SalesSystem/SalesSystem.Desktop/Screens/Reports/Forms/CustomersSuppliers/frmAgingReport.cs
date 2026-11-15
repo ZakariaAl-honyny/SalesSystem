@@ -56,8 +56,8 @@ public partial class frmAgingReport : Form, IExportableReport
 
     private void UpdateSummary(List<AgingReportDto> list)
     {
-        if (list.Count == 0) { lblRecordsCount.Text = "0"; return; }
-        lblRecordsCount.Text = list.Count.ToString();
+        // RULE-N169 — العدّ بصيغة البيت الواحد (clsFormat) لا بـ ToString() محلي.
+        lblRecordsCount.Text = clsFormat.Number(list.Count);
     }
 
     private void FormatGrid()
@@ -66,8 +66,8 @@ public partial class frmAgingReport : Form, IExportableReport
         SetHeader("Name", "الاسم"); SetHeader("TotalBalance", "الرصيد الكلي"); SetHeader("Current", "الحالي");
         SetHeader("Days1To30", "1-30 يوم"); SetHeader("Days31To60", "31-60 يوم"); SetHeader("Days61To90", "61-90 يوم");
         SetHeader("Days90Plus", "أكثر من 90"); SetHeader("TotalDue", "المستحق");
-        foreach (var c in new[] { "TotalBalance", "Current", "Days1To30", "Days31To60", "Days61To90", "Days90Plus", "TotalDue" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money,
+            "TotalBalance", "Current", "Days1To30", "Days31To60", "Days61To90", "Days90Plus", "TotalDue");
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

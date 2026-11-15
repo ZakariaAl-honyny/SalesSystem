@@ -41,6 +41,7 @@ public partial class frmListPurchases : Form
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+        _LoadStatusOptions();   // نصوص الحالة من البيت الواحد — مرة واحدة في المُنشئ (RULE-N169)
 
         // RULE-N148: النطاق الافتراضي (بداية الشهر الحالي ← اليوم) يُلتقط عند الإنشاء،
         // ليعيده «مسح التصفية» بلا إعادة تحميل ولتُقارن به حالة تفعيل الزر.
@@ -77,6 +78,23 @@ public partial class frmListPurchases : Form
     }
 
     // ── التهيئة ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// خيارات تصفية الحالة: «الكل» عنصر محايد محلي (ليس نص حالة)، وبقية النصوص من البيت الواحد
+    /// <see cref="DocumentTextHelper.StatusOptions"/> فلا تُكرَّر في الشاشة (RULE-N169/RULE-N172).
+    /// الترتيب يبقى «الكل» ثم قيم <c>InvoiceStatus</c> 1 (مسودة) · 2 (مرحل) · 3 (ملغي)،
+    /// فيبقى <c>cbStatus.SelectedIndex</c> مساوياً لقيمة الحالة الرقمية في التصفية (RULE-N60).
+    /// </summary>
+    private void _LoadStatusOptions()
+    {
+        cbStatus.Items.Clear();
+        cbStatus.Items.Add("الكل");   // عنصر محايد محلي — ليس نص حالة
+
+        foreach (var option in DocumentTextHelper.StatusOptions)
+            cbStatus.Items.Add(option.Text);
+
+        cbStatus.SelectedIndex = 0;   // الافتراضي: «الكل» (بلا تغيير)
+    }
 
     /// <summary>RULE-N47: اختصارات موحّدة — F2 جديد · F3 عرض/تعديل · F4 ترحيل · Delete إلغاء · F5 تحديث · Esc مسح التصفية.</summary>
     private void _WireShortcuts()
@@ -216,8 +234,10 @@ public partial class frmListPurchases : Form
         {
             byte? status = cbStatus.SelectedIndex > 0 ? (byte?)cbStatus.SelectedIndex : null;
 
+            // «إلى» حدّ شامل في العقد والتنفيذين (`InvoiceDate <= to`) — فلا يُزاد يوماً،
+            // وإلا ظهرت فواتير تاريخها بعد «إلى» ودخلت في إجماليات الملخص.
             var result = await _purchaseApi.GetAllAsync(
-                null, from, to.AddDays(1), status);
+                null, from, to, status);
 
             if (result.IsSuccess && result.Value != null)
             {
@@ -314,7 +334,7 @@ public partial class frmListPurchases : Form
                 clsFormat.Money(inv.TotalAmount),
                 clsFormat.Money(inv.PaidAmount),
                 clsFormat.Money(inv.DueAmount),
-                _GetStatusText(inv.Status)
+                DocumentTextHelper.StatusText(inv.Status)
             );
 
             // ربط السطر بالمعرّف لا بالترتيب.
@@ -414,15 +434,11 @@ public partial class frmListPurchases : Form
             if (col is DataGridViewTextBoxColumn txtCol)
                 txtCol.ReadOnly = true;
         }
-    }
 
-    private static string _GetStatusText(byte status) => status switch
-    {
-        1 => "مسودة",
-        2 => "مرحل",
-        3 => "ملغي",
-        _ => "غير معروف"
-    };
+        // خط عمود الحالة يُضبط مرة واحدة على العمود، لا لكل خانة عند كل رسم
+        // (إنشاء Font داخل CellFormatting يستهلك مقبض GDI في كل إعادة رسم — تسريب).
+        dgvPurchases.Columns["StatusName"].DefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+    }
 
     // ── مساعدات ────────────────────────────────────────────────────────────────
 
@@ -668,18 +684,28 @@ public partial class frmListPurchases : Form
             return;
         }
 
-        bool isNumericFilter = cbFilterBy.SelectedIndex is FilterInvoiceNo or FilterAmount;
+        bool isInvoiceNoFilter = cbFilterBy.SelectedIndex == FilterInvoiceNo;
+        bool isAmountFilter = cbFilterBy.SelectedIndex == FilterAmount;
 
-        if (isNumericFilter && !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+        // تصفية رقم الفاتورة: أرقام فقط · تصفية المبلغ: أرقام وفاصل الكسر
+        // (بلا الفاصل لا يمكن البحث في مبلغ بكسور لأن نص clsFormat.Money يحمل فاصل كسر).
+        bool allowedChar = !isInvoiceNoFilter && !isAmountFilter
+                           || char.IsDigit(e.KeyChar)
+                           || char.IsControl(e.KeyChar)
+                           || (isAmountFilter && e.KeyChar is '.' or ',');
+
+        if (!allowedChar)
         {
             e.Handled = true;
             clsInputFeedback.ShowRejectTooltip(
                 txtFilterValue,
-                "يُسمح فقط بإدخال الأرقام في هذا الحقل.");
+                isAmountFilter
+                    ? "يُسمح فقط بالأرقام والفاصل العشري في هذا الحقل."
+                    : "يُسمح فقط بإدخال الأرقام في هذا الحقل.");
             return;
         }
 
-        if (!isNumericFilter && char.IsPunctuation(e.KeyChar))
+        if (!isInvoiceNoFilter && !isAmountFilter && char.IsPunctuation(e.KeyChar))
         {
             e.Handled = true;
             clsInputFeedback.ShowRejectTooltip(
@@ -761,13 +787,22 @@ public partial class frmListPurchases : Form
         if (statusColumn == null || e.ColumnIndex != statusColumn.Index || e.Value == null)
             return;
 
-        e.CellStyle.ForeColor = e.Value.ToString() switch
+        // RULE-N171/N172: المقارنة بالحالة الرقمية (2 = Posted · 3 = Cancelled — RULE-019) لا بنص عربي،
+        // والنص المعروض نفسه يأتي من البيت الواحد DocumentTextHelper في _PopulateGrid.
+        byte status = 0;
+        if (e.RowIndex >= 0
+            && dgvPurchases.Rows[e.RowIndex].Tag is int invoiceId
+            && _invoicesById.TryGetValue(invoiceId, out var invoice))
         {
-            "مرحل" => GreenThemeHelper.StatusSuccess,
-            "ملغي" => GreenThemeHelper.StatusDanger,
+            status = invoice.Status;
+        }
+
+        e.CellStyle.ForeColor = status switch
+        {
+            2 => GreenThemeHelper.StatusSuccess,
+            3 => GreenThemeHelper.StatusDanger,
             _ => GreenThemeHelper.StatusInfo
         };
-        e.CellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
     }
 
     // ── قائمة السياق (RULE-N23) ────────────────────────────────────────────────

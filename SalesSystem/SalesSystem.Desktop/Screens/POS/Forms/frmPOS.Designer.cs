@@ -337,11 +337,11 @@ namespace SalesSystem.Desktop.Screens.POS.Forms
             // 
             btnRefreshCatalog.BackColor = Color.FromArgb(248, 249, 250);
             btnRefreshCatalog.Cursor = Cursors.Hand;
-            btnRefreshCatalog.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnRefreshCatalog.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
             btnRefreshCatalog.FlatAppearance.BorderSize = 1;
             btnRefreshCatalog.FlatStyle = FlatStyle.Flat;
             btnRefreshCatalog.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnRefreshCatalog.ForeColor = Color.FromArgb(33, 37, 41);
+            btnRefreshCatalog.ForeColor = Color.FromArgb(14, 82, 52);
             btnRefreshCatalog.Location = new Point(158, 4);
             btnRefreshCatalog.Margin = new Padding(4);
             btnRefreshCatalog.Name = "btnRefreshCatalog";

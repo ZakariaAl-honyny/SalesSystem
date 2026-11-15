@@ -48,12 +48,25 @@ public partial class frmGeneralLedgerReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
             var accountId = (int)nudAccountId.Value;
-            if (accountId <= 0) { lblSummary.Text = "أدخل رقم الحساب أولاً"; return; }
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetGeneralLedgerAsync(accountId, dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1));
+            if (accountId <= 0)
+            {
+                lblSummary.Text = "أدخل رقم الحساب أولاً";
+                clsDialogs.Warning("أدخل رقم الحساب أولاً.");   // نفس نمط كشف الحساب (frmAccountStatementReport)
+                return;
+            }
+            // نهاية اليوم شاملة: FinancialReportService.cs:408-409 يقارن EntryDate (طابع زمني كامل) بـ to مباشرةً بلا تطبيع، فتمرير .Date وحدها يُسقط قيود اليوم الأخير.
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetGeneralLedgerAsync(accountId, dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value));
             if (result.IsSuccess && result.Value != null)
             {
                 var ledger = result.Value;
@@ -77,8 +90,9 @@ public partial class frmGeneralLedgerReport : Form, IExportableReport
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("Date", "التاريخ"); SetHeader("EntryNumber", "رقم القيد"); SetHeader("Description", "البيان");
         SetHeader("Debit", "مدين"); SetHeader("Credit", "دائن"); SetHeader("RunningBalance", "الرصيد الجاري");
-        foreach (var c in new[] { "Debit", "Credit", "RunningBalance" })
-            if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumns(dgvReport, GridFormatKind.Money, "Debit", "Credit", "RunningBalance");
+        // عمود التاريخ من البيت الواحد (يشمل سطرَي الافتتاحي والإجمالي) — لا صيغة ثقافة جهاز (RULE-N169).
+        GridFormatHelper.ApplyColumn(dgvReport, "Date", GridFormatKind.DateShort);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

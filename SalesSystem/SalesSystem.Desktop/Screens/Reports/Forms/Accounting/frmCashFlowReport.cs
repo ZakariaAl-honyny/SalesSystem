@@ -48,10 +48,17 @@ public partial class frmCashFlowReport : Form, IExportableReport
 
     private async Task LoadReportAsync()
     {
+        // RULE-N169 — حكم نطاق التاريخ من بيته الواحد clsValidation، والرفض بصيغة عربية واحدة.
+        if (!clsValidation.IsDateRangeValid(dtpFrom.Value, dtpTo.Value))
+        {
+            clsDialogs.Warning(clsValidation.DateRangeErrorMessage);
+            return;
+        }
+
         try
         {
             ShowLoading(true);
-            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetCashFlowReportAsync(dtpFrom.Value.Date, dtpTo.Value.Date.AddDays(1).AddSeconds(-1), null, default);
+            var result = await _serviceProvider.GetRequiredService<IFinancialReportDesktopService>().GetCashFlowReportAsync(dtpFrom.Value.Date, clsValidation.EndOfDay(dtpTo.Value), null, default);
             if (result.IsSuccess && result.Value != null)
             {
                 var allItems = new List<object>();
@@ -63,7 +70,7 @@ public partial class frmCashFlowReport : Form, IExportableReport
                 allItems.Add(new { Category = "صافي التدفق", Amount = result.Value.NetCashFlow });
                 allItems.Add(new { Category = "الرصيد الختامي", Amount = result.Value.ClosingBalance });
                 _bindingSource.DataSource = allItems;
-                UpdateSummary(result.Value);
+                UpdateSummary(result.Value, allItems.Count);
                 FormatGrid();
             }
             else { clsDialogs.Error(result.Error!); }
@@ -72,8 +79,10 @@ public partial class frmCashFlowReport : Form, IExportableReport
         finally { ShowLoading(false); }
     }
 
-    private void UpdateSummary(CashFlowReportDto report)
+    private void UpdateSummary(CashFlowReportDto report, int recordCount)
     {
+        // RULE-N61 — عدّاد السطور يُحدَّث فعلاً بدل بقاء «0»؛ والمجاميع من الـDTO المحسوبة في المصدر.
+        lblRecordsCount.Text = clsFormat.Number(recordCount);
         lblSummary.Text = $"الإيرادات: {clsFormat.Money(report.TotalIncome)} | المصروفات: {clsFormat.Money(report.TotalExpense)} | صافي: {clsFormat.Money(report.NetCashFlow)}";
     }
 
@@ -81,7 +90,7 @@ public partial class frmCashFlowReport : Form, IExportableReport
     {
         if (dgvReport.Columns.Count == 0) return;
         SetHeader("Category", "التصنيف"); SetHeader("Amount", "المبلغ");
-        foreach (var c in new[] { "Amount" }) if (dgvReport.Columns.Contains(c)) dgvReport.Columns[c].DefaultCellStyle.Format = "N2";
+        GridFormatHelper.ApplyColumn(dgvReport, "Amount", GridFormatKind.Money);
     }
 
     private void SetHeader(string col, string text) { if (dgvReport.Columns.Contains(col)) dgvReport.Columns[col].HeaderText = text; }

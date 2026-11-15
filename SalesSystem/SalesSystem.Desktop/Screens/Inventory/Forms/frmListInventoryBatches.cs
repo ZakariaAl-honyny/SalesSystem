@@ -26,6 +26,12 @@ public partial class frmListInventoryBatches : Form
     /// <summary>العمود البديل للدفعات بلا تاريخ انتهاء.</summary>
     private const string NoExpiryToken = "-";
 
+    /// <summary>
+    /// أقصى عدد أصناف تُقرأ دفعاتها عند عرض «الجميع» (طلبات متتالية على العقد) — تجاوزه يعني
+    /// أن بعض الدفعات غير محمَّلة، فيُعلَن ذلك في شريط الملخص بدل عرض ناقص صامت.
+    /// </summary>
+    private const int MaxProductsPerLoad = 50;
+
     private readonly IServiceProvider _serviceProvider;
 
     private DataTable _batchesTable = new();
@@ -48,6 +54,12 @@ public partial class frmListInventoryBatches : Form
 
     /// <summary>قيمة «إلى» الافتراضية لتاريخ التصفية كما تُفتح بها الشاشة — تُعاد بها «مسح التصفية» (RULE-N148).</summary>
     private DateTime _defaultRangeTo;
+
+    /// <summary>
+    /// تنبيه نطاق التحميل: يُملأ عندما لا تُقرأ دفعات كل الأصناف (تجاوز سقف
+    /// <see cref="MaxProductsPerLoad"/>) — يُلحَق بشريط الملخص فلا تُقرأ قائمة ناقصة كأنها كاملة.
+    /// </summary>
+    private string _loadScopeNotice = string.Empty;
 
     public frmListInventoryBatches(IServiceProvider serviceProvider)
     {
@@ -249,6 +261,7 @@ public partial class frmListInventoryBatches : Form
 
         _isLoading = true;
         Cursor = dgvBatches.Cursor = Cursors.WaitCursor;
+        _loadScopeNotice = string.Empty;
 
         try
         {
@@ -267,17 +280,34 @@ public partial class frmListInventoryBatches : Form
             }
             else
             {
-                // تحميل دفعات كل الأصناف من خلال قائمة الأصناف (حد أقصى 50 صنفاً لتفادي البطء).
+                // تحميل دفعات كل الأصناف من خلال قائمة الأصناف (حد أقصى MaxProductsPerLoad صنفاً لتفادي البطء).
                 var productApi = _serviceProvider.GetRequiredService<IProductDesktopService>();
                 var productsResult = await productApi.GetAllAsync();
 
-                if (productsResult.IsSuccess && productsResult.Value is { Count: > 0 })
+                if (!productsResult.IsSuccess || productsResult.Value is not { Count: > 0 })
                 {
-                    foreach (var prod in productsResult.Value.Take(50))
+                    clsDialogs.Error(productsResult.Error ?? "تعذر تحميل قائمة الأصناف لعرض الدفعات.");
+                }
+                else
+                {
+                    var products = productsResult.Value;
+
+                    foreach (var prod in products.Take(MaxProductsPerLoad))
                     {
                         var result = await api.GetByProductAsync(prod.Id);
                         if (result.IsSuccess && result.Value is not null)
                             allBatches.AddRange(result.Value);
+                    }
+
+                    // عرض ناقص صامت كان يُوهم بأن هذه كل الدفعات: يُعلَن السقف بصراحة في الملخص.
+                    if (products.Count > MaxProductsPerLoad)
+                    {
+                        _loadScopeNotice =
+                            $" — تنبيه: تُعرض دفعات أول {clsFormat.Number(MaxProductsPerLoad)} صنف من {clsFormat.Number(products.Count)}؛ اختر صنفاً بعينه لعرض كل دفعاته";
+
+                        Serilog.Log.Warning(
+                            "دفعات المخزون: حُمِّلت دفعات {Loaded} صنفاً من {Total} — الباقي يحتاج اختيار صنف",
+                            MaxProductsPerLoad, products.Count);
                     }
                 }
             }
@@ -462,7 +492,8 @@ public partial class frmListInventoryBatches : Form
         lblSummary.Text =
             $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(total)} — إجمالي الكمية: {clsFormat.Quantity(quantity)}" +
             $" · منتهية: {clsFormat.Number(expired)} · قاربت الانتهاء: {clsFormat.Number(expiringSoon)}" +
-            $" · إجمالي القيمة: {clsFormat.Money(value)}";
+            $" · إجمالي القيمة: {clsFormat.Money(value)}" +
+            _loadScopeNotice;   // نطاق تحميل ناقص يُعلَن ولا يُخفى
 
         _UpdateEmptyState(shown);
     }
@@ -574,9 +605,13 @@ public partial class frmListInventoryBatches : Form
         if (e.RowIndex < 0)
             return;
 
-        if (e.ColumnIndex == dgvBatches.Columns["ExpiryStatus"].Index && e.Value is string status)
+        if (e.ColumnIndex == dgvBatches.Columns["ExpiryStatus"].Index && e.Value is string)
         {
-            e.CellStyle.ForeColor = string.Equals(status, "منتهي", StringComparison.Ordinal)
+            // الحالة مشتقة من تاريخ الانتهاء بنفس اشتقاق الشاشة (لا مقارنة بنص «منتهي» ثابت)،
+            // فتبقى تلويناً واحداً مع الملخص ولا تتباعد إن تغيّر نص الحالة في العقد.
+            string expiry = GridRowHelper.GetText(dgvBatches.Rows[e.RowIndex], "ExpiryDate", NoExpiryToken);
+
+            e.CellStyle.ForeColor = _IsExpired(expiry)
                 ? GreenThemeHelper.StatusDanger
                 : GreenThemeHelper.TextStrong;
             e.CellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -623,6 +658,14 @@ public partial class frmListInventoryBatches : Form
         if (_isInitializing)
             return;
 
+        // الشرطان متناقضان (قاربت الانتهاء ∧ منتهية) ⇒ جمعهما يُفرغ الشبكة بلا سبب مفهوم.
+        // فحص «قاربت الانتهاء» يُلغي «منتهية» كما في شاشة حركات المخزون.
+        if (chkOnlyExpiringSoon.Checked && chkOnlyExpired.Checked)
+        {
+            _isInitializing = true;
+            try { chkOnlyExpired.Checked = false; } finally { _isInitializing = false; }
+        }
+
         _ApplyFilter();
     }
 
@@ -630,6 +673,12 @@ public partial class frmListInventoryBatches : Form
     {
         if (_isInitializing)
             return;
+
+        if (chkOnlyExpired.Checked && chkOnlyExpiringSoon.Checked)
+        {
+            _isInitializing = true;
+            try { chkOnlyExpiringSoon.Checked = false; } finally { _isInitializing = false; }
+        }
 
         _ApplyFilter();
     }
@@ -743,19 +792,18 @@ public partial class frmListInventoryBatches : Form
 
             var row = dgvBatches.SelectedRows[0];
 
-            string Cell(string columnName)
-                => row.Cells[columnName]?.Value?.ToString() ?? NoExpiryToken;
-
+            // RULE-N179 — القراءة عبر البيت الواحد GridRowHelper (بالحقل المنطقي)،
+            // والأرقام تُنسَّق من clsFormat لا كنص خام.
             var details = new System.Text.StringBuilder();
-            details.AppendLine($"المنتج: {Cell("ProductName")}");
-            details.AppendLine($"رقم الدفعة: {Cell("BatchNo")}");
-            details.AppendLine($"المستودع: {Cell("WarehouseName")}");
-            details.AppendLine($"الكمية المستلمة: {Cell("QuantityReceived")}");
-            details.AppendLine($"الكمية المتبقية: {Cell("QuantityRemaining")}");
-            details.AppendLine($"تكلفة الوحدة: {Cell("UnitCost")}");
-            details.AppendLine($"القيمة الإجمالية: {Cell("TotalValue")}");
-            details.AppendLine($"تاريخ الانتهاء: {Cell("ExpiryDate")}");
-            details.AppendLine($"حالة الصلاحية: {Cell("ExpiryStatus")}");
+            details.AppendLine($"المنتج: {GridRowHelper.GetText(row, "ProductName", NoExpiryToken)}");
+            details.AppendLine($"رقم الدفعة: {GridRowHelper.GetText(row, "BatchNo", NoExpiryToken)}");
+            details.AppendLine($"المستودع: {GridRowHelper.GetText(row, "WarehouseName", NoExpiryToken)}");
+            details.AppendLine($"الكمية المستلمة: {clsFormat.Quantity(GridRowHelper.GetDecimal(row, "QuantityReceived"))}");
+            details.AppendLine($"الكمية المتبقية: {clsFormat.Quantity(GridRowHelper.GetDecimal(row, "QuantityRemaining"))}");
+            details.AppendLine($"تكلفة الوحدة: {clsFormat.Money(GridRowHelper.GetDecimal(row, "UnitCost"))}");
+            details.AppendLine($"القيمة الإجمالية: {clsFormat.Money(GridRowHelper.GetDecimal(row, "TotalValue"))}");
+            details.AppendLine($"تاريخ الانتهاء: {GridRowHelper.GetText(row, "ExpiryDate", NoExpiryToken)}");
+            details.AppendLine($"حالة الصلاحية: {GridRowHelper.GetText(row, "ExpiryStatus", NoExpiryToken)}");
 
             clsDialogs.Info(details.ToString());
         }
