@@ -236,10 +236,13 @@ public partial class frmEmployeeMaster : Form
         {
             var result = await EmployeeService.GetAllAsync(includeInactive: true);
 
-            _employeesById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // RULE-N90/N92: تُستبدل الذاكرة المحلية **بعد** نجاح القراءة فقط. مسحها قبل التحقق من
+                // النتيجة كان يُفقد حالة التنشيط الحقيقية عند فشل التحميل: فيقرأ `_SelectedIsActive`
+                // السجل النشط كأنه معطّل، فيُعطّل زر «حذف» على سجل نشط ويُفعّل «إعادة تنشيط» عليه.
+                _employeesById.Clear();
+
                 foreach (var e in result.Value)
                 {
                     _employeesById[e.Id] = e;

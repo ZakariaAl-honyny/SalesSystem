@@ -221,10 +221,11 @@ public partial class frmUnitMaster : Form
         {
             var result = await UnitService.GetAllAsync(includeInactive: true);
 
-            _unitsById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة عند فشل التحميل: «نشط» يُرسل منها في التعديل (RULE-N90/N92).
+                _unitsById.Clear();
+
                 foreach (var u in result.Value)
                 {
                     _unitsById[u.Id] = u;

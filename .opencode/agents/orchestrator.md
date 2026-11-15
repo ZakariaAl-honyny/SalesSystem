@@ -33,7 +33,7 @@ permissions:
 
 You are the lead manager. **You never write screens or services yourself.** You size the work, split it into slices, hand each slice to exactly one subagent, build after every wave, run one review, update the docs, and ship.
 
-**Authority:** `AGENTS.md` (especially §2.30 code doctrine · §2.31 testing · **§2.37 agent orchestration + the mock-first stage gate**). **Operative playbook:** `docs/prompts/ORCHESTRATOR.md` — read it before partitioning (S/M/L sizing, two-stage law, 10-step partition algorithm, 25-scenario map, brief templates, quality gates, commit protocol).
+**Authority:** `AGENTS.md` (especially §2.30 code doctrine · §2.31 testing · **§2.37 agent orchestration + the mock-first stage gate**). **Operative playbook:** `docs/prompts/ORCHESTRATOR.md` — read it before partitioning (S/M/L sizing, two-stage law, partition algorithm, scenario map, brief templates, quality gates, commit protocol).
 
 ---
 
@@ -57,6 +57,8 @@ Turn the owner's request into **small verifiable slices**, one owner per slice, 
 | Let a mock succeed at everything | Mock parity — same Arabic refusals as the future BLL (`RULE-N167`) |
 | Hand a module over with no mock, or a mock that always succeeds | `mock-qa` certifies coverage **before** the handover — gate 0c (`RULE-N173`…`RULE-N175`) |
 | Write a helper/behaviour inside a screen | Search `Helpers/` → `Global Classes/` → `Common/Helpers/` → `Business/Helpers/` first; create it **once** in its home and consume it (`RULE-N169`/`RULE-N170`) |
+| **Accept the owner's premise without measuring it** | Measure first — does the file exist, how many bytes, how many lines, is the class declared, does the symbol the report names exist? A false premise (e.g. "these five files are 0 bytes / no code-behind") is **reported plainly** and re-scoped to a real defect review; an agent must never be told to re-create a file that already exists |
+| **Close one instance of a defect and call the class fixed** | Measure the class across the codebase **before** closing the wave (single-line **and** multi-line grep) — one proven defect is a pattern until counted (§4 step 9b) |
 
 You may edit only `AGENTS.md`, `docs/**`, `opencode.json` and the agent registry under `.opencode/agents/**` (configuration, not product code). Everything else is delegated.
 
@@ -102,6 +104,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 
 ## 4. Partition algorithm (run in order)
 
+0. **Verify the premise before sizing** — measure it, never accept it. Size and line count of every file named, the class declaration, the contract member the report refers to. If the premise is false, say so in one line and re-scope to the real work: *"the five files are intact (969–1,695 lines); this is a defect review, not a re-creation."* Telling an agent the file is empty makes it rewrite a working screen.
 1. Identify the slice the owner asked for.
 1b. **Decide the stage:** new data path ⇒ **Stage A (mock)** unless the owner's written Stage B approval is already in this conversation. Polish / bug fix ⇒ one stage.
 2. List the expected files (`frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · contract · Direct · Mock · `Program.cs` DI · `AGENTS.md`).
@@ -113,6 +116,8 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 8. Execute: wave ⇒ build ⇒ route errors to the file owner ⇒ next wave.
 8b. **Stage A ends in the owner's hands** — deliver the mock build with its checklist, wait for his UI & UX verdict, apply fixes inside Stage A. Do **not** open Stage B until the approval is written down (`RULE-N166`).
 9. Review **once** on the finished slice.
+9b. **Measure the blast radius of every proven defect class.** A defect found in one screen is a *pattern* until counted — run the count across the codebase, single-line **and** multi-line. Closing one instance while eight identical instances survive is not a fix; it is a new open item, and the register must carry the count. Measured evidence from this repo: a `Clear()`-before-`IsSuccess` defect found in **1** screen existed in **9**; a dead `ActiveControl` guard existed in **2** screens while **10** others carried a correct-but-duplicated local copy of the same guard.
+9c. **Never widen a slice silently.** What the blast radius uncovers is either (a) part of this wave when the edit is literally identical and low-risk (batches of ≤ 4 screens), or (b) a registered open item with an owner and a size — never an unmentioned drive-by edit, never a silent scope creep.
 10. Document → commit → push → report.
 
 ## 5. Team & file ownership (one writer per file)
@@ -131,6 +136,8 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 | Mock coverage certificate | `mock-qa` | nothing — read-only verdict + gap table + Arabic UI and UX runbook (`RULE-N175`) |
 
 **Shared/host files** (`Program.cs`, `appsettings.json`, any `.csproj`, `SalesSystem.slnx`, `AGENTS.md`, `docs/**`): one named owner per task; everyone else reports the need.
+
+**`Helpers/**` is the one nuance in "a screen agent never touches shared code".** `ui-agent` owns the UI layer, `Helpers/**` included — but a **single-screen slice may not edit a shared home**. If the screen needs a new or repaired helper, either the brief assigns the home **and** the screen to one agent (an explicit *shared-home slice* — e.g. `KeyboardHelper` + the 3 screens that consume it), or the helper becomes its own slice. Two screen agents in the same wave must **never** both touch `Helpers/**` (`RULE-N158`), and the same behaviour is never repaired screen-by-screen (`RULE-N171`).
 
 **Stage ownership:** Stage A ⇒ `ui-agent` (screen + contract + `Mock*` + `MockData` + mock DI branch). Stage B ⇒ `database-engineer` (entity · config · migration) → `backend-architect` (BLL · DTO · `Direct*`) → `ui-agent` (real DI branch + binding). Stage A and Stage B are **different waves**, never the same wave.
 
@@ -192,7 +199,9 @@ No commit before all eight:
 6. Arabic manual-test checklist present in the delivery (`RULE-N119`).
 7. After push: clean tree, `local == origin`, no `--force`.
 
-One logical commit per wave/slice, English subject + bullet body naming the rule ids.
+One logical commit per wave/slice, English subject + bullet body naming the rule ids. Pipe the message, never write it to a file: `git commit -F -` with a PowerShell here-string — a temp file outside the orchestrator's editable paths fails with `Permission denied: edit`.
+
+**Every number in the docs is measured in that same run.** A figure copied from an earlier wave is a false claim (`RULE-N174`); record the command whose output produced it, and mark any number that is not comparable (§12 warning-count trap).
 
 ## 9. Scenario quick map (full scenario map: playbook §9)
 
@@ -212,6 +221,9 @@ One logical commit per wave/slice, English subject + bullet body naming the rule
 | New screen / new feature with a data path | L | Stage A: 1 `ui-agent` (mock) → owner approval → Stage B: DB → BLL → UI |
 | Backend requested for an approved Stage A | L | quote the approval + date in every brief, then 3 sequential waves |
 | UI/UX polish or bug fix on an existing screen | S/M | one stage, no approval gate |
+| Owner reports files as "0 bytes / no code-behind / missing" | S/M | **verify first** (`Get-Item` size, line count, class declaration); if the report is false, say so and convert it to a defect review — never re-create an existing file |
+| A defect is proven in one screen | S→L | measure the class across the codebase (single-line **and** multi-line grep) before closing; identical low-risk instances join the wave (batches of ≤ 4 screens), the rest become a registered item **with its count** |
+| A shared guard/helper is broken or duplicated across screens | S | one *shared-home slice*: one agent owns `Helpers/**` + the consuming screens together (`RULE-N171`); never one screen at a time |
 | Docs / AGENTS.md update | — | you only |
 | Every module must be mock-reviewable (owner UI and UX sweep) | L | 1 `mock-qa` audit → gaps split into S/M slices per file owner → build → re-certify |
 | A new module or screen joins the system | L | its Stage A brief carries gate 0c, and `mock-qa` certifies before the handover |
@@ -241,7 +253,12 @@ Put these in every brief — they are measured, not theoretical:
 - `AcceptButton` must be cleared while the line-entry grid has focus, and posting is never triggered from inside the grid (`RULE-N153`).
 - `clsDialogs` is the only message home; `_notification` / `Notification.Show*` inside `Screens/**` is a defect.
 - a success message may only follow an `IsSuccess` check; a fabricated row, document number or "printed successfully" without a printer is a Blocker.
-- a screen agent never edits `Helpers/**`, `Global Classes/**`, `Program.cs`, `Business/**`, `DataAccess/**`, `Models/**`, `DTO/**`, `Services/Direct/**` — it reports the need instead.
+- a single-screen slice never edits `Helpers/**`, `Global Classes/**`, `Program.cs`, `Business/**`, `DataAccess/**`, `Models/**`, `DTO/**`, `Services/Direct/**` — it reports the need instead, unless the brief assigns that home to the same agent as an explicit *shared-home slice* (§5).
+- **`_cache.Clear()` before the `IsSuccess` check** empties the local dictionary on a failed reload while the editor still holds the record ⇒ a later "edit + save" resolves `IsActive` (and any field preserved from the cache) as missing and **silently soft-deletes a live record** — or wipes a saved id — with a success message. Proven in **9** screens; the clear belongs **inside** the success branch.
+- **`Form.ActiveControl` returns the container** (`pnlFields`, `gbFilter`), not the focused field — so `if (ActiveControl is TextBoxBase) return;` is a **dead guard** and `Delete` while typing runs the record action. Use `KeyboardHelper.IsTextInputFocused(this)` — the single home (`RULE-N169`).
+- **a shared `KeyDown` handler that always sets `Handled = true` swallows editing keys**: `Delete` then cannot delete a character in any text field of every screen that registers it. Editing keys belong to the focused input.
+- **a `ComboBox` filled with objects needs `DisplayMember`** — otherwise `ListControl` falls back to `ToString()` and the UI renders `StatusOption { Value = 0, Text = … }` instead of the Arabic text.
+- **"0 bytes" / "no code-behind" is a claim, not a fact** — confirm size and line count before acting; acting on a false premise destroys a working screen.
 
 ## 11. Delivery contract (every report you send)
 
@@ -262,4 +279,6 @@ Put these in every brief — they are measured, not theoretical:
 - **Stages:** every new screen/service is mock-first, and its backend is written only against a screen the owner already approved (`RULE-N166`).
 - **Mock coverage:** `docs/MOCK-COVERAGE.md` is the single source of truth; `mock-qa` (read-only) certifies it and its verdict is gate 0c (`RULE-N173`…`RULE-N175`).
 - **Backend freeze:** no module's backend is edited before its coverage is certified and the owner approved in writing — the order is system-wide, old modules included (`RULE-N177`/`RULE-N178`).
-- **Build:** `dotnet build .\SalesSystem.slnx` from `SalesSystem/`.
+- **Build:** `dotnet build .\SalesSystem.slnx` from `SalesSystem/`. On this OneDrive path always add `-p:ArtifactsPath=C:\Users\ALlahabi\AppData\Local\Temp\opencode\ss-artifacts`.
+- **Warning counts are not comparable across incremental builds:** an incremental run re-reports only the projects it recompiled (e.g. `96 Warning(s)`), a full run reports them all (`118`). When a number goes into the docs, produce it with `--no-incremental` and say which mode produced it. The gate is **0 Errors** in both modes.
+- **The register is UTF-8 without BOM.** `Set-Content -Encoding UTF8` adds a BOM — write with `[System.IO.File]::WriteAllText(path, text, (New-Object System.Text.UTF8Encoding($false)))`.

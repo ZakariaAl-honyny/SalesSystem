@@ -8,7 +8,7 @@
 >
 > **حدود هذا الملف:** يحمل **الحصر** و**المخالفة** و**مكان الإصلاح**. تفاصيل شاشات التنسيق (67 شاشة × 240 مخالفة) مصدرها الوحيد `docs/FORMAT-COVERAGE.md`، ولوحة توزيع العمل في `docs/FORMAT-PROGRESS.md` — لا تُنسخ هنا (`RULE-N174` بالقياس).
 >
-> **آخر تحديث:** 2026-11-15 (الموجة 13) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 118 تحذيراً**. §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
+> **آخر تحديث:** 2026-11-15 (الموجة 14) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 118 تحذيراً** (بناء كامل `--no-incremental`). §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
 
 ---
 
@@ -568,6 +568,10 @@
 | **T-62** | تعليق `IStocktakingDesktopService.CancelAsync` يصف سلوكاً قديماً (المسودة لم تكن تُلغى) | **= 0** — التعليق يصرّح: المسودة تُلغى بلا حركة رصيد · المرحّل يُعكس بحارس كفاية · الملغي يُرفض | `Services\Interfaces\IStocktakingDesktopService.cs:27-33` |
 | **T-63** | سندات صرف الموردين `2003`/`2004` تدّعي سداد فاتورة محددة بينما `PurchaseInvoiceId = null` | **= 0** — النص صار «دفعة على الحساب» (والأرصدة تتسق لأن الخدمة تطرح المدفوعات من متبقي الفواتير المرحّلة) | `MockSupplierPaymentsData.cs` |
 | البيوت | `MessageBox` خارج `clsDialogs` **= 0** · `ex.Message` للمستخدم **= 0** · `ExportHelper` في 32/32 تقريراً · `GreenThemeHelper.Apply(this)` في كل نموذج غير تقريري **= 0 ناقص** · تسجيل DI **94/94** بأسماء مؤهَّلة | — | — |
+| **T-68** | **`_cache.Clear()` قبل فحص `IsSuccess`** — عند فشل إعادة التحميل تبقى الذاكرة فارغة والمحرر يحتفظ بالسجل ⇒ «تعديل + حفظ» يقرأ `IsActive` (وحقلاً محفوظاً) كأنه مفقود | **= 0** في **9 شاشات** (`frmCustomerMaster` · `frmEmployeeMaster` · `frmCashBoxMaster` · `frmProductMaster` · `frmCategoryMaster` · `frmUnitMaster` · `frmSupplierMaster` · `frmWarehouseMaster` · `frmUserMaster`) — نُقل المسح **داخل** فرع النجاح · `frmAccounts` كان سليماً (تحقق ثم `return` قبل المسح) | الموجة 14 |
+| **T-69** | `cbStatusFilter` بلا `DisplayMember` ⇒ `ListControl` يعرض `StatusOption { Value = 0, Text = … }` | **= 0** — سطر واحد `DisplayMember = nameof(StatusOption.Text)` | `frmJournalEntries.cs:249` |
+| **T-70** | **حارس تركيز ميت:** `Form.ActiveControl` يعيد الحاوية (`pnlFields`/`gbFilter`) لا الحقل ⇒ `ActiveControl is TextBoxBase` لا يتحقق أبداً، و`Delete` أثناء الكتابة ينفّذ إجراء السجل | **= 0** حارس ميت · بيت واحد `KeyboardHelper.IsTextInputFocused(Form?)` فوق `FindFocusedControl` القائم · يستهلكه `frmAccounts` · `frmJournalEntries` · `frmCustomerMaster` (+ `WireGlobalShortcuts`) | `Helpers\KeyboardHelper.cs:286` |
+| **T-71** | **`WireGlobalShortcuts` يبتلع المفتاح دائماً** ⇒ `Delete` لا يحذف حرفاً في أي حقل نصي بأي شاشة تسجّله (والحارس في الشاشات وُجد لهذا الغرض بالضبط) | **= 0** — الإعفاء مقصور على `Keys.Delete` عندما يكون التركيز في حقل إدخال؛ بقية المفاتيح (F2/F3/F4/F5/Ctrl+S/Esc) تُبتلع كما هي | `Helpers\KeyboardHelper.cs:571` |
 
 #### 10.6.2 ما زال مفتوحاً — المرحلة A (قابل للتنفيذ الآن)
 
@@ -579,6 +583,7 @@
 | ~~**T-57**~~ | ✅ **مغلق (الموجة 11)** — 7 شاشات تُبنى قوائم حالتها من `StatusOptions` بعد `InitializeComponent()`، والقائمة الثابتة أُزيلت من المصمّمات | §11.12 | كان `RULE-N169` | ✅ | — |
 | **T-54** | `_ClampToPickerRange(DateTime)` — منطق حصر تاريخ داخل مدى `DateTimePicker` (نسخة واحدة، غير مكرّرة) | `frmJournalEntries.cs:964` | لا مخالفة الآن؛ يُرقّى إلى بيت تواريخ إن تكرّر في شاشة ثانية | يُراقَب | — |
 | **T-64** | **نص «وضع التجربة» مكرّر:** `private const string RealModeNotice` بنفس النص حرفياً في 3 شاشات، و`MockOnlyNotice` بنص مختلف قليلاً في شاشة رابعة | `frmEmployeeMaster.cs:27` · `frmStocktakingNew.cs:35` · `frmWarehouseTransferNew.cs:36` · `frmInventory.cs:47` | `RULE-N169` — النص المشترك مكانه `DocumentTextHelper` (مثل `StatusOptions`)؛ **لم يُنفَّذ في الموجة 13** لأن توحيد الصياغة يغيّر نصاً يراه المالك ⇒ يُنفَّذ بقراره | `ui-agent` بعد قرار | S |
+| **T-73** | **8 نسخ محلية من حارس التركيز باقية:** `_IsTextInputFocused()` في 7 ماسترات + `_IsTextEditingFocused()` في `frmProductUnitMaster` — كلها **صحيحة وظيفياً اليوم** (لا عيب سلوكي)، لكنها دين `RULE-N172` (3+ نسخ) وتتباين دلالياً: نسخة `frmCustomerMaster` كانت قائمة أزرار يدوية تُسقط `txtId`، ونسخة `frmProductUnitMaster` تنزل سلسلة الحاويات | `frmCashBoxMaster:122` · `frmCategoryMaster:124` · `frmProductMaster:136` · `frmProductUnitMaster:125` · `frmSupplierMaster:123` · `frmUnitMaster:115` · `frmUserMaster:129` · `frmWarehouseMaster:124` | تُحذف كلها وتُستهلك `KeyboardHelper.IsTextInputFocused(this)` — تعديل متطابق ⇒ **S-Batch** على دفعتين (4 + 4) · لا خطر سلوكي لأن مسار الاختصار يمرّ بالبيت أولاً | `ui-agent` | S |
 
 > **ملاحظة قياس:** `_ToNullIfEmpty` **= 0** · `_Clamp` **= 0** (المتبقي `_ClampToPickerRange` وهو دالة أخرى) · `private const CashCustomerName` **= 0** · `private _GetStatusText` **= 0** · `CellFormatting` في التقارير **= 0** · `IsDateRangeValid` **= 21** استدعاءً · `NumericInputHelper` **13** مرجعاً · `DocumentTextHelper` **48** مرجعاً · `clsValidation.EndOfDay` **21** استدعاءً. **(كل هذه الأرقام تجاوزها §10.6.5 بعد الموجات 9–12.)**
 >
@@ -590,7 +595,7 @@
 
 #### 10.6.4 قرارات مالك معلَّقة (لا تُنفَّذ بلا نص)
 
-`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً.
+`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً · **`D-09` (جديد)** **النقر على سطر في الشبكة أثناء وضع الإضافة يمحو ما كتبه المستخدم بلا سؤال** — السلوك موجود في **كل** الماسترات بما فيها الشاشة المرجعية `frmProductMaster`، فإصلاحه حارس واحد مشترك يستهلكه الجميع (`RULE-N171`) وتغيير سلوك مرئي: **إبقاء السلوك** / **تأكيد قبل الإفراغ** / **تجاهل النقر ما دام `EntryMode.Adding`**.
 
 
 #### 10.6.5 القياس النهائي — بعد موجة الإصلاح الكاملة (2026-11-15، المرجع الحالي)
@@ -621,6 +626,12 @@
 | تخصيص سند قبض لفاتورة **عميل آخر** في المحاكاة | **0** | 1 (السند 1001 → الفاتورة 1002) | ✅ `T-60` |
 | `MessageBox` / ألوان دلالية حرفية / صيغة يدوية في التقارير الـ31 | **0** | — | ✅ |
 | `_ToNullIfEmpty` / `_Clamp` / `_GetStatusText` / `private const CashCustomerName` | **0 · 0 · 0 · 0** | 18 · 5 · 2 · 3 | ✅ |
+| `_cache.Clear()` قبل فحص `IsSuccess` | **0** في **9 شاشات** أُصلحت (`frmAccounts` كان سليماً) | 9 | ✅ `T-68` |
+| حارس تركيز ميت `ActiveControl is TextBoxBase` | **0** | 2 (`frmAccounts` · `frmJournalEntries`) | ✅ `T-70` |
+| `KeyboardHelper.IsTextInputFocused` (بيت حارس التركيز) | **1** تعريف + **4** مستهلكين (بيت `WireGlobalShortcuts` + 3 شاشات) | 11 نسخة محلية متفاوتة | ✅ `T-70` |
+| نسخ حارس تركيز محلية باقية (`_IsTextInputFocused`/`_IsTextEditingFocused`) | **8** (دين `RULE-N172` — لا عيب سلوكي) | 11 قبل الموجة | ⚠️ `T-73` مفتوح |
+| `ComboBox` مملوء بكائنات بلا `DisplayMember` | **0** في `frmJournalEntries` (كان `cbStatusFilter`) | 1 | ✅ `T-69` |
+| `Delete` مبتلَع داخل حقل إدخال | **0** — الإعفاء في البيت مقصور على `Keys.Delete` | كل شاشة تسجّل `Keys.Delete` | ✅ `T-71` |
 
 ---
 
@@ -839,3 +850,41 @@
 | `Services\Interfaces\IStocktakingDesktopService.cs` | ✅ منتهٍ `T-62` | تعليق `CancelAsync` صار يطابق الكود: المسودة تُلغى بلا حركة · المرحّل يُعكس بحارس كفاية · الملغي يُرفض |
 
 **حكم المراجعة المستقلة (`code-reviewer` على دلتا الموجة):** **مقبول** — صفر Blocker · صفر Major · ملاحظتان صغيرتان أُغلقتا (هذا السطر يُثبت الحكم ولا يستبق المراجعة؛ سطر «نتيجة المراجعة: صفر Blocker» السابق أُعيد صياغته). ما تبقّى مفتوحاً مسجَّل في §10.6.2 (`T-52` قرار مالك · `T-54` مراقَب · `T-56` مجمَّد بالعقد · **`T-64`** نص «وضع التجربة» المكرّر في 4 شاشات = قرار مالك `D-08`) وفي §10.2 (`T-65` · `T-66` · `T-67` مجمَّدة بالباك-إند).
+
+### 11.16 الموجة 14 — الشاشات الخمس المُبلَّغ عنها «0 بايت» + صنف عيب موزَّع على 9 شاشات (7 وكلاء)
+
+> **سبب الموجة:** المالك أبلغ أن خمسة ملفات `frm*.cs` «**0 بايت — الصنف بلا code-behind**». **القياس أثبت أن البلاغ غير صحيح من أوله إلى آخره:** صفر ملف `.cs` بحجم 0 في `SalesSystem.Desktop`، والملفات الخمسة كاملة بمصمّماتها. الموجة صارت **مراجعة عيوب حقيقية** لا إعادة إنشاء — وهذا هو الدرس الأول: **البلاغ دعوى تُقاس قبل أن تُنفَّذ**.
+
+**القياس الأول (قبل أي تعديل):**
+
+| الملف | الحجم | الأسطر | المصمّم | الصف |
+|---|---|---|---|---|
+| `frmAccounts.cs` | 53,757 B | 1,222 | 40,695 B / 969 L | ✅ كامل |
+| `frmJournalEntries.cs` | 70,735 B | 1,695 | 54,526 B / 1,241 L | ✅ كامل |
+| `frmCashBoxMaster.cs` | 42,713 B | 969 | 29,169 B / 697 L + `.resx` | ✅ كامل |
+| `frmCustomerMaster.cs` | 47,460 B | 1,086 | 38,843 B / 909 L + `.resx` | ✅ كامل |
+| `frmEmployeeMaster.cs` | 46,449 B | 1,034 | 31,951 B / 742 L + `.resx` | ✅ كامل |
+
+| الملف | الحكم | ما نُفِّذ |
+|---|---|---|
+| `Screens\Customers\Forms\frmCustomerMaster.cs` | ✅ منتهٍ `T-68`/`T-70` | `_customersById.Clear()` نُقل **داخل** فرع النجاح (كان قبله) ⇒ أُغلق **تعطيل صامت لعميل حيّ**؛ وحُذفت `_IsTextInputFocused()` المحلية (قائمتها اليدوية **تُسقط `txtId`** وهو `ReadOnly`/`TabStop=false` لكنه يقبل التركيز بالفأرة) واستُهلك بيت `KeyboardHelper` |
+| `Screens\Employees\Forms\frmEmployeeMaster.cs` | ✅ منتهٍ `T-68` | نفس المسح قبل التحقق (أثره: أزرار معكوسة `RULE-N92` — «حذف» معطّل و«إعادة تنشيط» مفعّل على موظف نشط — لا تعطيل صامت لأن `_BuildEmployeeDto` يقرأ `IsActive` من `_selected`) |
+| `Screens\Accounting\Forms\frmJournalEntries.cs` | ✅ منتهٍ `T-69`/`T-70` | `cbStatusFilter.DisplayMember` أُضيف — كانت القائمة تُعرض `StatusOption { Value = 0, Text = كل الحالات }` بدل النص العربي؛ والحارس الميت `ActiveControl is TextBoxBase` استُبدل ببيت `KeyboardHelper` |
+| `Screens\Accounting\Forms\frmAccounts.cs` | ✅ منتهٍ `T-70` | نفس الحارس الميت في `_HandleDeleteShortcut` ⇒ كان `Delete` أثناء الكتابة يفتح **تأكيد تعطيل الحساب** |
+| `Screens\CashBoxes\Forms\frmCashBoxMaster.cs` | ✅ منتهٍ `T-68` | مسح الكاش قبل التحقق ⇒ أزرار معكوسة + رسالة «تعذر العثور على بيانات الصندوق المحدد» على سجل معروض (لا تعطيل صامت: `UpdateCashBoxRequest` لا يحمل `IsActive`) |
+| `Screens\Products\Forms\frmProductMaster.cs` | ✅ منتهٍ `T-68` | نفس العيب — أثره **إعادة تنشيط صامتة** لصنف معطّل (احتياط `IsActive: true`) لا تعطيل |
+| `Screens\Categories\Forms\frmCategoryMaster.cs` | ✅ منتهٍ `T-68` | **تعطيل صامت مُثبَت** لمجموعة نشطة برسالة «تم تعديل المجموعة بنجاح» |
+| `Screens\Units\Forms\frmUnitMaster.cs` | ✅ منتهٍ `T-68` | **تعطيل صامت مُثبَت** لوحدة نشطة |
+| `Screens\Suppliers\Forms\frmSupplierMaster.cs` | ✅ منتهٍ `T-68` | تعطيل صامت **+ محو `CategoryId`** المحفوظ عند التعديل |
+| `Screens\Warehouses\Forms\frmWarehouseMaster.cs` | ✅ منتهٍ `T-68` | أزرار معكوسة + حجب إعادة التنشيط برسالة خاطئة (لا تعطيل: احتياط `IsActive: true`) |
+| `Screens\Users\Forms\frmUserMaster.cs` | ✅ منتهٍ `T-68` | **محو `DefaultCashBoxId`** المحفوظ عند التعديل + أزرار معكوسة |
+| `Helpers\KeyboardHelper.cs` | ✅ منتهٍ `T-70`/`T-71` | عضو عام جديد `IsTextInputFocused(Form?)` فوق `FindFocusedControl` الخاص القائم (TextBoxBase · NumericUpDown · ComboBox · DateTimePicker · محرِّر خلية شبكة) — **بيت واحد** بدل 11 نسخة · و`WireGlobalShortcuts` لم يعد يبتلع `Delete` عندما يكون التركيز في حقل إدخال (كان `Delete` **لا يحذف حرفاً في أي حقل** بكل شاشة تسجّله، بينما حارس الشاشة موجود أصلاً لهذا الغرض) |
+
+**صنف العيب (blast radius) — قيس قبل الإغلاق:** العيب نفسه (`Clear()` قبل `IsSuccess`) وُجد في **9 شاشات** لا في واحدة، و`ActiveControl` الميت في **شاشتين** مع **10** نسخ محلية صحيحة-لكن-مكرّرة للحارس الصحيح. الشاشتان الخارجيتان عن نطاق الموجة (`frmSupplierMaster` · `frmWarehouseMaster` · `frmUserMaster` …) أُصلحتا في **دفعتين متطابقتين** (4 + 3) احتراماً لسقف `RULE-N157`، و`frmAccounts` كان سليماً أصلاً (يتحقق ويعود قبل المسح).
+
+**حكم المراجعة المستقلة:** **مقبول مع ملاحظات** — صفر Blocker · صفر Major · **6 Minors** لم يستوجب أيّها تعديل كوداً في هذه الموجة:
+`frmListReturns` تغيّر سلوك `Delete` داخل حقل التصفية من «مسح التصفية» إلى «حذف حرف» (اتجاهه صحيح ومُدرَج في قائمة الاختبار) · `frmCalculator` حقل العرض `ReadOnly` لم يعد `Delete` عليه ينفّذ «مسح» (حالة نادرة، مقبولة) · حراسات الشاشات الثلاث صارت **دفاعاً ثانياً** بعد إعفاء البيت · لا حارس `IsDisposed` في العضو الجديد · **8 نسخ محلية باقية** = `T-73` · عند فشل التحميل تبقى الشبكة فارغة بينما الذاكرة تحتفظ بالقديم (لا خطر مالي).
+
+**البناء بعد الموجة:** `dotnet build .\SalesSystem.slnx --no-incremental` ⇒ **0 أخطاء / 118 تحذيراً** (الرقم الكامل المقارن — البناء التزايدي يبلّغ 96 فقط لأنه يعيد تحذيرات المشاريع المُعاد ترجمتها وحده).
+
+**تحديث سجل الوكلاء (`.opencode/agents/`):** أُصلح تناقض داخلي في برومبت الـOrchestrator (§5 يسمح لـ`ui-agent` بكتابة `Helpers/**` بينما §10.1 يمنعه مطلقاً ⇒ صار «شريحة البيت المشترك» صريحة)، وأُضيفت خطوة **تحقق من الدعوى** (خطوة 0) وخطوة **قياس نصف قطر العيب** (9b/9c)، وأربعة فخاخ مقيسة جديدة، وفخّ عدم مقارنة أعداد التحذيرات بين بناء تزايدي وكامل. و`code-reviewer` أُعيد بناؤه: كان يطلب `MessageBox.Show` صريحاً في معالجات `async void` (مخالف لبيت `clsDialogs`)، وكان يفتقد فحص النطاق، والدعوى، والسبب الجذري، ونصف القطر.

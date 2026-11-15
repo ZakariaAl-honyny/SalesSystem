@@ -299,10 +299,11 @@ public partial class frmUserMaster : Form
         {
             var result = await UserService.GetAllAsync();
 
-            _usersById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة إلا عند نجاح التحميل — فشل التحميل يترك الاختيار والمحرّر على حالهما.
+                _usersById.Clear();
+
                 foreach (var u in result.Value)
                 {
                     _usersById[u.Id] = u;

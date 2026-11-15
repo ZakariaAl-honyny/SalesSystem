@@ -938,7 +938,8 @@ public partial class frmAccounts : Form
     /// <summary>Delete يُعطّل الحساب فقط عندما لا يكون المؤشر داخل حقل نصي.</summary>
     private void _HandleDeleteShortcut()
     {
-        if (ActiveControl is TextBoxBase)
+        // الفحص عبر بيت واحد (RULE-N169/N171): ActiveControl يعيد الحاوية لا الحقل المركَّز نفسه.
+        if (KeyboardHelper.IsTextInputFocused(this))
             return;
 
         btnDelete.PerformClick();

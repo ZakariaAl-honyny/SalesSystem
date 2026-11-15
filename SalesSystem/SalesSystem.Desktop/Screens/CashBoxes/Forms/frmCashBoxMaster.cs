@@ -235,10 +235,11 @@ public partial class frmCashBoxMaster : Form
         {
             var result = await CashBoxService.GetAllAsync();
 
-            _cashBoxesById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة عند فشل التحميل: المحرر قد يمسك سجلاً محدداً (RULE-N92).
+                _cashBoxesById.Clear();
+
                 foreach (var c in result.Value)
                 {
                     _cashBoxesById[c.Id] = c;

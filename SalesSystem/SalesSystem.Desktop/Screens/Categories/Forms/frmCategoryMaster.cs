@@ -224,10 +224,11 @@ public partial class frmCategoryMaster : Form
         {
             var result = await CategoryService.GetAllAsync(includeInactive: true);
 
-            _categoriesById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة عند فشل التحميل: «نشط» يُرسل منها في التعديل (RULE-N90/N92).
+                _categoriesById.Clear();
+
                 foreach (var c in result.Value)
                 {
                     _categoriesById[c.Id] = c;

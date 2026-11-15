@@ -336,10 +336,11 @@ public partial class frmProductMaster : Form
         {
             var result = await ProductService.GetAllAsync(includeInactive: true);
 
-            _productsById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة عند فشل التحميل: حالة التنشيط تُقرأ منها عند الحفظ (RULE-N90/N92).
+                _productsById.Clear();
+
                 foreach (var p in result.Value)
                 {
                     _productsById[p.Id] = p;

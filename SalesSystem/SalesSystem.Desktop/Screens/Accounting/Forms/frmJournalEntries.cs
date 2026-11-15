@@ -244,6 +244,10 @@ public partial class frmJournalEntries : Form
     private void _BindStatusFilter()
     {
         cbStatusFilter.Items.Clear();
+
+        // العرض من حقل النص العربي لا من ToString الـrecord — وإلا ظهر «StatusOption { Value = 0, Text = ... }».
+        cbStatusFilter.DisplayMember = nameof(StatusOption.Text);
+
         cbStatusFilter.Items.Add(new StatusOption(0, "كل الحالات"));   // عنصر محايد محلي — ليس نص حالة
 
         // أزواج (القيمة ↔ النص) من DocumentTextHelper.StatusOptions — لا تُكتب في الشاشة.
@@ -1648,7 +1652,7 @@ public partial class frmJournalEntries : Form
             return;
         }
 
-        if (ActiveControl is TextBoxBase or NumericUpDown or ComboBox) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
         if (!btnDeleteDraft.Enabled) return;
 
         btnDeleteDraft.PerformClick();

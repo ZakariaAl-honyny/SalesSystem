@@ -232,10 +232,11 @@ public partial class frmWarehouseMaster : Form
         {
             var result = await WarehouseService.GetAllAsync(includeInactive: true);
 
-            _warehousesById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة إلا عند نجاح التحميل — فشل التحميل يترك الاختيار والمحرّر على حالهما.
+                _warehousesById.Clear();
+
                 foreach (var w in result.Value)
                 {
                     _warehousesById[w.Id] = w;

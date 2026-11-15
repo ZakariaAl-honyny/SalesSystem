@@ -279,6 +279,18 @@ public static class KeyboardHelper
         return null;
     }
 
+    /// <summary>
+    /// هل المؤشر داخل حقل إدخال (نصي/رقمي/قائمة/تاريخ/محرِّر خلية شبكة)؟
+    /// تُستهلك لمنع اختصار Delete من حذف سجل أثناء الكتابة — بيت واحد لكل الشاشات (RULE-N169/N171).
+    /// </summary>
+    public static bool IsTextInputFocused(Form? form)
+    {
+        if (form is null) return false;
+        var focus = FindFocusedControl(form);
+        return focus is TextBoxBase or NumericUpDown or ComboBox or DateTimePicker
+            or IDataGridViewEditingControl;
+    }
+
     private static void WireFocusHighlightCore(Control parent, Color focusColor, Dictionary<Control, Color> originalColors)
     {
         foreach (Control ctrl in parent.Controls)
@@ -555,6 +567,9 @@ public static class KeyboardHelper
             {
                 if (e.KeyData == key)
                 {
+                    // Delete ملك الحقل النصي المركَّز: لا يُبتلع كاختصار (RULE-N47) — وإلا تعذّر حذف حرف بالكيبورد.
+                    if (key == Keys.Delete && IsTextInputFocused(form)) return;
+
                     action();
                     e.Handled = true;
                     e.SuppressKeyPress = true;

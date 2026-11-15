@@ -236,10 +236,11 @@ public partial class frmSupplierMaster : Form
         {
             var result = await SupplierService.GetAllAsync(includeInactive: true);
 
-            _suppliersById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // لا تُفرَّغ الذاكرة إلا عند نجاح التحميل — فشل التحميل يترك الاختيار والمحرّر على حالهما.
+                _suppliersById.Clear();
+
                 foreach (var s in result.Value)
                 {
                     _suppliersById[s.Id] = s;

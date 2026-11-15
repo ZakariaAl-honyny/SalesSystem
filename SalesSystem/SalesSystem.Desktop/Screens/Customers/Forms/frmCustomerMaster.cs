@@ -102,7 +102,7 @@ public partial class frmCustomerMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -116,21 +116,6 @@ public partial class frmCustomerMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[]
-                 {
-                     txtSearch, cbFilterBy, cbStatus, txtName, txtPhone, txtEmail,
-                     txtTaxNumber, txtAddress, txtNotes, numCreditLimit
-                 })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────
@@ -238,10 +223,13 @@ public partial class frmCustomerMaster : Form
         {
             var result = await CustomerService.GetAllAsync(includeInactive: true);
 
-            _customersById.Clear();
-
             if (result.IsSuccess && result.Value != null)
             {
+                // RULE-N90/N92: تُستبدل الذاكرة المحلية **بعد** نجاح القراءة فقط. مسحها قبل التحقق
+                // من النتيجة كان يُفقد حالة التنشيط الحقيقية عند فشل التحميل، فيقرأ «تعديل» اللاحق
+                // IsActive = false (لأن السجل لم يبقَ في الذاكرة) ويُعطّل العميل صامتاً.
+                _customersById.Clear();
+
                 foreach (var c in result.Value)
                 {
                     _customersById[c.Id] = c;
