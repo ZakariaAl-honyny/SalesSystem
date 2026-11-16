@@ -19,7 +19,7 @@
 //     GreenThemeHelper.Apply و KeyboardHelper.RefreshFocusHighlight بحق،
 //     لأن النداء يقع وقت التشغيل بعد اكتمال التهيئة.
 //   • لا يوجد أي `Color.FromArgb` خارج **جدولَي الألوان** أدناه (RULE-N112):
-//       (أ) AllDefinitions  = الافتراضيات **الحالية** (24 لوناً تُعرَض في شاشة الألوان)،
+//       (أ) AllDefinitions  = الافتراضيات **الحالية** (27 لوناً تُعرَض في شاشة الألوان)،
 //       (ب) RetiredDefaults = **تاريخ الافتراضيات المتقاعدة**: كل قيمة افتراضية سبق
 //           شحنها ثم تغيّرت — بمفتاحها ولونها القديم حرفياً.
 //   • الغرض من RetiredDefaults: لوحة المصمّمين (95 مصمّماً) تحمل القيم الحرفية
@@ -72,6 +72,28 @@ public static class ThemePalette
 
     /// <summary>شريط العنوان.</summary>
     public const string HeaderBarColor = "headerBarColor";
+
+    /// <summary>
+    /// تدرّج شريط العنوان — <b>لون البداية</b> (أقصى يسار الشريط، الأزرق البحري الداكن).
+    /// <para>
+    /// التدرّج ثلاثي المحطات من اليسار إلى اليمين، مطابقاً حرفياً لمصدر لوحة المالك
+    /// (<c>from-[#0a4b8c] via-[#026cb6] to-[#0288d1]</c>). تُرسم المحطات الثلاث في
+    /// <c>GreenThemeHelper.ApplyHeaderGradient</c> ولا تُكتب أي قيمة منها هناك (RULE-N112).
+    /// </para>
+    /// </summary>
+    public const string HeaderBarGradientStartColor = "headerBarGradientStartColor";
+
+    /// <summary>تدرّج شريط العنوان — <b>لون الوسط</b> (منتصف الشريط).</summary>
+    public const string HeaderBarGradientMidColor = "headerBarGradientMidColor";
+
+    /// <summary>
+    /// تدرّج شريط العنوان — <b>لون النهاية</b> (أقصى يمين الشريط، الأزرق السماوي الأفتح).
+    /// <para>
+    /// هو <b>أفتح</b> محطة في التدرّج، فتباينه مع <see cref="HeaderTextColor"/> هو الحدّ
+    /// الأدنى المقيس للنص — محميٌّ بقاعدة في <see cref="ContrastRules"/>.
+    /// </para>
+    /// </summary>
+    public const string HeaderBarGradientEndColor = "headerBarGradientEndColor";
 
     /// <summary>نص شريط العنوان.</summary>
     public const string HeaderTextColor = "headerTextColor";
@@ -168,10 +190,13 @@ public static class ThemePalette
 
     private static readonly ThemeColorDefinition[] AllDefinitions =
     {
-        // ── الشاشة الرئيسية (4) ──
+        // ── الشاشة الرئيسية (7) ──
         new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(240, 244, 249)),
         new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(10, 75, 140)),
         new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,      Color.White),
+        new(HeaderBarGradientStartColor, "تدرّج الشريط — البداية", GroupMain, Color.FromArgb(10, 75, 140)),
+        new(HeaderBarGradientMidColor,   "تدرّج الشريط — الوسط",   GroupMain, Color.FromArgb(2, 108, 182)),
+        new(HeaderBarGradientEndColor,   "تدرّج الشريط — النهاية", GroupMain, Color.FromArgb(2, 136, 209)),
         new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(30, 41, 59)),
         // ── الأزرار (7) ──
         new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(2, 119, 189)),
@@ -326,7 +351,7 @@ public static class ThemePalette
     //  القراءة والكتابة
     // ═════════════════════════════════════════════════════════════════
 
-    /// <summary>تعريفات اللوحة (24 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
+    /// <summary>تعريفات اللوحة (27 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
     public static IReadOnlyList<ThemeColorDefinition> Definitions => DefinitionsReadOnly;
 
     /// <summary>فهرس التعريفات بالمفتاح (تطابق ترتيبي — نفس أسماء الثوابت).</summary>
@@ -376,6 +401,18 @@ public static class ThemePalette
         // نصوص/رؤوس فوق خلفيات: 3.0 لنص كبير (شريط/رؤوس) و4.5 لنص عادي.
         Add(HeaderTextColor, HeaderBarColor, 3.0);
         Add(HeaderBarColor, HeaderTextColor, 3.0);
+        // شريط العنوان صار **تدرّجاً**، والنص الأبيض يقف على المحطات الثلاث في آنٍ واحد،
+        // فأفتح محطة (النهاية) هي التي تحدّ المقروئية لا البداية الداكنة. القاعدة تحمي
+        // تعديلاً مستقبلياً يجعل الشريط فاتحاً فيبيضّ النص عليه (3.86 مقيسة اليوم).
+        Add(HeaderTextColor, HeaderBarGradientEndColor, 3.0);
+        Add(HeaderBarGradientEndColor, HeaderTextColor, 3.0);
+        // الوسط محميٌّ كذلك: حفظ محطة وسطى فاتحة (مثل خلفية الشاشة #F0F4F9) مع بقاء
+        // البداية داكنة كان يجعل منتصف كل شريط أبيض على أبيض في كل الشاشات — والحد
+        // نفسه (3.0) لأن النص يقف على المحطة الوسطى كما يقف على الطرفين.
+        Add(HeaderTextColor, HeaderBarGradientMidColor, 3.0);
+        Add(HeaderBarGradientMidColor, HeaderTextColor, 3.0);
+        Add(HeaderTextColor, HeaderBarGradientStartColor, 3.0);
+        Add(HeaderBarGradientStartColor, HeaderTextColor, 3.0);
         Add(GridHeaderTextColor, GridHeaderColor, 3.0);
         Add(GridHeaderColor, GridHeaderTextColor, 3.0);
         Add(GridCellTextColor, GridCellBackgroundColor, BodyTextMinimumContrast);
@@ -869,7 +906,7 @@ public static class ThemePalette
     private static readonly Regex HexPattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
 
     /// <summary>
-    /// يتحقّق من **مجموعة ألوان كاملة** (24 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
+    /// يتحقّق من **مجموعة ألوان كاملة** (27 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
     /// رسالة رفض عربية، أو <c>null</c> إن كانت المجموعة كلها مقبولة.
     /// <para>
     /// <b>البيت الواحد (RULE-N169 · RULE-N172):</b> كانت هذه الفحوص الخمسة مكتوبة داخل

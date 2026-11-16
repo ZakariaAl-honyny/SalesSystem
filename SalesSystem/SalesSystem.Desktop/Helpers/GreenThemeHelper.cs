@@ -572,6 +572,12 @@ public static class GreenThemeHelper
     /// <summary>
     /// شريط العنوان: خلفية خضراء ونص أبيض موسّط. الخط يبقى كما ضبطه المصمّم
     /// (RULE-N53) حتى لا تتغيّر أحجام العناوين بين الشاشات.
+    /// <para>
+    /// الخلفية الآن **تدرّج أزرق ثلاثي المحطات** من اليسار إلى اليمين
+    /// (<see cref="ApplyHeaderGradient"/>)، و<see cref="Control.BackColor"/> يبقى مضبوطاً
+    /// على مفتاح <see cref="ThemePalette.HeaderBarColor"/> (محطة البداية) لأنه لون
+    /// الحافة عند التمدّد وخلفية النص قبل بناء الصورة.
+    /// </para>
     /// </summary>
     public static void ApplyHeader(Label header)
     {
@@ -582,10 +588,100 @@ public static class GreenThemeHelper
             header.BackColor = HeaderBackground;
             header.ForeColor = HeaderForeground;
             header.TextAlign = ContentAlignment.MiddleCenter;
+            ApplyHeaderGradient(header);
         }
         catch (Exception ex)
         {
             Serilog.Log.Error(ex, "تعذر تطبيق ثيم شريط العنوان");
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  تدرّج شريط العنوان (قرار المالك 2026-11-16: «I want grident of blue color»)
+    //  المحطات الثلاث تعيش في ThemePalette (RULE-N188) ولا لون حرفي في هذا الملف.
+    // ─────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// حالة تدرّج شريط العنوان لكل Label (لا تُسرّب مراجعاً: جدول ضعيف).
+    /// <para>
+    /// تُقارَن <b>المحطات الثلاث ARGB عيناً</b> لا بصمة مركّبة منها: أي دالة تجزئة
+    /// (XOR مثلاً) ليست متباينة — تغييرٌ في القناة الخضراء للمحطة الأولى يلغي تغييراً
+    /// مكافئاً في الثانية فتتساوى البصمتان وتبقى الصورة القديمة على الشريط (RULE-N196).
+    /// </para>
+    /// </summary>
+    private sealed class HeaderGradientState
+    {
+        public bool Built;
+        public int Start;
+        public int Mid;
+        public int End;
+        public Bitmap? Image;
+    }
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Label, HeaderGradientState> HeaderGradients = new();
+
+    /// <summary>عرض الصورة المصدرية — تُمدّ Stretch بلا تشويه.</summary>
+    private const int HeaderGradientPixels = 512;
+
+    /// <summary>
+    /// يرسم خلفية التدرّج على شريط العنوان **كصورة واحدة مُخزَّنة لكل Label**، فلا
+    /// عمل على البكسل داخل أي معالج <c>Paint</c> ولا رسم للنص هنا: الملصق يظلّ يرسم
+    /// نصه بنفسه فيبقى التوسيط والحذف كما ضبطهما المصمّم.
+    /// <para>
+    /// الألوان تُقرأ حيّةً من اللوحة لحظة التطبيق، فحفظ ألوان جديدة ثم
+    /// <see cref="ThemePalette.ApplyToOpenForms"/> يُعيد بناء الصورة لأن المحطات الثلاث
+    /// لم تعد مطابقة لما بُنيت منه —
+    /// والشريط المفتوح يتلوّن بلا إغلاق الشاشة. الاتجاه يسار ← يمين حرفياً كما في
+    /// مصدر لوحة المالك (<c>bg-gradient-to-r</c>) ولا يُعكس للـRTL.
+    /// </para>
+    /// </summary>
+    private static void ApplyHeaderGradient(Label header)
+    {
+        // الألوان تُقرأ حيّةً من اللوحة لحظة التطبيق — لا لون حرفي في هذا الملف (RULE-N112).
+        Color start = ThemePalette.Get(ThemePalette.HeaderBarGradientStartColor);
+        Color mid   = ThemePalette.Get(ThemePalette.HeaderBarGradientMidColor);
+        Color end   = ThemePalette.Get(ThemePalette.HeaderBarGradientEndColor);
+
+        // مقارنة المحطات الثلاث عيناً (لا بصمة XOR): التجزئة ليست متباينة، فتغيير في
+        // قناةٍ لمحطة قد يلغيه تغيير مكافئ في أخرى فتبقى الصورة القديمة على الشريط.
+        int startArgb = start.ToArgb(), midArgb = mid.ToArgb(), endArgb = end.ToArgb();
+
+        var state = HeaderGradients.GetOrCreateValue(header);
+        if (!state.Built || state.Start != startArgb || state.Mid != midArgb || state.End != endArgb)
+        {
+            state.Image = BuildHeaderGradient(start, mid, end);
+            state.Start = startArgb;
+            state.Mid = midArgb;
+            state.End = endArgb;
+            state.Built = true;
+            // الصورة المُستبدَلة لا تُحرَّر هنا، لأن لكل ملصق صورته وحدها (بلا مشاركة
+            // ولا عدّ مراجع): المُستبدَلة تصير قمامة ويُحرّر مُنهيها مقبض GDI، والتحرير
+            // اليدوي لا يشتري شيئاً مقيساً — فلا يُستدعى.
+        }
+
+        if (!ReferenceEquals(header.BackgroundImage, state.Image))
+        {
+            header.BackgroundImage = state.Image;
+            header.BackgroundImageLayout = ImageLayout.Stretch;
+        }
+    }
+
+    private static Bitmap BuildHeaderGradient(Color start, Color mid, Color end)
+    {
+        // صورة بارتفاع بكسل واحد تُمدّ رأسياً بلا تشويه، فالتدرّج أفقي خالص.
+        var image = new Bitmap(HeaderGradientPixels, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using var graphics = Graphics.FromImage(image);
+        using var brush = new System.Drawing.Drawing2D.LinearGradientBrush(
+            new Rectangle(0, 0, HeaderGradientPixels, 1), start, end,
+            System.Drawing.Drawing2D.LinearGradientMode.Horizontal);
+
+        brush.InterpolationColors = new System.Drawing.Drawing2D.ColorBlend(3)
+        {
+            Colors = new[] { start, mid, end },
+            Positions = new[] { 0f, 0.5f, 1f }
+        };
+
+        graphics.FillRectangle(brush, 0, 0, HeaderGradientPixels, 1);
+        return image;
     }
 }
