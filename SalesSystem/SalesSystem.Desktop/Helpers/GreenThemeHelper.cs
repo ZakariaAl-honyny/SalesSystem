@@ -265,7 +265,22 @@ public static class GreenThemeHelper
     public static void Apply(Form form)
     {
         if (form == null) return;
-        Apply((Control)form);   // نفس السلوك تماماً — القيم أدناه تُطبَّق مرة واحدة
+        Apply((Control)form);   // نفس السلوك تماماً — الحاويات والعناوين والشبكات
+
+        // RULE-N142 → RULE-N139: أزرار النموذج تتبع لوحة الألوان **عند كل فتح شاشة**،
+        // لا بعد «حفظ الألوان» وحده. القرار كله — «هل خلفية هذا الزر لون زرٍّ من اللوحة
+        // (حيّاً أو افتراضياً أو سابقاً أو افتراضياً متقاعداً)؟» — يعيش في
+        // ThemePalette.ButtonKeyFor وحده، والزر المخصّص يبقى بلا لمس. لا لون حرفي هنا:
+        // هذا الملف يستهلك اللوحة ولا يملك أي قيمة (RULE-N112 / RULE-N169).
+        try
+        {
+            ThemePalette.RepaintThemeButtons(form);
+        }
+        catch (Exception ex)
+        {
+            // لا نُفشل فتح الشاشة بسبب لون: نُسجّل الخطأ فقط.
+            Serilog.Log.Error(ex, "تعذر إعادة تلوين أزرار الشاشة من لوحة الألوان");
+        }
     }
 
     /// <summary>

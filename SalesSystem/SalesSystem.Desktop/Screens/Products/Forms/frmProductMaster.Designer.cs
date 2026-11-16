@@ -101,7 +101,7 @@ partial class frmProductMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(16, 150, 96);
+        lblMode.BackColor = Color.FromArgb(15, 45, 74);
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
         lblMode.ForeColor = Color.White;
@@ -237,7 +237,7 @@ partial class frmProductMaster
         // 
         // btnAddCategory
         // 
-        btnAddCategory.BackColor = Color.FromArgb(13, 110, 253);
+        btnAddCategory.BackColor = Color.FromArgb(2, 119, 189);
         btnAddCategory.FlatStyle = FlatStyle.Flat;
         btnAddCategory.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnAddCategory.ForeColor = Color.White;
@@ -473,7 +473,7 @@ partial class frmProductMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.FromArgb(40, 167, 69);
+        btnNew.BackColor = Color.FromArgb(2, 119, 189);
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnNew.ForeColor = Color.White;
@@ -487,7 +487,7 @@ partial class frmProductMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(0, 123, 255);
+        btnSave.BackColor = Color.FromArgb(5, 150, 105);
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSave.ForeColor = Color.White;
@@ -501,7 +501,7 @@ partial class frmProductMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
+        btnEdit.BackColor = Color.FromArgb(245, 158, 11);
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnEdit.ForeColor = Color.White;
@@ -515,7 +515,7 @@ partial class frmProductMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
+        btnDelete.BackColor = Color.FromArgb(225, 29, 72);
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnDelete.ForeColor = Color.White;
@@ -529,7 +529,7 @@ partial class frmProductMaster
         // 
         // btnReactivate
         // 
-        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.BackColor = Color.FromArgb(8, 145, 178);
         btnReactivate.Enabled = false;
         btnReactivate.FlatStyle = FlatStyle.Flat;
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -545,7 +545,7 @@ partial class frmProductMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.BackColor = Color.FromArgb(8, 145, 178);
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnRefresh.ForeColor = Color.White;
@@ -559,7 +559,7 @@ partial class frmProductMaster
         // 
         // btnManageUnits
         // 
-        btnManageUnits.BackColor = Color.FromArgb(111, 66, 193);
+        btnManageUnits.BackColor = Color.FromArgb(8, 145, 178);
         btnManageUnits.FlatStyle = FlatStyle.Flat;
         btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnManageUnits.ForeColor = Color.White;
@@ -573,7 +573,7 @@ partial class frmProductMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = Color.FromArgb(100, 116, 139);
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
@@ -600,16 +600,16 @@ partial class frmProductMaster
         // 
         dgvProducts.AllowUserToAddRows = false;
         dgvProducts.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle4.BackColor = Color.FromArgb(248, 249, 250);
+        dataGridViewCellStyle4.BackColor = Color.FromArgb(248, 250, 252);
         dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvProducts.BackgroundColor = Color.White;
         dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle5.BackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle5.BackColor = Color.FromArgb(15, 45, 74);
         dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
         dataGridViewCellStyle5.ForeColor = Color.White;
-        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(15, 45, 74);
         dataGridViewCellStyle5.SelectionForeColor = Color.White;
         dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
         dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
@@ -617,14 +617,14 @@ partial class frmProductMaster
         dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
         dataGridViewCellStyle6.BackColor = Color.White;
         dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle6.ForeColor = Color.FromArgb(33, 37, 41);
-        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(255, 243, 205);
-        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle6.ForeColor = Color.FromArgb(15, 23, 42);
+        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(186, 230, 253);
+        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(15, 23, 42);
         dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
         dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
         dgvProducts.Dock = DockStyle.Fill;
         dgvProducts.EnableHeadersVisualStyles = false;
-        dgvProducts.GridColor = Color.FromArgb(222, 226, 230);
+        dgvProducts.GridColor = Color.FromArgb(226, 232, 240);
         dgvProducts.Location = new Point(0, 10);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
@@ -692,7 +692,7 @@ partial class frmProductMaster
         // 
         // btnClearFilters
         // 
-        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.BackColor = Color.FromArgb(100, 116, 139);
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
@@ -744,14 +744,14 @@ partial class frmProductMaster
         // 
         // btnToggleFilters
         // 
-        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.BackColor = Color.FromArgb(248, 250, 252);
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(226, 232, 240);
         btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.ForeColor = Color.FromArgb(15, 23, 42);
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -773,7 +773,7 @@ partial class frmProductMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
+        lblSummary.ForeColor = Color.FromArgb(15, 23, 42);
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -831,7 +831,7 @@ partial class frmProductMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(240, 242, 245);
+        BackColor = Color.FromArgb(238, 242, 246);
         ClientSize = new Size(1432, 746);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

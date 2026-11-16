@@ -148,8 +148,10 @@ public static class ThemePalette
     /// عبر <see cref="GreenThemeHelper.RejectBackground"/> — وميض قصير يعود إلى لون المصمّم تلقائياً،
     /// فلا يُترك أي حقل ملوّناً. لون **حالة** لا لون تصميم، ولا يُعلَن في أي `*.Designer.cs`
     /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي `#F8D7DA` = (248,215,218) —
-    /// أحمر حقل باهت من لوحة الحالة المهنية (كان `#FFDCDC` = (255,220,220)، وهو مسجَّل
-    /// في <c>RetiredDefaults</c> فيُعاد تلوين أي شاشة تحمل القيمة القديمة).
+    /// أحمر حقل باهت من **جيل الألوان المعتمد حالياً** (المصدر الوحيد له هو
+    /// <see cref="AllDefinitions"/>؛ لا يُسمّى هنا جيلٌ بعينه كي لا يشيخ هذا الشرح مع كل
+    /// تغيير لوحة — <c>RULE-N188</c>). والقيمة السابقة `#FFDCDC` = (255,220,220) مسجَّلة
+    /// في <c>RetiredDefaults</c> فيُعاد تلوين أي شاشة تحملها.
     /// </summary>
     public const string RejectBackgroundColor = "rejectBackgroundColor";
 
@@ -167,34 +169,34 @@ public static class ThemePalette
     private static readonly ThemeColorDefinition[] AllDefinitions =
     {
         // ── الشاشة الرئيسية (4) ──
-        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(240, 242, 245)),
-        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(16, 150, 96)),
+        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(238, 242, 246)),
+        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(15, 45, 74)),
         new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,      Color.White),
-        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(33, 37, 41)),
+        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(15, 23, 42)),
         // ── الأزرار (7) ──
-        new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(13, 110, 253)),
-        new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(25, 135, 84)),
-        new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons,   Color.FromArgb(220, 53, 69)),
-        new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons,   Color.FromArgb(108, 117, 125)),
-        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(23, 162, 184)),
-        new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(255, 193, 7)),
-        new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 249, 250)),
+        new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(2, 119, 189)),
+        new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(5, 150, 105)),
+        new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons,   Color.FromArgb(225, 29, 72)),
+        new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons,   Color.FromArgb(100, 116, 139)),
+        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(8, 145, 178)),
+        new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(245, 158, 11)),
+        new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 250, 252)),
         // ── الصناديق والأشرطة (2) ──
         new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,    Color.White),
         new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,      Color.White),
         // ── الشبكة (7 — لون التحديد انتقل إلى مجموعة «التحديد والحقل النشط») ──
         new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,      Color.White),
-        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(52, 58, 64)),
+        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(15, 45, 74)),
         new(GridHeaderTextColor,     "نص رؤوس الأعمدة",       GroupGrid,      Color.White),
-        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(222, 226, 230)),
-        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(248, 249, 250)),
+        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(226, 232, 240)),
+        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(248, 250, 252)),
         new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,      Color.White),
-        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(33, 37, 41)),
+        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(15, 23, 42)),
         // ── التحديد والحقل النشط (1) ──
-        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(255, 243, 205)),
+        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(186, 230, 253)),
         // ── حالات العرض (3) ──
-        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(233, 236, 239)),
-        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(108, 117, 125)),
+        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(226, 232, 240)),
+        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(100, 116, 139)),
         new(RejectBackgroundColor,   "خلفية الرفض والخطأ",   GroupStates,    Color.FromArgb(248, 215, 218)),
     };
 
@@ -206,12 +208,17 @@ public static class ThemePalette
     //  فلا يُعاد تلوينه (RULE-N134/RULE-N139). بـ IsRetiredDefault يبقى لون
     //  المصمّم معروفاً كافتراضي **سبق شحنه** فيُعاد تلوينه — فلا يلزم مسّ أي
     //  *.Designer.cs عند أي تغيير ألوان مستقبلي (قرار المالك 2026-11-16).
+    //  ويحمل الجدول الآن **جيلين متقاعدين**: الأول (أخضر → محايد) والثاني
+    //  (محايد → اللوحة الحالية) — ولا يُسمّى أي جيل باسم لوحة بعينها كي لا
+    //  يشيخ هذا الشرح مع كل تغيير (RULE-N188). المطابقة **بالمفتاح والقيمة
+    //  معاً**، فتكرار قيمةٍ واحدة تحت مفتاحين مختلفين مقصود ولا يُدمَج.
     //  القاعدة عند أي تغيير جديد: أضف (المفتاح، القيمة القديمة) هنا ثم حدّث
     //  الافتراضي في AllDefinitions — لا شيء غير ذلك.
     // ═════════════════════════════════════════════════════════════════
 
     private static readonly (string Key, Color Value)[] RetiredDefaults =
     {
+        // ── الجيل الأول: أخضر → محايد ──
         (FrmMainColor,            Color.FromArgb(170, 220, 170)),   // → 240, 242, 245
         (HeaderBarColor,          Color.FromArgb(14, 165, 103)),    // → 16, 150, 96
         (TextStrongColor,         Color.FromArgb(14, 82, 52)),      // → 33, 37, 41
@@ -225,6 +232,24 @@ public static class ThemePalette
         (DisabledBackColor,       Color.FromArgb(224, 224, 224)),   // → 233, 236, 239
         (DisabledForeColor,       Color.FromArgb(150, 150, 150)),   // → 108, 117, 125
         (RejectBackgroundColor,   Color.FromArgb(255, 220, 220)),   // → 248, 215, 218
+        // ── الجيل الثاني: محايد → اللوحة الحالية ──
+        (FrmMainColor,            Color.FromArgb(240, 242, 245)),   // → 238, 242, 246
+        (HeaderBarColor,          Color.FromArgb(16, 150, 96)),     // → 15, 45, 74
+        (TextStrongColor,         Color.FromArgb(33, 37, 41)),      // → 15, 23, 42
+        (BtnAddNewButtonColor,    Color.FromArgb(13, 110, 253)),    // → 2, 119, 189
+        (BtnSaveButtonColor,      Color.FromArgb(25, 135, 84)),     // → 5, 150, 105
+        (BtnDeleteButtonColor,    Color.FromArgb(220, 53, 69)),     // → 225, 29, 72
+        (BtnCancelButtonColor,    Color.FromArgb(108, 117, 125)),   // → 100, 116, 139
+        (BtnInfoButtonColor,      Color.FromArgb(23, 162, 184)),    // → 8, 145, 178
+        (BtnWarningButtonColor,   Color.FromArgb(255, 193, 7)),     // → 245, 158, 11
+        (BtnSecondaryButtonColor, Color.FromArgb(248, 249, 250)),   // → 248, 250, 252
+        (GridHeaderColor,         Color.FromArgb(52, 58, 64)),      // → 15, 45, 74
+        (GridLineColor,           Color.FromArgb(222, 226, 230)),   // → 226, 232, 240
+        (GridAlternateRowColor,   Color.FromArgb(248, 249, 250)),   // → 248, 250, 252
+        (GridCellTextColor,       Color.FromArgb(33, 37, 41)),      // → 15, 23, 42
+        (SelectionRowColor,       Color.FromArgb(255, 243, 205)),   // → 186, 230, 253
+        (DisabledBackColor,       Color.FromArgb(233, 236, 239)),   // → 226, 232, 240
+        (DisabledForeColor,       Color.FromArgb(108, 117, 125)),   // → 100, 116, 139
     };
 
     /// <summary>
@@ -534,8 +559,13 @@ public static class ThemePalette
 
     /// <summary>
     /// هل يطابق <paramref name="color"/> قيمةً **سبق أن طبّقتها اللوحة** على هذا المفتاح؟
-    /// تُستهلك من <see cref="GreenThemeHelper"/> وحدها لتمييز «لون ثيم قديم» عن
-    /// «لون مصمّم مخصّص» (RULE-N139) — داخلية، وليست جزءاً من عقد اللوحة العام.
+    /// <para>
+    /// <b>هذه هي القراءة الوحيدة لمقام <see cref="PreviousLive"/></b> في الملف كله
+    /// (<c>RULE-N171</c>): يستهلكها <c>GreenThemeHelper.IsThemeColor</c> لتمييز «لون ثيم قديم»
+    /// عن «لون مصمّم مخصّص» (<c>RULE-N139</c>)، ويستهلكها مُحلِّل مفتاح الزر
+    /// <see cref="ButtonKeyFor"/> في خطوته الثالثة — فلا نسخة ثانية من مطابقة «القيمة السابقة»
+    /// في أي مكان. داخلية، وليست جزءاً من عقد اللوحة العام.
+    /// </para>
     /// </summary>
     internal static bool WasAppliedValue(string key, Color color)
         => key is not null
@@ -550,13 +580,80 @@ public static class ThemePalette
             PreviousLive[pair.Key] = pair.Value;
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    //  مُحلِّل مفتاح الزر — البيت الواحد لقرار «هل هذا الزر بلون اللوحة؟»
+    // ─────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// **مُحلِّل مفتاح الزر**: أي مفتاح من <see cref="ButtonKeys"/> يملك خلفية هذا الزر؟
+    /// <para>
+    /// <b>ترتيب المطابقة ملزم، وأول مطابقة تفوز</b> (RULE-N169…RULE-N172 — لا نسخة
+    /// ثانية من هذا الحكم في أي ملف، ولا لون حرفي هنا):
+    /// </para>
+    /// <list type="number">
+    /// <item>(1) القيمة الحيّة <see cref="Get"/> — زر أعادت اللوحة تلوينه في تطبيق سابق،
+    /// فالخلفية الحالية هي القيمة الحيّة نفسها.</item>
+    /// <item>(2) الافتراضي المشحون <see cref="DefaultFor"/> — وهو **اللون الحرفي** في
+    /// <c>*.Designer.cs</c>، فالأزرار تُعرَف من أول فتح بلا مسّ أي مصمّم (<c>RULE-N134</c>).</item>
+    /// <item>(3) آخر قيمة طبّقتها اللوحة <see cref="WasAppliedValue"/> — فتتبع الأزرار
+    /// المفتوحة تغييراً ثانياً وثالثاً بلا إعادة فتح الشاشة.</item>
+    /// <item>(4) افتراضي **متقاعد** <see cref="IsRetiredDefault"/> — لون مصمّمٍ مكتوب بقيمة
+    /// افتراضية سبق شحنها ثم تغيّرت: يبقى «لون ثيم» فيُعاد تلوينه (<c>RULE-N139</c>).
+    /// وهذه هي الخطوة التي كانت **غائبة**: زر بخلفية افتراضي متقاعد كان يبقى مجمَّداً
+    /// على اللون القديم إلى الأبد لأن المُحوِّل القديم استشار «القيمة السابقة» وحدها.</item>
+    /// </list>
+    /// <para>
+    /// <b>ولون المصمّم المخصّص يبقى سليماً:</b> إن لم يطابق أيّاً من الأربعة ⇒ <c>null</c>
+    /// ⇒ لا كتابة على الزر إطلاقاً، فالألوان المخصّصة خارج لوحة الأزرار لا تُمسّ
+    /// (<c>RULE-N142</c>/<c>RULE-N139</c>). وهذا هو **الحارس الوحيد** لبقائها.
+    /// </para>
+    /// </summary>
+    /// <param name="color">خلفية الزر كما هي الآن.</param>
+    /// <returns>مفتاح الزر المالك للون، أو <c>null</c> إن كان لوناً خاصاً بالمصمّم.</returns>
+    internal static string? ButtonKeyFor(Color color)
+    {
+        int argb = color.ToArgb();
+
+        // (1) القيمة الحيّة للمفتاح.
+        foreach (var key in ButtonKeys)
+        {
+            if (Get(key).ToArgb() == argb) return key;
+        }
+
+        // (2) الافتراضي المشحون = اللون الحرفي الذي كتبه المصمّم.
+        foreach (var key in ButtonKeys)
+        {
+            if (DefaultFor(key).ToArgb() == argb) return key;
+        }
+
+        // (3) آخر قيمة طبّقتها اللوحة عليه (القراءة عبر WasAppliedValue وحدها).
+        foreach (var key in ButtonKeys)
+        {
+            if (WasAppliedValue(key, color)) return key;
+        }
+
+        // (4) افتراضي متقاعد: اللون القديم يُعاد تلوينه بلا تعديل المصمّم.
+        foreach (var key in ButtonKeys)
+        {
+            if (IsRetiredDefault(key, color)) return key;
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// يمشي على كل أزرار شجرة العناصر ويعيد تلوين ما كان يحمل لون زرٍّ من اللوحة
-    /// (قبل التطبيق الحالي) بالقيمة الحيّة الجديدة — و`CheckBox`/`RadioButton`
-    /// مستثناة صريحاً، والنص (<c>ForeColor</c>) لا يُلمس أبداً لأن الزر الثانوي
-    /// فاتح بنص داكن.
+    /// بالقيمة الحيّة — و`CheckBox`/`RadioButton` مستثناة صريحاً، والنص (<c>ForeColor</c>)
+    /// وحالة الزر و<see cref="Control.Enabled"/> لا تُلمس أبداً لأن الزر الثانوي فاتح
+    /// بنص داكن (RULE-N142).
+    /// <para>
+    /// <b>نقطة الدخول الوحيدة لهذا المشي</b> (<c>RULE-N171</c>):
+    /// <see cref="ApplyToOpenForms"/> بعد حفظ ألوان جديدة، و
+    /// <see cref="GreenThemeHelper.Apply(Form)"/> **عند كل فتح شاشة** — فالأزرار تتبع
+    /// اللوحة دائماً، لا بعد «حفظ الألوان» فقط.
+    /// </para>
     /// </summary>
-    private static void RepaintThemeButtons(Control parent)
+    internal static void RepaintThemeButtons(Control parent)
     {
         foreach (Control child in parent.Controls)
         {
@@ -569,29 +666,26 @@ public static class ThemePalette
     }
 
     /// <summary>
-    /// زر واحد: إن كانت خلفيته تساوي القيمة **السابقة** لأحد مفاتيح الأزرار السبعة،
-    /// تُستبدل بالقيمة الحيّة لنفس المفتاح وتُضبط خلفية المرور بالفعل بنفس قاعدة
-    /// <c>ThemeHelper.ApplyButtonStyle</c> (<c>ControlPaint.Light(color, 0.1f)</c>).
-    /// الزر الذي لم يكن بلون ثيم (لون مصمّم مخصّص) لا يُلمس إطلاقاً.
+    /// زر واحد: يُحلّ مفتاحه بـ <see cref="ButtonKeyFor"/> ثم تُقارن قيمته الحيّة بخلفية الزر —
+    /// إن اختلفتا تُكتب الخلفية الحيّة وتُضبط خلفية المرور بنفس قاعدة
+    /// <c>ThemeHelper.ApplyButtonStyle</c> (<c>ControlPaint.Light(color, 0.1f)</c>)،
+    /// وإن تساوتا فلا لمس إطلاقاً.
+    /// <para>
+    /// <c>null</c> من المُحلِّل = اللون ليس من لوحة الأزرار (لا حيّاً ولا افتراضياً ولا سابقاً
+    /// ولا متقاعداً) ⇒ لون مصمّم مخصّص ⇒ يُترك الزر كما هو (<c>RULE-N142</c>).
+    /// </para>
     /// </summary>
     private static void RepaintThemeButton(Button button)
     {
-        int back = button.BackColor.ToArgb();
+        if (ButtonKeyFor(button.BackColor) is not { } key) return;
 
-        foreach (var key in ButtonKeys)
-        {
-            if (!PreviousLive.TryGetValue(key, out var previous) || previous.ToArgb() != back)
-                continue;
+        var current = Get(key);
 
-            var current = Get(key);
+        // اللون الحيّ نفسه ⇒ لا لمس (يبقى المرور المخصّص كما هو).
+        if (current.ToArgb() == button.BackColor.ToArgb()) return;
 
-            // اللون لم يتغيّر بين التطبيقين ⇒ لا لمس (يبقى المرور المخصّص كما هو).
-            if (current.ToArgb() == back) break;
-
-            button.BackColor = current;
-            button.FlatAppearance.MouseOverBackColor = ControlPaint.Light(current, 0.1f);
-            break;
-        }
+        button.BackColor = current;
+        button.FlatAppearance.MouseOverBackColor = ControlPaint.Light(current, 0.1f);
     }
 
     private static void PaintMenuStrips(Control parent)
