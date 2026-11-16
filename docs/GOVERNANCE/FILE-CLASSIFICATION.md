@@ -15,10 +15,10 @@
 
 | الملف/المجلد | الصنف |
 |---|---|
-| `AGENTS.md` · `docs/CONSTITUTION.md` · `docs/GOVERNANCE/**` (5 ملفات) | قانون |
+| `AGENTS.md` · `docs/CONSTITUTION.md` · `docs/GOVERNANCE/**` (**10** ملفات — مقيس 2026-11-16) | قانون |
 | `docs/TASKS/TASK-NNN-*.md` + `INDEX.md` | سجل مهمة |
 | `docs/MOCK-COVERAGE.md` · `docs/SHARED-HOME-REGISTER.md` · `docs/FORMAT-COVERAGE.md` · `docs/FORMAT-PROGRESS.md` · `docs/PRODUCTION-READINESS.md` · `docs/ui-screens.md` · `docs/CHANGELOG.md` | سجل حالة |
-| `docs/database-schema.md` · `docs/BUSINESS-RULES.md` · `docs/PRD-MVP.md` · `docs/prompts/ORCHESTRATOR.md` · `docs/prompts/README.md` · `docs/prompts/P-*.md` | مرجع فني |
+| `docs/database-schema.md` · `docs/BUSINESS-RULES.md` · `docs/PRD-MVP.md` · `docs/prompts/ORCHESTRATOR.md` · `docs/prompts/README.md` · `docs/prompts/ROLE-PROMPTS.md` · `docs/prompts/P-*.md` | مرجع فني |
 | `docs/archive/**` (28 ملفاً) · `docs/all new Anylysis for update system features/**` · `docs/Screenshot (480).png` | أرشيف |
 | `.opencode/agents/**` (11 ملفاً) · `opencode.json` | سجل وكلاء |
 
