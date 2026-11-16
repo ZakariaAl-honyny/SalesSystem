@@ -56,10 +56,20 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         InitializeComponent();
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط وأسهم RTL.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل بيانات التسوية (groupHeader) يمشي بترتيب العرض صفاً صفاً ثم يُركِّز زر الوضع
+        // بلا تنفيذ؛ وحقوله خارج النطاق لا تتغيّر، والشبكة ليست حقل إدخال أصلاً (RULE-N153 — Enter فيها لا يُرحِّل).
+        KeyboardHelper.WireEnterAsTab(groupHeader, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, FocusColor);
         KeyboardHelper.WireArrowNavigation(this);
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً (أيقونة ✗ + الرسالة العربية + ومضة الرفض) من البيت
+        // الواحد RequiredFieldHelper. موضع الاستدعاء إلزامي: **بعد** WireFocusHighlight (RULE-N183) لأن ترتيب
+        // اشتراك Leave هو ما يحسم مَن يرسم الخلفية أخيراً. الرأس يُطلب على مستند جديد فقط (لا UpdateAsync في العقد).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbWarehouse, "يرجى اختيار المستودع", () => _adjustmentId is null),
+            new RequiredField(cmbAdjustmentType, "يرجى اختيار نوع التسوية", () => _adjustmentId is null),
+            new RequiredField(txtReason, "سبب التعديل مطلوب", () => _adjustmentId is null));
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة (زر «ترحيل» يُعطَّل بعد الترحيل، وأزرار البنود تُعطَّل على مستند غير مسودة).
         KeyboardHelper.WireButtonDisabledVisual(btnSaveDraft, btnPost, btnClose, btnPickProduct, btnAddLine);
@@ -459,6 +469,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     private void btnAddLine_Click(object sender, EventArgs e)
     {
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — إعادة الضبط تمسح علامات الحقول المطلوبة مع أيقوناتها
 
         var pickedUnit = _pickedUnit;
 
@@ -580,7 +591,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     /// <summary>RULE-N25/N26: حفظ المسودة — معالج async مع try/catch و WaitCursor.</summary>
     private async Task _SaveDraftAsync()
     {
-        if (!_ValidateForm()) return;
+        if (!_ValidateBeforeSave()) return;
 
         Cursor = Cursors.WaitCursor;
         btnSaveDraft.Enabled = false;
@@ -721,7 +732,7 @@ public partial class frmAddUpdateInventoryAdjustment : Form
     /// <summary>RULE-N25/N26: ترحيل التسوية — الخدمة تُنفّذه داخل معاملة (RULE-N03).</summary>
     private async Task _PostAdjustmentAsync()
     {
-        if (!_ValidateForm()) return;
+        if (!_ValidateBeforeSave()) return;
 
         Cursor = Cursors.WaitCursor;
         btnPost.Enabled = false;
@@ -762,74 +773,48 @@ public partial class frmAddUpdateInventoryAdjustment : Form
         }
     }
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// بوابة الحفظ/الترحيل: (1) الحقول المطلوبة — الحكم والعَلم في البيت الواحد
+    /// <see cref="RequiredFieldHelper"/> فلا نسخة ثانية لحكم «فارغ» هنا (RULE-N172/RULE-N184)،
+    /// ثم (2) قواعد المستند الرقمية في <see cref="_ValidateRangeRules"/> كما هي.
+    /// </summary>
+    private bool _ValidateBeforeSave()
     {
-        bool isValid = true;
-
-        // بيانات الرأس تُتحقَّق عند الإنشاء فقط: بعد وجود المستند لا يمكن تعديلها (لا UpdateAsync في العقد)
-        // فمطالبة المستخدم بقيمة في حقل مُقفل = طريق مسدود. البنود تُتحقَّق دائماً لأنها قابلة للإضافة.
-        if (_adjustmentId is null)
+        if (!RequiredFieldHelper.Validate(this))
         {
-            if (cmbWarehouse.SelectedValue is not short warehouseId || warehouseId <= 0)
-            {
-                const string warehouseMessage = "يرجى اختيار المستودع";
+            // يُوسَم كل ناقص من الـHelper، ثم ينتقل المؤشر إلى أوله (لا حكم ثانٍ على «فارغ»).
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
 
-                // GAP-08b + RULE-N169: كل رفض يقرن errorProvider بتلميح الرفض بنفس النص من البيت الواحد.
-                errorProvider.SetError(cmbWarehouse, warehouseMessage);
-                clsInputFeedback.ShowRejectTooltip(cmbWarehouse, warehouseMessage, toolTip1);
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbWarehouse, "");
-            }
-
-            if (cmbAdjustmentType.SelectedValue is null)
-            {
-                const string typeMessage = "يرجى اختيار نوع التسوية";
-
-                errorProvider.SetError(cmbAdjustmentType, typeMessage);
-                clsInputFeedback.ShowRejectTooltip(cmbAdjustmentType, typeMessage, toolTip1);
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbAdjustmentType, "");
-            }
-
-            if (!clsValidation.IsRequired(txtReason.Text))
-            {
-                const string reasonMessage = "سبب التعديل مطلوب";
-
-                errorProvider.SetError(txtReason, reasonMessage);
-                clsInputFeedback.ShowRejectTooltip(txtReason, reasonMessage, toolTip1);
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(txtReason, "");
-            }
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return false;
         }
 
+        return _ValidateRangeRules();
+    }
+
+    /// <summary>
+    /// قواعد المستند غير المتعلقة بالحقول المطلوبة — **منقولة حرفياً** من التحقق القديم
+    /// (نفس الرسالة العربية ونفس <c>errorProvider</c>): لا حفظ ولا ترحيل بلا بند واحد على الأقل.
+    /// <para>
+    /// فحوص الكميات (سالب · صفر · مساوٍ للمتوقعة · تكلفة غير رقمية) تبقى **مكانها الأصلي**
+    /// <c>btnAddLine_Click</c> بلا مساس — تُقيَّم عند إضافة السطر لا عند الحفظ (RULE-N167: رفض الفرق
+    /// حسب نوع التسوية يبقى في الخدمة وحدها).
+    /// </para>
+    /// </summary>
+    private bool _ValidateRangeRules()
+    {
         if (_linesTable.Rows.Count == 0)
         {
             const string noLinesMessage = "يجب إضافة صنف واحد على الأقل";
 
             errorProvider.SetError(dgvLines, noLinesMessage);
             clsInputFeedback.ShowRejectTooltip(dgvLines, noLinesMessage, toolTip1);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(dgvLines, "");
-        }
-
-        if (!isValid)
-        {
             clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return false;
         }
 
-        return isValid;
+        errorProvider.SetError(dgvLines, "");
+        return true;
     }
 
     /// <summary>تحديث بيانات المستند من الخدمة (F5).</summary>

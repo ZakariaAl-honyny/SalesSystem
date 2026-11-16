@@ -124,7 +124,7 @@ public partial class frmProductMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -138,24 +138,6 @@ public partial class frmProductMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[]
-                 {
-                     txtSearch, chkShowInactive, chkOnlyOutOfStock, chkOnlyLowStock,
-                     txtCode, txtName, txtForeignName, txtLocationInStore, txtNotes,
-                     txtMainUnitBarcode, cmbCategory, cmbMainUnit,
-                     numReorderLevel, numExpiryAlertDays,
-                     numMainUnitCostPrice, numMainUnitSalePrice, numMainUnitMaxDiscount
-                 })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
     }
 
     /// <summary>

@@ -48,7 +48,10 @@ public partial class frmCustomerStatement : Form
         InitializeComponent();
 
         // RULE-N40…RULE-N46 — تنقل وتحديد وتظليل الحقل النشط (شاشة عرض/كشف: لا تُعاد بنيتها).
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191/RULE-N193 — نطاق التنقل = لوحة أدوات الكشف `flowFilter` (العميل ← من ← إلى):
+        // Enter يمشي عليها بترتيب العرض (يمين ← يسار في RTL) وبعد آخر حقل **يُركِّز** «تحديث» بلا تنفيذ
+        // (لا كشف بـEnter وحده)، و`_PrimaryActionButton` يُقرأ عند كل ضغطة فيتبع تعطيل الزر أثناء التنفيذ.
+        KeyboardHelper.WireEnterAsTab(flowFilter, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
@@ -63,6 +66,13 @@ public partial class frmCustomerStatement : Form
 
     /// <summary>آلة حالة الأزرار (RULE-N43): «تحديث» معطّل أثناء تنفيذ الكشف.</summary>
     private void _SetBusy(bool busy) => btnRefresh.Enabled = !busy;
+
+    /// <summary>
+    /// الزر الأساسي للشاشة (RULE-N191): «تحديث» — كشف الحساب شاشة عرض للقراءة فقط، فلا «إضافة» ولا
+    /// «تعديل»، وفعلها الأساسي الوحيد هو إعادة توليد الكشف. يُقرأ عند كل ضغطة Enter (لا مرة واحدة)،
+    /// وتعطيله أثناء التنفيذ يمنع تركيز زر معطّل — والمساعد يتحقق من <c>Enabled</c> والتوجيه بنفسه.
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnRefresh;
 
     // ── الثيم الأخضر ───────────────────────────────────────────────────────────
 

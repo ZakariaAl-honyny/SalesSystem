@@ -73,7 +73,9 @@ public partial class frmUserMaster : Form
     public frmUserMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر (pnlFields) يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار)
+        // ثم يُسلِّم التركيز لزر الوضع بلا تنفيذ. الحقول خارج النطاق (البحث/التصفية) تحتفظ بسلوك SelectNextControl.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط — RULE-N54b
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
@@ -92,6 +94,12 @@ public partial class frmUserMaster : Form
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
 
+        // RULE-N180..N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + الرسالة + ومضة رفض تعود إلى لون المصمّم
+        // عند مغادرة حقل مطلوب فارغ. ترتيب الاستدعاء إلزامي: **بعد** WireFocusHighlight أعلاه.
+        // الشاشة تُعلن القواعد فقط — لا أيقونة ولا لون ولا استعادة خلفية هنا (RULE-N169…RULE-N172).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtUserName, "اسم المستخدم مطلوب"));
+
         // RULE-N60: أدوات التصفية تُقرأ بالمؤشر — «الحالة: الكل» و«تصفية بـ: اسم المستخدم» افتراضياً.
         cbStatus.SelectedIndex = 0;
         cbFilterBy.SelectedIndex = 0;
@@ -106,7 +114,7 @@ public partial class frmUserMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -122,44 +130,9 @@ public partial class frmUserMaster : Form
         _ResetForm();
     }
 
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[]
-                 {
-                     txtSearch, cbFilterBy, cbStatus, txtCode, txtUserName, txtPassword, cmbBranch
-                 })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
-    }
-
     /// <summary>الفرع المحدد (0 = بدون فرع).</summary>
     private short? _SelectedBranchId()
         => cmbBranch.SelectedValue is short branchId && branchId > 0 ? branchId : null;
-
-    /// <summary>
-    /// يتحقق من الحقول المطلوبة (اسم المستخدم). عند نقص أي حقل ينقل المؤشر إليه
-    /// ويعرض أيقونة الخطأ عليه ثم يعيد <c>false</c> — دون تعطيل أي زر.
-    /// </summary>
-    /// <remarks>
-    /// اسم المستخدم مطلوب في وضعي الإضافة والتعديل، لذا لا يغيّر <paramref name="edit"/>
-    /// قاعدة التحقق (أُبقي في التوقيع لتوحيد شاشات الإدخال).
-    /// </remarks>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        if (string.IsNullOrWhiteSpace(txtUserName.Text))
-        {
-            errorProvider.SetError(txtUserName, "اسم المستخدم مطلوب");
-            txtUserName.Focus();
-            return false;
-        }
-
-        errorProvider.SetError(txtUserName, "");
-        return true;
-    }
 
     /// <summary>
     /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
@@ -381,6 +354,7 @@ public partial class frmUserMaster : Form
         {
             _ApplyFilter();
             e.Handled = true;
+            e.SuppressKeyPress = true;   // لا رنّة ويندوز ولا تنفيذ الزر الافتراضي مع Enter (RULE-N191/RULE-N193)
         }
         else if (e.KeyCode == Keys.Escape)
         {
@@ -563,6 +537,7 @@ public partial class frmUserMaster : Form
         _mode = EntryMode.Editing;   // RULE-N151: اختيار سجل من الشبكة = وضع التعديل
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183: العلامات تُرفع مع مسح مزوّد الأخطاء — لا نسخة محلية للحكم
 
         txtCode.Text = userId.ToString();
 
@@ -592,6 +567,8 @@ public partial class frmUserMaster : Form
     private void _ApplyModeState()
     {
         bool editingSession = _mode != EntryMode.Browsing;
+
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة (RULE-N183)
 
         _SetEditorEnabled(editingSession);
 
@@ -684,6 +661,7 @@ public partial class frmUserMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183: مسار إعادة الضبط يرفع علامات الحقول المطلوبة
 
         txtCode.Clear();
         txtUserName.Clear();
@@ -718,28 +696,8 @@ public partial class frmUserMaster : Form
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
-
-    private bool _ValidateForm()
-    {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtUserName.Text))
-        {
-            errorProvider.SetError(txtUserName, "اسم المستخدم مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtUserName, "");
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-        }
-
-        return isValid;
-    }
+    // تحقق الحقول المطلوبة صار في البيت الواحد RequiredFieldHelper (RULE-N169…RULE-N172):
+    // القواعد تُعلَن في المُنشئ عبر Attach، ويُستهلك Validate/FirstMissing/Clear — لا نسخة محلية هنا.
 
     // ── Buttons ───────────────────────────────────────────────────────────────
 
@@ -761,10 +719,13 @@ public partial class frmUserMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_FocusFirstMissingField(edit)) return;
-
-        if (!_ValidateForm()) return;
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + ومضة الرفض) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

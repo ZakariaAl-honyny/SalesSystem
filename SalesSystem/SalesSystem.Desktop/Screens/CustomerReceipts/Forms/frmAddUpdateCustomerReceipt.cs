@@ -50,17 +50,30 @@ public partial class frmAddUpdateCustomerReceipt : Form
         InitializeComponent();
 
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
-        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        // RULE-N191/RULE-N193 — Enter داخل حقول «بيانات السند» يمشي بترتيب العرض (التاريخ ← العميل ←
+        // الصندوق ← المبلغ) ثم يُركِّز زر الوضع بلا تنفيذ؛ والاستدعاء **ثنائي الوسيط بدل الأحادي** لا معه
+        // (نفس سجل التوصيل فلا يُوصَّل الحقل مرتين). النطاق gbDocumentInfo: حقول المستند الأربعة،
+        // و«البيان» متعدد الأسطر يبقى خارج سلسلة Enter بحكم الإطار نفسه (Enter فيه = سطر جديد).
+        KeyboardHelper.WireEnterAsTab(gbDocumentInfo, _PrimaryActionButton);        // RULE-N40 + RULE-N191
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));  // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
+
+        // RULE-N180…N183 — الحقول المطلوبة: أيقونة ✗ + الرسالة العربية + ومضة الرفض عند مغادرتها فارغة.
+        // ترتيب الاستدعاء ملزم: **بعد** WireFocusHighlight (ليُرسم الرفض فوق تظليل التركيز) و**قبل**
+        // GreenThemeHelper.Apply داخل ApplyUiTheme. الشاشة تُعلن قواعدها فقط — بلا لون ولا SetError هنا.
+        // العميل بلا شرط: يُعطَّل في وضع التعديل (العقد لا يحمل CustomerId) فتسقط قاعدته تلقائياً.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbCustomer, "يرجى اختيار العميل."),
+            new RequiredField(cmbCashBox, "يرجى اختيار الصندوق."));
+
         KeyboardHelper.WireButtonDisabledVisual(btnSave);                           // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
             (Keys.F2, _StartNewEntry),
             (Keys.F4, () => { if (btnSave.Enabled) btnSave.PerformClick(); }),
             (Keys.F5, () => _ = _RefreshAsync()),
             (Keys.Escape, () => btnClose.PerformClick()));
-        KeyboardHelper.WireModeEnter(this, () => btnSave);
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);                   // RULE-N147 — Enter = زر الوضع
 
         // RULE-N97 — التفقيط الحيّ كتلميح على حقل المبلغ.
         LiveTafqeetHelper.Attach(liveTip, (numAmount, "المبلغ", LiveTafqeetHelper.ReadMode.Money));
@@ -134,7 +147,22 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
         Text = lblMode.Text;
         _ApplyImmutableFieldsLock();
+
+        // RULE-N147 — Enter يُنفِّذ الزر الأساسي للوضع الحالي (ويُبرزه كزر افتراضي للشاشة).
+        AcceptButton = _PrimaryActionButton();
     }
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي — يُعلَن **مرة واحدة** هنا ويُستهلك من
+    /// <c>WireEnterAsTab</c> و<c>WireModeEnter</c> و<c>AcceptButton</c> (RULE-N147/RULE-N191).
+    /// <para>
+    /// شاشة مستند بسند واحد للحفظ: وضع الإضافة/التعديل ⇒ «حفظ» · والسند المرحّل/الملغى (عرض فقط،
+    /// والحفظ محظور في <c>btnSave_Click</c>) ⇒ <c>null</c> فلا يُنقر زر حفظ محظور بـ<c>Enter</c>.
+    /// ولا شبكة سطور في هذه الشاشة، فلا حاجة لفرع <c>RULE-N153</c> (تركيز الشبكة ⇒ <c>null</c>).
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton()
+        => _isEditMode && _loadedStatus != StatusDraft ? null : btnSave;
 
     /// <summary>
     /// عقد التعديل (<see cref="UpdateCustomerReceiptRequest"/>) لا يحمل <c>CustomerId</c> ولا
@@ -164,6 +192,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
         numAmount.Value = 0m;
         txtNotes.Clear();
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — علامات الحقول المطلوبة تُمسح في مسار إعادة الضبط
 
         _UpdateModeHeader();
         _UpdateNetTotal();
@@ -274,37 +303,31 @@ public partial class frmAddUpdateCustomerReceipt : Form
 
     // ── التحقق ─────────────────────────────────────────────────────────────────
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// تحقق الشاشة — قسمان لا يُخلطان:
+    /// <para>
+    /// (1) <b>الحقول المطلوبة</b> (العميل · الصندوق): الحكم في البيت الواحد <see cref="RequiredFieldHelper"/>
+    /// (RULE-N172/RULE-N180…N183) — يُوسَم كل ناقص (أيقونة ✗ + الرسالة + ومضة الرفض) وينتقل المؤشر إلى أوله،
+    /// بلا نسخة ثانية من حكم «فارغ» هنا. والعميل لا يحتاج شرطاً: يُعطَّل في وضع التعديل (العقد لا يحمل
+    /// <c>CustomerId</c>) فتسقط قاعدته تلقائياً، فلا يُطالَب به ولا يمنع تعديل المبلغ/الصندوق/البيان.
+    /// </para>
+    /// <para>
+    /// (2) <b>قواعد المال</b> (RULE-001): المبلغ &gt; صفر — <b>تبقى كما هي حرفياً</b> بالرسالة والتلميح نفسيهما.
+    /// </para>
+    /// </summary>
+    // فحوص المدى/المال الخاصة بهذه الشاشة (المبلغ ≤ 0 وأي حد مالي) — ليست حكم «مطلوب» (البيت الواحد RequiredFieldHelper).
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
 
-        // العميل غير قابل للتغيير في وضع التعديل (العقد لا يحمل CustomerId) — فلا يُطالَب به،
-        // ولا يمنع تعديل المبلغ/الصندوق/البيان إن كان العميل قديماً ومعطّلاً وغير ظاهر في القائمة.
-        if (!_isEditMode)
+        // (1) الحقول المطلوبة — التقييم والنقل إلى أول ناقص من البيت الواحد.
+        if (!RequiredFieldHelper.Validate(this))
         {
-            if (!_TryGetSelectedId(cmbCustomer, out _))
-            {
-                errorProvider.SetError(cmbCustomer, "يرجى اختيار العميل.");
-                clsInputFeedback.ShowRejectTooltip(cmbCustomer, "يرجى اختيار العميل.", toolTip1);   // GAP-08b
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbCustomer, string.Empty);
-            }
-        }
-
-        if (!_TryGetSelectedId(cmbCashBox, out _))
-        {
-            errorProvider.SetError(cmbCashBox, "يرجى اختيار الصندوق.");
-            clsInputFeedback.ShowRejectTooltip(cmbCashBox, "يرجى اختيار الصندوق.", toolTip1);   // GAP-08b
             isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbCashBox, string.Empty);
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
         }
 
+        // (2) قواعد المال — لم تُمسّ.
         if (numAmount.Value <= 0)
         {
             errorProvider.SetError(numAmount, "المبلغ يجب أن يكون أكبر من صفر.");
@@ -350,7 +373,7 @@ public partial class frmAddUpdateCustomerReceipt : Form
             return;
         }
 
-        if (!_ValidateForm()) return;
+        if (!_ValidateRangeRules()) return;
         if (!_TryGetSelectedId(cmbCustomer, out int customerId)) return;
         if (!_TryGetSelectedId(cmbCashBox, out int cashBoxId)) return;
 

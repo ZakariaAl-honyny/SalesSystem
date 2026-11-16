@@ -74,11 +74,26 @@ public partial class frmAddUpdateSalesInvoice : Form
         KeyPreview = true;
         KeyDown += frmAddUpdateSalesInvoice_KeyDown;
 
+        // RULE-N193 — معالجات الشاشة تُوصَّل **قبل** توصيل Enter (RULE-N191): المعالج الخاص بالحقل
+        // (باركود RULE-N42 · كمية/سعر/خصم · تاريخ انتهاء) يستهلك Enter ويُعلن e.Handled، فيرى محرّك
+        // التنقل الحقل مستهلكاً ولا ينقل التركيز أيضاً (وإلا نُفِّذ الأمران بضغطة واحدة). الأولوية للأول.
+        WireEvents();
+
         // تنقل لوحة المفاتيح الموحّد (RULE-N40…RULE-N47).
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل رأس الفاتورة (gbInvoiceInfo) يمشي بترتيب العرض حقلاً بحقل، وبعد آخر
+        // حقل يُركِّز زر الوضع (حفظ كمسودة) بلا تنفيذ. حقول لوحة الإدخال (pnlEntry) وشبكة الأصناف
+        // خارج النطاق فتبقى على سلوكها: Enter = بحث باركود/إدخال سطر (RULE-N42 / RULE-N22a).
+        KeyboardHelper.WireEnterAsTab(gbInvoiceInfo, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45 — أسهم RTL
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + رسالة عربية + ومضة رفض تعود
+        // إلى لون المصمّم تلقائياً. إلزامي: **بعد** WireFocusHighlight (ترتيب Leave يحسم مَن يرسم
+        // الخلفية أخيراً) و**قبل** الثيم. الشاشة تُعلن قواعدها فقط — لا أيقونة ولا لون هنا.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbCustomer, "يجب اختيار العميل"),
+            new RequiredField(cmbWarehouse, "يجب اختيار المستودع"));
 
         ApplyUiTheme();          // RULE-N50 — ينتهي بالثيم الأخضر حصراً
         ApplyGridBehaviour();    // RULE-N22a/N52 — سلوك شبكة السطور تعلنه الشاشة
@@ -116,8 +131,6 @@ public partial class frmAddUpdateSalesInvoice : Form
         typeof(DataGridView).GetProperty("DoubleBuffered",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
             ?.SetValue(dgvItems, true, null);
-
-        WireEvents();
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -153,10 +166,10 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtNotes.Enter += NumericTextBox_Enter;
         numInvoiceDiscount.Enter += NumericTextBox_Enter;
 
-        // Header/Footer combos — Enter moves to next field
-        cmbCustomer.KeyDown += FieldEnter_KeyDown;
-        cmbWarehouse.KeyDown += FieldEnter_KeyDown;
-        cmbCashBox.KeyDown += FieldEnter_KeyDown;
+        // رأس الفاتورة (cmbCustomer · cmbWarehouse · cmbCashBox · dtpDate · txtNotes) **لا** يُوصَّل هنا:
+        // Enter فيه يملكه البيت الواحد KeyboardHelper.WireEnterAsTab(gbInvoiceInfo, …) بترتيب العرض (RULE-N191).
+        // توصيله ثانياً كان يُنفِّذ التنقل مرتين (أو يمحو ترتيب العرض بـ SelectNextControl حسب TabIndex).
+        // الحقول خارج نطاق الرأس (الخصم · الحساب · المصاريف · المدفوع) تُبقي سلوكها الحالي حرفياً.
         cmbDiscountType.KeyDown += FieldEnter_KeyDown;
         //cmbPaymentType.KeyDown += FieldEnter_KeyDown;
         //cmbBank.KeyDown += FieldEnter_KeyDown;
@@ -203,9 +216,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         txtPaid.KeyDown += FieldEnter_KeyDown;
         //txtBankAmount.KeyDown += FieldEnter_KeyDown;
 
-        // Notes / date — Enter triggers next field
-        txtNotes.KeyDown += FieldEnter_KeyDown;
-        dtpDate.KeyDown += FieldEnter_KeyDown;
+        // Notes / date — داخل نطاق رأس الفاتورة ⇒ Enter فيهما يملكه KeyboardHelper (RULE-N191) لا هذه المعالجات.
 
         // ── المتاح في المخزون (لكل وحدة) — عند تغيير الوحدة أو المستودع ──
         cmbUnit.SelectedIndexChanged += cmbUnit_SelectedIndexChanged;
@@ -691,6 +702,9 @@ public partial class frmAddUpdateSalesInvoice : Form
         lblLineTotal.Text = clsFormat.Money(0m);
         lblTafqitValue.Text = string.Empty;
         ClearEntryPanel();
+
+        // فاتورة جديدة تبدأ بلا أي علامة «مطلوب» موروثة من محاولة حفظ سابقة (RULE-N183).
+        RequiredFieldHelper.Clear(this);
     }
 
     /// <summary>
@@ -725,6 +739,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             if (e.KeyCode == Keys.Enter)
             {
+                e.Handled = true;                    // RULE-N42/N191 — استهلك Enter فلا ينقله محرّك التنقل أيضاً
                 e.SuppressKeyPress = true;
                 string barcode = txtBarcode.Text.Trim();
 
@@ -898,6 +913,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (e.KeyCode == Keys.Enter)
         {
+            e.Handled = true;                    // RULE-N191 — استهلك Enter فلا ينقله محرّك التنقل أيضاً
             e.SuppressKeyPress = true;
 
             if (cmbUnit.Tag == null || Convert.ToInt32(cmbUnit.Tag) <= 0)
@@ -928,6 +944,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (e.KeyCode == Keys.Enter)
         {
+            e.Handled = true;                    // RULE-N191 — استهلك Enter فلا ينقله محرّك التنقل أيضاً
             e.SuppressKeyPress = true;
             if (!clsValidation.IsPositiveDecimal(txtQuantity.Text))   // GAP-08b — بيت التحقق الواحد (RULE-N169)
             {
@@ -950,6 +967,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (e.KeyCode == Keys.Enter)
         {
+            e.Handled = true;                    // RULE-N191 — استهلك Enter فلا ينقله محرّك التنقل أيضاً
             e.SuppressKeyPress = true;
             if (!clsValidation.TryParseDecimal(txtUnitPrice.Text, out decimal price) || price < 0)
             {
@@ -973,6 +991,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (e.KeyCode == Keys.Enter)
         {
+            e.Handled = true;                    // RULE-N191 — استهلك Enter فلا ينقله محرّك التنقل أيضاً
             e.SuppressKeyPress = true;
             dtpLineExpiry.Focus();
         }
@@ -992,6 +1011,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         {
             if (e.KeyCode == Keys.Enter)
             {
+                e.Handled = true;                // RULE-N153 — Enter في لوحة الإدخال يضيف السطر ولا ينقله محرّك التنقل
                 e.SuppressKeyPress = true;
                 await AddOrUpdateRowAsync();
             }
@@ -1595,6 +1615,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             if (e.KeyCode == Keys.Enter)
             {
+                e.Handled = true;                // RULE-N22a/N153 — Enter داخل الشبكة لإدخال السطر، لا لأي زر
                 e.SuppressKeyPress = true;
                 string barcode = txt.Text.Trim();
                 int rowIndex = dgvItems.CurrentCell?.RowIndex ?? -1;
@@ -2554,30 +2575,20 @@ public partial class frmAddUpdateSalesInvoice : Form
     //  SAVE LOGIC (PRESERVED)
     // ═════════════════════════════════════════════════════════════════
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// قواعد **النطاق** فقط — المال · المخزون · القفل: لا حكم «حقل مطلوب فارغ» هنا إطلاقاً
+    /// (ذلك ملك <see cref="RequiredFieldHelper"/> وحده — RULE-N172): العميل والمستودع يُعلنان في
+    /// <c>RequiredFieldHelper.Attach</c> بالمُنشئ ويُقيَّمان قبل هذه الدالة في <see cref="SaveInvoiceAsync"/>.
+    /// <para>
+    /// <b>كل قاعدة في هذا الملف باقية حرفياً كما كانت</b> (رسالةً وترتيباً وشرطاً): وجود سطر واحد على الأقل ·
+    /// كمية &gt; 0 للسطر · سعر غير سالب · وحدة مختارة · خصم الفاتورة ≤ الإجمالي · الدفع النقدي كامل ·
+    /// الآجل يتطلب عميلاً ولا يقبل مدفوعاً &gt; الإجمالي · تأكيد الدفع الزائد. والترحيل يحرسه
+    /// <see cref="IsLocked"/> قبلها في <see cref="SaveInvoiceAsync"/> (فاتورة مرحّلة/ملغاة لا تُحفظ).
+    /// </para>
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
-        errorProvider.Clear();
         var errors = new List<string>();
-
-        // Customer must be selected (not the placeholder Id=0)
-        if (cmbCustomer.SelectedValue == null || Convert.ToInt32(cmbCustomer.SelectedValue) <= 0)
-        {
-            errorProvider.SetError(cmbCustomer, "يجب اختيار العميل");
-            clsInputFeedback.ShowRejectTooltip(cmbCustomer, "يجب اختيار العميل", tooltip);   // GAP-08b
-            cmbCustomer.Focus();
-            clsDialogs.Warning("يجب اختيار العميل");
-            return false;
-        }
-
-        // Warehouse must be selected
-        if (cmbWarehouse.SelectedValue == null || Convert.ToInt32(cmbWarehouse.SelectedValue) <= 0)
-        {
-            errorProvider.SetError(cmbWarehouse, "يجب اختيار المستودع");
-            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, "يجب اختيار المستودع", tooltip);   // GAP-08b
-            cmbWarehouse.Focus();
-            clsDialogs.Warning("يجب اختيار المستودع");
-            return false;
-        }
 
         // Must have at least one product
         if (!_lines.Any(l => l.ProductId > 0))
@@ -2689,7 +2700,16 @@ public partial class frmAddUpdateSalesInvoice : Form
                 return;
             }
 
-            if (!_ValidateForm()) return;
+            // (1) الحقول المطلوبة — الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184):
+            //     يُوسَم كل ناقص (أيقونة ✗ + ومضة رفض) ثم ينتقل المؤشر إلى أوله.
+            if (!RequiredFieldHelper.Validate(this))
+            {
+                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+                return;
+            }
+
+            // (2) قواعد النطاق (المال · المخزون · القفل) — باقية حرفياً في _ValidateRangeRules.
+            if (!_ValidateRangeRules()) return;
 
             if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل الفاتورة؟ لا يمكن تعديلها بعد الترحيل."))
                 return;
@@ -3069,13 +3089,15 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// <summary>
     /// هل التركيز داخل حقل إدخال؟ عندها تُترك F4/Esc/Delete لسلوك الحقل نفسه
     /// (بحث عن صنف · إلغاء الحقل · حذف حرف) ولا تُسحب لاختصار الشاشة (RULE-N47).
+    /// <para>
+    /// الحكم على «حقل إدخال» يُستهلك من بيته الواحد <see cref="KeyboardHelper.IsTextInputFocused"/>
+    /// (RULE-N169/N171 — لا قائمة حقول مكرّرة داخل الشاشة)، ويُضاف إليه حارس شبكة الأصناف وحده
+    /// (RULE-N153): التركيز على الشبكة بلا تحرير خلية ليس «حقل إدخال» في نظر الـHelper، ومع ذلك يجب
+    /// ألا يصل إليه اختصار الشاشة (F4 داخل الشبكة = بحث عن صنف · Delete = حذف سطر · RULE-N22a).
+    /// </para>
     /// </summary>
     private bool IsInputFocused()
-        => txtBarcode.Focused || txtItemCode.Focused || txtQuantity.Focused || txtUnitPrice.Focused
-           || txtLineDiscount.Focused || txtPaid.Focused || txtExpenses.Focused || txtNotes.Focused
-           || cmbUnit.Focused || cmbCustomer.Focused || cmbWarehouse.Focused || cmbCashBox.Focused
-           || cmbAccount.Focused || cmbDiscountType.Focused || numInvoiceDiscount.Focused
-           || dtpDate.Focused || dtpLineExpiry.Focused || dgvItems.ContainsFocus;
+        => KeyboardHelper.IsTextInputFocused(this) || dgvItems.ContainsFocus;
 
     /// <summary>F4 = حفظ وترحيل — لا يُسحب من «بحث عن صنف» داخل حقول الأصناف (RULE-N42).</summary>
     private void HandlePostShortcut()
@@ -3114,11 +3136,13 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (e.Control && e.KeyCode == Keys.Enter)
         {
+            e.Handled = true;
             e.SuppressKeyPress = true;
             _ = SaveInvoiceAsync(true);
         }
         else if (e.Control && e.KeyCode == Keys.S)
         {
+            e.Handled = true;
             e.SuppressKeyPress = true;
             _ = SaveInvoiceAsync(false);
         }
@@ -3129,19 +3153,27 @@ public partial class frmAddUpdateSalesInvoice : Form
     // ═════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// الزر الأساسي الذي يستقبله <c>Enter</c> (RULE-N147) — يُقرأ عند كل ضغطة لا مرة واحدة:
-    /// فاتورة جديدة أو مسودة قابلة للتحرير ⇒ «حفظ كمسودة» (حفظ غير مُتلِف يبقيها قابلة للتعديل).
+    /// الزر الأساسي الذي يستقبله <c>Enter</c> (RULE-N147) — **مُعلَن مرة واحدة** ويُقرأ عند كل ضغطة
+    /// (لا مرة واحدة عند الإقلاع): فاتورة جديدة أو مسودة قابلة للتحرير ⇒ «حفظ كمسودة» <c>btnSaveDraft</c>،
+    /// وهو مكافئ زر «إضافة/حفظ» في شاشات الإدخال (Adding/Editing ⇒ زر الحفظ).
+    /// <para>
+    /// <b>«جديد» ليس الزر الأساسي هنا:</b> شاشة المستند لا تملك وضع عرض/إضافة/تعديل مثل <c>frm*Master</c>؛
+    /// فلو كان <c>btnNew</c> هو زر <c>Enter</c> لأدّى Enter عابر إلى إفلات الفاتورة الحالية (RULE-N147 لا تُنفِّذ
+    /// بلا طلب، لكن زر الوضع هنا يجب أن يكون غير مُتلِف). «فاتورة جديدة» تبقى على زرها و<c>F2</c>.
+    /// </para>
     /// <para>
     /// الترحيل لا يُربط بـ<c>Enter</c> إطلاقاً: يبقى على زرّه و<c>F4</c> لأنه يخصم المخزون ويُرحّل
     /// القيد المحاسبي ويقفل الفاتورة نهائياً (§2.4) — فالمفتاح العابر لا يُرحّل مستنداً مالياً.
     /// </para>
     /// <para>
-    /// حارس إلزامي: التركيز داخل شبكة الأصناف (أو محرّر خليتها أو منتقي تاريخ الانتهاء المغمور فيها)
-    /// ⇒ <c>null</c>، فيبقى <c>Enter</c> لإدخال السطر داخل الشبكة ولا يحفظ/يرحّل من الشبكة أبداً (RULE-N22a).
+    /// حارس إلزامي (RULE-N153): التركيز داخل شبكة الأصناف (أو محرّر خليتها أو منتقي تاريخ الانتهاء
+    /// المغمور فيها) ⇒ <c>null</c>، فيبقى <c>Enter</c> لإدخال السطر داخل الشبكة ولا يُنفَّذ زر الوضع
+    /// ولا الترحيل من الشبكة أبداً (RULE-N22a).
     /// </para>
     /// </summary>
     private Button? _PrimaryActionButton()
     {
+        // RULE-N153 — الشبكة تملك Enter: إدخال سطر لا حفظ/ترحيل، ولا نقر لزر الوضع من داخلها.
         if (dgvItems.ContainsFocus || dgvItems.IsCurrentCellInEditMode) return null;
 
         // مرحّلة أو ملغاة (مقفلة) ⇒ لا إجراء لـEnter: لا حفظ ولا ترحيل ولا بدء فاتورة جديدة بالخطأ.
@@ -3168,6 +3200,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         if (e.KeyCode == Keys.Enter)
         {
+            e.Handled = true;                    // RULE-N191 — استهلك Enter فلا ينقله محرّك التنقل أيضاً
             e.SuppressKeyPress = true;
             this.SelectNextControl(this.ActiveControl, true, true, true, true);
         }

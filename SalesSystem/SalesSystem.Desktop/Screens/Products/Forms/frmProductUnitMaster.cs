@@ -74,7 +74,8 @@ public partial class frmProductUnitMaster : Form
     {
         _serviceProvider = serviceProvider;
 
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b — لون الحقل النشط حيّاً من اللوحة
         KeyboardHelper.WireArrowNavigation(this);                                  // RTL: يمين/أعلى = السابق، يسار/أسفل = التالي
@@ -90,13 +91,18 @@ public partial class frmProductUnitMaster : Form
             (Keys.F5, () => btnRefresh.PerformClick()),
             (Keys.Delete, () =>
             {
-                if (btnDelete.Enabled && !_IsTextEditingFocused())
+                if (btnDelete.Enabled && !KeyboardHelper.IsTextInputFocused(this))
                     btnDelete.PerformClick();
             }),
             (Keys.Escape, _GlobalEscape));
 
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // RULE-N180..N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + ومضة رفض تعود إلى لون المصمّم عند مغادرة حقل مطلوب فارغ.
+        // ملاحظة إلزامية: هذا الاستدعاء يأتي **بعد** WireFocusHighlight (أعلاه) لأن ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbUnit, "يرجى اختيار الوحدة"));
 
         // RULE-N97 — التفقيط الحيّ كتلميح على حقول الأسعار فقط (معامل التحويل كمية ⇒ لا يُربط).
         // مكان واحد للتلميح: نستهلك toolTip المُعلَن في المصمّم بدل إنشاء نسخة ثانية (RULE-N169/RULE-N145).
@@ -117,23 +123,6 @@ public partial class frmProductUnitMaster : Form
             _isBinding = false;
         }
         FilterPanelHelper.Attach(this, _serviceProvider);
-    }
-
-    /// <summary>
-    /// هل التركيز الحالي داخل حقل كتابة؟ (يُستخدم لحماية اختصار Delete من حذف سجل أثناء التصفية)
-    /// </summary>
-    private bool _IsTextEditingFocused()
-    {
-        Control? focus = ActiveControl;
-
-        while (focus is ContainerControl container
-               && container.ActiveControl is { } inner
-               && !ReferenceEquals(inner, focus))
-        {
-            focus = inner;
-        }
-
-        return focus is TextBoxBase or NumericUpDown or ComboBox or IDataGridViewEditingControl;
     }
 
     /// <summary>Esc: مسح كل التصفية إن كان المؤشر داخل صندوق التصفية، وإلا إلغاء النموذج والعودة لوضع العرض (RULE-N47).</summary>
@@ -164,38 +153,8 @@ public partial class frmProductUnitMaster : Form
 
     // ── Required fields / focus ───────────────────────────────────────────────
 
-    /// <summary>هل حقول الإدخال المطلوبة مكتملة؟ (الوحدة، ومعامل التحويل عند الإضافة).</summary>
-    private bool _RequiredFieldsValid(bool edit)
-    {
-        bool unitOk = cmbUnit.SelectedValue is int unitId && unitId > 0;
-
-        // معامل التحويل مطلوب فقط عند الإضافة (لا يتغير بعد الإضافة).
-        bool factorOk = edit || numFactor.Value > 1m;
-
-        return unitOk && factorOk;
-    }
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// </summary>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
-        {
-            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
-            cmbUnit.Focus();
-            return false;
-        }
-
-        if (!edit && numFactor.Value <= 1m)
-        {
-            errorProvider.SetError(numFactor, "معامل التحويل يجب أن يكون أكبر من 1 للوحدات الفرعية");
-            numFactor.Focus();
-            return false;
-        }
-
-        return true;
-    }
+    // الحقول المطلوبة (الوحدة) تُعلَن في RequiredFieldHelper.Attach داخل المُنشئ،
+    // والحكم على «فارغ» في البيت الواحد (RULE-N172/N180…N183) — لا نسخة محلية هنا.
 
     // ── Form Load ─────────────────────────────────────────────────────────────
 
@@ -608,6 +567,7 @@ public partial class frmProductUnitMaster : Form
         }
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183: مسح علامات «مطلوب» مع مسح أيقونة الخطأ
 
         // بعد تعبئة الحقول: تفعيلها + ضبط الأزرار + تحديث شريط الوضع (آلة حالة واحدة).
         _ApplyModeState();
@@ -625,6 +585,8 @@ public partial class frmProductUnitMaster : Form
     private void _ApplyModeState()
     {
         bool editingSession = _mode != EntryMode.Browsing;
+
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة
 
         _SetEditorEnabled(editingSession);
 
@@ -715,6 +677,7 @@ public partial class frmProductUnitMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — مع كل مسح لأيقونة الخطأ
 
         _isBinding = true;
         try
@@ -764,23 +727,28 @@ public partial class frmProductUnitMaster : Form
 
     // ── Validation ────────────────────────────────────────────────────────────
 
-    private bool _ValidateForm()
+    // فحوص المدى/التكرار الخاصة بهذه الشاشة — ليست حكم «مطلوب» (البيت الواحد RequiredFieldHelper).
+
+    /// <summary>
+    /// التحقق غير المتعلق بالحقول «الفارغة»: تكرار الوحدة، ونطاق معامل التحويل، والأسعار غير السالبة.
+    /// حكم «مطلوب/فارغ» يعيش في البيت الواحد <see cref="RequiredFieldHelper"/> (RULE-N172/N180…N183) — لا نسخة ثانية هنا.
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
 
-        if (cmbUnit.SelectedValue is not int unitId || unitId <= 0)
+        // التكرار قاعدة مستقلة عن الفراغ (تبقى هنا حرفياً — ليست قاعدة «حقل مطلوب»).
+        if (cmbUnit.SelectedValue is int unitId)
         {
-            errorProvider.SetError(cmbUnit, "يرجى اختيار الوحدة");
-            isValid = false;
-        }
-        else if (_unitsById.Values.Any(u => u.UnitId == unitId && u.Id != (_editId ?? 0)))
-        {
-            errorProvider.SetError(cmbUnit, "هذه الوحدة مضافة بالفعل لهذا الصنف");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbUnit, "");
+            if (_unitsById.Values.Any(u => u.UnitId == unitId && u.Id != (_editId ?? 0)))
+            {
+                errorProvider.SetError(cmbUnit, "هذه الوحدة مضافة بالفعل لهذا الصنف");
+                isValid = false;
+            }
+            else
+            {
+                errorProvider.SetError(cmbUnit, "");
+            }
         }
 
         // كل وحدة تُضاف من هذه الشاشة هي وحدة فرعية (الأساسية تُنشأ من شاشة الصنف)
@@ -884,14 +852,15 @@ public partial class frmProductUnitMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid(edit))
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/N180…N183) —
+        // يُوسَم كل ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
         {
-            _FocusFirstMissingField(edit);
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
             return;
         }
 
-        if (!_ValidateForm()) return;
+        if (!_ValidateRangeRules()) return;
         if (cmbUnit.SelectedValue is not int unitId || unitId <= 0) return;
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).

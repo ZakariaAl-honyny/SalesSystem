@@ -67,10 +67,18 @@ public partial class frmSupplierMaster : Form
     public frmSupplierMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+
+        // RULE-N191/RULE-N193: Enter داخل حقول المحرر يمشي بترتيب العرض (صفاً صفاً) ثم يُركِّز زر الوضع
+        // بلا تنفيذ؛ والحقول خارج النطاق (البحث/التصفية) تحتفظ بسلوكها. استدعاء ثنائي الوسيط وحده — لا الاثنان.
+        KeyboardHelper.WireEnterAsTab(gbEditor, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط — RULE-N54b
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // RULE-N180…N183 — الحقل المطلوب يُغذّى حيّاً: أيقونة ✗ + رسالة + ومضة رفض تعود للون المصمّم.
+        // إلزامي: بعد WireFocusHighlight (ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً) وقبل الثيم.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtName, "اسم المورد مطلوب"));
 
         // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل (RULE-N43/N152).
@@ -103,7 +111,7 @@ public partial class frmSupplierMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;   // البيت الواحد (RULE-N171)
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -117,21 +125,6 @@ public partial class frmSupplierMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[]
-                 {
-                     txtSearch, cbFilterBy, cbStatus, txtName, txtPhone, txtEmail,
-                     txtTaxNumber, txtAddress, txtNotes, numCreditLimit
-                 })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
     }
 
     // ── Theme ─────────────────────────────────────────────────────────────────
@@ -150,26 +143,6 @@ public partial class frmSupplierMaster : Form
         dgvSuppliers.MultiSelect = false;
 
         GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
-    }
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// يعيد <c>false</c> إذا كان هناك حقل مطلوب ناقص.
-    /// </summary>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        _ = edit; // الحقول المطلوبة متطابقة في وضعي الإضافة والتعديل.
-
-        errorProvider.SetError(txtName, "");
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم المورد مطلوب");
-            txtName.Focus();
-            return false;
-        }
-
-        return true;
     }
 
     /// <summary>
@@ -336,6 +309,7 @@ public partial class frmSupplierMaster : Form
         {
             _ApplyFilter();
             e.Handled = true;
+            e.SuppressKeyPress = true;
         }
         else if (e.KeyCode == Keys.Escape)
         {
@@ -683,6 +657,9 @@ public partial class frmSupplierMaster : Form
     {
         bool editingSession = _mode != EntryMode.Browsing;
 
+        // وضع العرض: لا علامات «مطلوب» على حقول معطّلة (RULE-N183).
+        if (!editingSession) RequiredFieldHelper.Clear(this);
+
         // RULE-N149: في وضع العرض تبقى كل حقول الإدخال معطّلة (txtId للقراءة دائماً).
         _SetEditorEnabled(editingSession);
 
@@ -704,13 +681,14 @@ public partial class frmSupplierMaster : Form
 
     /// <summary>
     /// الزر الأساسي للوضع الحالي (RULE-N147): عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل».
-    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة.
+    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة، ويُسلَّم له التركيز بعد آخر حقل بلا تنفيذ (RULE-N191).
     /// </summary>
     private Button? _PrimaryActionButton() => _mode switch
     {
+        EntryMode.Browsing => btnNew,
         EntryMode.Adding => btnSave,
         EntryMode.Editing => btnEdit,
-        _ => btnNew
+        _ => null
     };
 
     /// <summary>هل السجل المحدد نشط؟ (التعطيل للنشط فقط — RULE-N92).</summary>
@@ -769,6 +747,7 @@ public partial class frmSupplierMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // البيت الواحد لعلامات «مطلوب» (RULE-N183)
 
         txtId.Clear();
         txtName.Clear();
@@ -801,36 +780,21 @@ public partial class frmSupplierMaster : Form
 
     // ── Validation ────────────────────────────────────────────────────────────
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// التحقق الذي **ليس** قاعدة «حقل مطلوب»: حد الائتمان لا يقبل قيمة سالبة — يبقى كما كان حرفياً.
+    /// قاعدة «اسم المورد مطلوب» انتقلت إلى البيت الواحد <see cref="RequiredFieldHelper"/> (RULE-N172/N184).
+    /// </summary>
+    private bool _ValidateCreditLimit()
     {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم المورد مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
         if (numCreditLimit.Value < 0)
         {
             errorProvider.SetError(numCreditLimit, "حد الائتمان يجب أن يكون قيمة موجبة");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(numCreditLimit, "");
-        }
-
-        if (!isValid)
-        {
             clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return false;
         }
 
-        return isValid;
+        errorProvider.SetError(numCreditLimit, "");
+        return true;
     }
 
     // ── Buttons ───────────────────────────────────────────────────────────────
@@ -854,10 +818,16 @@ public partial class frmSupplierMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_FocusFirstMissingField(edit)) return;
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم كل ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
 
-        if (!_ValidateForm()) return;
+        // التحقق غير المرتبط بحقل فارغ (حد الائتمان) يبقى كما هو حرفياً.
+        if (!_ValidateCreditLimit()) return;
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

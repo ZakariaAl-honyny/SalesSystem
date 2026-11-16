@@ -66,9 +66,10 @@ public partial class frmCustomerMaster : Form
     public frmCustomerMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // لون الحقل النشط حيّاً من اللوحة (RULE-N46 + RULE-N54b)
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
 
         // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط/مسح التصفية) تتغير حالة تفعيلها،
@@ -84,6 +85,11 @@ public partial class frmCustomerMaster : Form
 
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + ومضة رفض عند مغادرة حقل مطلوب فارغ.
+        // ملاحظة إلزامية (RULE-N183): هذا الاستدعاء بعد WireFocusHighlight أعلاه لأن ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtName, "اسم العميل مطلوب"));
 
         // RULE-N97: التفقيط الحيّ (تلميح) على الحقل المالي — حد الائتمان.
         LiveTafqeetHelper.Attach(liveTip,
@@ -137,27 +143,6 @@ public partial class frmCustomerMaster : Form
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
-
-    /// <summary>هل الحقل المطلوب (اسم العميل) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtName.Text);
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// </summary>
-    /// <param name="edit">false = إضافة عميل جديد، true = تعديل عميل قائم.</param>
-    /// <returns>false إذا كان هناك حقل مطلوب ناقص، و true إذا كانت الحقول مكتملة.</returns>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم العميل مطلوب");
-            txtName.Focus();
-            return false;
-        }
-
-        return true;
-    }
 
     /// <summary>
     /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
@@ -325,6 +310,7 @@ public partial class frmCustomerMaster : Form
         {
             _ApplyFilter();
             e.Handled = true;
+            e.SuppressKeyPress = true;
         }
         else if (e.KeyCode == Keys.Escape)
         {
@@ -670,6 +656,8 @@ public partial class frmCustomerMaster : Form
     {
         bool editingSession = _mode != EntryMode.Browsing;
 
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات على حقول معطّلة
+
         _SetEditorEnabled(editingSession);
 
         bool hasSelection = _editId.HasValue;
@@ -743,6 +731,7 @@ public partial class frmCustomerMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامة مطلوب على حقل معطّل
 
         txtId.Clear();
         txtName.Clear();
@@ -773,38 +762,23 @@ public partial class frmCustomerMaster : Form
         txtName.Focus();
     }
 
-    // ── Validation (الرسائل) ─────────────────────────────────────────────────
+    // ── Validation (قواعد المدى — «مطلوب/فارغ» في البيت الواحد) ──────────────
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// فحص **المدى** فقط: حد الائتمان لا يقبل قيمة سالبة (رسالته العربية كما هي).
+    /// حكم «مطلوب/فارغ» ليس هنا — بيته <see cref="RequiredFieldHelper"/> (RULE-N172/RULE-N184).
+    /// </summary>
+    private bool _RangeRulesValid()
     {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم العميل مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
         if (numCreditLimit.Value < 0)
         {
             errorProvider.SetError(numCreditLimit, "حد الائتمان يجب أن يكون قيمة موجبة");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(numCreditLimit, "");
-        }
-
-        if (!isValid)
-        {
             clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return false;
         }
 
-        return isValid;
+        errorProvider.SetError(numCreditLimit, "");
+        return true;
     }
 
     // ── Buttons ───────────────────────────────────────────────────────────────
@@ -830,14 +804,16 @@ public partial class frmCustomerMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
         {
-            _FocusFirstMissingField(edit);
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
             return;
         }
 
-        if (!_ValidateForm()) return;
+        // قواعد المدى (ليست «مطلوب» ولا تُكرَّر في البيت الواحد).
+        if (!_RangeRulesValid()) return;
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

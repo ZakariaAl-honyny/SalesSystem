@@ -70,7 +70,10 @@ public partial class frmCashBoxTransactions : Form
         _defaultTo = today;
 
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
-        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        // RULE-N191 / RULE-N193 — كل حقول الإدخال في هذه الشاشة داخل gbFilter (الصندوق · تصفية بـ ·
+        // قيمة التصفية · الحالة · من · إلى)، فـ Enter داخلها يمشي بترتيب العرض صفاً صفاً ثم يُسلِّم
+        // **تركيزاً بلا تنفيذ** إلى زر الوضع الأساسي. نداء واحد فقط — لا نداء أحادي ثانٍ.
+        KeyboardHelper.WireEnterAsTab(gbFilter, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));  // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
@@ -84,13 +87,33 @@ public partial class frmCashBoxTransactions : Form
         _ClearFilterInputs();
         _UpdateClearFiltersState();
 
-        // RULE-N147 — Enter = الزر الأساسي: شاشة قوائم/مستندات بلا آلة حالة إدخال (RULE-N101) وبلا
-        // زر «جديد» ⇒ الأساسي «تحديث». Enter على الشبكة يبقى «فتح المستند» (سلوك قائم — §2.21 بند 20).
-        KeyboardHelper.WireModeEnter(this, () => dgvTransactions.ContainsFocus ? null : btnRefresh);
-        AcceptButton = btnRefresh;
+        // RULE-N147 — Enter = الزر الأساسي للوضع الحالي، ويُقرأ عند كل ضغطة لا مرة واحدة
+        // (شاشة قوائم/عرض بلا آلة حالة إدخال — RULE-N101). Enter على الشبكة يبقى «فتح المستند»
+        // (RULE-N153): الشبكة مكان إدخال سريع/تنفيذ سطرها، فلا تُنفَّذ فيها أزرار الشاشة.
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+        AcceptButton = _PrimaryActionButton();
 
         // RULE-N63 — يتبنّى زر btnToggleFilters المُعلَن في المصمّم ويوصّل F9 والحالة المحفوظة.
         FilterPanelHelper.Attach(this, _serviceProvider);
+    }
+
+    // ── الزر الأساسي للوضع ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي (RULE-N147) — يُقرأ **عند كل ضغطة** لا مرة واحدة، فيتبع التركيز
+    /// ووضع الشاشة تلقائياً. الشاشة قائمة/عرض للقراءة فقط (RULE-N101): لا «جديد» ولا «حفظ» ولا
+    /// آلة حالة إدخال، فالأمر الوحيد ذو المعنى هنا هو «تحديث» (وهو <c>AcceptButton</c> القائم
+    /// منذ قبل الهجرة — فلا يتغيّر سلوك قائم، §2.21 بند 20).
+    /// <para>
+    /// يُعيد <c>null</c> عندما يكون المؤشر داخل الشبكة: Enter هناك = «فتح المستند المحدد» (RULE-N153)،
+    /// فيمنع <c>null</c> تنفيذ «تحديث» أو نقل التركيز خارج الشبكة.
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton()
+    {
+        if (dgvTransactions.ContainsFocus) return null;
+
+        return btnRefresh;
     }
 
     // ── الثيم والتلميحات ────────────────────────────────────────────────────────

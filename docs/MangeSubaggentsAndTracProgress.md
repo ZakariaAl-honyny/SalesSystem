@@ -1,0 +1,298 @@
+# لوحة إدارة ومتابعة تعميم الشاشة التجريبية على شاشات النظام
+
+> **قرار المالك (2026-11-16):** «كل ما تغيّر في `frmProductMaster` يُطبَّق على كل شاشات النظام — **وكيل واحد لكل شاشة**، والمتابعة تُحفظ في ملف، **ولا تُنسى أي شاشة**، وتُسجَّل هذه الاستراتيجية لإدارة المهام الكبيرة.»
+>
+> هذا الملف هو **لوحة المتابعة الحيّة وسجل التقدّم**، ويُقرأ مع:
+> `AGENTS.md` §2.37 (`RULE-N195` — استراتيجية المهام الكبيرة) · `docs/SHARED-HOME-REGISTER.md` §11.22 · `docs/prompts/ORCHESTRATOR.md` §9.
+>
+> **قاعدة:** كل رقم في هذا الملف **مقيس في نفس الموجة** بأمر مذكور، ولا يُنقل رقم قديم (`RULE-N174`).
+
+---
+
+## 0) الحالة الآن (مقيسة 2026-11-16 — بعد إغلاق الموجة 11)
+
+> **⚠️ تصحيح إلزامي (`RULE-N174`):** كان هذا الجدول يقول «**36 شاشة مكتملة**». القياس اليوم يُثبت أن **الشاشة المكتملة واحدة فقط**. سبب الفرق: ملفات `Screens/**` أُعيدت إلى `HEAD` مرتين بـ`git checkout` (حادثة `W-10-RESTORE` أدناه)، فضاعت تعديلات كود الشاشات الـ36 — **وبقيت مصمّماتها** لأن مسار الألوان أُعيد تشغيله بعد الاسترجاع. **درس مسجَّل: ممنوع `git checkout -- Screens` نهائياً.**
+
+| البند | الرقم | كيف قيس (هذا التشغيل) |
+|---|---|---|
+| نماذج `frm*` في `Screens/**` | **94** | `Get-ChildItem Screens -Recurse -Filter 'frm*.cs'` بلا `*.Designer.cs` |
+| منها تقارير (`\Reports\`) | **31** | مسار الملف |
+| منها غير تقريري | **63** | الباقي |
+| نوافذ طباعة للقراءة فقط | **5** | `frmPurchaseInvoicePrint` · `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` |
+| `WireEnterAsTab(this)` — أحادي (قديم) | **41 ملفاً** | `Select-String 'WireEnterAsTab\s*\(\s*this\s*\)'` |
+| `WireEnterAsTab(scope, func)` — ثنائي (الصحيح) | **17** | التجريبية + `frmCashBoxMaster` · `frmCategoryMaster` · `frmCustomerMaster` · `frmEmployeeMaster` · `frmProductUnitMaster` · `frmSupplierMaster` · `frmUnitMaster` · `frmUserMaster` |
+| شاشة بلا `WireEnterAsTab` | **36** | 31 تقريراً + 5 نوافذ طباعة — **الإعفاء الوحيد** (`RULE-N121`)؛ والمحرران «سند قبض» و«مصروف» كانا دَيناً (`RULE-N95`) ويُعالجان في الموجة 13 |
+| شاشة تُعلن `_PrimaryActionButton` | **29** | `Select-String '_PrimaryActionButton'` |
+| شاشة تضبط `AcceptButton` | **40** | `Select-String 'AcceptButton\s*='` |
+| شاشة تستهلك `RequiredFieldHelper` | **15** | كل شاشات الموجات 11–14 (ماعدا شاشتَي قراءة لا حقل مطلوب فيهما) + التجريبية |
+| نسخ تحقق محلي | `_RequiredFieldsValid` **0** ✅ · `_FocusFirstMissingField` **0** ✅ · `_ValidateForm` **6** | الستة في شاشات **لم تُرحَّل بعد** (`frmOpeningStock` · `frmPasswordChange` · `frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmSupplierPaymentDialog`) |
+| مواضع `errorProvider.SetError` | **170 موضعاً في 28 شاشة** | `Select-String 'SetError\s*\('` — تُنقل تدريجياً إلى البيت الواحد |
+| ملفات مصمّمات تحمل ألواناً متقاعدة | **0 من 95** ✅ | عدّ القيم التسع داخل كل `FromArgb` في `*.Designer.cs` |
+| مجموع القيم اللونية المتقاعدة المتبقية | **0** ✅ | نفس العدّ |
+| صيغة الألوان في المصمّمات | **`Convert.ToInt32` 100%** ✅ | **95** مصمّماً · **2,582** `FromArgb` · **7,777** `Convert.ToInt32(` · **2,225** لوناً مسمّى مؤهَّلاً · **0** شكل مختصر · **0** شكل `((int)(((byte)` (`RULE-N196`) |
+| نسخ محلية لحارس «المؤشر في حقل إدخال» (`_IsTextInputFocused`/`_IsTextEditingFocused`) | **0** ✅ (كانت 7) | حُذفت آخر نسخة في `frmWarehouseMaster` |
+| مراجع `NavigationOptions` داخل `Screens/**` | **0** | يجب أن تبقى 0 (`RULE-N192`) |
+| مراجع `BlocksEnterNavigation` داخل `Screens/**` | **0** | يجب أن تبقى 0 (`RULE-N194`) |
+| **شاشات مكتملة ومُبنية** | **17** من 94 | الشاشة التجريبية + الموجات 11 · 12 · 13 · 14 |
+| **شاشات متبقية** | **77** | منها **41 نموذجاً** بدالة `WireEnterAsTab` أحادية (بعد استثناء 31 تقريراً و5 نوافذ طباعة) |
+| بناء الحل بعد موجة المصمّمات + اللوحة | **0 خطأ · 86 تحذيراً** | `dotnet build .\SalesSystem.slnx` — التحذيرات **= خط الأساس 86** ⇒ **صفر تحذير جديد** |
+
+> **الشاشة التجريبية المشهودة:** `frmProductMaster` (شهادة المالك 2026-11-16 — `RULE-N184`/`N185`) وهي **المرجع البصري والسلوكي** لكل شاشة: أي خلاف يُحسم لصالحها.
+
+---
+
+## 1) النطاق الملزم — «كل ما تغيّر في `frmProductMaster`» = ستة بنود (لا أكثر ولا أقل)
+
+| # | ما تغيّر في الشاشة التجريبية | القاعدة | يُطبَّق على |
+|---|---|---|---|
+| 1 | `KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton)` بدل الأحادي: `Enter` يمشي **بترتيب العرض** صفاً صفاً ثم يُركِّز زر الوضع بلا تنفيذ | `RULE-N191` · `RULE-N193` | **57** شاشة أحادية + الشاشات التي ستُضاف إليها الواجهة |
+| 2 | الحقل المطلوب الفارغ **يحجب** `Enter` ويُبقي التركيز مع ✗ + الرسالة + الومضة (يستهلكه `KeyboardHelper` وحده) | `RULE-N194` | تلقائياً بعد البندين 1 و3 — **ولا شاشة تستدعيه** |
+| 3 | تغذية الحقل المطلوب حيّاً: `RequiredFieldHelper.Attach(this, errorProvider, new(field, "رسالة"), …)` + `Validate`/`FirstMissing`/`Clear`، وحذف النسخ المحلية | `RULE-N180`…`N183` · `RULE-N172` | **20** شاشة فيها تحقق محلي |
+| 4 | كل معالج `Enter` داخل الشاشة يُعلن `e.Handled = true` بعد تنفيذه حتى لا يُنفَّذ الأمران بضغطة | `PILOT-13` · `RULE-N193` | **3** شاشات ناقصة + تدقيق الباقي |
+| 5 | مزامنة ألوان المصمّم مع اللوحة المحايدة الجديدة (المصمّم = التشغيل) | `PAL-1` · `RULE-N189`/`N190` · `RULE-N134`/`N140` | **90** مصمّماً |
+| 6 | `if (_IsTextInputFocused())` المحلي ⇒ `KeyboardHelper.IsTextInputFocused(this)` وحذف الدالة المحلية (بيت واحد) | `PILOT-15` · `RULE-N169`/`N171` | **7** شاشات (منها التجريبية) |
+
+> **بند خارج النطاق تماماً:** أي تغيير سلوكي جديد، أو صلاحيات، أو باك-إند، أو شاشة تُعاد بناؤها. هذه الموجة **ترحيل نمط** لا ميزات.
+
+---
+
+## 2) مواصفة الترحيل لكل شاشة (تُنسخ حرفياً في كل brief)
+
+**1) `Enter` بترتيب العرض**
+```csharp
+// قبل
+KeyboardHelper.WireEnterAsTab(this);
+// بعد  (النطاق = لوحة حقول المحرر؛ وفي شاشات القوائم التي لا محرر لها = this)
+KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
+```
+- **`_PrimaryActionButton`** موجودة أصلاً في 29 شاشة كما هي — لا تُعدَّل.
+- الشاشة التي لا تملكها تُعلنها **مرة واحدة** بنفس نمط التجريبية:
+```csharp
+private Button? _PrimaryActionButton() => _mode switch
+{
+    EntryMode.Browsing => btnNew,
+    EntryMode.Adding   => btnSave,
+    EntryMode.Editing  => btnEdit,
+    _ => null
+};
+```
+  - **بلا مفهوم أوضاع** (قوائم/منتقيات/حوارات): تُرجع الزر الرئيسي للشاشة (`btnNew` للقوائم · `btnSelect`/`btnOk`/`btnSave` للحوارات) أو `null` إن لم يوجد — والـHelper يعود إلى أول حقل عند `null`.
+  - في شاشات المستندات تبقى القاعدة القائمة: `_PrimaryActionButton()` تُرجع `null` عندما تكون شبكة السطور هي موضع التركيز (`RULE-N153`).
+- `AcceptButton = _PrimaryActionButton();` يبقى كما هو داخل `_ApplyModeState()` (`RULE-N147`).
+- **شاشات القراءة فقط (بلا `EntryMode`):** `_PrimaryActionButton` تعيد **زر الإجراء الوحيد** إن وُجد (مثل «تحديث» في `frmCustomerStatement` و`frmCashBoxTransactions`) وإلا `null` — و`null` ما دامت شبكة السطور/النتائج متمركزة (`RULE-N153`). **ولا يُضاف `AcceptButton` جديد** حين لا توجد آلة حالة (وإن كان مضبوطاً أصلاً فيُحفظ كما هو، مع إعادة `null` ما دامت الشبكة متمركزة): ضبطه على شاشة قراءة يجعل `Enter` فوق «إغلاق» ينفّذ الإجراء الأساسي بدل الإغلاق، وهو أسوأ من تركه لـ`Space`/النقر (قرار مسجَّل 2026-11-16).
+- `WireModeEnter(this, _PrimaryActionButton)` يبقى كما هو.
+
+**2) تغذية الحقول المطلوبة** — تُترجم **كل** فحوص «مطلوب/فارغ» الموجودة إلى قواعد `Attach` 1:1، ثم:
+- تُحذف `_RequiredFieldsValid` · `_FocusFirstMissingField` · `_ValidateForm` **إن كانت تخدم «مطلوب» فقط**.
+- `SetError(field, "…")` الخاص بـ«مطلوب» يُحذف (الـHelper يملكه)، وأي تحقق آخر (بريد · هاتف · رقم موجب · تكرار · تعارض) **يبقى كما هو بلا مساس**.
+- عند الحفظ: `if (!RequiredFieldHelper.Validate(this)) { if (RequiredFieldHelper.FirstMissing(this) is Control missing) missing.Focus(); return; }`
+- عند إعادة الضبط/الرجوع لوضع العرض: `RequiredFieldHelper.Clear(this);`
+- **الترتيب ملزم:** `Attach` بعد `WireFocusHighlight` (`RULE-N183`).
+- `errorProvider` يجب أن يكون **المُعلَن في المصمّم** — إن لم يوجد، يُعلن في المصمّم ولا يُنشأ وقت التشغيل (`RULE-N145`).
+
+> **⚠️ مصيدة بناء فعلية (واجهتها الموجة 1 — CS8752):** `Attach` وسيطه `params RequiredField[]`، و`RequiredField` هو `readonly record struct`. فإن أعلنت الشاشة **قاعدة واحدة** فُسِّر `new(field, "…")` كإنشاء للمصفوفة `RequiredField[]` وفشل البناء. الصيغتان الصحيحتان:
+> ```csharp
+> // قاعدة واحدة — اسم النوع صراحةً
+> RequiredFieldHelper.Attach(this, errorProvider, new RequiredField(txtName, "اسم العميل مطلوب"));
+> // قاعدتان أو أكثر — new(…) مقبول (عنصراً عنصراً) كما في frmProductMaster
+> RequiredFieldHelper.Attach(this, errorProvider, new(txtName, "…"), new(cmbCategory, "…"));
+> ```
+
+**3) `e.Handled`** — كل `KeyDown` يعالج `Keys.Enter` (باركود · تطبيق تصفية · إدخال سطر) ينتهي بـ`e.Handled = true; e.SuppressKeyPress = true;` بعد تنفيذه.
+
+**4) الألوان** — ✅ **خارج نطاق الوكيل نهائياً:** كل المصمّمات الـ95 نُظِّفت آلياً (صفر قيمة متقاعدة · صيغة `Convert.ToInt32`) فلا يستبدل الوكيل لوناً ولا يكتب لوناً جديداً؛ وأي مصمّم يحتاج عنصراً جديداً يلتزم `RULE-N196`.
+
+**5) حارس الحقل** — `_GlobalDelete` يستدعي `KeyboardHelper.IsTextInputFocused(this)` وتُحذف الدالة المحلية.
+
+**6) ممنوع في كل الحالات:** تعديل `Helpers/**` · `Global Classes/**` · `Program.cs` · `Business/**` · `DataAccess/**` · `Models/**` · `DTO/**` · `Services/**` · `AGENTS.md` · `docs/**` — أي حاجة تُبلَّغ في تقرير الوكيل ولا تُنفَّذ.
+
+---
+
+## 3) جدول الألوان المتقاعدة → الجديدة (المصدر: `ThemePalette`) — ✅ **مُنجَز بالكامل**
+
+> **الحالة المقيسة (2026-11-16):** **0** قيمة متقاعدة في **95** مصمّماً · **0** شكل مختصر · **0** `((int)(((byte)` · الكل بصيغة `System.Drawing.Color.FromArgb(Convert.ToInt32(n), …)` (`RULE-N196`). **الوكيل لا يلمس ألوان المصمّم بعد اليوم** — مسار الألوان أُنجز آلياً، وأي شاشة تراها بقيمة قديمة هي عيب يُبلَّغ ولا يُصلَح يدوياً.
+
+> **اللوحة الزرقاء والتدرّج (قرار المالك 2026-11-16 — `#0D6EFD → #0A58CA`):** الافتراضيات في `ThemePalette` صارت **لوحة زرقاء**، وشريط العنوان/الأدوات يُرسم بتدرّج رأسي عبر البيت الواحد الجديد **`Helpers/GradientHelper.cs`** (تُستهلك من `GreenThemeHelper.ApplyHeader` + فرع `pnlHeader`/`pnlTitle`) — **صفر شاشة تعرف كيف يُرسم التدرّج**. والمصمّمات تحمل **القيم المحايدة السابقة** (وليست الزرقاء) لأن `ThemePalette.RetiredDefaults` يُعيد التلوين **وقت التشغيل** فوراً (`RULE-N189`)، ومزامنة قيم المصمّم الزرقاء **شريحة مستقلة مؤجلة** (`PAL-1` · `RULE-N190`) — لذلك **المصمّم ≠ التشغيل في المعاينة فقط، والتشغيل صحيح في كل الشاشات**.
+
+> **تحذير مقيس (بقي صالحاً للمستقبل):** `14,165,103` كانت تخدم **دورين مختلفين** (شريط عنوان · رأس عمود شبكة) — 416 موضعاً منها **37** رأس عمود و**76** `SelectionBackColor` لرأس العمود و**303** شريط عنوان. لذلك **الاستبدال الأعمى ممنوع**؛ يُحسم بالسياق.
+
+| القيمة المتقاعدة | تُستبدل بـ | السياق |
+|---|---|---|
+| `Color.FromArgb(170, 220, 170)` | `Color.FromArgb(240, 242, 245)` | `Form.BackColor` (خلفية الشاشة) |
+| `Color.FromArgb(14, 165, 103)` | **`Color.FromArgb(16, 150, 96)`** | `lblMode`/`lblTitle`/أشرطة الأدوات — شريط العنوان |
+| `Color.FromArgb(14, 165, 103)` | **`Color.FromArgb(52, 58, 64)`** | داخل `ColumnHeadersDefaultCellStyle` (`BackColor` **و** `SelectionBackColor`) |
+| `Color.FromArgb(14, 82, 52)` | `Color.FromArgb(33, 37, 41)` | `ForeColor` للنصوص المهمة/العناوين |
+| `Color.FromArgb(235, 240, 235)` | `Color.White` | خلفية الأشرطة/الحالات |
+| `Color.FromArgb(235, 245, 235)` | `Color.White` | `GroupBox.BackColor` |
+| `Color.FromArgb(220, 240, 220)` | `Color.White` | `DataGridView.BackgroundColor` / خلفية خلايا الشبكة |
+| `Color.FromArgb(205, 225, 205)` | `Color.FromArgb(222, 226, 230)` | `GridColor` |
+| `Color.FromArgb(245, 252, 245)` | `Color.FromArgb(248, 249, 250)` | `AlternatingRowsDefaultCellStyle.BackColor` |
+| `Color.FromArgb(255, 255, 180)` | `Color.FromArgb(255, 243, 205)` | `DefaultCellStyle.SelectionBackColor` / `SelectionRowColor` |
+| `Color.FromArgb(224, 224, 224)` | `Color.FromArgb(233, 236, 239)` | لون تعطيل — **لا يُعلَن في المصمّم** (`RULE-N154`) |
+| `Color.FromArgb(150, 150, 150)` | `Color.FromArgb(108, 117, 125)` | لون تعطيل — لا يُعلَن |
+| `Color.FromArgb(255, 220, 220)` | `Color.FromArgb(248, 215, 218)` | لون رفض — لا يُعلَن (`RULE-N182`) |
+
+**قاعدة إثبات لكل شاشة:** بعد الاستبدال يُعاد العدّ على المصمّم نفسه ويجب أن يكون **صفر** لأي قيمة متقاعدة، وأن يبقى عدد العناصر الملوّنة كما هو (لا حذف ولا إضافة عنصر).
+
+---
+
+## 4) قواعد التقسيم والموجات (إلزامية)
+
+| القاعدة | النص |
+|---|---|
+| وكيل واحد لكل شاشة | لا يجمع وكيل شاشتين أبداً — **حتى لو كانت التغييرات متطابقة** (`RULE-N195`). |
+| 4 وكلاء في الموجة كحد أقصى | `RULE-N159` — والموجة التالية تُطلق **فور** خضرة البناء. |
+| لا وكيل يبني ولا يشغّل | البناء عليّ بعد كل موجة (`RULE-N117`/`N159`). |
+| ملفات متقاطعة | كل وكيل يملك ملفَي شاشته فقط (`frm*.cs` + `frm*.Designer.cs`). |
+| الإغلاق | الشاشة ✅ فقط بعد: بناء 0 أخطاء بلا تحذير جديد + قراءة تقرير الوكيل + تحديث صفها هنا. |
+| الترتيب | دليل (10) → محرر/مستند (28) → قائمة (10) → منتقٍ (3) → طباعة (5) → نظام (7) → تقارير (31). |
+| التقارير | إعفاء كامل من البنود 1–4 و6 (`RULE-N121`) — **بند الألوان فقط**. |
+| نوافذ الطباعة | إعفاء من لوحة المفاتيح والحقول المطلوبة — **بند الألوان فقط**. |
+
+---
+
+## 5) سجل الموجات
+
+| الموجة | الشاشات | البناء | الحالة | ملاحظات |
+|---|---|---|---|---|
+| 0 | البنية + تسجيل الاستراتيجية (هذا الملف + `RULE-N195`) | — | ✅ | جرد 94 شاشة مقيس |
+| 0b | `frmProductMaster` — `PILOT-15` (حارس الحقل الواحد) | ✅ 0 خطأ | ✅ | حُذفت الدالة المحلية (18 سطراً) واستُهلك `KeyboardHelper.IsTextInputFocused(this)` |
+| 1–9 | 35 شاشة (الماسترات العشرة · المحررات والمستندات · خمسة ماسترات إضافية) | ✅ 0 خطأ في كل موجة | ♻️ **مفقودة** | نُفِّذت فعلاً وبُنيت خضراء، ثم **محت `git checkout -- SalesSystem.Desktop/Screens` تعديلات كودها** (حادثة `W-10-RESTORE`) ⇒ **صفر شاشة منها مكتملة اليوم**، وتُعاد من الصفر |
+| 10 | مصمّمات الشاشات الـ95 + `RULE-N196` | ✅ **0 خطأ / 86 تحذيراً** (= خط الأساس 86 ⇒ صفر تحذير جديد) | ✅ | 2,582 `FromArgb` بصيغة `Convert.ToInt32` · 1,560 قيمة متقاعدة ← **0** · **3 مصمّمات كانت قد فاتتها الموجة** (`frmPurchaseInvoice` · `frmSalesReturn` · `frmPurchaseReturn`) أُصلحت الآن · صفر شكل مختصر · صفر `((int)(((byte)` |
+| 11 | `frmCashBoxMaster` · `frmCategoryMaster` · `frmCustomerMaster` · `frmEmployeeMaster` | ✅ **0 خطأ** (65 تحذيراً — بناء تزايدي، غير مقارن بخط الأساس 86) | ✅ | أُعيد قياس كل شاشة بعد الوكيل: `2 ✅` مرة واحدة · `RequiredFieldHelper` 5–6 مواضع · **0** نسخة تحقق محلية · **0** `_IsTextInputFocused` محلي · السطور 922/920/1050/1009 |
+| 12 | `frmProductUnitMaster` · `frmSupplierMaster` · `frmUnitMaster` · `frmUserMaster` | ✅ **0 خطأ / 86 تحذيراً** (`--no-incremental` = خط الأساس بالضبط) | ✅ | `2 ✅` مرة واحدة في الأربعة · `Attach` 1–2 · **0** نسخة تحقق محلية · السطور 1072/1079/936/1038 · `frmSupplierMaster` اختار `gbEditor` (الأضيق) و`frmUnitMaster` أعاد تسمية `_ValidateForm` → `_ValidateFieldLengths` · مسار كلمة المرور/القفل في `frmUserMaster` لم يُمسّ (تحقّق `git diff`) |
+| 13 | `frmWarehouseMaster` · `frmAccounts` · `frmAddUpdateCustomerReceipt` · `frmAddUpdateExpense` | ✅ **0 خطأ / 86 تحذيراً** (`--no-incremental` = خط الأساس) | ✅ | السطور 985/1252/481/447 · `Attach` 1–2 · **0** نسخة محلية · **0** `_IsTextInputFocused` في الشجرة كلها · الأربعة أعادت تسمية `_ValidateForm` → `_ValidateRangeRules` (إلا المخزن: لا فحص مدى أصلاً فحُذف) · **تصحيح جرد مقيس:** خانة `WireEnterAsTab = —` في الصفوف 12 · 13 · 17 · 19 · 22 كانت **خطأً** — الخمسة كان لها استدعاء أحادي فعلاً (**لا دَين `RULE-N95`**) |
+| 14 | `frmAddUpdateInventoryAdjustment` · `frmAddUpdateSalesInvoice` · `frmCashBoxTransactions` · `frmCustomerStatement` | ✅ **0 خطأ / 86 تحذيراً** (`--no-incremental` = خط الأساس) | ✅ | السطور 939/3247/904/747 · **0** نسخة محلية في الأربعة · `_ValidateForm` نزل من 9 إلى **6** · فاتورة البيع: `_PrimaryActionButton` = `null` عند `dgvItems.ContainsFocus`/`IsCurrentCellInEditMode`/`IsLocked` · حُذفت 5 اشتراكات `FieldEnter_KeyDown` محلية من الرأس واستُبدلت بالواجهة ثنائية الوسيط · 14 قاعدة مال/مخزون/ترحيل بقيت حرفياً |
+| 15 | الصفوف 27→63 (قوائم · منتقيات · طباعة · نظام) | | ⬜ | |
+| 16 | الصفوف 64→94 (31 تقريراً — ألوان فقط) | | ⬜ | إعفاء كامل من `RULE-N121` |
+| الأخيرة | قائمة اختبار عربية + دفع (commit + push) | | ⬜ | **مراجعة `code-reviewer` ألغاها المالك** — ليست عمل الوكيل؛ البوابة تُغلق بالقياس الآلي (0 أخطاء · 0 تحذير جديد · صفر نسخة محلية · كل شاشة مقيسة) |
+
+> **`W-10-RESTORE` — الحادثة والدرس (مسجَّلة بقرار `RULE-N174`):** أُعيدت `Screens/**` إلى `HEAD` مرتين بـ`git checkout` أثناء تنظيف الشجرة، فمُحيت تعديلات كود **36 شاشة** أُنجزت في الموجات 1–9 (وما بقي منها هو المصمّمات لأنها أُعيد توليدها آلياً بعد الاسترجاع). **قاعدتان ملزمتان:** (1) **ممنوع** `git checkout -- Screens/**` — أي تراجع يجب أن يكون **ملفاً بملف بأسماء صريحة**؛ (2) **لا يُقال «مكتمل» لشاشة لم يُقَس استيرادها بعد** — عمود الحالة في §6 يُقاس بالأمر لا بالذاكرة.
+
+> **`PILOT-16` — الشاشة التجريبية نفسها كانت متأثرة بالحادثة (مقيس 2026-11-16):** `frmProductMaster` عند `HEAD` (1,403 سطراً) ما زال يحمل **النسخة المحلية** `private bool _IsTextInputFocused()` (السطر 144) ويستدعيها في `_GlobalDelete` (السطر 127) بقائمة 16 عنصراً مكتوبة يدوياً — أي أن إصلاح `PILOT-15` المذكور في الصف 1 **ضاع في نفس الاسترجاع**. أُعيد تطبيقه: `KeyboardHelper.IsTextInputFocused(this)` (البيت الواحد، نوعي ويشمل محرّر خلية الشبكة) وحُذفت الدالة المحلية. **درس مضاف:** قبل أي موجة تعميم، **يُعاد قياس الشاشة التجريبية نفسها** — المرجع لا يُفترض سليماً.
+
+> تُضاف صفوف الموجات الفعلية هنا **بعد كل موجة** بأرقام الشاشات من الجدول أدناه.
+
+---
+
+## 6) الجرد الكامل — 94 شاشة
+
+**دلالة الأعمدة:** `رقم` = ترتيب التنفيذ · `زر الوضع` = تُعلن `_PrimaryActionButton` · `WireEnterAsTab` = **`2 ✅`** ثنائي (الصحيح: نطاق + زر الوضع) · **`1 ⚠`** أحادي (قديم) · **`—`** لا يوجد (تقرير أو نافذة طباعة) · `تحقق محلي` = نسخ «مطلوب» المحلية المتبقية (`_RequiredFieldsValid`/`_FocusFirstMissingField`) / مواضع `SetError` · `ألوان متقاعدة` = عدد القيم المتقاعدة في المصمّم (`0 ✅` = نظيف) · `الحالة` ⬜ لم تبدأ · 🔄 جارٍ · ✅ مكتمل ومُبنى · `الموجة` = الموجة التي أُغلقت فيها.
+
+| # | الشاشة | النوع | زر الوضع | WireEnterAsTab | تحقق محلي | ألوان متقاعدة | سطور | الحالة | الموجة |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | `frmProductMaster` | دليل | Y | 2 ✅ | 0 / 0 | 0 ✅ | 1385 | ✅ | 0b |
+| 2 | `frmCashBoxMaster` | دليل | Y | 2 ✅ | 0 / 0 | 0 ✅ | 922 | ✅ | 11 |
+| 3 | `frmCategoryMaster` | دليل | Y | 2 ✅ | 0 / 1 | 0 ✅ | 920 | ✅ | 11 |
+| 4 | `frmCustomerMaster` | دليل | Y | 2 ✅ | 0 / 2 | 0 ✅ | 1050 | ✅ | 11 |
+| 5 | `frmEmployeeMaster` | دليل | Y | 2 ✅ | 0 / 2 | 0 ✅ | 1009 | ✅ | 11 |
+| 6 | `frmProductUnitMaster` | دليل | Y | 2 ✅ | 0 / 10 | 0 ✅ | 1072 | ✅ | 12 |
+| 7 | `frmSupplierMaster` | دليل | Y | 2 ✅ | 0 / 2 | 0 ✅ | 1079 | ✅ | 12 |
+| 8 | `frmUnitMaster` | دليل | Y | 2 ✅ | 0 / 4 | 0 ✅ | 936 | ✅ | 12 |
+| 9 | `frmUserMaster` | دليل | Y | 2 ✅ | 0 / 0 | 0 ✅ | 1038 | ✅ | 12 |
+| 10 | `frmWarehouseMaster` | دليل | Y | 2 ✅ | 0 / 0 | 0 ✅ | 985 | ✅ | 13 |
+| 11 | `frmAccounts` | محرر/مستند | Y | 2 ✅ | 0 / 10 | 0 ✅ | 1252 | ✅ | 13 |
+| 12 | `frmAddUpdateCustomerReceipt` | محرر/مستند | Y | 2 ✅ | 0 / 2 | 0 ✅ | 481 | ✅ | 13 |
+| 13 | `frmAddUpdateExpense` | محرر/مستند | Y | 2 ✅ | 0 / 2 | 0 ✅ | 447 | ✅ | 13 |
+| 14 | `frmAddUpdateInventoryAdjustment` | محرر/مستند | Y | 2 ✅ | 0 / 10 | 0 ✅ | 939 | ✅ | 14 |
+| 15 | `frmAddUpdateSalesInvoice` | محرر/مستند | Y | 2 ✅ | 0 / 5 | 0 ✅ | 3247 | ✅ | 14 |
+| 16 | `frmCashBoxTransactions` | محرر/مستند | Y | 2 ✅ | 0 / 0 | 0 ✅ | 904 | ✅ | 14 |
+| 17 | `frmCustomerStatement` | محرر/مستند | Y | 2 ✅ | 0 / 0 | 0 ✅ | 747 | ✅ | 14 |
+| 18 | `frmImportProductsExcel` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 746 | ⬜ | — |
+| 19 | `frmInventory` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 1134 | ⬜ | 1 ⚠ |
+| 20 | `frmInventoryBarcode` | محرر/مستند | Y | 1 ⚠ | 0 / 5 | 0 ✅ | 415 | ⬜ | — |
+| 21 | `frmInventoryFifo` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 470 | ⬜ | — |
+| 22 | `frmInventoryList` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 550 | ⬜ | 1 ⚠ |
+| 23 | `frmJournalEntries` | محرر/مستند | Y | 1 ⚠ | 0 / 18 | 0 ✅ | 1712 | ⬜ | — |
+| 24 | `frmOpeningStock` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 554 | ⬜ | — |
+| 25 | `frmPasswordChange` | محرر/مستند | Y | 1 ⚠ | 0 / 4 | 0 ✅ | 393 | ⬜ | — |
+| 26 | `frmPOS` | محرر/مستند | Y | 1 ⚠ | 0 / 10 | 0 ✅ | 1567 | ⬜ | — |
+| 27 | `frmPurchaseCurrency` | محرر/مستند | Y | 1 ⚠ | 0 / 3 | 0 ✅ | 311 | ⬜ | — |
+| 28 | `frmPurchaseDiscount` | محرر/مستند | Y | 1 ⚠ | 0 / 4 | 0 ✅ | 219 | ⬜ | — |
+| 29 | `frmPurchaseInvoice` | محرر/مستند | Y | 1 ⚠ | 0 / 6 | 0 ✅ | 752 | ⬜ | — |
+| 30 | `frmPurchaseItem` | محرر/مستند | Y | 1 ⚠ | 0 / 6 | 0 ✅ | 267 | ⬜ | — |
+| 31 | `frmPurchaseItemInfo` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 267 | ⬜ | — |
+| 32 | `frmPurchaseOtherDetails` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 159 | ⬜ | — |
+| 33 | `frmPurchaseReturn` | محرر/مستند | Y | 1 ⚠ | 0 / 4 | 0 ✅ | 567 | ⬜ | — |
+| 34 | `frmSalesReturn` | محرر/مستند | Y | 1 ⚠ | 0 / 5 | 0 ✅ | 602 | ⬜ | — |
+| 35 | `frmStocktakingNew` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 785 | ⬜ | — |
+| 36 | `frmSupplierPaymentDialog` | محرر/مستند | Y | 1 ⚠ | 0 / 2 | 0 ✅ | 326 | ⬜ | — |
+| 37 | `frmSupplierStatement` | محرر/مستند | - | 1 ⚠ | 0 / 0 | 0 ✅ | 805 | ⬜ | — |
+| 38 | `frmWarehouseTransferNew` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 739 | ⬜ | — |
+| 39 | `frmListCustomerReceipts` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 663 | ⬜ | — |
+| 40 | `frmListExpenses` | قائمة | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 741 | ⬜ | — |
+| 41 | `frmListInventoryAdjustments` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 820 | ⬜ | — |
+| 42 | `frmListInventoryBatches` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 853 | ⬜ | — |
+| 43 | `frmListInventoryTransactions` | قائمة | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 716 | ⬜ | — |
+| 44 | `frmListPayments` | قائمة | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 891 | ⬜ | — |
+| 45 | `frmListPurchases` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 861 | ⬜ | — |
+| 46 | `frmListReturns` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 603 | ⬜ | — |
+| 47 | `frmListSales` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 841 | ⬜ | — |
+| 48 | `frmListSupplierPayments` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 548 | ⬜ | — |
+| 49 | `frmCustomerSelection` | منتقٍ | - | 1 ⚠ | 0 / 0 | 0 ✅ | 229 | ⬜ | — |
+| 50 | `frmProductSelection` | منتقٍ | - | 1 ⚠ | 0 / 0 | 0 ✅ | 580 | ⬜ | — |
+| 51 | `frmSupplierSelection` | منتقٍ | - | 1 ⚠ | 0 / 0 | 0 ✅ | 229 | ⬜ | — |
+| 52 | `frmPurchaseInvoicePrint` | طباعة | - | — | 0 / 0 | 0 ✅ | 147 | ⬜ | — |
+| 53 | `frmStocktakingPrint` | طباعة | - | — | 0 / 0 | 0 ✅ | 140 | ⬜ | — |
+| 54 | `frmStocktakingPrintAdjustment` | طباعة | - | — | 0 / 0 | 0 ✅ | 132 | ⬜ | — |
+| 55 | `frmStocktakingPrintCard` | طباعة | - | — | 0 / 0 | 0 ✅ | 166 | ⬜ | — |
+| 56 | `frmWarehouseTransferPrint` | طباعة | - | — | 0 / 0 | 0 ✅ | 138 | ⬜ | — |
+| 57 | `frmBackup` | نظام | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 828 | ⬜ | — |
+| 58 | `frmCalculator` | نظام | - | 1 ⚠ | 0 / 0 | 0 ✅ | 264 | ⬜ | — |
+| 59 | `frmChangeSystemColorsSettings` | نظام | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 1093 | ⬜ | — |
+| 60 | `frmDashboard` | نظام | - | 1 ⚠ | 0 / 0 | 0 ✅ | 61 | ⬜ | — |
+| 61 | `frmFormatingSetting` | نظام | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 664 | ⬜ | — |
+| 62 | `frmLogin` | نظام | - | 1 ⚠ | 0 / 5 | 0 ✅ | 515 | ⬜ | — |
+| 63 | `frmMain` | نظام | - | 1 ⚠ | 0 / 0 | 0 ✅ | 524 | ⬜ | — |
+| 64 | `frmAccountStatementReport` | تقرير | - | — | 0 / 2 | 0 ✅ | 170 | ⬜ | — |
+| 65 | `frmAgingReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 105 | ⬜ | — |
+| 66 | `frmBalanceSheetReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 107 | ⬜ | — |
+| 67 | `frmCashBoxSummaryReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 114 | ⬜ | — |
+| 68 | `frmCashFlowReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 115 | ⬜ | — |
+| 69 | `frmCustomerBalanceReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 223 | ⬜ | — |
+| 70 | `frmDailyClosureReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 122 | ⬜ | — |
+| 71 | `frmDailySalesReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 114 | ⬜ | — |
+| 72 | `frmDetailedStockLedgerReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 113 | ⬜ | — |
+| 73 | `frmExpiredProductsReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 99 | ⬜ | — |
+| 74 | `frmGeneralLedgerReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 117 | ⬜ | — |
+| 75 | `frmIncomeStatementReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 145 | ⬜ | — |
+| 76 | `frmInventoryReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 199 | ⬜ | — |
+| 77 | `frmLowStockReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 154 | ⬜ | — |
+| 78 | `frmProductMovementReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 230 | ⬜ | — |
+| 79 | `frmProductProfitabilityReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 117 | ⬜ | — |
+| 80 | `frmProfitByCustomerReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 122 | ⬜ | — |
+| 81 | `frmPurchasesByProductReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 114 | ⬜ | — |
+| 82 | `frmPurchasesBySupplierReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 114 | ⬜ | — |
+| 83 | `frmPurchasesReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 174 | ⬜ | — |
+| 84 | `frmReturnsReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 116 | ⬜ | — |
+| 85 | `frmSalesByCategoryReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 108 | ⬜ | — |
+| 86 | `frmSalesByCustomerReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 109 | ⬜ | — |
+| 87 | `frmSalesByProductReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 116 | ⬜ | — |
+| 88 | `frmSalesReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 175 | ⬜ | — |
+| 89 | `frmStockBalanceReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 111 | ⬜ | — |
+| 90 | `frmSupplierBalanceReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 156 | ⬜ | — |
+| 91 | `frmTrialBalanceReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 110 | ⬜ | — |
+| 92 | `frmVatReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 113 | ⬜ | — |
+| 93 | `frmWarehouseMovementReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 108 | ⬜ | — |
+| 94 | `frmWorkingCapitalReport` | تقرير | - | — | 0 / 0 | 0 ✅ | 111 | ⬜ | — |
+
+**إحصاء الجرد:** 94 صفاً · 10 دليل · 28 محرر/مستند · 10 قائمة · 3 منتقٍ · 5 طباعة · 7 نظام · 31 تقريراً — وصفر شاشة محذوفة أو منسيّة.
+
+---
+
+## 7) خارج النطاق (مؤجل بقرار أو بقاعدة)
+
+1. **الباك-إند مقفل** لكل الوحدات حتى شهادة تغطية الـMock والموافقة المكتوبة — `RULE-N177`/`N178`.
+2. **التقارير** معفاة من لوحة المفاتيح والحقول المطلوبة (`RULE-N121`) — تُزامَن ألوان مصمّمها فقط.
+3. **لا اختبارات آلية** — `AGENTS.md` §2.31.
+4. **`PAL-2`** (وضع حقيقي): لوحة محفوظة في `SystemSettings` تتغلّب على الافتراضيات حتى يضغط المالك «استعادة الافتراضيات» — إجراء مالك، موثّق.
+5. أي عيب جديد يُكتشف في شاشة أثناء الترحيل **يُرقَّم ويُسجَّل هنا** ولا يُصلَح بصمت.
+
+---
+
+## 8) بروتوكول التحديث
+
+- يُحدَّث **بعد كل موجة** (حالة الصفوف + سجل الموجات + الأرقام المقيسة).
+- الترميز **UTF-8 بلا BOM** (`[System.IO.File]::WriteAllText` + `UTF8Encoding($false)`).
+- كل رقم جديد يُدوَّن مع الأمر الذي أنتجه؛ وممنوع نقل رقم من موجة سابقة (`RULE-N174`).
+- من يملك هذا الملف: **الـOrchestrator وحده** — الوكلاء لا يعدّلون `docs/**` (`RULE-N158`).

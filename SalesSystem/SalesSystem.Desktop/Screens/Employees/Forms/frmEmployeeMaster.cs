@@ -84,7 +84,9 @@ public partial class frmEmployeeMaster : Form
     public frmEmployeeMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يمشي بترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع
+        // بلا تنفيذ، وحقول التصفية خارج النطاق تحتفظ بسلوكها. لا تستدعي الشاشة إلا هذه الواجهة وحدها.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط — RULE-N54b
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
@@ -101,6 +103,11 @@ public partial class frmEmployeeMaster : Form
 
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        // RULE-N180..N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + رسالة + ومضة رفض عند مغادرة حقل مطلوب فارغ.
+        // ترتيب إلزامي (RULE-N183): بعد WireFocusHighlight (أعلاه) وقبل GreenThemeHelper.Apply في مسار التحميل.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtName, "اسم الموظف مطلوب"));
 
         // RULE-N47 — اختصار كل زر في تلميحه
         tafqeetTip.SetToolTip(btnNew, "جديد (F2) — Esc يمسح التصفية");
@@ -136,26 +143,6 @@ public partial class frmEmployeeMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل الحقل المطلوب (اسم الموظف) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtName.Text);
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// </summary>
-    private void _FocusFirstMissingField(bool edit)
-    {
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم الموظف مطلوب");
-            txtName.Focus();
-            return;
-        }
-
-        // لا توجد حقول مطلوبة أخرى في هذه الشاشة (الباقي اختياري في وضعي الإضافة والتعديل).
-        _ = edit;
     }
 
     /// <summary>
@@ -326,9 +313,11 @@ public partial class frmEmployeeMaster : Form
     {
         if (e.KeyCode != Keys.Enter) return;
 
+        _ApplyFilter();
+
+        // يُعلَن بعد التنفيذ كي لا يصل المفتاح إلى AcceptButton (RULE-N194 / RULE-N191).
         e.Handled = true;
         e.SuppressKeyPress = true;
-        _ApplyFilter();
     }
 
     /// <summary>
@@ -515,6 +504,7 @@ public partial class frmEmployeeMaster : Form
         _mode = EntryMode.Editing;   // RULE-N150: اختيار سجل من الشبكة = وضع التعديل
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — مع كل errorProvider.Clear()
 
         txtCode.Text = e.Code;
         txtName.Text = e.Name;
@@ -547,6 +537,8 @@ public partial class frmEmployeeMaster : Form
     private void _ApplyModeState()
     {
         bool editingSession = _mode != EntryMode.Browsing;
+
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة
 
         _SetEditorEnabled(editingSession);
 
@@ -639,6 +631,7 @@ public partial class frmEmployeeMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — مع كل errorProvider.Clear()
 
         txtCode.Clear();
         txtName.Clear();
@@ -671,38 +664,8 @@ public partial class frmEmployeeMaster : Form
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
-
-    private bool _ValidateForm()
-    {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم الموظف مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
-        if (numBasicSalary.Value < 0)
-        {
-            errorProvider.SetError(numBasicSalary, "الراتب الأساسي يجب أن يكون قيمة موجبة");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(numBasicSalary, "");
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-        }
-
-        return isValid;
-    }
+    // الحقول المطلوبة (اسم الموظف) صارت في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+    // لا نسخة ثانية هنا، وفحص مدى الراتب يبقى كما هو حرفياً داخل _SaveAsync.
 
     // ── Buttons ───────────────────────────────────────────────────────────────
 
@@ -753,14 +716,23 @@ public partial class frmEmployeeMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقل المطلوب الناقص: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + ومضة رفض) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
         {
-            _FocusFirstMissingField(edit);
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
             return;
         }
 
-        if (!_ValidateForm()) return;
+        // فحص مدى الراتب — ليس حكماً على «فارغ» فيبقى كما هو حرفياً (رسالته وسلوكه لم يتغيّرا).
+        if (numBasicSalary.Value < 0)
+        {
+            errorProvider.SetError(numBasicSalary, "الراتب الأساسي يجب أن يكون قيمة موجبة");
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return;
+        }
+
+        errorProvider.SetError(numBasicSalary, "");
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

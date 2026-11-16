@@ -72,10 +72,16 @@ public partial class frmCategoryMaster : Form
     {
         _serviceProvider = serviceProvider;
 
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // RULE-N180…N183 / RULE-N194 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + رسالة + ومضة رفض تعود
+        // إلى لون المصمّم تلقائياً. الاستدعاء **بعد** WireFocusHighlight إلزامي (ترتيب اشتراك Leave).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtName, "اسم المجموعة مطلوب"));
 
         // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط) و«مسح التصفية» تتغير حالة تفعيلها حسب الوضع والسجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل (RULE-N43).
@@ -104,7 +110,8 @@ public partial class frmCategoryMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        // RULE-N169/RULE-N171 — حارس «المؤشر في حقل إدخال» من بيته الواحد في KeyboardHelper.
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -118,34 +125,6 @@ public partial class frmCategoryMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[] { txtSearch, chkShowInactive, txtCode, txtName, txtDescription })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// يعيد <c>false</c> عند وجود حقل ناقص.
-    /// </summary>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم المجموعة مطلوب");
-            txtName.Focus();
-            return false;
-        }
-
-        errorProvider.SetError(txtName, "");
-        return true;
     }
 
     /// <summary>
@@ -298,6 +277,7 @@ public partial class frmCategoryMaster : Form
         {
             _ApplyFilter();
             e.Handled = true;
+            e.SuppressKeyPress = true;
         }
         else if (e.KeyCode == Keys.Escape)
         {
@@ -477,6 +457,7 @@ public partial class frmCategoryMaster : Form
         txtDescription.Text = c.Description ?? "";
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);
 
         _ApplyModeState();   // تفعيل الحقول + ضبط الأزرار + تحديث شريط الوضع
     }
@@ -491,6 +472,8 @@ public partial class frmCategoryMaster : Form
     private void _ApplyModeState()
     {
         bool editingSession = _mode != EntryMode.Browsing;
+
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة
 
         _SetEditorEnabled(editingSession);
 
@@ -574,6 +557,7 @@ public partial class frmCategoryMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);
 
         txtCode.Clear();
         txtName.Clear();
@@ -599,36 +583,6 @@ public partial class frmCategoryMaster : Form
         txtName.Focus();
     }
 
-    // ── Validation ────────────────────────────────────────────────────────────
-
-    private bool _ValidateForm()
-    {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم المجموعة مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
-        if (txtName.Text.Trim().Length > 100)
-        {
-            errorProvider.SetError(txtName, "اسم المجموعة أطول من المسموح (100 حرف)");
-            isValid = false;
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-        }
-
-        return isValid;
-    }
-
     // ── Buttons ───────────────────────────────────────────────────────────────
 
     private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
@@ -652,10 +606,22 @@ public partial class frmCategoryMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_FocusFirstMissingField(edit)) return;
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
 
-        if (!_ValidateForm()) return;
+        // قاعدة المدى/الطول تبقى في الشاشة كما هي — ليست قاعدة «مطلوب» (RULE-N172).
+        if (txtName.Text.Trim().Length > 100)
+        {
+            errorProvider.SetError(txtName, "اسم المجموعة أطول من المسموح (100 حرف)");
+            txtName.Focus();
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return;
+        }
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

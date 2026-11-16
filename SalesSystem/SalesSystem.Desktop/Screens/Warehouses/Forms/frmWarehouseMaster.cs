@@ -74,10 +74,16 @@ public partial class frmWarehouseMaster : Form
     public frmWarehouseMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط — RULE-N54b
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + ومضة رفض عند مغادرة حقل مطلوب فارغ.
+        // ترتيب إلزامي: يأتي هذا الاستدعاء **بعد** WireFocusHighlight أعلاه (ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtName, "اسم المخزن مطلوب"));
 
         // أزرار الوضع (إضافة/تعديل/حذف) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
@@ -104,7 +110,7 @@ public partial class frmWarehouseMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -118,38 +124,6 @@ public partial class frmWarehouseMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[]
-                 {
-                     txtFilterValue, cbFilterBy, cbStatus,
-                     txtCode, txtName, txtPhone, txtAddress, txtNotes
-                 })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
-    }
-
-    // ── Validation ────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// </summary>
-    /// <returns><c>true</c> إذا كانت الحقول المطلوبة مكتملة، و<c>false</c> بعد إبراز أول حقل ناقص.</returns>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        errorProvider.SetError(txtName, "");
-
-        if (!string.IsNullOrWhiteSpace(txtName.Text)) return true;
-
-        errorProvider.SetError(txtName, "اسم المخزن مطلوب");
-        txtName.Focus();
-        return false;
     }
 
     /// <summary>
@@ -311,6 +285,7 @@ public partial class frmWarehouseMaster : Form
         {
             _ApplyFilter();
             e.Handled = true;
+            e.SuppressKeyPress = true;
         }
         else if (e.KeyCode == Keys.Escape)
         {
@@ -596,6 +571,7 @@ public partial class frmWarehouseMaster : Form
         _mode = EntryMode.Browsing;
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة (RULE-N180…N183)
 
         txtCode.Clear();
         txtName.Clear();
@@ -623,30 +599,6 @@ public partial class frmWarehouseMaster : Form
         txtName.Focus();
     }
 
-    // ── Validation (مكمّل) ────────────────────────────────────────────────────
-
-    private bool _ValidateForm()
-    {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم المخزن مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-        }
-
-        return isValid;
-    }
-
     // ── Buttons ───────────────────────────────────────────────────────────────
 
     private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
@@ -667,10 +619,14 @@ public partial class frmWarehouseMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_FocusFirstMissingField(edit)) return;
-
-        if (!_ValidateForm()) return;
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + لون التحديد) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        // ولا فحوص مدى/تكرار/طول في هذه الشاشة (لم تكن موجودة ⇒ لا _ValidateRangeRules).
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

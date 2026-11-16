@@ -61,7 +61,9 @@ public partial class frmAccounts : Form
         _serviceProvider = serviceProvider;
 
         // RULE-N40…RULE-N47 + RULE-N95: الستة من KeyboardHelper في المُنشئ.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191: Enter داخل لوحة المحرر (pnlFields = «بيانات الحساب») يمشي بترتيب العرض صفاً صفاً
+        // ثم يُسلِّم التركيز لزر الوضع بلا تنفيذ؛ وحقول التصفية خارج النطاق تحتفظ بـ SelectNextControl.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
@@ -69,9 +71,16 @@ public partial class frmAccounts : Form
             (Keys.F2, () => btnNew.PerformClick()),
             (Keys.F3, () => btnEdit.PerformClick()),
             (Keys.F5, () => _ = _RefreshAsync()),
-            (Keys.Control | Keys.S, () => _PrimaryActionButton().PerformClick()),
+            (Keys.Control | Keys.S, () => _PrimaryActionButton()?.PerformClick()),
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + الرسالة + ومضة رفض عند مغادرة
+        // حقل مطلوب فارغ. ترتيب الاستدعاء إلزامي (RULE-N183): **بعد** WireFocusHighlight وقبل
+        // GreenThemeHelper.Apply (الذي ينتهي به ApplyUiTheme أدناه) حتى لا يلتقط مظهر التعطيل لوناً مؤقتاً.
+        // الشاشة تُعلن القواعد فقط — لا أيقونة ولا لون ولا استعادة خلفية هنا (RULE-N169…RULE-N172).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtNameAr, "الاسم العربي للحساب مطلوب"));
 
         // RULE-N147: Enter = الزر الأساسي للوضع الحالي (يُقرأ عند كل ضغطة)، و«AcceptButton»
         // يُضبط مركزياً في _UpdateActionButtons (RULE-N150) لا هنا.
@@ -439,6 +448,7 @@ public partial class frmAccounts : Form
                 cbParent.SelectedItem = parentOption;
 
             errorProvider.Clear();
+            RequiredFieldHelper.Clear(this);
         }
         finally
         {
@@ -490,6 +500,7 @@ public partial class frmAccounts : Form
             cbParent.SelectedIndex = 0;
 
             errorProvider.Clear();
+            RequiredFieldHelper.Clear(this);
             dgvAccounts.ClearSelection();
         }
         finally
@@ -556,12 +567,18 @@ public partial class frmAccounts : Form
         cmsEdit.Enabled = btnEdit.Enabled;
         cmsDelete.Enabled = btnDelete.Enabled;
 
-        // RULE-N147/RULE-N150: الزر الأساسي لِـ Enter يُضبط في المكان الواحد لا في المُنشئ.
+        // RULE-N147/RULE-N150: الزر الأساسي لِـ Enter يُضبط في المكان الواحد (آلة حالة الشاشة) لا في المُنشئ،
+        // فيتبع الوضع الحالي: إضافة ⇒ «حفظ» · تعديل ⇒ «تعديل» (RULE-N191).
         AcceptButton = _PrimaryActionButton();
     }
 
-    /// <summary>RULE-N147: الزر الأساسي للوضع — إضافة ⇒ «حفظ» · تعديل ⇒ «تعديل».</summary>
-    private Button _PrimaryActionButton() => _editId.HasValue ? btnEdit : btnSave;
+    /// <summary>
+    /// RULE-N147/RULE-N191: الزر الأساسي للوضع الحالي — «إضافة» (لا سجل مفتوح ⇒ <c>_editId == null</c>)
+    /// ⇒ <c>btnSave</c> · «تعديل» (سجل محدد) ⇒ <c>btnEdit</c>. لا وضع «عرض» في هذه الشاشة: المحرر
+    /// يفتح جاهزاً للإضافة، و«جديد» متاح دائماً للخروج من وضع التعديل.
+    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة — لا مرة واحدة في المُنشئ.
+    /// </summary>
+    private Button? _PrimaryActionButton() => _editId is null ? btnSave : btnEdit;
 
     // ── Grid ─────────────────────────────────────────────────────────────────
 
@@ -842,22 +859,30 @@ public partial class frmAccounts : Form
 
     // ── Validation (RULE-N28/N29 — رسائل عربية فقط) ─────────────────────────
 
-    private bool _ValidateForm()
+    // فحوص هذه الشاشة الخاصة — ليست حكم «مطلوب/فارغ» (ذلك في البيت الواحد RequiredFieldHelper).
+
+    /// <summary>
+    /// التحقق غير المتعلق بالحقول «الفارغة»: اختيار نوع الحساب · دورة الحساب الأب ·
+    /// تحويل حساب له فروع إلى حساب ترحيل · قيود الرصيد الافتتاحي.
+    /// <para>
+    /// حكم «مطلوب/فارغ» يعيش في البيت الواحد <see cref="RequiredFieldHelper"/> (RULE-N172/RULE-N180…N183) —
+    /// لذلك لا تُكتب علامة على <c>txtNameAr</c> هنا: أي مسح لها في هذا الميتود يمحو الأيقونة التي وسمها
+    /// <see cref="RequiredFieldHelper.Validate"/> قبله.
+    /// </para>
+    /// <para>
+    /// قاعدة «نوع الحساب» تبقى هنا حرفياً لأنها ليست حقل نصي فارغ: القائمة مبنية بعناصر
+    /// (<c>cbNature.Items</c>) بلا <c>ValueMember</c>، فحكم الـHelper على القوائم المنسدلة
+    /// (<c>SelectedValue</c>) لا يمثّلها.
+    /// </para>
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
 
-        errorProvider.SetError(txtNameAr, string.Empty);
         errorProvider.SetError(cbNature, string.Empty);
         errorProvider.SetError(cbParent, string.Empty);
         errorProvider.SetError(numOpeningBalance, string.Empty);
         errorProvider.SetError(chkIsLeaf, string.Empty);
-
-        if (!clsValidation.IsRequired(txtNameAr.Text))
-        {
-            errorProvider.SetError(txtNameAr, "الاسم العربي للحساب مطلوب");
-            clsInputFeedback.ShowRejectTooltip(txtNameAr, "الاسم العربي للحساب مطلوب", toolTip);   // GAP-08b
-            isValid = false;
-        }
 
         if (cbNature.SelectedItem is not NatureOption)
         {
@@ -907,12 +932,7 @@ public partial class frmAccounts : Form
         }
 
         if (!isValid)
-        {
             clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-
-            if (!string.IsNullOrWhiteSpace(errorProvider.GetError(txtNameAr)))
-                txtNameAr.Focus();
-        }
 
         return isValid;
     }
@@ -960,7 +980,16 @@ public partial class frmAccounts : Form
         // حماية من النقر المزدوج: لا ندخل الحفظ مرتين قبل أن يُصفَّر العلم في finally.
         if (_actionButtonsBusy) return;
 
-        if (!_ValidateForm())
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم كل ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
+
+        // فحوص هذه الشاشة غير المتعلقة بالفراغ (نوع الحساب · دورة الأب · الترحيل · الرصيد الافتتاحي).
+        if (!_ValidateRangeRules())
             return;
 
         bool isUpdate = _editId is int;

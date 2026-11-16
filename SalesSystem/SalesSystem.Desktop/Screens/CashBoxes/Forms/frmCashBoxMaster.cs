@@ -72,10 +72,16 @@ public partial class frmCashBoxMaster : Form
     public frmCashBoxMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // الأزرق الفاتح للحقل النشط
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
+
+        // RULE-N180..N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + ومضة رفض عند مغادرة حقل مطلوب فارغ.
+        // ترتيب إلزامي: بعد WireFocusHighlight (أعلاه) لأن ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtName, "اسم الصندوق مطلوب"));
 
         // أزرار الوضع (إضافة/تعديل/حذف/مسح التصفية) تتغير حالة تفعيلها حسب السجل المحدد،
         // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل (RULE-N43).
@@ -102,7 +108,7 @@ public partial class frmCashBoxMaster : Form
     /// <summary>Delete: تعطيل السجل المحدد — يُتجاهل أثناء الكتابة داخل أي حقل إدخال.</summary>
     private void _GlobalDelete()
     {
-        if (_IsTextInputFocused()) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;   // بيت واحد — لا نسخة محلية (RULE-N169)
         if (btnDelete.Enabled) btnDelete.PerformClick();
     }
 
@@ -116,40 +122,6 @@ public partial class frmCashBoxMaster : Form
         }
 
         _ResetForm();
-    }
-
-    /// <summary>هل المؤشر داخل حقل إدخال؟ (لئلا يُنفَّذ اختصار Delete أثناء الكتابة).</summary>
-    private bool _IsTextInputFocused()
-    {
-        foreach (Control input in new Control[]
-                 {
-                     txtSearch, cbFilterBy, cbStatus, txtName, txtDescription
-                 })
-        {
-            if (input.Focused) return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>هل الحقل المطلوب (اسم الصندوق) مكتمل؟</summary>
-    private bool _RequiredFieldsValid()
-        => !string.IsNullOrWhiteSpace(txtName.Text);
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// يعيد false إذا كان هناك حقل ناقص.
-    /// </summary>
-    private bool _FocusFirstMissingField(bool edit)
-    {
-        // لا توجد حقول مطلوبة تختلف بين وضعي الإضافة والتعديل في هذا الدليل.
-        _ = edit;
-
-        if (!string.IsNullOrWhiteSpace(txtName.Text)) return true;
-
-        errorProvider.SetError(txtName, "اسم الصندوق مطلوب");
-        txtName.Focus();
-        return false;
     }
 
     /// <summary>
@@ -500,7 +472,7 @@ public partial class frmCashBoxMaster : Form
         _editId = cashBoxId;
         _mode = EntryMode.Editing;   // RULE-N151: اختيار سجل من الشبكة = وضع التعديل
 
-        errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // البيت الواحد (RULE-N169) — لا SetError محلي
 
         txtCode.Text = cashBoxId.ToString();
         txtName.Text = c.Name;
@@ -520,6 +492,8 @@ public partial class frmCashBoxMaster : Form
     private void _ApplyModeState()
     {
         bool editingSession = _mode != EntryMode.Browsing;
+
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة
 
         _SetEditorEnabled(editingSession);
 
@@ -563,9 +537,10 @@ public partial class frmCashBoxMaster : Form
     /// </summary>
     private Button? _PrimaryActionButton() => _mode switch
     {
+        EntryMode.Browsing => btnNew,
         EntryMode.Adding => btnSave,
         EntryMode.Editing => btnEdit,
-        _ => btnNew
+        _ => null
     };
 
     /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
@@ -603,7 +578,7 @@ public partial class frmCashBoxMaster : Form
         _editId = null;
         _mode = EntryMode.Browsing;
 
-        errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // البيت الواحد (RULE-N169)
 
         txtCode.Clear();
         txtName.Clear();
@@ -629,30 +604,6 @@ public partial class frmCashBoxMaster : Form
         txtName.Focus();
     }
 
-    // ── Validation ────────────────────────────────────────────────────────────
-
-    private bool _ValidateForm()
-    {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم الصندوق مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-        }
-
-        return isValid;
-    }
-
     // ── Buttons ───────────────────────────────────────────────────────────────
 
     private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
@@ -673,12 +624,13 @@ public partial class frmCashBoxMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_FocusFirstMissingField(edit))
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + ومضة رفض) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
             return;
-
-        if (!_RequiredFieldsValid()) return;
-        if (!_ValidateForm()) return;
+        }
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)

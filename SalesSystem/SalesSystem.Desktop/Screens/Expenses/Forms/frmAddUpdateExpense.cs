@@ -47,7 +47,11 @@ public partial class frmAddUpdateExpense : Form
         InitializeComponent();
 
         // RULE-N95 — الستة من KeyboardHelper معاً في المُنشئ.
-        KeyboardHelper.WireEnterAsTab(this);                                        // RULE-N40
+        // RULE-N191/N193: Enter يمشي بترتيب العرض ثم يُسلِّم التركيز لزر الوضع بلا تنفيذ، ويُعلَن مفتاحَ
+        // إدخال في PreviewKeyDown كي لا يبتلعه AcceptButton قبل KeyDown. النطاق = النموذج لأن حقول
+        // المحرر موزّعة على صندوقَي شقيقين (gbDocumentInfo · gbDetails) بلا لوحة جامعة.
+        // استدعاء واحد فقط: الواجهة أحادية الوسيط تحجز الحقول أولاً فيصير هذا «الأول يفوز» صامتاً (RULE-N191).
+        KeyboardHelper.WireEnterAsTab(this, _PrimaryActionButton);                  // RULE-N40 + RULE-N191
         KeyboardHelper.WireSelectAllOnFocus(this);                                  // RULE-N41
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));  // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45
@@ -57,7 +61,15 @@ public partial class frmAddUpdateExpense : Form
             (Keys.F4, () => { if (btnSave.Enabled) btnSave.PerformClick(); }),
             (Keys.F5, () => _ = _RefreshAsync()),
             (Keys.Escape, () => btnClose.PerformClick()));
-        KeyboardHelper.WireModeEnter(this, () => btnSave);
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);                   // RULE-N147
+
+        // RULE-N180…N183 + RULE-N194 — تغذية الحقول المطلوبة حيّاً (أيقونة ✗ + رسالة + ومضة رفض).
+        // ترتيب الاستدعاء إلزامي: **بعد** WireFocusHighlight (ترتيب اشتراك Leave) و**قبل** الثيم
+        // (GreenThemeHelper.Apply ← WireDisabledVisuals) — RULE-N183. قواعد «فارغ» فقط:
+        // قاعدة المبلغ (> 0) وقاعدة حظر المصروف المرحّل تبقى في مكانها بلا مساس.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbCashBox, "يرجى اختيار الصندوق."),
+            new RequiredField(txtNotes, "بيان المصروف مطلوب."));
 
         // RULE-N97 — التفقيط الحيّ كتلميح على حقل المبلغ.
         LiveTafqeetHelper.Attach(liveTip, (numAmount, "المبلغ", LiveTafqeetHelper.ReadMode.Money));
@@ -119,7 +131,13 @@ public partial class frmAddUpdateExpense : Form
 
     // ── مؤشر الوضع وحالة الأزرار ────────────────────────────────────────────────
 
-    /// <summary>RULE-N44: مؤشر الوضع يتحدث مع كل تغيير للحالة — ويُعلن أن المصروف المرحّل/الملغى للعرض فقط.</summary>
+    /// <summary>
+    /// RULE-N44: مؤشر الوضع يتحدث مع كل تغيير للحالة — ويُعلن أن المصروف المرحّل/الملغى للعرض فقط.
+    /// <para>
+    /// وهي أيضاً نقطة إدارة حالة الشاشة: تُضبط فيها <c>AcceptButton</c> من <see cref="_PrimaryActionButton"/>
+    /// (RULE-N147) لأنها تُستدعى وحدها بعد **كل** انتقال (تحميل · F2 · تحميل سجل التعديل · وضع العرض).
+    /// </para>
+    /// </summary>
     private void _UpdateModeHeader()
     {
         lblMode.Text = !_isEditMode
@@ -129,7 +147,19 @@ public partial class frmAddUpdateExpense : Form
                 : $"عرض مصروف رقم: {_editingId} — {DocumentTextHelper.StatusText(_loadedStatus)} (غير قابل للتعديل)";
 
         Text = lblMode.Text;
+
+        // RULE-N147: Enter يُنفِّذ الزر الأساسي للوضع الحالي — والزر الأساسي هنا يُقرأ من بيت واحد.
+        AcceptButton = _PrimaryActionButton();
     }
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي (RULE-N147 / RULE-N153) — مستند المصروف بلا «جديد» كزر
+    /// (الإضافة بـ F2 عبر <see cref="_StartNewEntry"/>): المستند **قابل للحفظ** ⇒ «حفظ»،
+    /// والمصروف **المرحّل/الملغى** وضعُه عرض فقط ⇒ <c>null</c> كي لا ينفّذ Enter حفظاً مرفوضاً.
+    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة (لا يُخزَّن).
+    /// </summary>
+    private Button? _PrimaryActionButton()
+        => _isEditMode && _loadedStatus != StatusDraft ? null : btnSave;
 
     /// <summary>إجمالي السند بصيغة N2 (RULE-001).</summary>
     private void _UpdateNetTotal()
@@ -147,6 +177,7 @@ public partial class frmAddUpdateExpense : Form
         numAmount.Value = 0m;
         txtNotes.Clear();
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183: علامات «مطلوب» تُمسح مع مسار إعادة الضبط
 
         _UpdateModeHeader();
         _UpdateNetTotal();
@@ -242,20 +273,15 @@ public partial class frmAddUpdateExpense : Form
 
     // ── التحقق ─────────────────────────────────────────────────────────────────
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// قاعدة **المبلغ** وحدها — ليست قاعدة «حقل فارغ» فلا تنتقل إلى <see cref="RequiredFieldHelper"/>
+    /// (RULE-N172: قواعد «فارغ/مطلوب» في البيت الواحد، وقاعدة «المبلغ &gt; 0» تبقى هنا حرفياً كما كانت).
+    /// حقل الصندوق والبيان صارا قاعدتَي «مطلوب» في <c>RequiredFieldHelper.Attach</c> بالمُنشئ بنفس رسالتيهما.
+    /// </summary>
+    // فحوص المدى/المال الخاصة بهذه الشاشة (المبلغ ≤ 0 وحظر حفظ المرحّل/الملغى) — ليست حكم «مطلوب» (البيت الواحد `RequiredFieldHelper`).
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
-
-        if (!_TryGetCashBoxId(out _))
-        {
-            errorProvider.SetError(cmbCashBox, "يرجى اختيار الصندوق.");
-            clsInputFeedback.ShowRejectTooltip(cmbCashBox, "يرجى اختيار الصندوق.", toolTip1);   // GAP-08b
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbCashBox, string.Empty);
-        }
 
         if (numAmount.Value <= 0)
         {
@@ -266,17 +292,6 @@ public partial class frmAddUpdateExpense : Form
         else
         {
             errorProvider.SetError(numAmount, string.Empty);
-        }
-
-        if (!clsValidation.IsRequired(txtNotes.Text))
-        {
-            errorProvider.SetError(txtNotes, "بيان المصروف مطلوب.");
-            clsInputFeedback.ShowRejectTooltip(txtNotes, "بيان المصروف مطلوب.", toolTip1);   // GAP-08b
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtNotes, string.Empty);
         }
 
         if (!isValid)
@@ -313,7 +328,15 @@ public partial class frmAddUpdateExpense : Form
             return;
         }
 
-        if (!_ValidateForm()) return;
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N194) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، بلا صندوق رسالة يعطّل العمل.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
+
+        if (!_ValidateRangeRules()) return;
         if (!_TryGetCashBoxId(out int cashBoxId)) return;
 
         Cursor = Cursors.WaitCursor;
