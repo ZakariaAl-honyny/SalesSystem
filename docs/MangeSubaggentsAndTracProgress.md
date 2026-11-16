@@ -19,13 +19,13 @@
 | منها تقارير (`\Reports\`) | **31** | مسار الملف |
 | منها غير تقريري | **63** | الباقي |
 | نوافذ طباعة للقراءة فقط | **5** | `frmPurchaseInvoicePrint` · `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` |
-| `WireEnterAsTab(this)` — أحادي (قديم) | **33 ملفاً** | `Select-String 'WireEnterAsTab\s*\(\s*this\s*\)'` |
-| `WireEnterAsTab(scope, func)` — ثنائي (الصحيح) | **25** | التجريبية + الموجات 11–16 (قائمة الأسماء الكاملة في §5) |
+| `WireEnterAsTab(this)` — أحادي (قديم) | **29 ملفاً** | `Select-String 'WireEnterAsTab\s*\(\s*this\s*\)'` |
+| `WireEnterAsTab(scope, func)` — ثنائي (الصحيح) | **29** | التجريبية + الموجات 11–17 (قائمة الأسماء الكاملة في §5) |
 | شاشة بلا `WireEnterAsTab` | **36** | 31 تقريراً + 5 نوافذ طباعة — **الإعفاء الوحيد** (`RULE-N121`)؛ والمحرران «سند قبض» و«مصروف» كانا دَيناً (`RULE-N95`) ويُعالجان في الموجة 13 |
 | شاشة تُعلن `_PrimaryActionButton` | **29** | `Select-String '_PrimaryActionButton'` |
 | شاشة تضبط `AcceptButton` | **40** | `Select-String 'AcceptButton\s*='` |
-| شاشة تستهلك `RequiredFieldHelper` | **20** | كل شاشات الموجات 11–16 (ماعدا شاشات القراءة بلا حقل مطلوب) + التجريبية |
-| نسخ تحقق محلي | `_RequiredFieldsValid` **0** ✅ · `_FocusFirstMissingField` **0** ✅ · `_ValidateForm` **4** | الأربعة في شاشات **لم تُرحَّل بعد** (`frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmSupplierPaymentDialog`) |
+| شاشة تستهلك `RequiredFieldHelper` | **24** | كل شاشات الموجات 11–17 (ماعدا شاشات القراءة/الرقمية بلا حقل نصي مطلوب) + التجريبية |
+| نسخ تحقق محلي | `_RequiredFieldsValid` **0** ✅ · `_FocusFirstMissingField` **0** ✅ · `_ValidateForm` **3** | الثلاثة في شاشات **لم تُرحَّل بعد** (`frmPurchaseReturn` · `frmSalesReturn` · `frmSupplierPaymentDialog`) |
 | مواضع `errorProvider.SetError` | **170 موضعاً في 28 شاشة** | `Select-String 'SetError\s*\('` — تُنقل تدريجياً إلى البيت الواحد |
 | ملفات مصمّمات تحمل ألواناً متقاعدة | **95 من 95** (دَين `PAL-5`) | عدّ **القيم المتقاعدة غير الحيّة** (23 قيمة من الجيلين المحايد والأزرق) داخل `Convert.ToInt32(...)` في `*.Designer.cs` — انظر §3 |
 | مجموع القيم اللونية المتقاعدة المتبقية | **795** موضعاً · **6** قيمة | نفس العدّ (**310** في 31 مصمّم تقرير · **485** في 64 غير تقريري) |
@@ -33,8 +33,8 @@
 | نسخ محلية لحارس «المؤشر في حقل إدخال» (`_IsTextInputFocused`/`_IsTextEditingFocused`) | **0** ✅ (كانت 7) | حُذفت آخر نسخة في `frmWarehouseMaster` |
 | مراجع `NavigationOptions` داخل `Screens/**` | **0** | يجب أن تبقى 0 (`RULE-N192`) |
 | مراجع `BlocksEnterNavigation` داخل `Screens/**` | **0** | يجب أن تبقى 0 (`RULE-N194`) |
-| **شاشات مكتملة ومُبنية** | **25** من 94 | الشاشة التجريبية + الموجات 11 · 12 · 13 · 14 · 15 · 16 |
-| **شاشات متبقية** | **69** | منها **33 نموذجاً** بدالة `WireEnterAsTab` أحادية (بعد استثناء 31 تقريراً و5 نوافذ طباعة) |
+| **شاشات مكتملة ومُبنية** | **29** من 94 | الشاشة التجريبية + الموجات 11–17 |
+| **شاشات متبقية** | **65** | منها **29 نموذجاً** بدالة `WireEnterAsTab` أحادية (بعد استثناء 31 تقريراً و5 نوافذ طباعة) |
 | بناء الحل بعد موجة المصمّمات + اللوحة | **0 خطأ · 86 تحذيراً** | `dotnet build .\SalesSystem.slnx` — التحذيرات **= خط الأساس 86** ⇒ **صفر تحذير جديد** |
 
 > **الشاشة التجريبية المشهودة:** `frmProductMaster` (شهادة المالك 2026-11-16 — `RULE-N184`/`N185`) وهي **المرجع البصري والسلوكي** لكل شاشة: أي خلاف يُحسم لصالحها.
@@ -180,8 +180,8 @@ private Button? _PrimaryActionButton() => _mode switch
 | 14 | `frmAddUpdateInventoryAdjustment` · `frmAddUpdateSalesInvoice` · `frmCashBoxTransactions` · `frmCustomerStatement` | ✅ **0 خطأ / 86 تحذيراً** (`--no-incremental` = خط الأساس) | ✅ | السطور 939/3247/904/747 · **0** نسخة محلية في الأربعة · `_ValidateForm` نزل من 9 إلى **6** · فاتورة البيع: `_PrimaryActionButton` = `null` عند `dgvItems.ContainsFocus`/`IsCurrentCellInEditMode`/`IsLocked` · حُذفت 5 اشتراكات `FieldEnter_KeyDown` محلية من الرأس واستُبدلت بالواجهة ثنائية الوسيط · 14 قاعدة مال/مخزون/ترحيل بقيت حرفياً |
 | 15 | `frmInventoryFifo` · `frmInventoryList` · `frmInventoryBarcode` · `frmImportProductsExcel` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور 484/568/451/765 · **بنيتُ أخطأت أولاً بـ`CS8752`** (قاعدة واحدة تحتاج `new RequiredField(...)`) فأُعيدت إلى مالك الملف وأُصلحت ثم بُني 0 أخطاء · `frmInventoryFifo`/`frmInventoryList` للقراءة فقط (بلا حقول إدخال) · `frmInventoryBarcode` حذف نسخة `clsValidation.IsRequired` المحلية وأثبت أن اشتراك المصمّم يسبق الـHelper فيفوز `Enter` الباركود (`RULE-N42`) · `frmImportProductsExcel` استبدل `Label` بـ`TextBox` للقراءة فقط + `errorProvider` لأن `Label` لا تكون «فارغة» أبداً |
 | 16 | `frmInventory` · `frmJournalEntries` · `frmOpeningStock` · `frmPasswordChange` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور المقيسة **1,160 / 1,735 / 576 / 404** (الأرقام في تقارير الوكلاء كانت منقوصة — المرجع قياس الـOrchestrator) · `frmInventory` للعرض فقط (3 شبكات · لا حقل مطلوب) + `_WireGridEnterOwnership` تطبيقاً لـ`RULE-N153` · `frmJournalEntries` ثنائي على `pnlEntryHeader` و`_PrimaryActionButton` = `null` في الشبكتين وللقيد المُرحَّل، **2 من 20 `SetError` نُقلا** و**18 بقيت حرفياً**، والتوازن `_IsBalanced` بلا مساس · `frmOpeningStock` حذف `_ValidateEmptyTextBox` و`_ValidateForm` → `_ValidateBeforeSave` + `_ValidateRangeRules` (6 حكماً) · `frmPasswordChange` قواعد كلمة المرور الست بنصوصها حرفياً |
-| 17 | الصفوف 26→63 (بقية المحررات · القوائم · المنتقيات · الطباعة · النظام · التقارير) | | ⬜ | 4 وكلاء لكل موجة |
-| 16 | الصفوف 64→94 (31 تقريراً — ألوان فقط) | | ⬜ | إعفاء كامل من `RULE-N121` |
+| 17 | `frmPOS` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseInvoice` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور المقيسة **1,616 / 335 / 248 / 781** · `frmPOS`: `_PrimaryActionButton` = `null` في الباركود والشبكة وتحرير الخلية والسلة الفارغة وحالة الانشغال · `IsInputFocused` المحلي حُذف ⇒ `IsTextInputFocused` · 3 من 10 `SetError` نُقلت و7 بقيت · `frmPurchaseInvoice`: `_ValidateForm` **0** و`SetError` **10→6** والرسائل المالية الستّ حرفية · `frmPurchaseCurrency`/`frmPurchaseDiscount`: بلا `Attach` فعلي (الحقل الوحيد `NumericUpDown` وبيت الحقول المطلوبة لا يدعمه — فجوة مسجَّلة) والمدى في `_ValidateRangeRules` |
+| 18 | الصفوف 30→63 (بقية المحررات · القوائم · المنتقيات · الطباعة · النظام) ثم 31 تقريراً (الألوان فقط) | | ⬜ | 4 وكلاء لكل موجة · التقارير موجة واحدة كاملة (10 قيم متقاعدة × 8 ملفات لكل وكيل) |
 | الأخيرة | قائمة اختبار عربية + دفع (commit + push) | | ⬜ | **مراجعة `code-reviewer` ألغاها المالك** — ليست عمل الوكيل؛ البوابة تُغلق بالقياس الآلي (0 أخطاء · 0 تحذير جديد · صفر نسخة محلية · كل شاشة مقيسة) |
 
 > **`W-10-RESTORE` — الحادثة والدرس (مسجَّلة بقرار `RULE-N174`):** أُعيدت `Screens/**` إلى `HEAD` مرتين بـ`git checkout` أثناء تنظيف الشجرة، فمُحيت تعديلات كود **36 شاشة** أُنجزت في الموجات 1–9 (وما بقي منها هو المصمّمات لأنها أُعيد توليدها آلياً بعد الاسترجاع). **قاعدتان ملزمتان:** (1) **ممنوع** `git checkout -- Screens/**` — أي تراجع يجب أن يكون **ملفاً بملف بأسماء صريحة**؛ (2) **لا يُقال «مكتمل» لشاشة لم يُقَس استيرادها بعد** — عمود الحالة في §6 يُقاس بالأمر لا بالذاكرة.
@@ -223,10 +223,10 @@ private Button? _PrimaryActionButton() => _mode switch
 | 23 | `frmJournalEntries` | محرر/مستند | Y | 2 ✅ | 0 / 18 | 0 ✅ | 1735 | ✅ | 16 |
 | 24 | `frmOpeningStock` | محرر/مستند | Y | 2 ✅ | 0 / 0 | 0 ✅ | 576 | ✅ | 16 |
 | 25 | `frmPasswordChange` | محرر/مستند | Y | 2 ✅ | 0 / 2 | 0 ✅ | 404 | ✅ | 16 |
-| 26 | `frmPOS` | محرر/مستند | Y | 1 ⚠ | 0 / 10 | 0 ✅ | 1567 | ⬜ | — |
-| 27 | `frmPurchaseCurrency` | محرر/مستند | Y | 1 ⚠ | 0 / 3 | 0 ✅ | 311 | ⬜ | — |
-| 28 | `frmPurchaseDiscount` | محرر/مستند | Y | 1 ⚠ | 0 / 4 | 0 ✅ | 219 | ⬜ | — |
-| 29 | `frmPurchaseInvoice` | محرر/مستند | Y | 1 ⚠ | 0 / 6 | 0 ✅ | 752 | ⬜ | — |
+| 26 | `frmPOS` | محرر/مستند | Y | 2 ✅ | 0 / 7 | 0 ✅ | 1616 | ✅ | 17 |
+| 27 | `frmPurchaseCurrency` | محرر/مستند | Y | 2 ✅ | 0 / 3 | 0 ✅ | 335 | ✅ | 17 |
+| 28 | `frmPurchaseDiscount` | محرر/مستند | Y | 2 ✅ | 0 / 4 | 0 ✅ | 248 | ✅ | 17 |
+| 29 | `frmPurchaseInvoice` | محرر/مستند | Y | 2 ✅ | 0 / 6 | 0 ✅ | 781 | ✅ | 17 |
 | 30 | `frmPurchaseItem` | محرر/مستند | Y | 1 ⚠ | 0 / 6 | 0 ✅ | 267 | ⬜ | — |
 | 31 | `frmPurchaseItemInfo` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 267 | ⬜ | — |
 | 32 | `frmPurchaseOtherDetails` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 159 | ⬜ | — |

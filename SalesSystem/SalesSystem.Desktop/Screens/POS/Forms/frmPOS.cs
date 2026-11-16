@@ -60,9 +60,8 @@ public partial class frmPOS : Form
         ApplyUiTheme();
 
         // RULE-N95 — الستة من KeyboardHelper (تنقل + تحديد + تظليل + أسهم + أزرار + اختصارات)
-        KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnNew, btnSave, btnRemoveLine, btnApplyLine); // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                      // RULE-N47
@@ -72,23 +71,54 @@ public partial class frmPOS : Form
             (Keys.Escape, () => btnClose.PerformClick()),
             (Keys.Delete, DeleteSelectedLineIfAllowed));
 
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + رسالة عربية + ومضة رفض تعود إلى لون المصمّم.
+        // ترتيب الاستدعاء إلزامي: بعد WireFocusHighlight (ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً).
+        // الشاشة تُعلن القواعد فقط — لا أيقونة ولا لون ولا استعادة خلفية هنا (RULE-N181).
+        // «عميل نقدي» معرّفه صفر فيُعدّ فارغاً، ولذلك قاعدة العميل مشروطة بالبيع الآجل فقط.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cbWarehouse, "اختر المخزن أولاً."),
+            new RequiredField(cbCashBox, "اختر الصندوق النقدي أولاً."),
+            new RequiredField(cbCustomer, "البيع الآجل يتطلب اختيار عميل.", () => rbtnCredit.Checked));
+
         // RULE-N147 — Enter = الزر الأساسي للشاشة («حفظ وترحيل»)، ولا يعمل داخل حقل أو شبكة
         // (Enter في الباركود = بحث فوري RULE-N42، وفي السلة = تنقّل بين السطور RULE-N80/N85).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
-        SyncAcceptButton();                       // RULE-N153 — حالة AcceptButton تُزامَن مع التركيز
 
+        // ⚠️ إلزامي: WireEvents أولاً — اشتراك txtBarcode.KeyDown يجب أن يسبق سلسلة التنقل،
+        // فيُعلن الباركود Enter «مُعالَجاً» فتنصرف سلسلة WireEnterAsTab (RULE-N42 / RULE-N193).
         WireEvents();
+
+        // RULE-N191/N193 — Enter داخل حقل يمشي بترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُركِّز زر
+        // الوضع بلا تنفيذ. النطاق = الشاشة كلها لأن حقول نقطة البيع موزّعة على pnlTop (الباركود/البحث/التصنيف)
+        // وpnlPayment وpnlLine (محرر السطر) وpnlTotals — ولا توجد لوحة محرّر واحدة.
+        KeyboardHelper.WireEnterAsTab(this, _PrimaryActionButton);
+
+        SyncAcceptButton();                       // RULE-N153 — حالة AcceptButton تُزامَن مع التركيز
         SetupGrid();
     }
 
     /// <summary>
-    /// الزر الأساسي لـ <c>Enter</c> (RULE-N147): «حفظ وترحيل» — ويعود <c>null</c> عندما يكون
-    /// التركيز داخل حقل الباركود أو شبكة السلة حتى يبقى <c>Enter</c> هناك للعنصر نفسه:
-    /// بحث فوري بالباركود (RULE-N42) وتنقّل داخل السلة بلا ترحيل صامت (RULE-N80/N85).
+    /// الزر الأساسي لـ <c>Enter</c> (RULE-N147): «حفظ وترحيل» — ويعود <c>null</c> في الحالات التالية
+    /// فيبقى <c>Enter</c> للعنصر نفسه ولا يُرحَّل بيع صامت:
+    /// <list type="bullet">
+    /// <item>الشبكة <see cref="dgvCart"/> بالتركيز أو خليتها في وضع التحرير — الشبكة تملك <c>Enter</c> (RULE-N153).</item>
+    /// <item>حقل الباركود بالتركيز — <c>Enter</c> هناك بحث فوري (RULE-N42).</item>
+    /// <item>السلة فارغة — لا شيء ليُرحَّل.</item>
+    /// <item>حفظ جارٍ (<c>_isBusy</c>) — لا ترحيل مزدوج.</item>
+    /// </list>
     /// </summary>
     private Button? _PrimaryActionButton()
     {
-        if (txtBarcode.ContainsFocus || dgvCart.ContainsFocus) return null;
+        if (_isBusy) return null;                                                  // حفظ جارٍ — لا ترحيل مزدوج
+
+        // RULE-N153 — لا زر أساسي والشبكة مالكة للتركيز أو للخلية قيد التحرير
+        if (dgvCart.ContainsFocus || dgvCart.IsCurrentCellInEditMode) return null;
+
+        // RULE-N42 — حقل السكانر يملك Enter (بحث فوري) فلا يُسلَّم إلى زر الترحيل
+        if (txtBarcode.ContainsFocus) return null;
+
+        // لا شيء ليُرحَّل: سلة فارغة ⇒ لا زر أساسي
+        if (_cart.Count == 0) return null;
 
         return btnSave;
     }
@@ -526,8 +556,9 @@ public partial class frmPOS : Form
     // ═════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Enter في حقل الباركود يعترضه <see cref="ProcessCmdKey"/> قبل وصوله إلى
-    /// <c>WireEnterAsTab</c> حتى لا ينتقل التركيز بعيداً عن حقل السكانر.
+    /// Enter في حقل الباركود يُلتقط هنا كشبكة أمان ثانية قبل وصوله إلى سلسلة التنقل، فيبقى التركيز
+    /// في حقل السكانر (RULE-N42). المسار الأساسي هو <see cref="txtBarcode_KeyDown"/> نفسه (مُشترك
+    /// قبل <c>WireEnterAsTab</c> في المُنشئ)، والمساران لا يعملان معاً أبداً لأن كل مسار يُعيد <c>true</c>.
     /// </summary>
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
@@ -544,15 +575,22 @@ public partial class frmPOS : Form
     /// RULE-N147 + RULE-N80: <c>AcceptButton</c> في WinForms يسبق <c>KeyDown</c> ويلتقط <c>Enter</c>،
     /// فنمنعه داخل حقل الباركود وشبكة السلة وبقية حقول الإدخال كي يبقى <c>Enter</c> هناك للعنصر نفسه
     /// (بحث باركود · تنقّل بين السطور · الحقل التالي — `RULE-N40`) ولا يُرحَّل بيع من داخل حقل.
+    /// حكم «هل المؤكد داخل حقل إدخال» من البيت الواحد <see cref="KeyboardHelper.IsTextInputFocused"/> (RULE-N172).
     /// </summary>
     protected override bool ProcessDialogKey(Keys keyData)
     {
-        if (keyData == Keys.Enter && (IsInputFocused() || dgvCart.ContainsFocus))
+        if (keyData == Keys.Enter && (KeyboardHelper.IsTextInputFocused(this) || dgvCart.ContainsFocus))
             return false;   // غير مُعالج ⇒ يمرّ إلى KeyDown فيُطبَّق سلوك العنصر الحالي
 
         return base.ProcessDialogKey(keyData);
     }
 
+    /// <summary>
+    /// Enter في الباركود = بحث فوري (RULE-N42). يُعلن <c>e.Handled</c> في أول سطر حتى تنصرف سلسلة
+    /// <see cref="KeyboardHelper.WireEnterAsTab(Control, Func{Button})"/> فلا ينتقل التركيز ولا يُنقَر
+    /// زر الترحيل (<c>AcceptButton</c> يبتلع Enter قبل KeyDown — RULE-N193)؛ ولذلك اشتراك هذا المعالج
+    /// يسبق اشتراك السلسلة في المُنشئ، و<see cref="ProcessCmdKey"/> يبقى شبكة أمان للطريق الآخر.
+    /// </summary>
     private async void txtBarcode_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode != Keys.Enter) return;
@@ -770,7 +808,8 @@ public partial class frmPOS : Form
             EndUpdate();
         }
 
-        errorProvider.Clear();                 // لا تبقى أيقونات تحقق من بيع سابق
+        RequiredFieldHelper.Clear(this);        // علامات الحقول المطلوبة — من البيت الواحد (RULE-N172)
+        errorProvider.Clear();                 // أيقونات قواعد المال/السلة (خارج الحقول المطلوبة)
         RecalculateTotals();
         UpdateButtonState();
         UpdateModeHeader();
@@ -842,6 +881,9 @@ public partial class frmPOS : Form
         numQty.Enabled = hasLine;
         numUnitPrice.Enabled = hasLine;
         numLineDiscount.Enabled = hasLine;
+
+        // RULE-N147/N153 — AcceptButton يتبع الوضع الحالي: سلة فارغة أو تركيز داخل الشبكة ⇒ لا زر أساسي
+        SyncAcceptButton();
     }
 
     private void btnApplyLine_Click(object? sender, EventArgs e)
@@ -875,24 +917,14 @@ public partial class frmPOS : Form
     /// <summary>
     /// Delete كاختصار على الشاشة: يعمل فقط عندما تكون شبكة السلة هي ذات التركيز — فلا يُحذف
     /// سطر صامتاً والمؤشر على زر أو حقل آخر، ويبقى Delete داخل أي حقل إدخال للحقل نفسه
-    /// (RULE-N47 / RULE-N153).
+    /// (RULE-N47 / RULE-N153). حكم «المؤكد داخل حقل إدخال» من البيت الواحد
+    /// <see cref="KeyboardHelper.IsTextInputFocused"/> — لا نسخة محلية (RULE-N169).
     /// </summary>
     private void DeleteSelectedLineIfAllowed()
     {
-        if (!dgvCart.ContainsFocus || IsInputFocused()) return;
+        if (!dgvCart.ContainsFocus || KeyboardHelper.IsTextInputFocused(this)) return;
         DeleteSelectedLine();
     }
-
-    /// <summary>
-    /// هل التركيز داخل حقل إدخال خارج الشبكة؟ يُستخدم <see cref="Control.ContainsFocus"/>
-    /// لأن الحقول الرقمية والقوائم قد تكون التركيز في محرّرها الداخلي لا فيها نفسها.
-    /// </summary>
-    private bool IsInputFocused()
-        => txtBarcode.ContainsFocus || txtProductSearch.ContainsFocus
-           || cbCategory.ContainsFocus || cbCustomer.ContainsFocus
-           || cbWarehouse.ContainsFocus || cbCashBox.ContainsFocus
-           || numQty.ContainsFocus || numUnitPrice.ContainsFocus || numLineDiscount.ContainsFocus
-           || numInvoiceDiscount.ContainsFocus || numPaid.ContainsFocus;
 
     private void DeleteSelectedLine()
     {
@@ -1157,6 +1189,10 @@ public partial class frmPOS : Form
             EndUpdate();
         }
 
+        // تغيّرت شروط قاعدة «العميل المطلوب» (البيع الآجل) ⇒ تُمسح العلامات القديمة كي لا تبقى ✗
+        // على حقل لم يعد مطلوباً؛ وإعادة الوسم تحدث عند مغادرة الحقل أو عند الحفظ (RULE-N183).
+        RequiredFieldHelper.Clear(this);
+
         RecalculateTotals();
     }
 
@@ -1350,8 +1386,14 @@ public partial class frmPOS : Form
     }
 
     /// <summary>
-    /// تحقق عربي كامل قبل الحفظ. «عميل نقدي» (CustomerId = 0) مقبول في البيع النقدي
-    /// لأن BLL يستبدله بـ DefaultCashCustomerId، ومرفوض في البيع الآجل.
+    /// تحقق عربي كامل قبل الحفظ — بمسارين لا يتكرر أي منهما في الآخر:
+    /// <list type="number">
+    /// <item>قواعد المال والسلة في <see cref="_ValidateRangeRules"/> (كما هي حرفياً — RULE-N167).</item>
+    /// <item>الحقول المطلوبة (المخزن · الصندوق · العميل الآجل) في البيت الواحد
+    /// <see cref="RequiredFieldHelper"/> (RULE-N172 / RULE-N180…N183) — أيقونة ✗ + رسالة عربية + ومضة.</item>
+    /// </list>
+    /// «عميل نقدي» (CustomerId = 0) مقبول في البيع النقدي لأن BLL يستبدله بـ DefaultCashCustomerId،
+    /// ومرفوض في البيع الآجل (قاعدة <c>cbCustomer</c> الشرطية).
     /// </summary>
     private bool ValidateBeforeSave(
         out int warehouseId,
@@ -1360,14 +1402,40 @@ public partial class frmPOS : Form
         out DtoPaymentType paymentType,
         out string? error)
     {
-        warehouseId = 0;
-        cashBoxId = null;
-        customerId = 0;
         paymentType = rbtnCash.Checked ? DtoPaymentType.Cash : DtoPaymentType.Credit;
-        error = null;
 
-        // رسائل عربية على الحقل المخالف (RULE-N28 + §2.21 بند 17)
+        // المعرّفات تُقرأ مرة واحدة هنا — قواعد «الاختيار المطلوب» صارت في RequiredFieldHelper،
+        // فلا يبقى في الشاشة حكم ثانٍ على «فارغ/غير مختار» (RULE-N172).
+        warehouseId = cbWarehouse.SelectedValue is null ? 0 : Convert.ToInt32(cbWarehouse.SelectedValue);
+        cashBoxId = cbCashBox.SelectedValue is null ? null : Convert.ToInt32(cbCashBox.SelectedValue);
+        customerId = cbCustomer.SelectedValue is null ? 0 : Convert.ToInt32(cbCustomer.SelectedValue);
+
+        // لا تبقى علامة من محاولة سابقة: علامات الحقول المطلوبة من بيتها، وأيقونات قواعد المال من هنا.
+        RequiredFieldHelper.Clear(this);
         errorProvider.Clear();
+
+        // (1) قواعد المال والسلة — أول خطأ عربي كما كان، بلا أي تغيير في شروطها.
+        if (!_ValidateRangeRules(out error)) return false;
+
+        // (2) الحقول المطلوبة — الحكم والعَلم والومضة من البيت الواحد، ثم يُنقل المؤشر إلى أول ناقص.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// قواعد المال والسلة قبل الترحيل — **تبقى كما هي حرفياً** (RULE-N167): السلة الفارغة · كمية السطر
+    /// صفر أو سالب · سعر السطر صفر أو سالب · خصم السطر خارج مداه · خصم الفاتورة أكبر من المجموع الفرعي ·
+    /// المدفوع خارج المدى. كلها ترفض برسالة عربية على الحقل المخالف (أيقونة + ومضة) ولا تُنقل إلى الـHelper
+    /// لأنها ليست قواعد «حقل مطلوب فارغ».
+    /// </summary>
+    private bool _ValidateRangeRules(out string? error)
+    {
+        error = null;
 
         if (_cart.Count == 0)
         {
@@ -1376,26 +1444,6 @@ public partial class frmPOS : Form
             clsInputFeedback.ShowRejectTooltip(dgvCart, error!, toolTip);   // GAP-08b — تغذية مرئية بنفس نص الرفض
             return false;
         }
-
-        warehouseId = cbWarehouse.SelectedValue is null ? 0 : Convert.ToInt32(cbWarehouse.SelectedValue);
-        if (warehouseId <= 0)
-        {
-            error = "اختر المخزن أولاً.";
-            errorProvider.SetError(cbWarehouse, error);
-            clsInputFeedback.ShowRejectTooltip(cbWarehouse, error!, toolTip);   // GAP-08b
-            return false;
-        }
-
-        cashBoxId = cbCashBox.SelectedValue is null ? null : Convert.ToInt32(cbCashBox.SelectedValue);
-        if (cashBoxId is null or <= 0)
-        {
-            error = "اختر الصندوق النقدي أولاً.";
-            errorProvider.SetError(cbCashBox, error);
-            clsInputFeedback.ShowRejectTooltip(cbCashBox, error!, toolTip);   // GAP-08b
-            return false;
-        }
-
-        customerId = cbCustomer.SelectedValue is null ? 0 : Convert.ToInt32(cbCustomer.SelectedValue);
 
         foreach (var line in _cart)
         {
@@ -1443,14 +1491,6 @@ public partial class frmPOS : Form
             error = $"المبلغ المدفوع يجب أن يكون بين {clsFormat.Money(0m)} و {clsFormat.Money(netTotal)}.";
             errorProvider.SetError(numPaid, error);
             clsInputFeedback.ShowRejectTooltip(numPaid, error!, toolTip);   // GAP-08b
-            return false;
-        }
-
-        if (paymentType == DtoPaymentType.Credit && customerId <= 0)
-        {
-            error = "البيع الآجل يتطلب اختيار عميل.";
-            errorProvider.SetError(cbCustomer, error);
-            clsInputFeedback.ShowRejectTooltip(cbCustomer, error!, toolTip);   // GAP-08b
             return false;
         }
 

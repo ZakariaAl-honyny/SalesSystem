@@ -24,13 +24,23 @@ public partial class frmPurchaseDiscount : Form
         InitializeComponent();
 
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter يمشي بترتيب العرض داخل مجموعة «بيانات الخصم» (صفاً صفاً، ومن اليمين لليسار)
+        // ثم يُركِّز زر «موافق» بلا تنفيذ؛ والواجهة ثنائية الوسيط وحدها تُعلن Enter مفتاح إدخال (RULE-N193).
+        KeyboardHelper.WireEnterAsTab(grpDiscount, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N147 — الزر الافتراضي للحوار يُقرأ من نفس دالة الزر الأساسي التي يستدعيها WireEnterAsTab.
+        AcceptButton = _PrimaryActionButton();
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً، **بعد** WireFocusHighlight إلزاماً (RULE-N183):
+        // الشاشة تُعلن قواعدها فقط؛ الأيقونة ✗ والرسالة والومضة/الصوت ملك البيت الواحد RequiredFieldHelper.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbTax, "يرجى اختيار نسبة الضريبة"));
 
         // RULE-N97 — التفقيط الحيّ على قيمة الخصم.
         LiveTafqeetHelper.Attach(tipTafqeet,
@@ -150,47 +160,27 @@ public partial class frmPurchaseDiscount : Form
     // ═══════════════════════════════════════════════════════════
     // الإجراءات — موافق / إلغاء
     // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// الزر الأساسي للحوار (RULE-N147): «موافق». تُقرأ عند كل ضغطة Enter وعند ضبط <c>AcceptButton</c>
+    /// — ودالة واحدة يستهلكها الاثنان فلا نسخة ثانية للقرار (RULE-N169…RULE-N172).
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnOk;
+
     private void btnOk_Click(object? sender, EventArgs e)
     {
         try
         {
-            errorProvider.SetError(numDiscount, "");
-
-            if (DiscountValue < 0)
+            // الحقول المطلوبة: الحكم والحفظ في البيت الواحد RequiredFieldHelper — لا حكم «فارغ» هنا
+            // (RULE-N172 / RULE-N180…N183): تُوسَم كل الحقول الناقصة ثم ينتقل المؤشر إلى أولها.
+            if (!RequiredFieldHelper.Validate(this))
             {
-                const string negativeDiscountMessage = "لا يمكن أن تكون قيمة الخصم سالبة.";
-
-                // GAP-08b + RULE-N169: رفض واحد يقرن errorProvider بالتغذية البصرية بنفس النص.
-                errorProvider.SetError(numDiscount, negativeDiscountMessage);
-                clsInputFeedback.ShowRejectTooltip(numDiscount, negativeDiscountMessage, toolTip);
-                clsDialogs.Warning(negativeDiscountMessage);
-                numDiscount.Focus();
+                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
                 return;
             }
 
-            // منع خصم أكبر من المجموع الفرعي عند الخصم بالمبلغ
-            if (!IsPercentageDiscount && DiscountValue > Subtotal)
-            {
-                const string exceedsSubtotalMessage = "قيمة الخصم أكبر من المجموع الفرعي للفاتورة.";
-
-                errorProvider.SetError(numDiscount, exceedsSubtotalMessage);
-                clsInputFeedback.ShowRejectTooltip(numDiscount, exceedsSubtotalMessage, toolTip);
-                clsDialogs.Warning(exceedsSubtotalMessage);
-                numDiscount.Focus();
-                return;
-            }
-
-            // منع خصم بنسبة تتجاوز 100%
-            if (IsPercentageDiscount && DiscountValue > 100m)
-            {
-                const string exceedsPercentMessage = "نسبة الخصم لا يمكن أن تتجاوز 100%.";
-
-                errorProvider.SetError(numDiscount, exceedsPercentMessage);
-                clsInputFeedback.ShowRejectTooltip(numDiscount, exceedsPercentMessage, toolTip);
-                clsDialogs.Warning(exceedsPercentMessage);
-                numDiscount.Focus();
-                return;
-            }
+            // قواعد المدى (سالب / أكبر من المجموع الفرعي / أكبر من 100%) — منطق محفوظ كما هو.
+            if (!_ValidateRangeRules()) return;
 
             // في النسخة النهائية تُعاد القيم إلى فاتورة الشراء عبر خصائص الحوار
             DialogResult = DialogResult.OK;
@@ -201,6 +191,53 @@ public partial class frmPurchaseDiscount : Form
             Serilog.Log.Error(ex, "خطأ في حوار خصم المشتريات");
             clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
+    }
+
+    /// <summary>
+    /// قواعد مدى قيمة الخصم — الرسائل العربية والترتيب محفوظة حرفياً كما كانت (RULE-002 · §2.2):
+    /// خصم سالب مرفوض · مبلغ أكبر من المجموع الفرعي مرفوض · نسبة تتجاوز 100% مرفوضة.
+    /// </summary>
+    private bool _ValidateRangeRules()
+    {
+        errorProvider.SetError(numDiscount, "");
+
+        if (DiscountValue < 0)
+        {
+            const string negativeDiscountMessage = "لا يمكن أن تكون قيمة الخصم سالبة.";
+
+            // GAP-08b + RULE-N169: رفض واحد يقرن errorProvider بالتغذية البصرية بنفس النص.
+            errorProvider.SetError(numDiscount, negativeDiscountMessage);
+            clsInputFeedback.ShowRejectTooltip(numDiscount, negativeDiscountMessage, toolTip);
+            clsDialogs.Warning(negativeDiscountMessage);
+            numDiscount.Focus();
+            return false;
+        }
+
+        // منع خصم أكبر من المجموع الفرعي عند الخصم بالمبلغ
+        if (!IsPercentageDiscount && DiscountValue > Subtotal)
+        {
+            const string exceedsSubtotalMessage = "قيمة الخصم أكبر من المجموع الفرعي للفاتورة.";
+
+            errorProvider.SetError(numDiscount, exceedsSubtotalMessage);
+            clsInputFeedback.ShowRejectTooltip(numDiscount, exceedsSubtotalMessage, toolTip);
+            clsDialogs.Warning(exceedsSubtotalMessage);
+            numDiscount.Focus();
+            return false;
+        }
+
+        // منع خصم بنسبة تتجاوز 100%
+        if (IsPercentageDiscount && DiscountValue > 100m)
+        {
+            const string exceedsPercentMessage = "نسبة الخصم لا يمكن أن تتجاوز 100%.";
+
+            errorProvider.SetError(numDiscount, exceedsPercentMessage);
+            clsInputFeedback.ShowRejectTooltip(numDiscount, exceedsPercentMessage, toolTip);
+            clsDialogs.Warning(exceedsPercentMessage);
+            numDiscount.Focus();
+            return false;
+        }
+
+        return true;
     }
 
     private void btnCancel_Click(object? sender, EventArgs e)

@@ -56,13 +56,23 @@ public partial class frmPurchaseCurrency : Form
         InitializeComponent();
 
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter يمشي بترتيب العرض داخل «سعر الصرف» (صفاً صفاً، ومن اليمين لليسار) ثم يُركِّز
+        // زر «تأكيد واعتماد» بلا تنفيذ؛ والواجهة ثنائية الوسيط وحدها تُعلن Enter مفتاح إدخال (RULE-N193).
+        KeyboardHelper.WireEnterAsTab(grpRate, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel, btnRestore);     // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N147 — الزر الافتراضي للحوار يُقرأ من نفس دالة الزر الأساسي التي يستدعيها WireEnterAsTab.
+        AcceptButton = _PrimaryActionButton();
+
+        // RULE-N180…N183 — لا قاعدة «مطلوب» في هذا الحوار: حقله الوحيد القابل للكتابة numRate رقمي،
+        // وحكم «فارغ» في البيت الواحد (RequiredFieldHelper.IsEmpty) لا يشمل NumericUpDown، فإعلان قاعدة
+        // عليه يكون قاعدة ميتة تُوسَم أبداً. شرط السعر ( > 0 وداخل النطاق) يبقى في _ValidateRangeRules.
+        // ولا Attach ثانٍ هنا — البيت الواحد للسلوك لا يُستنسخ (RULE-N169…RULE-N172).
 
         // RULE-N97 — التفقيط الحيّ على سعر الصرف.
         LiveTafqeetHelper.Attach(tipTafqeet,
@@ -251,40 +261,19 @@ public partial class frmPurchaseCurrency : Form
     // ═══════════════════════════════════════════════════════════
     // الإجراءات — تأكيد واعتماد / إلغاء
     // ═══════════════════════════════════════════════════════════
+    /// <summary>
+    /// الزر الأساسي للحوار (RULE-N147): «تأكيد واعتماد». لا وضع للقراءة في هذا الحوار فلا تُعيد <c>null</c>.
+    /// تُقرأ عند كل ضغطة Enter وعند ضبط <c>AcceptButton</c> — دالة واحدة يستهلكها الاثنان فلا نسخة ثانية
+    /// للقرار (RULE-N169…RULE-N172).
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnOk;
+
     private void btnOk_Click(object? sender, EventArgs e)
     {
         try
         {
-            errorProvider.SetError(numRate, "");
-
-            var opt = Currencies[_selected];
-
-            // للعملات الأجنبية: تحقق من النطاق المسموح قبل الاعتماد
-            if (!opt.IsLocal && !IsWithinRange(opt, _currentRate))
-            {
-                string rangeMessage = $"السعر المُدخل خارج النطاق المسموح ({RangeText(opt)}).";
-
-                // GAP-08b + RULE-N169: الرفض يبقى على errorProvider ويُقرن بتغذية بصرية من البيت الواحد.
-                errorProvider.SetError(numRate, rangeMessage);
-                clsInputFeedback.ShowRejectTooltip(numRate, rangeMessage, toolTip);
-
-                if (clsDialogs.Confirm(
-                    $"السعر المُدخل ({clsFormat.Money(_currentRate)}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({clsFormat.Money(opt.OfficialRate)})؟"))
-                {
-                    _currentRate = opt.OfficialRate;
-
-                    _isUpdatingUi = true;
-                    numRate.Value = opt.OfficialRate;
-                    _isUpdatingUi = false;
-
-                    errorProvider.SetError(numRate, "");
-                }
-                else
-                {
-                    numRate.Focus();
-                    return; // يبقى المستخدم لتصحيح السعر
-                }
-            }
+            // قواعد المدى (سعر غير موجب · سعر خارج النطاق المسموح) — منطق محفوظ حرفياً في _ValidateRangeRules.
+            if (!_ValidateRangeRules()) return;
 
             DialogResult = DialogResult.OK;
             Close();
@@ -294,6 +283,48 @@ public partial class frmPurchaseCurrency : Form
             Serilog.Log.Error(ex, "خطأ في حوار عملة المشتريات");
             clsDialogs.Error("حدث خطأ غير متوقع. يرجى إعادة المحاولة.");
         }
+    }
+
+    /// <summary>
+    /// قواعد مدى سعر الصرف — الرسائل العربية وتدفق التأكيد محفوظة **حرفياً** كما كانت (RULE-001 · §2.2):
+    /// السعر خارج النطاق المسموح للعملة الأجنبية مرفوض مع عرض اعتماد السعر الرسمي؛ وتقييد «السعر &gt; 0»
+    /// مفروض بـ<c>numRate.Minimum = 0.01</c> المُعلَن في المصمّم (لا فحص جديد هنا).
+    /// </summary>
+    /// <returns><c>true</c> = يُسمح بالاعتماد · <c>false</c> = يبقى المستخدم لتصحيح السعر.</returns>
+    private bool _ValidateRangeRules()
+    {
+        errorProvider.SetError(numRate, "");
+
+        var opt = Currencies[_selected];
+
+        // للعملات الأجنبية: تحقق من النطاق المسموح قبل الاعتماد
+        if (!opt.IsLocal && !IsWithinRange(opt, _currentRate))
+        {
+            string rangeMessage = $"السعر المُدخل خارج النطاق المسموح ({RangeText(opt)}).";
+
+            // GAP-08b + RULE-N169: الرفض يبقى على errorProvider ويُقرن بتغذية بصرية من البيت الواحد.
+            errorProvider.SetError(numRate, rangeMessage);
+            clsInputFeedback.ShowRejectTooltip(numRate, rangeMessage, toolTip);
+
+            if (clsDialogs.Confirm(
+                $"السعر المُدخل ({clsFormat.Money(_currentRate)}) خارج النطاق المسموح ({RangeText(opt)}).\nهل تريد الاعتماد بالسعر الرسمي ({clsFormat.Money(opt.OfficialRate)})؟"))
+            {
+                _currentRate = opt.OfficialRate;
+
+                _isUpdatingUi = true;
+                numRate.Value = opt.OfficialRate;
+                _isUpdatingUi = false;
+
+                errorProvider.SetError(numRate, "");
+            }
+            else
+            {
+                numRate.Focus();
+                return false; // يبقى المستخدم لتصحيح السعر
+            }
+        }
+
+        return true;
     }
 
     private void btnCancel_Click(object? sender, EventArgs e)
