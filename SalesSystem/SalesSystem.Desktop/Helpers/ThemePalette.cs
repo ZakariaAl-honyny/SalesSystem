@@ -133,11 +133,14 @@ public static class ThemePalette
     public const string DisabledForeColor = "disabledForeColor";
 
     /// <summary>
-    /// خلفية الحقل المطلوب الناقص (حالة خطأ — قرار المالك 2026-11-16: «غيّر اللون إلى الأحمر»).
-    /// لون **حالة** لا لون تصميم: يُطبَّق فقط ما دام الحقل ناقصاً، ولذلك لا يُعلَن في أي `*.Designer.cs`
-    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي أحمر فاتح يبقي نص الحقل قابلاً للقراءة.
+    /// خلفية **الرفض/الخطأ** الوحيدة في النظام (قرار المالك 2026-11-16: «غيّر اللون إلى الأحمر»
+    /// ثم «مثل كلمة المرور في شاشة الدخول»). يستهلكها <c>clsInputFeedback.ShowRejectTooltip</c>
+    /// عبر <see cref="GreenThemeHelper.RejectBackground"/> — وميض قصير يعود إلى لون المصمّم تلقائياً،
+    /// فلا يُترك أي حقل ملوّناً. لون **حالة** لا لون تصميم، ولا يُعلَن في أي `*.Designer.cs`
+    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي `#FFDCDC` = نفس لون الرفض القائم
+    /// حرفياً، فلا تتغيّر أي شاشة قائمة.
     /// </summary>
-    public const string RequiredFieldErrorColor = "requiredFieldErrorColor";
+    public const string RejectBackgroundColor = "rejectBackgroundColor";
 
     // ═════════════════════════════════════════════════════════════════
     //  جدول الافتراضيات (القيم الحالية حرفياً — التشغيل = المصمّم)
@@ -181,7 +184,7 @@ public static class ThemePalette
         // ── حالات العرض (3) ──
         new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(224, 224, 224)),
         new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(150, 150, 150)),
-        new(RequiredFieldErrorColor, "خلفية الحقل المطلوب الناقص", GroupStates, Color.FromArgb(255, 205, 210)),
+        new(RejectBackgroundColor,   "خلفية الرفض والخطأ",   GroupStates,    Color.FromArgb(255, 220, 220)),
     };
 
     private static readonly ReadOnlyCollection<ThemeColorDefinition> DefinitionsReadOnly =
@@ -274,7 +277,7 @@ public static class ThemePalette
         Add(GridCellTextColor, GridCellBackgroundColor, BodyTextMinimumContrast);
         Add(GridCellBackgroundColor, GridCellTextColor, BodyTextMinimumContrast);
         Add(SelectionRowColor, GridCellTextColor, BodyTextMinimumContrast);
-        Add(RequiredFieldErrorColor, GridCellTextColor, BodyTextMinimumContrast);
+        Add(RejectBackgroundColor, GridCellTextColor, BodyTextMinimumContrast);
         Add(TextStrongColor, FrmMainColor, BodyTextMinimumContrast);
         Add(FrmMainColor, TextStrongColor, BodyTextMinimumContrast);
         // حالات العرض: تباين مقروء لا أكثر (رمادي على رمادي).

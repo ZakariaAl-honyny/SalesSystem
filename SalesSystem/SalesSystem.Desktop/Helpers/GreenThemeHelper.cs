@@ -132,11 +132,11 @@ public static class GreenThemeHelper
     public static Color StatusJournal { get; } = Color.FromArgb(142, 68, 173);
 
     /// <summary>
-    /// خلفية وميض رفض الإدخال — يستهلكها <c>clsInputFeedback.ShowRejectTooltip</c>
-    /// بدل ثابت محلي عنده (RULE-N169/GAP-09). الحالة الدلالية لا تتغيّر مع اللوحة،
-    /// فهي ثابت دلالي لا لون تصميم.
+    /// خلفية وميض الرفض — مفتاح اللوحة الوحيد <see cref="ThemePalette.RejectBackgroundColor"/>
+    /// (يُقرأ حيّاً، فيسري تغيير المالك فوراً). لون **حالة** لا يُعلَن في أي مصمّم (RULE-N154).
+    /// يستهلكه <c>clsInputFeedback.ShowRejectTooltip</c> في كل مواضع الرفض في النظام.
     /// </summary>
-    public static Color RejectBackground { get; } = Color.FromArgb(255, 220, 220);
+    public static Color RejectBackground => ThemePalette.Get(ThemePalette.RejectBackgroundColor);
 
     // ---- خلفيات الحالة الدلالية (RULE-N172) ----
     // الرفيق الخلفي لكل حالة أعلاه — يُستهلك لخلفية صف/خلية/شريط حالة، ويبقى في

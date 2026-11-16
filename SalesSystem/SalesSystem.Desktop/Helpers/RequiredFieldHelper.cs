@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using SalesSystem.Desktop.GlobalClasses;
 
 namespace SalesSystem.Desktop.Helpers;
 
@@ -13,19 +14,18 @@ public readonly record struct RequiredField(Control Field, string Message, Func<
 
 /// <summary>
 /// البيت الواحد لتغذية الحقول المطلوبة (RULE-N169…RULE-N172 / RULE-N180…N183):
-/// عندما يترك المستخدم حقلاً مطلوباً فارغاً (أو يضغط الزر الأساسي) يظهر رمز ✗ في
-/// <see cref="ErrorProvider"/> مع رسالته العربية، وتُصبغ خلفية الحقل بلون **الخطأ الأحمر** الحيّ،
+/// نفس سلوك تحقق كلمة المرور في <c>frmLogin</c> حرفياً — عند مغادرة حقل مطلوب فارغ
+/// (أو عند محاولة الحفظ) تظهر **أيقونة ✗** في <see cref="ErrorProvider"/> برسالتها العربية،
+/// **و**ومضة رفض قصيرة + تلميح + صوت تنبيه من <see cref="clsInputFeedback.ShowRejectTooltip"/>
+/// تعود إلى لون المصمّم تلقائياً. **لا تُصبغ خلفية أي حقل هنا ولا تُترك ملوّنة**: هذا الـHelper
+/// لا يكتب خلفية أي حقل ولا يقرأ أي لون — اللون ملك <c>clsInputFeedback</c> وحده.
 /// وتزول العلامة في اللحظة التي تصبح القيمة صحيحة.
 /// <para>
-/// <b>الشاشة تُعلن القواعد فقط</b> — لا لون ولا نداء <see cref="ErrorProvider.SetError(Control, string)"/>
-/// ولا استعادة خلفية داخل أي <c>frm*.cs</c>.
+/// <b>الشاشة تُعلن القواعد فقط</b> — لا أيقونة ولا لون ولا استعادة خلفية داخل أي <c>frm*.cs</c>.
 /// </para>
 /// <para>
-/// <b>لون الخطأ ≠ لون التركيز (قرار المالك 2026-11-16):</b> خلفية الرفض هي
-/// <see cref="ThemePalette.RequiredFieldErrorColor"/> (أحمر فاتح افتراضياً)، بينما تظليل الحقل
-/// النشط يبقى <see cref="ThemePalette.SelectionRowColor"/> — فلم يبقَ تشابه يجعل «حقل مركَّز»
-/// و«حقل به خطأ» غير قابلين للتمييز. اللونان يُقرآن حيّين: لا قيمة ARGB مكتوبة هنا
-/// ولا نسخة مخزَّنة (RULE-N54a/N54b).
+/// <b>علامة واحدة في النموذج:</b> الحقل الذي يُوسَم يُفرّغ علامة سابقه (PILOT-8)، ويُبقى تظليل
+/// الحقل النشط (الأصفر) ملكاً لـ<see cref="KeyboardHelper.WireFocusHighlight"/> فلا تصادمه هذه التغذية.
 /// </para>
 /// </summary>
 public static class RequiredFieldHelper
@@ -48,31 +48,26 @@ public static class RequiredFieldHelper
         public List<RuleState> Rules { get; } = new();
     }
 
-    /// <summary>حالة قاعدة واحدة: القاعدة + لون الخلفية الأصلي الملتقَط لحظة التوصيل + هل العلامة ظاهرة.</summary>
+    /// <summary>حالة قاعدة واحدة: القاعدة + هل الأيقونة ظاهرة الآن.</summary>
     private sealed class RuleState
     {
         /// <summary>القاعدة المعلنة من الشاشة.</summary>
         public RequiredField Rule { get; init; }
 
-        /// <summary>خلفية الحقل الأصلية (لون المصمّم) — لا تُستعاد إلا هي (RULE-N139/RULE-N142).</summary>
-        public Color OriginalBack { get; init; }
-
-        /// <summary>هل الأيقونة/الخلفية الحمراء ظاهرة الآن؟</summary>
+        /// <summary>هل أيقونة الخطأ ظاهرة الآن؟</summary>
         public bool Marked;
     }
 
     /// <summary>
-    /// يوصّل قواعد الحقول المطلوبة لنموذج واحد: يلتقط خلفية كل حقل الحالية كأصل، ثم يستمع
-    /// <c>Leave</c> (التقييم عند المغادرة بـ Enter/Tab/الفأرة) و<c>Enter</c> (صبغ الخلفية عند الدخول)
+    /// يوصّل قواعد الحقول المطلوبة لنموذج واحد: يستمع <c>Leave</c> (التقييم عند المغادرة بـ Enter/Tab/الفأرة)
     /// و<c>TextChanged</c>/<c>SelectedIndexChanged</c> (التحديث الحيّ عند الكتابة/الاختيار)
-    /// و<c>EnabledChanged</c> (التعطيل يرفع العلامة ويُعيد اللون الأصلي قبل رمادي التعطيل).
+    /// و<c>EnabledChanged</c> (التعطيل يرفع العلامة — مظهر التعطيل يملكه <c>WireDisabledVisuals</c>).
     /// <para>
     /// <b>ترتيب الاستدعاء إلزامي (RULE-N183):</b> يجب أن يأتي هذا الاستدعاء <b>بعد</b>
     /// <see cref="KeyboardHelper.WireFocusHighlight"/> — لأن WinForms ينفّذ معالجات الحدث نفسه بترتيب
-    /// الاشتراك، وتظليل الحقل النشط يستعيد الخلفية الأصلية في <c>Leave</c> أيضاً، فلو سبقناها لمحا تلوين الرفض —
-    /// و<b>قبل</b> <see cref="GreenThemeHelper.Apply"/> (وبالتالي قبل <see cref="KeyboardHelper.WireDisabledVisuals"/>):
-    /// لو اشترك مظهر التعطيل أولاً لالتقط لون الرفض كـ«لون طبيعي» ثم محا معالج هذا الـHelper
-    /// رمادي التعطيل عن حقل **معطّل** حتى يُعاد تفعيله (`RULE-N154`). لا تُعِد ترتيب هذه الأسطر.
+    /// الاشتراك، وتظليل الحقل النشط يستعيد الخلفية الأصلية في <c>Leave</c> — و<b>قبل</b>
+    /// <see cref="GreenThemeHelper.Apply"/> (وبالتالي قبل <see cref="KeyboardHelper.WireDisabledVisuals"/>)
+    /// حتى لا يلتقط مظهر التعطيل لوناً مؤقتاً كلون طبيعي.
     /// </para>
     /// <para>آمن للاستدعاء المتكرر على النموذج نفسه: الحقل الموصول سابقاً لا يُوصَّل مرتين.</para>
     /// </summary>
@@ -98,22 +93,14 @@ public static class RequiredFieldHelper
                 var ruleState = new RuleState
                 {
                     Rule = rule,
-                    OriginalBack = field.BackColor,
                 };
 
                 state.Rules.Add(ruleState);
 
-                // المغادرة: التقييم — يُظهر العلامة أو يزيلها.
+                // المغادرة: التقييم — أيقونة ✗ + ومضة رفض، أو إزالة العلامة.
                 field.Leave += (_, _) => Safe(() => Evaluate(ruleState, state));
 
-                // الدخول: صبغ خلفية الرفض بلون الخطأ (لا لون التركيز) — لا صراع بصري مع التظليل.
-                field.Enter += (_, _) => Safe(() => OnEnter(ruleState, state));
-
-                // التفعيل/التعطيل: الحقل المعطّل لا يحمل علامة، واللون الأصلي يُستعاد **قبل** أن يلتقط
-                // WireDisabledVisuals الخلفية كلون طبيعي (RULE-N154). وهذا **التزام على الشاشة** لا ضمانة
-                // من الـHelper: Attach يجب أن يُستدعى بعد WireFocusHighlight **وقبل** GreenThemeHelper.Apply /
-                // WireDisabledVisuals (RULE-N183)؛ فإن اشترك مظهر التعطيل أولاً التقط لون الرفض كـ«لون طبيعي»
-                // ثم محا هذا المعالج رمادي التعطيل عن حقل **معطّل** حتى يُعاد تفعيله.
+                // التفعيل/التعطيل: الحقل المعطّل لا يحمل علامة (RULE-N154 يملك مظهر التعطيل).
                 field.EnabledChanged += (_, _) => Safe(() => OnEnabledChanged(ruleState, state));
 
                 // التحديث الحيّ: الكتابة/الاختيار يزيلان العلامة فور صحة القيمة.
@@ -136,8 +123,9 @@ public static class RequiredFieldHelper
     }
 
     /// <summary>
-    /// يقيّم كل قواعد النموذج الآن (فتظهر الأيقونة **وخلفية لون الخطأ** معاً، لا الأيقونة وحدها)
-    /// ويُعيد <c>true</c> إذا كان كل المطلوب مكتملاً — أو إذا لم يكن النموذج موصولاً أصلاً.
+    /// يقيّم كل قواعد النموذج الآن: **أيقونة ✗ على كل ناقص**، و**ومضة/صوت واحد فقط** لأول ناقص
+    /// (لا ثلاث نغمات عند الحفظ)، ويُعيد <c>true</c> إذا كان كل المطلوب مكتملاً — أو إذا لم يكن
+    /// النموذج موصولاً أصلاً.
     /// </summary>
     /// <param name="form">النموذج.</param>
     public static bool Validate(Form form)
@@ -146,12 +134,18 @@ public static class RequiredFieldHelper
         if (!Registry.TryGetValue(form, out var state)) return true;
 
         bool isValid = true;
+        bool flashed = false;   // ومضة واحدة لكل محاولة حفظ
 
         foreach (var ruleState in state.Rules)
         {
             try
             {
-                if (!Evaluate(ruleState, state)) isValid = false;
+                // العلامة تُوسَم على **كل** ناقص (collapseOthers: false) — والومضة لأوله فقط.
+                if (!Evaluate(ruleState, state, collapseOthers: false, flash: !flashed))
+                {
+                    isValid = false;
+                    flashed = true;
+                }
             }
             catch
             {
@@ -219,9 +213,23 @@ public static class RequiredFieldHelper
 
     /// <summary>
     /// يقيّم قاعدة واحدة ويُعيد هل هي مكتملة الآن:
-    /// قاعدة غير سارية أو حقل معطّل ⇒ لا علامة أبداً · فارغ ⇒ أيقونة + لون الخطأ · ممتلئ ⇒ إزالة العلامة.
+    /// قاعدة غير سارية أو حقل معطّل ⇒ لا علامة أبداً · فارغ ⇒ أيقونة ✗ + ومضة رفض · ممتلئ ⇒ إزالة العلامة.
+    /// <para>
+    /// <b>علامة واحدة في النموذج (PILOT-8):</b> ما إن تُوسَم قاعدة حتى تُفرَّغ كل علامة سابقة
+    /// (<paramref name="collapseOthers"/> = <c>true</c>) — فمع Enter ينتقل رفض الحقل الذي غادرته
+    /// للتوّ. أمّا <see cref="Validate"/> فتمرّر <c>false</c> لأن محاولة الحفظ فعل صريح
+    /// يُوسم **كل** ناقص ثم ينقل المؤشر إلى أوله.
+    /// </para>
+    /// <para>
+    /// <b>لا لون هنا:</b> الومضة والتلميح والصوت من <see cref="clsInputFeedback.ShowRejectTooltip"/>
+    /// (نفس سلوك <c>frmLogin</c>) وتُعيد لون المصمّم تلقائياً — والـHelper لا يكتب خلفية أي حقل أبداً.
+    /// </para>
     /// </summary>
-    private static bool Evaluate(RuleState ruleState, FormState state)
+    /// <param name="ruleState">حالة القاعدة.</param>
+    /// <param name="state">حالة النموذج (قائمة القواعد + مزوّد الأيقونة).</param>
+    /// <param name="collapseOthers">إبقاء علامة واحدة فقط: تُفرَّغ كل قاعدة موسومة أخرى قبل الوسم.</param>
+    /// <param name="flash">إطلاق ومضة/تلميح/صوت الرفض الآن (تُلغى لباقي الحقول عند الحفظ — نغمة واحدة).</param>
+    private static bool Evaluate(RuleState ruleState, FormState state, bool collapseOthers = true, bool flash = true)
     {
         var field = ruleState.Rule.Field;
         if (field is null || field.IsDisposed) return true;
@@ -239,104 +247,87 @@ public static class RequiredFieldHelper
             return true;
         }
 
+        // الوسم على وشك الحدوث ⇒ نُبقي علامة واحدة: السابقة تُفرَّغ أيقونتها (PILOT-8).
+        if (collapseOthers) UnmarkAllExcept(state, ruleState);
+
         TrySetError(state.Provider, field, ruleState.Rule.Message);
-        field.BackColor = ThemePalette.Get(ThemePalette.RequiredFieldErrorColor);   // لون حيّ في كل تقييم (RULE-N54a)
+        if (flash) TryFlashReject(field, ruleState.Rule.Message);
         ruleState.Marked = true;
 
         return false;
     }
 
-    /// <summary>الدخول إلى حقل مطلوب فارغ: صبغ خلفيته بلون الخطأ — بلا علامة جديدة.</summary>
-    private static void OnEnter(RuleState ruleState, FormState state)
+    /// <summary>يُبقي علامة واحدة: كل قاعدة موسومة أخرى تُفرَّغ أيقونتها (RULE-N182 / PILOT-8).</summary>
+    private static void UnmarkAllExcept(FormState state, RuleState keep)
     {
-        var field = ruleState.Rule.Field;
-        if (field is null || field.IsDisposed) return;
-        if (!IsRuleActive(ruleState.Rule) || !IsEffectivelyEnabled(field)) return;
-        if (!IsEmpty(field)) return;
+        foreach (var ruleState in state.Rules)
+        {
+            if (ReferenceEquals(ruleState, keep) || !ruleState.Marked) continue;
 
-        field.BackColor = ThemePalette.Get(ThemePalette.RequiredFieldErrorColor);
+            try
+            {
+                Unmark(ruleState, state);
+            }
+            catch
+            {
+                // تجاهل — علامة أخرى لا تُسقط شاشة.
+            }
+        }
     }
 
     /// <summary>
-    /// تغيّرت قيمة الحقل: إن كانت العلامة ظاهرة والقيمة صحيحة الآن تُزال فوراً.
-    /// المركَّز يعود إلى لون التركيز الحيّ (تظليل الحقل النشط يملكه — RULE-N46)،
-    /// وغير المركَّز إلى لون المصمّم الملتقَط (PILOT-6).
+    /// ومضة الرفض + التلميح + صوت التنبيه من البيت الواحد <see cref="clsInputFeedback"/>
+    /// (نفس سلوك تحقق كلمة المرور في <c>frmLogin</c>): تُستدعى مرة واحدة عند وسم الحقل،
+    /// وتُعيد لون المصمّم بعد <c>200</c> مللي ثانية بنفسها. لا ترمي أبداً.
+    /// </summary>
+    private static void TryFlashReject(Control field, string message)
+    {
+        try
+        {
+            clsInputFeedback.ShowRejectTooltip(field, message);
+        }
+        catch
+        {
+            // تجاهل — التغذية البصرية لا تُسقط شاشة.
+        }
+    }
+
+    /// <summary>
+    /// تغيّرت قيمة الحقل: إن كانت الأيقونة ظاهرة والقيمة صحيحة الآن تُزال فوراً.
+    /// لا لون هنا إطلاقاً — الومضة تعيد لون المصمّم بنفسها.
     /// </summary>
     private static void OnValueChanged(RuleState ruleState, FormState state)
     {
-        if (!ruleState.Marked) return;   // لا تلوين أثناء الكتابة قبل المغادرة.
+        if (!ruleState.Marked) return;   // لا علامة أثناء الكتابة قبل المغادرة.
 
         var field = ruleState.Rule.Field;
         if (field is null || field.IsDisposed) return;
 
         if (!IsRuleActive(ruleState.Rule) || !IsEffectivelyEnabled(field) || !IsEmpty(field))
-        {
-            TrySetError(state.Provider, field, "");
-            ruleState.Marked = false;
-
-            // الحقل المركَّز يعود إلى لون التركيز الحيّ لا إلى الأحمر ولا إلى لون المصمّم:
-            // تظليل التركيز يملك الحقل المركَّز (RULE-N46)، ونحن نُعيده من مفتاحه الحيّ (RULE-N54a).
-            // بدون هذا يبقى الحقل أحمر أثناء كتابة القيمة الصحيحة بعد فصل لون الخطأ عن لون التركيز (PILOT-6).
-            if (field.Focused)
-                field.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
-            else
-                RestoreOriginal(ruleState);
-        }
+            Unmark(ruleState, state);
     }
 
     /// <summary>
-    /// تغيّرت فعالية الحقل: عند التعطيل تُفرَّغ العلامة وتُستعاد الخلفية الأصلية **قبل** أن يلتقط
-    /// مظهر التعطيل الخلفية كلون طبيعي (RULE-N154)؛ وعند التفعيل تُفرَّغ العلامة فقط —
-    /// لا يُوسَم حقل تلقائياً بمجرد تفعيله (العلامة تظهر عند مغادرة حقل مطلوب فارغ أو عند محاولة الحفظ).
+    /// تغيّرت فعالية الحقل: التعطيل يرفع الأيقونة (مظهر التعطيل يملكه
+    /// <see cref="KeyboardHelper.WireDisabledVisuals"/> — RULE-N154)، والتفعيل لا يُوسم تلقائياً
+    /// (العلامة تظهر عند مغادرة حقل مطلوب فارغ أو عند محاولة الحفظ).
     /// </summary>
     private static void OnEnabledChanged(RuleState ruleState, FormState state)
     {
         var field = ruleState.Rule.Field;
         if (field is null || field.IsDisposed) return;
 
-        if (!field.Enabled)
-        {
-            TrySetError(state.Provider, field, "");
-            ruleState.Marked = false;
-            RestoreOriginal(ruleState, force: true);
-            return;
-        }
-
         Unmark(ruleState, state);
     }
 
-    /// <summary>يزيل العلامة ويعيد الخلفية الأصلية (إن كان الحقل مفعّلاً).</summary>
+    /// <summary>يزيل أيقونة الخطأ فقط — لا لون هنا: ومضة الرفض تُعيد لون المصمّم بنفسها.</summary>
     private static void Unmark(RuleState ruleState, FormState state)
     {
         var field = ruleState.Rule.Field;
         if (field is null || field.IsDisposed) return;
 
         TrySetError(state.Provider, field, "");
-        RestoreOriginal(ruleState);
         ruleState.Marked = false;
-    }
-
-    /// <summary>
-    /// يُعيد خلفية الحقل إلى اللون الأصلي **الملتقَط لحظة التوصيل** — لا إلى أبيض ولا إلى لون حرفي
-    /// (RULE-N139/RULE-N142). الحقل المعطّل لا تُكتب خلفيته إطلاقاً (RULE-N154) إلا عند
-    /// <paramref name="force"/> = <c>true</c> أي في لحظة التعطيل نفسها (قبل رمادي التعطيل).
-    /// </summary>
-    /// <param name="ruleState">حالة القاعدة.</param>
-    /// <param name="force">إعادة الخلفية حتى لو كان الحقل معطّلاً (لحظة التعطيل فقط).</param>
-    private static void RestoreOriginal(RuleState ruleState, bool force = false)
-    {
-        var field = ruleState.Rule.Field;
-        if (field is null || field.IsDisposed) return;
-        if (!force && !IsEffectivelyEnabled(field)) return;
-
-        try
-        {
-            field.BackColor = ruleState.OriginalBack;
-        }
-        catch
-        {
-            // تجاهل — لون لا يُسقط شاشة.
-        }
     }
 
     // ── الحكم على «فارغ» — مرة واحدة للنظام كله ───────────────────────────────
