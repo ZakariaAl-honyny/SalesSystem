@@ -99,7 +99,10 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _CaptureFilterDefaults();
 
             // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط وأسهم RTL.
-            KeyboardHelper.WireEnterAsTab(this);
+            // RULE-N191/N193 — Enter يمشي بترتيب العرض داخل صندوق التصفية «gbFilter» (بيت حقول هذه
+            // الشاشة الوحيد — لا لوحة محرر فيها) ثم يُسلِّم التركيز لزر الوضع **بلا تنفيذ**؛ والواجهة
+            // ثنائية الوسيط هي التي تُعلن Enter مفتاحَ إدخال في PreviewKeyDown فلا يبتلعه AcceptButton.
+            KeyboardHelper.WireEnterAsTab(gbFilter, _PrimaryActionButton);
             KeyboardHelper.WireSelectAllOnFocus(this);
             KeyboardHelper.WireFocusHighlight(this, FocusColor);
             KeyboardHelper.WireArrowNavigation(this);
@@ -113,8 +116,11 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                 (Keys.Escape, _GlobalEscape));
 
             // RULE-N147 — Enter = الزر الأساسي (لا يوجد «جديد» في شاشة عرض ⇒ «تحديث»).
-            KeyboardHelper.WireModeEnter(this, () => btnRefresh);
-            AcceptButton = btnRefresh;
+            KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+            AcceptButton = _PrimaryActionButton();
+
+            // RULE-N153 — شبكات النتائج الثلاث تملك Enter: يُفرَّغ AcceptButton عند دخولها ويُعاد عند مغادرتها.
+            _WireGridEnterOwnership();
 
             _SetupToolTips();
 
@@ -122,6 +128,36 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             // RULE-N63 — طيّ/إظهار صندوق التصفية، آخر سطر في المُنشئ.
             FilterPanelHelper.Attach(this, _serviceProvider);
+        }
+
+        /// <summary>
+        /// الزر الأساسي للشاشة (RULE-N147): شاشة عرض بلا آلة أوضاع ⇒ زر الإجراء الوحيد «تحديث»
+        /// (وهو الزر الحقيقي المعلَن في المصمّم). يُقرأ عند كل ضغطة وعند كل انتقال — لا مرة واحدة.
+        /// <para>
+        /// RULE-N153: تُعيد <c>null</c> ما دامت إحدى شبكات النتائج هي موضع التركيز، فلا يُنفَّذ «تحديث»
+        /// (إعادة تحميل البيانات) بـ<c>Enter</c> عرضية داخل الشبكة — الشبكة تملك <c>Enter</c> بنفسها.
+        /// </para>
+        /// </summary>
+        private Button? _PrimaryActionButton()
+        {
+            // RULE-N153 — الشبكة تملك Enter (أي تبويب نشط من الثلاثة).
+            if (dgvProducts.ContainsFocus || dgvCounts.ContainsFocus || dgvTransfers.ContainsFocus)
+                return null;
+
+            return btnRefresh;
+        }
+
+        /// <summary>
+        /// RULE-N153 — يُفرَّغ <c>AcceptButton</c> عند دخول أي شبكة ويُعاد عند مغادرتها، فلا ينقر
+        /// <c>Form.ProcessDialogKey</c> «تحديث» عند ضغط <c>Enter</c> داخل الشبكة (Enter هناك لتنقل الأسطر).
+        /// </summary>
+        private void _WireGridEnterOwnership()
+        {
+            foreach (var grid in new[] { dgvProducts, dgvCounts, dgvTransfers })
+            {
+                grid.Enter += (_, _) => AcceptButton = null;
+                grid.Leave += (_, _) => AcceptButton = _PrimaryActionButton();
+            }
         }
 
         // ── الخدمات (RULE-N04 — تُحل من الحاوية، ولا تُنشأ يدوياً) ───────────────────

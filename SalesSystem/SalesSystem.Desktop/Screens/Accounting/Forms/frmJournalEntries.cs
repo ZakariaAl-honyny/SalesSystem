@@ -116,7 +116,10 @@ public partial class frmJournalEntries : Form
         _serviceProvider = serviceProvider;
 
         // RULE-N40…RULE-N47 + RULE-N95: الستة من KeyboardHelper.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191: Enter داخل لوحة المحرر (بيانات القيد) يمشي بترتيب العرض — صفاً صفاً من الأعلى إلى
+        // الأسفل، وفي كل صف من اليمين إلى اليسار — ثم يُركِّز زر الوضع بلا تنفيذ. وحقول التصفية وشريط
+        // البند خارج النطاق فتبقى على SelectNextControl كما هي.
+        KeyboardHelper.WireEnterAsTab(pnlEntryHeader, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
@@ -129,9 +132,22 @@ public partial class frmJournalEntries : Form
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
 
-        // RULE-N147: Enter = الزر الأساسي للشاشة («جديد») — ويُستثنى منه ما لا يملك Enter فيه معنى الزر.
+        // RULE-N147: Enter = الزر الأساسي للوضع الحالي — ويُستثنى منه ما لا يملك Enter فيه معنى الزر.
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
         AcceptButton = _PrimaryActionButton();
+
+        // RULE-N153 — Enter ملك الشبكة أينما حلّ: يُفرَّغ الزر الافتراضي عند دخول أي شبكة ويُعاد عند
+        // مغادرتها، فلا يُحفظ/يُرحَّل مستند من داخل شبكة السطور ولا يُنفَّذ فعل من شبكة القيود.
+        dgvLines.Enter += (_, _) => AcceptButton = null;
+        dgvLines.Leave += (_, _) => AcceptButton = _PrimaryActionButton();
+        dgvEntries.Enter += (_, _) => AcceptButton = null;
+        dgvEntries.Leave += (_, _) => AcceptButton = _PrimaryActionButton();
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّة: أيقونة ✗ + الرسالة + ومضة رفض تعود إلى لون
+        // المصمّم. الاستدعاء **بعد** WireFocusHighlight (ترتيب Leave يحسم آخر لون) و**قبل**
+        // GreenThemeHelper.Apply داخلة في ApplyUiTheme. والشاشة تُعلن قواعدها فقط (RULE-N172).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtEntryDescription, "بيان القيد مطلوب"));
 
         ApplyUiTheme();
 
@@ -855,6 +871,7 @@ public partial class frmJournalEntries : Form
             }
 
             errorProvider.Clear();
+            RequiredFieldHelper.Clear(this);   // RULE-N183 — العلامات تزول مع كل إعادة ضبط (تحميل قيد)
             _ResetLineEntry();
             _UpdateTotals();
             _UpdateModeHeader();
@@ -929,6 +946,9 @@ public partial class frmJournalEntries : Form
         txtLineDescription.Enabled = editable;
         btnAddLine.Enabled = editable;
         btnRemoveLine.Enabled = editable && _lines.Count > 0;
+
+        // RULE-N147: الزر الافتراضي يتبع الوضع — ويُلغى في القيد المُرحَّل/الملغى (RULE-N153).
+        AcceptButton = _PrimaryActionButton();
     }
 
     private void _ResetForm()
@@ -956,6 +976,7 @@ public partial class frmJournalEntries : Form
         _lines.Clear();
         _ResetLineEntry();
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — «جديد»/التحديث يبدآن بلا أي علامة رفض
         _UpdateTotals();
 
         _loadingSelection = true;
@@ -1204,20 +1225,19 @@ public partial class frmJournalEntries : Form
     private static bool _IsBalanced(decimal totalDebit, decimal totalCredit)
         => Math.Abs(totalDebit - totalCredit) <= 0.001m;
 
-    private bool _ValidateEntry()
+    /// <summary>
+    /// تحقق **الشروط المحاسبية** قبل الحفظ — لا حكم «فارغ» فيه: بيان القيد المطلوب صار قاعدة معلنة في
+    /// البيت الواحد <see cref="RequiredFieldHelper"/> (RULE-N172/RULE-N180…N183). أمّا شروط القيد المزدوج
+    /// (بندان على الأقل · حساب لكل بند · لا سالب · لا مدين ودائن معاً · لا بند بلا مبلغ · التوازن)
+    /// فهي **حرفياً كما كانت** — لا تُغيَّر ولا تُنقل.
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
-        errorProvider.SetError(txtEntryDescription, string.Empty);
         errorProvider.SetError(dgvLines, string.Empty);
         errorProvider.SetError(lblTotals, string.Empty);
 
-        bool isValid = true;
-
-        if (!clsValidation.IsRequired(txtEntryDescription.Text))
-        {
-            errorProvider.SetError(txtEntryDescription, "بيان القيد مطلوب");
-            clsInputFeedback.ShowRejectTooltip(txtEntryDescription, "بيان القيد مطلوب", toolTip);   // GAP-08b
-            isValid = false;
-        }
+        // الحقول المطلوبة: أيقونة ✗ + الرسالة + ومضة رفض من البيت الواحد (RULE-N180…N183).
+        bool isValid = RequiredFieldHelper.Validate(this);
 
         if (_lines.Count < 2)
         {
@@ -1274,8 +1294,9 @@ public partial class frmJournalEntries : Form
 
         clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل الحفظ.");
 
-        if (!string.IsNullOrWhiteSpace(errorProvider.GetError(txtEntryDescription)))
-            txtEntryDescription.Focus();
+        // أول حقل مطلوب ناقص من البيت الواحد (لا حكم «فارغ» ثانٍ في الشاشة) — ثم الحساب عند نقص البنود.
+        if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing)
+            firstMissing.Focus();
         else if (_lines.Count < 2)
             cbLineAccount.Focus();
 
@@ -1296,7 +1317,7 @@ public partial class frmJournalEntries : Form
             return;
         }
 
-        if (!_ValidateEntry())
+        if (!_ValidateRangeRules())
             return;
 
         bool isUpdate = _currentEntryId is int;
@@ -1634,11 +1655,27 @@ public partial class frmJournalEntries : Form
     }
 
     /// <summary>
-    /// الزر الأساسي لـ Enter (RULE-N147): «جديد». ويُعاد <c>null</c> عندما يكون التركيز داخل شبكة
-    /// (القيود/البنود) حتى يبقى Enter فيها تنقّلاً بين السطور ولا يُفرّغ محرر القيد أثناء الإدخال.
+    /// الزر الأساسي للوضع الحالي (RULE-N147): وضع الإضافة (بلا سجل) ⇒ «حفظ» · مسودة محمَّلة ⇒ «تعديل».
+    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة.
+    /// <para>
+    /// <b>يُعاد <c>null</c> — أي لا فعل أساسي لـ Enter — في ثلاث حالات (RULE-N153):</b>
+    /// (1) التركيز داخل شبكة السطور <c>dgvLines</c> أو خلية قيد التحرير — Enter هناك مكان الإدخال؛
+    /// (2) التركيز داخل شبكة القيود <c>dgvEntries</c> — Enter فيها تنقّل بين السطور؛
+    /// (3) القيد المُرحَّل/الملغى — للقراءة فقط فلا يُحفظ ولا يُرحَّل (RULE-004 / §2.4).
+    /// </para>
     /// </summary>
     private Button? _PrimaryActionButton()
-        => dgvEntries.ContainsFocus || dgvLines.ContainsFocus ? null : btnNew;
+    {
+        if (dgvLines.ContainsFocus || dgvLines.IsCurrentCellInEditMode) return null;   // RULE-N153
+        if (dgvEntries.ContainsFocus) return null;
+
+        if (_busy) return null;
+
+        // قيد محمَّل غير مسودة = مقفل للقراءة فقط ⇒ لا زر أساسي.
+        if (_currentEntryId is not null && _currentStatus != StatusDraft) return null;
+
+        return _currentEntryId is null ? btnSave : btnEdit;
+    }
 
     /// <summary>
     /// Delete: داخل شبكة البنود يحذف **البند** المحدد (الشبكة مكان الإدخال — RULE-N153)،

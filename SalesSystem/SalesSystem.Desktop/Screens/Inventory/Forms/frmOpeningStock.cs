@@ -8,7 +8,6 @@ using SalesSystem.DTO.Responses;
 using SalesSystem.Desktop.Products.Forms;
 using System.Data;
 using Serilog;
-using System.ComponentModel;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
@@ -36,7 +35,10 @@ public partial class frmOpeningStock : Form
         KeyDown += frmOpeningStock_KeyDown;
 
         // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل «بيانات المستند» (gbInfo) يمشي بترتيب العرض صفاً صفاً ثم يُركِّز زر الوضع
+        // بلا تنفيذ؛ وحقوله خارج النطاق تبقى بسلوك SelectNextControl، والشبكة ليست حقل إدخال أصلاً
+        // (RULE-N153 — Enter فيها تنقّل خلايا ولا يُرحِّل المستند).
+        KeyboardHelper.WireEnterAsTab(gbInfo, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
@@ -64,6 +66,14 @@ public partial class frmOpeningStock : Form
         // خطأ تحرير خلية (مثل وحدة غير صالحة) لا يُسقط الشاشة.
         dgvLines.DataError += (s, e) => e.ThrowException = false;
         dgvLines.SelectionChanged += (s, e) => _UpdateButtonsState();
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً (أيقونة ✗ + الرسالة العربية + ومضة الرفض) من البيت
+        // الواحد RequiredFieldHelper. موضع الاستدعاء إلزامي: **بعد** WireFocusHighlight (RULE-N183) لأن ترتيب
+        // اشتراك Leave هو ما يحسم مَن يرسم الخلفية أخيراً، و**قبل** GreenThemeHelper.Apply في ApplyUiTheme أدناه.
+        // المخزن هو الحقل المطلوب الوحيد في هذا المستند؛ أما «سطر واحد على الأقل» و«الكمية > 0» و«الوحدة > 0»
+        // فقواعد مستند رقمية تبقى في _ValidateRangeRules (لا نسخة ثانية من حكم «فارغ» — RULE-N172).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbWarehouse, "يرجى اختيار المخزن"));
 
         ApplyUiTheme();
     }
@@ -96,12 +106,16 @@ public partial class frmOpeningStock : Form
     // ── Shortcuts ─────────────────────────────────────────────────────
 
     /// <summary>
-    /// RULE-N147 — الزر الأساسي للوضع الحالي: «حفظ وترحيل».
-    /// يرجع <c>null</c> عندما يكون التركيز داخل شبكة السطور (<c>dgvLines</c>) حتى يبقى
-    /// <c>Enter</c> تنقلاً بين الخلايا ولا يُرحّل المستند سهواً.
+    /// RULE-N147 — الزر الأساسي للوضع الحالي: «حفظ وترحيل» (زر حقيقي من المصمّم، وحالته — مفعّل/معطّل —
+    /// يملكها <see cref="_UpdateButtonsState"/> فيتبعها <c>AcceptButton</c>).
+    /// <para>
+    /// <b>RULE-N153:</b> يرجع <c>null</c> عندما يكون التركيز داخل شبكة السطور (<c>dgvLines</c>) أو خليتها
+    /// في وضع التحرير، فلا يُرحَّل المستند من داخل الشبكة أبداً — الترحيل المالي يبقى على زرّه و<kbd>F4</kbd>
+    /// بعد تأكيد صريح، والترحيل من شبكة السطور ممنوع.
+    /// </para>
     /// </summary>
     private Button? _PrimaryActionButton()
-        => dgvLines.ContainsFocus ? null : btnSave;
+        => dgvLines.ContainsFocus || dgvLines.IsCurrentCellInEditMode ? null : btnSave;
 
     /// <summary>F4 — ترحيل المستند إن كان جاهزاً.</summary>
     private void _SaveIfReady()
@@ -393,35 +407,33 @@ public partial class frmOpeningStock : Form
         if (btnRemoveProduct.Enabled) btnRemoveProduct.PerformClick();
     }
 
-    private void _ValidateEmptyTextBox(object sender, CancelEventArgs e)
+    /// <summary>
+    /// بوابة الحفظ/الترحيل: (1) الحقول المطلوبة — الحكم والعَلم في البيت الواحد
+    /// <see cref="RequiredFieldHelper"/> فلا نسخة ثانية لحكم «فارغ» هنا (RULE-N172/RULE-N184)،
+    /// ثم (2) قواعد المستند الرقمية في <see cref="_ValidateRangeRules"/> كما هي.
+    /// </summary>
+    private bool _ValidateBeforeSave()
     {
-        if (sender is TextBox txt && !clsValidation.IsRequired(txt.Text))
+        if (!RequiredFieldHelper.Validate(this))
         {
-            e.Cancel = true;
-            errorProvider.SetError(txt, "هذا الحقل مطلوب");
-            clsInputFeedback.ShowRejectTooltip(txt, "هذا الحقل مطلوب", tooltip);
+            // يُوسَم كل ناقص من الـHelper (أيقونة ✗ + الرسالة العربية + ومضة الرفض)، ثم ينتقل المؤشر إلى أوله.
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return false;
         }
-        else
-        {
-            e.Cancel = false;
-            errorProvider.SetError((Control)sender, null);
-        }
+
+        return _ValidateRangeRules();
     }
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// قواعد المستند الرقمية — **منقولة حرفياً** من التحقق القديم (نفس الرسائل العربية ونفس ترتيب الفحص):
+    /// سطر واحد على الأقل · وحدة صالحة لكل سطر · كمية أكبر من صفر.
+    /// ولا حكم على «فارغ» هنا: المخزن حقل مطلوب يملكه <see cref="RequiredFieldHelper"/> وحده (RULE-N172).
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
-
-        if (cmbWarehouse.SelectedValue == null)
-        {
-            errorProvider.SetError(cmbWarehouse, "يرجى اختيار المخزن");
-            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, "يرجى اختيار المخزن", tooltip);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbWarehouse, "");
-        }
 
         if (_dtLines.Rows.Count == 0)
         {
@@ -454,8 +466,8 @@ public partial class frmOpeningStock : Form
     private async void btnSave_Click(object? sender, EventArgs e)
     {
         errorProvider.Clear();
-        if (!ValidateChildren()) return;
-        if (!_ValidateForm()) return;
+        RequiredFieldHelper.Clear(this);   // RULE-N183 — تُمسح علامات الحقول المطلوبة مع أيقونات الخطأ
+        if (!_ValidateBeforeSave()) return;
 
         btnSave.Enabled = false;
         try
@@ -556,6 +568,7 @@ public partial class frmOpeningStock : Form
     {
         if (e.Control && e.KeyCode == Keys.S)
         {
+            e.Handled = true;
             e.SuppressKeyPress = true;
             btnSave.PerformClick();
         }

@@ -65,7 +65,10 @@ public partial class frmPasswordChange : Form
         _SetSelfServiceMode(SessionService.Current?.UserId ?? 0);
 
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191: Enter داخل صندوق كلمة المرور يمشي بترتيب العرض (الحالية ← الجديدة ← التأكيد)
+        // ثم يُركِّز زر «حفظ» **بلا تنفيذ** — وEnter لا يُرسِل تغيير كلمة المرور من داخل الصندوق أبداً.
+        // النطاق = gbPassword (حقول المصمّم وحدها)، فيبقى سلوك أي حقل آخر على SelectNextControl.
+        KeyboardHelper.WireEnterAsTab(gbPassword, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                   // RULE-N45 — أسهم RTL
@@ -73,11 +76,27 @@ public partial class frmPasswordChange : Form
         KeyboardHelper.WireGlobalShortcuts(this,                                    // RULE-N47
             (Keys.F2, () => btnSave.PerformClick()),
             (Keys.Escape, () => btnClose.PerformClick()));
-        KeyboardHelper.WireModeEnter(this, () => btnSave.Enabled ? btnSave : null);  // RULE-N147
+        KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);                   // RULE-N147 — يتخطّى حقول الإدخال بنفسه
 
-        AcceptButton = btnSave;
+        // RULE-N180…N183 — تغذية الحقول المطلوبة (الإلزام وحده؛ قواعد المدى تبقى في _ValidateRangeRules).
+        // إلزامي أن يأتي **بعد** WireFocusHighlight (ترتيب اشتراك Leave) — والباكس الثلاثة TextBoxBase
+        // بـ PasswordChar فتُعامل كأي حقل نصي عند الحكم على «فارغ»؛ الرسائل نفسها بلا تغيير.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtCurrentPassword, CurrentRequiredMessage, () => _isSelfService),
+            new RequiredField(txtNewPassword, NewRequiredMessage),
+            new RequiredField(txtConfirmPassword, ConfirmRequiredMessage));
+
+        AcceptButton = _PrimaryActionButton();   // مصدر واحد مع WireModeEnter/WireEnterAsTab (RULE-N147)
         CancelButton = btnClose;
     }
+
+    /// <summary>
+    /// الزر الأساسي للشاشة (RULE-N147/RULE-N191): «حفظ» وحده. يُقرأ عند كل ضغطة Enter وعند إسناد
+    /// <c>AcceptButton</c>، ولا يُرجع <c>null</c> أثناء الحفظ لأن الـHelper يفحص <c>Enabled</c> بنفسه:
+    /// <c>KeyboardHelper.MoveNextByDisplayOrder</c> و<c>WireModeEnter</c> كلاهما يشترط
+    /// <c>primary.Enabled &amp;&amp; primary.Visible</c> — فلا نسخة ثانية من حارس «معطّل» في الشاشة (RULE-N172).
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnSave;
 
     // ── الخدمات (RULE-N03/N04) ────────────────────────────────────────────────
 
@@ -97,109 +116,44 @@ public partial class frmPasswordChange : Form
     }
 
     /// <summary>
-    /// تحقق كامل بأسلوب <c>frmProductMaster</c>: يضبط/يمسح <c>errorProvider</c> لكل حقل بالترتيب،
-    /// ويعيد النتيجة بلا أي MessageBox. قواعد التحقق نفسها لم تتغيّر — الإلزام يُقرأ من
-    /// <see cref="clsValidation.IsRequired"/> وتلميح الرفض من <see cref="clsInputFeedback"/>.
+    /// قواعد **المدى** فقط — تبقى **حرفياً كما هي** (نفس الشروط ونفس الرسائل العربية ونفس
+    /// الترتيب): حدّ الطول · اختلاف الجديدة عن الحالية (خدمة ذاتية) · تطابق الجديدة مع التأكيد.
+    /// <para>
+    /// <b>حكم «فارغ» ليس هنا:</b> الإلزام ملك <see cref="RequiredFieldHelper"/> وحده (PILOT-2 /
+    /// RULE-N172) ويُقيَّم **قبل** هذه الدالة، فلا يُبلَّغ «قصيرة جداً» عن حقل فارغ.
+    /// </para>
+    /// <para>
+    /// تُوسم كل مخالفة (لا تُقصّ) ثم يُركَّز أول حقل مخالف — نفس سلوك التحقق السابق بلا تغيير،
+    /// والرفض يمرّ عبر <see cref="_Reject"/> (أيقونة + ومضة من البيت الواحد).
+    /// </para>
     /// </summary>
-    private bool _ValidateForm()
+    private bool _ValidateRangeRules()
     {
+        Control? firstInvalid = null;
         bool isValid = true;
 
-        // كلمة المرور الحالية مطلوبة في وضع الخدمة الذاتية فقط (في الإعادة الإدارية الصف مخفي).
-        if (_isSelfService && !clsValidation.IsRequired(txtCurrentPassword.Text))
-        {
-            _Reject(txtCurrentPassword, CurrentRequiredMessage);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtCurrentPassword, string.Empty);
-        }
-
-        if (!clsValidation.IsRequired(txtNewPassword.Text))
-        {
-            _Reject(txtNewPassword, NewRequiredMessage);
-            isValid = false;
-        }
-        else if (txtNewPassword.Text.Length < clsValidation.PasswordMinLength)
+        if (txtNewPassword.Text.Length < clsValidation.PasswordMinLength)
         {
             _Reject(txtNewPassword, MinLengthMessage);
+            firstInvalid ??= txtNewPassword;
             isValid = false;
         }
         else if (_isSelfService && txtNewPassword.Text == txtCurrentPassword.Text)
         {
             _Reject(txtNewPassword, SamePasswordMessage);
+            firstInvalid ??= txtNewPassword;
             isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtNewPassword, string.Empty);
-        }
-
-        if (!clsValidation.IsRequired(txtConfirmPassword.Text))
-        {
-            _Reject(txtConfirmPassword, ConfirmRequiredMessage);
-            isValid = false;
-        }
-        else if (txtNewPassword.Text != txtConfirmPassword.Text)
-        {
-            _Reject(txtConfirmPassword, MismatchMessage);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtConfirmPassword, string.Empty);
-        }
-
-        return isValid;
-    }
-
-    /// <summary>
-    /// ينقل المؤشر إلى **أول** حقل غير صالح بالترتيب البصري (الحالية ← الجديدة ← التأكيد) ويضع
-    /// أيقونة الخطأ عليه — ويتخطّى حقل كلمة المرور الحالية في وضع الإعادة الإدارية لأنه مخفي.
-    /// </summary>
-    private void _FocusFirstInvalidField()
-    {
-        if (_isSelfService && !clsValidation.IsRequired(txtCurrentPassword.Text))
-        {
-            _Reject(txtCurrentPassword, CurrentRequiredMessage);
-            txtCurrentPassword.Focus();
-            return;
-        }
-
-        if (!clsValidation.IsRequired(txtNewPassword.Text))
-        {
-            _Reject(txtNewPassword, NewRequiredMessage);
-            txtNewPassword.Focus();
-            return;
-        }
-
-        if (txtNewPassword.Text.Length < clsValidation.PasswordMinLength)
-        {
-            _Reject(txtNewPassword, MinLengthMessage);
-            txtNewPassword.Focus();
-            return;
-        }
-
-        if (_isSelfService && txtNewPassword.Text == txtCurrentPassword.Text)
-        {
-            _Reject(txtNewPassword, SamePasswordMessage);
-            txtNewPassword.Focus();
-            return;
-        }
-
-        if (!clsValidation.IsRequired(txtConfirmPassword.Text))
-        {
-            _Reject(txtConfirmPassword, ConfirmRequiredMessage);
-            txtConfirmPassword.Focus();
-            return;
         }
 
         if (txtNewPassword.Text != txtConfirmPassword.Text)
         {
             _Reject(txtConfirmPassword, MismatchMessage);
-            txtConfirmPassword.Focus();
+            firstInvalid ??= txtConfirmPassword;
+            isValid = false;
         }
+
+        firstInvalid?.Focus();
+        return isValid;
     }
 
     // ── رسائل الخطأ داخل الشاشة (بلا MessageBox للتحقق — نمط frmLogin/frmProductMaster) ──
@@ -246,9 +200,18 @@ public partial class frmPasswordChange : Form
             return;
         }
 
-        if (!_ValidateForm())
+        // RULE-N180…N183 / RULE-N194: الحقول المطلوبة الفارغة تُوسَم وتُومض وتُرَكَّز من البيت الواحد
+        // (أيقونة ✗ + ومضة + صوت، ثم تزول فور صحة القيمة) — لا حكم «فارغ» في الشاشة، وحفظ واحد بلا رنّات.
+        if (!RequiredFieldHelper.Validate(this))
         {
-            _FocusFirstInvalidField();
+            RequiredFieldHelper.FirstMissing(this)?.Focus();
+            ShowError(ValidationSummaryMessage);
+            return;
+        }
+
+        // قواعد المدى تبقى كما هي حرفياً (الطول · الاختلاف عن الحالية · التطابق) — الرسائل نفسها.
+        if (!_ValidateRangeRules())
+        {
             ShowError(ValidationSummaryMessage);
             return;
         }
@@ -394,13 +357,14 @@ public partial class frmPasswordChange : Form
         lblError.Top = _errorTop + shift;
     }
 
-    /// <summary>تفريغ الحقول ومسح كل آثار الخطأ (يُستهلك عند تغيير الوضع).</summary>
+    /// <summary>تفريغ الحقول ومسح كل آثار الخطأ (يُستهلك عند تغيير الوضع) — RULE-N183 مع errorProvider.Clear.</summary>
     private void _ResetInputs()
     {
         txtCurrentPassword.Clear();
         txtNewPassword.Clear();
         txtConfirmPassword.Clear();
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);   // لا علامة مطلوبة عالقة بعد إعادة ضبط الوضع
         HideError();
     }
 
