@@ -44,7 +44,8 @@ public partial class frmPurchaseItemInfo : Form
         InitializeComponent();
 
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter يتبع ترتيب العرض داخل النطاق ثم يُسلِّم التركيز لزر الوضع (بلا تنفيذ).
+        KeyboardHelper.WireEnterAsTab(this, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
@@ -57,6 +58,19 @@ public partial class frmPurchaseItemInfo : Form
         InitializeGridColumns();
         LoadMockData();
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // الزر الأساسي للوضع الحالي (RULE-N147 + RULE-N191/N153)
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// الزر الأساسي للوضع الحالي — <b><c>null</c> مقصود</b>: هذه نافذة معلومات للقراءة فقط
+    /// (لا إضافة ولا حفظ ولا ترحيل)، وإجراؤها الوحيد هو «إغلاق» وهو مُوصَّل أصلاً كـ<c>CancelButton</c>
+    /// مع <c>Esc</c>. لو أعادت الدالة <c>btnClose</c> لكانت ضغطة <c>Enter</c> — داخل الشبكة أو أي حقل —
+    /// تُغلق النافذة بلا طلب، وهو ما تمنعه <c>RULE-N147</c> (Enter لا يُنفِّذ إجراءً) و<c>RULE-N153</c>
+    /// (لا فعل مستندي من داخل شبكة السطور). فتبقى <c>Enter</c> تنقلاً فقط، ولا يُضاف <c>AcceptButton</c>.
+    /// </summary>
+    private Button? _PrimaryActionButton() => null;
 
     // ═══════════════════════════════════════════════════════════
     // الثيم (RULE-N50…RULE-N54)

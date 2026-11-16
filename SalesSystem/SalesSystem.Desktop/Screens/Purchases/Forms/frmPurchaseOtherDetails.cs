@@ -27,8 +27,11 @@ public partial class frmPurchaseOtherDetails : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
-        // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل نطاق حقول الحوار يمشي بترتيب العرض (صفاً صفاً من اليمين لليسار)
+        // ثم يُسلِّم **التركيز** لزر «موافق» بلا تنفيذ (RULE-N194: الحقل المطلوب الفارغ يحجب النقل).
+        KeyboardHelper.WireEnterAsTab(pnlBody, _PrimaryActionButton);
+
+        // RULE-N40…RULE-N47 + RULE-N95 — بقية الستة من KeyboardHelper في كل حوار إدخال.
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
@@ -121,6 +124,15 @@ public partial class frmPurchaseOtherDetails : Form
     // ═══════════════════════════════════════════════════════════
     // الإجراءات — موافق / إلغاء
     // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// الزر الأساسي للحوار (RULE-N147 / RULE-N191): «موافق» — يُقرأ عند كل ضغطة <c>Enter</c>
+    /// وعند كل انتقال تركيز، ولا آلة أوضاع في هذا الحوار فالجواب ثابت.
+    /// <c>Enter</c> عليه يُركِّزه فقط بعد آخر حقل (لا حفظ بضغطة Enter وحدها)، و<c>AcceptButton</c>
+    /// المعلن في المصمّم هو الزر نفسه.
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnOk;
+
     private void btnOk_Click(object? sender, EventArgs e)
     {
         try

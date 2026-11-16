@@ -43,13 +43,26 @@ public partial class frmPurchaseItem : Form
         InitializeComponent();
 
         // RULE-N40…RULE-N47 + RULE-N95 — الستة من KeyboardHelper في كل حوار إدخال.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter يمشي بترتيب العرض داخل لوحة الحقول tblFields (صفاً صفاً، ومن اليمين لليسار)
+        // ثم يُركِّز زر «موافق» بلا تنفيذ؛ والواجهة ثنائية الوسيط وحدها تُعلن Enter مفتاح إدخال (RULE-N193).
+        KeyboardHelper.WireEnterAsTab(tblFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(btnOk, btnCancel);                 // RULE-N43
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.Escape, () => DialogResult = DialogResult.Cancel));
+
+        // RULE-N147 — الزر الافتراضي للحوار يُقرأ من نفس دالة الزر الأساسي التي يستدعيها WireEnterAsTab.
+        AcceptButton = _PrimaryActionButton();
+
+        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً، **بعد** WireFocusHighlight إلزاماً (RULE-N183):
+        // الشاشة تُعلن قواعدها فقط؛ الأيقونة ✗ والرسالة والومضة/الصوت ملك البيت الواحد RequiredFieldHelper.
+        // الحقول الرقمية (numQuantity/numCost/numDiscount) لا تُعلَن هنا: حكم «فارغ» في الـHelper
+        // يخدم TextBoxBase/ComboBox وحدهما، فقاعدة عليها تكون ميتة — وقواعدها تبقى في _ValidateRangeRules.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbProduct, "يرجى اختيار الصنف"),
+            new RequiredField(cmbUnit, "يرجى اختيار وحدة الصنف"));
 
         // RULE-N97 — التفقيط الحيّ على حقول المال والكمية.
         LiveTafqeetHelper.Attach(tipTafqeet,
@@ -170,7 +183,14 @@ public partial class frmPurchaseItem : Form
     // ═══════════════════════════════════════════════════════════
     // التحقق من صحة البيانات — errorProvider + رسائل عربية (RULE-N28)
     // ═══════════════════════════════════════════════════════════
-    private bool ValidateForm()
+
+    /// <summary>
+    /// قواعد المدى الرقمية — منطقها ورسائلها العربية محفوظة حرفياً كما كانت (RULE-002 · §2.2):
+    /// كمية لا تزيد عن صفر مرفوضة · تكلفة سالبة مرفوضة · تاريخ صلاحية في الماضي مرفوض،
+    /// ثم تحذير واحد مجمَّع. **ولا حكم «فارغ/مطلوب» هنا** — بيته الواحد
+    /// <see cref="RequiredFieldHelper"/> (RULE-N172 / RULE-N180…N183).
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
 
@@ -222,11 +242,31 @@ public partial class frmPurchaseItem : Form
         return isValid;
     }
 
+    /// <summary>
+    /// الزر الأساسي للحوار (RULE-N147): «موافق». تُقرأ عند كل ضغطة Enter وعند ضبط <c>AcceptButton</c>
+    /// — دالة واحدة يستهلكها الاثنان فلا نسخة ثانية للقرار (RULE-N169…RULE-N172).
+    /// <para>
+    /// RULE-N153 (<c>null</c> أثناء تركيز شبكة سطور): لا شبكة نتائج في هذا الحوار (صفر
+    /// <c>DataGridView</c> في المصمّم) — فالقاعدة غير منطبقة هنا ولا تُكتب فرعاً ميتاً.
+    /// </para>
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnOk;
+
     private void btnOk_Click(object? sender, EventArgs e)
     {
         try
         {
-            if (!ValidateForm()) return;
+            // الحقول المطلوبة: الحكم والحفظ في البيت الواحد RequiredFieldHelper — لا حكم «فارغ» هنا
+            // (RULE-N172 / RULE-N180…N183): تُوسَم كل الحقول الناقصة ثم ينتقل المؤشر إلى أولها.
+            if (!RequiredFieldHelper.Validate(this))
+            {
+                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+                return;
+            }
+
+            // قواعد المدى (كمية · تكلفة · تاريخ صلاحية) — منطق محفوظ كما هو.
+            if (!_ValidateRangeRules()) return;
+
             DialogResult = DialogResult.OK;
             Close();
         }

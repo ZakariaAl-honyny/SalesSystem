@@ -44,10 +44,23 @@ public partial class frmPurchaseReturn : Form
         InitializeComponent();
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (4 من 6).
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل «بيانات المرتجع» يمشي بترتيب العرض (صفاً صفاً من اليمين لليسار) ثم
+        // يُركِّز زر الوضع الأساسي بلا تنفيذ (RULE-N147)؛ والحقول خارج النطاق (الملاحظات) تحتفظ
+        // بسلوك SelectNextControl، وشبكة الأصناف تملك Enter بنفسها (RULE-N153).
+        KeyboardHelper.WireEnterAsTab(pnlHeader, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b — لون الحقل النشط حيّاً من اللوحة
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
+
+        // RULE-N180…N183 — تغذية حقلي المرتجع المطلوبين حيّاً: أيقونة ✗ + رسالة + ومضة رفض تعود
+        // إلى لون المصمّم عند مغادرة حقل مطلوب فارغ، وتزول فور صحّة القيمة. الحكم والوسم في البيت
+        // الواحد RequiredFieldHelper — الشاشة تُعلن قواعدها فقط (RULE-N172).
+        // ترتيب الاستدعاء إلزامي (RULE-N183): **بعد** WireFocusHighlight (ترتيب اشتراك Leave)
+        // و**قبل** GreenThemeHelper.Apply في ApplyUiTheme (لا يلتقط مظهر التعطيل لوناً مؤقتاً).
+        // الصيغة الصريحة new RequiredField(...) إلزامية — bare new(...) هنا CS8752.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(cmbSupplier, "يرجى اختيار المورد"),
+            new RequiredField(cmbWarehouse, "يرجى اختيار المستودع"));
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
         KeyboardHelper.WireButtonDisabledVisual(btnAddItem, btnRemoveItem, btnSaveDraft, btnPost, btnClose);
@@ -63,7 +76,7 @@ public partial class frmPurchaseReturn : Form
 
         // RULE-N147 — Enter = الزر الأساسي للوضع الحالي (يُقرأ عند كل ضغطة لا مرة واحدة).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
-        AcceptButton = _PrimaryActionButton();
+        _UpdateAcceptButton();
 
         this.RightToLeft = RightToLeft.Yes;
         this.RightToLeftLayout = true;
@@ -84,10 +97,16 @@ public partial class frmPurchaseReturn : Form
     // ── الاختصارات العامة (RULE-N47) ─────────────────────────────────────────
 
     /// <summary>Delete: حذف السطر المحدد — يعمل فقط عندما تكون الشبكة هي صاحبة التركيز،
-    /// ولا يحذف أثناء تحرير خلية داخلها (RULE-N22a — نفس حارس معالج Esc).</summary>
+    /// ولا يحذف أثناء تحرير خلية داخلها (RULE-N22a — نفس حارس معالج Esc).
+    /// <para>
+    /// حكم «المؤشر داخل حقل إدخال/محرّر خلية» من البيت الواحد
+    /// <see cref="KeyboardHelper.IsTextInputFocused"/> بدل حارس محلي — والنتيجة نفسها:
+    /// أثناء تحرير الخلية يكون التركيز على <c>IDataGridViewEditingControl</c> فيُمنع الحذف (RULE-N169).
+    /// </para>
+    /// </summary>
     private void _GlobalDelete()
     {
-        if (dgvItems.IsCurrentCellInEditMode) return;
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
 
         if (dgvItems.ContainsFocus && btnRemoveItem.Enabled) btnRemoveItem.PerformClick();
     }
@@ -109,20 +128,27 @@ public partial class frmPurchaseReturn : Form
     /// مرتجع جديد أو مسودة قابلة للتحرير ⇒ «ترحيل» (ولا يُرحَّل شيء قبل تأكيد المستخدم في نافذة التأكيد)،
     /// والوضع المقروء (مرحّل/ملغي) ⇒ لا زر أساسي فلا يفعل Enter شيئاً.
     /// <para>
-    /// ويُعاد <c>null</c> إلزامياً عندما يكون التركيز داخل شبكة الأصناف حتى يبقى <c>Enter</c> فيها
-    /// انتقالاً بين السطور/إتمام تحرير الخلية ولا يُرحّل المرتجع أثناء إدخال الأصناف (RULE-N22a).
+    /// ويُعاد <c>null</c> إلزامياً عندما يكون التركيز داخل شبكة الأصناف — أو خلية منها في وضع التحرير —
+    /// حتى يبقى <c>Enter</c> فيها انتقالاً بين السطور/إتمام تحرير الخلية ولا يُرحّل المرتجع أثناء إدخال
+    /// الأصناف (RULE-N153 / RULE-N22a). الشبكة ليست حقل تنقل في <c>KeyboardHelper</c>، فهي تملك Enter.
     /// </para>
     /// </summary>
     private Button? _PrimaryActionButton()
     {
-        // حماية شبكة إدخال السطور — قبل أي اعتبار آخر.
-        if (dgvItems.ContainsFocus) return null;
+        // حماية شبكة إدخال السطور — قبل أي اعتبار آخر (RULE-N153).
+        if (dgvItems.ContainsFocus || dgvItems.IsCurrentCellInEditMode) return null;
 
         // وضع العرض (مرتجع مرحّل أو ملغي): الشاشة للقراءة فقط ⇒ لا زر أساسي.
         if (_invoice != null && _invoice.Status != (byte)InvoiceStatus.Draft) return null;
 
         return btnPost is { Visible: true, Enabled: true } ? btnPost : null;
     }
+
+    /// <summary>
+    /// مزامنة الزر الافتراضي للنموذج (<c>AcceptButton</c>) مع الزر الأساسي للوضع (RULE-N147):
+    /// بيت واحد للقراءة، يُستدعى عند كل انتقال حالة وعند دخول/مغادرة شبكة الأصناف (RULE-N153).
+    /// </summary>
+    private void _UpdateAcceptButton() => AcceptButton = _PrimaryActionButton();
 
     /// <summary>
     /// F3 = حفظ المسودة — لا يُفعَّل إلا من زر ظاهر ومفعَّل (RULE-N47).
@@ -310,6 +336,11 @@ public partial class frmPurchaseReturn : Form
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColPrice", HeaderText = "السعر", DataPropertyName = "UnitPrice", Width = 100 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 100, ReadOnly = true });
         dgvItems.DataSource = _lines;
+
+        // RULE-N153 — شبكة السطور تملك Enter: يُفرَّغ AcceptButton عند دخول الشبكة (فلا ينقر
+        // Form.ProcessDialogKey زر «ترحيل» من داخل الإدخال) ويُعاد عند مغادرتها حسب الوضع الحالي.
+        dgvItems.Enter += (s, e) => _UpdateAcceptButton();
+        dgvItems.Leave += (s, e) => _UpdateAcceptButton();
         dgvItems.CellEndEdit += (s, e) => {
             if (_isUpdating || e.RowIndex < 0 || e.RowIndex >= dgvItems.Rows.Count) return;
 
@@ -370,7 +401,7 @@ public partial class frmPurchaseReturn : Form
         };
 
         // RULE-N147 — الزر الافتراضي لـ Enter يتبع الوضع (مرحّل/ملغي ⇒ لا زر أساسي).
-        AcceptButton = _PrimaryActionButton();
+        _UpdateAcceptButton();
 
         _UpdateModeHeader();
     }
@@ -390,36 +421,18 @@ public partial class frmPurchaseReturn : Form
     private async void btnSaveDraft_Click(object sender, EventArgs e) => await SaveInvoiceAsync(false);
     private async void btnPost_Click(object sender, EventArgs e) => await SaveInvoiceAsync(true);
 
-    private bool _ValidateForm()
+    /// <summary>
+    /// قواعد النطاق التي لا تُوصَف كـ«حقل مطلوب» (الحقلان المطلوبان — المورد والمستودع — يُعلنان في
+    /// <c>RequiredFieldHelper.Attach</c> بالمُنشئ، والحكم والوسم هناك وحده — RULE-N172/RULE-N184):
+    /// سطر واحد على الأقل للإرجاع · كمية الإرجاع &gt; 0 · سعر الوحدة غير سالب · كل سطر مرتبط بصنف مسجَّل.
+    /// <para>
+    /// <b>النصوص والأحكام منقولة حرفياً</b> من الفحص السابق — لا تغيير في الأثر المخزني/المالي:
+    /// بلا هذا الفحص يُرسَل سطر بكمية صفر/سالب أو بكود غير محلول فيفسد المخزون ورصيد المورد بصمت.
+    /// </para>
+    /// </summary>
+    private bool _ValidateRangeRules()
     {
         bool isValid = true;
-
-        // القراءة عبر Convert لا بالتحويل الصريح: SelectedValue قيمة مُعلَّبة (boxed) بنوع خاصية
-        // المورد/المستودع، والمستودع Id من نوع short ⇒ (int) يرمي InvalidCastException.
-        if (Convert.ToInt32(cmbSupplier.SelectedValue ?? 0) <= 0)
-        {
-            const string supplierMessage = "يرجى اختيار المورد";
-            errorProvider.SetError(cmbSupplier, supplierMessage);
-            // GAP-08b — كل رفض errorProvider مقرون بتغذية بصرية من البيت الواحد (RULE-N169).
-            clsInputFeedback.ShowRejectTooltip(cmbSupplier, supplierMessage, toolTip);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbSupplier, "");
-        }
-
-        if (Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0) <= 0)
-        {
-            const string warehouseMessage = "يرجى اختيار المستودع";
-            errorProvider.SetError(cmbWarehouse, warehouseMessage);
-            clsInputFeedback.ShowRejectTooltip(cmbWarehouse, warehouseMessage, toolTip);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbWarehouse, "");
-        }
 
         if (!_lines.Any(l => l.ProductId > 0))
         {
@@ -472,7 +485,16 @@ public partial class frmPurchaseReturn : Form
         // يحمي من إعادة الحفظ/الترحيل عبر الاختصارات F3/F4 أو أي مسار آخر.
         if (_invoice is not null && _invoice.Status != (byte)InvoiceStatus.Draft) return;
 
-        if (!_ValidateForm()) return;
+        // الحقول المطلوبة: الحكم والوسم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم كل ناقص (أيقونة ✗ + ومضة رفض) ثم ينتقل المؤشر إلى أوله، بلا صندوق رسالة يحجب العمل.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
+
+        // قواعد السطور (كمية/سعر/ارتباط الصنف/سطر واحد على الأقل) تبقى في الشاشة بنصوصها الحرفية.
+        if (!_ValidateRangeRules()) return;
 
         if (post && !clsDialogs.Confirm("ترحيل المرتجع؟ سيتم تقليل المخزون وتقليل رصيد المورد.")) return;
 
