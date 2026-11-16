@@ -132,6 +132,13 @@ public static class ThemePalette
     /// <summary>نص العنصر المعطّل.</summary>
     public const string DisabledForeColor = "disabledForeColor";
 
+    /// <summary>
+    /// خلفية الحقل المطلوب الناقص (حالة خطأ — قرار المالك 2026-11-16: «غيّر اللون إلى الأحمر»).
+    /// لون **حالة** لا لون تصميم: يُطبَّق فقط ما دام الحقل ناقصاً، ولذلك لا يُعلَن في أي `*.Designer.cs`
+    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي أحمر فاتح يبقي نص الحقل قابلاً للقراءة.
+    /// </summary>
+    public const string RequiredFieldErrorColor = "requiredFieldErrorColor";
+
     // ═════════════════════════════════════════════════════════════════
     //  جدول الافتراضيات (القيم الحالية حرفياً — التشغيل = المصمّم)
     // ═════════════════════════════════════════════════════════════════
@@ -171,9 +178,10 @@ public static class ThemePalette
         new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(33, 37, 41)),
         // ── التحديد والحقل النشط (1) ──
         new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(255, 255, 180)),
-        // ── حالات العرض (2) ──
+        // ── حالات العرض (3) ──
         new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(224, 224, 224)),
         new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(150, 150, 150)),
+        new(RequiredFieldErrorColor, "خلفية الحقل المطلوب الناقص", GroupStates, Color.FromArgb(255, 205, 210)),
     };
 
     private static readonly ReadOnlyCollection<ThemeColorDefinition> DefinitionsReadOnly =
@@ -211,7 +219,7 @@ public static class ThemePalette
     //  القراءة والكتابة
     // ═════════════════════════════════════════════════════════════════
 
-    /// <summary>تعريفات اللوحة (23 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
+    /// <summary>تعريفات اللوحة (24 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
     public static IReadOnlyList<ThemeColorDefinition> Definitions => DefinitionsReadOnly;
 
     /// <summary>فهرس التعريفات بالمفتاح (تطابق ترتيبي — نفس أسماء الثوابت).</summary>
@@ -266,6 +274,7 @@ public static class ThemePalette
         Add(GridCellTextColor, GridCellBackgroundColor, BodyTextMinimumContrast);
         Add(GridCellBackgroundColor, GridCellTextColor, BodyTextMinimumContrast);
         Add(SelectionRowColor, GridCellTextColor, BodyTextMinimumContrast);
+        Add(RequiredFieldErrorColor, GridCellTextColor, BodyTextMinimumContrast);
         Add(TextStrongColor, FrmMainColor, BodyTextMinimumContrast);
         Add(FrmMainColor, TextStrongColor, BodyTextMinimumContrast);
         // حالات العرض: تباين مقروء لا أكثر (رمادي على رمادي).
@@ -684,7 +693,7 @@ public static class ThemePalette
     private static readonly Regex HexPattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
 
     /// <summary>
-    /// يتحقّق من **مجموعة ألوان كاملة** (23 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
+    /// يتحقّق من **مجموعة ألوان كاملة** (24 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
     /// رسالة رفض عربية، أو <c>null</c> إن كانت المجموعة كلها مقبولة.
     /// <para>
     /// <b>البيت الواحد (RULE-N169 · RULE-N172):</b> كانت هذه الفحوص الخمسة مكتوبة داخل
@@ -780,6 +789,50 @@ public static class ThemePalette
     /// كتابة نصها (RULE-N169 / RULE-N171).
     /// </summary>
     private const string ApplyFailureMessage = "تعذر تطبيق بعض الألوان. يرجى إعادة المحاولة.";
+
+    /// <summary>
+    /// يطبّق لوحة **محفوظة** مع التوافق الرجعي: أي مفتاح جديد أُضيف بعد الحفظ يأخذ افتراضيه،
+    /// وأي مفتاح غير معروف يُتجاهل — بدل رفض اللوحة كلها وضياع ألوان المالك عند الإقلاع.
+    /// لا يُستهلك في مسار الحفظ: هناك يبقى <see cref="ValidateAll"/> الصارم (RULE-N167).
+    /// <para>
+    /// البناء: ركيزة كاملة من افتراضيات <see cref="Definitions"/> (كل قيمة تُحوَّل بـ
+    /// <see cref="ToHex(Color)"/> — المنسّق الوحيد في النظام، لا مُسلسِل ثانٍ)، ثم تراكب
+    /// المحفوظ للمفاتيح المعروفة فقط، ثم <see cref="TryApplyAll"/> نفسه (تحقّق + تحويل + تطبيق ذرّي).
+    /// </para>
+    /// </summary>
+    /// <param name="colors">القيم المحفوظة (قد تكون <c>null</c> أو ناقصة أو تحمل مفاتيح قديمة).</param>
+    /// <returns>رسالة الرفض العربية إن فشل التطبيق، أو <c>null</c> عند النجاح/عدم وجود ما يُطبَّق.</returns>
+    public static string? TryApplyStored(IReadOnlyDictionary<string, string>? colors)
+    {
+        // لا شيء محفوظ (أول تشغيل أو صفوف غائبة) ⇒ الافتراضيات قائمة بالفعل، لا نلمس شيئاً.
+        if (colors is null || colors.Count == 0) return null;
+
+        try
+        {
+            // (1) ركيزة كاملة من الافتراضيات — بصيغة #RRGGBB عبر المنسّق الوحيد
+            var merged = new Dictionary<string, string>(AllDefinitions.Length, StringComparer.Ordinal);
+            foreach (var definition in AllDefinitions)
+                merged[definition.Key] = ToHex(definition.DefaultValue);
+
+            // (2) تراكب المحفوظ: المفاتيح المعروفة فقط، وغير المعروف/الفراغ يُتجاهل
+            foreach (var pair in colors)
+            {
+                if (pair.Key is null || string.IsNullOrWhiteSpace(pair.Value)) continue;
+                if (!DefinitionsByKey.ContainsKey(pair.Key)) continue;
+                if (!TryParseHex(pair.Value, out _)) continue;   // قيمة مشوّهة ⇒ يبقى الافتراضي، لا تُسقط اللوحة كلها
+
+                merged[pair.Key] = pair.Value.Trim();
+            }
+
+            // (3) التطبيق الذرّي نفسه — لا نسخة ثانية من التحقق ولا من التحويل (RULE-N171)
+            return TryApplyAll(merged);
+        }
+        catch
+        {
+            // لا نُسقط الإقلاع بسبب لوحة محفوظة مشوّهة — البقاء على الافتراضيات أسلم.
+            return null;
+        }
+    }
 
     // ── التباين: العتبات والمفاتيح تأتي من خريطة ContrastRules — لا ثوابت محلية ──
 

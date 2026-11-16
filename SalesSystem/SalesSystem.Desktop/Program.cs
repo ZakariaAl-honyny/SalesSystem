@@ -465,7 +465,7 @@ static class Program
                     var themeService = prefScope.ServiceProvider.GetRequiredService<IThemeColorDesktopService>();
                     var themeResult = themeService.GetAsync().GetAwaiter().GetResult();
                     if (themeResult.IsSuccess && themeResult.Value is not null)
-                        ThemePalette.TryApplyAll(themeResult.Value.Colors);
+                        ThemePalette.TryApplyStored(themeResult.Value.Colors);
 
                     var formatService = prefScope.ServiceProvider.GetRequiredService<IFormatSettingsDesktopService>();
                     var formatResult = formatService.GetAsync().GetAwaiter().GetResult();

@@ -14,16 +14,18 @@ public readonly record struct RequiredField(Control Field, string Message, Func<
 /// <summary>
 /// البيت الواحد لتغذية الحقول المطلوبة (RULE-N169…RULE-N172 / RULE-N180…N183):
 /// عندما يترك المستخدم حقلاً مطلوباً فارغاً (أو يضغط الزر الأساسي) يظهر رمز ✗ في
-/// <see cref="ErrorProvider"/> مع رسالته العربية، وتُصبغ خلفية الحقل بلون التحديد الحيّ،
+/// <see cref="ErrorProvider"/> مع رسالته العربية، وتُصبغ خلفية الحقل بلون **الخطأ الأحمر** الحيّ،
 /// وتزول العلامة في اللحظة التي تصبح القيمة صحيحة.
 /// <para>
 /// <b>الشاشة تُعلن القواعد فقط</b> — لا لون ولا نداء <see cref="ErrorProvider.SetError(Control, string)"/>
 /// ولا استعادة خلفية داخل أي <c>frm*.cs</c>.
 /// </para>
 /// <para>
-/// <b>اللون حيّ (RULE-N54a/N54b):</b> يُقرأ عند كل تقييم من
-/// <see cref="ThemePalette.Get(string)"/> على مفتاح <see cref="ThemePalette.SelectionRowColor"/> —
-/// لا قيمة ARGB مكتوبة هنا ولا نسخة مخزَّنة.
+/// <b>لون الخطأ ≠ لون التركيز (قرار المالك 2026-11-16):</b> خلفية الرفض هي
+/// <see cref="ThemePalette.RequiredFieldErrorColor"/> (أحمر فاتح افتراضياً)، بينما تظليل الحقل
+/// النشط يبقى <see cref="ThemePalette.SelectionRowColor"/> — فلم يبقَ تشابه يجعل «حقل مركَّز»
+/// و«حقل به خطأ» غير قابلين للتمييز. اللونان يُقرآن حيّين: لا قيمة ARGB مكتوبة هنا
+/// ولا نسخة مخزَّنة (RULE-N54a/N54b).
 /// </para>
 /// </summary>
 public static class RequiredFieldHelper
@@ -104,7 +106,7 @@ public static class RequiredFieldHelper
                 // المغادرة: التقييم — يُظهر العلامة أو يزيلها.
                 field.Leave += (_, _) => Safe(() => Evaluate(ruleState, state));
 
-                // الدخول: صبغ خلفية الرفض بنفس لون الحقل النشط (RULE-N46) بلا صراع بصري.
+                // الدخول: صبغ خلفية الرفض بلون الخطأ (لا لون التركيز) — لا صراع بصري مع التظليل.
                 field.Enter += (_, _) => Safe(() => OnEnter(ruleState, state));
 
                 // التفعيل/التعطيل: الحقل المعطّل لا يحمل علامة، واللون الأصلي يُستعاد **قبل** أن يلتقط
@@ -134,7 +136,7 @@ public static class RequiredFieldHelper
     }
 
     /// <summary>
-    /// يقيّم كل قواعد النموذج الآن (فتظهر الأيقونة **وخلفية لون التحديد** معاً، لا الأيقونة وحدها)
+    /// يقيّم كل قواعد النموذج الآن (فتظهر الأيقونة **وخلفية لون الخطأ** معاً، لا الأيقونة وحدها)
     /// ويُعيد <c>true</c> إذا كان كل المطلوب مكتملاً — أو إذا لم يكن النموذج موصولاً أصلاً.
     /// </summary>
     /// <param name="form">النموذج.</param>
@@ -217,7 +219,7 @@ public static class RequiredFieldHelper
 
     /// <summary>
     /// يقيّم قاعدة واحدة ويُعيد هل هي مكتملة الآن:
-    /// قاعدة غير سارية أو حقل معطّل ⇒ لا علامة أبداً · فارغ ⇒ أيقونة + لون التحديد · ممتلئ ⇒ إزالة العلامة.
+    /// قاعدة غير سارية أو حقل معطّل ⇒ لا علامة أبداً · فارغ ⇒ أيقونة + لون الخطأ · ممتلئ ⇒ إزالة العلامة.
     /// </summary>
     private static bool Evaluate(RuleState ruleState, FormState state)
     {
@@ -238,13 +240,13 @@ public static class RequiredFieldHelper
         }
 
         TrySetError(state.Provider, field, ruleState.Rule.Message);
-        field.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);   // لون حيّ في كل تقييم (RULE-N54b)
+        field.BackColor = ThemePalette.Get(ThemePalette.RequiredFieldErrorColor);   // لون حيّ في كل تقييم (RULE-N54a)
         ruleState.Marked = true;
 
         return false;
     }
 
-    /// <summary>الدخول إلى حقل مطلوب فارغ: صبغ خلفيته بلون التحديد نفسه (RULE-N46) — بلا علامة جديدة.</summary>
+    /// <summary>الدخول إلى حقل مطلوب فارغ: صبغ خلفيته بلون الخطأ — بلا علامة جديدة.</summary>
     private static void OnEnter(RuleState ruleState, FormState state)
     {
         var field = ruleState.Rule.Field;
@@ -252,12 +254,13 @@ public static class RequiredFieldHelper
         if (!IsRuleActive(ruleState.Rule) || !IsEffectivelyEnabled(field)) return;
         if (!IsEmpty(field)) return;
 
-        field.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
+        field.BackColor = ThemePalette.Get(ThemePalette.RequiredFieldErrorColor);
     }
 
     /// <summary>
     /// تغيّرت قيمة الحقل: إن كانت العلامة ظاهرة والقيمة صحيحة الآن تُزال فوراً.
-    /// المركَّز يُنظَّف من الأيقونة فقط وتُترك خلفيته — تظليل الحقل النشط يملكها (RULE-N46).
+    /// المركَّز يعود إلى لون التركيز الحيّ (تظليل الحقل النشط يملكه — RULE-N46)،
+    /// وغير المركَّز إلى لون المصمّم الملتقَط (PILOT-6).
     /// </summary>
     private static void OnValueChanged(RuleState ruleState, FormState state)
     {
@@ -271,7 +274,13 @@ public static class RequiredFieldHelper
             TrySetError(state.Provider, field, "");
             ruleState.Marked = false;
 
-            if (!field.Focused) RestoreOriginal(ruleState);
+            // الحقل المركَّز يعود إلى لون التركيز الحيّ لا إلى الأحمر ولا إلى لون المصمّم:
+            // تظليل التركيز يملك الحقل المركَّز (RULE-N46)، ونحن نُعيده من مفتاحه الحيّ (RULE-N54a).
+            // بدون هذا يبقى الحقل أحمر أثناء كتابة القيمة الصحيحة بعد فصل لون الخطأ عن لون التركيز (PILOT-6).
+            if (field.Focused)
+                field.BackColor = ThemePalette.Get(ThemePalette.SelectionRowColor);
+            else
+                RestoreOriginal(ruleState);
         }
     }
 
