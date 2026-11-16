@@ -100,6 +100,13 @@ public partial class frmProductMaster : Form
         // Enter = الزر الأساسي للوضع الحالي: عرض ⇒ «جديد» · إضافة ⇒ «إضافة/حفظ» · تعديل ⇒ «تعديل» (RULE-N147).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
 
+        // RULE-N180..N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + خلفية لون التحديد عند مغادرة حقل مطلوب فارغ.
+        // ملاحظة إلزامية: هذا الاستدعاء يجب أن يأتي **بعد** WireFocusHighlight (السطر 86) لأن ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new(txtName, "اسم الصنف مطلوب"),
+            new(cmbCategory, "يرجى اختيار مجموعة الصنف"),
+            new(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية", () => _mode == EntryMode.Adding));
+
         // RULE-N97 — التفقيط الحيّ كتلميح على حقول الأسعار فقط (حقول الكميات/الأيام لا تُربط).
         // مكان واحد للتلميح: نستهلك toolTip المُعلَن في المصمّم بدل إنشاء نسخة ثانية (RULE-N169/RULE-N145).
         LiveTafqeetHelper.Attach(toolTip,
@@ -148,48 +155,6 @@ public partial class frmProductMaster : Form
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// هل الحقول المطلوبة مكتملة؟ (اسم الصنف + المجموعة + الوحدة الرئيسية عند الإضافة).
-    /// </summary>
-    private bool _RequiredFieldsValid()
-    {
-        bool nameOk = !string.IsNullOrWhiteSpace(txtName.Text);
-        bool categoryOk = cmbCategory.SelectedValue is int categoryId && categoryId > 0;
-
-        // الوحدة الرئيسية مطلوبة فقط عند إضافة صنف جديد (في التعديل تُعرض وحدات الصنف للقراءة فقط).
-        bool mainUnitOk = _editId is not null
-            || (cmbMainUnit.SelectedValue is int unitId && unitId > 0);
-
-        return nameOk && categoryOk && mainUnitOk;
-    }
-
-    /// <summary>
-    /// ينقل المؤشر إلى أول حقل مطلوب فارغ ويعرض أيقونة الخطأ عليه (دون تعطيل أي زر).
-    /// </summary>
-    private void _FocusFirstMissingField(bool edit)
-    {
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم الصنف مطلوب");
-            txtName.Focus();
-            return;
-        }
-
-        if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0)
-        {
-            errorProvider.SetError(cmbCategory, "يرجى اختيار مجموعة الصنف");
-            cmbCategory.Focus();
-            return;
-        }
-
-        if (!edit && (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0))
-        {
-            errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
-            cmbMainUnit.Focus();
-            return;
-        }
     }
 
     /// <summary>
@@ -858,6 +823,8 @@ public partial class frmProductMaster : Form
     {
         bool editingSession = _mode != EntryMode.Browsing;
 
+        if (!editingSession) RequiredFieldHelper.Clear(this);   // وضع العرض: لا علامات مطلوبة على حقول معطّلة
+
         _SetEditorEnabled(editingSession);
 
         // الوحدة الرئيسية: اختيار عند الإضافة فقط، وللعرض فقط عند التعديل
@@ -957,6 +924,7 @@ public partial class frmProductMaster : Form
         _productUnits = Array.Empty<ProductUnitDto>();   // لا وحدات محمَّلة في وضع العرض/الإضافة
 
         errorProvider.Clear();
+        RequiredFieldHelper.Clear(this);
 
         txtCode.Clear();
         txtName.Clear();
@@ -972,7 +940,6 @@ public partial class frmProductMaster : Form
         numMainUnitCostPrice.Value = 0;
         numMainUnitSalePrice.Value = 0;
         numMainUnitMaxDiscount.Value = 0;
-        errorProvider.SetError(cmbMainUnit, "");
 
         if (cmbCategory.Items.Count > 0)
             cmbCategory.SelectedIndex = 0;
@@ -1011,68 +978,6 @@ public partial class frmProductMaster : Form
         txtName.Focus();
     }
 
-    // ── Validation ────────────────────────────────────────────────────────────
-
-    private bool _ValidateForm()
-    {
-        bool isValid = true;
-
-        if (string.IsNullOrWhiteSpace(txtName.Text))
-        {
-            errorProvider.SetError(txtName, "اسم الصنف مطلوب");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtName, "");
-        }
-
-        if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0)
-        {
-            errorProvider.SetError(cmbCategory, "يرجى اختيار مجموعة الصنف");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(cmbCategory, "");
-        }
-
-        if (numReorderLevel.Value < 0)
-        {
-            errorProvider.SetError(numReorderLevel, "نقطة إعادة الطلب يجب أن تكون قيمة موجبة");
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(numReorderLevel, "");
-        }
-
-        // عند إضافة صنف جديد يجب اختيار الوحدة الرئيسية (تُنشأ وحدتها الأساسية مع الحفظ).
-        if (_editId is null)
-        {
-            if (cmbMainUnit.SelectedValue is not int unitId || unitId <= 0)
-            {
-                errorProvider.SetError(cmbMainUnit, "يرجى اختيار الوحدة الرئيسية");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbMainUnit, "");
-            }
-        }
-        else
-        {
-            errorProvider.SetError(cmbMainUnit, "");
-        }
-
-        if (!isValid)
-        {
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-        }
-
-        return isValid;
-    }
-
     // ── Buttons ───────────────────────────────────────────────────────────────
 
     private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
@@ -1094,15 +999,16 @@ public partial class frmProductMaster : Form
         // التعديل بدون سجل محدد لا معنى له.
         if (edit && _editId is null) return;
 
-        // الحقول المطلوبة الناقصة: نقل المؤشر إلى أول حقل ناقص مع أيقونة خطأ (الأزرار تبقى مفعّلة).
-        if (!_RequiredFieldsValid())
+        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
+        // يُوسَم **كل** ناقص (أيقونة ✗ + لون التحديد) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
+        if (!RequiredFieldHelper.Validate(this))
         {
-            _FocusFirstMissingField(edit);
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
             return;
         }
 
-        if (!_ValidateForm()) return;
-        if (cmbCategory.SelectedValue is not int categoryId || categoryId <= 0) return;
+        // التحقق من الحقول المطلوبة صار في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) — لا نسخة ثانية هنا.
+        int categoryId = cmbCategory.SelectedValue is int selectedCategoryId ? selectedCategoryId : 0;
 
         // رسالة تأكيد قبل التعديل (مثل رسالة تأكيد الحذف).
         if (edit)
