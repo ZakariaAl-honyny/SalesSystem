@@ -169,16 +169,16 @@ public static class ThemePalette
     private static readonly ThemeColorDefinition[] AllDefinitions =
     {
         // ── الشاشة الرئيسية (4) ──
-        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(238, 242, 246)),
-        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(15, 45, 74)),
+        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(240, 244, 249)),
+        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(10, 75, 140)),
         new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,      Color.White),
-        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(15, 23, 42)),
+        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(30, 41, 59)),
         // ── الأزرار (7) ──
         new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(2, 119, 189)),
         new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(5, 150, 105)),
         new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons,   Color.FromArgb(225, 29, 72)),
         new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons,   Color.FromArgb(100, 116, 139)),
-        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(8, 145, 178)),
+        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(2, 132, 199)),
         new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(245, 158, 11)),
         new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 250, 252)),
         // ── الصناديق والأشرطة (2) ──
@@ -191,7 +191,7 @@ public static class ThemePalette
         new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(226, 232, 240)),
         new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(248, 250, 252)),
         new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,      Color.White),
-        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(15, 23, 42)),
+        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(30, 41, 59)),
         // ── التحديد والحقل النشط (1) ──
         new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(186, 230, 253)),
         // ── حالات العرض (3) ──
@@ -250,6 +250,13 @@ public static class ThemePalette
         (SelectionRowColor,       Color.FromArgb(255, 243, 205)),   // → 186, 230, 253
         (DisabledBackColor,       Color.FromArgb(233, 236, 239)),   // → 226, 232, 240
         (DisabledForeColor,       Color.FromArgb(108, 117, 125)),   // → 100, 116, 139
+        // ── تصحيحات مطابقة لوحة المصدر (4 — القيم التي استُبدلت الآن) ──
+        (FrmMainColor,            Color.FromArgb(238, 242, 246)),   // → 240, 244, 249
+        (HeaderBarColor,          Color.FromArgb(15, 45, 74)),      // → 10, 75, 140
+        (TextStrongColor,         Color.FromArgb(15, 23, 42)),      // → 30, 41, 59
+        (GridCellTextColor,       Color.FromArgb(15, 23, 42)),      // → 30, 41, 59
+        // ── تصحيح لون زر «معلومات» إلى لون المصدر (sky-600) ──
+        (BtnInfoButtonColor,      Color.FromArgb(8, 145, 178)),     // → 2, 132, 199
     };
 
     /// <summary>

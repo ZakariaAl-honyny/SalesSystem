@@ -101,7 +101,7 @@ partial class frmProductMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(15, 45, 74);
+        lblMode.BackColor = Color.FromArgb(10, 75, 140);
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
         lblMode.ForeColor = Color.White;
@@ -504,7 +504,7 @@ partial class frmProductMaster
         btnEdit.BackColor = Color.FromArgb(245, 158, 11);
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = Color.White;
+        btnEdit.ForeColor = Color.FromArgb(30, 41, 59);
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -529,7 +529,7 @@ partial class frmProductMaster
         // 
         // btnReactivate
         // 
-        btnReactivate.BackColor = Color.FromArgb(8, 145, 178);
+        btnReactivate.BackColor = Color.FromArgb(2, 132, 199);
         btnReactivate.Enabled = false;
         btnReactivate.FlatStyle = FlatStyle.Flat;
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -545,7 +545,7 @@ partial class frmProductMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(8, 145, 178);
+        btnRefresh.BackColor = Color.FromArgb(2, 132, 199);
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnRefresh.ForeColor = Color.White;
@@ -559,7 +559,7 @@ partial class frmProductMaster
         // 
         // btnManageUnits
         // 
-        btnManageUnits.BackColor = Color.FromArgb(8, 145, 178);
+        btnManageUnits.BackColor = Color.FromArgb(2, 132, 199);
         btnManageUnits.FlatStyle = FlatStyle.Flat;
         btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnManageUnits.ForeColor = Color.White;
@@ -617,9 +617,9 @@ partial class frmProductMaster
         dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
         dataGridViewCellStyle6.BackColor = Color.White;
         dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle6.ForeColor = Color.FromArgb(15, 23, 42);
+        dataGridViewCellStyle6.ForeColor = Color.FromArgb(30, 41, 59);
         dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(186, 230, 253);
-        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(15, 23, 42);
+        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(30, 41, 59);
         dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
         dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
         dgvProducts.Dock = DockStyle.Fill;
@@ -751,7 +751,7 @@ partial class frmProductMaster
         btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(15, 23, 42);
+        btnToggleFilters.ForeColor = Color.FromArgb(30, 41, 59);
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -773,7 +773,7 @@ partial class frmProductMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(15, 23, 42);
+        lblSummary.ForeColor = Color.FromArgb(30, 41, 59);
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -831,7 +831,7 @@ partial class frmProductMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(238, 242, 246);
+        BackColor = Color.FromArgb(240, 244, 249);
         ClientSize = new Size(1432, 746);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);
