@@ -404,19 +404,19 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | RULE-N54c | **الاقتراح الذكي لا يُكرَّر حكمه:** منطق اقتراح الألوان وقواعد التباين يعيش مرة واحدة في `ColorSuggestionHelper` (الاقتراح · السلم · الأفضل · القبول) فوق `ThemePalette.ContrastRatio`/`MinimumContrastFor`/`ContrastPartnerColor`. أي شاشة/خدمة تحتاج حكماً على لون تستهلك هذه الدوال — وممنوع نسخ معادلة WCAG أو خريطة الألوان الشريكة أو عتبات التباين في شاشة أو في تنفيذ Mock (`RULE-N169`…`RULE-N172`)، وممنوع أن تقترح الأداة لوناً يمكن أن يرفضه الحفظ (المقترَحات مُتحقَّق منها مسبقاً — `RULE-N167`) |
 | RULE-N154 | **مظهر التعطيل موحّد كالأزرار المعطّلة (لكل الشاشات):** كل عنصر إدخال معطّل — `TextBox` · `MaskedTextBox` · `ComboBox` · `NumericUpDown` · `DateTimePicker` · `Button` — يأخذ خلفية `GreenThemeHelper.DisabledBack` = `Color.FromArgb(233, 236, 239)` ونصاً `DisabledFore` = `Color.FromArgb(108, 117, 125)` **تلقائياً** عبر `KeyboardHelper.WireDisabledVisuals` الذي يستدعيه `GreenThemeHelper.Apply` (آخر سطر ثيم في كل شاشة) — فلا يُكتب لون تعطيل داخل أي شاشة ولا يُكرَّر (`RULE-N112`)، ويُعاد لون المصمّم حرفياً فور التفعيل؛ و`CheckBox`/`RadioButton` يُباهت نصّهما فقط بلا مسحة رمادية خلف النص. لونا التعطيل **لونا حالة** لا لونا تصميم: لا يُعلنان في `*.Designer.cs` (الاستثناء الوحيد على `RULE-N134`) لأنهما يُطبَّقان فقط ما دام `Enabled == false` |
 
-**قيم لوحة ألوان النظام الافتراضية (مُعتمدة 2026-11-16 — الحالة السابقة محفوظة في `ThemePalette.RetiredDefaults`):**
+**قيم لوحة ألوان النظام الافتراضية (الجيل الثالث — «المحاسب سوفت» الأزرق، 2026-11-16؛ جيلان سابقان محفوظان في `ThemePalette.RetiredDefaults` = 30 زوجاً):**
 
 | العنصر | القيمة |
 |---|---|
-| خلفية النموذج | `Color.FromArgb(240, 242, 245)` — رمادي مهني فاتح |
-| شريط العنوان | `Color.FromArgb(16, 150, 96)` (زمردي) + نص أبيض |
+| خلفية النموذج | `Color.FromArgb(238, 242, 246)` = `#EEF2F6` — أزرق رمادي بارد |
+| شريط العنوان | `Color.FromArgb(15, 45, 74)` = `#0F2D4A` (كحلي) + نص أبيض — تباين **14.05** |
 | صناديق المجموعات | `Color.White` |
 | أشرطة الأدوات/الإجراءات | `Color.White` |
-| خلفية الشبكة | `Color.White` · خطوط `(222, 226, 230)` |
-| رؤوس الأعمدة | `(52, 58, 64)` (فحمي) + نص أبيض، Tahoma 10 Bold |
-| التحديد والحقل النشط (سطر الشبكة + تظليل التركيز) | `Color.FromArgb(255, 243, 205)` = `#FFF3CD` — مفتاح واحد `ThemePalette.SelectionRowColor` عبر `GreenThemeHelper.ApplyGrid` و`KeyboardHelper.WireFocusHighlight` حيّاً (`RULE-N54b` / `RULE-N46`) |
-| نص مميّز | `Color.FromArgb(33, 37, 41)` — داكن محايد |
-| عنصر معطّل (حقل أو زر) | خلفية `Color.FromArgb(233, 236, 239)` + نص `Color.FromArgb(108, 117, 125)` — من `DisabledBack`/`DisabledFore` عبر `KeyboardHelper.WireDisabledVisuals` (`RULE-N154`) |
+| خلفية الشبكة | `Color.White` · خطوط `(226, 232, 240)` = `#E2E8F0` · أسطر متبادلة `(248, 250, 252)` |
+| رؤوس الأعمدة | `(15, 45, 74)` (كحلي) + نص أبيض، Tahoma 10 Bold — تباين **14.05** |
+| التحديد والحقل النشط (سطر الشبكة + تظليل التركيز) | `Color.FromArgb(186, 230, 253)` = `#BAE6FD` (سماوي) — مفتاح واحد `ThemePalette.SelectionRowColor` عبر `GreenThemeHelper.ApplyGrid` و`KeyboardHelper.WireFocusHighlight` حيّاً (`RULE-N54b` / `RULE-N46`) — تباين مع نص الخلية **13.45** |
+| نص مميّز | `Color.FromArgb(15, 23, 42)` = `#0F172A` — تباين مع خلفية النموذج **15.87** |
+| عنصر معطّل (حقل أو زر) | خلفية `Color.FromArgb(226, 232, 240)` + نص `Color.FromArgb(100, 116, 139)` — من `DisabledBack`/`DisabledFore` عبر `KeyboardHelper.WireDisabledVisuals` (`RULE-N154`) — تباين **3.86** |
 | سطر سجل غير نشط (شبكات الدليل) | خلفية `Color.FromArgb(238, 238, 238)` + نص `Color.FromArgb(110, 112, 116)` — من `InactiveRowBack`/`InactiveRowFore` عبر `GridRowHelper.ApplyInactiveRowStyle` (`RULE-N169`/`RULE-N179`) |
 | حقل مطلوب **ناقص** (حالة خطأ) | **ومضة رفض** — خلفية `Color.FromArgb(248, 215, 218)` = `#F8D7DA` لمدة **200 مللي ثانية** ثم تعود **لون المصمّم تلقائياً**، مع أيقونة ✗ وتلميح منبثق بالرسالة وصوت تنبيه. اللون من `ThemePalette.RejectBackgroundColor` عبر `GreenThemeHelper.RejectBackground` ويُستهلك حصراً في `clsInputFeedback.ShowRejectTooltip` — **لا يُصبغ أي حقل بلون ثابت**. **لون حالة لا لون تصميم: لا يُعلَن في `*.Designer.cs`** (استثناء `RULE-N154`) — الطريقة هي طريقة **كلمة المرور في `frmLogin`** حرفياً (قرار المالك 2026-11-16: «مثل كلمة المرور في شاشة الدخول — أيقونة ورسالة») (`RULE-N182` / `PILOT-8`/`PILOT-9`) |
 
@@ -429,7 +429,7 @@ The Desktop app supports a mock-data mode so the UI can be built and tested with
 | # | الميزة | المرجع | الحالة | ملاحظات |
 |---|---|---|---|---|
 | 1 | تنقل لوحة المفاتيح (Enter/Tab + أسهم RTL + تحديد القيمة + تظليل الحقل) | `RULE-N40`…`RULE-N47` + `KeyboardHelper` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): 55 من 93 نموذجاً `frm*` تستدعي الستة كاملة** (`WireEnterAsTab` + `WireSelectAllOnFocus` + `WireFocusHighlight` + `WireArrowNavigation` + `WireButtonDisabledVisual` + `WireGlobalShortcuts`) — والعدّ لكل دالة على حدة: `WireArrowNavigation` في **55** · `WireButtonDisabledVisual` في **56** · `WireSelectAllOnFocus` و`WireFocusHighlight` في **56** · `WireEnterAsTab` في **57** · `WireGlobalShortcuts` في **61**. المتبقي من الشاشات الملزمة (62 نموذجاً غير تقريري): `frmLogin` (5 من 6 — بلا `WireArrowNavigation`) · `frmMain` (شاشة هيكلية) · 5 نوافذ طباعة (`frmStocktakingPrint` · `frmStocktakingPrintCard` · `frmStocktakingPrintAdjustment` · `frmWarehouseTransferPrint` · `frmPurchaseInvoicePrint`) تستدعي `WireGlobalShortcuts` فقط. و**31 تقريراً** بلا استدعاء لأنها معفاة (`RULE-N121`) · 🔄 **2026-11-16 (عدّ فعلي بعد دمج موجة اللوحة): 59 موضع استدعاء `WireEnterAsTab` في `Screens/**` = 58 أحادي الوسيط + 1 ثنائي** (`frmProductMaster.cs:85` وحده — `RULE-N191`، بانتظار شهادة المالك `RULE-N184`). و**40 شاشة تضبط `AcceptButton`** (59 موضع إسناد) ⇒ `Enter` فيها كان ينقر زر الوضع ولا يصل إلى `KeyDown` (`RULE-N193`) — الإصلاح في البيت الواحد والتعميم مؤجل للشهادة |
-| 2 | لوحة ألوان النظام في وقت التشغيل (محايدة مهنية — §2.19) | `RULE-N50`…`RULE-N54` + `GreenThemeHelper` | 🔄 تعميم جارٍ | `frmAddUpdateSalesInvoice` هي الشاشة المرجعية — ومنها **مطابقة المصمّم**: كل شاشة تُظهر نفس الألوان في المصمّم ووقت التشغيل (`RULE-N134`). ✅ **2026-11-13 (عدّ فعلي): `GreenThemeHelper.Apply(this)` في 62 من 62 نموذجاً غير تقريري** (93 نموذجاً − 31 تقريراً) بما فيها نوافذ الطباعة، وفي `ctrlDashboard` كذلك · `ApplyGrid` في **53** موضعاً · و**31 تقريراً** تُوحَّد بـ`ReportUiStandardizer.ApplyForm` (31/31) لا بالثيم المباشر (`RULE-N121`) · `SystemColors.Control` غائب عن كل المصمّمات إلا موضعاً واحداً في `frmMain.Designer`. ✅ **2026-11-14: مظهر التعطيل موحّد كالأزرار المعطّلة في الشاشات كلها تلقائياً** — `GreenThemeHelper.DisabledBack/DisabledFore` + `KeyboardHelper.WireDisabledVisuals` المستدعى من `GreenThemeHelper.Apply` (RULE-N154) · 🔄 **2026-11-16 (قرار المالك — اللوحة المحايدة):** تغيّرت **13** قيمة افتراضية في `ThemePalette` + أُضيف `RetiredDefaults`؛ **المصمّمات نُسِّخت لشاشة واحدة فقط (`frmProductMaster`)** والباقي **94 ملفاً** في انتظار شهادة المالك ثم ثلاث موجات (§2.40). وقت التشغيل **صحيح في كل الشاشات فوراً** بفضل `RetiredDefaults`، والناقص هو مطابقة **معاينة المصمّم** فقط (البند 12) |
+| 2 | لوحة ألوان النظام في وقت التشغيل (الجيل الثالث — أزرق «المحاسب سوفت» — §2.19) | `RULE-N50`…`RULE-N54` + `GreenThemeHelper` | 🔄 تعميم جارٍ | `frmAddUpdateSalesInvoice` هي الشاشة المرجعية — ومنها **مطابقة المصمّم**: كل شاشة تُظهر نفس الألوان في المصمّم ووقت التشغيل (`RULE-N134`). ✅ **2026-11-13 (عدّ فعلي): `GreenThemeHelper.Apply(this)` في 62 من 62 نموذجاً غير تقريري** (93 نموذجاً − 31 تقريراً) بما فيها نوافذ الطباعة، وفي `ctrlDashboard` كذلك · `ApplyGrid` في **53** موضعاً · و**31 تقريراً** تُوحَّد بـ`ReportUiStandardizer.ApplyForm` (31/31) لا بالثيم المباشر (`RULE-N121`) · `SystemColors.Control` غائب عن كل المصمّمات إلا موضعاً واحداً في `frmMain.Designer`. ✅ **2026-11-14: مظهر التعطيل موحّد كالأزرار المعطّلة في الشاشات كلها تلقائياً** — `GreenThemeHelper.DisabledBack/DisabledFore` + `KeyboardHelper.WireDisabledVisuals` المستدعى من `GreenThemeHelper.Apply` (RULE-N154) · 🔄 **2026-11-16 (قرار المالك — الجيل الثالث «المحاسب سوفت» الأزرق):** تغيّرت **17** قيمة افتراضية في `ThemePalette` (`RetiredDefaults` = **30** زوجاً)؛ **المصمّمات نُسِّخت لشاشة واحدة فقط (`frmProductMaster` — 23 سطراً)** والباقي **94 ملفاً** في انتظار شهادة المالك (`PAL-5`). وقت التشغيل **صحيح في كل الشاشات فوراً** بفضل `RetiredDefaults`، والناقص هو مطابقة **معاينة المصمّم** فقط (البند 12) · **وأُغلق في الموجة نفسها ثغرة ملكية الأزرار:** `ThemePalette.ButtonKeyFor` + استدعاء من `GreenThemeHelper.Apply(Form)` ⇒ الأزرار تتبع اللوحة عند **كل فتح شاشة** (كانت لا تتبع إلا بعد حفظ ألوان) |
 | 3 | التفقيط الحيّ كتلميح (ToolTip) على الحقول الرقمية | `LiveTafqeetHelper` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): 22 نموذجاً تستدعي `LiveTafqeetHelper.Attach`** (كانت 6 قبل الموجة) — `frmAddUpdateSalesInvoice` · `frmPOS` · `frmJournalEntries` · `frmAccounts` · `frmListExpenses` · `frmAddUpdateExpense` · `frmEmployeeMaster` · `frmCustomerMaster` · `frmSupplierMaster` · `frmSupplierStatement` · `frmAddUpdateCustomerReceipt` · `frmSupplierPaymentDialog` · `frmAddUpdateInventoryAdjustment` · `frmInventoryAddProduct` · `frmOpeningStock` · `frmPurchaseInvoice` · `frmPurchaseItem` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseReturn` · `frmSalesReturn`. المتبقي (شاشات حركة مالية بلا `Attach` حتى الآن): `frmWarehouseTransferNew` · `frmStocktakingNew` · `frmCashBoxTransactions` |
 | 4 | شبكة الدليل: بحث فوري + نقر مزدوج + ContextMenu | `RULE-N23` + `RULE-N24` | 🔄 تعميم جارٍ | النمط المرجعي `frmProductMaster` — ✅ **2026-11-13 (عدّ فعلي): 83 شبكة `DataGridView` في 76 مصمّماً** (52 شبكة في 45 مصمّماً غير تقريري + 31 شبكة تقريرية)، و`ContextMenuStrip` معلن ومُسنَد في **33 مصمّماً غير تقريري** (33 من 45). المتبقي **12 شاشة شبكة بلا `ContextMenuStrip`**: `frmProductMaster` · `frmProductUnitMaster` · `frmPOS` · `frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmImportProductsExcel` · `frmInventoryAddProduct` · `frmStocktakingPrintCard` · والمنتقيات الثلاث `frmCustomerSelection` · `frmProductSelection` · `frmSupplierSelection` — والتقارير لا تحتاجه (شاشات عرض `RULE-N121`) |
 | 5 | مؤشر الوضع + آلة حالة الأزرار | `RULE-N43`/`RULE-N44` | 🔄 تعميم جارٍ | ✅ **2026-11-13 (عدّ فعلي): `WireButtonDisabledVisual` في 56 نموذجاً** (كانت 23) — أي كل الشاشات ذات الستة كاملة (55) + `frmLogin` · و`lblMode` معلن في **47 من 63 مصمّماً غير تقريري** (المتبقي: النوافذ المساعدة والمنتقيات وشاشات الطباعة) |
@@ -963,7 +963,48 @@ The **Orchestrator** is the only agent that partitions work; an agent never dele
 | قيم لا تُعلَن في المصمّمات أصلاً (لونا الحالة) | `disabledBack` · `disabledFore` · `rejectBackground` (`RULE-N154`/`RULE-N182`) |
 | الشاشة التجريبية المعتمدة | `frmProductMaster` (11 قيمة لونية فقط في مصمّمها) |
 
+**الموجة الثانية — الجيل الثالث «المحاسب سوفت» (أزرق، 2026-11-16) — مقيسة في نفس التشغيل:**
+
+| البند | الرقم |
+|---|---|
+| القيم الافتراضية المتغيّرة | **17** من 24 (بقي 7: أبيض الأسطح والرؤوس وخلفية الخلية ونص الشريط ولون الرفض) |
+| `RetiredDefaults` بعد الموجة | **30** زوجاً (13 أخضر + 17 محايد) — صفر زوج مكرّر (مفتاح+قيمة) |
+| مصمّمات تحمل قيماً متقاعدة الآن (قياس `*.Designer.cs` عبر 26 قيمة) | **91** من **95** · **3,294** موضعاً — منها **341** `33,37,41` · **774** `14,82,52` · **570** `235,240,235` · **423** `14,165,103` · **308** `235,245,235` · **146** `108,117,125` · **95** `170,220,170` · **90** `220,240,220` |
+| المصمّمات المزامَنة | **1** (`frmProductMaster` — 23 سطراً لونياً: 13 سطحاً + 10 أزرار) |
+| ألوان الأزرار المتقاعدة في المصمّمات | `13,110,253` **13** · `25,135,84` **30** · `220,53,69` **31** · `108,117,125` **146** · `23,162,184` **72** · `255,193,7` **2** · `248,249,250` **65** |
+
+> **قاعدة جديدة وُلدت من هذه الموجة (`RULE-N189` كانت ناقصة لأزرار):** هذه أول موجة تُقاعد **مفاتيح أزرار** (الجيلان السابقان قاعدا حاويات وشبكات فقط). القياس أثبت أن `GreenThemeHelper.Walk` **لا حالة `Button` فيه** و`ThemeHelper.ApplyButtonStyle` = **صفر استدعاء في `Screens/**`** ⇒ زر بلا إعادة تلوين وقت التشغيل، و`RepaintThemeButton` كان يستشير `PreviousLive` وحده ولا يعرف القيم المتقاعدة ⇒ **زر بلون افتراضي متقاعد كان يبقى مجمّداً للأبد في 91 مصمّماً**. الإصلاح في البيت الواحد: `ThemePalette.ButtonKeyFor` (حيّ ← افتراضي مشحون ← آخر قيمة طُبّقت ← متقاعد، والمخصّص = `null` فلا يُمسّ) + استدعاء واحد من `GreenThemeHelper.Apply(Form)` ⇒ **الأزرار تتبع اللوحة عند كل فتح شاشة**، لا بعد «حفظ الألوان» فقط.
+
 > **مصيدة موثّقة (تُبلَّغ للمالك في كل تغيير لوحة):** في **الوضع الحقيقي** تُقرأ لوحة **محفوظة** من `SystemSettings` عند الإقلاع (`Program.cs` ← `ThemePalette.TryApplyStored`) و**تتغلّب على الافتراضيات الجديدة**. فمن حفظ ألواناً سابقاً لن يرى التغيير حتى يضغط «استعادة الافتراضيات» مرة واحدة في `frmChangeSystemColorsSettings`. **وضع التجربة (`UseMockData = true`) لا يقرأ المحفوظ** فيرى الافتراضيات الجديدة مباشرة.
+
+---
+
+### 2.41 المعايير العامة لأي مشروع (General Project Standards) — إلزامي
+
+**قرار المالك (2026-11-16):** «معايير عامة تُنفَّذ في أي مشروع، ومعايير خاصة بكل مشروع، وملف لكل مهمة يرجع إليه كل وكيل — والملفات ليست رفاهية بل جزء من المشروع». القاعدة الحاكمة: **الذاكرة ملفات لا Context** — ما لا يُكتب في ملف لا وجود له عند الوكيل التالي.
+البروتوكولات التفصيلية في `docs/GOVERNANCE/` (فهرسها `README.md`) · الأدوار في `ROLES.md` · تصنيف الملفات في `FILE-CLASSIFICATION.md` · وسجل **كل** أوامر الذكاء الاصطناعي في `docs/prompts/README.md` — **ولا يُنسخ نص أي منها هنا** (`RULE-N169`/`RULE-N174`).
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N195 | **القياس قبل الكتابة:** لا يُكتب سطر لمنطق لم يُقَس — هل الملف موجود؟ كم سطره؟ هل الصنف/العضو معلن؟ هل العيب في **كم** موضعاً؟ محلّه `docs/GOVERNANCE/EVIDENCE.md` §6. مقدّمة كاذبة (مثل «هذا الملف فارغ») تُبلَّغ بصراحة وتُعاد صياغة المهمة إلى مراجعة عيب — ولا يُكلَّف وكيل بإعادة إنشاء ملف قائم |
+| RULE-N196 | **الدليل لا الادعاء:** كل رقم/حكم/إصلاح في أي تقرير تقرنه **الأمر** و**مخرجه**؛ الجمل «تم»/«يعمل»/«كل»/«غالباً» ممنوعة بلا رقم (`EVIDENCE.md` §2)، و«لم أتحقق» مقبولة ومطلوبة مع الأمر الذي يحسم السؤال. ويُقاس **الصنف لا الحالة**: عيب مُثبت في شاشة = صنف يُعدّ قبل الإغلاق (`§4` خطوة 9b) |
+| RULE-N197 | **سجل لكل مهمة — ويُقرأ قبلها:** مهمة عادية ⇒ `docs/TASKS/TASK-NNN-<slug>.md` · مهمة كبيرة/ميزة جديدة ⇒ `docs/FEATURES/F-NNN-<slug>/` بخمسة ملفات (`README` · `BRIEF` · `PLAN` · `DECISIONS` · `LOG`) و`MANIFEST.md` للمواحج الشاملة. يُقرأ **قبل أول سطر** ويُضاف إليه **قبل آخر سطر** (الجولات إضافية فقط، لا تُحذف). **كاتب واحد: الـOrchestrator** (`RULE-N158`) والوكلاء يقرأون ويُعيدون الفروق في تقاريرهم. **لا كومِت بلا سجل مُحدَّث** (بوابة 0e) |
+| RULE-N199 | **MVP أولاً:** لا ميزة خارج «الحلقة الأساسية» (إدخال · مستند يعمل من أوله لآخره · مخزون صحيح · قيد · تقرير تحقّق) قبل أن تكتمل الحلقة **100%**. الفكرة الجديدة **لا تُرفض — تُسجَّل** مؤجلة بسببها في `docs/TASKS/INDEX.md`، ولا تُبنى قبل قرار مالك (`§2.29` يبقى سجل المؤجل الرسمي) |
+| RULE-N200 | **الصلاحيات والأمان المتقدّم آخراً — لا أساسيات الحماية:** شاشة الأدوار · `PermissionsMask` · تعدد الحسابات · سجل تدقيق متقدّم = **آخر ما يُفكَّر فيه** (`§2.29`)، ويبقى حساب مدير واحد أثناء MVP. **لكن ما لا يُؤجَّل أبداً:** كلمة السر مُهشَّرة · لا حذف نهائي · لا أسرار في الكود · لا استعلام من نص المستخدم · معاملة واحدة للعمليات المالية. أي مراجعة تُبلغ عن بند مؤجل تُغلق بإحالة إلى `§2.29` (`RULE-N107`) |
+| RULE-N201 | **الموجة الشاملة لا «تنسى» ملفاً:** أي تعديل على النظام كله يمرّ بسبع خطوات (`docs/GOVERNANCE/SYSTEM-SWEEP.md`): جرد **بأمر** في `MANIFEST.md` · فرز (داخل/معفى **بسبب**) · دفعات ≤ 8 ملفات · دليل لكل دفعة · **مطابقة أعداد** (`المُكتشَف = داخل + معفى` و`داخل = مُنجَز + متبقٍ`) · فحص بقايا = 0 · إغلاق بالأعداد الثلاثة. **كلمة «كل» ممنوعة في تقرير بلا هذه الأعداد والأمر** — والمطابقة غير المطابقة **مانع إغلاق** |
+
+> **النفاذ:** لا يُفوّض الـOrchestrator وكيلاً بلا ملف مهمة/ميزة مفتوح، ولا يقبل تقريراً بلا ذيل الأدلة (`docs/prompts/P-004-evidence-report.md`). والوكلاء يقرأون `AGENTS.md` ← ملف مهمتهم ← ملف موضوعهم فقط — لا المشروع كله ولا الذاكرة.
+
+---
+
+### 2.42 قانون تجميد هيكل قاعدة البيانات (Database Schema Freeze Law) — إلزامي
+
+**قرار المالك (2026-11-16):** «الكود هو من يجب أن يتكيّف مع القاعدة، وليس العكس» — في القاعدة **بيانات عميل حقيقي في السوق**، فأي مسّ للهيكل خطر على العمل لا على الكود فقط.
+**البروتوكول الكامل + قالب الموافقة + سلّم البدائل + خطة الرجوع:** `docs/GOVERNANCE/SCHEMA-FREEZE.md` — **ولا يُنسخ نصه هنا** (`RULE-N174`).
+
+| RULE | DIRECTIVE |
+|------|-----------|
+| RULE-N198 | **(1) ممنوع نهائياً:** `DROP` · إعادة تسمية جدول/عمود · تغيير نوع بيانات أو تضييق طول · إزالة `FK`/`CHECK`/فهرس قائم · `CASCADE DELETE` · `UPDATE` جماعي يعيد كتابة قيم قائمة. **(2) المسموح حصراً — زيادة آمنة بموافقة مالك مكتوبة ومؤرّخة:** جدول جديد كلياً · عمود جديد `NULL`/`DEFAULT` · فهرس غير فريد · `CHECK` لا يرفض صفاً قائماً. **(3) سلّم البدائل قبل أي طلب:** عمود قائم ← جدول `SystemSettings` (سابقة مقيسة: الألوان والتنسيق) ← جدول جديد ← عمود جديد ← الرفض المُبلَّغ بالبديل الأقرب. **(4) التنفيذ:** موافقة مكتوبة في ملف المهمة + `database-engineer` وحده + **ترحيل واحد** + قراءة SQL المولَّد (لا `DROP`/`ALTER COLUMN`) + خطة رجوع. **(5) وكيل يقترح تعديل هيكل «لتسهيل الكود» ⇒ عمله مرفوض** ويُعاد بسلّم البدائل. **(6) العلاقة بقفل الباك-إند (`RULE-N177`):** موافقة السلوك **≠** موافقة الهيكل — موافقتان منفصلتان، والترتيب: تغطية Mock ⇒ موافقة سلوك ⇒ موافقة هيكل ⇒ ترحيل إضافي واحد |
 
 ---
 
@@ -1025,6 +1066,9 @@ public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Dam
 ❌ تعديل باك-إند أي وحدة (`Business/**` · `DataAccess/**` · `Models/**` · `Services/Direct/**` · `Migrations/**` · `Seeders/**`) قبل شهادة تغطية الـMock **وموافقة المالك المكتوبة** — حتى في الوحدات القديمة المغلقة (RULE-N177/RULE-N178)
 ❌ تغيير قيمة افتراضية في لوحة الألوان دون تسجيل قيمتها القديمة في `ThemePalette.RetiredDefaults` (RULE-N189) — يُنتج شاشات مختلطة
 ❌ كتابة قيمة لون افتراضية خارج `ThemePalette.AllDefinitions` (شاشة · خدمة · `Mock` · مصمّم) — تغيير الألوان مستقبلاً من مكان واحد (RULE-N188)
+❌ تعديل هيكل قاعدة البيانات القائم (`DROP` · إعادة تسمية جدول/عمود · تغيير نوع بيانات · تضييق طول · إزالة `FK`/`CHECK`/فهرس · `CASCADE DELETE` · `UPDATE` جماعي يعيد كتابة قيم) — القاعدة تتكيّف مع الكود لا العكس، والزيادة الآمنة وحدها بموافقة مالك مكتوبة (RULE-N198 / AGENTS.md §2.42)
+❌ ادعاء بلا دليل: «تم / يعمل / كل / غالباً» في تقرير بلا **أمر** و**مخرج** — ولا «كل الملفات» بلا الأعداد الثلاثة ومطابقتها (RULE-N196 / RULE-N201)
+❌ كومِت بلا ملف مهمة/ميزة محدَّث، أو تفويض وكيل بلا ملف مهمة مفتوح يُقرأ قبل أول سطر (RULE-N197)
 ```
 
 ---
@@ -1182,6 +1226,9 @@ SalesSystem.slnx
 | 1 (MUST) | `AGENTS.md` | Architecture, rules, patterns, enums, forbidden list |
 | 1a (MUST before delegating) | `docs/prompts/ORCHESTRATOR.md` | **Agent orchestration law (English):** S/M/L sizing · partition algorithm · one-owner-per-file · brief templates per agent · waves and build gates · quality gates · scenario map · commit protocol · report shape · anti-patterns |
 | 1b (MUST before any Stage A handover) | `docs/MOCK-COVERAGE.md` | **Mock coverage registry (single source of truth — `RULE-N174`):** 33 data contracts × `Mock*DesktopService` × mock-DI registration × seed source × parity refusals × verdict · the owner's Arabic UI & UX runbook · open coverage gaps and the file owner of each · update protocol. The `mock-qa` agent certifies it (`RULE-N175`) |
+| 1c (MUST before writing anything) | `docs/GOVERNANCE/README.md` | **Governance index:** which file answers which question · role definitions (`ROLES.md`) · file classification · the evidence protocol (`EVIDENCE.md`) · the DB schema freeze (`SCHEMA-FREEZE.md`) · the system-sweep manifest (`SYSTEM-SWEEP.md`). `AGENTS.md` §2.41/§2.42 hold the law; these files hold the protocol |
+| 1d (MUST before a big task / new feature) | `docs/TASKS/INDEX.md` + `docs/FEATURES/INDEX.md` | **Task & feature memory:** the file of the task being worked on and every previous round of the feature it touches — read them **before** the first line and append a round **before** the last one (`RULE-N197`). Never restart a feature from zero |
+| 1e (MUST before writing a brief) | `docs/prompts/README.md` | **Prompt registry:** every system prompt (11 agents) + the playbook + the ready-to-paste prompts `P-001`…`P-004` — an unregistered prompt may not be used in a delivery |
 | 2 | `docs/CONSTITUTION.md` | Financial formulas, transaction protocol, non-negotiable rules |
 | 3 | `docs/BUSINESS-RULES.md` | Domain-specific business logic rules |
 | 4 | `docs/database-schema.md` | SQL table definitions, CHECK constraints, indexes |
