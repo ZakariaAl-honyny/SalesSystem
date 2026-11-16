@@ -81,7 +81,8 @@ public partial class frmProductMaster : Form
     public frmProductMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
+        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b — لون الحقل النشط حيّاً من اللوحة
         KeyboardHelper.WireArrowNavigation(this);

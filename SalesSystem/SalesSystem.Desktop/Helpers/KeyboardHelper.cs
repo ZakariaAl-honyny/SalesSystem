@@ -28,6 +28,30 @@ public static class KeyboardHelper
     /// <summary>سجل العناصر التي وُصِّل لها مظهر التعطيل الموحّد (منع التوصيل المزدوج).</summary>
     private static readonly ConditionalWeakTable<Control, object> DisabledVisualWired = new();
 
+    /// <summary>
+    /// سجل حقول الإدخال التي وُصِّل لها <c>Enter</c> (منع التوصيل المزدوج).
+    /// <para>
+    /// الفرعان يشتركان في الحارس نفسه — <see cref="WireEnterAsTab(Control)"/> و
+    /// <see cref="WireEnterAsTab(Control, Func{Button?})"/> — لأن اشتراك الحقل مرتين يُنفّذ
+    /// معالج الخطوة مرتين فينتقل المؤشر خطوتين بضغطة واحدة.
+    /// </para>
+    /// <para>
+    /// الحارس يمنع **الاشتراك الثاني** فقط ولا يغيّر سلوك الاشتراك الأول: الفرع ذو الوسيط الواحد
+    /// كان يشترك بلا حارس، وسلوكه المرئي يبقى كما هو.
+    /// </para>
+    /// </summary>
+    private static readonly ConditionalWeakTable<Control, object> EnterNavigationWired = new();
+
+    /// <summary>
+    /// سجل العناصر التي أُعلن لها <c>Enter</c> مفتاح إدخال (منع الإعلان المزدوج).
+    /// <para>
+    /// جدول مستقل عن <see cref="EnterNavigationWired"/> لأن الإعلان يجب أن يصل إلى **الأبناء الداخليين**
+    /// للعناصر المركّبة (<c>NumericUpDown</c> ⇒ <c>_upDownEdit</c>) وهم ليسوا حقول تنقل مستقلة،
+    /// فلا يصح أن يدخلوا في جدول توصيل الـ<em>KeyDown</em> (انظر <see cref="DeclareEnterAsInputKey"/>).
+    /// </para>
+    /// </summary>
+    private static readonly ConditionalWeakTable<Control, object> EnterInputKeyDeclared = new();
+
     /// <summary>علامة مشتركة تُخزَّن في جدولي التوصيل (قيمة واحدة لكل مفتاح).</summary>
     private static readonly object WiredMarker = new();
 
@@ -51,7 +75,7 @@ public static class KeyboardHelper
     {
         foreach (Control ctrl in parent.Controls)
         {
-            if (IsEnterNavigationInput(ctrl))
+            if (IsEnterNavigationInput(ctrl) && MarkWired(EnterNavigationWired, ctrl))
             {
                 var input = ctrl;
                 input.KeyDown += (s, e) =>
@@ -70,6 +94,394 @@ public static class KeyboardHelper
             if (ctrl.HasChildren)
                 WireEnterAsTab(ctrl);
         }
+    }
+
+    /// <summary>
+    /// يحوّل <c>Enter</c> إلى انتقال للحقل التالي **بترتيب العرض** داخل نطاق محدد (RULE-N191):
+    /// حقلاً بحقل في الصف نفسه من اليمين إلى اليسار (RTL) ثم إلى الصف الذي يليه أدناه،
+    /// وبعد **آخر** حقل يُركِّز زر الوضع الأساسي الحالي بدل الدوران إلى أول حقل.
+    /// <para>
+    /// <b>نطاق التنقل</b> هو <paramref name="scope"/> (لوحة حقول المحرر عادةً): الحقول داخله تتبع
+    /// ترتيب العرض، والحقول خارجه (حقل البحث وأدوات التصفية) تحتفظ بسلوك
+    /// <see cref="WireEnterAsTab(Control)"/> نفسه (<c>SelectNextControl</c> حسب <c>TabIndex</c>)
+    /// — فلا تتغيّر تصفية الشاشة.
+    /// </para>
+    /// <para>
+    /// <b>ترتيب العرض</b> يُحسب من إحداثيات الشاشة عبر <c>PointToScreen(Point.Empty)</c> لا من
+    /// <c>TabIndex</c> ولا من <c>Location</c> المخزّن، فيطابق ما يراه المستخدم فعلاً: صفوف من الأعلى
+    /// إلى الأسفل، وفي كل صف حقول الصف نفسه (فرق رأسي لا يزيد عن نصف ارتفاع أول حقل في الصف وبحد أدنى
+    /// <see cref="NavigationOptions.RowBandTolerancePixels"/>) من اليمين إلى اليسار في RTL. والقائمة
+    /// تُعاد بناؤها عند كل ضغطة لأن أوضاع الشاشة (عرض/إضافة/تعديل) تغيّر تفعيل الحقول.
+    /// </para>
+    /// <para>
+    /// <b>قيم السلوك من بيتها الواحد (<c>RULE-N192</c>):</b> ترتيب التنقل
+    /// (<see cref="NavigationOptions.EnterFollowsDisplayOrder"/>) والخروج إلى زر الوضع
+    /// (<see cref="NavigationOptions.EnterExitsToModeButton"/>) ونطاق الصف
+    /// (<see cref="NavigationOptions.RowBandTolerancePixels"/>) تُقرأ حيّة من
+    /// <see cref="NavigationOptions"/> عند كل ضغطة — فلا قيمة حرفية هنا، ولا شاشة تضبطها.
+    /// </para>
+    /// <para>
+    /// <b>لا تنفيذ بلا طلب:</b> الزر الأساسي يُركَّز فقط ولا يُنقَر (<c>PerformClick</c> ممنوعة هنا)،
+    /// فالحفظ/الترحيل يبقى على زرّه صراحةً ولا يحفظ <c>Enter</c> وحده أبداً.
+    /// </para>
+    /// </summary>
+    /// <param name="scope">نطاق التنقل بترتيب العرض (لوحة حقول المحرر).</param>
+    /// <param name="primaryButton">يُرجع الزر الأساسي للوضع الحالي (RULE-N147) — يُقرأ عند كل ضغطة لا مرة واحدة.</param>
+    public static void WireEnterAsTab(Control scope, Func<Button?> primaryButton)
+    {
+        if (scope is null || primaryButton is null) return;
+
+        // الاشتراك في النموذج كله (لا في النطاق وحده) حتى يبقى Enter في حقل البحث/التصفية يعمل كما هو،
+        // والقرار «داخل النطاق أم خارجه» يُتخذ عند كل ضغطة في MoveNextByDisplayOrder.
+        var root = scope.FindForm() ?? scope;
+        WireEnterDisplayOrder(root, scope, primaryButton);
+    }
+
+    /// <summary>
+    /// يوصّل Enter على كل حقول الإدخال في الشجرة (الحقول خارجه تُوجَّه إلى سلوك <c>SelectNextControl</c>).
+    /// لا ينزل داخل <c>NumericUpDown</c>/<c>ComboBox</c> **لتوصيل التنقل** لأن محررهما الداخلي ليس حقلاً
+    /// مستقلاً (ولو نزلنا لاعتُبر حقلاً ثانياً فانتقل المؤشر خطوتين بضغطة واحدة) — أما إعلان
+    /// <c>Enter</c> مفتاحَ إدخال فينزل إلى الأبناء عمداً عبر <see cref="DeclareEnterAsInputKey"/>
+    /// لأن <c>PreviewKeyDown</c> يُرفع على مالك المقبض لا على الأب.
+
+    /// <para>
+    /// <b>لماذا <c>PreviewKeyDown</c> إلزامي هنا (RULE-N153 / RULE-N191) — لا تحذفه:</b>
+    /// ترتيب الإطار (مصدر .NET WinForms) هو
+    /// <c>WM_KEYDOWN</c> ⇒ <c>Control.PreProcessControlMessageInternal</c> ⇒ يرفع
+    /// <c>PreviewKeyDown</c> أولاً، فإن أُعلن فيه <c>IsInputKey = true</c> أعاد
+    /// <c>MessageNeeded</c> **فوراً** وتُوصَل الرسالة عادياً فيُرفع <c>KeyDown</c>؛
+    /// وإلا استمر إلى <c>PreProcessMessage</c> ⇒ <c>ProcessDialogKey</c> ⇒
+    /// <c>Form.ProcessDialogKey</c> الذي على <c>Keys.Return</c> يُنفّذ
+    /// <c>AcceptButton.PerformClick()</c> ويُعيد <c>true</c> فيبتلع المفتاح.
+    /// و<c>TextBoxBase.IsInputKey</c> لا يَعُدّ <c>Enter</c> مفتاح إدخال أبداً
+    /// (Tab/Escape/Back/PageUp/PageDown/Home/End فقط).
+    /// </para>
+    /// <para>
+    /// النتيجة بدون هذا الإعلان: كل شاشة تضبط <c>AcceptButton</c> (RULE-N147) ينقر Enter فيها
+    /// زر الوضع ولا يصل <c>KeyDown</c> إلى معالج التنقل أصلاً — وهو العيب الذي رصده المالك
+    /// («Enter يقفز إلى الزر بدل أن يمشي صفاً صفاً»). بحذف هذا الاشتراك يعود العيب حرفياً.
+    /// </para>
+    /// </summary>
+    private static void WireEnterDisplayOrder(Control parent, Control scope, Func<Button?> primaryButton)
+    {
+        foreach (Control ctrl in parent.Controls)
+        {
+            if (IsEnterNavigationInput(ctrl) && MarkWired(EnterNavigationWired, ctrl))
+            {
+                var input = ctrl;
+
+                // Enter مفتاح إدخال على الحقل **وعلى أبنائه الداخليين** ⇒ يُرفع KeyDown قبل
+                // ProcessDialogKey/AcceptButton (RULE-N153 / RULE-N191 / RULE-N193).
+                DeclareEnterAsInputKey(input);
+
+                input.KeyDown += (s, e) =>
+                {
+                    if (e.KeyCode != Keys.Enter || e.Modifiers != Keys.None) return;
+
+                    // معالج سابق في الشاشة استهلك Enter (باركود RULE-N42 · بحث RULE-N59): لا ننقل التركيز
+                    // أيضاً — وإلا نُفِّذ الأمران بضغطة واحدة. كانت هذه المعالجات ميتة لأن
+                    // ProcessDialogKey كان يبتلع Enter قبل KeyDown (RULE-N153).
+                    if (e.Handled) return;
+
+                    // القائمة المنسدلة المفتوحة تملك Enter: يُثبّت العنصر المظلَّل ويُغلق القائمة
+                    // بسلوكه الأصلي (لا تحريك تركيز ولا ابتلاع للمفتاح).
+                    if (input is ComboBox { DroppedDown: true }) return;
+
+                    try
+                    {
+                        MoveNextByDisplayOrder(input, scope, primaryButton);
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
+                    catch
+                    {
+                        // تجاهل — حقل مُتلَف أو إحداثيات غير متاحة يجب ألا تُسقط الشاشة.
+                    }
+                };
+            }
+
+            if (ctrl.HasChildren && ctrl is not NumericUpDown && ctrl is not ComboBox)
+                WireEnterDisplayOrder(ctrl, scope, primaryButton);
+        }
+    }
+
+    /// <summary>
+    /// يعلن <c>Enter</c> مفتاحَ إدخال على <paramref name="input"/> **وعلى كل عنصر داخلي تحته**، مرة واحدة لكل عنصر.
+    /// <para>
+    /// <b>لماذا النزول إلى الأبناء؟</b> الإطار يرفع <c>PreviewKeyDown</c> على العنصر الذي يملك مقبض الرسالة
+    /// (<c>Control.PreProcessControlMessageInternal</c> ⇒ <c>FromChildHandle(message.HWnd)</c>) لا على الأب.
+    /// والعناصر المركّبة تنشئ حقلاً داخلياً وتعطي **له** التركيز — مثل <c>NumericUpDown</c>
+    /// (<c>UpDownBase</c>) الذي حقلُه <c>_upDownEdit</c> (<c>UpDownBase.Focused =&gt; _upDownEdit.Focused</c>).
+    /// فإعلان المفتاح على <c>NumericUpDown</c> وحده **لا يُنفَّذ أبداً**، ويبقى <c>Form.ProcessDialogKey</c>
+    /// ينقر <c>AcceptButton</c> داخل الحقول الرقمية (RULE-N191 / RULE-N193). الإعلان على الأبناء هو ما يُغلق الطريق.
+    /// </para>
+    /// <para>
+    /// <b>ولا يُوصَّل <c>KeyDown</c> على الأبناء:</b> <c>UpDownBase</c> يشترك <c>_upDownEdit.KeyDown</c>
+    /// ويُنادي <c>OnKeyDown(e)</c> فيصل الحدث إلى <c>NumericUpDown</c> الأب أصلاً — واشتراك ثانٍ على الابن
+    /// يعني تنقّلاً خطوتين بضغطة واحدة. اشتراك التنقل يبقى على الحقل الأب وحده في <see cref="WireEnterDisplayOrder"/>.
+    /// </para>
+    /// </summary>
+    private static void DeclareEnterAsInputKey(Control input)
+    {
+        if (input is null) return;
+
+        if (MarkWired(EnterInputKeyDeclared, input))
+        {
+            input.PreviewKeyDown += (s, e) =>
+            {
+                try
+                {
+                    if (e.KeyCode == Keys.Enter && e.Modifiers == Keys.None)
+                        e.IsInputKey = true;
+                }
+                catch
+                {
+                    // تجاهل — إعلان المفتاح يجب ألا يُسقط الشاشة.
+                }
+            };
+        }
+
+        // العنصر المركّب يضع التركيز في ابن داخلي ⇒ الإعلان يجب أن يصل إليه هو أيضاً
+        // (الحارس أعلاه يمنع الاشتراك المزدوج عند تكرار المشي على نفس الشجرة).
+        foreach (Control child in input.Controls)
+            DeclareEnterAsInputKey(child);
+    }
+
+    /// <summary>
+    /// خطوة Enter الواحدة: داخل النطاق ⇒ التالي في ترتيب العرض (أو حسب <c>TabIndex</c> إذا غيّر المالك
+    /// <see cref="NavigationOptions.EnterFollowsDisplayOrder"/>)، أو زر الوضع عند آخر حقل (تركيزاً فقط)؛
+    /// خارج النطاق (البحث/التصفية) ⇒ <c>SelectNextControl</c> كما في <see cref="WireEnterAsTab(Control)"/>.
+    /// </summary>
+    private static void MoveNextByDisplayOrder(Control input, Control scope, Func<Button?> primaryButton)
+    {
+        if (!IsInsideScope(input, scope))
+        {
+            // البحث/التصفية: سلوك اليوم نفسه بلا أي تغيير (RULE-N59).
+            var container = input.FindForm() ?? scope;
+            container.SelectNextControl(input, true, true, true, true);
+            return;
+        }
+
+        // (1) الحقل التالي — ترتيب العرض أو ترتيب TabIndex، حسب الخيار الحيّ في NavigationOptions (RULE-N192).
+        //     القائمة تبقى فارغة في وضع TabIndex (لا تُبنى بلا داعٍ).
+        var order = new List<Control>();
+
+        if (NavigationOptions.EnterFollowsDisplayOrder)
+        {
+            order = CollectInputsInDisplayOrder(scope);
+            int index = order.IndexOf(input);
+
+            if (index >= 0)
+            {
+                if (index + 1 < order.Count)
+                {
+                    order[index + 1].Focus();
+                    return;
+                }
+            }
+            else
+            {
+                // الحقل ليس في السلسلة (نحو txtCode: للقراءة فقط + TabStop = false ⇒ يُبلَغ بالفأرة
+                // ولا يُجمَع) ⇒ التالي **في ترتيب العرض** نفسه، لا القفز إلى زر الوضع (RULE-N191).
+                var nextAfter = FindFirstAfterInDisplayOrder(order, input, scope.FindForm());
+
+                if (nextAfter is not null)
+                {
+                    nextAfter.Focus();
+                    return;
+                }
+            }
+        }
+        else
+        {
+            // ترتيب TabIndex المعلن في المصمّم (nested: true يعبر حدود الحاويات) وبلا دوران،
+            // حتى يُحسم الخروج أدناه. الإرجاع false = لا حقل تالٍ.
+            var formByTabIndex = input.FindForm();
+
+            if (formByTabIndex is not null &&
+                formByTabIndex.SelectNextControl(input, true, true, true, false))
+            {
+                return;
+            }
+        }
+
+        // (2) لا حقل تالٍ (أو حقل خارج السلسلة مثل حقل الرقم للقراءة فقط) ⇒ زر الوضع الحالي؟
+        //     تركيزاً فقط بلا تنفيذ، ودائماً حسب الخيار الحيّ (RULE-N192).
+        if (NavigationOptions.EnterExitsToModeButton)
+        {
+            Button? primary = null;
+            try
+            {
+                primary = primaryButton();
+            }
+            catch
+            {
+                // تجاهل — حكم الزر الأساسي لا يُسقط التنقل.
+            }
+
+            if (primary is not null && !primary.IsDisposed && primary.Enabled && primary.Visible && primary.CanFocus)
+            {
+                primary.Focus();
+                return;
+            }
+        }
+
+        // (3) لا خروج إلى الزر (أو لا زر أساسي متاح) ⇒ أول حقل في السلسلة حتى لا يبقى المستخدم عالقاً.
+        if (order.Count > 0)
+        {
+            order[0].Focus();
+            return;
+        }
+
+        // سلسلة ترتيب العرض لم تُبنَ (وضع TabIndex) ⇒ الدوران (wrap: true) هو سلوك SelectNextControl الأصلي.
+        var wrapContainer = input.FindForm() ?? scope;
+        wrapContainer.SelectNextControl(input, true, true, true, true);
+    }
+
+    /// <summary>هل الحقل داخل النطاق المطلوب؟ (الصعود في سلسلة <c>Parent</c> حتى النطاق).</summary>
+    private static bool IsInsideScope(Control control, Control scope)
+    {
+        for (var node = control; node is not null; node = node.Parent)
+        {
+            if (ReferenceEquals(node, scope)) return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>حقول الإدخال القابلة للتنقل داخل النطاق الآن، مرتَّبة بترتيب العرض.</summary>
+    private static List<Control> CollectInputsInDisplayOrder(Control scope)
+    {
+        var inputs = new List<Control>();
+        CollectNavigableInputs(scope, inputs);
+        return OrderByDisplayRows(inputs, scope.FindForm());
+    }
+
+    /// <summary>يجمع حقول الإدخال القابلة للتنقل (نوع الحقل + الحالة الحالية) بشكل recursive.</summary>
+    private static void CollectNavigableInputs(Control parent, List<Control> inputs)
+    {
+        foreach (Control ctrl in parent.Controls)
+        {
+            if (IsEnterNavigationInput(ctrl) && IsNavigableNow(ctrl))
+                inputs.Add(ctrl);
+
+            if (ctrl.HasChildren && ctrl is not NumericUpDown && ctrl is not ComboBox)
+                CollectNavigableInputs(ctrl, inputs);
+        }
+    }
+
+    /// <summary>
+    /// هل يدخل الحقل في سلسلة تنقل Enter **الآن**؟ (مفعّل فعلياً أي مع حاوياته + ظاهر + داخل ترتيب Tab
+    /// + يقبل التركيز) — تُقاس عند كل ضغطة لأن وضع الشاشة (عرض/إضافة/تعديل) يغيّر التفعيل.
+    /// الحقول للقراءة فقط ذات <c>TabStop = false</c> (مثل رقم الصنف) تبقى خارج السلسلة.
+    /// </summary>
+    private static bool IsNavigableNow(Control ctrl)
+        => ctrl.TabStop && ctrl.Visible && ctrl.CanSelect && IsEffectivelyEnabled(ctrl);
+
+    /// <summary>
+    /// يرتّب حقول الإدخال بترتيب العرض كما يراه المستخدم: صفوف من الأعلى إلى الأسفل،
+    /// وفي كل صف من اليمين إلى اليسار عند RTL (ومن اليسار إلى اليمين خلافه).
+    /// الإحداثيات من الشاشة (<c>PointToScreen</c>) لا من <c>TabIndex</c>، فتبقى صحيحة سواء
+    /// عكس <c>RightToLeftLayout</c> إحداثيات المصمّم أم لا (لا تُقرأ ألوان ولا تُكرَّر قيم).
+    /// </summary>
+    private static List<Control> OrderByDisplayRows(List<Control> inputs, Form? form)
+    {
+        if (inputs.Count <= 1) return inputs;
+
+        bool rightToLeft = form?.RightToLeft == RightToLeft.Yes;
+
+        var measured = new List<(Control Control, int X, int Y, int Height)>(inputs.Count);
+
+        foreach (var ctrl in inputs)
+        {
+            try
+            {
+                var screen = ctrl.PointToScreen(Point.Empty);
+                measured.Add((ctrl, screen.X, screen.Y, Math.Max(1, ctrl.Height)));
+            }
+            catch
+            {
+                return inputs;   // تعذّر القياس (عنصر غير منشأ) ⇒ يبقى ترتيب الاجتياز كما هو
+            }
+        }
+
+        measured.Sort((a, b) => a.Y.CompareTo(b.Y));
+
+        var ordered = new List<Control>(measured.Count);
+        var band = new List<(Control Control, int X, int Y, int Height)>();
+        int bandTop = 0;
+        int bandTolerance = 0;
+
+        void FlushBand()
+        {
+            if (band.Count == 0) return;
+
+            // داخل الصف: RTL من اليمين إلى اليسار (X تنازلياً)، وإلا من اليسار إلى اليمين.
+            if (rightToLeft) band.Sort((a, b) => b.X.CompareTo(a.X));
+            else band.Sort((a, b) => a.X.CompareTo(b.X));
+
+            foreach (var item in band) ordered.Add(item.Control);
+            band.Clear();
+        }
+
+        foreach (var item in measured)
+        {
+            if (band.Count == 0)
+            {
+                bandTop = item.Y;
+                bandTolerance = Math.Max(NavigationOptions.RowBandTolerancePixels, item.Height / 2);
+            }
+            else if (item.Y - bandTop > bandTolerance)
+            {
+                FlushBand();
+                bandTop = item.Y;
+                bandTolerance = Math.Max(NavigationOptions.RowBandTolerancePixels, item.Height / 2);
+            }
+
+            band.Add(item);
+        }
+
+        FlushBand();
+        return ordered;
+    }
+
+    /// <summary>
+    /// أول حقل في سلسلة ترتيب العرض يأتي **بعد** حقل خارج السلسلة (حقل رقم للقراءة فقط، أو
+    /// <c>TabStop = false</c>) — بنفس مقارن الصفوف واتجاه RTL المستخدم في
+    /// <see cref="OrderByDisplayRows"/>، فلا منطق ترتيب ثانٍ هنا ولا في أي شاشة (RULE-N169 / RULE-N191).
+    /// <para>
+    /// الطريقة: الحقل الخارجي يُضاف إلى نفس قائمة السلسلة ثم تُرتَّب القائمة كلها بنفس الدالة،
+    /// فيُعرف موضعه الحقيقي بين الحقول بدل تخمينه بإحداثيات منفصلة.
+    /// </para>
+    /// </summary>
+    /// <returns>الحقل التالي، أو <c>null</c> إن لم يكن بعد الخارجي حقل في السلسلة (⇒ يُسلَّم الأمر لزر الوضع).</returns>
+    private static Control? FindFirstAfterInDisplayOrder(List<Control> order, Control input, Form? form)
+    {
+        if (order.Count == 0) return null;
+
+        try
+        {
+            var withInput = new List<Control>(order.Count + 1);
+            withInput.AddRange(order);
+            withInput.Add(input);
+
+            var full = OrderByDisplayRows(withInput, form);
+            int inputIndex = full.IndexOf(input);
+
+            // موضعه غير معروف (تعذّر القياس) ⇒ لا حقل بعده ⇒ يعود السلوك إلى زر الوضع كما هو.
+            if (inputIndex < 0) return null;
+
+            for (int i = inputIndex + 1; i < full.Count; i++)
+            {
+                if (order.Contains(full[i])) return full[i];
+            }
+        }
+        catch
+        {
+            // تجاهل — فشل القياس يُبقي السلوك القديم (زر الوضع).
+        }
+
+        return null;
     }
 
     /// <summary>

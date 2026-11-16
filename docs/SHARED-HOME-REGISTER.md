@@ -686,6 +686,7 @@
 | H-05 | `Helpers\GridFormatHelper` | `ApplyColumns` · `ApplyColumn` · `ApplyBalanceColouring` (+ أنواع `GridFormatKind`) | **كل** التقارير الـ31 + شاشات المستندات | 83 مرجعاً · `CellFormatting` يدوي في التقارير = 0 |
 | H-06 | `Global Classes\clsValidation` | `IsDateRangeValid` · `DateRangeErrorMessage` · **`EndOfDay(DateTime)`** | 21 استدعاءً | حراسات نطاق محلية = 0 |
 | H-07 | `Global Classes\clsValidation.EndOfDay` | آخر لحظة في اليوم (حدّ أعلى شامل) | **21** استدعاءً في 20 ملفاً | تعبير «نهاية اليوم» مكتوب يدوياً في شاشة = **0** |
+| H-08 | `Helpers\NavigationOptions.cs` | `EnterFollowsDisplayOrder` · `EnterExitsToModeButton` · `RowBandTolerancePixels` · `ResetToDefaults` — **قيم التنقل الافتراضية الحيّة** (`RULE-N192`) | `KeyboardHelper.WireEnterAsTab(scope, primaryButton)` حصراً | مراجع داخل `Screens/**` = **0** · قراءات حيّة في `KeyboardHelper` = 4 |
 
 ### 11.2 الموجة 1 — بيت الرسائل + قراءة الخلية
 
@@ -1043,4 +1044,44 @@
 | `PAL-2` | لوحة **محفوظة** في `SystemSettings` (وضع حقيقي) تتغلّب على الافتراضيات عند الإقلاع ⇒ المالك يضغط «استعادة الافتراضيات» مرة واحدة | — | إجراء مالك (موثَّق في §2.40) |
 | `PAL-3` | `frmPurchaseOtherDetails`/`frmPurchaseItem`/`frmPurchaseDiscount` تحمل `(255,255,180)` خلفية **`Label`** (لا حاوية) ⇒ `Walk` لا يُعيد تلوين التسميات فتبقى بالأصفر القديم (`PAL-1` يعالجها لأنها من المصمّمات) | يُغلق مع `PAL-1` | `ui-agent` |
 | `PAL-4` | تعليقات تذكر «الثيم الأخضر» كاسم تاريخي في `GreenThemeHelper` (6) · `ReportUiStandardizer` (7) · `ThemeHelper` (4) · `ReportNavigationHelper` (1) | **S** | تُترك عمداً: الاسم التاريخي مقصود (§2.19) — لا تُعدَّل |
+
+---
+
+### 11.20 الموجة 17 — تنقل `Enter` بترتيب العرض + بيت واحد لقيم التنقل الافتراضية (2026-11-16)
+
+> **بلاغ المالك (نصّه):** «I test frmProductMaster and find one Problem here the Navation by Enter must move by ordering row by row and after move to last faild must go to the buttong depened on scrren Mode» — ثم: «but we can set Helper for change default Navigation or anything from one Place ... register this in Agents.md for any edit in the future for consume less time and less cost of dovlepment».
+>
+> **تنبيه ترقيم:** هذه الموجة بدأت بأرقام `RULE-N188…N190` ثم **أُعيد ترقيمها إلى `RULE-N191…N193`** بعد أن نشرت موجة اللوحة (§11.19) `RULE-N188…N190` لنفسها — لا تعارض الآن، والملفات تحمل الأرقام النهائية فقط.
+
+| الملف | التغيير | التفصيل |
+|---|---|---|
+| `Helpers\KeyboardHelper.cs` | **واجهة ثانية + إصلاح بلوكر** | `WireEnterAsTab(Control scope, Func<Button?> primaryButton)` + `PreviewKeyDown`→`IsInputKey` (على الحقل **وأبنائه الداخلية**) · ترتيب العرض بإحداثيات الشاشة · تسليم آخر حقل لزر الوضع **تركيزاً بلا تنفيذ** · القائمة المنسدلة المفتوحة تملك `Enter` · `if (e.Handled) return` · حارسا توصيل مزدوج (`EnterNavigationWired` · `EnterInputKeyDeclared`) |
+| `Helpers\NavigationOptions.cs` | **جديد — بيت واحد (H-08)** | `RULE-N192` كتطبيق مرجعي: الافتراضيات معلنة مرة واحدة، تُقرأ حيّة عند كل ضغطة، لا شاشة تقرأها أو تضبطها |
+| `Screens\Products\Forms\frmProductMaster.cs` | **سطر واحد** | `WireEnterAsTab(pnlFields, _PrimaryActionButton)` — الشاشة التجريبية الوحيدة (`RULE-N184`) |
+| `AGENTS.md` | **3 قواعد** | `RULE-N191` (§2.18) · `RULE-N192` (§2.30) · `RULE-N193` (§2.33) + تحديث §2.20-1 و§2.27 و§2.30 و§2.39 |
+
+**`PILOT-10…13` — عيوب وُجدت في الشاشة التجريبية وأُصلحت فيها:**
+
+| # | العيب | البرهان المقيس | الإصلاح |
+|---|---|---|---|
+| **PILOT-10** | **`Enter` لا يصل إلى `KeyDown` أصلاً** — فكل معالجات `Enter` في الشاشة (ومنها ترتيب التنقل) كانت **كوداً ميتاً**، و`Enter` ينقر زر الوضع مباشرة | مصدر إطار العمل (مقروء في هذه الجولة): `Control.PreProcessControlMessageInternal` يرفع `PreviewKeyDown` أولاً ثم `PreProcessMessage`→`ProcessDialogKey`؛ `Form.ProcessDialogKey` عند `Return` = `button.PerformClick()` ويعيد `true`؛ `TextBoxBase.IsInputKey` لا يعيد `true` لـ`Enter`؛ و`UpDownBase` يضع التركيز في `_upDownEdit` فيُرفع الحدث على الابن لا على `NumericUpDown` | `PreviewKeyDown` يُعلن `Enter` مفتاح إدخال على الحقل **وعلى أبنائه الداخلية** ⇒ يُرفع `KeyDown` ويُستهلك بـ`SuppressKeyPress` قبل أي معالجة حوارية (`RULE-N193`) |
+| **PILOT-11** | الترتيب يتبع `TabIndex` **لا الصفوف المعروضة**: `grpMainUnit` يُزار ككتلة واحدة فتُقطع الصفوف | تسلسل `TabIndex` المقروء من المصمّم: `cmbCategory(1) txtName(2) txtForeignName(3) grpMainUnit(4) numReorderLevel(5) …` بينما `grpMainUnit` يشغل الصفوف الرأسية الوسطى | ترتيب العرض يُقاس بـ`PointToScreen` (صفاً صفاً، وفي RTL يمين→يسار) — والقياس حيّ عند كل ضغطة فيتبع وضع الشاشة |
+| **PILOT-12** | بعد آخر حقل كان `Enter` **يدور إلى أول حقل** (`wrap: true`) فلا يبلغ زر الوضع أبداً | `SelectNextControl(..., wrap: true)` في الواجهة القديمة | التسليم لزر الوضع حسب `_PrimaryActionButton()` — **تركيز فقط بلا `PerformClick`** (`EnterExitsToModeButton`) |
+| **PILOT-13** | معالجا `Enter` داخل الشاشة (`txtMainUnitBarcode` `RULE-N42` · `txtSearch` `RULE-N59`) كانا **ميتين** لنفس سبب `PILOT-10` | `KeyDown` لم يكن يُرفع قط عند وجود `AcceptButton` | صارا حيَّين — وأُضيف `if (e.Handled) return;` حتى لا يُنفَّذ معالج الشاشة **مع** نقل التركيز في الضغطة نفسها |
+
+**القياسات (أُنتجت في تشغيل هذه الموجة — `RULE-N174`):**
+
+| القياس | الطريقة | القيمة |
+|---|---|---|
+| مواضع `WireEnterAsTab` في `Screens/**` | `Select-String -Pattern 'KeyboardHelper\.WireEnterAsTab\('` | **59** = **58** أحادي الوسيط + **1** ثنائي (`frmProductMaster.cs:85`) |
+| شاشات تضبط `AcceptButton` | `Select-String -Pattern 'AcceptButton\s*='` (بلا مصمّمات) | **40** شاشة · **59** موضع إسناد — كتلة `RULE-N193` المتأثرة |
+| `NavigationOptions` داخل `Screens/**` | `Select-String` | **0** (وممنوع أن يتغيّر) |
+| `Math.Max(8` داخل `KeyboardHelper` | `Select-String` | **0** (القيمة في البيت الواحد) |
+| البناء | `dotnet build .\SalesSystem.slnx --no-incremental` | **0 أخطاء / 86 تحذيراً** · المثيَّلات المميّزة **76** = خط الأساس |
+
+**حالة هذه الموجة:** 🔄 **الشاشة التجريبية غير مشهودة** — التعميم على الـ58 موضعاً الأخرى **محجوب** حتى تأكيد المالك 100% (`RULE-N184`/`RULE-N185`). وما ينتظر الشهادة معاً: `T-81` (28 شاشة · 187 موضع `SetError`) + تعميم واجهة `Enter` ثنائية الوسيط + `RULE-N193` على الشاشات الـ40.
+
+**شرطان ملزمان في كل شاشة عند الترحيل (من مراجعة الكود لهذه الموجة):**
+1. **إحدى الواجهتين لا الاثنتان:** الشاشة التي تنتقل إلى `WireEnterAsTab(scope, primaryButton)` **تحذف** استدعاءها الأحادي الوسيط، وإلا فالحارس يمنع الاشتراك المزدوج بصمت ويفوز **الأول**.
+2. **كل معالج `Enter` خاص بالشاشة يضبط `e.Handled = true`** قبل عمله، وإلا نُفِّذ أمر الشاشة (باركود/بحث) **ونقل التركيز معاً** في الضغطة نفسها.
 
