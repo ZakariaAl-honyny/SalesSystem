@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Suppliers.Forms
+namespace SalesSystem.Desktop.Suppliers.Forms
 {
     partial class frmSupplierSelection
     {
@@ -32,7 +32,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.BackColor = Color.White;
+            txtSearch.BackColor = System.Drawing.Color.White;
             txtSearch.BorderStyle = BorderStyle.FixedSingle;
             txtSearch.Font = new Font("Tahoma", 10F);
             txtSearch.Location = new Point(12, 14);
@@ -46,7 +46,7 @@
             // 
             lblNoData.AutoSize = true;
             lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblNoData.Location = new Point(420, 20);
             lblNoData.Name = "lblNoData";
             lblNoData.Size = new Size(130, 24);
@@ -59,28 +59,28 @@
             dgvSuppliers.AllowUserToAddRows = false;
             dgvSuppliers.AllowUserToDeleteRows = false;
             dgvSuppliers.AllowUserToResizeRows = false;
-            dgvSuppliers.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+            dgvSuppliers.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             dgvSuppliers.AutoGenerateColumns = false;
             dgvSuppliers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvSuppliers.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvSuppliers.BackgroundColor = System.Drawing.Color.White;
             dgvSuppliers.BorderStyle = BorderStyle.None;
             dgvSuppliers.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvSuppliers.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dgvSuppliers.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvSuppliers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             dgvSuppliers.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            dgvSuppliers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvSuppliers.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-            dgvSuppliers.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvSuppliers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            dgvSuppliers.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+            dgvSuppliers.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             dgvSuppliers.ColumnHeadersHeight = 45;
             dgvSuppliers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvSuppliers.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3, dataGridViewTextBoxColumn4 });
-            dgvSuppliers.DefaultCellStyle.BackColor = Color.White;
+            dgvSuppliers.DefaultCellStyle.BackColor = System.Drawing.Color.White;
             dgvSuppliers.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-            dgvSuppliers.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvSuppliers.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-            dgvSuppliers.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvSuppliers.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            dgvSuppliers.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            dgvSuppliers.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             dgvSuppliers.EnableHeadersVisualStyles = false;
-            dgvSuppliers.GridColor = Color.FromArgb(205, 225, 205);
+            dgvSuppliers.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             dgvSuppliers.Location = new Point(12, 50);
             dgvSuppliers.MultiSelect = false;
             dgvSuppliers.Name = "dgvSuppliers";
@@ -99,12 +99,12 @@
             // 
             // btnSelect
             // 
-            btnSelect.BackColor = Color.FromArgb(40, 167, 69);
+            btnSelect.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             btnSelect.Cursor = Cursors.Hand;
             btnSelect.FlatAppearance.BorderSize = 0;
             btnSelect.FlatStyle = FlatStyle.Flat;
             btnSelect.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnSelect.ForeColor = Color.White;
+            btnSelect.ForeColor = System.Drawing.Color.White;
             btnSelect.Location = new Point(570, 440);
             btnSelect.MinimumSize = new Size(100, 35);
             btnSelect.Name = "btnSelect";
@@ -116,13 +116,13 @@
             // 
             // btnCancel
             // 
-            btnCancel.BackColor = Color.FromArgb(108, 117, 125);
+            btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             btnCancel.Cursor = Cursors.Hand;
             btnCancel.DialogResult = DialogResult.Cancel;
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnCancel.ForeColor = Color.White;
+            btnCancel.ForeColor = System.Drawing.Color.White;
             btnCancel.Location = new Point(440, 440);
             btnCancel.MinimumSize = new Size(100, 35);
             btnCancel.Name = "btnCancel";
@@ -199,7 +199,7 @@
             // 
             AcceptButton = btnSelect;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             CancelButton = btnCancel;
             ClientSize = new Size(700, 490);
             Controls.Add(lblNoData);

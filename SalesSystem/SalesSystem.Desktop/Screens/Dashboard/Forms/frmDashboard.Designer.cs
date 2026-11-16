@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Dashboard.Forms
+namespace SalesSystem.Desktop.Screens.Dashboard.Forms
 {
     partial class frmDashboard
     {
@@ -20,10 +20,10 @@
             // 
             // lblMode — شريط عنوان الشاشة (RULE-N27 / RULE-N53)
             // 
-            lblMode.BackColor = Color.FromArgb(14, 165, 103);
+            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblMode.Dock = DockStyle.Top;
             lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            lblMode.ForeColor = Color.White;
+            lblMode.ForeColor = System.Drawing.Color.White;
             lblMode.Height = 44;
             lblMode.Name = "lblMode";
             lblMode.TabIndex = 0;
@@ -32,19 +32,19 @@
             // 
             // pnlHost — يحوي ctrlDashboard بـ Dock=Fill
             // 
-            pnlHost.BackColor = Color.FromArgb(170, 220, 170);
+            pnlHost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             pnlHost.Dock = DockStyle.Fill;
             pnlHost.Name = "pnlHost";
             pnlHost.TabIndex = 1;
             // 
             // btnClose
             // 
-            btnClose.BackColor = Color.FromArgb(108, 117, 125);
+            btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             btnClose.Cursor = Cursors.Hand;
             btnClose.Dock = DockStyle.Bottom;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnClose.ForeColor = Color.White;
+            btnClose.ForeColor = System.Drawing.Color.White;
             btnClose.Height = 52;
             btnClose.Name = "btnClose";
             btnClose.TabIndex = 2;
@@ -57,7 +57,7 @@
             // 
             AcceptButton = btnClose;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             CancelButton = btnClose;
             ClientSize = new Size(1200, 620);
             // ترتيب الإرساء (RULE-N125): Fill أولاً ثم Bottom ثم Top — يُرسى آخر المُضاف أولاً

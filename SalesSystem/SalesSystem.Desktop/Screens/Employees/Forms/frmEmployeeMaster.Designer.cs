@@ -78,10 +78,10 @@ partial class frmEmployeeMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1432, 50);
@@ -125,7 +125,7 @@ partial class frmEmployeeMaster
         // 
         txtCode.Location = new Point(1267, 42);
         txtCode.Name = "txtCode";
-        txtCode.BackColor = Color.White;
+        txtCode.BackColor = System.Drawing.Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -144,7 +144,7 @@ partial class frmEmployeeMaster
         // 
         lblNameReq.AutoSize = true;
         lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.ForeColor = System.Drawing.Color.Red;
         lblNameReq.Location = new Point(949, 15);
         lblNameReq.Name = "lblNameReq";
         lblNameReq.Size = new Size(23, 24);
@@ -155,7 +155,7 @@ partial class frmEmployeeMaster
         // 
         txtName.Location = new Point(845, 42);
         txtName.Name = "txtName";
-        txtName.BackColor = Color.White;
+        txtName.BackColor = System.Drawing.Color.White;
         txtName.Size = new Size(340, 32);
         txtName.TabIndex = 1;
         // 
@@ -172,7 +172,7 @@ partial class frmEmployeeMaster
         // 
         txtJobTitle.Location = new Point(505, 42);
         txtJobTitle.Name = "txtJobTitle";
-        txtJobTitle.BackColor = Color.White;
+        txtJobTitle.BackColor = System.Drawing.Color.White;
         txtJobTitle.Size = new Size(280, 32);
         txtJobTitle.TabIndex = 2;
         // 
@@ -189,7 +189,7 @@ partial class frmEmployeeMaster
         // 
         txtNationalId.Location = new Point(1147, 115);
         txtNationalId.Name = "txtNationalId";
-        txtNationalId.BackColor = Color.White;
+        txtNationalId.BackColor = System.Drawing.Color.White;
         txtNationalId.Size = new Size(230, 32);
         txtNationalId.TabIndex = 3;
         // 
@@ -206,7 +206,7 @@ partial class frmEmployeeMaster
         // 
         txtPhone.Location = new Point(847, 115);
         txtPhone.Name = "txtPhone";
-        txtPhone.BackColor = Color.White;
+        txtPhone.BackColor = System.Drawing.Color.White;
         txtPhone.Size = new Size(240, 32);
         txtPhone.TabIndex = 4;
         // 
@@ -225,7 +225,7 @@ partial class frmEmployeeMaster
         numBasicSalary.Location = new Point(505, 115);
         numBasicSalary.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numBasicSalary.Name = "numBasicSalary";
-        numBasicSalary.BackColor = Color.White;
+        numBasicSalary.BackColor = System.Drawing.Color.White;
         numBasicSalary.Size = new Size(220, 32);
         numBasicSalary.TabIndex = 5;
         numBasicSalary.ThousandsSeparator = true;
@@ -244,14 +244,14 @@ partial class frmEmployeeMaster
         dtpHireDate.Format = DateTimePickerFormat.Short;
         dtpHireDate.Location = new Point(175, 115);
         dtpHireDate.Name = "dtpHireDate";
-        dtpHireDate.BackColor = Color.White;
+        dtpHireDate.BackColor = System.Drawing.Color.White;
         dtpHireDate.ShowCheckBox = true;
         dtpHireDate.Size = new Size(230, 32);
         dtpHireDate.TabIndex = 6;
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = Color.FromArgb(235, 240, 235);
+        pnlButtons.BackColor = System.Drawing.Color.White;
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -268,10 +268,10 @@ partial class frmEmployeeMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.FromArgb(40, 167, 69);
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = Color.White;
+        btnNew.ForeColor = System.Drawing.Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
@@ -282,10 +282,10 @@ partial class frmEmployeeMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(0, 123, 255);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(0), Convert.ToInt32(123), Convert.ToInt32(255));
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
@@ -296,10 +296,10 @@ partial class frmEmployeeMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(152), Convert.ToInt32(0));
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = Color.White;
+        btnEdit.ForeColor = System.Drawing.Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -310,10 +310,10 @@ partial class frmEmployeeMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
+        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = Color.White;
+        btnDelete.ForeColor = System.Drawing.Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
@@ -326,13 +326,13 @@ partial class frmEmployeeMaster
         // 
         // RULE-N134: قيم حرفية مطابقة لِـ GreenThemeHelper.ActionInfoBackground — ليتساوى المصمّم ووقت التشغيل.
         // RULE-N145: الزر مُعلَن في المصمّم ويتبنّاه الكود بالاسم — لا يُنشأ وقت التشغيل.
-        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnReactivate.Cursor = Cursors.Hand;
         btnReactivate.Enabled = false;
         btnReactivate.FlatAppearance.BorderSize = 0;
         btnReactivate.FlatStyle = FlatStyle.Flat;
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnReactivate.ForeColor = Color.White;
+        btnReactivate.ForeColor = System.Drawing.Color.White;
         btnReactivate.Location = new Point(699, 13);
         btnReactivate.Name = "btnReactivate";
         btnReactivate.Size = new Size(160, 35);
@@ -344,10 +344,10 @@ partial class frmEmployeeMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = Color.White;
+        btnRefresh.ForeColor = System.Drawing.Color.White;
         btnRefresh.Location = new Point(719, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
@@ -358,10 +358,10 @@ partial class frmEmployeeMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(583, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
@@ -409,15 +409,15 @@ partial class frmEmployeeMaster
         // RULE-N145: زر «إخفاء/إظهار التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لِما يُطبَّق
         // وقت التشغيل، والسلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله
         // FilterPanelHelper.Attach — لا يُنشأ الزر وقت التشغيل.
-        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         btnToggleFilters.FlatAppearance.BorderSize = 1;
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -428,7 +428,7 @@ partial class frmEmployeeMaster
         // label2
         // 
         label2.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        label2.ForeColor = Color.FromArgb(14, 82, 52);
+        label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label2.Location = new Point(1240, 34);
         label2.Margin = new Padding(0);
         label2.Name = "label2";
@@ -439,7 +439,7 @@ partial class frmEmployeeMaster
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = Color.White;
+        cbFilterBy.BackColor = System.Drawing.Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F, FontStyle.Regular);
@@ -459,7 +459,7 @@ partial class frmEmployeeMaster
         txtFilterValue.Location = new Point(840, 30);
         txtFilterValue.Margin = new Padding(0);
         txtFilterValue.Name = "txtFilterValue";
-        txtFilterValue.BackColor = Color.White;
+        txtFilterValue.BackColor = System.Drawing.Color.White;
         txtFilterValue.Size = new Size(200, 32);
         txtFilterValue.TabIndex = 2;
         txtFilterValue.TextChanged += txtSearch_TextChanged;
@@ -469,7 +469,7 @@ partial class frmEmployeeMaster
         // label1
         // 
         label1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        label1.ForeColor = Color.FromArgb(14, 82, 52);
+        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label1.Location = new Point(760, 34);
         label1.Margin = new Padding(0);
         label1.Name = "label1";
@@ -480,7 +480,7 @@ partial class frmEmployeeMaster
         // 
         // cbStatus
         // 
-        cbStatus.BackColor = Color.White;
+        cbStatus.BackColor = System.Drawing.Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
         cbStatus.Font = new Font("Tahoma", 10F, FontStyle.Regular);
@@ -497,7 +497,7 @@ partial class frmEmployeeMaster
         // chkShowInactive
         // 
         chkShowInactive.Font = new Font("Tahoma", 10F, FontStyle.Regular);
-        chkShowInactive.ForeColor = Color.FromArgb(14, 82, 52);
+        chkShowInactive.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         chkShowInactive.Location = new Point(1210, 68);
         chkShowInactive.Margin = new Padding(0);
         chkShowInactive.Name = "chkShowInactive";
@@ -510,7 +510,7 @@ partial class frmEmployeeMaster
         // chkHasSalary
         // 
         chkHasSalary.Font = new Font("Tahoma", 10F, FontStyle.Regular);
-        chkHasSalary.ForeColor = Color.FromArgb(14, 82, 52);
+        chkHasSalary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         chkHasSalary.Location = new Point(1010, 68);
         chkHasSalary.Margin = new Padding(0);
         chkHasSalary.Name = "chkHasSalary";
@@ -524,13 +524,13 @@ partial class frmEmployeeMaster
         // 
         // RULE-N134: قيم حرفية مطابقة لِـ GreenThemeHelper.ActionNeutralBackground — ليتساوى المصمّم ووقت التشغيل.
         // RULE-N145: الزر مُعلَن في المصمّم ويتبنّاه الكود بالاسم — لا يُنشأ وقت التشغيل.
-        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
         btnClearFilters.Location = new Point(857, 66);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(145, 32);
@@ -555,23 +555,23 @@ partial class frmEmployeeMaster
         // RULE-N134: نفس قيم ثيم GreenThemeHelper حرفياً — ليتساوى المصمّم ووقت التشغيل.
         dgvEmployees.AllowUserToAddRows = false;
         dgvEmployees.AllowUserToDeleteRows = false;
-        dgvEmployees.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvEmployees.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvEmployees.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvEmployees.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvEmployees.BackgroundColor = System.Drawing.Color.White;
         dgvEmployees.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
-        dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvEmployees.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvEmployees.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvEmployees.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvEmployees.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvEmployees.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvEmployees.ContextMenuStrip = cmsGrid;
-        dgvEmployees.DefaultCellStyle.BackColor = Color.White;
-        dgvEmployees.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvEmployees.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvEmployees.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvEmployees.DefaultCellStyle.BackColor = System.Drawing.Color.White;
+        dgvEmployees.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvEmployees.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvEmployees.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvEmployees.Dock = DockStyle.Fill;
         dgvEmployees.EnableHeadersVisualStyles = false;
-        dgvEmployees.GridColor = Color.FromArgb(205, 225, 205);
+        dgvEmployees.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvEmployees.Location = new Point(0, 10);
         dgvEmployees.MultiSelect = false;
         dgvEmployees.Name = "dgvEmployees";
@@ -599,7 +599,7 @@ partial class frmEmployeeMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Padding = new Padding(8, 0, 16, 0);
@@ -610,7 +610,7 @@ partial class frmEmployeeMaster
         // 
         // cmsGrid (RULE-N23)
         // 
-        cmsGrid.BackColor = Color.White;
+        cmsGrid.BackColor = System.Drawing.Color.White;
         cmsGrid.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsGrid.ImageScalingSize = new Size(24, 24);
         cmsGrid.Items.AddRange(new ToolStripItem[] { mnuEdit, mnuDeactivate, mnuRefresh, mnuSeparator, mnuExport });
@@ -661,7 +661,7 @@ partial class frmEmployeeMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         ClientSize = new Size(1432, 746);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

@@ -70,10 +70,10 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // lblMode — عنوان المكوّن (RULE-N53)
             // 
-            lblMode.BackColor = Color.FromArgb(14, 165, 103);
+            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblMode.Dock = DockStyle.Top;
             lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            lblMode.ForeColor = Color.White;
+            lblMode.ForeColor = System.Drawing.Color.White;
             lblMode.Height = 44;
             lblMode.Name = "lblMode";
             lblMode.TabIndex = 0;
@@ -82,7 +82,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // gbCommands — الكتلة (2) من RULE-N135: أوامر/فترة
             // 
-            gbCommands.BackColor = Color.FromArgb(235, 245, 235);
+            gbCommands.BackColor = System.Drawing.Color.White;
             gbCommands.Controls.Add(lblPeriod);
             gbCommands.Controls.Add(btnRefresh);
             gbCommands.Controls.Add(lblWelcome);
@@ -99,7 +99,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblPeriod.Dock = DockStyle.Fill;
             lblPeriod.Font = new Font("Tahoma", 9F);
-            lblPeriod.ForeColor = Color.FromArgb(14, 82, 52);
+            lblPeriod.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblPeriod.Name = "lblPeriod";
             lblPeriod.TabIndex = 0;
             lblPeriod.Text = "الفترة: اليوم — والشهر الجاري";
@@ -107,12 +107,12 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // btnRefresh — تحديث الأرقام يدوياً
             // 
-            btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+            btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnRefresh.Cursor = Cursors.Hand;
             btnRefresh.Dock = DockStyle.Left;
             btnRefresh.FlatStyle = FlatStyle.Flat;
             btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnRefresh.ForeColor = Color.White;
+            btnRefresh.ForeColor = System.Drawing.Color.White;
             btnRefresh.Name = "btnRefresh";
             btnRefresh.TabIndex = 1;
             btnRefresh.Text = "تحديث (F5)";
@@ -124,7 +124,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblWelcome.Dock = DockStyle.Right;
             lblWelcome.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-            lblWelcome.ForeColor = Color.FromArgb(14, 82, 52);
+            lblWelcome.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblWelcome.Name = "lblWelcome";
             lblWelcome.Padding = new Padding(8, 0, 8, 0);
             lblWelcome.TabIndex = 2;
@@ -134,7 +134,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // gbIndicators — الكتلة (3) من RULE-N135: المؤشرات (البطاقات)
             // 
-            gbIndicators.BackColor = Color.FromArgb(235, 245, 235);
+            gbIndicators.BackColor = System.Drawing.Color.White;
             gbIndicators.Controls.Add(flowCards);
             gbIndicators.Dock = DockStyle.Top;
             gbIndicators.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -148,7 +148,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // flowCards
             // 
             flowCards.AutoScroll = true;
-            flowCards.BackColor = Color.FromArgb(235, 245, 235);
+            flowCards.BackColor = System.Drawing.Color.White;
             flowCards.Controls.Add(cardSales);
             flowCards.Controls.Add(cardPurchases);
             flowCards.Controls.Add(cardCustomers);
@@ -164,7 +164,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardSales
             // 
-            cardSales.BackColor = Color.White;
+            cardSales.BackColor = System.Drawing.Color.White;
             cardSales.Controls.Add(lblSalesSub);
             cardSales.Controls.Add(cardSalesValue);
             cardSales.Controls.Add(cardSalesTitle);
@@ -176,7 +176,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardSalesAccent
             // 
-            cardSalesAccent.BackColor = Color.FromArgb(14, 165, 103);
+            cardSalesAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             cardSalesAccent.Dock = DockStyle.Bottom;
             cardSalesAccent.Height = 4;
             cardSalesAccent.Name = "cardSalesAccent";
@@ -186,7 +186,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardSalesTitle.AutoSize = true;
             cardSalesTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            cardSalesTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            cardSalesTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardSalesTitle.Location = new Point(12, 10);
             cardSalesTitle.Name = "cardSalesTitle";
             cardSalesTitle.TabIndex = 0;
@@ -196,7 +196,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardSalesValue.AutoSize = true;
             cardSalesValue.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            cardSalesValue.ForeColor = Color.FromArgb(14, 82, 52);
+            cardSalesValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardSalesValue.Location = new Point(12, 36);
             cardSalesValue.Name = "cardSalesValue";
             cardSalesValue.TabIndex = 1;
@@ -206,7 +206,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblSalesSub.AutoSize = true;
             lblSalesSub.Font = new Font("Tahoma", 9F);
-            lblSalesSub.ForeColor = Color.FromArgb(14, 82, 52);
+            lblSalesSub.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblSalesSub.Location = new Point(12, 76);
             lblSalesSub.MaximumSize = new Size(158, 0);
             lblSalesSub.Name = "lblSalesSub";
@@ -215,7 +215,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardPurchases
             // 
-            cardPurchases.BackColor = Color.White;
+            cardPurchases.BackColor = System.Drawing.Color.White;
             cardPurchases.Controls.Add(lblPurchasesSub);
             cardPurchases.Controls.Add(cardPurchasesValue);
             cardPurchases.Controls.Add(cardPurchasesTitle);
@@ -227,7 +227,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardPurchasesAccent
             // 
-            cardPurchasesAccent.BackColor = Color.FromArgb(14, 165, 103);
+            cardPurchasesAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             cardPurchasesAccent.Dock = DockStyle.Bottom;
             cardPurchasesAccent.Height = 4;
             cardPurchasesAccent.Name = "cardPurchasesAccent";
@@ -237,7 +237,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardPurchasesTitle.AutoSize = true;
             cardPurchasesTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            cardPurchasesTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            cardPurchasesTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardPurchasesTitle.Location = new Point(12, 10);
             cardPurchasesTitle.Name = "cardPurchasesTitle";
             cardPurchasesTitle.TabIndex = 0;
@@ -247,7 +247,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardPurchasesValue.AutoSize = true;
             cardPurchasesValue.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            cardPurchasesValue.ForeColor = Color.FromArgb(14, 82, 52);
+            cardPurchasesValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardPurchasesValue.Location = new Point(12, 36);
             cardPurchasesValue.Name = "cardPurchasesValue";
             cardPurchasesValue.TabIndex = 1;
@@ -257,7 +257,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblPurchasesSub.AutoSize = true;
             lblPurchasesSub.Font = new Font("Tahoma", 9F);
-            lblPurchasesSub.ForeColor = Color.FromArgb(14, 82, 52);
+            lblPurchasesSub.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblPurchasesSub.Location = new Point(12, 76);
             lblPurchasesSub.MaximumSize = new Size(158, 0);
             lblPurchasesSub.Name = "lblPurchasesSub";
@@ -266,7 +266,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardCustomers
             // 
-            cardCustomers.BackColor = Color.White;
+            cardCustomers.BackColor = System.Drawing.Color.White;
             cardCustomers.Controls.Add(lblCustomersSub);
             cardCustomers.Controls.Add(cardCustomersValue);
             cardCustomers.Controls.Add(cardCustomersTitle);
@@ -278,7 +278,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardCustomersAccent
             // 
-            cardCustomersAccent.BackColor = Color.FromArgb(14, 165, 103);
+            cardCustomersAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             cardCustomersAccent.Dock = DockStyle.Bottom;
             cardCustomersAccent.Height = 4;
             cardCustomersAccent.Name = "cardCustomersAccent";
@@ -288,7 +288,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardCustomersTitle.AutoSize = true;
             cardCustomersTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            cardCustomersTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            cardCustomersTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardCustomersTitle.Location = new Point(12, 10);
             cardCustomersTitle.Name = "cardCustomersTitle";
             cardCustomersTitle.TabIndex = 0;
@@ -298,7 +298,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardCustomersValue.AutoSize = true;
             cardCustomersValue.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            cardCustomersValue.ForeColor = Color.FromArgb(14, 82, 52);
+            cardCustomersValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardCustomersValue.Location = new Point(12, 36);
             cardCustomersValue.Name = "cardCustomersValue";
             cardCustomersValue.TabIndex = 1;
@@ -308,7 +308,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblCustomersSub.AutoSize = true;
             lblCustomersSub.Font = new Font("Tahoma", 9F);
-            lblCustomersSub.ForeColor = Color.FromArgb(14, 82, 52);
+            lblCustomersSub.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblCustomersSub.Location = new Point(12, 76);
             lblCustomersSub.MaximumSize = new Size(158, 0);
             lblCustomersSub.Name = "lblCustomersSub";
@@ -317,7 +317,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardLowStock
             // 
-            cardLowStock.BackColor = Color.White;
+            cardLowStock.BackColor = System.Drawing.Color.White;
             cardLowStock.Controls.Add(lblStockSub);
             cardLowStock.Controls.Add(cardLowStockValue);
             cardLowStock.Controls.Add(cardLowStockTitle);
@@ -329,7 +329,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardLowStockAccent
             // 
-            cardLowStockAccent.BackColor = Color.FromArgb(14, 165, 103);
+            cardLowStockAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             cardLowStockAccent.Dock = DockStyle.Bottom;
             cardLowStockAccent.Height = 4;
             cardLowStockAccent.Name = "cardLowStockAccent";
@@ -339,7 +339,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardLowStockTitle.AutoSize = true;
             cardLowStockTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            cardLowStockTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            cardLowStockTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardLowStockTitle.Location = new Point(12, 10);
             cardLowStockTitle.Name = "cardLowStockTitle";
             cardLowStockTitle.TabIndex = 0;
@@ -349,7 +349,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardLowStockValue.AutoSize = true;
             cardLowStockValue.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            cardLowStockValue.ForeColor = Color.FromArgb(14, 82, 52);
+            cardLowStockValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardLowStockValue.Location = new Point(12, 36);
             cardLowStockValue.Name = "cardLowStockValue";
             cardLowStockValue.TabIndex = 1;
@@ -359,7 +359,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblStockSub.AutoSize = true;
             lblStockSub.Font = new Font("Tahoma", 9F);
-            lblStockSub.ForeColor = Color.FromArgb(14, 82, 52);
+            lblStockSub.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblStockSub.Location = new Point(12, 76);
             lblStockSub.MaximumSize = new Size(158, 0);
             lblStockSub.Name = "lblStockSub";
@@ -368,7 +368,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardReceivables
             // 
-            cardReceivables.BackColor = Color.White;
+            cardReceivables.BackColor = System.Drawing.Color.White;
             cardReceivables.Controls.Add(cardReceivablesSub);
             cardReceivables.Controls.Add(cardReceivablesValue);
             cardReceivables.Controls.Add(cardReceivablesTitle);
@@ -380,7 +380,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardReceivablesAccent
             // 
-            cardReceivablesAccent.BackColor = Color.FromArgb(14, 165, 103);
+            cardReceivablesAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             cardReceivablesAccent.Dock = DockStyle.Bottom;
             cardReceivablesAccent.Height = 4;
             cardReceivablesAccent.Name = "cardReceivablesAccent";
@@ -390,7 +390,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardReceivablesTitle.AutoSize = true;
             cardReceivablesTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            cardReceivablesTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            cardReceivablesTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardReceivablesTitle.Location = new Point(12, 10);
             cardReceivablesTitle.Name = "cardReceivablesTitle";
             cardReceivablesTitle.TabIndex = 0;
@@ -400,7 +400,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardReceivablesValue.AutoSize = true;
             cardReceivablesValue.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            cardReceivablesValue.ForeColor = Color.FromArgb(14, 82, 52);
+            cardReceivablesValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardReceivablesValue.Location = new Point(12, 36);
             cardReceivablesValue.Name = "cardReceivablesValue";
             cardReceivablesValue.TabIndex = 1;
@@ -410,7 +410,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardReceivablesSub.AutoSize = true;
             cardReceivablesSub.Font = new Font("Tahoma", 9F);
-            cardReceivablesSub.ForeColor = Color.FromArgb(14, 82, 52);
+            cardReceivablesSub.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardReceivablesSub.Location = new Point(12, 76);
             cardReceivablesSub.MaximumSize = new Size(158, 0);
             cardReceivablesSub.Name = "cardReceivablesSub";
@@ -419,7 +419,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardPayables
             // 
-            cardPayables.BackColor = Color.White;
+            cardPayables.BackColor = System.Drawing.Color.White;
             cardPayables.Controls.Add(cardPayablesSub);
             cardPayables.Controls.Add(cardPayablesValue);
             cardPayables.Controls.Add(cardPayablesTitle);
@@ -431,7 +431,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // cardPayablesAccent
             // 
-            cardPayablesAccent.BackColor = Color.FromArgb(14, 165, 103);
+            cardPayablesAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             cardPayablesAccent.Dock = DockStyle.Bottom;
             cardPayablesAccent.Height = 4;
             cardPayablesAccent.Name = "cardPayablesAccent";
@@ -441,7 +441,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardPayablesTitle.AutoSize = true;
             cardPayablesTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            cardPayablesTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            cardPayablesTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardPayablesTitle.Location = new Point(12, 10);
             cardPayablesTitle.Name = "cardPayablesTitle";
             cardPayablesTitle.TabIndex = 0;
@@ -451,7 +451,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardPayablesValue.AutoSize = true;
             cardPayablesValue.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            cardPayablesValue.ForeColor = Color.FromArgb(14, 82, 52);
+            cardPayablesValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardPayablesValue.Location = new Point(12, 36);
             cardPayablesValue.Name = "cardPayablesValue";
             cardPayablesValue.TabIndex = 1;
@@ -461,7 +461,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             cardPayablesSub.AutoSize = true;
             cardPayablesSub.Font = new Font("Tahoma", 9F);
-            cardPayablesSub.ForeColor = Color.FromArgb(14, 82, 52);
+            cardPayablesSub.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             cardPayablesSub.Location = new Point(12, 76);
             cardPayablesSub.MaximumSize = new Size(158, 0);
             cardPayablesSub.Name = "cardPayablesSub";
@@ -470,7 +470,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             // gbDetails — الكتلة (4) من RULE-N135: التفاصيل/الإجماليات
             // 
-            gbDetails.BackColor = Color.FromArgb(235, 245, 235);
+            gbDetails.BackColor = System.Drawing.Color.White;
             gbDetails.Controls.Add(lblDetails);
             gbDetails.Controls.Add(lblDataStatus);
             gbDetails.Dock = DockStyle.Fill;
@@ -485,7 +485,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblDetails.Dock = DockStyle.Fill;
             lblDetails.Font = new Font("Tahoma", 11F);
-            lblDetails.ForeColor = Color.FromArgb(14, 82, 52);
+            lblDetails.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblDetails.Name = "lblDetails";
             lblDetails.Padding = new Padding(12, 8, 12, 8);
             lblDetails.TabIndex = 0;
@@ -496,7 +496,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // 
             lblDataStatus.Dock = DockStyle.Bottom;
             lblDataStatus.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-            lblDataStatus.ForeColor = Color.FromArgb(14, 82, 52);
+            lblDataStatus.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblDataStatus.Height = 28;
             lblDataStatus.Name = "lblDataStatus";
             lblDataStatus.TabIndex = 1;
@@ -506,7 +506,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Controls
             // ctrlDashboard
             // 
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             Controls.Add(gbDetails);
             Controls.Add(gbIndicators);
             Controls.Add(gbCommands);

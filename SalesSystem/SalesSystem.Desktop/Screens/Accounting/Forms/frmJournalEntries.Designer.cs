@@ -119,7 +119,7 @@ partial class frmJournalEntries
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -129,10 +129,10 @@ partial class frmJournalEntries
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1440, 56);
@@ -142,7 +142,7 @@ partial class frmJournalEntries
         // 
         // gbCommands — «أوامر الشاشة»: صندوق عنوان حول شريط الأزرار (RULE-N136)
         // 
-        gbCommands.BackColor = Color.FromArgb(235, 240, 235);
+        gbCommands.BackColor = System.Drawing.Color.White;
         gbCommands.Controls.Add(pnlToolbar);
         gbCommands.Dock = DockStyle.Top;
         gbCommands.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -155,7 +155,7 @@ partial class frmJournalEntries
         // 
         // pnlToolbar
         // 
-        pnlToolbar.BackColor = Color.FromArgb(235, 240, 235);
+        pnlToolbar.BackColor = System.Drawing.Color.White;
         pnlToolbar.Controls.Add(btnNew);
         pnlToolbar.Controls.Add(btnSave);
         pnlToolbar.Controls.Add(btnEdit);
@@ -175,10 +175,10 @@ partial class frmJournalEntries
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.FromArgb(40, 167, 69);
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = Color.White;
+        btnNew.ForeColor = System.Drawing.Color.White;
         btnNew.Location = new Point(1298, 11);
         btnNew.Margin = new Padding(4);
         btnNew.Name = "btnNew";
@@ -190,10 +190,10 @@ partial class frmJournalEntries
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(0, 123, 255);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(0), Convert.ToInt32(123), Convert.ToInt32(255));
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(1160, 11);
         btnSave.Margin = new Padding(4);
         btnSave.Name = "btnSave";
@@ -205,10 +205,10 @@ partial class frmJournalEntries
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(152), Convert.ToInt32(0));
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = Color.White;
+        btnEdit.ForeColor = System.Drawing.Color.White;
         btnEdit.Location = new Point(1022, 11);
         btnEdit.Margin = new Padding(4);
         btnEdit.Name = "btnEdit";
@@ -220,10 +220,10 @@ partial class frmJournalEntries
         // 
         // btnPost
         // 
-        btnPost.BackColor = Color.FromArgb(23, 162, 184);
+        btnPost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnPost.FlatStyle = FlatStyle.Flat;
         btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnPost.ForeColor = Color.White;
+        btnPost.ForeColor = System.Drawing.Color.White;
         btnPost.Location = new Point(884, 11);
         btnPost.Margin = new Padding(4);
         btnPost.Name = "btnPost";
@@ -235,10 +235,10 @@ partial class frmJournalEntries
         // 
         // btnCancelEntry
         // 
-        btnCancelEntry.BackColor = Color.FromArgb(220, 53, 69);
+        btnCancelEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnCancelEntry.FlatStyle = FlatStyle.Flat;
         btnCancelEntry.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnCancelEntry.ForeColor = Color.White;
+        btnCancelEntry.ForeColor = System.Drawing.Color.White;
         btnCancelEntry.Location = new Point(746, 11);
         btnCancelEntry.Margin = new Padding(4);
         btnCancelEntry.Name = "btnCancelEntry";
@@ -250,10 +250,10 @@ partial class frmJournalEntries
         // 
         // btnDeleteDraft
         // 
-        btnDeleteDraft.BackColor = Color.FromArgb(220, 53, 69);
+        btnDeleteDraft.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnDeleteDraft.FlatStyle = FlatStyle.Flat;
         btnDeleteDraft.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDeleteDraft.ForeColor = Color.White;
+        btnDeleteDraft.ForeColor = System.Drawing.Color.White;
         btnDeleteDraft.Location = new Point(608, 11);
         btnDeleteDraft.Margin = new Padding(4);
         btnDeleteDraft.Name = "btnDeleteDraft";
@@ -265,10 +265,10 @@ partial class frmJournalEntries
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(108, 117, 125);
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = Color.White;
+        btnRefresh.ForeColor = System.Drawing.Color.White;
         btnRefresh.Location = new Point(470, 11);
         btnRefresh.Margin = new Padding(4);
         btnRefresh.Name = "btnRefresh";
@@ -280,10 +280,10 @@ partial class frmJournalEntries
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(332, 11);
         btnClose.Margin = new Padding(4);
         btnClose.Name = "btnClose";
@@ -295,7 +295,7 @@ partial class frmJournalEntries
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFilters.BackColor = System.Drawing.Color.White;
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -307,7 +307,7 @@ partial class frmJournalEntries
         // 
         // gbFilter
         // 
-        gbFilter.BackColor = Color.FromArgb(235, 245, 235);
+        gbFilter.BackColor = System.Drawing.Color.White;
         gbFilter.Controls.Add(lblFilterBy);
         gbFilter.Controls.Add(cbFilterBy);
         gbFilter.Controls.Add(txtFilterValue);
@@ -335,15 +335,15 @@ partial class frmJournalEntries
         // 
         // btnToggleFilters — RULE-N145/RULE-N63: يُعلَن في المصمّم ويتبنّاه FilterPanelHelper
         // 
-        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         btnToggleFilters.FlatAppearance.BorderSize = 1;
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         btnToggleFilters.Location = new Point(8, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -362,7 +362,7 @@ partial class frmJournalEntries
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = Color.White;
+        cbFilterBy.BackColor = System.Drawing.Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.Font = new Font("Tahoma", 10F);
         cbFilterBy.Location = new Point(101, 26);
@@ -373,7 +373,7 @@ partial class frmJournalEntries
         // 
         // txtFilterValue
         // 
-        txtFilterValue.BackColor = Color.White;
+        txtFilterValue.BackColor = System.Drawing.Color.White;
         txtFilterValue.Font = new Font("Tahoma", 10F);
         txtFilterValue.Location = new Point(247, 26);
         txtFilterValue.Name = "txtFilterValue";
@@ -394,7 +394,7 @@ partial class frmJournalEntries
         // 
         // cbEntryTypeFilter
         // 
-        cbEntryTypeFilter.BackColor = Color.White;
+        cbEntryTypeFilter.BackColor = System.Drawing.Color.White;
         cbEntryTypeFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         cbEntryTypeFilter.Font = new Font("Tahoma", 10F);
         cbEntryTypeFilter.Location = new Point(564, 26);
@@ -414,7 +414,7 @@ partial class frmJournalEntries
         // 
         // cbStatusFilter
         // 
-        cbStatusFilter.BackColor = Color.White;
+        cbStatusFilter.BackColor = System.Drawing.Color.White;
         cbStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatusFilter.Font = new Font("Tahoma", 10F);
         cbStatusFilter.Location = new Point(803, 26);
@@ -434,7 +434,7 @@ partial class frmJournalEntries
         // 
         // dtpFrom
         // 
-        dtpFrom.BackColor = Color.White;
+        dtpFrom.BackColor = System.Drawing.Color.White;
         dtpFrom.CustomFormat = "yyyy-MM-dd";
         dtpFrom.Font = new Font("Tahoma", 10F);
         dtpFrom.Format = DateTimePickerFormat.Custom;
@@ -455,7 +455,7 @@ partial class frmJournalEntries
         // 
         // dtpTo
         // 
-        dtpTo.BackColor = Color.White;
+        dtpTo.BackColor = System.Drawing.Color.White;
         dtpTo.CustomFormat = "yyyy-MM-dd";
         dtpTo.Font = new Font("Tahoma", 10F);
         dtpTo.Format = DateTimePickerFormat.Custom;
@@ -467,10 +467,10 @@ partial class frmJournalEntries
         // 
         // btnRangeMonth
         // 
-        btnRangeMonth.BackColor = Color.FromArgb(108, 117, 125);
+        btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnRangeMonth.FlatStyle = FlatStyle.Flat;
         btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnRangeMonth.ForeColor = Color.White;
+        btnRangeMonth.ForeColor = System.Drawing.Color.White;
         btnRangeMonth.Location = new Point(20, 62);
         btnRangeMonth.Name = "btnRangeMonth";
         btnRangeMonth.Size = new Size(120, 30);
@@ -503,13 +503,13 @@ partial class frmJournalEntries
         // 
         // btnClearFilters — RULE-N148: «مسح التصفية» يمسح أدوات التصفية فقط بلا إعادة تحميل
         // 
-        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
         btnClearFilters.Location = new Point(480, 62);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(145, 32);
@@ -521,7 +521,7 @@ partial class frmJournalEntries
         // 
         // pnlSummary — «الإجماليات» (RULE-N136)
         // 
-        pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
+        pnlSummary.BackColor = System.Drawing.Color.White;
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
         pnlSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -537,7 +537,7 @@ partial class frmJournalEntries
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblSummary.Location = new Point(8, 18);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1424, 26);
@@ -547,7 +547,7 @@ partial class frmJournalEntries
         // 
         // pnlEditor
         // 
-        pnlEditor.BackColor = Color.FromArgb(235, 240, 235);
+        pnlEditor.BackColor = System.Drawing.Color.White;
         pnlEditor.Controls.Add(gbLines);
         pnlEditor.Controls.Add(pnlEntryHeader);
         pnlEditor.Dock = DockStyle.Bottom;
@@ -559,7 +559,7 @@ partial class frmJournalEntries
         // 
         // gbLines
         // 
-        gbLines.BackColor = Color.FromArgb(235, 245, 235);
+        gbLines.BackColor = System.Drawing.Color.White;
         gbLines.Controls.Add(dgvLines);
         gbLines.Controls.Add(lblTotals);
         gbLines.Controls.Add(pnlLineEntry);
@@ -579,17 +579,17 @@ partial class frmJournalEntries
         dgvLines.AllowUserToAddRows = false;
         dgvLines.AllowUserToDeleteRows = false;
         dgvLines.AllowUserToOrderColumns = true;
-        dgvLines.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvLines.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvLines.AutoGenerateColumns = false;
         dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvLines.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvLines.BackgroundColor = System.Drawing.Color.White;
         dgvLines.BorderStyle = BorderStyle.None;
         dgvLines.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvLines.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvLines.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
         dgvLines.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvLines.ColumnHeadersHeight = 40;
         dgvLines.Columns.AddRange(new DataGridViewColumn[] {
         colLineAccount,
@@ -597,14 +597,14 @@ partial class frmJournalEntries
         colLineDebit,
         colLineCredit,
         colLineDescription});
-        dgvLines.DefaultCellStyle.BackColor = Color.White;
+        dgvLines.DefaultCellStyle.BackColor = System.Drawing.Color.White;
         dgvLines.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvLines.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvLines.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvLines.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvLines.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvLines.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvLines.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvLines.Dock = DockStyle.Fill;
         dgvLines.EnableHeadersVisualStyles = false;
-        dgvLines.GridColor = Color.FromArgb(205, 225, 205);
+        dgvLines.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvLines.Location = new Point(8, 58);
         dgvLines.MultiSelect = false;
         dgvLines.Name = "dgvLines";
@@ -664,7 +664,7 @@ partial class frmJournalEntries
         // 
         // lblTotals
         // 
-        lblTotals.BackColor = Color.FromArgb(235, 240, 235);
+        lblTotals.BackColor = System.Drawing.Color.White;
         lblTotals.Dock = DockStyle.Bottom;
         lblTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         lblTotals.Location = new Point(8, 236);
@@ -676,7 +676,7 @@ partial class frmJournalEntries
         // 
         // pnlLineEntry
         // 
-        pnlLineEntry.BackColor = Color.FromArgb(235, 240, 235);
+        pnlLineEntry.BackColor = System.Drawing.Color.White;
         pnlLineEntry.Controls.Add(lblLineAccount);
         pnlLineEntry.Controls.Add(cbLineAccount);
         pnlLineEntry.Controls.Add(lblLineDebit);
@@ -704,7 +704,7 @@ partial class frmJournalEntries
         // 
         // cbLineAccount
         // 
-        cbLineAccount.BackColor = Color.White;
+        cbLineAccount.BackColor = System.Drawing.Color.White;
         cbLineAccount.DropDownStyle = ComboBoxStyle.DropDownList;
         cbLineAccount.Font = new Font("Tahoma", 10F);
         cbLineAccount.Location = new Point(95, 8);
@@ -723,7 +723,7 @@ partial class frmJournalEntries
         // 
         // numLineDebit
         // 
-        numLineDebit.BackColor = Color.White;
+        numLineDebit.BackColor = System.Drawing.Color.White;
         numLineDebit.DecimalPlaces = 2;
         numLineDebit.Font = new Font("Tahoma", 10F);
         numLineDebit.Location = new Point(460, 8);
@@ -745,7 +745,7 @@ partial class frmJournalEntries
         // 
         // numLineCredit
         // 
-        numLineCredit.BackColor = Color.White;
+        numLineCredit.BackColor = System.Drawing.Color.White;
         numLineCredit.DecimalPlaces = 2;
         numLineCredit.Font = new Font("Tahoma", 10F);
         numLineCredit.Location = new Point(645, 8);
@@ -767,7 +767,7 @@ partial class frmJournalEntries
         // 
         // txtLineDescription
         // 
-        txtLineDescription.BackColor = Color.White;
+        txtLineDescription.BackColor = System.Drawing.Color.White;
         txtLineDescription.Font = new Font("Tahoma", 10F);
         txtLineDescription.Location = new Point(830, 8);
         txtLineDescription.Name = "txtLineDescription";
@@ -777,10 +777,10 @@ partial class frmJournalEntries
         // 
         // btnAddLine
         // 
-        btnAddLine.BackColor = Color.FromArgb(40, 167, 69);
+        btnAddLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
         btnAddLine.FlatStyle = FlatStyle.Flat;
         btnAddLine.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnAddLine.ForeColor = Color.White;
+        btnAddLine.ForeColor = System.Drawing.Color.White;
         btnAddLine.Location = new Point(1175, 7);
         btnAddLine.Name = "btnAddLine";
         btnAddLine.Size = new Size(105, 30);
@@ -791,10 +791,10 @@ partial class frmJournalEntries
         // 
         // btnRemoveLine
         // 
-        btnRemoveLine.BackColor = Color.FromArgb(220, 53, 69);
+        btnRemoveLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnRemoveLine.FlatStyle = FlatStyle.Flat;
         btnRemoveLine.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnRemoveLine.ForeColor = Color.White;
+        btnRemoveLine.ForeColor = System.Drawing.Color.White;
         btnRemoveLine.Location = new Point(1288, 7);
         btnRemoveLine.Name = "btnRemoveLine";
         btnRemoveLine.Size = new Size(110, 30);
@@ -805,7 +805,7 @@ partial class frmJournalEntries
         // 
         // pnlEntryHeader — «بيانات القيد» (RULE-N136)
         // 
-        pnlEntryHeader.BackColor = Color.FromArgb(235, 245, 235);
+        pnlEntryHeader.BackColor = System.Drawing.Color.White;
         pnlEntryHeader.Controls.Add(lblEntryInfo);
         pnlEntryHeader.Controls.Add(lblEntryDate);
         pnlEntryHeader.Controls.Add(dtpEntryDate);
@@ -845,7 +845,7 @@ partial class frmJournalEntries
         // 
         // dtpEntryDate
         // 
-        dtpEntryDate.BackColor = Color.White;
+        dtpEntryDate.BackColor = System.Drawing.Color.White;
         dtpEntryDate.CustomFormat = "yyyy-MM-dd";
         dtpEntryDate.Font = new Font("Tahoma", 10F);
         dtpEntryDate.Format = DateTimePickerFormat.Custom;
@@ -865,7 +865,7 @@ partial class frmJournalEntries
         // 
         // cbEntryType
         // 
-        cbEntryType.BackColor = Color.White;
+        cbEntryType.BackColor = System.Drawing.Color.White;
         cbEntryType.DropDownStyle = ComboBoxStyle.DropDownList;
         cbEntryType.Font = new Font("Tahoma", 10F);
         cbEntryType.Location = new Point(340, 46);
@@ -884,7 +884,7 @@ partial class frmJournalEntries
         // 
         // txtEntryDescription
         // 
-        txtEntryDescription.BackColor = Color.White;
+        txtEntryDescription.BackColor = System.Drawing.Color.White;
         txtEntryDescription.Font = new Font("Tahoma", 10F);
         txtEntryDescription.Location = new Point(595, 46);
         txtEntryDescription.Name = "txtEntryDescription";
@@ -903,7 +903,7 @@ partial class frmJournalEntries
         // 
         // txtReferenceNumber
         // 
-        txtReferenceNumber.BackColor = Color.White;
+        txtReferenceNumber.BackColor = System.Drawing.Color.White;
         txtReferenceNumber.Font = new Font("Tahoma", 10F);
         txtReferenceNumber.Location = new Point(1145, 46);
         txtReferenceNumber.Name = "txtReferenceNumber";
@@ -913,7 +913,7 @@ partial class frmJournalEntries
         // 
         // pnlGrid — «البيانات» (RULE-N136)
         // 
-        pnlGrid.BackColor = Color.FromArgb(235, 245, 235);
+        pnlGrid.BackColor = System.Drawing.Color.White;
         pnlGrid.Controls.Add(lblEmptyState);
         pnlGrid.Controls.Add(dgvEntries);
         pnlGrid.Dock = DockStyle.Fill;
@@ -928,10 +928,10 @@ partial class frmJournalEntries
         // 
         // lblEmptyState
         // 
-        lblEmptyState.BackColor = Color.White;
+        lblEmptyState.BackColor = System.Drawing.Color.White;
         lblEmptyState.Dock = DockStyle.Fill;
         lblEmptyState.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblEmptyState.ForeColor = Color.FromArgb(14, 82, 52);
+        lblEmptyState.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblEmptyState.Location = new Point(8, 8);
         lblEmptyState.Name = "lblEmptyState";
         lblEmptyState.Size = new Size(1424, 262);
@@ -946,17 +946,17 @@ partial class frmJournalEntries
         dgvEntries.AllowUserToAddRows = false;
         dgvEntries.AllowUserToDeleteRows = false;
         dgvEntries.AllowUserToOrderColumns = true;
-        dgvEntries.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvEntries.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvEntries.AutoGenerateColumns = false;
         dgvEntries.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvEntries.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvEntries.BackgroundColor = System.Drawing.Color.White;
         dgvEntries.BorderStyle = BorderStyle.None;
         dgvEntries.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvEntries.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvEntries.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
         dgvEntries.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        dgvEntries.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvEntries.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvEntries.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvEntries.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvEntries.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvEntries.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvEntries.ColumnHeadersHeight = 45;
         dgvEntries.Columns.AddRange(new DataGridViewColumn[] {
         colEntryNumber,
@@ -968,14 +968,14 @@ partial class frmJournalEntries
         colTotalCredit,
         colStatus});
         dgvEntries.ContextMenuStrip = cmsGrid;
-        dgvEntries.DefaultCellStyle.BackColor = Color.White;
+        dgvEntries.DefaultCellStyle.BackColor = System.Drawing.Color.White;
         dgvEntries.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvEntries.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvEntries.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvEntries.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvEntries.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvEntries.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvEntries.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvEntries.Dock = DockStyle.Fill;
         dgvEntries.EnableHeadersVisualStyles = false;
-        dgvEntries.GridColor = Color.FromArgb(205, 225, 205);
+        dgvEntries.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvEntries.Location = new Point(8, 8);
         dgvEntries.MultiSelect = false;
         dgvEntries.Name = "dgvEntries";
@@ -1117,7 +1117,7 @@ partial class frmJournalEntries
         // 
         AutoScaleDimensions = new SizeF(9F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         ClientSize = new Size(1440, 960);
         Controls.Add(pnlGrid);
         Controls.Add(pnlEditor);

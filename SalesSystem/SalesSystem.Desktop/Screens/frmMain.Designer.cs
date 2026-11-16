@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens
+namespace SalesSystem.Desktop.Screens
 {
     partial class frmMain
     {
@@ -159,8 +159,8 @@
                 msAccounting, msData, msReport, msTools, msSettings, msAccoutSettings
             });
             // RULE-N134: نفس قيم GreenThemeHelper (BarBackground · TextStrong) في المصمّم ووقت التشغيل
-            msMainMenu.BackColor = Color.FromArgb(235, 240, 235);
-            msMainMenu.ForeColor = Color.FromArgb(14, 82, 52);
+            msMainMenu.BackColor = System.Drawing.Color.White;
+            msMainMenu.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             msMainMenu.Location = new Point(0, 0);
             msMainMenu.Name = "msMainMenu";
             msMainMenu.Size = new Size(1378, 37);
@@ -940,11 +940,11 @@
             AutoSize = true;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             AutoValidate = AutoValidate.EnableAllowFocusChange;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             ClientSize = new Size(1378, 944);
             Controls.Add(msMainMenu);
             Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            ForeColor = Color.FromArgb(33, 37, 41); // نص صريح من لوحة الثيم (GridCellTextColor) — لا SystemColors (RULE-N141/N134)
+            ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41)); // نص صريح من لوحة الثيم (GridCellTextColor) — لا SystemColors (RULE-N141/N134)
             IsMdiContainer = true;
             MainMenuStrip = msMainMenu;
             Margin = new Padding(4, 3, 4, 3);

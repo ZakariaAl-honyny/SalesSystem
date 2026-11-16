@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens
+namespace SalesSystem.Desktop.Screens
 {
     partial class frmLogin
     {
@@ -23,9 +23,9 @@
             // 
             // lblTitle
             // 
-            lblTitle.BackColor = Color.FromArgb(14, 165, 103);
+            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblTitle.Font = new Font("Tahoma", 18F, FontStyle.Bold);
-            lblTitle.ForeColor = Color.White;
+            lblTitle.ForeColor = System.Drawing.Color.White;
             lblTitle.Location = new Point(0, 50);
             lblTitle.Margin = new Padding(4, 0, 4, 0);
             lblTitle.Name = "lblTitle";
@@ -36,7 +36,7 @@
             // 
             // gbLogin
             // 
-            gbLogin.BackColor = Color.FromArgb(235, 245, 235);
+            gbLogin.BackColor = System.Drawing.Color.White;
             gbLogin.Controls.Add(lblUser);
             gbLogin.Controls.Add(cmbUsers);
             gbLogin.Controls.Add(lblPassword);
@@ -44,7 +44,7 @@
             gbLogin.Controls.Add(lblMockHint);
             gbLogin.Controls.Add(btnLogin);
             gbLogin.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            gbLogin.ForeColor = Color.FromArgb(14, 82, 52);
+            gbLogin.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbLogin.Location = new Point(58, 132);
             gbLogin.Margin = new Padding(4, 5, 4, 5);
             gbLogin.Name = "gbLogin";
@@ -57,7 +57,7 @@
             // lblUser
             // 
             lblUser.Font = new Font("Tahoma", 10F);
-            lblUser.ForeColor = Color.FromArgb(14, 82, 52);
+            lblUser.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblUser.Location = new Point(44, 40);
             lblUser.Margin = new Padding(4, 0, 4, 0);
             lblUser.Name = "lblUser";
@@ -69,7 +69,7 @@
             // cmbUsers
             // 
             cmbUsers.Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Left;
-            cmbUsers.BackColor = Color.White;
+            cmbUsers.BackColor = System.Drawing.Color.White;
             cmbUsers.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbUsers.FlatStyle = FlatStyle.Flat;
             cmbUsers.Font = new Font("Tahoma", 10F);
@@ -83,7 +83,7 @@
             // lblPassword
             // 
             lblPassword.Font = new Font("Tahoma", 10F);
-            lblPassword.ForeColor = Color.FromArgb(14, 82, 52);
+            lblPassword.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblPassword.Location = new Point(44, 92);
             lblPassword.Margin = new Padding(4, 0, 4, 0);
             lblPassword.Name = "lblPassword";
@@ -95,7 +95,7 @@
             // txtPassword
             // 
             txtPassword.Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Left;
-            txtPassword.BackColor = Color.White;
+            txtPassword.BackColor = System.Drawing.Color.White;
             txtPassword.Font = new Font("Tahoma", 10F);
             txtPassword.Location = new Point(222, 88);
             txtPassword.Margin = new Padding(4, 5, 4, 5);
@@ -111,7 +111,7 @@
             // lblMockHint
             // 
             lblMockHint.Font = new Font("Tahoma", 9F);
-            lblMockHint.ForeColor = Color.FromArgb(14, 82, 52);
+            lblMockHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblMockHint.Location = new Point(44, 134);
             lblMockHint.Margin = new Padding(4, 0, 4, 0);
             lblMockHint.Name = "lblMockHint";
@@ -123,13 +123,13 @@
             // 
             // btnLogin
             // 
-            btnLogin.BackColor = Color.FromArgb(14, 165, 103);
+            btnLogin.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             btnLogin.Cursor = Cursors.Hand;
-            btnLogin.FlatAppearance.BorderColor = Color.FromArgb(14, 165, 103);
+            btnLogin.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             btnLogin.FlatAppearance.BorderSize = 0;
             btnLogin.FlatStyle = FlatStyle.Flat;
             btnLogin.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnLogin.ForeColor = Color.White;
+            btnLogin.ForeColor = System.Drawing.Color.White;
             btnLogin.Location = new Point(222, 168);
             btnLogin.Margin = new Padding(4, 5, 4, 5);
             btnLogin.Name = "btnLogin";
@@ -142,7 +142,7 @@
             // lblError
             // 
             lblError.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblError.ForeColor = Color.FromArgb(220, 53, 69);
+            lblError.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
             lblError.Location = new Point(0, 382);
             lblError.Margin = new Padding(4, 0, 4, 0);
             lblError.Name = "lblError";
@@ -154,7 +154,7 @@
             // frmLogin
             // 
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             ClientSize = new Size(686, 470);
             Controls.Add(lblError);
             Controls.Add(gbLogin);

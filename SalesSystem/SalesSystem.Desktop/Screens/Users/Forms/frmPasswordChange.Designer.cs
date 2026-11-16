@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Users.Forms;
+namespace SalesSystem.Desktop.Screens.Users.Forms;
 
 partial class frmPasswordChange
 {
@@ -39,10 +39,10 @@ partial class frmPasswordChange
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(620, 46);
@@ -52,7 +52,7 @@ partial class frmPasswordChange
         // 
         // gbPassword
         // 
-        gbPassword.BackColor = Color.FromArgb(235, 245, 235);
+        gbPassword.BackColor = System.Drawing.Color.White;
         gbPassword.Controls.Add(lblHint);
         gbPassword.Controls.Add(lblCurrentPassword);
         gbPassword.Controls.Add(txtCurrentPassword);
@@ -61,7 +61,7 @@ partial class frmPasswordChange
         gbPassword.Controls.Add(lblConfirmPassword);
         gbPassword.Controls.Add(txtConfirmPassword);
         gbPassword.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbPassword.ForeColor = Color.FromArgb(14, 82, 52);
+        gbPassword.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbPassword.Location = new Point(12, 58);
         gbPassword.Name = "gbPassword";
         gbPassword.Padding = new Padding(8);
@@ -74,7 +74,7 @@ partial class frmPasswordChange
         // 
         lblHint.AutoSize = true;
         lblHint.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblHint.ForeColor = Color.FromArgb(14, 82, 52);
+        lblHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblHint.Location = new Point(16, 28);
         lblHint.Name = "lblHint";
         lblHint.Size = new Size(316, 19);
@@ -94,7 +94,7 @@ partial class frmPasswordChange
         // 
         // txtCurrentPassword
         // 
-        txtCurrentPassword.BackColor = Color.White;
+        txtCurrentPassword.BackColor = System.Drawing.Color.White;
         txtCurrentPassword.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtCurrentPassword.Location = new Point(94, 64);
         txtCurrentPassword.Name = "txtCurrentPassword";
@@ -116,7 +116,7 @@ partial class frmPasswordChange
         // 
         // txtNewPassword
         // 
-        txtNewPassword.BackColor = Color.White;
+        txtNewPassword.BackColor = System.Drawing.Color.White;
         txtNewPassword.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtNewPassword.Location = new Point(94, 122);
         txtNewPassword.Name = "txtNewPassword";
@@ -138,7 +138,7 @@ partial class frmPasswordChange
         // 
         // txtConfirmPassword
         // 
-        txtConfirmPassword.BackColor = Color.White;
+        txtConfirmPassword.BackColor = System.Drawing.Color.White;
         txtConfirmPassword.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtConfirmPassword.Location = new Point(94, 180);
         txtConfirmPassword.Name = "txtConfirmPassword";
@@ -151,7 +151,7 @@ partial class frmPasswordChange
         // lblError
         // 
         lblError.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblError.ForeColor = Color.FromArgb(220, 53, 69);
+        lblError.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         lblError.Location = new Point(12, 298);
         lblError.Name = "lblError";
         lblError.Size = new Size(596, 26);
@@ -161,7 +161,7 @@ partial class frmPasswordChange
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(btnSave);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -173,11 +173,11 @@ partial class frmPasswordChange
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(14, 165, 103);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(440, 12);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(160, 44);
@@ -188,12 +188,12 @@ partial class frmPasswordChange
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(270, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(160, 44);
@@ -211,7 +211,7 @@ partial class frmPasswordChange
         // 
         AcceptButton = btnSave;
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(620, 410);
         Controls.Add(gbPassword);

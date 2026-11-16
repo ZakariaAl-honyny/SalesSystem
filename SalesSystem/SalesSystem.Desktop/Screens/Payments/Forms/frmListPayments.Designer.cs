@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Payments.Forms
+namespace SalesSystem.Desktop.Screens.Payments.Forms
 {
     partial class frmListPayments
     {
@@ -82,7 +82,7 @@
             // lblMode
             // 
             this.lblMode.AutoSize = false;
-            this.lblMode.BackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             this.lblMode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lblMode.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
@@ -96,7 +96,7 @@
             // 
             // pnlHeader
             // 
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             // RULE-N130 + RULE-N125: btnRefresh يُضاف أولاً ليجلس أمام lblMode (Dock=Fill) بلا إعادة ترتيب العناصر المُرصوفة.
             this.pnlHeader.Controls.Add(this.btnRefresh);
             this.pnlHeader.Controls.Add(this.lblMode);
@@ -109,7 +109,7 @@
             // 
             // pnlFilters
             // 
-            this.pnlFilters.BackColor = System.Drawing.Color.FromArgb(235, 240, 235);
+            this.pnlFilters.BackColor = System.Drawing.Color.White;
             this.pnlFilters.Controls.Add(this.gbFilter);
             this.pnlFilters.Controls.Add(this.btnToggleFilters);
             this.pnlFilters.Dock = System.Windows.Forms.DockStyle.Top;
@@ -122,7 +122,7 @@
             // 
             // gbFilter
             // 
-            this.gbFilter.BackColor = System.Drawing.Color.FromArgb(235, 245, 235);
+            this.gbFilter.BackColor = System.Drawing.Color.White;
             this.gbFilter.Controls.Add(this.label2);
             this.gbFilter.Controls.Add(this.cbFilterBy);
             this.gbFilter.Controls.Add(this.txtFilterValue);
@@ -152,7 +152,7 @@
             // label2
             // 
             this.label2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label2.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.label2.Location = new System.Drawing.Point(12, 30);
             this.label2.Margin = new System.Windows.Forms.Padding(0);
             this.label2.Name = "label2";
@@ -190,7 +190,7 @@
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.label1.Location = new System.Drawing.Point(536, 30);
             this.label1.Margin = new System.Windows.Forms.Padding(0);
             this.label1.Name = "label1";
@@ -216,7 +216,7 @@
             // label3
             // 
             this.label3.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label3.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.label3.Location = new System.Drawing.Point(744, 30);
             this.label3.Margin = new System.Windows.Forms.Padding(0);
             this.label3.Name = "label3";
@@ -240,7 +240,7 @@
             // label4
             // 
             this.label4.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label4.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.label4.Location = new System.Drawing.Point(954, 30);
             this.label4.Margin = new System.Windows.Forms.Padding(0);
             this.label4.Name = "label4";
@@ -263,12 +263,12 @@
             // 
             // btnRangeToday
             // 
-            this.btnRangeToday.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
-            this.btnRangeToday.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(222, 226, 230);
+            this.btnRangeToday.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+            this.btnRangeToday.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.btnRangeToday.FlatAppearance.BorderSize = 1;
             this.btnRangeToday.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRangeToday.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRangeToday.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.btnRangeToday.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.btnRangeToday.Location = new System.Drawing.Point(12, 62);
             this.btnRangeToday.Name = "btnRangeToday";
             this.btnRangeToday.Size = new System.Drawing.Size(100, 32);
@@ -279,12 +279,12 @@
             // 
             // btnRange30
             // 
-            this.btnRange30.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
-            this.btnRange30.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(222, 226, 230);
+            this.btnRange30.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+            this.btnRange30.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.btnRange30.FlatAppearance.BorderSize = 1;
             this.btnRange30.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRange30.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRange30.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.btnRange30.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.btnRange30.Location = new System.Drawing.Point(122, 62);
             this.btnRange30.Name = "btnRange30";
             this.btnRange30.Size = new System.Drawing.Size(138, 32);
@@ -295,12 +295,12 @@
             // 
             // btnRangeMonth
             // 
-            this.btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
-            this.btnRangeMonth.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(222, 226, 230);
+            this.btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+            this.btnRangeMonth.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.btnRangeMonth.FlatAppearance.BorderSize = 1;
             this.btnRangeMonth.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRangeMonth.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRangeMonth.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.btnRangeMonth.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.btnRangeMonth.Location = new System.Drawing.Point(270, 62);
             this.btnRangeMonth.Name = "btnRangeMonth";
             this.btnRangeMonth.Size = new System.Drawing.Size(130, 32);
@@ -312,7 +312,7 @@
             // chkOnlyCancelled
             // 
             this.chkOnlyCancelled.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.chkOnlyCancelled.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.chkOnlyCancelled.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.chkOnlyCancelled.Location = new System.Drawing.Point(412, 66);
             this.chkOnlyCancelled.Margin = new System.Windows.Forms.Padding(0);
             this.chkOnlyCancelled.Name = "chkOnlyCancelled";
@@ -325,7 +325,7 @@
             // btnClearFilters
             // 
             // RULE-N148: «مسح التصفية» — الصف الثاني، يسار مجموعة مربعات الاختيار (فاصل 10px) — قيم حرفية فقط.
-            this.btnClearFilters.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
+            this.btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             this.btnClearFilters.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnClearFilters.Enabled = false;
             this.btnClearFilters.FlatAppearance.BorderSize = 0;
@@ -345,15 +345,15 @@
             // 
             // RULE-N145: مُعلَن في المصمّم بقيم حرفية مطابقة لما يُطبَّق وقت التشغيل.
             // السلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
-            this.btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
+            this.btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             this.btnToggleFilters.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnToggleFilters.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(222, 226, 230);
+            this.btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.btnToggleFilters.FlatAppearance.BorderSize = 1;
-            this.btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(240, 240, 240);
+            this.btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
             this.btnToggleFilters.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnToggleFilters.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.btnToggleFilters.Location = new System.Drawing.Point(6, 4);
             this.btnToggleFilters.Name = "btnToggleFilters";
             this.btnToggleFilters.Size = new System.Drawing.Size(140, 104);
@@ -363,7 +363,7 @@
             // 
             // pnlSummary
             // 
-            this.pnlSummary.BackColor = System.Drawing.Color.FromArgb(235, 240, 235);
+            this.pnlSummary.BackColor = System.Drawing.Color.White;
             this.pnlSummary.Controls.Add(this.lblSummary);
             this.pnlSummary.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlSummary.Location = new System.Drawing.Point(0, 671);
@@ -377,7 +377,7 @@
             this.lblSummary.AutoSize = false;
             this.lblSummary.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblSummary.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblSummary.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblSummary.Location = new System.Drawing.Point(0, 0);
             this.lblSummary.Name = "lblSummary";
             this.lblSummary.Size = new System.Drawing.Size(1200, 32);
@@ -402,7 +402,7 @@
             // 
             // tpCustomerPayments
             // 
-            this.tpCustomerPayments.BackColor = System.Drawing.Color.FromArgb(235, 245, 235);
+            this.tpCustomerPayments.BackColor = System.Drawing.Color.White;
             this.tpCustomerPayments.Controls.Add(this.lblCustomerEmpty);
             this.tpCustomerPayments.Controls.Add(this.dgvCustomerPayments);
             this.tpCustomerPayments.Controls.Add(this.pnlCustomerTop);
@@ -419,25 +419,25 @@
             this.dgvCustomerPayments.AllowUserToDeleteRows = false;
             this.dgvCustomerPayments.AllowUserToOrderColumns = true;
             this.dgvCustomerPayments.AllowUserToResizeRows = false;
-            this.dgvCustomerPayments.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(245, 252, 245);
+            this.dgvCustomerPayments.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             this.dgvCustomerPayments.AutoGenerateColumns = false;
             this.dgvCustomerPayments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvCustomerPayments.BackgroundColor = System.Drawing.Color.FromArgb(220, 240, 220);
+            this.dgvCustomerPayments.BackgroundColor = System.Drawing.Color.White;
             this.dgvCustomerPayments.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             this.dgvCustomerPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvCustomerPayments.ColumnHeadersHeight = 45;
             this.dgvCustomerPayments.ContextMenuStrip = this.cmsCustomerPayments;
             this.dgvCustomerPayments.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-            this.dgvCustomerPayments.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
-            this.dgvCustomerPayments.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(255, 255, 180);
-            this.dgvCustomerPayments.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.dgvCustomerPayments.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            this.dgvCustomerPayments.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            this.dgvCustomerPayments.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.dgvCustomerPayments.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCustomerPayments.EnableHeadersVisualStyles = false;
-            this.dgvCustomerPayments.GridColor = System.Drawing.Color.FromArgb(205, 225, 205);
+            this.dgvCustomerPayments.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.dgvCustomerPayments.Location = new System.Drawing.Point(3, 43);
             this.dgvCustomerPayments.MultiSelect = false;
             this.dgvCustomerPayments.Name = "dgvCustomerPayments";
@@ -452,7 +452,7 @@
             // 
             // pnlCustomerTop
             // 
-            this.pnlCustomerTop.BackColor = System.Drawing.Color.FromArgb(235, 240, 235);
+            this.pnlCustomerTop.BackColor = System.Drawing.Color.White;
             this.pnlCustomerTop.Controls.Add(this.btnAddCustomerPayment);
             this.pnlCustomerTop.Controls.Add(this.lblCustomerCount);
             this.pnlCustomerTop.Controls.Add(this.lblCustomerCountTitle);
@@ -464,7 +464,7 @@
             // btnAddCustomerPayment
             // 
             this.btnAddCustomerPayment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddCustomerPayment.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this.btnAddCustomerPayment.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             this.btnAddCustomerPayment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddCustomerPayment.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
             this.btnAddCustomerPayment.ForeColor = System.Drawing.Color.White;
@@ -480,7 +480,7 @@
             // 
             this.lblCustomerCount.AutoSize = true;
             this.lblCustomerCount.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblCustomerCount.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblCustomerCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblCustomerCount.Location = new System.Drawing.Point(50, 10);
             this.lblCustomerCount.Name = "lblCustomerCount";
             this.lblCustomerCount.Size = new System.Drawing.Size(22, 18);
@@ -491,7 +491,7 @@
             // 
             this.lblCustomerCountTitle.AutoSize = true;
             this.lblCustomerCountTitle.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblCustomerCountTitle.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblCustomerCountTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblCustomerCountTitle.Location = new System.Drawing.Point(10, 10);
             this.lblCustomerCountTitle.Name = "lblCustomerCountTitle";
             this.lblCustomerCountTitle.Size = new System.Drawing.Size(40, 18);
@@ -504,7 +504,7 @@
             this.lblCustomerEmpty.BackColor = System.Drawing.Color.Transparent;
             this.lblCustomerEmpty.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblCustomerEmpty.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.lblCustomerEmpty.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblCustomerEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblCustomerEmpty.Name = "lblCustomerEmpty";
             this.lblCustomerEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblCustomerEmpty.Text = "لا توجد مقبوضات مطابقة للمعايير الحالية";
@@ -512,7 +512,7 @@
             // 
             // tpSupplierPayments
             // 
-            this.tpSupplierPayments.BackColor = System.Drawing.Color.FromArgb(235, 245, 235);
+            this.tpSupplierPayments.BackColor = System.Drawing.Color.White;
             this.tpSupplierPayments.Controls.Add(this.lblSupplierEmpty);
             this.tpSupplierPayments.Controls.Add(this.dgvSupplierPayments);
             this.tpSupplierPayments.Controls.Add(this.pnlSupplierTop);
@@ -529,25 +529,25 @@
             this.dgvSupplierPayments.AllowUserToDeleteRows = false;
             this.dgvSupplierPayments.AllowUserToOrderColumns = true;
             this.dgvSupplierPayments.AllowUserToResizeRows = false;
-            this.dgvSupplierPayments.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(245, 252, 245);
+            this.dgvSupplierPayments.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             this.dgvSupplierPayments.AutoGenerateColumns = false;
             this.dgvSupplierPayments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvSupplierPayments.BackgroundColor = System.Drawing.Color.FromArgb(220, 240, 220);
+            this.dgvSupplierPayments.BackgroundColor = System.Drawing.Color.White;
             this.dgvSupplierPayments.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             this.dgvSupplierPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvSupplierPayments.ColumnHeadersHeight = 45;
             this.dgvSupplierPayments.ContextMenuStrip = this.cmsSupplierPayments;
             this.dgvSupplierPayments.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-            this.dgvSupplierPayments.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
-            this.dgvSupplierPayments.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(255, 255, 180);
-            this.dgvSupplierPayments.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.dgvSupplierPayments.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            this.dgvSupplierPayments.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            this.dgvSupplierPayments.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.dgvSupplierPayments.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvSupplierPayments.EnableHeadersVisualStyles = false;
-            this.dgvSupplierPayments.GridColor = System.Drawing.Color.FromArgb(205, 225, 205);
+            this.dgvSupplierPayments.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.dgvSupplierPayments.Location = new System.Drawing.Point(3, 43);
             this.dgvSupplierPayments.MultiSelect = false;
             this.dgvSupplierPayments.Name = "dgvSupplierPayments";
@@ -562,7 +562,7 @@
             // 
             // pnlSupplierTop
             // 
-            this.pnlSupplierTop.BackColor = System.Drawing.Color.FromArgb(235, 240, 235);
+            this.pnlSupplierTop.BackColor = System.Drawing.Color.White;
             this.pnlSupplierTop.Controls.Add(this.btnAddSupplierPayment);
             this.pnlSupplierTop.Controls.Add(this.lblSupplierCount);
             this.pnlSupplierTop.Controls.Add(this.lblSupplierCountTitle);
@@ -574,7 +574,7 @@
             // btnAddSupplierPayment
             // 
             this.btnAddSupplierPayment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddSupplierPayment.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this.btnAddSupplierPayment.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             this.btnAddSupplierPayment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddSupplierPayment.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
             this.btnAddSupplierPayment.ForeColor = System.Drawing.Color.White;
@@ -590,7 +590,7 @@
             // 
             this.lblSupplierCount.AutoSize = true;
             this.lblSupplierCount.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblSupplierCount.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblSupplierCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblSupplierCount.Location = new System.Drawing.Point(50, 10);
             this.lblSupplierCount.Name = "lblSupplierCount";
             this.lblSupplierCount.Size = new System.Drawing.Size(22, 18);
@@ -601,7 +601,7 @@
             // 
             this.lblSupplierCountTitle.AutoSize = true;
             this.lblSupplierCountTitle.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblSupplierCountTitle.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblSupplierCountTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblSupplierCountTitle.Location = new System.Drawing.Point(10, 10);
             this.lblSupplierCountTitle.Name = "lblSupplierCountTitle";
             this.lblSupplierCountTitle.Size = new System.Drawing.Size(40, 18);
@@ -614,7 +614,7 @@
             this.lblSupplierEmpty.BackColor = System.Drawing.Color.Transparent;
             this.lblSupplierEmpty.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblSupplierEmpty.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.lblSupplierEmpty.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblSupplierEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblSupplierEmpty.Name = "lblSupplierEmpty";
             this.lblSupplierEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblSupplierEmpty.Text = "لا توجد مدفوعات مطابقة للمعايير الحالية";
@@ -624,7 +624,7 @@
             // 
             // RULE-N148: «تحديث» كامل — بجانب «إغلاق» في شريط أوامر الشاشة (pnlHeader).
             // قيم حرفية مطابقة لثوابت GreenThemeHelper (ActionInfoBackground) — RULE-N134/N140.
-            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(23, 162, 184);
+            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             this.btnRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnRefresh.FlatAppearance.BorderSize = 0;
             this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -641,7 +641,7 @@
             // 
             // btnClose
             // 
-            this.btnClose.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
+            this.btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             this.btnClose.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
@@ -735,7 +735,7 @@
             // frmListPayments
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(170, 220, 170);
+            this.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             this.ClientSize = new System.Drawing.Size(1200, 703);
             this.Controls.Add(this.tabPayments);
             this.Controls.Add(this.pnlSummary);

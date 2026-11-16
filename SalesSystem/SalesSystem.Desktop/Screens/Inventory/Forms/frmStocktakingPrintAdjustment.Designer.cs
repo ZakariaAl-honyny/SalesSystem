@@ -50,7 +50,7 @@ partial class frmStocktakingPrintAdjustment
         // pnlHeader
         // 
         // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
-        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
@@ -61,10 +61,10 @@ partial class frmStocktakingPrintAdjustment
         // 
         // lblTitle
         // 
-        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
+        lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTitle.ForeColor = Color.White;
+        lblTitle.ForeColor = System.Drawing.Color.White;
         lblTitle.Location = new Point(0, 0);
         lblTitle.Name = "lblTitle";
         lblTitle.Size = new Size(440, 42);
@@ -77,7 +77,7 @@ partial class frmStocktakingPrintAdjustment
         lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         lblMockBadge.AutoSize = true;
         lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
+        lblMockBadge.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(241), Convert.ToInt32(196), Convert.ToInt32(15));
         lblMockBadge.Location = new Point(316, 13);
         lblMockBadge.Name = "lblMockBadge";
         lblMockBadge.Size = new Size(112, 21);
@@ -86,7 +86,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = Color.FromArgb(14, 82, 52);
+        lblAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Height = 4;
         lblAccent.Name = "lblAccent";
@@ -94,7 +94,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlPreviewCard
         // 
-        pnlPreviewCard.BackColor = Color.White;
+        pnlPreviewCard.BackColor = System.Drawing.Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
         pnlPreviewCard.Controls.Add(pnlCardHeader);
         pnlPreviewCard.Controls.Add(tblFields);
@@ -108,7 +108,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlCardHeader
         // 
-        pnlCardHeader.BackColor = Color.White;
+        pnlCardHeader.BackColor = System.Drawing.Color.White;
         pnlCardHeader.Controls.Add(lblAdjustmentTitle);
         pnlCardHeader.Controls.Add(lblStoreName);
         pnlCardHeader.Location = new Point(0, 0);
@@ -119,7 +119,7 @@ partial class frmStocktakingPrintAdjustment
         // lblStoreName
         // 
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(14, 82, 52);
+        lblStoreName.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(398, 30);
@@ -130,7 +130,7 @@ partial class frmStocktakingPrintAdjustment
         // lblAdjustmentTitle
         // 
         lblAdjustmentTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblAdjustmentTitle.ForeColor = Color.FromArgb(14, 82, 52);
+        lblAdjustmentTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblAdjustmentTitle.Location = new Point(0, 30);
         lblAdjustmentTitle.Name = "lblAdjustmentTitle";
         lblAdjustmentTitle.Size = new Size(398, 40);
@@ -140,7 +140,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // tblFields
         // 
-        tblFields.BackColor = Color.White;
+        tblFields.BackColor = System.Drawing.Color.White;
         tblFields.ColumnCount = 2;
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -175,7 +175,7 @@ partial class frmStocktakingPrintAdjustment
         lblVoucherNoLabel.AutoSize = true;
         lblVoucherNoLabel.Dock = DockStyle.Fill;
         lblVoucherNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblVoucherNoLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblVoucherNoLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblVoucherNoLabel.Location = new Point(15, 7);
         lblVoucherNoLabel.Name = "lblVoucherNoLabel";
         lblVoucherNoLabel.Size = new Size(104, 20);
@@ -189,7 +189,7 @@ partial class frmStocktakingPrintAdjustment
         lblVoucherNoValue.AutoSize = true;
         lblVoucherNoValue.Dock = DockStyle.Fill;
         lblVoucherNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblVoucherNoValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblVoucherNoValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblVoucherNoValue.Location = new Point(125, 7);
         lblVoucherNoValue.Name = "lblVoucherNoValue";
         lblVoucherNoValue.Size = new Size(258, 20);
@@ -202,7 +202,7 @@ partial class frmStocktakingPrintAdjustment
         lblDateLabel.AutoSize = true;
         lblDateLabel.Dock = DockStyle.Fill;
         lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDateLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblDateLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblDateLabel.Location = new Point(15, 33);
         lblDateLabel.Name = "lblDateLabel";
         lblDateLabel.Size = new Size(104, 20);
@@ -215,7 +215,7 @@ partial class frmStocktakingPrintAdjustment
         lblDateValue.AutoSize = true;
         lblDateValue.Dock = DockStyle.Fill;
         lblDateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblDateValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblDateValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblDateValue.Location = new Point(125, 33);
         lblDateValue.Name = "lblDateValue";
         lblDateValue.Size = new Size(258, 20);
@@ -228,7 +228,7 @@ partial class frmStocktakingPrintAdjustment
         lblWarehouseLabel.AutoSize = true;
         lblWarehouseLabel.Dock = DockStyle.Fill;
         lblWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblWarehouseLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblWarehouseLabel.Location = new Point(15, 59);
         lblWarehouseLabel.Name = "lblWarehouseLabel";
         lblWarehouseLabel.Size = new Size(104, 20);
@@ -241,7 +241,7 @@ partial class frmStocktakingPrintAdjustment
         lblWarehouseValue.AutoEllipsis = true;
         lblWarehouseValue.Dock = DockStyle.Fill;
         lblWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouseValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblWarehouseValue.Location = new Point(125, 59);
         lblWarehouseValue.Name = "lblWarehouseValue";
         lblWarehouseValue.Size = new Size(258, 20);
@@ -254,7 +254,7 @@ partial class frmStocktakingPrintAdjustment
         lblReasonLabel.AutoSize = true;
         lblReasonLabel.Dock = DockStyle.Fill;
         lblReasonLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblReasonLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblReasonLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblReasonLabel.Location = new Point(15, 85);
         lblReasonLabel.Name = "lblReasonLabel";
         lblReasonLabel.Size = new Size(104, 24);
@@ -267,7 +267,7 @@ partial class frmStocktakingPrintAdjustment
         lblReasonValue.AutoEllipsis = true;
         lblReasonValue.Dock = DockStyle.Fill;
         lblReasonValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblReasonValue.ForeColor = Color.FromArgb(220, 53, 69);
+        lblReasonValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         lblReasonValue.Location = new Point(125, 85);
         lblReasonValue.Name = "lblReasonValue";
         lblReasonValue.Size = new Size(258, 24);
@@ -280,7 +280,7 @@ partial class frmStocktakingPrintAdjustment
         lblItemCountLabel.AutoSize = true;
         lblItemCountLabel.Dock = DockStyle.Fill;
         lblItemCountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblItemCountLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblItemCountLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblItemCountLabel.Location = new Point(15, 115);
         lblItemCountLabel.Name = "lblItemCountLabel";
         lblItemCountLabel.Size = new Size(104, 20);
@@ -293,7 +293,7 @@ partial class frmStocktakingPrintAdjustment
         lblItemCountValue.AutoEllipsis = true;
         lblItemCountValue.Dock = DockStyle.Fill;
         lblItemCountValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblItemCountValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblItemCountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblItemCountValue.Location = new Point(125, 115);
         lblItemCountValue.Name = "lblItemCountValue";
         lblItemCountValue.Size = new Size(258, 20);
@@ -306,7 +306,7 @@ partial class frmStocktakingPrintAdjustment
         lblTotalLabel.AutoSize = true;
         lblTotalLabel.Dock = DockStyle.Fill;
         lblTotalLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblTotalLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblTotalLabel.Location = new Point(15, 141);
         lblTotalLabel.Name = "lblTotalLabel";
         lblTotalLabel.Size = new Size(104, 42);
@@ -316,11 +316,11 @@ partial class frmStocktakingPrintAdjustment
         // 
         // lblTotalValue
         // 
-        lblTotalValue.BackColor = Color.FromArgb(235, 245, 235);
+        lblTotalValue.BackColor = System.Drawing.Color.White;
         lblTotalValue.BorderStyle = BorderStyle.FixedSingle;
         lblTotalValue.Dock = DockStyle.Fill;
         lblTotalValue.Font = new Font("Tahoma", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalValue.Location = new Point(125, 141);
         lblTotalValue.Name = "lblTotalValue";
         lblTotalValue.Size = new Size(258, 42);
@@ -330,7 +330,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlDashedSeparator
         // 
-        pnlDashedSeparator.BackColor = Color.White;
+        pnlDashedSeparator.BackColor = System.Drawing.Color.White;
         pnlDashedSeparator.Location = new Point(0, 264);
         pnlDashedSeparator.Name = "pnlDashedSeparator";
         pnlDashedSeparator.Size = new Size(398, 14);
@@ -339,9 +339,9 @@ partial class frmStocktakingPrintAdjustment
         // 
         // lblCardFooter
         // 
-        lblCardFooter.BackColor = Color.White;
+        lblCardFooter.BackColor = System.Drawing.Color.White;
         lblCardFooter.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCardFooter.ForeColor = Color.FromArgb(108, 117, 125);
+        lblCardFooter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         lblCardFooter.Location = new Point(0, 278);
         lblCardFooter.Name = "lblCardFooter";
         lblCardFooter.Size = new Size(398, 108);
@@ -351,7 +351,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
@@ -362,7 +362,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
+        lblFooterLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Height = 2;
         lblFooterLine.Name = "lblFooterLine";
@@ -371,11 +371,11 @@ partial class frmStocktakingPrintAdjustment
         // btnPrint
         // 
         btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
+        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnPrint.FlatAppearance.BorderSize = 0;
         btnPrint.FlatStyle = FlatStyle.Flat;
         btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnPrint.ForeColor = Color.White;
+        btnPrint.ForeColor = System.Drawing.Color.White;
         btnPrint.Location = new Point(288, 12);
         btnPrint.Name = "btnPrint";
         btnPrint.Size = new Size(132, 42);
@@ -387,12 +387,12 @@ partial class frmStocktakingPrintAdjustment
         // btnClose
         // 
         btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -404,7 +404,7 @@ partial class frmStocktakingPrintAdjustment
         // frmStocktakingPrintAdjustment
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(440, 520);
         Controls.Add(pnlFooter);

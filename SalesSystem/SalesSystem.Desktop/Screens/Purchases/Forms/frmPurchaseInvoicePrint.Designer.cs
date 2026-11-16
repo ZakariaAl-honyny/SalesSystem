@@ -60,7 +60,7 @@ partial class frmPurchaseInvoicePrint
         // pnlHeader
         // 
         // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
-        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
@@ -71,10 +71,10 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblTitle
         // 
-        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
+        lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTitle.ForeColor = Color.White;
+        lblTitle.ForeColor = System.Drawing.Color.White;
         lblTitle.Location = new Point(0, 0);
         lblTitle.Name = "lblTitle";
         lblTitle.Size = new Size(440, 42);
@@ -87,7 +87,7 @@ partial class frmPurchaseInvoicePrint
         lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         lblMockBadge.AutoSize = true;
         lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
+        lblMockBadge.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(241), Convert.ToInt32(196), Convert.ToInt32(15));
         lblMockBadge.Location = new Point(312, 13);
         lblMockBadge.Name = "lblMockBadge";
         lblMockBadge.Size = new Size(112, 21);
@@ -96,7 +96,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = Color.FromArgb(14, 82, 52);
+        lblAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Height = 4;
         lblAccent.Name = "lblAccent";
@@ -104,7 +104,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // pnlPreviewCard
         // 
-        pnlPreviewCard.BackColor = Color.White;
+        pnlPreviewCard.BackColor = System.Drawing.Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
         // RULE-N125 — ترتيب الإضافة يحكم الإرساء: العنصر المرسى أعلى البطاقة يُضاف أخيراً
         // (الأبناء يُرسون من آخر المجموعة إلى أولها) فيظهر الرأس ثم الحقول ثم الفاصل ثم التذييل.
@@ -120,7 +120,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // pnlCardHeader
         // 
-        pnlCardHeader.BackColor = Color.White;
+        pnlCardHeader.BackColor = System.Drawing.Color.White;
         pnlCardHeader.Controls.Add(lblInvoiceTitle);
         pnlCardHeader.Controls.Add(lblStoreName);
         pnlCardHeader.Dock = DockStyle.Top;
@@ -132,7 +132,7 @@ partial class frmPurchaseInvoicePrint
         // 
         lblStoreName.Dock = DockStyle.Top;
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(14, 82, 52);
+        lblStoreName.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(398, 30);
@@ -144,7 +144,7 @@ partial class frmPurchaseInvoicePrint
         // 
         lblInvoiceTitle.Dock = DockStyle.Top;
         lblInvoiceTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblInvoiceTitle.ForeColor = Color.FromArgb(14, 82, 52);
+        lblInvoiceTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblInvoiceTitle.Location = new Point(0, 30);
         lblInvoiceTitle.Name = "lblInvoiceTitle";
         lblInvoiceTitle.Size = new Size(398, 40);
@@ -154,7 +154,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // tblFields
         // 
-        tblFields.BackColor = Color.White;
+        tblFields.BackColor = System.Drawing.Color.White;
         tblFields.ColumnCount = 2;
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -205,7 +205,7 @@ partial class frmPurchaseInvoicePrint
         lblInvoiceNoLabel.AutoSize = true;
         lblInvoiceNoLabel.Dock = DockStyle.Fill;
         lblInvoiceNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblInvoiceNoLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblInvoiceNoLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblInvoiceNoLabel.Location = new Point(15, 7);
         lblInvoiceNoLabel.Name = "lblInvoiceNoLabel";
         lblInvoiceNoLabel.Size = new Size(104, 18);
@@ -218,7 +218,7 @@ partial class frmPurchaseInvoicePrint
         lblInvoiceNoValue.AutoSize = true;
         lblInvoiceNoValue.Dock = DockStyle.Fill;
         lblInvoiceNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblInvoiceNoValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblInvoiceNoValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblInvoiceNoValue.Location = new Point(125, 7);
         lblInvoiceNoValue.Name = "lblInvoiceNoValue";
         lblInvoiceNoValue.Size = new Size(258, 18);
@@ -231,7 +231,7 @@ partial class frmPurchaseInvoicePrint
         lblDateLabel.AutoSize = true;
         lblDateLabel.Dock = DockStyle.Fill;
         lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDateLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblDateLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblDateLabel.Location = new Point(15, 31);
         lblDateLabel.Name = "lblDateLabel";
         lblDateLabel.Size = new Size(104, 18);
@@ -244,7 +244,7 @@ partial class frmPurchaseInvoicePrint
         lblDateValue.AutoSize = true;
         lblDateValue.Dock = DockStyle.Fill;
         lblDateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblDateValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblDateValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblDateValue.Location = new Point(125, 31);
         lblDateValue.Name = "lblDateValue";
         lblDateValue.Size = new Size(258, 18);
@@ -257,7 +257,7 @@ partial class frmPurchaseInvoicePrint
         lblSupplierLabel.AutoSize = true;
         lblSupplierLabel.Dock = DockStyle.Fill;
         lblSupplierLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSupplierLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblSupplierLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblSupplierLabel.Location = new Point(15, 55);
         lblSupplierLabel.Name = "lblSupplierLabel";
         lblSupplierLabel.Size = new Size(104, 18);
@@ -270,7 +270,7 @@ partial class frmPurchaseInvoicePrint
         lblSupplierValue.AutoEllipsis = true;
         lblSupplierValue.Dock = DockStyle.Fill;
         lblSupplierValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblSupplierValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblSupplierValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblSupplierValue.Location = new Point(125, 55);
         lblSupplierValue.Name = "lblSupplierValue";
         lblSupplierValue.Size = new Size(258, 18);
@@ -283,7 +283,7 @@ partial class frmPurchaseInvoicePrint
         lblWarehouseLabel.AutoSize = true;
         lblWarehouseLabel.Dock = DockStyle.Fill;
         lblWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblWarehouseLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblWarehouseLabel.Location = new Point(15, 79);
         lblWarehouseLabel.Name = "lblWarehouseLabel";
         lblWarehouseLabel.Size = new Size(104, 18);
@@ -296,7 +296,7 @@ partial class frmPurchaseInvoicePrint
         lblWarehouseValue.AutoEllipsis = true;
         lblWarehouseValue.Dock = DockStyle.Fill;
         lblWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouseValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblWarehouseValue.Location = new Point(125, 79);
         lblWarehouseValue.Name = "lblWarehouseValue";
         lblWarehouseValue.Size = new Size(258, 18);
@@ -309,7 +309,7 @@ partial class frmPurchaseInvoicePrint
         lblSubTotalLabel.AutoSize = true;
         lblSubTotalLabel.Dock = DockStyle.Fill;
         lblSubTotalLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSubTotalLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblSubTotalLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblSubTotalLabel.Location = new Point(15, 103);
         lblSubTotalLabel.Name = "lblSubTotalLabel";
         lblSubTotalLabel.Size = new Size(104, 18);
@@ -322,7 +322,7 @@ partial class frmPurchaseInvoicePrint
         lblSubTotalValue.AutoSize = true;
         lblSubTotalValue.Dock = DockStyle.Fill;
         lblSubTotalValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblSubTotalValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblSubTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblSubTotalValue.Location = new Point(125, 103);
         lblSubTotalValue.Name = "lblSubTotalValue";
         lblSubTotalValue.Size = new Size(258, 18);
@@ -335,7 +335,7 @@ partial class frmPurchaseInvoicePrint
         lblDiscountLabel.AutoSize = true;
         lblDiscountLabel.Dock = DockStyle.Fill;
         lblDiscountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDiscountLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblDiscountLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblDiscountLabel.Location = new Point(15, 127);
         lblDiscountLabel.Name = "lblDiscountLabel";
         lblDiscountLabel.Size = new Size(104, 18);
@@ -348,7 +348,7 @@ partial class frmPurchaseInvoicePrint
         lblDiscountValue.AutoSize = true;
         lblDiscountValue.Dock = DockStyle.Fill;
         lblDiscountValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblDiscountValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblDiscountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblDiscountValue.Location = new Point(125, 127);
         lblDiscountValue.Name = "lblDiscountValue";
         lblDiscountValue.Size = new Size(258, 18);
@@ -361,7 +361,7 @@ partial class frmPurchaseInvoicePrint
         lblTaxLabel.AutoSize = true;
         lblTaxLabel.Dock = DockStyle.Fill;
         lblTaxLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTaxLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblTaxLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblTaxLabel.Location = new Point(15, 151);
         lblTaxLabel.Name = "lblTaxLabel";
         lblTaxLabel.Size = new Size(104, 18);
@@ -374,7 +374,7 @@ partial class frmPurchaseInvoicePrint
         lblTaxValue.AutoSize = true;
         lblTaxValue.Dock = DockStyle.Fill;
         lblTaxValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblTaxValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTaxValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTaxValue.Location = new Point(125, 151);
         lblTaxValue.Name = "lblTaxValue";
         lblTaxValue.Size = new Size(258, 18);
@@ -387,7 +387,7 @@ partial class frmPurchaseInvoicePrint
         lblTotalLabel.AutoSize = true;
         lblTotalLabel.Dock = DockStyle.Fill;
         lblTotalLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblTotalLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblTotalLabel.Location = new Point(15, 175);
         lblTotalLabel.Name = "lblTotalLabel";
         lblTotalLabel.Size = new Size(104, 38);
@@ -397,11 +397,11 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblTotalValue
         // 
-        lblTotalValue.BackColor = Color.FromArgb(235, 245, 235);
+        lblTotalValue.BackColor = System.Drawing.Color.White;
         lblTotalValue.BorderStyle = BorderStyle.FixedSingle;
         lblTotalValue.Dock = DockStyle.Fill;
         lblTotalValue.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalValue.Location = new Point(125, 175);
         lblTotalValue.Name = "lblTotalValue";
         lblTotalValue.Size = new Size(258, 38);
@@ -414,7 +414,7 @@ partial class frmPurchaseInvoicePrint
         lblPaidLabel.AutoSize = true;
         lblPaidLabel.Dock = DockStyle.Fill;
         lblPaidLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblPaidLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblPaidLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblPaidLabel.Location = new Point(15, 219);
         lblPaidLabel.Name = "lblPaidLabel";
         lblPaidLabel.Size = new Size(104, 18);
@@ -427,7 +427,7 @@ partial class frmPurchaseInvoicePrint
         lblPaidValue.AutoSize = true;
         lblPaidValue.Dock = DockStyle.Fill;
         lblPaidValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblPaidValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblPaidValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblPaidValue.Location = new Point(125, 219);
         lblPaidValue.Name = "lblPaidValue";
         lblPaidValue.Size = new Size(258, 18);
@@ -440,7 +440,7 @@ partial class frmPurchaseInvoicePrint
         lblRemainingLabel.AutoSize = true;
         lblRemainingLabel.Dock = DockStyle.Fill;
         lblRemainingLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblRemainingLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblRemainingLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblRemainingLabel.Location = new Point(15, 243);
         lblRemainingLabel.Name = "lblRemainingLabel";
         lblRemainingLabel.Size = new Size(104, 18);
@@ -453,7 +453,7 @@ partial class frmPurchaseInvoicePrint
         lblRemainingValue.AutoSize = true;
         lblRemainingValue.Dock = DockStyle.Fill;
         lblRemainingValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblRemainingValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblRemainingValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblRemainingValue.Location = new Point(125, 243);
         lblRemainingValue.Name = "lblRemainingValue";
         lblRemainingValue.Size = new Size(258, 18);
@@ -466,7 +466,7 @@ partial class frmPurchaseInvoicePrint
         lblTafqitLabel.AutoSize = true;
         lblTafqitLabel.Dock = DockStyle.Fill;
         lblTafqitLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTafqitLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblTafqitLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblTafqitLabel.Location = new Point(15, 267);
         lblTafqitLabel.Name = "lblTafqitLabel";
         lblTafqitLabel.Size = new Size(104, 34);
@@ -479,7 +479,7 @@ partial class frmPurchaseInvoicePrint
         lblTafqitValue.AutoEllipsis = true;
         lblTafqitValue.Dock = DockStyle.Fill;
         lblTafqitValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTafqitValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblTafqitValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTafqitValue.Location = new Point(125, 267);
         lblTafqitValue.Name = "lblTafqitValue";
         lblTafqitValue.Size = new Size(258, 34);
@@ -489,7 +489,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // pnlDashedSeparator
         // 
-        pnlDashedSeparator.BackColor = Color.White;
+        pnlDashedSeparator.BackColor = System.Drawing.Color.White;
         pnlDashedSeparator.Dock = DockStyle.Top;
         pnlDashedSeparator.Location = new Point(0, 382);
         pnlDashedSeparator.Name = "pnlDashedSeparator";
@@ -499,10 +499,10 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblThanks
         // 
-        lblThanks.BackColor = Color.White;
+        lblThanks.BackColor = System.Drawing.Color.White;
         lblThanks.Dock = DockStyle.Bottom;
         lblThanks.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblThanks.ForeColor = Color.FromArgb(108, 117, 125);
+        lblThanks.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         lblThanks.Location = new Point(0, 396);
         lblThanks.Name = "lblThanks";
         lblThanks.Size = new Size(398, 34);
@@ -512,7 +512,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
@@ -523,7 +523,7 @@ partial class frmPurchaseInvoicePrint
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
+        lblFooterLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Height = 2;
         lblFooterLine.Name = "lblFooterLine";
@@ -532,11 +532,11 @@ partial class frmPurchaseInvoicePrint
         // btnPrint
         // 
         btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
+        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnPrint.FlatAppearance.BorderSize = 0;
         btnPrint.FlatStyle = FlatStyle.Flat;
         btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnPrint.ForeColor = Color.White;
+        btnPrint.ForeColor = System.Drawing.Color.White;
         btnPrint.Location = new Point(288, 12);
         btnPrint.Name = "btnPrint";
         btnPrint.Size = new Size(132, 42);
@@ -548,12 +548,12 @@ partial class frmPurchaseInvoicePrint
         // btnClose
         // 
         btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -565,7 +565,7 @@ partial class frmPurchaseInvoicePrint
         // frmPurchaseInvoicePrint
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(440, 580);
         Controls.Add(pnlFooter);

@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Inventory.Forms
+namespace SalesSystem.Desktop.Screens.Inventory.Forms
 {
     partial class frmAddUpdateInventoryAdjustment
     {
@@ -78,14 +78,14 @@
             // toolTip1
             // 
             toolTip1.AutomaticDelay = 300;
-            toolTip1.BackColor = Color.White;
-            toolTip1.ForeColor = Color.Black;
+            toolTip1.BackColor = System.Drawing.Color.White;
+            toolTip1.ForeColor = System.Drawing.Color.Black;
             // 
             // liveTip
             // 
             liveTip.AutomaticDelay = 300;
-            liveTip.BackColor = Color.White;
-            liveTip.ForeColor = Color.Black;
+            liveTip.BackColor = System.Drawing.Color.White;
+            liveTip.ForeColor = System.Drawing.Color.Black;
             // 
             // cmsLines
             // 
@@ -110,10 +110,10 @@
             // 
             // lblMode
             // 
-            lblMode.BackColor = Color.FromArgb(14, 165, 103);
+            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblMode.Dock = DockStyle.Top;
             lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            lblMode.ForeColor = Color.White;
+            lblMode.ForeColor = System.Drawing.Color.White;
             lblMode.Location = new Point(0, 0);
             lblMode.Margin = new Padding(0);
             lblMode.Name = "lblMode";
@@ -124,13 +124,13 @@
             // 
             // gbToolbar
             // 
-            gbToolbar.BackColor = Color.FromArgb(235, 245, 235);
+            gbToolbar.BackColor = System.Drawing.Color.White;
             gbToolbar.Controls.Add(btnSaveDraft);
             gbToolbar.Controls.Add(btnPost);
             gbToolbar.Controls.Add(btnClose);
             gbToolbar.Dock = DockStyle.Top;
             gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            gbToolbar.ForeColor = Color.FromArgb(14, 82, 52);
+            gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbToolbar.Location = new Point(0, 50);
             gbToolbar.Margin = new Padding(0);
             gbToolbar.Name = "gbToolbar";
@@ -142,12 +142,12 @@
             // 
             // btnSaveDraft
             // 
-            btnSaveDraft.BackColor = Color.FromArgb(23, 162, 184);
+            btnSaveDraft.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnSaveDraft.Cursor = Cursors.Hand;
             btnSaveDraft.FlatAppearance.BorderSize = 0;
             btnSaveDraft.FlatStyle = FlatStyle.Flat;
             btnSaveDraft.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnSaveDraft.ForeColor = Color.White;
+            btnSaveDraft.ForeColor = System.Drawing.Color.White;
             btnSaveDraft.Location = new Point(1180, 22);
             btnSaveDraft.Name = "btnSaveDraft";
             btnSaveDraft.Size = new Size(140, 34);
@@ -158,12 +158,12 @@
             // 
             // btnPost
             // 
-            btnPost.BackColor = Color.FromArgb(40, 167, 69);
+            btnPost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             btnPost.Cursor = Cursors.Hand;
             btnPost.FlatAppearance.BorderSize = 0;
             btnPost.FlatStyle = FlatStyle.Flat;
             btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnPost.ForeColor = Color.White;
+            btnPost.ForeColor = System.Drawing.Color.White;
             btnPost.Location = new Point(1030, 22);
             btnPost.Name = "btnPost";
             btnPost.Size = new Size(140, 34);
@@ -174,13 +174,13 @@
             // 
             // btnClose
             // 
-            btnClose.BackColor = Color.FromArgb(108, 117, 125);
+            btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             btnClose.Cursor = Cursors.Hand;
             btnClose.DialogResult = DialogResult.Cancel;
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnClose.ForeColor = Color.White;
+            btnClose.ForeColor = System.Drawing.Color.White;
             btnClose.Location = new Point(890, 22);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(120, 34);
@@ -191,7 +191,7 @@
             // 
             // groupHeader
             // 
-            groupHeader.BackColor = Color.FromArgb(235, 245, 235);
+            groupHeader.BackColor = System.Drawing.Color.White;
             groupHeader.Controls.Add(lblAdjustmentNo);
             groupHeader.Controls.Add(txtAdjustmentNo);
             groupHeader.Controls.Add(lblWarehouse);
@@ -202,7 +202,7 @@
             groupHeader.Controls.Add(txtReason);
             groupHeader.Dock = DockStyle.Top;
             groupHeader.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            groupHeader.ForeColor = Color.FromArgb(14, 82, 52);
+            groupHeader.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             groupHeader.Location = new Point(0, 114);
             groupHeader.Margin = new Padding(0);
             groupHeader.Name = "groupHeader";
@@ -217,7 +217,7 @@
             // 
             lblAdjustmentNo.AutoSize = true;
             lblAdjustmentNo.Font = new Font("Tahoma", 10F);
-            lblAdjustmentNo.ForeColor = Color.FromArgb(14, 82, 52);
+            lblAdjustmentNo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblAdjustmentNo.Location = new Point(1200, 26);
             lblAdjustmentNo.Name = "lblAdjustmentNo";
             lblAdjustmentNo.Size = new Size(120, 24);
@@ -226,7 +226,7 @@
             // 
             // txtAdjustmentNo
             // 
-            txtAdjustmentNo.BackColor = Color.White;
+            txtAdjustmentNo.BackColor = System.Drawing.Color.White;
             txtAdjustmentNo.Font = new Font("Tahoma", 10F);
             txtAdjustmentNo.Location = new Point(1040, 23);
             txtAdjustmentNo.Name = "txtAdjustmentNo";
@@ -239,7 +239,7 @@
             // 
             lblWarehouse.AutoSize = true;
             lblWarehouse.Font = new Font("Tahoma", 10F);
-            lblWarehouse.ForeColor = Color.FromArgb(14, 82, 52);
+            lblWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblWarehouse.Location = new Point(900, 26);
             lblWarehouse.Name = "lblWarehouse";
             lblWarehouse.Size = new Size(100, 24);
@@ -248,7 +248,7 @@
             // 
             // cmbWarehouse
             // 
-            cmbWarehouse.BackColor = Color.White;
+            cmbWarehouse.BackColor = System.Drawing.Color.White;
             cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbWarehouse.FlatStyle = FlatStyle.Flat;
             cmbWarehouse.Font = new Font("Tahoma", 10F);
@@ -262,7 +262,7 @@
             // 
             lblAdjustmentType.AutoSize = true;
             lblAdjustmentType.Font = new Font("Tahoma", 10F);
-            lblAdjustmentType.ForeColor = Color.FromArgb(14, 82, 52);
+            lblAdjustmentType.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblAdjustmentType.Location = new Point(556, 26);
             lblAdjustmentType.Name = "lblAdjustmentType";
             lblAdjustmentType.Size = new Size(120, 24);
@@ -271,7 +271,7 @@
             // 
             // cmbAdjustmentType
             // 
-            cmbAdjustmentType.BackColor = Color.White;
+            cmbAdjustmentType.BackColor = System.Drawing.Color.White;
             cmbAdjustmentType.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbAdjustmentType.FlatStyle = FlatStyle.Flat;
             cmbAdjustmentType.Font = new Font("Tahoma", 10F);
@@ -285,7 +285,7 @@
             // 
             lblReason.AutoSize = true;
             lblReason.Font = new Font("Tahoma", 10F);
-            lblReason.ForeColor = Color.FromArgb(14, 82, 52);
+            lblReason.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblReason.Location = new Point(1200, 78);
             lblReason.Name = "lblReason";
             lblReason.Size = new Size(80, 24);
@@ -294,7 +294,7 @@
             // 
             // txtReason
             // 
-            txtReason.BackColor = Color.White;
+            txtReason.BackColor = System.Drawing.Color.White;
             txtReason.Font = new Font("Tahoma", 10F);
             txtReason.Location = new Point(860, 75);
             txtReason.Name = "txtReason";
@@ -303,7 +303,7 @@
             // 
             // gbTotals
             // 
-            gbTotals.BackColor = Color.FromArgb(235, 245, 235);
+            gbTotals.BackColor = System.Drawing.Color.White;
             gbTotals.Controls.Add(label1);
             gbTotals.Controls.Add(lblLinesCount);
             gbTotals.Controls.Add(lblTotalsDiffTitle);
@@ -312,7 +312,7 @@
             gbTotals.Controls.Add(txtTotalsValue);
             gbTotals.Dock = DockStyle.Bottom;
             gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            gbTotals.ForeColor = Color.FromArgb(14, 82, 52);
+            gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbTotals.Location = new Point(0, 704);
             gbTotals.Margin = new Padding(0);
             gbTotals.Name = "gbTotals";
@@ -326,7 +326,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            label1.ForeColor = Color.FromArgb(14, 82, 52);
+            label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             label1.Location = new Point(1180, 24);
             label1.Name = "label1";
             label1.Size = new Size(110, 24);
@@ -337,7 +337,7 @@
             // 
             lblLinesCount.AutoSize = true;
             lblLinesCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblLinesCount.ForeColor = Color.FromArgb(14, 82, 52);
+            lblLinesCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblLinesCount.Location = new Point(1100, 24);
             lblLinesCount.Name = "lblLinesCount";
             lblLinesCount.Size = new Size(28, 24);
@@ -348,7 +348,7 @@
             // 
             lblTotalsDiffTitle.AutoSize = true;
             lblTotalsDiffTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblTotalsDiffTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalsDiffTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblTotalsDiffTitle.Location = new Point(900, 24);
             lblTotalsDiffTitle.Name = "lblTotalsDiffTitle";
             lblTotalsDiffTitle.Size = new Size(180, 24);
@@ -359,7 +359,7 @@
             // 
             lblTotalsDiff.AutoSize = true;
             lblTotalsDiff.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblTotalsDiff.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalsDiff.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblTotalsDiff.Location = new Point(750, 24);
             lblTotalsDiff.Name = "lblTotalsDiff";
             lblTotalsDiff.Size = new Size(60, 24);
@@ -370,7 +370,7 @@
             // 
             lblTotalsValueTitle.AutoSize = true;
             lblTotalsValueTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblTotalsValueTitle.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalsValueTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblTotalsValueTitle.Location = new Point(600, 24);
             lblTotalsValueTitle.Name = "lblTotalsValueTitle";
             lblTotalsValueTitle.Size = new Size(110, 24);
@@ -379,7 +379,7 @@
             // 
             // txtTotalsValue
             // 
-            txtTotalsValue.BackColor = Color.White;
+            txtTotalsValue.BackColor = System.Drawing.Color.White;
             txtTotalsValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             txtTotalsValue.Location = new Point(420, 21);
             txtTotalsValue.Name = "txtTotalsValue";
@@ -392,13 +392,13 @@
             // 
             // groupLines
             // 
-            groupLines.BackColor = Color.FromArgb(235, 245, 235);
+            groupLines.BackColor = System.Drawing.Color.White;
             groupLines.Controls.Add(dgvLines);
             groupLines.Controls.Add(lblEmpty);
             groupLines.Controls.Add(pnlLineEntry);
             groupLines.Dock = DockStyle.Fill;
             groupLines.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            groupLines.ForeColor = Color.FromArgb(14, 82, 52);
+            groupLines.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             groupLines.Location = new Point(0, 238);
             groupLines.Margin = new Padding(0);
             groupLines.Name = "groupLines";
@@ -414,24 +414,24 @@
             dgvLines.AllowUserToAddRows = false;
             dgvLines.AllowUserToDeleteRows = false;
             dgvLines.AllowUserToOrderColumns = true;
-            dgvLines.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+            dgvLines.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             dgvLines.AutoGenerateColumns = false;
             dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvLines.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvLines.BackgroundColor = System.Drawing.Color.White;
             dgvLines.BorderStyle = BorderStyle.None;
-            dgvLines.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
-            dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-            dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvLines.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+            dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+            dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             dgvLines.ColumnHeadersHeight = 45;
             dgvLines.ContextMenuStrip = cmsLines;
-            dgvLines.DefaultCellStyle.BackColor = Color.White;
-            dgvLines.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvLines.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-            dgvLines.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvLines.DefaultCellStyle.BackColor = System.Drawing.Color.White;
+            dgvLines.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            dgvLines.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            dgvLines.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             dgvLines.Dock = DockStyle.Fill;
             dgvLines.EnableHeadersVisualStyles = false;
-            dgvLines.GridColor = Color.FromArgb(205, 225, 205);
+            dgvLines.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             dgvLines.Location = new Point(8, 123);
             dgvLines.Margin = new Padding(0);
             dgvLines.MultiSelect = false;
@@ -447,10 +447,10 @@
             // 
             // lblEmpty
             // 
-            lblEmpty.BackColor = Color.Transparent;
+            lblEmpty.BackColor = System.Drawing.Color.Transparent;
             lblEmpty.Dock = DockStyle.Fill;
             lblEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-            lblEmpty.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblEmpty.Location = new Point(8, 123);
             lblEmpty.Margin = new Padding(0);
             lblEmpty.Name = "lblEmpty";
@@ -462,7 +462,7 @@
             // 
             // pnlLineEntry
             // 
-            pnlLineEntry.BackColor = Color.FromArgb(235, 240, 235);
+            pnlLineEntry.BackColor = System.Drawing.Color.White;
             pnlLineEntry.Controls.Add(lblEntryProduct);
             pnlLineEntry.Controls.Add(txtEntryProduct);
             pnlLineEntry.Controls.Add(btnPickProduct);
@@ -483,7 +483,7 @@
             // lblEntryProduct
             // 
             lblEntryProduct.Font = new Font("Tahoma", 10F);
-            lblEntryProduct.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblEntryProduct.Location = new Point(1250, 20);
             lblEntryProduct.Name = "lblEntryProduct";
             lblEntryProduct.Size = new Size(70, 26);
@@ -493,7 +493,7 @@
             // 
             // txtEntryProduct
             // 
-            txtEntryProduct.BackColor = Color.White;
+            txtEntryProduct.BackColor = System.Drawing.Color.White;
             txtEntryProduct.Font = new Font("Tahoma", 10F);
             txtEntryProduct.Location = new Point(940, 14);
             txtEntryProduct.Name = "txtEntryProduct";
@@ -505,12 +505,12 @@
             // 
             // btnPickProduct
             // 
-            btnPickProduct.BackColor = Color.FromArgb(13, 110, 253);
+            btnPickProduct.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
             btnPickProduct.Cursor = Cursors.Hand;
             btnPickProduct.FlatAppearance.BorderSize = 0;
             btnPickProduct.FlatStyle = FlatStyle.Flat;
             btnPickProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnPickProduct.ForeColor = Color.White;
+            btnPickProduct.ForeColor = System.Drawing.Color.White;
             btnPickProduct.Location = new Point(790, 13);
             btnPickProduct.Name = "btnPickProduct";
             btnPickProduct.Size = new Size(130, 34);
@@ -522,7 +522,7 @@
             // lblEntryExpected
             // 
             lblEntryExpected.Font = new Font("Tahoma", 10F);
-            lblEntryExpected.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryExpected.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblEntryExpected.Location = new Point(1200, 62);
             lblEntryExpected.Name = "lblEntryExpected";
             lblEntryExpected.Size = new Size(140, 26);
@@ -532,7 +532,7 @@
             // 
             // txtEntryExpected
             // 
-            txtEntryExpected.BackColor = Color.White;
+            txtEntryExpected.BackColor = System.Drawing.Color.White;
             txtEntryExpected.Font = new Font("Tahoma", 10F);
             txtEntryExpected.Location = new Point(1050, 56);
             txtEntryExpected.Name = "txtEntryExpected";
@@ -543,7 +543,7 @@
             // lblEntryActual
             // 
             lblEntryActual.Font = new Font("Tahoma", 10F);
-            lblEntryActual.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryActual.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblEntryActual.Location = new Point(900, 62);
             lblEntryActual.Name = "lblEntryActual";
             lblEntryActual.Size = new Size(140, 26);
@@ -553,7 +553,7 @@
             // 
             // txtEntryActual
             // 
-            txtEntryActual.BackColor = Color.White;
+            txtEntryActual.BackColor = System.Drawing.Color.White;
             txtEntryActual.Font = new Font("Tahoma", 10F);
             txtEntryActual.Location = new Point(750, 56);
             txtEntryActual.Name = "txtEntryActual";
@@ -564,7 +564,7 @@
             // lblEntryUnitCost
             // 
             lblEntryUnitCost.Font = new Font("Tahoma", 10F);
-            lblEntryUnitCost.ForeColor = Color.FromArgb(14, 82, 52);
+            lblEntryUnitCost.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblEntryUnitCost.Location = new Point(610, 62);
             lblEntryUnitCost.Name = "lblEntryUnitCost";
             lblEntryUnitCost.Size = new Size(130, 26);
@@ -574,7 +574,7 @@
             // 
             // txtEntryUnitCost
             // 
-            txtEntryUnitCost.BackColor = Color.White;
+            txtEntryUnitCost.BackColor = System.Drawing.Color.White;
             txtEntryUnitCost.Font = new Font("Tahoma", 10F);
             txtEntryUnitCost.Location = new Point(460, 56);
             txtEntryUnitCost.Name = "txtEntryUnitCost";
@@ -584,12 +584,12 @@
             // 
             // btnAddLine
             // 
-            btnAddLine.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             btnAddLine.Cursor = Cursors.Hand;
             btnAddLine.FlatAppearance.BorderSize = 0;
             btnAddLine.FlatStyle = FlatStyle.Flat;
             btnAddLine.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnAddLine.ForeColor = Color.White;
+            btnAddLine.ForeColor = System.Drawing.Color.White;
             btnAddLine.Location = new Point(310, 55);
             btnAddLine.Name = "btnAddLine";
             btnAddLine.Size = new Size(140, 34);
@@ -602,7 +602,7 @@
             // 
             AcceptButton = null;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             CancelButton = btnClose;
             ClientSize = new Size(1360, 780);
             Controls.Add(groupLines);

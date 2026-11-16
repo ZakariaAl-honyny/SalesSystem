@@ -65,7 +65,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlTitle
             // 
-            pnlTitle.BackColor = Color.FromArgb(14, 165, 103);
+            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             pnlTitle.Controls.Add(lblTitle);
             pnlTitle.Dock = DockStyle.Top;
             pnlTitle.Location = new Point(0, 0);
@@ -76,10 +76,10 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // lblTitle
             // 
-            lblTitle.BackColor = Color.FromArgb(14, 165, 103);
+            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblTitle.Dock = DockStyle.Fill;
             lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTitle.ForeColor = Color.White;
+            lblTitle.ForeColor = System.Drawing.Color.White;
             lblTitle.Location = new Point(0, 0);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(540, 46);
@@ -120,11 +120,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbCosts
             // 
-            gbCosts.BackColor = Color.FromArgb(235, 245, 235);
+            gbCosts.BackColor = System.Drawing.Color.White;
             gbCosts.Controls.Add(tblCosts);
             gbCosts.Dock = DockStyle.Fill;
             gbCosts.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbCosts.ForeColor = Color.FromArgb(14, 82, 52);
+            gbCosts.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbCosts.Location = new Point(3, 3);
             gbCosts.Name = "gbCosts";
             gbCosts.Padding = new Padding(10, 4, 10, 6);
@@ -159,7 +159,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             lblShipping.Dock = DockStyle.Fill;
             lblShipping.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblShipping.ForeColor = Color.FromArgb(14, 82, 52);
+            lblShipping.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblShipping.Margin = new Padding(0, 0, 8, 0);
             lblShipping.Name = "lblShipping";
             lblShipping.Size = new Size(142, 34);
@@ -169,7 +169,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // numShipping
             // 
-            numShipping.BackColor = Color.White;
+            numShipping.BackColor = System.Drawing.Color.White;
             numShipping.DecimalPlaces = 2;
             numShipping.Dock = DockStyle.Fill;
             numShipping.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -185,7 +185,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             lblCustoms.Dock = DockStyle.Fill;
             lblCustoms.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblCustoms.ForeColor = Color.FromArgb(14, 82, 52);
+            lblCustoms.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblCustoms.Margin = new Padding(0, 0, 8, 0);
             lblCustoms.Name = "lblCustoms";
             lblCustoms.Size = new Size(142, 34);
@@ -195,7 +195,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // numCustoms
             // 
-            numCustoms.BackColor = Color.White;
+            numCustoms.BackColor = System.Drawing.Color.White;
             numCustoms.DecimalPlaces = 2;
             numCustoms.Dock = DockStyle.Fill;
             numCustoms.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -211,7 +211,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             lblOther.Dock = DockStyle.Fill;
             lblOther.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblOther.ForeColor = Color.FromArgb(14, 82, 52);
+            lblOther.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblOther.Margin = new Padding(0, 0, 8, 0);
             lblOther.Name = "lblOther";
             lblOther.Size = new Size(142, 34);
@@ -238,7 +238,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // numOther
             // 
-            numOther.BackColor = Color.White;
+            numOther.BackColor = System.Drawing.Color.White;
             numOther.DecimalPlaces = 2;
             numOther.Dock = DockStyle.Fill;
             numOther.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -254,7 +254,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             lblStatementCaption.Dock = DockStyle.Fill;
             lblStatementCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblStatementCaption.ForeColor = Color.FromArgb(14, 82, 52);
+            lblStatementCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblStatementCaption.Margin = new Padding(8, 0, 8, 0);
             lblStatementCaption.Name = "lblStatementCaption";
             lblStatementCaption.Size = new Size(44, 28);
@@ -264,7 +264,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // txtStatement
             // 
-            txtStatement.BackColor = Color.White;
+            txtStatement.BackColor = System.Drawing.Color.White;
             txtStatement.BorderStyle = BorderStyle.FixedSingle;
             txtStatement.Dock = DockStyle.Fill;
             txtStatement.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -276,11 +276,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbTotal
             // 
-            gbTotal.BackColor = Color.FromArgb(235, 245, 235);
+            gbTotal.BackColor = System.Drawing.Color.White;
             gbTotal.Controls.Add(tblTotal);
             gbTotal.Dock = DockStyle.Fill;
             gbTotal.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbTotal.ForeColor = Color.FromArgb(14, 82, 52);
+            gbTotal.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbTotal.Location = new Point(3, 159);
             gbTotal.Name = "gbTotal";
             gbTotal.Padding = new Padding(10, 4, 10, 4);
@@ -308,7 +308,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             lblTotalCaption.Dock = DockStyle.Fill;
             lblTotalCaption.Font = new Font("Tahoma", 10.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalCaption.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblTotalCaption.Margin = new Padding(0, 0, 8, 0);
             lblTotalCaption.Name = "lblTotalCaption";
             lblTotalCaption.Size = new Size(182, 28);
@@ -318,10 +318,10 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // lblTotalValue
             // 
-            lblTotalValue.BackColor = Color.FromArgb(255, 255, 180);
+            lblTotalValue.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
             lblTotalValue.Dock = DockStyle.Fill;
             lblTotalValue.Font = new Font("Tahoma", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalValue.ForeColor = Color.FromArgb(14, 82, 52);
+            lblTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblTotalValue.Location = new Point(193, 0);
             lblTotalValue.Name = "lblTotalValue";
             lblTotalValue.Size = new Size(298, 28);
@@ -331,11 +331,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbNotes
             // 
-            gbNotes.BackColor = Color.FromArgb(235, 245, 235);
+            gbNotes.BackColor = System.Drawing.Color.White;
             gbNotes.Controls.Add(txtNotes);
             gbNotes.Dock = DockStyle.Fill;
             gbNotes.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbNotes.ForeColor = Color.FromArgb(14, 82, 52);
+            gbNotes.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbNotes.Location = new Point(3, 217);
             gbNotes.Name = "gbNotes";
             gbNotes.Padding = new Padding(10, 4, 10, 8);
@@ -347,7 +347,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // txtNotes
             // 
             txtNotes.AcceptsReturn = true;
-            txtNotes.BackColor = Color.White;
+            txtNotes.BackColor = System.Drawing.Color.White;
             txtNotes.BorderStyle = BorderStyle.FixedSingle;
             txtNotes.Dock = DockStyle.Fill;
             txtNotes.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -361,10 +361,10 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // lblNote
             // 
-            lblNote.BackColor = Color.FromArgb(235, 240, 235);
+            lblNote.BackColor = System.Drawing.Color.White;
             lblNote.Dock = DockStyle.Fill;
             lblNote.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            lblNote.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNote.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblNote.Location = new Point(3, 394);
             lblNote.Name = "lblNote";
             lblNote.Size = new Size(514, 20);
@@ -374,7 +374,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+            pnlFooter.BackColor = System.Drawing.Color.White;
             pnlFooter.Controls.Add(flpFooter);
             pnlFooter.Controls.Add(lblFooterLine);
             pnlFooter.Dock = DockStyle.Bottom;
@@ -386,7 +386,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // lblFooterLine
             // 
-            lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
+            lblFooterLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             lblFooterLine.Dock = DockStyle.Top;
             lblFooterLine.Location = new Point(0, 0);
             lblFooterLine.Name = "lblFooterLine";
@@ -395,7 +395,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flpFooter
             // 
-            flpFooter.BackColor = Color.FromArgb(235, 240, 235);
+            flpFooter.BackColor = System.Drawing.Color.White;
             flpFooter.Controls.Add(btnOk);
             flpFooter.Controls.Add(btnCancel);
             flpFooter.Dock = DockStyle.Fill;
@@ -409,11 +409,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // btnOk
             // 
-            btnOk.BackColor = Color.FromArgb(25, 135, 84);
+            btnOk.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
             btnOk.FlatAppearance.BorderSize = 0;
             btnOk.FlatStyle = FlatStyle.Flat;
             btnOk.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnOk.ForeColor = Color.White;
+            btnOk.ForeColor = System.Drawing.Color.White;
             btnOk.Location = new Point(380, 8);
             btnOk.Margin = new Padding(0, 0, 8, 0);
             btnOk.Name = "btnOk";
@@ -425,12 +425,12 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // btnCancel
             // 
-            btnCancel.BackColor = Color.FromArgb(248, 249, 250);
-            btnCancel.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+            btnCancel.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             btnCancel.FlatAppearance.BorderSize = 1;
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancel.ForeColor = Color.FromArgb(33, 37, 41);
+            btnCancel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             btnCancel.Location = new Point(280, 8);
             btnCancel.Margin = new Padding(0);
             btnCancel.Name = "btnCancel";
@@ -444,7 +444,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             AcceptButton = btnOk;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             CancelButton = btnCancel;
             ClientSize = new Size(540, 600);
             Controls.Add(pnlBody);

@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Expenses.Forms;
+namespace SalesSystem.Desktop.Screens.Expenses.Forms;
 
 partial class frmAddUpdateExpense
 {
@@ -51,7 +51,7 @@ partial class frmAddUpdateExpense
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -62,10 +62,10 @@ partial class frmAddUpdateExpense
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Margin = new Padding(0);
         lblMode.Name = "lblMode";
@@ -76,11 +76,11 @@ partial class frmAddUpdateExpense
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = Color.FromArgb(235, 245, 235);
+        gbToolbar.BackColor = System.Drawing.Color.White;
         gbToolbar.Controls.Add(flpToolbar);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbToolbar.ForeColor = Color.FromArgb(14, 82, 52);
+        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbToolbar.Location = new Point(0, 50);
         gbToolbar.Margin = new Padding(0);
         gbToolbar.Name = "gbToolbar";
@@ -92,7 +92,7 @@ partial class frmAddUpdateExpense
         // 
         // flpToolbar
         // 
-        flpToolbar.BackColor = Color.FromArgb(235, 240, 235);
+        flpToolbar.BackColor = System.Drawing.Color.White;
         flpToolbar.Controls.Add(btnSave);
         flpToolbar.Controls.Add(btnClose);
         flpToolbar.Dock = DockStyle.Fill;
@@ -107,11 +107,11 @@ partial class frmAddUpdateExpense
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(25, 135, 84);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(530, 6);
         btnSave.Margin = new Padding(4, 6, 4, 6);
         btnSave.Name = "btnSave";
@@ -123,11 +123,11 @@ partial class frmAddUpdateExpense
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(382, 6);
         btnClose.Margin = new Padding(4, 6, 4, 6);
         btnClose.Name = "btnClose";
@@ -139,7 +139,7 @@ partial class frmAddUpdateExpense
         // 
         // gbDocumentInfo
         // 
-        gbDocumentInfo.BackColor = Color.FromArgb(235, 245, 235);
+        gbDocumentInfo.BackColor = System.Drawing.Color.White;
         gbDocumentInfo.Controls.Add(label1);
         gbDocumentInfo.Controls.Add(dtpDate);
         gbDocumentInfo.Controls.Add(label2);
@@ -148,7 +148,7 @@ partial class frmAddUpdateExpense
         gbDocumentInfo.Controls.Add(numAmount);
         gbDocumentInfo.Dock = DockStyle.Top;
         gbDocumentInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbDocumentInfo.ForeColor = Color.FromArgb(14, 82, 52);
+        gbDocumentInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbDocumentInfo.Location = new Point(0, 134);
         gbDocumentInfo.Margin = new Padding(0);
         gbDocumentInfo.Name = "gbDocumentInfo";
@@ -161,7 +161,7 @@ partial class frmAddUpdateExpense
         // label1
         // 
         label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label1.ForeColor = Color.FromArgb(14, 82, 52);
+        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label1.Location = new Point(45, 32);
         label1.Margin = new Padding(0);
         label1.Name = "label1";
@@ -172,7 +172,7 @@ partial class frmAddUpdateExpense
         // 
         // dtpDate
         // 
-        dtpDate.BackColor = Color.White;
+        dtpDate.BackColor = System.Drawing.Color.White;
         dtpDate.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpDate.Format = DateTimePickerFormat.Short;
         dtpDate.Location = new Point(190, 30);
@@ -185,7 +185,7 @@ partial class frmAddUpdateExpense
         // label2
         // 
         label2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label2.ForeColor = Color.FromArgb(14, 82, 52);
+        label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label2.Location = new Point(45, 82);
         label2.Margin = new Padding(0);
         label2.Name = "label2";
@@ -196,7 +196,7 @@ partial class frmAddUpdateExpense
         // 
         // cmbCashBox
         // 
-        cmbCashBox.BackColor = Color.White;
+        cmbCashBox.BackColor = System.Drawing.Color.White;
         cmbCashBox.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCashBox.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmbCashBox.FormattingEnabled = true;
@@ -210,7 +210,7 @@ partial class frmAddUpdateExpense
         // label3
         // 
         label3.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label3.ForeColor = Color.FromArgb(14, 82, 52);
+        label3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label3.Location = new Point(45, 132);
         label3.Margin = new Padding(0);
         label3.Name = "label3";
@@ -221,7 +221,7 @@ partial class frmAddUpdateExpense
         // 
         // numAmount
         // 
-        numAmount.BackColor = Color.White;
+        numAmount.BackColor = System.Drawing.Color.White;
         numAmount.DecimalPlaces = 2;
         numAmount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         numAmount.Location = new Point(190, 130);
@@ -237,12 +237,12 @@ partial class frmAddUpdateExpense
         // 
         // gbDetails
         // 
-        gbDetails.BackColor = Color.FromArgb(235, 245, 235);
+        gbDetails.BackColor = System.Drawing.Color.White;
         gbDetails.Controls.Add(label4);
         gbDetails.Controls.Add(txtNotes);
         gbDetails.Dock = DockStyle.Top;
         gbDetails.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbDetails.ForeColor = Color.FromArgb(14, 82, 52);
+        gbDetails.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbDetails.Location = new Point(0, 310);
         gbDetails.Margin = new Padding(0);
         gbDetails.Name = "gbDetails";
@@ -255,7 +255,7 @@ partial class frmAddUpdateExpense
         // label4
         // 
         label4.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label4.ForeColor = Color.FromArgb(14, 82, 52);
+        label4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label4.Location = new Point(20, 28);
         label4.Margin = new Padding(0);
         label4.Name = "label4";
@@ -266,7 +266,7 @@ partial class frmAddUpdateExpense
         // 
         // txtNotes
         // 
-        txtNotes.BackColor = Color.White;
+        txtNotes.BackColor = System.Drawing.Color.White;
         txtNotes.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtNotes.Location = new Point(190, 26);
         txtNotes.Margin = new Padding(0);
@@ -279,12 +279,12 @@ partial class frmAddUpdateExpense
         // 
         // gbTotals
         // 
-        gbTotals.BackColor = Color.FromArgb(235, 245, 235);
+        gbTotals.BackColor = System.Drawing.Color.White;
         gbTotals.Controls.Add(label6);
         gbTotals.Controls.Add(lblNetTotalAmount);
         gbTotals.Dock = DockStyle.Top;
         gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbTotals.ForeColor = Color.FromArgb(14, 82, 52);
+        gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbTotals.Location = new Point(0, 426);
         gbTotals.Margin = new Padding(0);
         gbTotals.Name = "gbTotals";
@@ -297,7 +297,7 @@ partial class frmAddUpdateExpense
         // label6
         // 
         label6.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label6.ForeColor = Color.FromArgb(14, 82, 52);
+        label6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label6.Location = new Point(60, 22);
         label6.Margin = new Padding(0);
         label6.Name = "label6";
@@ -309,7 +309,7 @@ partial class frmAddUpdateExpense
         // lblNetTotalAmount
         // 
         lblNetTotalAmount.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNetTotalAmount.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNetTotalAmount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblNetTotalAmount.Location = new Point(230, 20);
         lblNetTotalAmount.Margin = new Padding(0);
         lblNetTotalAmount.Name = "lblNetTotalAmount";
@@ -320,7 +320,7 @@ partial class frmAddUpdateExpense
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(lblHint);
         pnlFooter.Dock = DockStyle.Bottom;
         pnlFooter.Location = new Point(0, 490);
@@ -333,7 +333,7 @@ partial class frmAddUpdateExpense
         // 
         lblHint.Dock = DockStyle.Fill;
         lblHint.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblHint.ForeColor = Color.FromArgb(14, 82, 52);
+        lblHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblHint.Location = new Point(0, 0);
         lblHint.Margin = new Padding(0);
         lblHint.Name = "lblHint";
@@ -346,14 +346,14 @@ partial class frmAddUpdateExpense
         // toolTip1
         // 
         toolTip1.AutomaticDelay = 300;
-        toolTip1.BackColor = Color.White;
-        toolTip1.ForeColor = Color.Black;
+        toolTip1.BackColor = System.Drawing.Color.White;
+        toolTip1.ForeColor = System.Drawing.Color.Black;
         // 
         // liveTip
         // 
         liveTip.AutomaticDelay = 300;
-        liveTip.BackColor = Color.White;
-        liveTip.ForeColor = Color.Black;
+        liveTip.BackColor = System.Drawing.Color.White;
+        liveTip.ForeColor = System.Drawing.Color.Black;
         // 
         // errorProvider
         // 
@@ -365,7 +365,7 @@ partial class frmAddUpdateExpense
         // 
         AcceptButton = btnSave;
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(700, 524);
         Controls.Add(pnlFooter);

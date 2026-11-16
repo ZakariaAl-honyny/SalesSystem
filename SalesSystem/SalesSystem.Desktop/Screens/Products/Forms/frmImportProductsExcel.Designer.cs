@@ -56,10 +56,10 @@ partial class frmImportProductsExcel
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1000, 48);
@@ -69,14 +69,14 @@ partial class frmImportProductsExcel
         // 
         // gbFile
         // 
-        gbFile.BackColor = Color.FromArgb(235, 245, 235);
+        gbFile.BackColor = System.Drawing.Color.White;
         gbFile.Controls.Add(btnSelectFile);
         gbFile.Controls.Add(btnDownloadTemplate);
         gbFile.Controls.Add(lblFileCaption);
         gbFile.Controls.Add(lblFilePath);
         gbFile.Dock = DockStyle.Top;
         gbFile.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbFile.ForeColor = Color.FromArgb(14, 82, 52);
+        gbFile.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbFile.Location = new Point(0, 48);
         gbFile.Name = "gbFile";
         gbFile.Padding = new Padding(8);
@@ -87,11 +87,11 @@ partial class frmImportProductsExcel
         // 
         // btnSelectFile
         // 
-        btnSelectFile.BackColor = Color.FromArgb(14, 165, 103);
+        btnSelectFile.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         btnSelectFile.FlatAppearance.BorderSize = 0;
         btnSelectFile.FlatStyle = FlatStyle.Flat;
         btnSelectFile.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnSelectFile.ForeColor = Color.White;
+        btnSelectFile.ForeColor = System.Drawing.Color.White;
         btnSelectFile.Location = new Point(808, 34);
         btnSelectFile.Name = "btnSelectFile";
         btnSelectFile.Size = new Size(160, 38);
@@ -102,11 +102,11 @@ partial class frmImportProductsExcel
         // 
         // btnDownloadTemplate
         // 
-        btnDownloadTemplate.BackColor = Color.FromArgb(108, 117, 125);
+        btnDownloadTemplate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnDownloadTemplate.FlatAppearance.BorderSize = 0;
         btnDownloadTemplate.FlatStyle = FlatStyle.Flat;
         btnDownloadTemplate.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnDownloadTemplate.ForeColor = Color.White;
+        btnDownloadTemplate.ForeColor = System.Drawing.Color.White;
         btnDownloadTemplate.Location = new Point(640, 34);
         btnDownloadTemplate.Name = "btnDownloadTemplate";
         btnDownloadTemplate.Size = new Size(160, 38);
@@ -127,10 +127,10 @@ partial class frmImportProductsExcel
         // 
         // lblFilePath
         // 
-        lblFilePath.BackColor = Color.White;
+        lblFilePath.BackColor = System.Drawing.Color.White;
         lblFilePath.BorderStyle = BorderStyle.FixedSingle;
         lblFilePath.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblFilePath.ForeColor = Color.FromArgb(33, 37, 41);
+        lblFilePath.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblFilePath.Location = new Point(24, 38);
         lblFilePath.Name = "lblFilePath";
         lblFilePath.Size = new Size(540, 30);
@@ -140,11 +140,11 @@ partial class frmImportProductsExcel
         // 
         // gbOptions
         // 
-        gbOptions.BackColor = Color.FromArgb(235, 245, 235);
+        gbOptions.BackColor = System.Drawing.Color.White;
         gbOptions.Controls.Add(btnGenerateBarcodes);
         gbOptions.Dock = DockStyle.Top;
         gbOptions.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbOptions.ForeColor = Color.FromArgb(14, 82, 52);
+        gbOptions.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbOptions.Location = new Point(0, 134);
         gbOptions.Name = "gbOptions";
         gbOptions.Padding = new Padding(8);
@@ -155,11 +155,11 @@ partial class frmImportProductsExcel
         // 
         // btnGenerateBarcodes
         // 
-        btnGenerateBarcodes.BackColor = Color.FromArgb(23, 162, 184);
+        btnGenerateBarcodes.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnGenerateBarcodes.FlatAppearance.BorderSize = 0;
         btnGenerateBarcodes.FlatStyle = FlatStyle.Flat;
         btnGenerateBarcodes.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnGenerateBarcodes.ForeColor = Color.White;
+        btnGenerateBarcodes.ForeColor = System.Drawing.Color.White;
         btnGenerateBarcodes.Location = new Point(718, 27);
         btnGenerateBarcodes.Name = "btnGenerateBarcodes";
         btnGenerateBarcodes.Size = new Size(250, 38);
@@ -170,12 +170,12 @@ partial class frmImportProductsExcel
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = Color.FromArgb(235, 245, 235);
+        gbPreview.BackColor = System.Drawing.Color.White;
         gbPreview.Controls.Add(dgvPreview);
         gbPreview.Controls.Add(pnlPreviewTop);
         gbPreview.Dock = DockStyle.Fill;
         gbPreview.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbPreview.ForeColor = Color.FromArgb(14, 82, 52);
+        gbPreview.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbPreview.Location = new Point(0, 212);
         gbPreview.Name = "gbPreview";
         gbPreview.Padding = new Padding(10);
@@ -188,30 +188,30 @@ partial class frmImportProductsExcel
         // 
         dgvPreview.AllowUserToAddRows = false;
         dgvPreview.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle1.BackColor = Color.FromArgb(245, 252, 245);
+        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvPreview.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvPreview.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvPreview.BackgroundColor = System.Drawing.Color.White;
         dgvPreview.BorderStyle = BorderStyle.None;
         dgvPreview.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dataGridViewCellStyle2.BackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         dataGridViewCellStyle2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        dataGridViewCellStyle2.ForeColor = Color.White;
-        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dataGridViewCellStyle2.SelectionForeColor = Color.White;
+        dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
         dgvPreview.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvPreview.ColumnHeadersHeight = 45;
         dgvPreview.ContextMenuStrip = cmsRows;
-        dataGridViewCellStyle3.BackColor = Color.White;
+        dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
         dataGridViewCellStyle3.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
-        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvPreview.DefaultCellStyle = dataGridViewCellStyle3;
         dgvPreview.Dock = DockStyle.Fill;
         dgvPreview.EnableHeadersVisualStyles = false;
-        dgvPreview.GridColor = Color.FromArgb(205, 225, 205);
+        dgvPreview.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvPreview.Location = new Point(10, 54);
         dgvPreview.Margin = new Padding(0);
         dgvPreview.Name = "dgvPreview";
@@ -226,7 +226,7 @@ partial class frmImportProductsExcel
         // 
         // pnlPreviewTop
         // 
-        pnlPreviewTop.BackColor = Color.FromArgb(235, 240, 235);
+        pnlPreviewTop.BackColor = System.Drawing.Color.White;
         pnlPreviewTop.Controls.Add(lblSearch);
         pnlPreviewTop.Controls.Add(txtSearch);
         pnlPreviewTop.Controls.Add(lblNoData);
@@ -248,7 +248,7 @@ partial class frmImportProductsExcel
         // 
         // txtSearch
         // 
-        txtSearch.BackColor = Color.White;
+        txtSearch.BackColor = System.Drawing.Color.White;
         txtSearch.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtSearch.Location = new Point(700, 8);
         txtSearch.Name = "txtSearch";
@@ -261,7 +261,7 @@ partial class frmImportProductsExcel
         // 
         lblNoData.AutoSize = true;
         lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblNoData.Location = new Point(24, 12);
         lblNoData.Name = "lblNoData";
         lblNoData.Size = new Size(380, 24);
@@ -270,7 +270,7 @@ partial class frmImportProductsExcel
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
+        pnlSummary.BackColor = System.Drawing.Color.White;
         pnlSummary.Controls.Add(lblCount);
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
@@ -283,7 +283,7 @@ partial class frmImportProductsExcel
         // 
         lblCount.AutoSize = true;
         lblCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCount.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblCount.Location = new Point(790, 11);
         lblCount.Name = "lblCount";
         lblCount.Size = new Size(180, 24);
@@ -294,7 +294,7 @@ partial class frmImportProductsExcel
         // 
         lblSummary.AutoSize = true;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblSummary.Location = new Point(450, 11);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(300, 24);
@@ -303,7 +303,7 @@ partial class frmImportProductsExcel
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(btnSave);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -315,11 +315,11 @@ partial class frmImportProductsExcel
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(14, 165, 103);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(788, 12);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(200, 44);
@@ -330,12 +330,12 @@ partial class frmImportProductsExcel
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(656, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(120, 44);
@@ -346,7 +346,7 @@ partial class frmImportProductsExcel
         // 
         // cmsRows — RULE-N23: قائمة سطر السياق لشبكة المعاينة (تُعلَن في المصمّم — RULE-N145)
         // 
-        cmsRows.BackColor = Color.White;
+        cmsRows.BackColor = System.Drawing.Color.White;
         cmsRows.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsRows.ImageScalingSize = new Size(24, 24);
         cmsRows.Items.AddRange(new ToolStripItem[] { tsmiCopyCellValue, tsmiGenerateMissingBarcode });
@@ -372,7 +372,7 @@ partial class frmImportProductsExcel
         // frmImportProductsExcel
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(1000, 660);
         Controls.Add(gbPreview);

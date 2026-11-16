@@ -54,7 +54,7 @@ partial class frmStocktakingPrintCard
         // pnlHeader
         // 
         // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
-        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
@@ -65,10 +65,10 @@ partial class frmStocktakingPrintCard
         // 
         // lblTitle
         // 
-        lblTitle.BackColor = Color.FromArgb(14, 165, 103);
+        lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTitle.ForeColor = Color.White;
+        lblTitle.ForeColor = System.Drawing.Color.White;
         lblTitle.Location = new Point(0, 0);
         lblTitle.Name = "lblTitle";
         lblTitle.Size = new Size(480, 42);
@@ -81,7 +81,7 @@ partial class frmStocktakingPrintCard
         lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         lblMockBadge.AutoSize = true;
         lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
+        lblMockBadge.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(241), Convert.ToInt32(196), Convert.ToInt32(15));
         lblMockBadge.Location = new Point(356, 13);
         lblMockBadge.Name = "lblMockBadge";
         lblMockBadge.Size = new Size(112, 21);
@@ -90,7 +90,7 @@ partial class frmStocktakingPrintCard
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = Color.FromArgb(14, 82, 52);
+        lblAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Height = 4;
         lblAccent.Name = "lblAccent";
@@ -98,7 +98,7 @@ partial class frmStocktakingPrintCard
         // 
         // pnlPreviewCard
         // 
-        pnlPreviewCard.BackColor = Color.White;
+        pnlPreviewCard.BackColor = System.Drawing.Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
         pnlPreviewCard.Controls.Add(lblCardFooter);
         pnlPreviewCard.Controls.Add(pnlDashedSeparator);
@@ -114,7 +114,7 @@ partial class frmStocktakingPrintCard
         // 
         // pnlCardHeader
         // 
-        pnlCardHeader.BackColor = Color.White;
+        pnlCardHeader.BackColor = System.Drawing.Color.White;
         pnlCardHeader.Controls.Add(lblCardTitle);
         pnlCardHeader.Controls.Add(lblStoreName);
         pnlCardHeader.Location = new Point(0, 0);
@@ -125,7 +125,7 @@ partial class frmStocktakingPrintCard
         // lblStoreName
         // 
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = Color.FromArgb(14, 82, 52);
+        lblStoreName.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(438, 30);
@@ -136,7 +136,7 @@ partial class frmStocktakingPrintCard
         // lblCardTitle
         // 
         lblCardTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCardTitle.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCardTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblCardTitle.Location = new Point(0, 30);
         lblCardTitle.Name = "lblCardTitle";
         lblCardTitle.Size = new Size(438, 40);
@@ -146,7 +146,7 @@ partial class frmStocktakingPrintCard
         // 
         // tblFields
         // 
-        tblFields.BackColor = Color.White;
+        tblFields.BackColor = System.Drawing.Color.White;
         tblFields.ColumnCount = 2;
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -175,7 +175,7 @@ partial class frmStocktakingPrintCard
         lblProductNameLabel.AutoSize = true;
         lblProductNameLabel.Dock = DockStyle.Fill;
         lblProductNameLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblProductNameLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblProductNameLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblProductNameLabel.Location = new Point(15, 7);
         lblProductNameLabel.Name = "lblProductNameLabel";
         lblProductNameLabel.Size = new Size(104, 20);
@@ -189,7 +189,7 @@ partial class frmStocktakingPrintCard
         lblProductNameValue.AutoSize = true;
         lblProductNameValue.Dock = DockStyle.Fill;
         lblProductNameValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblProductNameValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblProductNameValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblProductNameValue.Location = new Point(125, 7);
         lblProductNameValue.Name = "lblProductNameValue";
         lblProductNameValue.Size = new Size(298, 20);
@@ -202,7 +202,7 @@ partial class frmStocktakingPrintCard
         lblBarcodeLabel.AutoSize = true;
         lblBarcodeLabel.Dock = DockStyle.Fill;
         lblBarcodeLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblBarcodeLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblBarcodeLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblBarcodeLabel.Location = new Point(15, 33);
         lblBarcodeLabel.Name = "lblBarcodeLabel";
         lblBarcodeLabel.Size = new Size(104, 20);
@@ -216,7 +216,7 @@ partial class frmStocktakingPrintCard
         lblBarcodeValue.AutoSize = true;
         lblBarcodeValue.Dock = DockStyle.Fill;
         lblBarcodeValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblBarcodeValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblBarcodeValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblBarcodeValue.Location = new Point(125, 33);
         lblBarcodeValue.Name = "lblBarcodeValue";
         lblBarcodeValue.Size = new Size(298, 20);
@@ -229,7 +229,7 @@ partial class frmStocktakingPrintCard
         lblWarehouseLabel.AutoSize = true;
         lblWarehouseLabel.Dock = DockStyle.Fill;
         lblWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblWarehouseLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblWarehouseLabel.Location = new Point(15, 59);
         lblWarehouseLabel.Name = "lblWarehouseLabel";
         lblWarehouseLabel.Size = new Size(104, 20);
@@ -243,7 +243,7 @@ partial class frmStocktakingPrintCard
         lblWarehouseValue.AutoSize = true;
         lblWarehouseValue.Dock = DockStyle.Fill;
         lblWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouseValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblWarehouseValue.Location = new Point(125, 59);
         lblWarehouseValue.Name = "lblWarehouseValue";
         lblWarehouseValue.Size = new Size(298, 20);
@@ -256,7 +256,7 @@ partial class frmStocktakingPrintCard
         lblBalanceLabel.AutoSize = true;
         lblBalanceLabel.Dock = DockStyle.Fill;
         lblBalanceLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblBalanceLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblBalanceLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
         lblBalanceLabel.Location = new Point(15, 85);
         lblBalanceLabel.Name = "lblBalanceLabel";
         lblBalanceLabel.Size = new Size(104, 20);
@@ -266,11 +266,11 @@ partial class frmStocktakingPrintCard
         // 
         // lblBalanceValue
         // 
-        lblBalanceValue.BackColor = Color.FromArgb(240, 250, 240);
+        lblBalanceValue.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(250), Convert.ToInt32(240));
         lblBalanceValue.BorderStyle = BorderStyle.FixedSingle;
         lblBalanceValue.Dock = DockStyle.Fill;
         lblBalanceValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblBalanceValue.ForeColor = Color.FromArgb(25, 135, 84);
+        lblBalanceValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         lblBalanceValue.Location = new Point(125, 85);
         lblBalanceValue.Name = "lblBalanceValue";
         lblBalanceValue.Size = new Size(298, 20);
@@ -280,9 +280,9 @@ partial class frmStocktakingPrintCard
         // 
         // lblMovementsTitle
         // 
-        lblMovementsTitle.BackColor = Color.White;
+        lblMovementsTitle.BackColor = System.Drawing.Color.White;
         lblMovementsTitle.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMovementsTitle.ForeColor = Color.FromArgb(14, 82, 52);
+        lblMovementsTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblMovementsTitle.Location = new Point(0, 186);
         lblMovementsTitle.Name = "lblMovementsTitle";
         lblMovementsTitle.Size = new Size(438, 26);
@@ -298,27 +298,27 @@ partial class frmStocktakingPrintCard
         dgvMovements.AllowUserToDeleteRows = false;
         dgvMovements.AllowUserToResizeColumns = false;
         dgvMovements.AllowUserToResizeRows = false;
-        dgvMovements.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvMovements.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvMovements.AutoGenerateColumns = false;
         dgvMovements.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvMovements.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvMovements.BackgroundColor = System.Drawing.Color.White;
         dgvMovements.BorderStyle = BorderStyle.None;
         dgvMovements.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         dgvMovements.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvMovements.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvMovements.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
         dgvMovements.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        dgvMovements.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvMovements.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvMovements.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvMovements.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvMovements.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvMovements.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvMovements.ColumnHeadersHeight = 32;
         dgvMovements.Columns.AddRange(new DataGridViewColumn[] { colDate, colType, colInQty, colOutQty, colBalance });
-        dgvMovements.DefaultCellStyle.BackColor = Color.White;
+        dgvMovements.DefaultCellStyle.BackColor = System.Drawing.Color.White;
         dgvMovements.DefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        dgvMovements.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvMovements.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvMovements.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvMovements.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvMovements.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvMovements.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvMovements.EnableHeadersVisualStyles = false;
-        dgvMovements.GridColor = Color.FromArgb(205, 225, 205);
+        dgvMovements.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvMovements.Location = new Point(0, 212);
         dgvMovements.MultiSelect = false;
         dgvMovements.Name = "dgvMovements";
@@ -389,7 +389,7 @@ partial class frmStocktakingPrintCard
         // 
         // pnlDashedSeparator
         // 
-        pnlDashedSeparator.BackColor = Color.White;
+        pnlDashedSeparator.BackColor = System.Drawing.Color.White;
         pnlDashedSeparator.Location = new Point(0, 370);
         pnlDashedSeparator.Name = "pnlDashedSeparator";
         pnlDashedSeparator.Size = new Size(438, 14);
@@ -398,9 +398,9 @@ partial class frmStocktakingPrintCard
         // 
         // lblCardFooter
         // 
-        lblCardFooter.BackColor = Color.White;
+        lblCardFooter.BackColor = System.Drawing.Color.White;
         lblCardFooter.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCardFooter.ForeColor = Color.FromArgb(108, 117, 125);
+        lblCardFooter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         lblCardFooter.Location = new Point(0, 384);
         lblCardFooter.Name = "lblCardFooter";
         lblCardFooter.Size = new Size(438, 40);
@@ -410,7 +410,7 @@ partial class frmStocktakingPrintCard
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
@@ -421,7 +421,7 @@ partial class frmStocktakingPrintCard
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = Color.FromArgb(205, 225, 205);
+        lblFooterLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Height = 2;
         lblFooterLine.Name = "lblFooterLine";
@@ -430,11 +430,11 @@ partial class frmStocktakingPrintCard
         // btnPrint
         // 
         btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
+        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnPrint.FlatAppearance.BorderSize = 0;
         btnPrint.FlatStyle = FlatStyle.Flat;
         btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnPrint.ForeColor = Color.White;
+        btnPrint.ForeColor = System.Drawing.Color.White;
         btnPrint.Location = new Point(328, 12);
         btnPrint.Name = "btnPrint";
         btnPrint.Size = new Size(132, 42);
@@ -446,12 +446,12 @@ partial class frmStocktakingPrintCard
         // btnClose
         // 
         btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -463,7 +463,7 @@ partial class frmStocktakingPrintCard
         // frmStocktakingPrintCard
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(480, 560);
         Controls.Add(pnlFooter);

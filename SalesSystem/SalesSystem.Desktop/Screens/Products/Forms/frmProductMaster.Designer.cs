@@ -101,10 +101,10 @@ partial class frmProductMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(10, 75, 140);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(10), Convert.ToInt32(75), Convert.ToInt32(140));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1432, 50);
@@ -154,7 +154,7 @@ partial class frmProductMaster
         // 
         txtCode.Location = new Point(1267, 98);
         txtCode.Name = "txtCode";
-        txtCode.BackColor = Color.White;
+        txtCode.BackColor = System.Drawing.Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -173,7 +173,7 @@ partial class frmProductMaster
         // 
         lblNameReq.AutoSize = true;
         lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.ForeColor = System.Drawing.Color.Red;
         lblNameReq.Location = new Point(949, 3);
         lblNameReq.Name = "lblNameReq";
         lblNameReq.Size = new Size(23, 24);
@@ -184,7 +184,7 @@ partial class frmProductMaster
         // 
         txtName.Location = new Point(911, 30);
         txtName.Name = "txtName";
-        txtName.BackColor = Color.White;
+        txtName.BackColor = System.Drawing.Color.White;
         txtName.Size = new Size(240, 32);
         txtName.TabIndex = 2;
         // 
@@ -201,7 +201,7 @@ partial class frmProductMaster
         // 
         txtForeignName.Location = new Point(675, 30);
         txtForeignName.Name = "txtForeignName";
-        txtForeignName.BackColor = Color.White;
+        txtForeignName.BackColor = System.Drawing.Color.White;
         txtForeignName.Size = new Size(230, 32);
         txtForeignName.TabIndex = 3;
         // 
@@ -218,7 +218,7 @@ partial class frmProductMaster
         // 
         lblCategoryReq.AutoSize = true;
         lblCategoryReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCategoryReq.ForeColor = Color.Red;
+        lblCategoryReq.ForeColor = System.Drawing.Color.Red;
         lblCategoryReq.Location = new Point(1182, 3);
         lblCategoryReq.Name = "lblCategoryReq";
         lblCategoryReq.Size = new Size(23, 24);
@@ -227,7 +227,7 @@ partial class frmProductMaster
         // 
         // cmbCategory
         // 
-        cmbCategory.BackColor = Color.White;
+        cmbCategory.BackColor = System.Drawing.Color.White;
         cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCategory.FlatStyle = FlatStyle.Flat;
         cmbCategory.Location = new Point(1157, 30);
@@ -237,10 +237,10 @@ partial class frmProductMaster
         // 
         // btnAddCategory
         // 
-        btnAddCategory.BackColor = Color.FromArgb(2, 119, 189);
+        btnAddCategory.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(119), Convert.ToInt32(189));
         btnAddCategory.FlatStyle = FlatStyle.Flat;
         btnAddCategory.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnAddCategory.ForeColor = Color.White;
+        btnAddCategory.ForeColor = System.Drawing.Color.White;
         btnAddCategory.Location = new Point(1341, 30);
         btnAddCategory.Name = "btnAddCategory";
         btnAddCategory.Size = new Size(36, 32);
@@ -264,7 +264,7 @@ partial class frmProductMaster
         numReorderLevel.Location = new Point(1106, 99);
         numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
         numReorderLevel.Name = "numReorderLevel";
-        numReorderLevel.BackColor = Color.White;
+        numReorderLevel.BackColor = System.Drawing.Color.White;
         numReorderLevel.Size = new Size(155, 32);
         numReorderLevel.TabIndex = 5;
         // 
@@ -291,7 +291,7 @@ partial class frmProductMaster
         numExpiryAlertDays.Location = new Point(675, 101);
         numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
         numExpiryAlertDays.Name = "numExpiryAlertDays";
-        numExpiryAlertDays.BackColor = Color.White;
+        numExpiryAlertDays.BackColor = System.Drawing.Color.White;
         numExpiryAlertDays.Size = new Size(230, 32);
         numExpiryAlertDays.TabIndex = 7;
         // 
@@ -308,7 +308,7 @@ partial class frmProductMaster
         // 
         txtLocationInStore.Location = new Point(914, 161);
         txtLocationInStore.Name = "txtLocationInStore";
-        txtLocationInStore.BackColor = Color.White;
+        txtLocationInStore.BackColor = System.Drawing.Color.White;
         txtLocationInStore.Size = new Size(463, 32);
         txtLocationInStore.TabIndex = 8;
         // 
@@ -325,13 +325,13 @@ partial class frmProductMaster
         // 
         txtNotes.Location = new Point(675, 161);
         txtNotes.Name = "txtNotes";
-        txtNotes.BackColor = Color.White;
+        txtNotes.BackColor = System.Drawing.Color.White;
         txtNotes.Size = new Size(233, 32);
         txtNotes.TabIndex = 9;
         // 
         // grpMainUnit
         // 
-        grpMainUnit.BackColor = Color.White;
+        grpMainUnit.BackColor = System.Drawing.Color.White;
         grpMainUnit.Controls.Add(lblMainUnit);
         grpMainUnit.Controls.Add(lblMainUnitReq);
         grpMainUnit.Controls.Add(cmbMainUnit);
@@ -364,7 +364,7 @@ partial class frmProductMaster
         // 
         lblMainUnitReq.AutoSize = true;
         lblMainUnitReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblMainUnitReq.ForeColor = Color.Red;
+        lblMainUnitReq.ForeColor = System.Drawing.Color.Red;
         lblMainUnitReq.Location = new Point(284, 27);
         lblMainUnitReq.Name = "lblMainUnitReq";
         lblMainUnitReq.Size = new Size(23, 24);
@@ -373,7 +373,7 @@ partial class frmProductMaster
         // 
         // cmbMainUnit
         // 
-        cmbMainUnit.BackColor = Color.White;
+        cmbMainUnit.BackColor = System.Drawing.Color.White;
         cmbMainUnit.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbMainUnit.FlatStyle = FlatStyle.Flat;
         cmbMainUnit.Location = new Point(302, 54);
@@ -396,7 +396,7 @@ partial class frmProductMaster
         numMainUnitCostPrice.Location = new Point(169, 54);
         numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitCostPrice.Name = "numMainUnitCostPrice";
-        numMainUnitCostPrice.BackColor = Color.White;
+        numMainUnitCostPrice.BackColor = System.Drawing.Color.White;
         numMainUnitCostPrice.Size = new Size(127, 32);
         numMainUnitCostPrice.TabIndex = 1;
         // 
@@ -414,7 +414,7 @@ partial class frmProductMaster
         numMainUnitSalePrice.Location = new Point(36, 54);
         numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numMainUnitSalePrice.Name = "numMainUnitSalePrice";
-        numMainUnitSalePrice.BackColor = Color.White;
+        numMainUnitSalePrice.BackColor = System.Drawing.Color.White;
         numMainUnitSalePrice.Size = new Size(127, 32);
         numMainUnitSalePrice.TabIndex = 2;
         // 
@@ -431,7 +431,7 @@ partial class frmProductMaster
         // 
         txtMainUnitBarcode.Location = new Point(36, 125);
         txtMainUnitBarcode.Name = "txtMainUnitBarcode";
-        txtMainUnitBarcode.BackColor = Color.White;
+        txtMainUnitBarcode.BackColor = System.Drawing.Color.White;
         txtMainUnitBarcode.Size = new Size(180, 32);
         txtMainUnitBarcode.TabIndex = 4;
         txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
@@ -449,13 +449,13 @@ partial class frmProductMaster
         // 
         numMainUnitMaxDiscount.Location = new Point(282, 125);
         numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
-        numMainUnitMaxDiscount.BackColor = Color.White;
+        numMainUnitMaxDiscount.BackColor = System.Drawing.Color.White;
         numMainUnitMaxDiscount.Size = new Size(127, 32);
         numMainUnitMaxDiscount.TabIndex = 3;
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = Color.White;
+        pnlButtons.BackColor = System.Drawing.Color.White;
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -473,10 +473,10 @@ partial class frmProductMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.FromArgb(2, 119, 189);
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(119), Convert.ToInt32(189));
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = Color.White;
+        btnNew.ForeColor = System.Drawing.Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
@@ -487,10 +487,10 @@ partial class frmProductMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(5, 150, 105);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(5), Convert.ToInt32(150), Convert.ToInt32(105));
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
@@ -501,10 +501,10 @@ partial class frmProductMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.FromArgb(245, 158, 11);
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(158), Convert.ToInt32(11));
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = Color.FromArgb(30, 41, 59);
+        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -515,10 +515,10 @@ partial class frmProductMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.FromArgb(225, 29, 72);
+        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(225), Convert.ToInt32(29), Convert.ToInt32(72));
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = Color.White;
+        btnDelete.ForeColor = System.Drawing.Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
@@ -529,11 +529,11 @@ partial class frmProductMaster
         // 
         // btnReactivate
         // 
-        btnReactivate.BackColor = Color.FromArgb(2, 132, 199);
+        btnReactivate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(132), Convert.ToInt32(199));
         btnReactivate.Enabled = false;
         btnReactivate.FlatStyle = FlatStyle.Flat;
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnReactivate.ForeColor = Color.White;
+        btnReactivate.ForeColor = System.Drawing.Color.White;
         btnReactivate.Location = new Point(689, 13);
         btnReactivate.Name = "btnReactivate";
         btnReactivate.Size = new Size(160, 35);
@@ -545,10 +545,10 @@ partial class frmProductMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(2, 132, 199);
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(132), Convert.ToInt32(199));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = Color.White;
+        btnRefresh.ForeColor = System.Drawing.Color.White;
         btnRefresh.Location = new Point(553, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
@@ -559,10 +559,10 @@ partial class frmProductMaster
         // 
         // btnManageUnits
         // 
-        btnManageUnits.BackColor = Color.FromArgb(2, 132, 199);
+        btnManageUnits.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(132), Convert.ToInt32(199));
         btnManageUnits.FlatStyle = FlatStyle.Flat;
         btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnManageUnits.ForeColor = Color.White;
+        btnManageUnits.ForeColor = System.Drawing.Color.White;
         btnManageUnits.Location = new Point(367, 13);
         btnManageUnits.Name = "btnManageUnits";
         btnManageUnits.Size = new Size(180, 35);
@@ -573,10 +573,10 @@ partial class frmProductMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(100, 116, 139);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(100), Convert.ToInt32(116), Convert.ToInt32(139));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(231, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
@@ -600,31 +600,31 @@ partial class frmProductMaster
         // 
         dgvProducts.AllowUserToAddRows = false;
         dgvProducts.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle4.BackColor = Color.FromArgb(248, 250, 252);
+        dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(250), Convert.ToInt32(252));
         dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvProducts.BackgroundColor = Color.White;
+        dgvProducts.BackgroundColor = System.Drawing.Color.White;
         dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle5.BackColor = Color.FromArgb(15, 45, 74);
+        dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(15), Convert.ToInt32(45), Convert.ToInt32(74));
         dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle5.ForeColor = Color.White;
-        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(15, 45, 74);
-        dataGridViewCellStyle5.SelectionForeColor = Color.White;
+        dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(15), Convert.ToInt32(45), Convert.ToInt32(74));
+        dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
         dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
         dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
         dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle6.BackColor = Color.White;
+        dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
         dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle6.ForeColor = Color.FromArgb(30, 41, 59);
-        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(186, 230, 253);
-        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(30, 41, 59);
+        dataGridViewCellStyle6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
+        dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(186), Convert.ToInt32(230), Convert.ToInt32(253));
+        dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
         dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
         dgvProducts.Dock = DockStyle.Fill;
         dgvProducts.EnableHeadersVisualStyles = false;
-        dgvProducts.GridColor = Color.FromArgb(226, 232, 240);
+        dgvProducts.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(226), Convert.ToInt32(232), Convert.ToInt32(240));
         dgvProducts.Location = new Point(0, 10);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
@@ -692,13 +692,13 @@ partial class frmProductMaster
         // 
         // btnClearFilters
         // 
-        btnClearFilters.BackColor = Color.FromArgb(100, 116, 139);
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(100), Convert.ToInt32(116), Convert.ToInt32(139));
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
         btnClearFilters.Location = new Point(322, 36);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(178, 32);
@@ -712,7 +712,7 @@ partial class frmProductMaster
         // 
         txtSearch.Location = new Point(870, 36);
         txtSearch.Name = "txtSearch";
-        txtSearch.BackColor = Color.White;
+        txtSearch.BackColor = System.Drawing.Color.White;
         txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 20;
@@ -744,14 +744,14 @@ partial class frmProductMaster
         // 
         // btnToggleFilters
         // 
-        btnToggleFilters.BackColor = Color.FromArgb(248, 250, 252);
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(250), Convert.ToInt32(252));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(226, 232, 240);
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(226), Convert.ToInt32(232), Convert.ToInt32(240));
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(30, 41, 59);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -773,7 +773,7 @@ partial class frmProductMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(30, 41, 59);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -831,7 +831,7 @@ partial class frmProductMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(240, 244, 249);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(244), Convert.ToInt32(249));
         ClientSize = new Size(1432, 746);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

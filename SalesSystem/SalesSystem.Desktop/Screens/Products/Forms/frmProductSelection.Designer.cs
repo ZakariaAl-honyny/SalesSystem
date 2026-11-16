@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Products.Forms
+namespace SalesSystem.Desktop.Products.Forms
 {
     partial class frmProductSelection
     {
@@ -53,27 +53,27 @@
             dgvProducts.AllowUserToAddRows = false;
             dgvProducts.AllowUserToDeleteRows = false;
             dgvProducts.AllowUserToResizeRows = false;
-            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvProducts.BackgroundColor = System.Drawing.Color.White;
             dgvProducts.BorderStyle = BorderStyle.None;
             dgvProducts.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             dgvProducts.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             dgvProducts.ColumnHeadersHeight = 45;
             dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategory, colBarcode, colStock });
-            dgvProducts.DefaultCellStyle.BackColor = Color.White;
+            dgvProducts.DefaultCellStyle.BackColor = System.Drawing.Color.White;
             dgvProducts.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-            dgvProducts.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvProducts.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-            dgvProducts.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvProducts.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            dgvProducts.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            dgvProducts.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             dgvProducts.EnableHeadersVisualStyles = false;
-            dgvProducts.GridColor = Color.FromArgb(205, 225, 205);
+            dgvProducts.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             dgvProducts.Location = new Point(12, 96);
             dgvProducts.MultiSelect = false;
             dgvProducts.Name = "dgvProducts";
@@ -137,27 +137,27 @@
             dgvUnits.AllowUserToAddRows = false;
             dgvUnits.AllowUserToDeleteRows = false;
             dgvUnits.AllowUserToResizeRows = false;
-            dgvUnits.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+            dgvUnits.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvUnits.BackgroundColor = Color.FromArgb(220, 240, 220);
+            dgvUnits.BackgroundColor = System.Drawing.Color.White;
             dgvUnits.BorderStyle = BorderStyle.None;
             dgvUnits.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvUnits.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dgvUnits.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+            dgvUnits.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             dgvUnits.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            dgvUnits.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvUnits.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-            dgvUnits.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvUnits.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            dgvUnits.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+            dgvUnits.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             dgvUnits.ColumnHeadersHeight = 45;
             dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvUnits.Columns.AddRange(new DataGridViewColumn[] { colUnitId, colUnitName, colConversion, colAvailable, colSalePrice });
-            dgvUnits.DefaultCellStyle.BackColor = Color.White;
+            dgvUnits.DefaultCellStyle.BackColor = System.Drawing.Color.White;
             dgvUnits.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-            dgvUnits.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-            dgvUnits.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-            dgvUnits.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dgvUnits.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            dgvUnits.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            dgvUnits.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             dgvUnits.EnableHeadersVisualStyles = false;
-            dgvUnits.GridColor = Color.FromArgb(205, 225, 205);
+            dgvUnits.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             dgvUnits.Location = new Point(12, 364);
             dgvUnits.MultiSelect = false;
             dgvUnits.Name = "dgvUnits";
@@ -224,7 +224,7 @@
             // 
             lblSelectedProduct.AutoEllipsis = true;
             lblSelectedProduct.Font = new Font("Tahoma", 11F, FontStyle.Bold);
-            lblSelectedProduct.ForeColor = Color.FromArgb(14, 82, 52);
+            lblSelectedProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblSelectedProduct.Location = new Point(12, 332);
             lblSelectedProduct.Name = "lblSelectedProduct";
             lblSelectedProduct.Size = new Size(640, 26);
@@ -236,7 +236,7 @@
             // 
             lblNoUnits.AutoSize = true;
             lblNoUnits.Font = new Font("Tahoma", 10F);
-            lblNoUnits.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNoUnits.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblNoUnits.Location = new Point(660, 335);
             lblNoUnits.Name = "lblNoUnits";
             lblNoUnits.Size = new Size(196, 24);
@@ -246,12 +246,12 @@
             // 
             // btnSelect
             // 
-            btnSelect.BackColor = Color.FromArgb(40, 167, 69);
+            btnSelect.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             btnSelect.Cursor = Cursors.Hand;
             btnSelect.FlatAppearance.BorderSize = 0;
             btnSelect.FlatStyle = FlatStyle.Flat;
             btnSelect.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnSelect.ForeColor = Color.White;
+            btnSelect.ForeColor = System.Drawing.Color.White;
             btnSelect.Location = new Point(12, 616);
             btnSelect.MinimumSize = new Size(100, 35);
             btnSelect.Name = "btnSelect";
@@ -264,13 +264,13 @@
             // 
             // btnCancel
             // 
-            btnCancel.BackColor = Color.FromArgb(108, 117, 125);
+            btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             btnCancel.Cursor = Cursors.Hand;
             btnCancel.DialogResult = DialogResult.Cancel;
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnCancel.ForeColor = Color.White;
+            btnCancel.ForeColor = System.Drawing.Color.White;
             btnCancel.Location = new Point(144, 616);
             btnCancel.MinimumSize = new Size(100, 35);
             btnCancel.Name = "btnCancel";
@@ -283,7 +283,7 @@
             // 
             // txtSearch
             // 
-            txtSearch.BackColor = Color.White;
+            txtSearch.BackColor = System.Drawing.Color.White;
             txtSearch.BorderStyle = BorderStyle.FixedSingle;
             txtSearch.Font = new Font("Tahoma", 10F);
             txtSearch.Location = new Point(130, 52);
@@ -299,7 +299,7 @@
             // 
             lblSearch.AutoSize = true;
             lblSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblSearch.ForeColor = Color.FromArgb(14, 82, 52);
+            lblSearch.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblSearch.Location = new Point(12, 55);
             lblSearch.Name = "lblSearch";
             lblSearch.Size = new Size(60, 24);
@@ -308,10 +308,10 @@
             // 
             // lblMode
             // 
-            lblMode.BackColor = Color.FromArgb(14, 165, 103);
+            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblMode.Dock = DockStyle.Top;
             lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-            lblMode.ForeColor = Color.White;
+            lblMode.ForeColor = System.Drawing.Color.White;
             lblMode.Location = new Point(0, 0);
             lblMode.Name = "lblMode";
             lblMode.Size = new Size(910, 40);
@@ -323,7 +323,7 @@
             // 
             lblRecordsCount.AutoSize = true;
             lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblRecordsCount.ForeColor = Color.FromArgb(14, 82, 52);
+            lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblRecordsCount.Location = new Point(800, 55);
             lblRecordsCount.Name = "lblRecordsCount";
             lblRecordsCount.Size = new Size(41, 24);
@@ -334,7 +334,7 @@
             // 
             lblNoData.AutoSize = true;
             lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblNoData.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblNoData.Location = new Point(620, 55);
             lblNoData.Name = "lblNoData";
             lblNoData.Size = new Size(130, 24);
@@ -373,7 +373,7 @@
             // 
             AcceptButton = btnSelect;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             CancelButton = btnCancel;
             ClientSize = new Size(910, 668);
             Controls.Add(lblNoData);

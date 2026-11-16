@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Inventory.Forms;
+namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 
 partial class frmOpeningStock
 {
@@ -97,11 +97,11 @@ partial class frmOpeningStock
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Top;
         lblMode.FlatStyle = FlatStyle.Flat;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1000, 42);
@@ -111,14 +111,14 @@ partial class frmOpeningStock
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = Color.FromArgb(235, 245, 235);
+        gbToolbar.BackColor = System.Drawing.Color.White;
         gbToolbar.Controls.Add(btnCancel);
         gbToolbar.Controls.Add(btnSave);
         gbToolbar.Controls.Add(btnRemoveProduct);
         gbToolbar.Controls.Add(btnAddProduct);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbToolbar.ForeColor = Color.FromArgb(14, 82, 52);
+        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbToolbar.Location = new Point(0, 42);
         gbToolbar.Name = "gbToolbar";
         gbToolbar.Padding = new Padding(8);
@@ -130,12 +130,12 @@ partial class frmOpeningStock
         // 
         // btnAddProduct
         // 
-        btnAddProduct.BackColor = Color.FromArgb(13, 110, 253);
+        btnAddProduct.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
         btnAddProduct.Cursor = Cursors.Hand;
         btnAddProduct.FlatAppearance.BorderSize = 0;
         btnAddProduct.FlatStyle = FlatStyle.Flat;
         btnAddProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnAddProduct.ForeColor = Color.White;
+        btnAddProduct.ForeColor = System.Drawing.Color.White;
         btnAddProduct.Location = new Point(12, 16);
         btnAddProduct.MinimumSize = new Size(100, 34);
         btnAddProduct.Name = "btnAddProduct";
@@ -148,12 +148,12 @@ partial class frmOpeningStock
         // 
         // btnRemoveProduct
         // 
-        btnRemoveProduct.BackColor = Color.FromArgb(220, 53, 69);
+        btnRemoveProduct.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnRemoveProduct.Cursor = Cursors.Hand;
         btnRemoveProduct.FlatAppearance.BorderSize = 0;
         btnRemoveProduct.FlatStyle = FlatStyle.Flat;
         btnRemoveProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRemoveProduct.ForeColor = Color.White;
+        btnRemoveProduct.ForeColor = System.Drawing.Color.White;
         btnRemoveProduct.Location = new Point(192, 16);
         btnRemoveProduct.MinimumSize = new Size(100, 34);
         btnRemoveProduct.Name = "btnRemoveProduct";
@@ -166,12 +166,12 @@ partial class frmOpeningStock
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(25, 135, 84);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnSave.Cursor = Cursors.Hand;
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(345, 16);
         btnSave.MinimumSize = new Size(100, 34);
         btnSave.Name = "btnSave";
@@ -184,13 +184,13 @@ partial class frmOpeningStock
         // 
         // btnCancel
         // 
-        btnCancel.BackColor = Color.FromArgb(108, 117, 125);
+        btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnCancel.Cursor = Cursors.Hand;
         btnCancel.DialogResult = DialogResult.Cancel;
         btnCancel.FlatAppearance.BorderSize = 0;
         btnCancel.FlatStyle = FlatStyle.Flat;
         btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnCancel.ForeColor = Color.White;
+        btnCancel.ForeColor = System.Drawing.Color.White;
         btnCancel.Location = new Point(505, 16);
         btnCancel.MinimumSize = new Size(100, 34);
         btnCancel.Name = "btnCancel";
@@ -203,14 +203,14 @@ partial class frmOpeningStock
         // 
         // gbInfo
         // 
-        gbInfo.BackColor = Color.FromArgb(235, 245, 235);
+        gbInfo.BackColor = System.Drawing.Color.White;
         gbInfo.Controls.Add(dtpDate);
         gbInfo.Controls.Add(lblDate);
         gbInfo.Controls.Add(cmbWarehouse);
         gbInfo.Controls.Add(lblWarehouse);
         gbInfo.Dock = DockStyle.Top;
         gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbInfo.ForeColor = Color.FromArgb(14, 82, 52);
+        gbInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbInfo.Location = new Point(0, 110);
         gbInfo.Name = "gbInfo";
         gbInfo.Padding = new Padding(8);
@@ -224,7 +224,7 @@ partial class frmOpeningStock
         // 
         lblWarehouse.AutoSize = true;
         lblWarehouse.Font = new Font("Tahoma", 10F);
-        lblWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblWarehouse.Location = new Point(12, 30);
         lblWarehouse.Name = "lblWarehouse";
         lblWarehouse.Size = new Size(76, 21);
@@ -233,11 +233,11 @@ partial class frmOpeningStock
         // 
         // cmbWarehouse
         // 
-        cmbWarehouse.BackColor = Color.White;
+        cmbWarehouse.BackColor = System.Drawing.Color.White;
         cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbWarehouse.FlatStyle = FlatStyle.Flat;
         cmbWarehouse.Font = new Font("Tahoma", 10F);
-        cmbWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
+        cmbWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         cmbWarehouse.FormattingEnabled = true;
         cmbWarehouse.Location = new Point(110, 26);
         cmbWarehouse.Name = "cmbWarehouse";
@@ -249,7 +249,7 @@ partial class frmOpeningStock
         // 
         lblDate.AutoSize = true;
         lblDate.Font = new Font("Tahoma", 10F);
-        lblDate.ForeColor = Color.FromArgb(33, 37, 41);
+        lblDate.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblDate.Location = new Point(420, 30);
         lblDate.Name = "lblDate";
         lblDate.Size = new Size(70, 21);
@@ -269,12 +269,12 @@ partial class frmOpeningStock
         // 
         // gbItems
         // 
-        gbItems.BackColor = Color.FromArgb(235, 245, 235);
+        gbItems.BackColor = System.Drawing.Color.White;
         gbItems.Controls.Add(dgvLines);
         gbItems.Controls.Add(lblProductsHeader);
         gbItems.Dock = DockStyle.Fill;
         gbItems.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbItems.ForeColor = Color.FromArgb(14, 82, 52);
+        gbItems.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbItems.Location = new Point(0, 196);
         gbItems.Name = "gbItems";
         gbItems.Padding = new Padding(8);
@@ -288,7 +288,7 @@ partial class frmOpeningStock
         // 
         lblProductsHeader.Dock = DockStyle.Top;
         lblProductsHeader.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblProductsHeader.ForeColor = Color.FromArgb(14, 82, 52);
+        lblProductsHeader.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblProductsHeader.Location = new Point(8, 24);
         lblProductsHeader.Name = "lblProductsHeader";
         lblProductsHeader.Size = new Size(984, 26);
@@ -300,29 +300,29 @@ partial class frmOpeningStock
         // 
         dgvLines.AllowUserToAddRows = false;
         dgvLines.AllowUserToDeleteRows = false;
-        dgvLines.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvLines.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvLines.AutoGenerateColumns = false;
         dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvLines.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvLines.BackgroundColor = System.Drawing.Color.White;
         dgvLines.BorderStyle = BorderStyle.None;
         dgvLines.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dgvLines.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvLines.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvLines.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
         dgvLines.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvLines.ColumnHeadersHeight = 42;
         dgvLines.Columns.AddRange(new DataGridViewColumn[] { colProductName, colUnit, colQuantity, colUnitCost, colTotalCost });
         dgvLines.ContextMenuStrip = cmsLines;
-        dgvLines.DefaultCellStyle.BackColor = Color.White;
+        dgvLines.DefaultCellStyle.BackColor = System.Drawing.Color.White;
         dgvLines.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvLines.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvLines.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvLines.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvLines.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvLines.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvLines.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvLines.Dock = DockStyle.Fill;
         dgvLines.EnableHeadersVisualStyles = false;
-        dgvLines.GridColor = Color.FromArgb(205, 225, 205);
+        dgvLines.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvLines.Location = new Point(8, 50);
         dgvLines.Name = "dgvLines";
         dgvLines.RowHeadersVisible = false;
@@ -384,14 +384,14 @@ partial class frmOpeningStock
         // 
         // gbTotals
         // 
-        gbTotals.BackColor = Color.FromArgb(235, 245, 235);
+        gbTotals.BackColor = System.Drawing.Color.White;
         gbTotals.Controls.Add(txtTotalCost);
         gbTotals.Controls.Add(lblTotalCostCaption);
         gbTotals.Controls.Add(lblItemCountValue);
         gbTotals.Controls.Add(lblItemCountCaption);
         gbTotals.Dock = DockStyle.Bottom;
         gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbTotals.ForeColor = Color.FromArgb(14, 82, 52);
+        gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbTotals.Location = new Point(0, 588);
         gbTotals.Name = "gbTotals";
         gbTotals.Padding = new Padding(8);
@@ -405,7 +405,7 @@ partial class frmOpeningStock
         // 
         lblItemCountCaption.AutoSize = true;
         lblItemCountCaption.Font = new Font("Tahoma", 10F);
-        lblItemCountCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblItemCountCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblItemCountCaption.Location = new Point(12, 30);
         lblItemCountCaption.Name = "lblItemCountCaption";
         lblItemCountCaption.Size = new Size(90, 21);
@@ -416,7 +416,7 @@ partial class frmOpeningStock
         // 
         lblItemCountValue.AutoSize = true;
         lblItemCountValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblItemCountValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblItemCountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblItemCountValue.Location = new Point(112, 30);
         lblItemCountValue.Name = "lblItemCountValue";
         lblItemCountValue.Size = new Size(23, 21);
@@ -427,7 +427,7 @@ partial class frmOpeningStock
         // 
         lblTotalCostCaption.AutoSize = true;
         lblTotalCostCaption.Font = new Font("Tahoma", 10F);
-        lblTotalCostCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalCostCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalCostCaption.Location = new Point(200, 30);
         lblTotalCostCaption.Name = "lblTotalCostCaption";
         lblTotalCostCaption.Size = new Size(110, 21);
@@ -436,9 +436,9 @@ partial class frmOpeningStock
         // 
         // txtTotalCost
         // 
-        txtTotalCost.BackColor = Color.White;
+        txtTotalCost.BackColor = System.Drawing.Color.White;
         txtTotalCost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        txtTotalCost.ForeColor = Color.FromArgb(14, 82, 52);
+        txtTotalCost.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         txtTotalCost.Location = new Point(320, 26);
         txtTotalCost.Name = "txtTotalCost";
         txtTotalCost.ReadOnly = true;
@@ -453,7 +453,7 @@ partial class frmOpeningStock
         AcceptButton = btnSave;
         AutoScaleMode = AutoScaleMode.None;
         AutoValidate = AutoValidate.EnableAllowFocusChange;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnCancel;
         ClientSize = new Size(1000, 660);
         Controls.Add(gbItems);

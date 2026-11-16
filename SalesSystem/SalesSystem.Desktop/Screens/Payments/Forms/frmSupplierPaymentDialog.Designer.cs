@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Payments.Forms
+namespace SalesSystem.Desktop.Screens.Payments.Forms
 {
     partial class frmSupplierPaymentDialog
     {
@@ -44,11 +44,11 @@
             // 
             // gbPaymentInfo
             // 
-            gbPaymentInfo.BackColor = Color.FromArgb(235, 245, 235);
+            gbPaymentInfo.BackColor = System.Drawing.Color.White;
             gbPaymentInfo.Controls.Add(tlpInfo);
             gbPaymentInfo.Dock = DockStyle.Fill;
             gbPaymentInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbPaymentInfo.ForeColor = Color.FromArgb(14, 82, 52);
+            gbPaymentInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             gbPaymentInfo.Location = new Point(0, 0);
             gbPaymentInfo.Margin = new Padding(0);
             gbPaymentInfo.Name = "gbPaymentInfo";
@@ -60,7 +60,7 @@
             // 
             // tlpInfo
             // 
-            tlpInfo.BackColor = Color.FromArgb(235, 245, 235);
+            tlpInfo.BackColor = System.Drawing.Color.White;
             tlpInfo.ColumnCount = 2;
             tlpInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F));
             tlpInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -94,7 +94,7 @@
             // 
             lblSupplier.Dock = DockStyle.Fill;
             lblSupplier.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblSupplier.ForeColor = Color.FromArgb(14, 82, 52);
+            lblSupplier.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblSupplier.Location = new Point(4, 0);
             lblSupplier.Margin = new Padding(4, 0, 4, 0);
             lblSupplier.Name = "lblSupplier";
@@ -105,7 +105,7 @@
             // 
             // cmbSupplier
             // 
-            cmbSupplier.BackColor = Color.White;
+            cmbSupplier.BackColor = System.Drawing.Color.White;
             cmbSupplier.Dock = DockStyle.Fill;
             cmbSupplier.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSupplier.FlatStyle = FlatStyle.Flat;
@@ -122,7 +122,7 @@
             // 
             lblBalance.Dock = DockStyle.Fill;
             lblBalance.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblBalance.ForeColor = Color.FromArgb(14, 82, 52);
+            lblBalance.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblBalance.Location = new Point(4, 46);
             lblBalance.Margin = new Padding(4, 0, 4, 0);
             lblBalance.Name = "lblBalance";
@@ -135,7 +135,7 @@
             // 
             lblBalanceVal.Dock = DockStyle.Fill;
             lblBalanceVal.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblBalanceVal.ForeColor = Color.Blue;
+            lblBalanceVal.ForeColor = System.Drawing.Color.Blue;
             lblBalanceVal.Location = new Point(174, 46);
             lblBalanceVal.Margin = new Padding(4, 0, 4, 0);
             lblBalanceVal.Name = "lblBalanceVal";
@@ -148,7 +148,7 @@
             // 
             lblInvoice.Dock = DockStyle.Fill;
             lblInvoice.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblInvoice.ForeColor = Color.FromArgb(14, 82, 52);
+            lblInvoice.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblInvoice.Location = new Point(4, 92);
             lblInvoice.Margin = new Padding(4, 0, 4, 0);
             lblInvoice.Name = "lblInvoice";
@@ -159,7 +159,7 @@
             // 
             // cmbInvoice
             // 
-            cmbInvoice.BackColor = Color.White;
+            cmbInvoice.BackColor = System.Drawing.Color.White;
             cmbInvoice.Dock = DockStyle.Fill;
             cmbInvoice.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbInvoice.FlatStyle = FlatStyle.Flat;
@@ -175,7 +175,7 @@
             // 
             lblAmount.Dock = DockStyle.Fill;
             lblAmount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblAmount.ForeColor = Color.FromArgb(14, 82, 52);
+            lblAmount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblAmount.Location = new Point(4, 138);
             lblAmount.Margin = new Padding(4, 0, 4, 0);
             lblAmount.Name = "lblAmount";
@@ -186,7 +186,7 @@
             // 
             // numAmount
             // 
-            numAmount.BackColor = Color.White;
+            numAmount.BackColor = System.Drawing.Color.White;
             numAmount.DecimalPlaces = 2;
             numAmount.Dock = DockStyle.Fill;
             numAmount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -203,7 +203,7 @@
             // 
             lblDate.Dock = DockStyle.Fill;
             lblDate.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblDate.ForeColor = Color.FromArgb(14, 82, 52);
+            lblDate.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblDate.Location = new Point(4, 184);
             lblDate.Margin = new Padding(4, 0, 4, 0);
             lblDate.Name = "lblDate";
@@ -214,7 +214,7 @@
             // 
             // dtpDate
             // 
-            dtpDate.BackColor = Color.White;
+            dtpDate.BackColor = System.Drawing.Color.White;
             dtpDate.Dock = DockStyle.Fill;
             dtpDate.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             dtpDate.Format = DateTimePickerFormat.Short;
@@ -228,7 +228,7 @@
             // 
             lblNotes.Dock = DockStyle.Fill;
             lblNotes.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblNotes.ForeColor = Color.FromArgb(14, 82, 52);
+            lblNotes.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             lblNotes.Location = new Point(4, 230);
             lblNotes.Margin = new Padding(4, 0, 4, 0);
             lblNotes.Name = "lblNotes";
@@ -239,7 +239,7 @@
             // 
             // txtNotes
             // 
-            txtNotes.BackColor = Color.White;
+            txtNotes.BackColor = System.Drawing.Color.White;
             txtNotes.Dock = DockStyle.Fill;
             txtNotes.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtNotes.Location = new Point(174, 238);
@@ -252,7 +252,7 @@
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+            pnlFooter.BackColor = System.Drawing.Color.White;
             pnlFooter.Controls.Add(flpButtons);
             pnlFooter.Dock = DockStyle.Bottom;
             pnlFooter.Location = new Point(0, 418);
@@ -263,7 +263,7 @@
             // 
             // flpButtons
             // 
-            flpButtons.BackColor = Color.FromArgb(235, 240, 235);
+            flpButtons.BackColor = System.Drawing.Color.White;
             flpButtons.Controls.Add(btnSave);
             flpButtons.Controls.Add(btnCancel);
             flpButtons.Dock = DockStyle.Fill;
@@ -278,11 +278,11 @@
             // 
             // btnSave
             // 
-            btnSave.BackColor = Color.FromArgb(25, 135, 84);
+            btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.FlatStyle = FlatStyle.Flat;
             btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSave.ForeColor = Color.White;
+            btnSave.ForeColor = System.Drawing.Color.White;
             btnSave.Location = new Point(486, 11);
             btnSave.Margin = new Padding(4);
             btnSave.Name = "btnSave";
@@ -294,11 +294,11 @@
             // 
             // btnCancel
             // 
-            btnCancel.BackColor = Color.FromArgb(108, 117, 125);
+            btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancel.ForeColor = Color.White;
+            btnCancel.ForeColor = System.Drawing.Color.White;
             btnCancel.Location = new Point(342, 11);
             btnCancel.Margin = new Padding(4);
             btnCancel.Name = "btnCancel";
@@ -311,14 +311,14 @@
             // toolTip1
             // 
             toolTip1.AutomaticDelay = 300;
-            toolTip1.BackColor = Color.White;
-            toolTip1.ForeColor = Color.Black;
+            toolTip1.BackColor = System.Drawing.Color.White;
+            toolTip1.ForeColor = System.Drawing.Color.Black;
             // 
             // liveTip
             // 
             liveTip.AutomaticDelay = 300;
-            liveTip.BackColor = Color.White;
-            liveTip.ForeColor = Color.Black;
+            liveTip.BackColor = System.Drawing.Color.White;
+            liveTip.ForeColor = System.Drawing.Color.Black;
             // 
             // errorProvider
             // 
@@ -330,7 +330,7 @@
             // 
             AcceptButton = btnSave;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(170, 220, 170);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             CancelButton = btnCancel;
             ClientSize = new Size(640, 492);
             Controls.Add(gbPaymentInfo);

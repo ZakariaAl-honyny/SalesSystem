@@ -82,7 +82,7 @@ partial class frmInventoryFifo
         // 
         // pnlTitle
         // 
-        pnlTitle.BackColor = Color.FromArgb(14, 165, 103);
+        pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlTitle.Controls.Add(lblMode);
         pnlTitle.Dock = DockStyle.Top;
         pnlTitle.Location = new Point(0, 0);
@@ -92,10 +92,10 @@ partial class frmInventoryFifo
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(760, 52);
@@ -105,7 +105,7 @@ partial class frmInventoryFifo
         // 
         // pnlInfo
         // 
-        pnlInfo.BackColor = Color.FromArgb(235, 240, 235);
+        pnlInfo.BackColor = System.Drawing.Color.White;
         pnlInfo.Controls.Add(gbInfo);
         pnlInfo.Dock = DockStyle.Top;
         pnlInfo.Location = new Point(0, 52);
@@ -116,11 +116,11 @@ partial class frmInventoryFifo
         // 
         // gbInfo
         // 
-        gbInfo.BackColor = Color.FromArgb(235, 245, 235);
+        gbInfo.BackColor = System.Drawing.Color.White;
         gbInfo.Controls.Add(tlpInfo);
         gbInfo.Dock = DockStyle.Fill;
         gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbInfo.ForeColor = Color.FromArgb(14, 82, 52);
+        gbInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbInfo.Location = new Point(8, 8);
         gbInfo.Name = "gbInfo";
         gbInfo.Padding = new Padding(6);
@@ -151,7 +151,7 @@ partial class frmInventoryFifo
         // 
         lblProduct.Dock = DockStyle.Fill;
         lblProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblProduct.ForeColor = Color.FromArgb(33, 37, 41);
+        lblProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblProduct.Location = new Point(479, 0);
         lblProduct.Margin = new Padding(3, 0, 12, 0);
         lblProduct.Name = "lblProduct";
@@ -164,7 +164,7 @@ partial class frmInventoryFifo
         // 
         lblWarehouse.Dock = DockStyle.Fill;
         lblWarehouse.Font = new Font("Tahoma", 10F);
-        lblWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblWarehouse.Location = new Point(231, 0);
         lblWarehouse.Margin = new Padding(3, 0, 12, 0);
         lblWarehouse.Name = "lblWarehouse";
@@ -175,10 +175,10 @@ partial class frmInventoryFifo
         // 
         // lblMethodBadge
         // 
-        lblMethodBadge.BackColor = Color.FromArgb(14, 165, 103);
+        lblMethodBadge.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMethodBadge.Dock = DockStyle.Fill;
         lblMethodBadge.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblMethodBadge.ForeColor = Color.White;
+        lblMethodBadge.ForeColor = System.Drawing.Color.White;
         lblMethodBadge.Location = new Point(3, 4);
         lblMethodBadge.Margin = new Padding(12, 4, 0, 4);
         lblMethodBadge.Name = "lblMethodBadge";
@@ -190,12 +190,12 @@ partial class frmInventoryFifo
         // 
         // gbGrid
         // 
-        gbGrid.BackColor = Color.FromArgb(235, 245, 235);
+        gbGrid.BackColor = System.Drawing.Color.White;
         gbGrid.Controls.Add(dgvLayers);
         gbGrid.Controls.Add(lblEmptyState);
         gbGrid.Dock = DockStyle.Fill;
         gbGrid.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbGrid.ForeColor = Color.FromArgb(14, 82, 52);
+        gbGrid.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbGrid.Location = new Point(0, 136);
         gbGrid.Name = "gbGrid";
         gbGrid.Padding = new Padding(8);
@@ -209,28 +209,28 @@ partial class frmInventoryFifo
         // 
         dgvLayers.AllowUserToAddRows = false;
         dgvLayers.AllowUserToDeleteRows = false;
-        dgvLayers.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvLayers.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvLayers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvLayers.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvLayers.BackgroundColor = System.Drawing.Color.White;
         dgvLayers.BorderStyle = BorderStyle.None;
         dgvLayers.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dgvLayers.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvLayers.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
+        dgvLayers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
         dgvLayers.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        dgvLayers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvLayers.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvLayers.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvLayers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvLayers.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvLayers.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvLayers.ColumnHeadersHeight = 46;
         dgvLayers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
         dgvLayers.ContextMenuStrip = cmsLayers;
-        dgvLayers.DefaultCellStyle.BackColor = Color.White;
+        dgvLayers.DefaultCellStyle.BackColor = System.Drawing.Color.White;
         dgvLayers.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvLayers.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvLayers.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvLayers.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvLayers.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvLayers.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvLayers.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvLayers.Dock = DockStyle.Fill;
         dgvLayers.EnableHeadersVisualStyles = false;
-        dgvLayers.GridColor = Color.FromArgb(205, 225, 205);
+        dgvLayers.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvLayers.Location = new Point(8, 24);
         dgvLayers.MultiSelect = false;
         dgvLayers.Name = "dgvLayers";
@@ -246,10 +246,10 @@ partial class frmInventoryFifo
         // 
         // lblEmptyState
         // 
-        lblEmptyState.BackColor = Color.FromArgb(220, 240, 220);
+        lblEmptyState.BackColor = System.Drawing.Color.White;
         lblEmptyState.Dock = DockStyle.Fill;
         lblEmptyState.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblEmptyState.ForeColor = Color.FromArgb(14, 82, 52);
+        lblEmptyState.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblEmptyState.Location = new Point(8, 24);
         lblEmptyState.Name = "lblEmptyState";
         lblEmptyState.Size = new Size(744, 332);
@@ -260,7 +260,7 @@ partial class frmInventoryFifo
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFooter.BackColor = System.Drawing.Color.White;
         pnlFooter.Controls.Add(gbTotals);
         pnlFooter.Dock = DockStyle.Bottom;
         pnlFooter.Location = new Point(0, 500);
@@ -271,11 +271,11 @@ partial class frmInventoryFifo
         // 
         // gbTotals
         // 
-        gbTotals.BackColor = Color.FromArgb(235, 245, 235);
+        gbTotals.BackColor = System.Drawing.Color.White;
         gbTotals.Controls.Add(tlpFooter);
         gbTotals.Dock = DockStyle.Fill;
         gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbTotals.ForeColor = Color.FromArgb(14, 82, 52);
+        gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbTotals.Location = new Point(8, 8);
         gbTotals.Name = "gbTotals";
         gbTotals.Padding = new Padding(6);
@@ -312,7 +312,7 @@ partial class frmInventoryFifo
         // 
         lblTotalQtyCaption.Dock = DockStyle.Fill;
         lblTotalQtyCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotalQtyCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalQtyCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalQtyCaption.Location = new Point(552, 0);
         lblTotalQtyCaption.Margin = new Padding(3, 0, 8, 0);
         lblTotalQtyCaption.Name = "lblTotalQtyCaption";
@@ -325,7 +325,7 @@ partial class frmInventoryFifo
         // 
         lblTotalQtyValue.Dock = DockStyle.Fill;
         lblTotalQtyValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblTotalQtyValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblTotalQtyValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalQtyValue.Location = new Point(442, 0);
         lblTotalQtyValue.Margin = new Padding(3, 0, 12, 0);
         lblTotalQtyValue.Name = "lblTotalQtyValue";
@@ -338,7 +338,7 @@ partial class frmInventoryFifo
         // 
         lblTotalCostCaption.Dock = DockStyle.Fill;
         lblTotalCostCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotalCostCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalCostCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalCostCaption.Location = new Point(257, 0);
         lblTotalCostCaption.Margin = new Padding(3, 0, 8, 0);
         lblTotalCostCaption.Name = "lblTotalCostCaption";
@@ -351,7 +351,7 @@ partial class frmInventoryFifo
         // 
         lblTotalCostValue.Dock = DockStyle.Fill;
         lblTotalCostValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblTotalCostValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblTotalCostValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTotalCostValue.Location = new Point(147, 0);
         lblTotalCostValue.Margin = new Padding(3, 0, 12, 0);
         lblTotalCostValue.Name = "lblTotalCostValue";
@@ -362,14 +362,14 @@ partial class frmInventoryFifo
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.Cursor = Cursors.Hand;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.Dock = DockStyle.Fill;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(0, 0);
         btnClose.Margin = new Padding(12, 0, 0, 0);
         btnClose.Name = "btnClose";
@@ -385,7 +385,7 @@ partial class frmInventoryFifo
         tlpFooter.SetColumnSpan(lblNote, 5);
         lblNote.Dock = DockStyle.Fill;
         lblNote.Font = new Font("Tahoma", 9F, FontStyle.Italic);
-        lblNote.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNote.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblNote.Location = new Point(3, 44);
         lblNote.Name = "lblNote";
         lblNote.Size = new Size(726, 32);
@@ -396,7 +396,7 @@ partial class frmInventoryFifo
         // frmInventoryFifo
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(760, 620);
         Controls.Add(gbGrid);

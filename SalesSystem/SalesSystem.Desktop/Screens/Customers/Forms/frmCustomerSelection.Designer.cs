@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Customers.Forms
+namespace SalesSystem.Desktop.Screens.Customers.Forms
 {
     partial class frmCustomerSelection
     {
@@ -40,7 +40,7 @@
             // lblNoData
             this.lblNoData.AutoSize = true;
             this.lblNoData.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.lblNoData.ForeColor = System.Drawing.Color.FromArgb(14, 82, 52);
+            this.lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblNoData.Location = new System.Drawing.Point(420, 20);
             this.lblNoData.Name = "lblNoData";
             this.lblNoData.Size = new System.Drawing.Size(130, 24);
@@ -52,17 +52,17 @@
             this.dgvCustomers.AllowUserToAddRows = false;
             this.dgvCustomers.AllowUserToDeleteRows = false;
             this.dgvCustomers.AllowUserToResizeRows = false;
-            this.dgvCustomers.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(245, 252, 245);
+            this.dgvCustomers.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             this.dgvCustomers.AutoGenerateColumns = false;
             this.dgvCustomers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvCustomers.BackgroundColor = System.Drawing.Color.FromArgb(220, 240, 220);
+            this.dgvCustomers.BackgroundColor = System.Drawing.Color.White;
             this.dgvCustomers.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvCustomers.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dgvCustomers.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            this.dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvCustomers.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.dgvCustomers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(14, 165, 103);
+            this.dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             this.dgvCustomers.ColumnHeadersHeight = 45;
             this.dgvCustomers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
@@ -80,11 +80,11 @@
             this.dgvCustomers.Columns["Email"].FillWeight = 25F;
             this.dgvCustomers.DefaultCellStyle.BackColor = System.Drawing.Color.White;
             this.dgvCustomers.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.dgvCustomers.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
-            this.dgvCustomers.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(255, 255, 180);
-            this.dgvCustomers.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            this.dgvCustomers.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            this.dgvCustomers.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            this.dgvCustomers.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.dgvCustomers.EnableHeadersVisualStyles = false;
-            this.dgvCustomers.GridColor = System.Drawing.Color.FromArgb(205, 225, 205);
+            this.dgvCustomers.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.dgvCustomers.Location = new System.Drawing.Point(12, 50);
             this.dgvCustomers.MultiSelect = false;
             this.dgvCustomers.Name = "dgvCustomers";
@@ -102,7 +102,7 @@
             this.dgvCustomers.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dgvCustomers_KeyDown);
 
             // btnSelect
-            this.btnSelect.BackColor = System.Drawing.Color.FromArgb(40, 167, 69);
+            this.btnSelect.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
             this.btnSelect.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSelect.FlatAppearance.BorderSize = 0;
             this.btnSelect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -118,7 +118,7 @@
             this.btnSelect.Click += new System.EventHandler(this.btnSelect_Click);
 
             // btnCancel
-            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(108, 117, 125);
+            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             this.btnCancel.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatAppearance.BorderSize = 0;
@@ -160,7 +160,7 @@
             // frmCustomerSelection
             this.AcceptButton = this.btnSelect;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(170, 220, 170);
+            this.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(700, 490);
             this.Controls.Add(this.lblNoData);

@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Expenses.Forms;
+namespace SalesSystem.Desktop.Screens.Expenses.Forms;
 
 partial class frmListExpenses
 {
@@ -63,7 +63,7 @@ partial class frmListExpenses
         // 
         // cmsExpenses
         // 
-        cmsExpenses.BackColor = Color.White;
+        cmsExpenses.BackColor = System.Drawing.Color.White;
         cmsExpenses.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsExpenses.ImageScalingSize = new Size(24, 24);
         cmsExpenses.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, postToolStripMenuItem, cancelToolStripMenuItem, deleteToolStripMenuItem });
@@ -104,23 +104,23 @@ partial class frmListExpenses
         // 
         dgvExpenses.AllowUserToAddRows = false;
         dgvExpenses.AllowUserToDeleteRows = false;
-        dgvExpenses.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 252, 245);
+        dgvExpenses.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         dgvExpenses.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvExpenses.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvExpenses.BackgroundColor = System.Drawing.Color.White;
         dgvExpenses.BorderStyle = BorderStyle.None;
-        dgvExpenses.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(14, 165, 103);
-        dgvExpenses.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-        dgvExpenses.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dgvExpenses.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+        dgvExpenses.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvExpenses.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvExpenses.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
+        dgvExpenses.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvExpenses.ColumnHeadersHeight = 45;
         dgvExpenses.ContextMenuStrip = cmsExpenses;
-        dgvExpenses.DefaultCellStyle.BackColor = Color.White;
-        dgvExpenses.DefaultCellStyle.ForeColor = Color.FromArgb(33, 37, 41);
-        dgvExpenses.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dgvExpenses.DefaultCellStyle.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dgvExpenses.DefaultCellStyle.BackColor = System.Drawing.Color.White;
+        dgvExpenses.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvExpenses.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dgvExpenses.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvExpenses.Dock = DockStyle.Fill;
         dgvExpenses.EnableHeadersVisualStyles = false;
-        dgvExpenses.GridColor = Color.FromArgb(205, 225, 205);
+        dgvExpenses.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         dgvExpenses.Location = new Point(6, 6);
         dgvExpenses.Margin = new Padding(4);
         dgvExpenses.MultiSelect = false;
@@ -137,7 +137,7 @@ partial class frmListExpenses
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = Color.FromArgb(14, 165, 103);
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -149,10 +149,10 @@ partial class frmListExpenses
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(4, 4);
         lblMode.Margin = new Padding(0);
         lblMode.Name = "lblMode";
@@ -163,7 +163,7 @@ partial class frmListExpenses
         // 
         // pnlToolbar
         // 
-        pnlToolbar.BackColor = Color.FromArgb(235, 240, 235);
+        pnlToolbar.BackColor = System.Drawing.Color.White;
         pnlToolbar.Controls.Add(btnAddNew);
         pnlToolbar.Controls.Add(btnRefresh);
         pnlToolbar.Controls.Add(btnClose);
@@ -176,10 +176,10 @@ partial class frmListExpenses
         // 
         // btnAddNew
         // 
-        btnAddNew.BackColor = Color.FromArgb(40, 167, 69);
+        btnAddNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
         btnAddNew.FlatStyle = FlatStyle.Flat;
         btnAddNew.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnAddNew.ForeColor = Color.White;
+        btnAddNew.ForeColor = System.Drawing.Color.White;
         btnAddNew.Location = new Point(1056, 9);
         btnAddNew.Margin = new Padding(4);
         btnAddNew.Name = "btnAddNew";
@@ -191,10 +191,10 @@ partial class frmListExpenses
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRefresh.ForeColor = Color.White;
+        btnRefresh.ForeColor = System.Drawing.Color.White;
         btnRefresh.Location = new Point(912, 9);
         btnRefresh.Margin = new Padding(4);
         btnRefresh.Name = "btnRefresh";
@@ -206,10 +206,10 @@ partial class frmListExpenses
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(768, 9);
         btnClose.Margin = new Padding(4);
         btnClose.Name = "btnClose";
@@ -221,7 +221,7 @@ partial class frmListExpenses
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = Color.FromArgb(235, 240, 235);
+        pnlFilters.BackColor = System.Drawing.Color.White;
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -234,7 +234,7 @@ partial class frmListExpenses
         // 
         // gbFilter
         // 
-        gbFilter.BackColor = Color.FromArgb(235, 245, 235);
+        gbFilter.BackColor = System.Drawing.Color.White;
         gbFilter.Controls.Add(label1);
         gbFilter.Controls.Add(cbStatus);
         gbFilter.Controls.Add(label3);
@@ -264,7 +264,7 @@ partial class frmListExpenses
         // label1
         // 
         label1.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label1.ForeColor = Color.FromArgb(14, 82, 52);
+        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label1.Location = new Point(1104, 28);
         label1.Margin = new Padding(0);
         label1.Name = "label1";
@@ -277,7 +277,7 @@ partial class frmListExpenses
         // 
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
-        cbStatus.BackColor = Color.White;
+        cbStatus.BackColor = System.Drawing.Color.White;
         cbStatus.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbStatus.FormattingEnabled = true;
         // عناصر الحالة تُملأ وقت التشغيل من DocumentTextHelper.StatusOptions (RULE-N169) — لا قائمة مكرّرة في المصمّم.
@@ -291,7 +291,7 @@ partial class frmListExpenses
         // label3
         // 
         label3.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label3.ForeColor = Color.FromArgb(14, 82, 52);
+        label3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label3.Location = new Point(926, 28);
         label3.Margin = new Padding(0);
         label3.Name = "label3";
@@ -314,7 +314,7 @@ partial class frmListExpenses
         // label4
         // 
         label4.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label4.ForeColor = Color.FromArgb(14, 82, 52);
+        label4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label4.Location = new Point(740, 28);
         label4.Margin = new Padding(0);
         label4.Name = "label4";
@@ -337,7 +337,7 @@ partial class frmListExpenses
         // label2
         // 
         label2.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label2.ForeColor = Color.FromArgb(14, 82, 52);
+        label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         label2.Location = new Point(517, 28);
         label2.Margin = new Padding(0);
         label2.Name = "label2";
@@ -350,7 +350,7 @@ partial class frmListExpenses
         // 
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
-        cbFilterBy.BackColor = Color.White;
+        cbFilterBy.BackColor = System.Drawing.Color.White;
         cbFilterBy.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbFilterBy.FormattingEnabled = true;
         cbFilterBy.Items.AddRange(new object[] { "لا شيء", "رقم السند", "البيان", "حساب المصروف", "الصندوق", "المبلغ" });
@@ -363,7 +363,7 @@ partial class frmListExpenses
         // 
         // txtSearch
         // 
-        txtSearch.BackColor = Color.White;
+        txtSearch.BackColor = System.Drawing.Color.White;
         txtSearch.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtSearch.Location = new Point(129, 26);
         txtSearch.Margin = new Padding(0);
@@ -376,12 +376,12 @@ partial class frmListExpenses
         // 
         // btnRangeToday
         // 
-        btnRangeToday.BackColor = Color.FromArgb(248, 249, 250);
-        btnRangeToday.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRangeToday.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnRangeToday.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         btnRangeToday.FlatAppearance.BorderSize = 1;
         btnRangeToday.FlatStyle = FlatStyle.Flat;
         btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRangeToday.ForeColor = Color.FromArgb(33, 37, 41);
+        btnRangeToday.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         btnRangeToday.Location = new Point(1074, 62);
         btnRangeToday.Margin = new Padding(0);
         btnRangeToday.Name = "btnRangeToday";
@@ -393,12 +393,12 @@ partial class frmListExpenses
         // 
         // btnRange30
         // 
-        btnRange30.BackColor = Color.FromArgb(248, 249, 250);
-        btnRange30.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRange30.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnRange30.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         btnRange30.FlatAppearance.BorderSize = 1;
         btnRange30.FlatStyle = FlatStyle.Flat;
         btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRange30.ForeColor = Color.FromArgb(33, 37, 41);
+        btnRange30.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         btnRange30.Location = new Point(945, 62);
         btnRange30.Margin = new Padding(0);
         btnRange30.Name = "btnRange30";
@@ -410,12 +410,12 @@ partial class frmListExpenses
         // 
         // btnRangeMonth
         // 
-        btnRangeMonth.BackColor = Color.FromArgb(248, 249, 250);
-        btnRangeMonth.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnRangeMonth.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         btnRangeMonth.FlatAppearance.BorderSize = 1;
         btnRangeMonth.FlatStyle = FlatStyle.Flat;
         btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRangeMonth.ForeColor = Color.FromArgb(33, 37, 41);
+        btnRangeMonth.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         btnRangeMonth.Location = new Point(831, 62);
         btnRangeMonth.Margin = new Padding(0);
         btnRangeMonth.Name = "btnRangeMonth";
@@ -428,7 +428,7 @@ partial class frmListExpenses
         // chkOnlyCancelled
         // 
         chkOnlyCancelled.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        chkOnlyCancelled.ForeColor = Color.FromArgb(14, 82, 52);
+        chkOnlyCancelled.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         chkOnlyCancelled.Location = new Point(683, 64);
         chkOnlyCancelled.Margin = new Padding(0);
         chkOnlyCancelled.Name = "chkOnlyCancelled";
@@ -441,13 +441,13 @@ partial class frmListExpenses
         // btnClearFilters
         // 
         // RULE-N148: «مسح التصفية» يمسح أدوات التصفية فقط ولا يعيد تحميل البيانات — مُعلَن في المصمّم بقيم حرفية.
-        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
         btnClearFilters.Location = new Point(530, 62);
         btnClearFilters.Margin = new Padding(0);
         btnClearFilters.Name = "btnClearFilters";
@@ -462,15 +462,15 @@ partial class frmListExpenses
         // 
         // RULE-N145: مُعلَن في المصمّم بقيم حرفية مطابقة لما يُطبَّق وقت التشغيل.
         // السلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
-        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
         btnToggleFilters.FlatAppearance.BorderSize = 1;
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -480,7 +480,7 @@ partial class frmListExpenses
         // 
         // pnlGrid
         // 
-        pnlGrid.BackColor = Color.FromArgb(235, 240, 235);
+        pnlGrid.BackColor = System.Drawing.Color.White;
         pnlGrid.Controls.Add(dgvExpenses);
         pnlGrid.Controls.Add(lblEmpty);
         pnlGrid.Dock = DockStyle.Fill;
@@ -493,10 +493,10 @@ partial class frmListExpenses
         // 
         // lblEmpty
         // 
-        lblEmpty.BackColor = Color.Transparent;
+        lblEmpty.BackColor = System.Drawing.Color.Transparent;
         lblEmpty.Dock = DockStyle.Fill;
         lblEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblEmpty.ForeColor = Color.FromArgb(14, 82, 52);
+        lblEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblEmpty.Location = new Point(6, 6);
         lblEmpty.Margin = new Padding(0);
         lblEmpty.Name = "lblEmpty";
@@ -508,7 +508,7 @@ partial class frmListExpenses
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = Color.FromArgb(235, 240, 235);
+        pnlSummary.BackColor = System.Drawing.Color.White;
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Controls.Add(lblRecordsCount);
         pnlSummary.Dock = DockStyle.Bottom;
@@ -522,7 +522,7 @@ partial class frmListExpenses
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblSummary.Location = new Point(90, 0);
         lblSummary.Margin = new Padding(0);
         lblSummary.Name = "lblSummary";
@@ -536,7 +536,7 @@ partial class frmListExpenses
         // 
         lblRecordsCount.Dock = DockStyle.Right;
         lblRecordsCount.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblRecordsCount.ForeColor = Color.FromArgb(14, 82, 52);
+        lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblRecordsCount.Location = new Point(1110, 0);
         lblRecordsCount.Margin = new Padding(0);
         lblRecordsCount.Name = "lblRecordsCount";
@@ -548,19 +548,19 @@ partial class frmListExpenses
         // toolTip1
         // 
         toolTip1.AutomaticDelay = 300;
-        toolTip1.BackColor = Color.White;
-        toolTip1.ForeColor = Color.Black;
+        toolTip1.BackColor = System.Drawing.Color.White;
+        toolTip1.ForeColor = System.Drawing.Color.Black;
         // 
         // liveTip
         // 
         liveTip.AutomaticDelay = 300;
-        liveTip.BackColor = Color.White;
-        liveTip.ForeColor = Color.Black;
+        liveTip.BackColor = System.Drawing.Color.White;
+        liveTip.ForeColor = System.Drawing.Color.Black;
         // 
         // frmListExpenses
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         ClientSize = new Size(1200, 723);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

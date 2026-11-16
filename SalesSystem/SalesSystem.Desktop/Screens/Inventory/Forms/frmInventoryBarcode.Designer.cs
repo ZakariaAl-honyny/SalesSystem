@@ -55,11 +55,11 @@ partial class frmInventoryBarcode
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
         lblMode.Dock = DockStyle.Top;
         lblMode.FlatStyle = FlatStyle.Flat;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(580, 42);
@@ -69,12 +69,12 @@ partial class frmInventoryBarcode
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = Color.FromArgb(235, 245, 235);
+        gbToolbar.BackColor = System.Drawing.Color.White;
         gbToolbar.Controls.Add(btnClose);
         gbToolbar.Controls.Add(btnPrint);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbToolbar.ForeColor = Color.FromArgb(14, 82, 52);
+        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbToolbar.Location = new Point(0, 42);
         gbToolbar.Name = "gbToolbar";
         gbToolbar.Padding = new Padding(8);
@@ -86,12 +86,12 @@ partial class frmInventoryBarcode
         // 
         // btnPrint
         // 
-        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
+        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnPrint.Cursor = Cursors.Hand;
         btnPrint.FlatAppearance.BorderSize = 0;
         btnPrint.FlatStyle = FlatStyle.Flat;
         btnPrint.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnPrint.ForeColor = Color.White;
+        btnPrint.ForeColor = System.Drawing.Color.White;
         btnPrint.Location = new Point(12, 16);
         btnPrint.MinimumSize = new Size(100, 34);
         btnPrint.Name = "btnPrint";
@@ -104,13 +104,13 @@ partial class frmInventoryBarcode
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.Cursor = Cursors.Hand;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(172, 16);
         btnClose.MinimumSize = new Size(100, 34);
         btnClose.Name = "btnClose";
@@ -123,7 +123,7 @@ partial class frmInventoryBarcode
         // 
         // gbInfo
         // 
-        gbInfo.BackColor = Color.FromArgb(235, 245, 235);
+        gbInfo.BackColor = System.Drawing.Color.White;
         gbInfo.Controls.Add(cmbLabelSize);
         gbInfo.Controls.Add(lblLabelSize);
         gbInfo.Controls.Add(nudLabelsCount);
@@ -136,7 +136,7 @@ partial class frmInventoryBarcode
         gbInfo.Controls.Add(lblProduct);
         gbInfo.Dock = DockStyle.Top;
         gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbInfo.ForeColor = Color.FromArgb(14, 82, 52);
+        gbInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbInfo.Location = new Point(0, 110);
         gbInfo.Name = "gbInfo";
         gbInfo.Padding = new Padding(8);
@@ -150,7 +150,7 @@ partial class frmInventoryBarcode
         // 
         lblProduct.AutoSize = true;
         lblProduct.Font = new Font("Tahoma", 10F);
-        lblProduct.ForeColor = Color.FromArgb(33, 37, 41);
+        lblProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblProduct.Location = new Point(12, 32);
         lblProduct.Name = "lblProduct";
         lblProduct.Size = new Size(60, 21);
@@ -159,11 +159,11 @@ partial class frmInventoryBarcode
         // 
         // cmbProduct
         // 
-        cmbProduct.BackColor = Color.White;
+        cmbProduct.BackColor = System.Drawing.Color.White;
         cmbProduct.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbProduct.FlatStyle = FlatStyle.Flat;
         cmbProduct.Font = new Font("Tahoma", 10F);
-        cmbProduct.ForeColor = Color.FromArgb(33, 37, 41);
+        cmbProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         cmbProduct.FormattingEnabled = true;
         cmbProduct.Location = new Point(100, 28);
         cmbProduct.Name = "cmbProduct";
@@ -176,7 +176,7 @@ partial class frmInventoryBarcode
         // 
         lblScanBarcode.AutoSize = true;
         lblScanBarcode.Font = new Font("Tahoma", 10F);
-        lblScanBarcode.ForeColor = Color.FromArgb(33, 37, 41);
+        lblScanBarcode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblScanBarcode.Location = new Point(12, 78);
         lblScanBarcode.Name = "lblScanBarcode";
         lblScanBarcode.Size = new Size(236, 21);
@@ -185,9 +185,9 @@ partial class frmInventoryBarcode
         // 
         // txtBarcode
         // 
-        txtBarcode.BackColor = Color.White;
+        txtBarcode.BackColor = System.Drawing.Color.White;
         txtBarcode.Font = new Font("Tahoma", 10F);
-        txtBarcode.ForeColor = Color.FromArgb(33, 37, 41);
+        txtBarcode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         txtBarcode.Location = new Point(300, 74);
         txtBarcode.Name = "txtBarcode";
         txtBarcode.Size = new Size(230, 27);
@@ -200,7 +200,7 @@ partial class frmInventoryBarcode
         // 
         lblBarcode.AutoSize = true;
         lblBarcode.Font = new Font("Tahoma", 10F);
-        lblBarcode.ForeColor = Color.FromArgb(33, 37, 41);
+        lblBarcode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblBarcode.Location = new Point(12, 124);
         lblBarcode.Name = "lblBarcode";
         lblBarcode.Size = new Size(78, 21);
@@ -209,10 +209,10 @@ partial class frmInventoryBarcode
         // 
         // lblBarcodeValue
         // 
-        lblBarcodeValue.BackColor = Color.White;
+        lblBarcodeValue.BackColor = System.Drawing.Color.White;
         lblBarcodeValue.BorderStyle = BorderStyle.FixedSingle;
         lblBarcodeValue.Font = new Font("Consolas", 10F, FontStyle.Bold);
-        lblBarcodeValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblBarcodeValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblBarcodeValue.Location = new Point(112, 120);
         lblBarcodeValue.Name = "lblBarcodeValue";
         lblBarcodeValue.Size = new Size(418, 28);
@@ -225,7 +225,7 @@ partial class frmInventoryBarcode
         // 
         lblLabelsCount.AutoSize = true;
         lblLabelsCount.Font = new Font("Tahoma", 10F);
-        lblLabelsCount.ForeColor = Color.FromArgb(33, 37, 41);
+        lblLabelsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblLabelsCount.Location = new Point(12, 170);
         lblLabelsCount.Name = "lblLabelsCount";
         lblLabelsCount.Size = new Size(100, 21);
@@ -234,9 +234,9 @@ partial class frmInventoryBarcode
         // 
         // nudLabelsCount
         // 
-        nudLabelsCount.BackColor = Color.White;
+        nudLabelsCount.BackColor = System.Drawing.Color.White;
         nudLabelsCount.Font = new Font("Tahoma", 10F);
-        nudLabelsCount.ForeColor = Color.FromArgb(33, 37, 41);
+        nudLabelsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         nudLabelsCount.Location = new Point(140, 166);
         nudLabelsCount.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
         nudLabelsCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
@@ -251,7 +251,7 @@ partial class frmInventoryBarcode
         // 
         lblLabelSize.AutoSize = true;
         lblLabelSize.Font = new Font("Tahoma", 10F);
-        lblLabelSize.ForeColor = Color.FromArgb(33, 37, 41);
+        lblLabelSize.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblLabelSize.Location = new Point(320, 170);
         lblLabelSize.Name = "lblLabelSize";
         lblLabelSize.Size = new Size(83, 21);
@@ -260,11 +260,11 @@ partial class frmInventoryBarcode
         // 
         // cmbLabelSize
         // 
-        cmbLabelSize.BackColor = Color.White;
+        cmbLabelSize.BackColor = System.Drawing.Color.White;
         cmbLabelSize.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbLabelSize.FlatStyle = FlatStyle.Flat;
         cmbLabelSize.Font = new Font("Tahoma", 10F);
-        cmbLabelSize.ForeColor = Color.FromArgb(33, 37, 41);
+        cmbLabelSize.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         cmbLabelSize.FormattingEnabled = true;
         cmbLabelSize.Items.AddRange(new object[] { "صغير", "متوسط", "كبير" });
         cmbLabelSize.Location = new Point(420, 166);
@@ -275,11 +275,11 @@ partial class frmInventoryBarcode
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = Color.FromArgb(235, 245, 235);
+        gbPreview.BackColor = System.Drawing.Color.White;
         gbPreview.Controls.Add(pnlBarcodePreview);
         gbPreview.Dock = DockStyle.Fill;
         gbPreview.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbPreview.ForeColor = Color.FromArgb(14, 82, 52);
+        gbPreview.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbPreview.Location = new Point(0, 310);
         gbPreview.Name = "gbPreview";
         gbPreview.Padding = new Padding(8);
@@ -291,7 +291,7 @@ partial class frmInventoryBarcode
         // 
         // pnlBarcodePreview
         // 
-        pnlBarcodePreview.BackColor = Color.White;
+        pnlBarcodePreview.BackColor = System.Drawing.Color.White;
         pnlBarcodePreview.BorderStyle = BorderStyle.FixedSingle;
         pnlBarcodePreview.Dock = DockStyle.Fill;
         pnlBarcodePreview.Location = new Point(8, 24);
@@ -306,7 +306,7 @@ partial class frmInventoryBarcode
         AcceptButton = btnPrint;
         AutoScaleMode = AutoScaleMode.None;
         AutoValidate = AutoValidate.EnableAllowFocusChange;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
         ClientSize = new Size(580, 700);
         Controls.Add(gbPreview);

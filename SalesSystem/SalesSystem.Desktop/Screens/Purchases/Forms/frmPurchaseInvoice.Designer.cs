@@ -1,4 +1,4 @@
-﻿namespace SalesSystem.Desktop.Screens.Purchases.Forms
+namespace SalesSystem.Desktop.Screens.Purchases.Forms
 {
     partial class frmPurchaseInvoice
     {
@@ -85,7 +85,7 @@
             // 
             // lblMode — شريط العنوان (RULE-N44 / RULE-N53). القيم حرفية مطابقة لثوابت الثيم الأخضر.
             // 
-            this.lblMode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(165)))), ((int)(((byte)(103)))));
+            this.lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             this.lblMode.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblMode.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Bold);
             this.lblMode.ForeColor = System.Drawing.Color.White;
@@ -97,7 +97,7 @@
             // 
             // gbToolbar — أوامر الفاتورة (RULE-N135 / RULE-N136)
             // 
-            this.gbToolbar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(245)))), ((int)(((byte)(235)))));
+            this.gbToolbar.BackColor = System.Drawing.Color.White;
             this.gbToolbar.Controls.Add(this.pnlToolbar);
             this.gbToolbar.Dock = System.Windows.Forms.DockStyle.Top;
             this.gbToolbar.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
@@ -123,7 +123,7 @@
             // 
             // btnSaveDraft
             // 
-            this.btnSaveDraft.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(13)))), ((int)(((byte)(110)))), ((int)(((byte)(253)))));
+            this.btnSaveDraft.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
             this.btnSaveDraft.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDraft.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.btnSaveDraft.ForeColor = System.Drawing.Color.White;
@@ -138,7 +138,7 @@
             // 
             // btnPost
             // 
-            this.btnPost.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(135)))), ((int)(((byte)(84)))));
+            this.btnPost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
             this.btnPost.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPost.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.btnPost.ForeColor = System.Drawing.Color.White;
@@ -153,7 +153,7 @@
             // 
             // btnCancelInvoice
             // 
-            this.btnCancelInvoice.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.btnCancelInvoice.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
             this.btnCancelInvoice.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancelInvoice.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.btnCancelInvoice.ForeColor = System.Drawing.Color.White;
@@ -168,7 +168,7 @@
             // 
             // btnPrintA4 — مُعلَن في المصمّم (RULE-N145) بدل إنشائه وقت التشغيل
             // 
-            this.btnPrintA4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(162)))), ((int)(((byte)(184)))));
+            this.btnPrintA4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             this.btnPrintA4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPrintA4.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.btnPrintA4.ForeColor = System.Drawing.Color.White;
@@ -183,7 +183,7 @@
             // 
             // btnClose
             // 
-            this.btnClose.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.btnClose.ForeColor = System.Drawing.Color.White;
@@ -198,7 +198,7 @@
             // 
             // pnlHeader — حاوية «بيانات الفاتورة» (يبقى الاسم لأن UpdateUIState يعطّل pnlHeader)
             // 
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(240)))), ((int)(((byte)(235)))));
+            this.pnlHeader.BackColor = System.Drawing.Color.White;
             this.pnlHeader.Controls.Add(this.gbInvoiceInfo);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Name = "pnlHeader";
@@ -208,7 +208,7 @@
             // 
             // gbInvoiceInfo
             // 
-            this.gbInvoiceInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(245)))), ((int)(((byte)(235)))));
+            this.gbInvoiceInfo.BackColor = System.Drawing.Color.White;
             this.gbInvoiceInfo.Controls.Add(this.tableLayoutPanel1);
             this.gbInvoiceInfo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbInvoiceInfo.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
@@ -263,7 +263,7 @@
             this.lblInvoiceNo.BackColor = System.Drawing.Color.White;
             this.lblInvoiceNo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblInvoiceNo.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.lblInvoiceNo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(82)))), ((int)(((byte)(52)))));
+            this.lblInvoiceNo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblInvoiceNo.Location = new System.Drawing.Point(113, 0);
             this.lblInvoiceNo.Name = "lblInvoiceNo";
             this.lblInvoiceNo.Padding = new System.Windows.Forms.Padding(6, 0, 6, 0);
@@ -295,7 +295,7 @@
             // 
             // lblStatus
             // 
-            this.lblStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(13)))), ((int)(((byte)(110)))), ((int)(((byte)(253)))));
+            this.lblStatus.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
             this.lblStatus.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblStatus.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.lblStatus.ForeColor = System.Drawing.Color.White;
@@ -378,7 +378,7 @@
             // 
             // gbEntry — إضافة صنف (RULE-N136)
             // 
-            this.gbEntry.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(245)))), ((int)(((byte)(235)))));
+            this.gbEntry.BackColor = System.Drawing.Color.White;
             this.gbEntry.Controls.Add(this.pnlEntry);
             this.gbEntry.Dock = System.Windows.Forms.DockStyle.Top;
             this.gbEntry.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
@@ -401,12 +401,12 @@
             // 
             // btnAddItem
             // 
-            this.btnAddItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(249)))), ((int)(((byte)(250)))));
-            this.btnAddItem.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(226)))), ((int)(((byte)(230)))));
+            this.btnAddItem.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+            this.btnAddItem.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.btnAddItem.FlatAppearance.BorderSize = 1;
             this.btnAddItem.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddItem.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.btnAddItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(37)))), ((int)(((byte)(41)))));
+            this.btnAddItem.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.btnAddItem.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.btnAddItem.Name = "btnAddItem";
             this.btnAddItem.Size = new System.Drawing.Size(160, 34);
@@ -418,7 +418,7 @@
             // 
             // btnRemoveItem
             // 
-            this.btnRemoveItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.btnRemoveItem.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             this.btnRemoveItem.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRemoveItem.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.btnRemoveItem.ForeColor = System.Drawing.Color.White;
@@ -433,7 +433,7 @@
             // 
             // gbItems — الأصناف (RULE-N136)
             // 
-            this.gbItems.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(245)))), ((int)(((byte)(235)))));
+            this.gbItems.BackColor = System.Drawing.Color.White;
             this.gbItems.Controls.Add(this.dgvItems);
             this.gbItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbItems.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
@@ -448,26 +448,26 @@
             // 
             this.dgvItems.AllowUserToAddRows = true;
             this.dgvItems.AllowUserToDeleteRows = false;
-            this.dgvItems.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(252)))), ((int)(((byte)(245)))));
+            this.dgvItems.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             this.dgvItems.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvItems.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(240)))), ((int)(((byte)(220)))));
+            this.dgvItems.BackgroundColor = System.Drawing.Color.White;
             this.dgvItems.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvItems.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.dgvItems.ColumnHeadersDefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvItems.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(165)))), ((int)(((byte)(103)))));
+            this.dgvItems.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvItems.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
             this.dgvItems.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvItems.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(165)))), ((int)(((byte)(103)))));
+            this.dgvItems.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
             this.dgvItems.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             this.dgvItems.ColumnHeadersHeight = 45;
             this.dgvItems.DefaultCellStyle.BackColor = System.Drawing.Color.White;
             this.dgvItems.DefaultCellStyle.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.dgvItems.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(37)))), ((int)(((byte)(41)))));
-            this.dgvItems.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(180)))));
-            this.dgvItems.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(37)))), ((int)(((byte)(41)))));
+            this.dgvItems.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            this.dgvItems.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            this.dgvItems.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvItems.EnableHeadersVisualStyles = false;
-            this.dgvItems.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(205)))), ((int)(((byte)(225)))), ((int)(((byte)(205)))));
+            this.dgvItems.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
             this.dgvItems.Name = "dgvItems";
             this.dgvItems.RowHeadersVisible = false;
             this.dgvItems.RowTemplate.Height = 32;
@@ -476,7 +476,7 @@
             // 
             // pnlFooter — حاوية «الإجماليات» (يبقى الاسم لأن UpdateUIState يعطّل pnlFooter)
             // 
-            this.pnlFooter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(240)))), ((int)(((byte)(235)))));
+            this.pnlFooter.BackColor = System.Drawing.Color.White;
             this.pnlFooter.Controls.Add(this.gbTotals);
             this.pnlFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlFooter.Name = "pnlFooter";
@@ -486,7 +486,7 @@
             // 
             // gbTotals
             // 
-            this.gbTotals.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(245)))), ((int)(((byte)(235)))));
+            this.gbTotals.BackColor = System.Drawing.Color.White;
             this.gbTotals.Controls.Add(this.txtNotes);
             this.gbTotals.Controls.Add(this.tableLayoutPanel2);
             this.gbTotals.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -552,7 +552,7 @@
             // 
             this.lblSubTotalVal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblSubTotalVal.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.lblSubTotalVal.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(82)))), ((int)(((byte)(52)))));
+            this.lblSubTotalVal.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblSubTotalVal.Location = new System.Drawing.Point(153, 0);
             this.lblSubTotalVal.Name = "lblSubTotalVal";
             this.lblSubTotalVal.Size = new System.Drawing.Size(224, 28);
@@ -601,7 +601,7 @@
             // 
             this.lblTotalVal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblTotalVal.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
-            this.lblTotalVal.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(82)))), ((int)(((byte)(52)))));
+            this.lblTotalVal.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblTotalVal.Location = new System.Drawing.Point(153, 84);
             this.lblTotalVal.Name = "lblTotalVal";
             this.lblTotalVal.Size = new System.Drawing.Size(224, 28);
@@ -649,7 +649,7 @@
             // 
             this.lblDueVal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblDueVal.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold);
-            this.lblDueVal.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(82)))), ((int)(((byte)(52)))));
+            this.lblDueVal.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             this.lblDueVal.Location = new System.Drawing.Point(153, 140);
             this.lblDueVal.Name = "lblDueVal";
             this.lblDueVal.Size = new System.Drawing.Size(224, 28);
@@ -660,7 +660,7 @@
             // frmPurchaseInvoice
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(220)))), ((int)(((byte)(170)))));
+            this.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             this.ClientSize = new System.Drawing.Size(1150, 780);
             this.Controls.Add(this.gbItems);
             this.Controls.Add(this.pnlFooter);
