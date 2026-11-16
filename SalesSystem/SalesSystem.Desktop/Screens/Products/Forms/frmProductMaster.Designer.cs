@@ -1,938 +1,937 @@
-namespace SalesSystem.Desktop.Screens.Products.Forms;
-
-partial class frmProductMaster
-{
-    private System.ComponentModel.IContainer components = null;
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing && (components != null))
-        {
-            components.Dispose();
-        }
-        base.Dispose(disposing);
-    }
-
-    private void InitializeComponent()
-    {
-        components = new System.ComponentModel.Container();
-        cmsRows = new ContextMenuStrip(components);
-        cmsEdit = new ToolStripMenuItem();
-        cmsDelete = new ToolStripMenuItem();
-        cmsReactivate = new ToolStripMenuItem();
-        cmsSeparator = new ToolStripSeparator();
-        cmsRefresh = new ToolStripMenuItem();
-        DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
-        DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
-        DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
-        lblMode = new Label();
-        pnlFields = new Panel();
-        lblCode = new Label();
-        txtCode = new TextBox();
-        lblName = new Label();
-        lblNameReq = new Label();
-        txtName = new TextBox();
-        lblForeignName = new Label();
-        txtForeignName = new TextBox();
-        lblCategory = new Label();
-        lblCategoryReq = new Label();
-        cmbCategory = new ComboBox();
-        btnAddCategory = new Button();
-        lblReorderLevel = new Label();
-        numReorderLevel = new NumericUpDown();
-        chkTrackExpiry = new CheckBox();
-        lblExpiryDays = new Label();
-        numExpiryAlertDays = new NumericUpDown();
-        lblLocation = new Label();
-        txtLocationInStore = new TextBox();
-        lblNotes = new Label();
-        txtNotes = new TextBox();
-        grpMainUnit = new GroupBox();
-        lblMainUnit = new Label();
-        lblMainUnitReq = new Label();
-        cmbMainUnit = new ComboBox();
-        lblMainUnitCostPrice = new Label();
-        numMainUnitCostPrice = new NumericUpDown();
-        lblMainUnitSalePrice = new Label();
-        numMainUnitSalePrice = new NumericUpDown();
-        lblMainUnitBarcode = new Label();
-        txtMainUnitBarcode = new TextBox();
-        lblMainUnitMaxDiscount = new Label();
-        numMainUnitMaxDiscount = new NumericUpDown();
-        pnlButtons = new FlowLayoutPanel();
-        btnNew = new Button();
-        btnSave = new Button();
-        btnEdit = new Button();
-        btnDelete = new Button();
-        btnReactivate = new Button();
-        btnRefresh = new Button();
-        btnManageUnits = new Button();
-        btnClose = new Button();
-        pnlGrid = new Panel();
-        dgvProducts = new DataGridView();
-        pnlFilters = new Panel();
-        gbFilter = new GroupBox();
-        lblSearch = new Label();
-        chkShowInactive = new CheckBox();
-        btnClearFilters = new Button();
-        txtSearch = new TextBox();
-        chkOnlyOutOfStock = new CheckBox();
-        chkOnlyLowStock = new CheckBox();
-        btnToggleFilters = new Button();
-        pnlSummary = new Panel();
-        lblSummary = new Label();
-        errorProvider = new ErrorProvider(components);
-        toolTip = new ToolTip(components);
-        pnlFields.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).BeginInit();
-        grpMainUnit.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numMainUnitSalePrice).BeginInit();
-        ((System.ComponentModel.ISupportInitialize)numMainUnitMaxDiscount).BeginInit();
-        pnlButtons.SuspendLayout();
-        pnlGrid.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
-        pnlFilters.SuspendLayout();
-        gbFilter.SuspendLayout();
-        pnlSummary.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
-        SuspendLayout();
-        // 
-        // lblMode
-        // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(10), Convert.ToInt32(75), Convert.ToInt32(140));
-        lblMode.Dock = DockStyle.Top;
-        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = System.Drawing.Color.White;
-        lblMode.Location = new Point(0, 0);
-        lblMode.Name = "lblMode";
-        lblMode.Size = new Size(1432, 50);
-        lblMode.TabIndex = 0;
-        lblMode.Text = "(( دليل الأصناف ))";
-        lblMode.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // pnlFields
-        // 
-        pnlFields.Controls.Add(lblCode);
-        pnlFields.Controls.Add(txtCode);
-        pnlFields.Controls.Add(lblName);
-        pnlFields.Controls.Add(lblNameReq);
-        pnlFields.Controls.Add(txtName);
-        pnlFields.Controls.Add(lblForeignName);
-        pnlFields.Controls.Add(txtForeignName);
-        pnlFields.Controls.Add(lblCategory);
-        pnlFields.Controls.Add(lblCategoryReq);
-        pnlFields.Controls.Add(cmbCategory);
-        pnlFields.Controls.Add(btnAddCategory);
-        pnlFields.Controls.Add(lblReorderLevel);
-        pnlFields.Controls.Add(numReorderLevel);
-        pnlFields.Controls.Add(chkTrackExpiry);
-        pnlFields.Controls.Add(lblExpiryDays);
-        pnlFields.Controls.Add(numExpiryAlertDays);
-        pnlFields.Controls.Add(lblLocation);
-        pnlFields.Controls.Add(txtLocationInStore);
-        pnlFields.Controls.Add(lblNotes);
-        pnlFields.Controls.Add(txtNotes);
-        pnlFields.Controls.Add(grpMainUnit);
-        pnlFields.Dock = DockStyle.Top;
-        pnlFields.Location = new Point(0, 50);
-        pnlFields.Name = "pnlFields";
-        pnlFields.Size = new Size(1432, 200);
-        pnlFields.TabIndex = 1;
-        // 
-        // lblCode
-        // 
-        lblCode.AutoSize = true;
-        lblCode.Location = new Point(1267, 71);
-        lblCode.Name = "lblCode";
-        lblCode.Size = new Size(96, 24);
-        lblCode.TabIndex = 16;
-        lblCode.Text = "رقم الصنف";
-        // 
-        // txtCode
-        // 
-        txtCode.Location = new Point(1267, 98);
-        txtCode.Name = "txtCode";
-        txtCode.BackColor = System.Drawing.Color.White;
-        txtCode.ReadOnly = true;
-        txtCode.Size = new Size(110, 32);
-        txtCode.TabIndex = 0;
-        txtCode.TabStop = false;
-        // 
-        // lblName
-        // 
-        lblName.AutoSize = true;
-        lblName.Location = new Point(967, 3);
-        lblName.Name = "lblName";
-        lblName.Size = new Size(106, 24);
-        lblName.TabIndex = 13;
-        lblName.Text = "اسم الصنف";
-        // 
-        // lblNameReq
-        // 
-        lblNameReq.AutoSize = true;
-        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameReq.ForeColor = System.Drawing.Color.Red;
-        lblNameReq.Location = new Point(949, 3);
-        lblNameReq.Name = "lblNameReq";
-        lblNameReq.Size = new Size(23, 24);
-        lblNameReq.TabIndex = 14;
-        lblNameReq.Text = "*";
-        // 
-        // txtName
-        // 
-        txtName.Location = new Point(911, 30);
-        txtName.Name = "txtName";
-        txtName.BackColor = System.Drawing.Color.White;
-        txtName.Size = new Size(240, 32);
-        txtName.TabIndex = 2;
-        // 
-        // lblForeignName
-        // 
-        lblForeignName.AutoSize = true;
-        lblForeignName.Location = new Point(694, 3);
-        lblForeignName.Name = "lblForeignName";
-        lblForeignName.Size = new Size(190, 24);
-        lblForeignName.TabIndex = 15;
-        lblForeignName.Text = "الاسم الأجنبي للصنف";
-        // 
-        // txtForeignName
-        // 
-        txtForeignName.Location = new Point(675, 30);
-        txtForeignName.Name = "txtForeignName";
-        txtForeignName.BackColor = System.Drawing.Color.White;
-        txtForeignName.Size = new Size(230, 32);
-        txtForeignName.TabIndex = 3;
-        // 
-        // lblCategory
-        // 
-        lblCategory.AutoSize = true;
-        lblCategory.Location = new Point(1200, 3);
-        lblCategory.Name = "lblCategory";
-        lblCategory.Size = new Size(135, 24);
-        lblCategory.TabIndex = 11;
-        lblCategory.Text = "مجموعة الصنف";
-        // 
-        // lblCategoryReq
-        // 
-        lblCategoryReq.AutoSize = true;
-        lblCategoryReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCategoryReq.ForeColor = System.Drawing.Color.Red;
-        lblCategoryReq.Location = new Point(1182, 3);
-        lblCategoryReq.Name = "lblCategoryReq";
-        lblCategoryReq.Size = new Size(23, 24);
-        lblCategoryReq.TabIndex = 12;
-        lblCategoryReq.Text = "*";
-        // 
-        // cmbCategory
-        // 
-        cmbCategory.BackColor = System.Drawing.Color.White;
-        cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbCategory.FlatStyle = FlatStyle.Flat;
-        cmbCategory.Location = new Point(1157, 30);
-        cmbCategory.Name = "cmbCategory";
-        cmbCategory.Size = new Size(180, 32);
-        cmbCategory.TabIndex = 1;
-        // 
-        // btnAddCategory
-        // 
-        btnAddCategory.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(119), Convert.ToInt32(189));
-        btnAddCategory.FlatStyle = FlatStyle.Flat;
-        btnAddCategory.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnAddCategory.ForeColor = System.Drawing.Color.White;
-        btnAddCategory.Location = new Point(1341, 30);
-        btnAddCategory.Name = "btnAddCategory";
-        btnAddCategory.Size = new Size(36, 32);
-        btnAddCategory.TabIndex = 10;
-        btnAddCategory.TabStop = false;
-        btnAddCategory.Text = "➕ مجموعة";
-        btnAddCategory.UseVisualStyleBackColor = false;
-        btnAddCategory.Click += btnAddCategory_Click;
-        // 
-        // lblReorderLevel
-        // 
-        lblReorderLevel.AutoSize = true;
-        lblReorderLevel.Location = new Point(1106, 71);
-        lblReorderLevel.Name = "lblReorderLevel";
-        lblReorderLevel.Size = new Size(155, 24);
-        lblReorderLevel.TabIndex = 17;
-        lblReorderLevel.Text = "نقطة اعادة الطلب";
-        // 
-        // numReorderLevel
-        // 
-        numReorderLevel.Location = new Point(1106, 99);
-        numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
-        numReorderLevel.Name = "numReorderLevel";
-        numReorderLevel.BackColor = System.Drawing.Color.White;
-        numReorderLevel.Size = new Size(155, 32);
-        numReorderLevel.TabIndex = 5;
-        // 
-        // chkTrackExpiry
-        // 
-        chkTrackExpiry.AutoSize = true;
-        chkTrackExpiry.Location = new Point(911, 101);
-        chkTrackExpiry.Name = "chkTrackExpiry";
-        chkTrackExpiry.Size = new Size(153, 28);
-        chkTrackExpiry.TabIndex = 6;
-        chkTrackExpiry.Text = "الصنف ينتهي؟";
-        // 
-        // lblExpiryDays
-        // 
-        lblExpiryDays.AutoSize = true;
-        lblExpiryDays.Location = new Point(730, 74);
-        lblExpiryDays.Name = "lblExpiryDays";
-        lblExpiryDays.Size = new Size(175, 24);
-        lblExpiryDays.TabIndex = 18;
-        lblExpiryDays.Text = "نقطة التنبيه بالانتهاء";
-        // 
-        // numExpiryAlertDays
-        // 
-        numExpiryAlertDays.Location = new Point(675, 101);
-        numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
-        numExpiryAlertDays.Name = "numExpiryAlertDays";
-        numExpiryAlertDays.BackColor = System.Drawing.Color.White;
-        numExpiryAlertDays.Size = new Size(230, 32);
-        numExpiryAlertDays.TabIndex = 7;
-        // 
-        // lblLocation
-        // 
-        lblLocation.AutoSize = true;
-        lblLocation.Location = new Point(1050, 134);
-        lblLocation.Name = "lblLocation";
-        lblLocation.Size = new Size(163, 24);
-        lblLocation.TabIndex = 19;
-        lblLocation.Text = "العنوان في المخزن";
-        // 
-        // txtLocationInStore
-        // 
-        txtLocationInStore.Location = new Point(914, 161);
-        txtLocationInStore.Name = "txtLocationInStore";
-        txtLocationInStore.BackColor = System.Drawing.Color.White;
-        txtLocationInStore.Size = new Size(463, 32);
-        txtLocationInStore.TabIndex = 8;
-        // 
-        // lblNotes
-        // 
-        lblNotes.AutoSize = true;
-        lblNotes.Location = new Point(752, 134);
-        lblNotes.Name = "lblNotes";
-        lblNotes.Size = new Size(83, 24);
-        lblNotes.TabIndex = 20;
-        lblNotes.Text = "ملاحظات";
-        // 
-        // txtNotes
-        // 
-        txtNotes.Location = new Point(675, 161);
-        txtNotes.Name = "txtNotes";
-        txtNotes.BackColor = System.Drawing.Color.White;
-        txtNotes.Size = new Size(233, 32);
-        txtNotes.TabIndex = 9;
-        // 
-        // grpMainUnit
-        // 
-        grpMainUnit.BackColor = System.Drawing.Color.White;
-        grpMainUnit.Controls.Add(lblMainUnit);
-        grpMainUnit.Controls.Add(lblMainUnitReq);
-        grpMainUnit.Controls.Add(cmbMainUnit);
-        grpMainUnit.Controls.Add(lblMainUnitCostPrice);
-        grpMainUnit.Controls.Add(numMainUnitCostPrice);
-        grpMainUnit.Controls.Add(lblMainUnitSalePrice);
-        grpMainUnit.Controls.Add(numMainUnitSalePrice);
-        grpMainUnit.Controls.Add(lblMainUnitBarcode);
-        grpMainUnit.Controls.Add(txtMainUnitBarcode);
-        grpMainUnit.Controls.Add(lblMainUnitMaxDiscount);
-        grpMainUnit.Controls.Add(numMainUnitMaxDiscount);
-        grpMainUnit.ImeMode = ImeMode.On;
-        grpMainUnit.Location = new Point(199, 3);
-        grpMainUnit.Name = "grpMainUnit";
-        grpMainUnit.Size = new Size(470, 170);
-        grpMainUnit.TabIndex = 4;
-        grpMainUnit.TabStop = false;
-        grpMainUnit.Text = "الوحدة الرئيسية";
-        // 
-        // lblMainUnit
-        // 
-        lblMainUnit.AutoSize = true;
-        lblMainUnit.Location = new Point(302, 27);
-        lblMainUnit.Name = "lblMainUnit";
-        lblMainUnit.Size = new Size(140, 24);
-        lblMainUnit.TabIndex = 5;
-        lblMainUnit.Text = "الوحدة الرئيسية";
-        // 
-        // lblMainUnitReq
-        // 
-        lblMainUnitReq.AutoSize = true;
-        lblMainUnitReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblMainUnitReq.ForeColor = System.Drawing.Color.Red;
-        lblMainUnitReq.Location = new Point(284, 27);
-        lblMainUnitReq.Name = "lblMainUnitReq";
-        lblMainUnitReq.Size = new Size(23, 24);
-        lblMainUnitReq.TabIndex = 6;
-        lblMainUnitReq.Text = "*";
-        // 
-        // cmbMainUnit
-        // 
-        cmbMainUnit.BackColor = System.Drawing.Color.White;
-        cmbMainUnit.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbMainUnit.FlatStyle = FlatStyle.Flat;
-        cmbMainUnit.Location = new Point(302, 54);
-        cmbMainUnit.Name = "cmbMainUnit";
-        cmbMainUnit.Size = new Size(140, 32);
-        cmbMainUnit.TabIndex = 0;
-        cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
-        // 
-        // lblMainUnitCostPrice
-        // 
-        lblMainUnitCostPrice.AutoSize = true;
-        lblMainUnitCostPrice.Location = new Point(185, 28);
-        lblMainUnitCostPrice.Name = "lblMainUnitCostPrice";
-        lblMainUnitCostPrice.Size = new Size(111, 24);
-        lblMainUnitCostPrice.TabIndex = 7;
-        lblMainUnitCostPrice.Text = "سعر التكلفة";
-        // 
-        // numMainUnitCostPrice
-        // 
-        numMainUnitCostPrice.Location = new Point(169, 54);
-        numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
-        numMainUnitCostPrice.Name = "numMainUnitCostPrice";
-        numMainUnitCostPrice.BackColor = System.Drawing.Color.White;
-        numMainUnitCostPrice.Size = new Size(127, 32);
-        numMainUnitCostPrice.TabIndex = 1;
-        // 
-        // lblMainUnitSalePrice
-        // 
-        lblMainUnitSalePrice.AutoSize = true;
-        lblMainUnitSalePrice.Location = new Point(52, 27);
-        lblMainUnitSalePrice.Name = "lblMainUnitSalePrice";
-        lblMainUnitSalePrice.Size = new Size(111, 24);
-        lblMainUnitSalePrice.TabIndex = 8;
-        lblMainUnitSalePrice.Text = "سعر التجزئة";
-        // 
-        // numMainUnitSalePrice
-        // 
-        numMainUnitSalePrice.Location = new Point(36, 54);
-        numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
-        numMainUnitSalePrice.Name = "numMainUnitSalePrice";
-        numMainUnitSalePrice.BackColor = System.Drawing.Color.White;
-        numMainUnitSalePrice.Size = new Size(127, 32);
-        numMainUnitSalePrice.TabIndex = 2;
-        // 
-        // lblMainUnitBarcode
-        // 
-        lblMainUnitBarcode.AutoSize = true;
-        lblMainUnitBarcode.Location = new Point(76, 98);
-        lblMainUnitBarcode.Name = "lblMainUnitBarcode";
-        lblMainUnitBarcode.Size = new Size(104, 24);
-        lblMainUnitBarcode.TabIndex = 9;
-        lblMainUnitBarcode.Text = "رقم الباركود";
-        // 
-        // txtMainUnitBarcode
-        // 
-        txtMainUnitBarcode.Location = new Point(36, 125);
-        txtMainUnitBarcode.Name = "txtMainUnitBarcode";
-        txtMainUnitBarcode.BackColor = System.Drawing.Color.White;
-        txtMainUnitBarcode.Size = new Size(180, 32);
-        txtMainUnitBarcode.TabIndex = 4;
-        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
-        // 
-        // lblMainUnitMaxDiscount
-        // 
-        lblMainUnitMaxDiscount.AutoSize = true;
-        lblMainUnitMaxDiscount.Location = new Point(260, 98);
-        lblMainUnitMaxDiscount.Name = "lblMainUnitMaxDiscount";
-        lblMainUnitMaxDiscount.Size = new Size(170, 24);
-        lblMainUnitMaxDiscount.TabIndex = 10;
-        lblMainUnitMaxDiscount.Text = "الخصم المسموح به";
-        // 
-        // numMainUnitMaxDiscount
-        // 
-        numMainUnitMaxDiscount.Location = new Point(282, 125);
-        numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
-        numMainUnitMaxDiscount.BackColor = System.Drawing.Color.White;
-        numMainUnitMaxDiscount.Size = new Size(127, 32);
-        numMainUnitMaxDiscount.TabIndex = 3;
-        // 
-        // pnlButtons
-        // 
-        pnlButtons.BackColor = System.Drawing.Color.White;
-        pnlButtons.Controls.Add(btnNew);
-        pnlButtons.Controls.Add(btnSave);
-        pnlButtons.Controls.Add(btnEdit);
-        pnlButtons.Controls.Add(btnDelete);
-        pnlButtons.Controls.Add(btnReactivate);
-        pnlButtons.Controls.Add(btnRefresh);
-        pnlButtons.Controls.Add(btnManageUnits);
-        pnlButtons.Controls.Add(btnClose);
-        pnlButtons.Dock = DockStyle.Top;
-        pnlButtons.Location = new Point(0, 250);
-        pnlButtons.Name = "pnlButtons";
-        pnlButtons.Padding = new Padding(10);
-        pnlButtons.Size = new Size(1432, 60);
-        pnlButtons.TabIndex = 2;
-        // 
-        // btnNew
-        // 
-        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(119), Convert.ToInt32(189));
-        btnNew.FlatStyle = FlatStyle.Flat;
-        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = System.Drawing.Color.White;
-        btnNew.Location = new Point(1267, 13);
-        btnNew.Name = "btnNew";
-        btnNew.Size = new Size(142, 35);
-        btnNew.TabIndex = 16;
-        btnNew.Text = "🆕 جديد";
-        btnNew.UseVisualStyleBackColor = false;
-        btnNew.Click += btnNew_Click;
-        // 
-        // btnSave
-        // 
-        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(5), Convert.ToInt32(150), Convert.ToInt32(105));
-        btnSave.FlatStyle = FlatStyle.Flat;
-        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = System.Drawing.Color.White;
-        btnSave.Location = new Point(1133, 13);
-        btnSave.Name = "btnSave";
-        btnSave.Size = new Size(128, 35);
-        btnSave.TabIndex = 17;
-        btnSave.Text = "💾 إضافة";
-        btnSave.UseVisualStyleBackColor = false;
-        btnSave.Click += btnSave_Click;
-        // 
-        // btnEdit
-        // 
-        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(158), Convert.ToInt32(11));
-        btnEdit.FlatStyle = FlatStyle.Flat;
-        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
-        btnEdit.Location = new Point(999, 13);
-        btnEdit.Name = "btnEdit";
-        btnEdit.Size = new Size(128, 35);
-        btnEdit.TabIndex = 19;
-        btnEdit.Text = "✏️ تعديل";
-        btnEdit.UseVisualStyleBackColor = false;
-        btnEdit.Click += btnEdit_Click;
-        // 
-        // btnDelete
-        // 
-        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(225), Convert.ToInt32(29), Convert.ToInt32(72));
-        btnDelete.FlatStyle = FlatStyle.Flat;
-        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = System.Drawing.Color.White;
-        btnDelete.Location = new Point(855, 13);
-        btnDelete.Name = "btnDelete";
-        btnDelete.Size = new Size(138, 35);
-        btnDelete.TabIndex = 18;
-        btnDelete.Text = "🗑 حذف";
-        btnDelete.UseVisualStyleBackColor = false;
-        btnDelete.Click += btnDelete_Click;
-        // 
-        // btnReactivate
-        // 
-        btnReactivate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(132), Convert.ToInt32(199));
-        btnReactivate.Enabled = false;
-        btnReactivate.FlatStyle = FlatStyle.Flat;
-        btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnReactivate.ForeColor = System.Drawing.Color.White;
-        btnReactivate.Location = new Point(689, 13);
-        btnReactivate.Name = "btnReactivate";
-        btnReactivate.Size = new Size(160, 35);
-        btnReactivate.TabIndex = 23;
-        btnReactivate.Text = "↺ إعادة تنشيط";
-        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
-        btnReactivate.UseVisualStyleBackColor = false;
-        btnReactivate.Click += btnReactivate_Click;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(132), Convert.ToInt32(199));
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = System.Drawing.Color.White;
-        btnRefresh.Location = new Point(553, 13);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(130, 35);
-        btnRefresh.TabIndex = 21;
-        btnRefresh.Text = "🔄 تحديث";
-        btnRefresh.UseVisualStyleBackColor = false;
-        btnRefresh.Click += btnRefresh_Click;
-        // 
-        // btnManageUnits
-        // 
-        btnManageUnits.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(2), Convert.ToInt32(132), Convert.ToInt32(199));
-        btnManageUnits.FlatStyle = FlatStyle.Flat;
-        btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnManageUnits.ForeColor = System.Drawing.Color.White;
-        btnManageUnits.Location = new Point(367, 13);
-        btnManageUnits.Name = "btnManageUnits";
-        btnManageUnits.Size = new Size(180, 35);
-        btnManageUnits.TabIndex = 20;
-        btnManageUnits.Text = "📦 الوحدات والأسعار";
-        btnManageUnits.UseVisualStyleBackColor = false;
-        btnManageUnits.Click += btnManageUnits_Click;
-        // 
-        // btnClose
-        // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(100), Convert.ToInt32(116), Convert.ToInt32(139));
-        btnClose.FlatStyle = FlatStyle.Flat;
-        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(231, 13);
-        btnClose.Name = "btnClose";
-        btnClose.Size = new Size(130, 35);
-        btnClose.TabIndex = 22;
-        btnClose.TabStop = false;
-        btnClose.Text = "🚪 خروج";
-        btnClose.UseVisualStyleBackColor = false;
-        btnClose.Click += btnClose_Click;
-        // 
-        // pnlGrid
-        // 
-        pnlGrid.Controls.Add(dgvProducts);
-        pnlGrid.Dock = DockStyle.Fill;
-        pnlGrid.Location = new Point(0, 422);
-        pnlGrid.Name = "pnlGrid";
-        pnlGrid.Padding = new Padding(0, 10, 0, 0);
-        pnlGrid.Size = new Size(1432, 292);
-        pnlGrid.TabIndex = 4;
-        // 
-        // dgvProducts
-        // 
-        dgvProducts.AllowUserToAddRows = false;
-        dgvProducts.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(250), Convert.ToInt32(252));
-        dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
-        dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvProducts.BackgroundColor = System.Drawing.Color.White;
-        dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(15), Convert.ToInt32(45), Convert.ToInt32(74));
-        dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
-        dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(15), Convert.ToInt32(45), Convert.ToInt32(74));
-        dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
-        dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
-        dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
-        dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
-        dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
-        dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(186), Convert.ToInt32(230), Convert.ToInt32(253));
-        dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
-        dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
-        dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
-        dgvProducts.Dock = DockStyle.Fill;
-        dgvProducts.EnableHeadersVisualStyles = false;
-        dgvProducts.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(226), Convert.ToInt32(232), Convert.ToInt32(240));
-        dgvProducts.Location = new Point(0, 10);
-        dgvProducts.MultiSelect = false;
-        dgvProducts.Name = "dgvProducts";
-        dgvProducts.ContextMenuStrip = cmsRows;
-        dgvProducts.ReadOnly = true;
-        dgvProducts.RowHeadersVisible = false;
-        dgvProducts.RowHeadersWidth = 62;
-        dgvProducts.RowTemplate.Height = 32;
-        dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvProducts.Size = new Size(1432, 282);
-        dgvProducts.TabIndex = 0;
-        dgvProducts.CellClick += dgvProducts_CellClick;
-        // 
-        // pnlFilters
-        // 
-        pnlFilters.Controls.Add(gbFilter);
-        pnlFilters.Controls.Add(btnToggleFilters);
-        pnlFilters.Dock = DockStyle.Top;
-        pnlFilters.Location = new Point(0, 310);
-        pnlFilters.Margin = new Padding(0);
-        pnlFilters.Name = "pnlFilters";
-        pnlFilters.Padding = new Padding(6, 4, 6, 4);
-        pnlFilters.Size = new Size(1432, 112);
-        pnlFilters.TabIndex = 3;
-        // 
-        // gbFilter
-        // 
-        gbFilter.Controls.Add(lblSearch);
-        gbFilter.Controls.Add(chkShowInactive);
-        gbFilter.Controls.Add(btnClearFilters);
-        gbFilter.Controls.Add(txtSearch);
-        gbFilter.Controls.Add(chkOnlyOutOfStock);
-        gbFilter.Controls.Add(chkOnlyLowStock);
-        gbFilter.Dock = DockStyle.Fill;
-        gbFilter.Font = new Font("Tahoma", 10F);
-        gbFilter.Location = new Point(146, 4);
-        gbFilter.Margin = new Padding(0);
-        gbFilter.Name = "gbFilter";
-        gbFilter.Padding = new Padding(8);
-        gbFilter.RightToLeft = RightToLeft.Yes;
-        gbFilter.Size = new Size(1280, 104);
-        gbFilter.TabIndex = 22;
-        gbFilter.TabStop = false;
-        gbFilter.Text = "محرك البحث";
-        // 
-        // lblSearch
-        // 
-        lblSearch.AutoSize = true;
-        lblSearch.Location = new Point(1176, 40);
-        lblSearch.Name = "lblSearch";
-        lblSearch.Size = new Size(56, 24);
-        lblSearch.TabIndex = 1;
-        lblSearch.Text = "بحث:";
-        // 
-        // chkShowInactive
-        // 
-        chkShowInactive.AutoSize = true;
-        chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(688, 38);
-        chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(166, 28);
-        chkShowInactive.TabIndex = 21;
-        chkShowInactive.Text = "عرض غير النشط";
-        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
-        // 
-        // btnClearFilters
-        // 
-        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(100), Convert.ToInt32(116), Convert.ToInt32(139));
-        btnClearFilters.Cursor = Cursors.Hand;
-        btnClearFilters.Enabled = false;
-        btnClearFilters.FlatAppearance.BorderSize = 0;
-        btnClearFilters.FlatStyle = FlatStyle.Flat;
-        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = System.Drawing.Color.White;
-        btnClearFilters.Location = new Point(322, 36);
-        btnClearFilters.Name = "btnClearFilters";
-        btnClearFilters.Size = new Size(178, 32);
-        btnClearFilters.TabIndex = 26;
-        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
-        toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
-        btnClearFilters.UseVisualStyleBackColor = false;
-        btnClearFilters.Click += btnClearFilters_Click;
-        // 
-        // txtSearch
-        // 
-        txtSearch.Location = new Point(870, 36);
-        txtSearch.Name = "txtSearch";
-        txtSearch.BackColor = System.Drawing.Color.White;
-        txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
-        txtSearch.Size = new Size(300, 32);
-        txtSearch.TabIndex = 20;
-        txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyDown += txtSearch_KeyDown;
-        txtSearch.KeyPress += txtSearch_KeyPress;
-        // 
-        // chkOnlyOutOfStock
-        // 
-        chkOnlyOutOfStock.AutoSize = true;
-        chkOnlyOutOfStock.FlatStyle = FlatStyle.Flat;
-        chkOnlyOutOfStock.Location = new Point(370, 38);
-        chkOnlyOutOfStock.Name = "chkOnlyOutOfStock";
-        chkOnlyOutOfStock.Size = new Size(112, 28);
-        chkOnlyOutOfStock.TabIndex = 23;
-        chkOnlyOutOfStock.Text = "النافد فقط";
-        chkOnlyOutOfStock.CheckedChanged += chkOnlyOutOfStock_CheckedChanged;
-        // 
-        // chkOnlyLowStock
-        // 
-        chkOnlyLowStock.AutoSize = true;
-        chkOnlyLowStock.FlatStyle = FlatStyle.Flat;
-        chkOnlyLowStock.Location = new Point(510, 38);
-        chkOnlyLowStock.Name = "chkOnlyLowStock";
-        chkOnlyLowStock.Size = new Size(157, 28);
-        chkOnlyLowStock.TabIndex = 24;
-        chkOnlyLowStock.Text = "تحت حد الطلب";
-        chkOnlyLowStock.CheckedChanged += chkOnlyLowStock_CheckedChanged;
-        // 
-        // btnToggleFilters
-        // 
-        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(250), Convert.ToInt32(252));
-        btnToggleFilters.Cursor = Cursors.Hand;
-        btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(226), Convert.ToInt32(232), Convert.ToInt32(240));
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
-        btnToggleFilters.FlatStyle = FlatStyle.Popup;
-        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
-        btnToggleFilters.Location = new Point(6, 4);
-        btnToggleFilters.Name = "btnToggleFilters";
-        btnToggleFilters.Size = new Size(140, 104);
-        btnToggleFilters.TabIndex = 25;
-        btnToggleFilters.Text = "إخفاء التصفية";
-        btnToggleFilters.UseVisualStyleBackColor = false;
-        // 
-        // pnlSummary
-        // 
-        pnlSummary.Controls.Add(lblSummary);
-        pnlSummary.Dock = DockStyle.Bottom;
-        pnlSummary.Location = new Point(0, 714);
-        pnlSummary.Margin = new Padding(0);
-        pnlSummary.Name = "pnlSummary";
-        pnlSummary.Size = new Size(1432, 32);
-        pnlSummary.TabIndex = 5;
-        // 
-        // lblSummary
-        // 
-        lblSummary.Dock = DockStyle.Fill;
-        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
-        lblSummary.Location = new Point(0, 0);
-        lblSummary.Name = "lblSummary";
-        lblSummary.Size = new Size(1432, 32);
-        lblSummary.TabIndex = 0;
-        lblSummary.Text = "المعروض: 0 من 0";
-        lblSummary.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // cmsRows
-        //
-        // RULE-N23: قائمة سياق على الشبكة — كل عنصر يستدعي نفس زر الشاشة (بلا منطق مكرر).
-        cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsDelete, cmsReactivate, cmsSeparator, cmsRefresh });
-        cmsRows.Name = "cmsRows";
-        cmsRows.Size = new Size(240, 134);
-        cmsRows.Opening += cmsRows_Opening;
-        //
-        // cmsEdit
-        //
-        cmsEdit.Name = "cmsEdit";
-        cmsEdit.Size = new Size(239, 30);
-        cmsEdit.Text = "✏️ تعديل";
-        cmsEdit.Click += cmsEdit_Click;
-        //
-        // cmsDelete
-        //
-        cmsDelete.Name = "cmsDelete";
-        cmsDelete.Size = new Size(239, 30);
-        cmsDelete.Text = "🗑 حذف";
-        cmsDelete.Click += cmsDelete_Click;
-        //
-        // cmsReactivate
-        //
-        cmsReactivate.Name = "cmsReactivate";
-        cmsReactivate.Size = new Size(239, 30);
-        cmsReactivate.Text = "↺ إعادة تنشيط";
-        cmsReactivate.Click += cmsReactivate_Click;
-        //
-        // cmsSeparator
-        //
-        cmsSeparator.Name = "cmsSeparator";
-        cmsSeparator.Size = new Size(236, 6);
-        //
-        // cmsRefresh
-        //
-        cmsRefresh.Name = "cmsRefresh";
-        cmsRefresh.Size = new Size(239, 30);
-        cmsRefresh.Text = "🔄 تحديث (F5)";
-        cmsRefresh.Click += cmsRefresh_Click;
-        // 
-        // errorProvider
-        // 
-        errorProvider.ContainerControl = this;
-        errorProvider.RightToLeft = true;
-        // 
-        // frmProductMaster
-        // 
-        AutoScaleDimensions = new SizeF(11F, 24F);
-        AutoScaleMode = AutoScaleMode.Font;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(244), Convert.ToInt32(249));
-        ClientSize = new Size(1432, 746);
-        Controls.Add(pnlGrid);
-        Controls.Add(pnlSummary);
-        Controls.Add(pnlFilters);
-        Controls.Add(pnlButtons);
-        Controls.Add(pnlFields);
-        Controls.Add(lblMode);
-        Font = new Font("Tahoma", 10F);
-        Name = "frmProductMaster";
-        RightToLeft = RightToLeft.Yes;
-        RightToLeftLayout = true;
-        StartPosition = FormStartPosition.CenterParent;
-        Text = "دليل الأصناف";
-        Load += frmProductMaster_Load;
-        pnlFields.ResumeLayout(false);
-        pnlFields.PerformLayout();
-        ((System.ComponentModel.ISupportInitialize)numReorderLevel).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).EndInit();
-        grpMainUnit.ResumeLayout(false);
-        grpMainUnit.PerformLayout();
-        ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numMainUnitSalePrice).EndInit();
-        ((System.ComponentModel.ISupportInitialize)numMainUnitMaxDiscount).EndInit();
-        pnlButtons.ResumeLayout(false);
-        pnlGrid.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
-        pnlFilters.ResumeLayout(false);
-        gbFilter.ResumeLayout(false);
-        gbFilter.PerformLayout();
-        pnlSummary.ResumeLayout(false);
-        cmsRows.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
-        ResumeLayout(false);
-    }
-
-    private System.Windows.Forms.Label lblMode;
-    private System.Windows.Forms.Panel pnlFields;
-    private System.Windows.Forms.Label lblCode;
-    private System.Windows.Forms.TextBox txtCode;
-    private System.Windows.Forms.Label lblName;
-    private System.Windows.Forms.Label lblNameReq;
-    private System.Windows.Forms.TextBox txtName;
-    private System.Windows.Forms.Label lblForeignName;
-    private System.Windows.Forms.TextBox txtForeignName;
-    private System.Windows.Forms.Label lblCategory;
-    private System.Windows.Forms.Label lblCategoryReq;
-    private System.Windows.Forms.ComboBox cmbCategory;
-    private System.Windows.Forms.Button btnAddCategory;
-    private System.Windows.Forms.Label lblReorderLevel;
-    private System.Windows.Forms.NumericUpDown numReorderLevel;
-    private System.Windows.Forms.CheckBox chkTrackExpiry;
-    private System.Windows.Forms.Label lblExpiryDays;
-    private System.Windows.Forms.NumericUpDown numExpiryAlertDays;
-    private System.Windows.Forms.Label lblLocation;
-    private System.Windows.Forms.TextBox txtLocationInStore;
-    private System.Windows.Forms.Label lblNotes;
-    private System.Windows.Forms.TextBox txtNotes;
-    
-    // Main Unit Group
-    private System.Windows.Forms.GroupBox grpMainUnit;
-    private System.Windows.Forms.Label lblMainUnit;
-    private System.Windows.Forms.Label lblMainUnitReq;
-    private System.Windows.Forms.ComboBox cmbMainUnit;
-    private System.Windows.Forms.Label lblMainUnitCostPrice;
-    private System.Windows.Forms.NumericUpDown numMainUnitCostPrice;
-    private System.Windows.Forms.Label lblMainUnitSalePrice;
-    private System.Windows.Forms.NumericUpDown numMainUnitSalePrice;
-    private System.Windows.Forms.Label lblMainUnitBarcode;
-    private System.Windows.Forms.TextBox txtMainUnitBarcode;
-    private System.Windows.Forms.Label lblMainUnitMaxDiscount;
-    private System.Windows.Forms.NumericUpDown numMainUnitMaxDiscount;
-
-    private System.Windows.Forms.FlowLayoutPanel pnlButtons;
-    private System.Windows.Forms.Button btnNew;
-    private System.Windows.Forms.Button btnSave;
-    private System.Windows.Forms.Button btnEdit;
-    private System.Windows.Forms.Button btnDelete;
-    private System.Windows.Forms.Button btnReactivate;
-    private System.Windows.Forms.Button btnManageUnits;
-    private System.Windows.Forms.Button btnClose;
-    private System.Windows.Forms.Panel pnlGrid;
-    private System.Windows.Forms.DataGridView dgvProducts;
-    private System.Windows.Forms.ContextMenuStrip cmsRows;
-    private System.Windows.Forms.ToolStripMenuItem cmsEdit;
-    private System.Windows.Forms.ToolStripMenuItem cmsDelete;
-    private System.Windows.Forms.ToolStripMenuItem cmsReactivate;
-    private System.Windows.Forms.ToolStripSeparator cmsSeparator;
-    private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
-    private System.Windows.Forms.Panel pnlFilters;
-    private System.Windows.Forms.TextBox txtSearch;
-    private System.Windows.Forms.Button btnRefresh;
-    private System.Windows.Forms.Label lblSearch;
-    private System.Windows.Forms.CheckBox chkShowInactive;
-    private System.Windows.Forms.CheckBox chkOnlyOutOfStock;
-    private System.Windows.Forms.CheckBox chkOnlyLowStock;
-    private System.Windows.Forms.Panel pnlSummary;
-    private System.Windows.Forms.Label lblSummary;
-    private System.Windows.Forms.ErrorProvider errorProvider;
-    private System.Windows.Forms.ToolTip toolTip;
-    private GroupBox gbFilter;
-    private Button btnToggleFilters;
-    private Button btnClearFilters;
-}
-
+namespace SalesSystem.Desktop.Screens.Products.Forms;
+
+partial class frmProductMaster
+{
+    private System.ComponentModel.IContainer components = null;
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && (components != null))
+        {
+            components.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+
+    private void InitializeComponent()
+    {
+        components = new System.ComponentModel.Container();
+        cmsRows = new ContextMenuStrip(components);
+        cmsEdit = new ToolStripMenuItem();
+        cmsDelete = new ToolStripMenuItem();
+        cmsReactivate = new ToolStripMenuItem();
+        cmsSeparator = new ToolStripSeparator();
+        cmsRefresh = new ToolStripMenuItem();
+        DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+        lblMode = new Label();
+        pnlFields = new Panel();
+        lblCode = new Label();
+        txtCode = new TextBox();
+        lblName = new Label();
+        lblNameReq = new Label();
+        txtName = new TextBox();
+        lblForeignName = new Label();
+        txtForeignName = new TextBox();
+        lblCategory = new Label();
+        lblCategoryReq = new Label();
+        cmbCategory = new ComboBox();
+        btnAddCategory = new Button();
+        lblReorderLevel = new Label();
+        numReorderLevel = new NumericUpDown();
+        chkTrackExpiry = new CheckBox();
+        lblExpiryDays = new Label();
+        numExpiryAlertDays = new NumericUpDown();
+        lblLocation = new Label();
+        txtLocationInStore = new TextBox();
+        lblNotes = new Label();
+        txtNotes = new TextBox();
+        grpMainUnit = new GroupBox();
+        lblMainUnit = new Label();
+        lblMainUnitReq = new Label();
+        cmbMainUnit = new ComboBox();
+        lblMainUnitCostPrice = new Label();
+        numMainUnitCostPrice = new NumericUpDown();
+        lblMainUnitSalePrice = new Label();
+        numMainUnitSalePrice = new NumericUpDown();
+        lblMainUnitBarcode = new Label();
+        txtMainUnitBarcode = new TextBox();
+        lblMainUnitMaxDiscount = new Label();
+        numMainUnitMaxDiscount = new NumericUpDown();
+        pnlButtons = new FlowLayoutPanel();
+        btnNew = new Button();
+        btnSave = new Button();
+        btnEdit = new Button();
+        btnDelete = new Button();
+        btnReactivate = new Button();
+        btnRefresh = new Button();
+        btnManageUnits = new Button();
+        btnClose = new Button();
+        pnlGrid = new Panel();
+        dgvProducts = new DataGridView();
+        pnlFilters = new Panel();
+        gbFilter = new GroupBox();
+        lblSearch = new Label();
+        chkShowInactive = new CheckBox();
+        btnClearFilters = new Button();
+        txtSearch = new TextBox();
+        chkOnlyOutOfStock = new CheckBox();
+        chkOnlyLowStock = new CheckBox();
+        btnToggleFilters = new Button();
+        pnlSummary = new Panel();
+        lblSummary = new Label();
+        errorProvider = new ErrorProvider(components);
+        toolTip = new ToolTip(components);
+        pnlFields.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)numReorderLevel).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).BeginInit();
+        grpMainUnit.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)numMainUnitSalePrice).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)numMainUnitMaxDiscount).BeginInit();
+        pnlButtons.SuspendLayout();
+        pnlGrid.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
+        pnlFilters.SuspendLayout();
+        gbFilter.SuspendLayout();
+        pnlSummary.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
+        SuspendLayout();
+        // 
+        // lblMode
+        // 
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        lblMode.Dock = DockStyle.Top;
+        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
+        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.Location = new Point(0, 0);
+        lblMode.Name = "lblMode";
+        lblMode.Size = new Size(1432, 50);
+        lblMode.TabIndex = 0;
+        lblMode.Text = "(( ╪»┘┘è┘ ╪د┘╪ث╪╡┘╪د┘ ))";
+        lblMode.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // pnlFields
+        // 
+        pnlFields.Controls.Add(lblCode);
+        pnlFields.Controls.Add(txtCode);
+        pnlFields.Controls.Add(lblName);
+        pnlFields.Controls.Add(lblNameReq);
+        pnlFields.Controls.Add(txtName);
+        pnlFields.Controls.Add(lblForeignName);
+        pnlFields.Controls.Add(txtForeignName);
+        pnlFields.Controls.Add(lblCategory);
+        pnlFields.Controls.Add(lblCategoryReq);
+        pnlFields.Controls.Add(cmbCategory);
+        pnlFields.Controls.Add(btnAddCategory);
+        pnlFields.Controls.Add(lblReorderLevel);
+        pnlFields.Controls.Add(numReorderLevel);
+        pnlFields.Controls.Add(chkTrackExpiry);
+        pnlFields.Controls.Add(lblExpiryDays);
+        pnlFields.Controls.Add(numExpiryAlertDays);
+        pnlFields.Controls.Add(lblLocation);
+        pnlFields.Controls.Add(txtLocationInStore);
+        pnlFields.Controls.Add(lblNotes);
+        pnlFields.Controls.Add(txtNotes);
+        pnlFields.Controls.Add(grpMainUnit);
+        pnlFields.Dock = DockStyle.Top;
+        pnlFields.Location = new Point(0, 50);
+        pnlFields.Name = "pnlFields";
+        pnlFields.Size = new Size(1432, 200);
+        pnlFields.TabIndex = 1;
+        // 
+        // lblCode
+        // 
+        lblCode.AutoSize = true;
+        lblCode.Location = new Point(1267, 71);
+        lblCode.Name = "lblCode";
+        lblCode.Size = new Size(96, 24);
+        lblCode.TabIndex = 16;
+        lblCode.Text = "╪▒┘é┘à ╪د┘╪╡┘┘";
+        // 
+        // txtCode
+        // 
+        txtCode.Location = new Point(1267, 98);
+        txtCode.Name = "txtCode";
+        txtCode.BackColor = System.Drawing.Color.White;
+        txtCode.ReadOnly = true;
+        txtCode.Size = new Size(110, 32);
+        txtCode.TabIndex = 0;
+        txtCode.TabStop = false;
+        // 
+        // lblName
+        // 
+        lblName.AutoSize = true;
+        lblName.Location = new Point(967, 3);
+        lblName.Name = "lblName";
+        lblName.Size = new Size(106, 24);
+        lblName.TabIndex = 13;
+        lblName.Text = "╪د╪│┘à ╪د┘╪╡┘┘";
+        // 
+        // lblNameReq
+        // 
+        lblNameReq.AutoSize = true;
+        lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblNameReq.ForeColor = System.Drawing.Color.Red;
+        lblNameReq.Location = new Point(949, 3);
+        lblNameReq.Name = "lblNameReq";
+        lblNameReq.Size = new Size(23, 24);
+        lblNameReq.TabIndex = 14;
+        lblNameReq.Text = "*";
+        // 
+        // txtName
+        // 
+        txtName.Location = new Point(911, 30);
+        txtName.Name = "txtName";
+        txtName.BackColor = System.Drawing.Color.White;
+        txtName.Size = new Size(240, 32);
+        txtName.TabIndex = 2;
+        // 
+        // lblForeignName
+        // 
+        lblForeignName.AutoSize = true;
+        lblForeignName.Location = new Point(694, 3);
+        lblForeignName.Name = "lblForeignName";
+        lblForeignName.Size = new Size(190, 24);
+        lblForeignName.TabIndex = 15;
+        lblForeignName.Text = "╪د┘╪د╪│┘à ╪د┘╪ث╪ش┘╪ذ┘è ┘┘╪╡┘┘";
+        // 
+        // txtForeignName
+        // 
+        txtForeignName.Location = new Point(675, 30);
+        txtForeignName.Name = "txtForeignName";
+        txtForeignName.BackColor = System.Drawing.Color.White;
+        txtForeignName.Size = new Size(230, 32);
+        txtForeignName.TabIndex = 3;
+        // 
+        // lblCategory
+        // 
+        lblCategory.AutoSize = true;
+        lblCategory.Location = new Point(1200, 3);
+        lblCategory.Name = "lblCategory";
+        lblCategory.Size = new Size(135, 24);
+        lblCategory.TabIndex = 11;
+        lblCategory.Text = "┘à╪ش┘à┘ê╪╣╪ر ╪د┘╪╡┘┘";
+        // 
+        // lblCategoryReq
+        // 
+        lblCategoryReq.AutoSize = true;
+        lblCategoryReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblCategoryReq.ForeColor = System.Drawing.Color.Red;
+        lblCategoryReq.Location = new Point(1182, 3);
+        lblCategoryReq.Name = "lblCategoryReq";
+        lblCategoryReq.Size = new Size(23, 24);
+        lblCategoryReq.TabIndex = 12;
+        lblCategoryReq.Text = "*";
+        // 
+        // cmbCategory
+        // 
+        cmbCategory.BackColor = System.Drawing.Color.White;
+        cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbCategory.FlatStyle = FlatStyle.Flat;
+        cmbCategory.Location = new Point(1157, 30);
+        cmbCategory.Name = "cmbCategory";
+        cmbCategory.Size = new Size(180, 32);
+        cmbCategory.TabIndex = 1;
+        // 
+        // btnAddCategory
+        // 
+        btnAddCategory.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
+        btnAddCategory.FlatStyle = FlatStyle.Flat;
+        btnAddCategory.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnAddCategory.ForeColor = System.Drawing.Color.White;
+        btnAddCategory.Location = new Point(1341, 30);
+        btnAddCategory.Name = "btnAddCategory";
+        btnAddCategory.Size = new Size(36, 32);
+        btnAddCategory.TabIndex = 10;
+        btnAddCategory.TabStop = false;
+        btnAddCategory.Text = "ظئـ ┘à╪ش┘à┘ê╪╣╪ر";
+        btnAddCategory.UseVisualStyleBackColor = false;
+        btnAddCategory.Click += btnAddCategory_Click;
+        // 
+        // lblReorderLevel
+        // 
+        lblReorderLevel.AutoSize = true;
+        lblReorderLevel.Location = new Point(1106, 71);
+        lblReorderLevel.Name = "lblReorderLevel";
+        lblReorderLevel.Size = new Size(155, 24);
+        lblReorderLevel.TabIndex = 17;
+        lblReorderLevel.Text = "┘┘é╪╖╪ر ╪د╪╣╪د╪»╪ر ╪د┘╪╖┘╪ذ";
+        // 
+        // numReorderLevel
+        // 
+        numReorderLevel.Location = new Point(1106, 99);
+        numReorderLevel.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+        numReorderLevel.Name = "numReorderLevel";
+        numReorderLevel.BackColor = System.Drawing.Color.White;
+        numReorderLevel.Size = new Size(155, 32);
+        numReorderLevel.TabIndex = 5;
+        // 
+        // chkTrackExpiry
+        // 
+        chkTrackExpiry.AutoSize = true;
+        chkTrackExpiry.Location = new Point(911, 101);
+        chkTrackExpiry.Name = "chkTrackExpiry";
+        chkTrackExpiry.Size = new Size(153, 28);
+        chkTrackExpiry.TabIndex = 6;
+        chkTrackExpiry.Text = "╪د┘╪╡┘┘ ┘è┘╪ز┘ç┘è╪ا";
+        // 
+        // lblExpiryDays
+        // 
+        lblExpiryDays.AutoSize = true;
+        lblExpiryDays.Location = new Point(730, 74);
+        lblExpiryDays.Name = "lblExpiryDays";
+        lblExpiryDays.Size = new Size(175, 24);
+        lblExpiryDays.TabIndex = 18;
+        lblExpiryDays.Text = "┘┘é╪╖╪ر ╪د┘╪ز┘╪ذ┘è┘ç ╪ذ╪د┘╪د┘╪ز┘ç╪د╪ة";
+        // 
+        // numExpiryAlertDays
+        // 
+        numExpiryAlertDays.Location = new Point(675, 101);
+        numExpiryAlertDays.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+        numExpiryAlertDays.Name = "numExpiryAlertDays";
+        numExpiryAlertDays.BackColor = System.Drawing.Color.White;
+        numExpiryAlertDays.Size = new Size(230, 32);
+        numExpiryAlertDays.TabIndex = 7;
+        // 
+        // lblLocation
+        // 
+        lblLocation.AutoSize = true;
+        lblLocation.Location = new Point(1050, 134);
+        lblLocation.Name = "lblLocation";
+        lblLocation.Size = new Size(163, 24);
+        lblLocation.TabIndex = 19;
+        lblLocation.Text = "╪د┘╪╣┘┘ê╪د┘ ┘┘è ╪د┘┘à╪«╪▓┘";
+        // 
+        // txtLocationInStore
+        // 
+        txtLocationInStore.Location = new Point(914, 161);
+        txtLocationInStore.Name = "txtLocationInStore";
+        txtLocationInStore.BackColor = System.Drawing.Color.White;
+        txtLocationInStore.Size = new Size(463, 32);
+        txtLocationInStore.TabIndex = 8;
+        // 
+        // lblNotes
+        // 
+        lblNotes.AutoSize = true;
+        lblNotes.Location = new Point(752, 134);
+        lblNotes.Name = "lblNotes";
+        lblNotes.Size = new Size(83, 24);
+        lblNotes.TabIndex = 20;
+        lblNotes.Text = "┘à┘╪د╪ص╪╕╪د╪ز";
+        // 
+        // txtNotes
+        // 
+        txtNotes.Location = new Point(675, 161);
+        txtNotes.Name = "txtNotes";
+        txtNotes.BackColor = System.Drawing.Color.White;
+        txtNotes.Size = new Size(233, 32);
+        txtNotes.TabIndex = 9;
+        // 
+        // grpMainUnit
+        // 
+        grpMainUnit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        grpMainUnit.Controls.Add(lblMainUnit);
+        grpMainUnit.Controls.Add(lblMainUnitReq);
+        grpMainUnit.Controls.Add(cmbMainUnit);
+        grpMainUnit.Controls.Add(lblMainUnitCostPrice);
+        grpMainUnit.Controls.Add(numMainUnitCostPrice);
+        grpMainUnit.Controls.Add(lblMainUnitSalePrice);
+        grpMainUnit.Controls.Add(numMainUnitSalePrice);
+        grpMainUnit.Controls.Add(lblMainUnitBarcode);
+        grpMainUnit.Controls.Add(txtMainUnitBarcode);
+        grpMainUnit.Controls.Add(lblMainUnitMaxDiscount);
+        grpMainUnit.Controls.Add(numMainUnitMaxDiscount);
+        grpMainUnit.ImeMode = ImeMode.On;
+        grpMainUnit.Location = new Point(199, 3);
+        grpMainUnit.Name = "grpMainUnit";
+        grpMainUnit.Size = new Size(470, 170);
+        grpMainUnit.TabIndex = 4;
+        grpMainUnit.TabStop = false;
+        grpMainUnit.Text = "╪د┘┘ê╪ص╪»╪ر ╪د┘╪▒╪خ┘è╪│┘è╪ر";
+        // 
+        // lblMainUnit
+        // 
+        lblMainUnit.AutoSize = true;
+        lblMainUnit.Location = new Point(302, 27);
+        lblMainUnit.Name = "lblMainUnit";
+        lblMainUnit.Size = new Size(140, 24);
+        lblMainUnit.TabIndex = 5;
+        lblMainUnit.Text = "╪د┘┘ê╪ص╪»╪ر ╪د┘╪▒╪خ┘è╪│┘è╪ر";
+        // 
+        // lblMainUnitReq
+        // 
+        lblMainUnitReq.AutoSize = true;
+        lblMainUnitReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblMainUnitReq.ForeColor = System.Drawing.Color.Red;
+        lblMainUnitReq.Location = new Point(284, 27);
+        lblMainUnitReq.Name = "lblMainUnitReq";
+        lblMainUnitReq.Size = new Size(23, 24);
+        lblMainUnitReq.TabIndex = 6;
+        lblMainUnitReq.Text = "*";
+        // 
+        // cmbMainUnit
+        // 
+        cmbMainUnit.BackColor = System.Drawing.Color.White;
+        cmbMainUnit.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbMainUnit.FlatStyle = FlatStyle.Flat;
+        cmbMainUnit.Location = new Point(302, 54);
+        cmbMainUnit.Name = "cmbMainUnit";
+        cmbMainUnit.Size = new Size(140, 32);
+        cmbMainUnit.TabIndex = 0;
+        cmbMainUnit.SelectedIndexChanged += cmbMainUnit_SelectedIndexChanged;
+        // 
+        // lblMainUnitCostPrice
+        // 
+        lblMainUnitCostPrice.AutoSize = true;
+        lblMainUnitCostPrice.Location = new Point(185, 28);
+        lblMainUnitCostPrice.Name = "lblMainUnitCostPrice";
+        lblMainUnitCostPrice.Size = new Size(111, 24);
+        lblMainUnitCostPrice.TabIndex = 7;
+        lblMainUnitCostPrice.Text = "╪│╪╣╪▒ ╪د┘╪ز┘â┘┘╪ر";
+        // 
+        // numMainUnitCostPrice
+        // 
+        numMainUnitCostPrice.Location = new Point(169, 54);
+        numMainUnitCostPrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
+        numMainUnitCostPrice.Name = "numMainUnitCostPrice";
+        numMainUnitCostPrice.BackColor = System.Drawing.Color.White;
+        numMainUnitCostPrice.Size = new Size(127, 32);
+        numMainUnitCostPrice.TabIndex = 1;
+        // 
+        // lblMainUnitSalePrice
+        // 
+        lblMainUnitSalePrice.AutoSize = true;
+        lblMainUnitSalePrice.Location = new Point(52, 27);
+        lblMainUnitSalePrice.Name = "lblMainUnitSalePrice";
+        lblMainUnitSalePrice.Size = new Size(111, 24);
+        lblMainUnitSalePrice.TabIndex = 8;
+        lblMainUnitSalePrice.Text = "╪│╪╣╪▒ ╪د┘╪ز╪ش╪▓╪خ╪ر";
+        // 
+        // numMainUnitSalePrice
+        // 
+        numMainUnitSalePrice.Location = new Point(36, 54);
+        numMainUnitSalePrice.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
+        numMainUnitSalePrice.Name = "numMainUnitSalePrice";
+        numMainUnitSalePrice.BackColor = System.Drawing.Color.White;
+        numMainUnitSalePrice.Size = new Size(127, 32);
+        numMainUnitSalePrice.TabIndex = 2;
+        // 
+        // lblMainUnitBarcode
+        // 
+        lblMainUnitBarcode.AutoSize = true;
+        lblMainUnitBarcode.Location = new Point(76, 98);
+        lblMainUnitBarcode.Name = "lblMainUnitBarcode";
+        lblMainUnitBarcode.Size = new Size(104, 24);
+        lblMainUnitBarcode.TabIndex = 9;
+        lblMainUnitBarcode.Text = "╪▒┘é┘à ╪د┘╪ذ╪د╪▒┘â┘ê╪»";
+        // 
+        // txtMainUnitBarcode
+        // 
+        txtMainUnitBarcode.Location = new Point(36, 125);
+        txtMainUnitBarcode.Name = "txtMainUnitBarcode";
+        txtMainUnitBarcode.BackColor = System.Drawing.Color.White;
+        txtMainUnitBarcode.Size = new Size(180, 32);
+        txtMainUnitBarcode.TabIndex = 4;
+        txtMainUnitBarcode.KeyDown += txtMainUnitBarcode_KeyDown;
+        // 
+        // lblMainUnitMaxDiscount
+        // 
+        lblMainUnitMaxDiscount.AutoSize = true;
+        lblMainUnitMaxDiscount.Location = new Point(260, 98);
+        lblMainUnitMaxDiscount.Name = "lblMainUnitMaxDiscount";
+        lblMainUnitMaxDiscount.Size = new Size(170, 24);
+        lblMainUnitMaxDiscount.TabIndex = 10;
+        lblMainUnitMaxDiscount.Text = "╪د┘╪«╪╡┘à ╪د┘┘à╪│┘à┘ê╪ص ╪ذ┘ç";
+        // 
+        // numMainUnitMaxDiscount
+        // 
+        numMainUnitMaxDiscount.Location = new Point(282, 125);
+        numMainUnitMaxDiscount.Name = "numMainUnitMaxDiscount";
+        numMainUnitMaxDiscount.BackColor = System.Drawing.Color.White;
+        numMainUnitMaxDiscount.Size = new Size(127, 32);
+        numMainUnitMaxDiscount.TabIndex = 3;
+        // 
+        // pnlButtons
+        // 
+        pnlButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlButtons.Controls.Add(btnNew);
+        pnlButtons.Controls.Add(btnSave);
+        pnlButtons.Controls.Add(btnEdit);
+        pnlButtons.Controls.Add(btnDelete);
+        pnlButtons.Controls.Add(btnReactivate);
+        pnlButtons.Controls.Add(btnRefresh);
+        pnlButtons.Controls.Add(btnManageUnits);
+        pnlButtons.Controls.Add(btnClose);
+        pnlButtons.Dock = DockStyle.Top;
+        pnlButtons.Location = new Point(0, 250);
+        pnlButtons.Name = "pnlButtons";
+        pnlButtons.Padding = new Padding(10);
+        pnlButtons.Size = new Size(1432, 60);
+        pnlButtons.TabIndex = 2;
+        // 
+        // btnNew
+        // 
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
+        btnNew.FlatStyle = FlatStyle.Flat;
+        btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnNew.ForeColor = System.Drawing.Color.White;
+        btnNew.Location = new Point(1267, 13);
+        btnNew.Name = "btnNew";
+        btnNew.Size = new Size(142, 35);
+        btnNew.TabIndex = 16;
+        btnNew.Text = "≡اـ ╪ش╪»┘è╪»";
+        btnNew.UseVisualStyleBackColor = false;
+        btnNew.Click += btnNew_Click;
+        // 
+        // btnSave
+        // 
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = System.Drawing.Color.White;
+        btnSave.Location = new Point(1133, 13);
+        btnSave.Name = "btnSave";
+        btnSave.Size = new Size(128, 35);
+        btnSave.TabIndex = 17;
+        btnSave.Text = "≡اْ╛ ╪ح╪╢╪د┘╪ر";
+        btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
+        // 
+        // btnEdit
+        // 
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(193), Convert.ToInt32(7));
+        btnEdit.FlatStyle = FlatStyle.Flat;
+        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
+        btnEdit.Location = new Point(999, 13);
+        btnEdit.Name = "btnEdit";
+        btnEdit.Size = new Size(128, 35);
+        btnEdit.TabIndex = 19;
+        btnEdit.Text = "ظ£ي╕ ╪ز╪╣╪»┘è┘";
+        btnEdit.UseVisualStyleBackColor = false;
+        btnEdit.Click += btnEdit_Click;
+        // 
+        // btnDelete
+        // 
+        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
+        btnDelete.FlatStyle = FlatStyle.Flat;
+        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDelete.ForeColor = System.Drawing.Color.White;
+        btnDelete.Location = new Point(855, 13);
+        btnDelete.Name = "btnDelete";
+        btnDelete.Size = new Size(138, 35);
+        btnDelete.TabIndex = 18;
+        btnDelete.Text = "≡اùّ ╪ص╪░┘";
+        btnDelete.UseVisualStyleBackColor = false;
+        btnDelete.Click += btnDelete_Click;
+        // 
+        // btnReactivate
+        // 
+        btnReactivate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnReactivate.Enabled = false;
+        btnReactivate.FlatStyle = FlatStyle.Flat;
+        btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReactivate.ForeColor = System.Drawing.Color.White;
+        btnReactivate.Location = new Point(689, 13);
+        btnReactivate.Name = "btnReactivate";
+        btnReactivate.Size = new Size(160, 35);
+        btnReactivate.TabIndex = 23;
+        btnReactivate.Text = "ظ║ ╪ح╪╣╪د╪»╪ر ╪ز┘╪┤┘è╪╖";
+        toolTip.SetToolTip(btnReactivate, "╪ح╪╣╪د╪»╪ر ╪ز┘╪┤┘è╪╖ ╪د┘╪│╪ش┘ ╪د┘┘à╪╣╪╖┘ّ┘");
+        btnReactivate.UseVisualStyleBackColor = false;
+        btnReactivate.Click += btnReactivate_Click;
+        // 
+        // btnRefresh
+        // 
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnRefresh.FlatStyle = FlatStyle.Flat;
+        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRefresh.ForeColor = System.Drawing.Color.White;
+        btnRefresh.Location = new Point(553, 13);
+        btnRefresh.Name = "btnRefresh";
+        btnRefresh.Size = new Size(130, 35);
+        btnRefresh.TabIndex = 21;
+        btnRefresh.Text = "≡ا¤ ╪ز╪ص╪»┘è╪س";
+        btnRefresh.UseVisualStyleBackColor = false;
+        btnRefresh.Click += btnRefresh_Click;
+        // 
+        // btnManageUnits
+        // 
+        btnManageUnits.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnManageUnits.FlatStyle = FlatStyle.Flat;
+        btnManageUnits.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnManageUnits.ForeColor = System.Drawing.Color.White;
+        btnManageUnits.Location = new Point(367, 13);
+        btnManageUnits.Name = "btnManageUnits";
+        btnManageUnits.Size = new Size(180, 35);
+        btnManageUnits.TabIndex = 20;
+        btnManageUnits.Text = "≡اôخ ╪د┘┘ê╪ص╪»╪د╪ز ┘ê╪د┘╪ث╪│╪╣╪د╪▒";
+        btnManageUnits.UseVisualStyleBackColor = false;
+        btnManageUnits.Click += btnManageUnits_Click;
+        // 
+        // btnClose
+        // 
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = System.Drawing.Color.White;
+        btnClose.Location = new Point(231, 13);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(130, 35);
+        btnClose.TabIndex = 22;
+        btnClose.TabStop = false;
+        btnClose.Text = "≡اأز ╪«╪▒┘ê╪ش";
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
+        // 
+        // pnlGrid
+        // 
+        pnlGrid.Controls.Add(dgvProducts);
+        pnlGrid.Dock = DockStyle.Fill;
+        pnlGrid.Location = new Point(0, 422);
+        pnlGrid.Name = "pnlGrid";
+        pnlGrid.Padding = new Padding(0, 10, 0, 0);
+        pnlGrid.Size = new Size(1432, 292);
+        pnlGrid.TabIndex = 4;
+        // 
+        // dgvProducts
+        // 
+        dgvProducts.AllowUserToAddRows = false;
+        dgvProducts.AllowUserToDeleteRows = false;
+        dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
+        dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+        dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvProducts.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
+        dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
+        dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+        dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
+        dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
+        dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+        dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
+        dgvProducts.Dock = DockStyle.Fill;
+        dgvProducts.EnableHeadersVisualStyles = false;
+        dgvProducts.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
+        dgvProducts.Location = new Point(0, 10);
+        dgvProducts.MultiSelect = false;
+        dgvProducts.Name = "dgvProducts";
+        dgvProducts.ContextMenuStrip = cmsRows;
+        dgvProducts.ReadOnly = true;
+        dgvProducts.RowHeadersVisible = false;
+        dgvProducts.RowHeadersWidth = 62;
+        dgvProducts.RowTemplate.Height = 32;
+        dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvProducts.Size = new Size(1432, 282);
+        dgvProducts.TabIndex = 0;
+        dgvProducts.CellClick += dgvProducts_CellClick;
+        // 
+        // pnlFilters
+        // 
+        pnlFilters.Controls.Add(gbFilter);
+        pnlFilters.Controls.Add(btnToggleFilters);
+        pnlFilters.Dock = DockStyle.Top;
+        pnlFilters.Location = new Point(0, 310);
+        pnlFilters.Margin = new Padding(0);
+        pnlFilters.Name = "pnlFilters";
+        pnlFilters.Padding = new Padding(6, 4, 6, 4);
+        pnlFilters.Size = new Size(1432, 112);
+        pnlFilters.TabIndex = 3;
+        // 
+        // gbFilter
+        // 
+        gbFilter.Controls.Add(lblSearch);
+        gbFilter.Controls.Add(chkShowInactive);
+        gbFilter.Controls.Add(btnClearFilters);
+        gbFilter.Controls.Add(txtSearch);
+        gbFilter.Controls.Add(chkOnlyOutOfStock);
+        gbFilter.Controls.Add(chkOnlyLowStock);
+        gbFilter.Dock = DockStyle.Fill;
+        gbFilter.Font = new Font("Tahoma", 10F);
+        gbFilter.Location = new Point(146, 4);
+        gbFilter.Margin = new Padding(0);
+        gbFilter.Name = "gbFilter";
+        gbFilter.Padding = new Padding(8);
+        gbFilter.RightToLeft = RightToLeft.Yes;
+        gbFilter.Size = new Size(1280, 104);
+        gbFilter.TabIndex = 22;
+        gbFilter.TabStop = false;
+        gbFilter.Text = "┘à╪ص╪▒┘â ╪د┘╪ذ╪ص╪س";
+        // 
+        // lblSearch
+        // 
+        lblSearch.AutoSize = true;
+        lblSearch.Location = new Point(1176, 40);
+        lblSearch.Name = "lblSearch";
+        lblSearch.Size = new Size(56, 24);
+        lblSearch.TabIndex = 1;
+        lblSearch.Text = "╪ذ╪ص╪س:";
+        // 
+        // chkShowInactive
+        // 
+        chkShowInactive.AutoSize = true;
+        chkShowInactive.FlatStyle = FlatStyle.Flat;
+        chkShowInactive.Location = new Point(688, 38);
+        chkShowInactive.Name = "chkShowInactive";
+        chkShowInactive.Size = new Size(166, 28);
+        chkShowInactive.TabIndex = 21;
+        chkShowInactive.Text = "╪╣╪▒╪╢ ╪║┘è╪▒ ╪د┘┘╪┤╪╖";
+        chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
+        // 
+        // btnClearFilters
+        // 
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClearFilters.Cursor = Cursors.Hand;
+        btnClearFilters.Enabled = false;
+        btnClearFilters.FlatAppearance.BorderSize = 0;
+        btnClearFilters.FlatStyle = FlatStyle.Flat;
+        btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
+        btnClearFilters.Location = new Point(322, 36);
+        btnClearFilters.Name = "btnClearFilters";
+        btnClearFilters.Size = new Size(178, 32);
+        btnClearFilters.TabIndex = 26;
+        btnClearFilters.Text = "\U0001f9f9 ┘à╪│╪ص ╪د┘╪ز╪╡┘┘è╪ر";
+        toolTip.SetToolTip(btnClearFilters, "┘à╪│╪ص ┘â┘ ╪ث╪»┘ê╪د╪ز ╪د┘╪ز╪╡┘┘è╪ر (Esc) ظ¤ ┘╪د ┘è╪╣┘è╪» ╪ز╪ص┘à┘è┘ ╪د┘╪ذ┘è╪د┘╪د╪ز");
+        btnClearFilters.UseVisualStyleBackColor = false;
+        btnClearFilters.Click += btnClearFilters_Click;
+        // 
+        // txtSearch
+        // 
+        txtSearch.Location = new Point(870, 36);
+        txtSearch.Name = "txtSearch";
+        txtSearch.BackColor = System.Drawing.Color.White;
+        txtSearch.PlaceholderText = "╪د┘â╪ز╪ذ ┘é┘è┘à╪ر ╪د┘╪ز╪╡┘┘è╪ر...";
+        txtSearch.Size = new Size(300, 32);
+        txtSearch.TabIndex = 20;
+        txtSearch.TextChanged += txtSearch_TextChanged;
+        txtSearch.KeyDown += txtSearch_KeyDown;
+        txtSearch.KeyPress += txtSearch_KeyPress;
+        // 
+        // chkOnlyOutOfStock
+        // 
+        chkOnlyOutOfStock.AutoSize = true;
+        chkOnlyOutOfStock.FlatStyle = FlatStyle.Flat;
+        chkOnlyOutOfStock.Location = new Point(370, 38);
+        chkOnlyOutOfStock.Name = "chkOnlyOutOfStock";
+        chkOnlyOutOfStock.Size = new Size(112, 28);
+        chkOnlyOutOfStock.TabIndex = 23;
+        chkOnlyOutOfStock.Text = "╪د┘┘╪د┘╪» ┘┘é╪╖";
+        chkOnlyOutOfStock.CheckedChanged += chkOnlyOutOfStock_CheckedChanged;
+        // 
+        // chkOnlyLowStock
+        // 
+        chkOnlyLowStock.AutoSize = true;
+        chkOnlyLowStock.FlatStyle = FlatStyle.Flat;
+        chkOnlyLowStock.Location = new Point(510, 38);
+        chkOnlyLowStock.Name = "chkOnlyLowStock";
+        chkOnlyLowStock.Size = new Size(157, 28);
+        chkOnlyLowStock.TabIndex = 24;
+        chkOnlyLowStock.Text = "╪ز╪ص╪ز ╪ص╪» ╪د┘╪╖┘╪ذ";
+        chkOnlyLowStock.CheckedChanged += chkOnlyLowStock_CheckedChanged;
+        // 
+        // btnToggleFilters
+        // 
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        btnToggleFilters.Location = new Point(6, 4);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 104);
+        btnToggleFilters.TabIndex = 25;
+        btnToggleFilters.Text = "╪ح╪«┘╪د╪ة ╪د┘╪ز╪╡┘┘è╪ر";
+        btnToggleFilters.UseVisualStyleBackColor = false;
+        // 
+        // pnlSummary
+        // 
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 714);
+        pnlSummary.Margin = new Padding(0);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Size = new Size(1432, 32);
+        pnlSummary.TabIndex = 5;
+        // 
+        // lblSummary
+        // 
+        lblSummary.Dock = DockStyle.Fill;
+        lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblSummary.Location = new Point(0, 0);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Size = new Size(1432, 32);
+        lblSummary.TabIndex = 0;
+        lblSummary.Text = "╪د┘┘à╪╣╪▒┘ê╪╢: 0 ┘à┘ 0";
+        lblSummary.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // cmsRows
+        //
+        // RULE-N23: ┘é╪د╪خ┘à╪ر ╪│┘è╪د┘é ╪╣┘┘ë ╪د┘╪┤╪ذ┘â╪ر ظ¤ ┘â┘ ╪╣┘╪╡╪▒ ┘è╪│╪ز╪»╪╣┘è ┘┘╪│ ╪▓╪▒ ╪د┘╪┤╪د╪┤╪ر (╪ذ┘╪د ┘à┘╪╖┘é ┘à┘â╪▒╪▒).
+        cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsDelete, cmsReactivate, cmsSeparator, cmsRefresh });
+        cmsRows.Name = "cmsRows";
+        cmsRows.Size = new Size(240, 134);
+        cmsRows.Opening += cmsRows_Opening;
+        //
+        // cmsEdit
+        //
+        cmsEdit.Name = "cmsEdit";
+        cmsEdit.Size = new Size(239, 30);
+        cmsEdit.Text = "ظ£ي╕ ╪ز╪╣╪»┘è┘";
+        cmsEdit.Click += cmsEdit_Click;
+        //
+        // cmsDelete
+        //
+        cmsDelete.Name = "cmsDelete";
+        cmsDelete.Size = new Size(239, 30);
+        cmsDelete.Text = "≡اùّ ╪ص╪░┘";
+        cmsDelete.Click += cmsDelete_Click;
+        //
+        // cmsReactivate
+        //
+        cmsReactivate.Name = "cmsReactivate";
+        cmsReactivate.Size = new Size(239, 30);
+        cmsReactivate.Text = "ظ║ ╪ح╪╣╪د╪»╪ر ╪ز┘╪┤┘è╪╖";
+        cmsReactivate.Click += cmsReactivate_Click;
+        //
+        // cmsSeparator
+        //
+        cmsSeparator.Name = "cmsSeparator";
+        cmsSeparator.Size = new Size(236, 6);
+        //
+        // cmsRefresh
+        //
+        cmsRefresh.Name = "cmsRefresh";
+        cmsRefresh.Size = new Size(239, 30);
+        cmsRefresh.Text = "≡ا¤ ╪ز╪ص╪»┘è╪س (F5)";
+        cmsRefresh.Click += cmsRefresh_Click;
+        // 
+        // errorProvider
+        // 
+        errorProvider.ContainerControl = this;
+        errorProvider.RightToLeft = true;
+        // 
+        // frmProductMaster
+        // 
+        AutoScaleDimensions = new SizeF(11F, 24F);
+        AutoScaleMode = AutoScaleMode.Font;
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+        ClientSize = new Size(1432, 746);
+        Controls.Add(pnlGrid);
+        Controls.Add(pnlSummary);
+        Controls.Add(pnlFilters);
+        Controls.Add(pnlButtons);
+        Controls.Add(pnlFields);
+        Controls.Add(lblMode);
+        Font = new Font("Tahoma", 10F);
+        Name = "frmProductMaster";
+        RightToLeft = RightToLeft.Yes;
+        RightToLeftLayout = true;
+        StartPosition = FormStartPosition.CenterParent;
+        Text = "╪»┘┘è┘ ╪د┘╪ث╪╡┘╪د┘";
+        Load += frmProductMaster_Load;
+        pnlFields.ResumeLayout(false);
+        pnlFields.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)numReorderLevel).EndInit();
+        ((System.ComponentModel.ISupportInitialize)numExpiryAlertDays).EndInit();
+        grpMainUnit.ResumeLayout(false);
+        grpMainUnit.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)numMainUnitCostPrice).EndInit();
+        ((System.ComponentModel.ISupportInitialize)numMainUnitSalePrice).EndInit();
+        ((System.ComponentModel.ISupportInitialize)numMainUnitMaxDiscount).EndInit();
+        pnlButtons.ResumeLayout(false);
+        pnlGrid.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
+        pnlFilters.ResumeLayout(false);
+        gbFilter.ResumeLayout(false);
+        gbFilter.PerformLayout();
+        pnlSummary.ResumeLayout(false);
+        cmsRows.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
+        ResumeLayout(false);
+    }
+
+    private System.Windows.Forms.Label lblMode;
+    private System.Windows.Forms.Panel pnlFields;
+    private System.Windows.Forms.Label lblCode;
+    private System.Windows.Forms.TextBox txtCode;
+    private System.Windows.Forms.Label lblName;
+    private System.Windows.Forms.Label lblNameReq;
+    private System.Windows.Forms.TextBox txtName;
+    private System.Windows.Forms.Label lblForeignName;
+    private System.Windows.Forms.TextBox txtForeignName;
+    private System.Windows.Forms.Label lblCategory;
+    private System.Windows.Forms.Label lblCategoryReq;
+    private System.Windows.Forms.ComboBox cmbCategory;
+    private System.Windows.Forms.Button btnAddCategory;
+    private System.Windows.Forms.Label lblReorderLevel;
+    private System.Windows.Forms.NumericUpDown numReorderLevel;
+    private System.Windows.Forms.CheckBox chkTrackExpiry;
+    private System.Windows.Forms.Label lblExpiryDays;
+    private System.Windows.Forms.NumericUpDown numExpiryAlertDays;
+    private System.Windows.Forms.Label lblLocation;
+    private System.Windows.Forms.TextBox txtLocationInStore;
+    private System.Windows.Forms.Label lblNotes;
+    private System.Windows.Forms.TextBox txtNotes;
+    
+    // Main Unit Group
+    private System.Windows.Forms.GroupBox grpMainUnit;
+    private System.Windows.Forms.Label lblMainUnit;
+    private System.Windows.Forms.Label lblMainUnitReq;
+    private System.Windows.Forms.ComboBox cmbMainUnit;
+    private System.Windows.Forms.Label lblMainUnitCostPrice;
+    private System.Windows.Forms.NumericUpDown numMainUnitCostPrice;
+    private System.Windows.Forms.Label lblMainUnitSalePrice;
+    private System.Windows.Forms.NumericUpDown numMainUnitSalePrice;
+    private System.Windows.Forms.Label lblMainUnitBarcode;
+    private System.Windows.Forms.TextBox txtMainUnitBarcode;
+    private System.Windows.Forms.Label lblMainUnitMaxDiscount;
+    private System.Windows.Forms.NumericUpDown numMainUnitMaxDiscount;
+
+    private System.Windows.Forms.FlowLayoutPanel pnlButtons;
+    private System.Windows.Forms.Button btnNew;
+    private System.Windows.Forms.Button btnSave;
+    private System.Windows.Forms.Button btnEdit;
+    private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnReactivate;
+    private System.Windows.Forms.Button btnManageUnits;
+    private System.Windows.Forms.Button btnClose;
+    private System.Windows.Forms.Panel pnlGrid;
+    private System.Windows.Forms.DataGridView dgvProducts;
+    private System.Windows.Forms.ContextMenuStrip cmsRows;
+    private System.Windows.Forms.ToolStripMenuItem cmsEdit;
+    private System.Windows.Forms.ToolStripMenuItem cmsDelete;
+    private System.Windows.Forms.ToolStripMenuItem cmsReactivate;
+    private System.Windows.Forms.ToolStripSeparator cmsSeparator;
+    private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
+    private System.Windows.Forms.Panel pnlFilters;
+    private System.Windows.Forms.TextBox txtSearch;
+    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.Label lblSearch;
+    private System.Windows.Forms.CheckBox chkShowInactive;
+    private System.Windows.Forms.CheckBox chkOnlyOutOfStock;
+    private System.Windows.Forms.CheckBox chkOnlyLowStock;
+    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Label lblSummary;
+    private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.ToolTip toolTip;
+    private GroupBox gbFilter;
+    private Button btnToggleFilters;
+    private Button btnClearFilters;
+}

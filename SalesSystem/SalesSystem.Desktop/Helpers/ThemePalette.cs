@@ -19,7 +19,7 @@
 //     GreenThemeHelper.Apply و KeyboardHelper.RefreshFocusHighlight بحق،
 //     لأن النداء يقع وقت التشغيل بعد اكتمال التهيئة.
 //   • لا يوجد أي `Color.FromArgb` خارج **جدولَي الألوان** أدناه (RULE-N112):
-//       (أ) AllDefinitions  = الافتراضيات **الحالية** (27 لوناً تُعرَض في شاشة الألوان)،
+//       (أ) AllDefinitions  = الافتراضيات **الحالية** (24 لوناً تُعرَض في شاشة الألوان)،
 //       (ب) RetiredDefaults = **تاريخ الافتراضيات المتقاعدة**: كل قيمة افتراضية سبق
 //           شحنها ثم تغيّرت — بمفتاحها ولونها القديم حرفياً.
 //   • الغرض من RetiredDefaults: لوحة المصمّمين (95 مصمّماً) تحمل القيم الحرفية
@@ -73,32 +73,10 @@ public static class ThemePalette
     /// <summary>شريط العنوان.</summary>
     public const string HeaderBarColor = "headerBarColor";
 
-    /// <summary>
-    /// تدرّج شريط العنوان — <b>لون البداية</b> (أقصى يسار الشريط، الأزرق البحري الداكن).
-    /// <para>
-    /// التدرّج ثلاثي المحطات من اليسار إلى اليمين، مطابقاً حرفياً لمصدر لوحة المالك
-    /// (<c>from-[#0a4b8c] via-[#026cb6] to-[#0288d1]</c>). تُرسم المحطات الثلاث في
-    /// <c>GreenThemeHelper.ApplyHeaderGradient</c> ولا تُكتب أي قيمة منها هناك (RULE-N112).
-    /// </para>
-    /// </summary>
-    public const string HeaderBarGradientStartColor = "headerBarGradientStartColor";
-
-    /// <summary>تدرّج شريط العنوان — <b>لون الوسط</b> (منتصف الشريط).</summary>
-    public const string HeaderBarGradientMidColor = "headerBarGradientMidColor";
-
-    /// <summary>
-    /// تدرّج شريط العنوان — <b>لون النهاية</b> (أقصى يمين الشريط، الأزرق السماوي الأفتح).
-    /// <para>
-    /// هو <b>أفتح</b> محطة في التدرّج، فتباينه مع <see cref="HeaderTextColor"/> هو الحدّ
-    /// الأدنى المقيس للنص — محميٌّ بقاعدة في <see cref="ContrastRules"/>.
-    /// </para>
-    /// </summary>
-    public const string HeaderBarGradientEndColor = "headerBarGradientEndColor";
-
     /// <summary>نص شريط العنوان.</summary>
     public const string HeaderTextColor = "headerTextColor";
 
-    /// <summary>النص المميّز (داكن محايد — (33,37,41) في اللوحة المهنية).</summary>
+    /// <summary>النص المميّز (داكن — يتباين مع خلفية الشاشة).</summary>
     public const string TextStrongColor = "textStrongColor";
 
     /// <summary>زر «جديد / إضافة».</summary>
@@ -153,8 +131,8 @@ public static class ThemePalette
     /// لون التحديد والحقل النشط — **مفتاح واحد لاستخدامين** (قرار المالك 2026-11-15):
     /// سطر/خلية الشبكة المحددة (<c>GreenThemeHelper.ApplyGrid</c>) وحقل الإدخال المركَّز
     /// (<c>KeyboardHelper.WireFocusHighlight</c>) يتشاركان القيمة نفسها.
-    /// الافتراضي <c>#FFF3CD</c> = (255,243,205) — والقيمة السابقة <c>#FFFFB4</c> = (255,255,180)
-    /// مسجَّلة في <c>RetiredDefaults</c> فيُعاد تلوين أي مصمّم يحملها.
+    /// الافتراضي <c>#FFFFB4</c> = (255,255,180) — والقيمتان السابقتان <c>#FFF3CD</c> = (255,243,205)
+    /// و<c>#BAE6FD</c> = (186,230,253) مسجَّلتان في <c>RetiredDefaults</c> فيُعاد تلوين أي مصمّم يحملهما.
     /// </summary>
     public const string SelectionRowColor = "selectionRowColor";
 
@@ -169,10 +147,10 @@ public static class ThemePalette
     /// ثم «مثل كلمة المرور في شاشة الدخول»). يستهلكها <c>clsInputFeedback.ShowRejectTooltip</c>
     /// عبر <see cref="GreenThemeHelper.RejectBackground"/> — وميض قصير يعود إلى لون المصمّم تلقائياً،
     /// فلا يُترك أي حقل ملوّناً. لون **حالة** لا لون تصميم، ولا يُعلَن في أي `*.Designer.cs`
-    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي `#F8D7DA` = (248,215,218) —
-    /// أحمر حقل باهت من **جيل الألوان المعتمد حالياً** (المصدر الوحيد له هو
+    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي `#FFDCDC` = (255,220,220) —
+    /// أحمر حقل باهت (المصدر الوحيد له هو
     /// <see cref="AllDefinitions"/>؛ لا يُسمّى هنا جيلٌ بعينه كي لا يشيخ هذا الشرح مع كل
-    /// تغيير لوحة — <c>RULE-N188</c>). والقيمة السابقة `#FFDCDC` = (255,220,220) مسجَّلة
+    /// تغيير لوحة — <c>RULE-N188</c>). والقيمة السابقة `#F8D7DA` = (248,215,218) مسجَّلة
     /// في <c>RetiredDefaults</c> فيُعاد تلوين أي شاشة تحملها.
     /// </summary>
     public const string RejectBackgroundColor = "rejectBackgroundColor";
@@ -190,39 +168,36 @@ public static class ThemePalette
 
     private static readonly ThemeColorDefinition[] AllDefinitions =
     {
-        // ── الشاشة الرئيسية (7) ──
-        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(240, 244, 249)),
-        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(10, 75, 140)),
+        // ── الشاشة الرئيسية (4) ──
+        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(170, 220, 170)),
+        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(14, 165, 103)),
         new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,      Color.White),
-        new(HeaderBarGradientStartColor, "تدرّج الشريط — البداية", GroupMain, Color.FromArgb(10, 75, 140)),
-        new(HeaderBarGradientMidColor,   "تدرّج الشريط — الوسط",   GroupMain, Color.FromArgb(2, 108, 182)),
-        new(HeaderBarGradientEndColor,   "تدرّج الشريط — النهاية", GroupMain, Color.FromArgb(2, 136, 209)),
-        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(30, 41, 59)),
+        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(14, 82, 52)),
         // ── الأزرار (7) ──
-        new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(2, 119, 189)),
-        new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(5, 150, 105)),
-        new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons,   Color.FromArgb(225, 29, 72)),
-        new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons,   Color.FromArgb(100, 116, 139)),
-        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(2, 132, 199)),
-        new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(245, 158, 11)),
-        new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 250, 252)),
-        // ── الصناديق والأشرطة (2) ──
-        new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,    Color.White),
-        new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,      Color.White),
-        // ── الشبكة (7 — لون التحديد انتقل إلى مجموعة «التحديد والحقل النشط») ──
-        new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,      Color.White),
-        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(15, 45, 74)),
+        new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(13, 110, 253)),
+        new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(25, 135, 84)),
+        new(BtnDeleteButtonColor,    "زر «حذف»",              GroupButtons,   Color.FromArgb(220, 53, 69)),
+        new(BtnCancelButtonColor,    "زر «إغلاق / إلغاء»",    GroupButtons,   Color.FromArgb(108, 117, 125)),
+        new(BtnInfoButtonColor,      "زر «تصدير / معلومات»",  GroupButtons,   Color.FromArgb(23, 162, 184)),
+        new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(255, 193, 7)),
+        new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 249, 250)),
+        // ── أشرطة الأدوات والصناديق (2) ──
+        new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,    Color.FromArgb(235, 240, 235)),
+        new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,      Color.FromArgb(235, 245, 235)),
+        // ── الشبكة (7) ──
+        new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,      Color.FromArgb(220, 240, 220)),
+        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(14, 165, 103)),
         new(GridHeaderTextColor,     "نص رؤوس الأعمدة",       GroupGrid,      Color.White),
-        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(226, 232, 240)),
-        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(248, 250, 252)),
+        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(205, 225, 205)),
+        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(245, 252, 245)),
         new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,      Color.White),
-        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(30, 41, 59)),
+        new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(33, 37, 41)),
         // ── التحديد والحقل النشط (1) ──
-        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(186, 230, 253)),
+        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(255, 255, 180)),
         // ── حالات العرض (3) ──
-        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(226, 232, 240)),
-        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(100, 116, 139)),
-        new(RejectBackgroundColor,   "خلفية الرفض والخطأ",   GroupStates,    Color.FromArgb(248, 215, 218)),
+        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(224, 224, 224)),
+        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(150, 150, 150)),
+        new(RejectBackgroundColor,   "خلفية الرفض والخطأ",   GroupStates,    Color.FromArgb(255, 220, 220)),
     };
 
     // ═════════════════════════════════════════════════════════════════
@@ -233,9 +208,8 @@ public static class ThemePalette
     //  فلا يُعاد تلوينه (RULE-N134/RULE-N139). بـ IsRetiredDefault يبقى لون
     //  المصمّم معروفاً كافتراضي **سبق شحنه** فيُعاد تلوينه — فلا يلزم مسّ أي
     //  *.Designer.cs عند أي تغيير ألوان مستقبلي (قرار المالك 2026-11-16).
-    //  ويحمل الجدول الآن **جيلين متقاعدين**: الأول (أخضر → محايد) والثاني
-    //  (محايد → اللوحة الحالية) — ولا يُسمّى أي جيل باسم لوحة بعينها كي لا
-    //  يشيخ هذا الشرح مع كل تغيير (RULE-N188). المطابقة **بالمفتاح والقيمة
+    //  ويحمل الجدول الآن **ثلاثة أجيال متقاعدة**: الأول (أخضر → محايد) والثاني
+    //  (محايد → أزرق) والثالث (أزرق → العودة للأخضر) — والمطابقة **بالمفتاح والقيمة
     //  معاً**، فتكرار قيمةٍ واحدة تحت مفتاحين مختلفين مقصود ولا يُدمَج.
     //  القاعدة عند أي تغيير جديد: أضف (المفتاح، القيمة القديمة) هنا ثم حدّث
     //  الافتراضي في AllDefinitions — لا شيء غير ذلك.
@@ -257,7 +231,7 @@ public static class ThemePalette
         (DisabledBackColor,       Color.FromArgb(224, 224, 224)),   // → 233, 236, 239
         (DisabledForeColor,       Color.FromArgb(150, 150, 150)),   // → 108, 117, 125
         (RejectBackgroundColor,   Color.FromArgb(255, 220, 220)),   // → 248, 215, 218
-        // ── الجيل الثاني: محايد → اللوحة الحالية ──
+        // ── الجيل الثاني: محايد → أزرق ──
         (FrmMainColor,            Color.FromArgb(240, 242, 245)),   // → 238, 242, 246
         (HeaderBarColor,          Color.FromArgb(16, 150, 96)),     // → 15, 45, 74
         (TextStrongColor,         Color.FromArgb(33, 37, 41)),      // → 15, 23, 42
@@ -275,13 +249,32 @@ public static class ThemePalette
         (SelectionRowColor,       Color.FromArgb(255, 243, 205)),   // → 186, 230, 253
         (DisabledBackColor,       Color.FromArgb(233, 236, 239)),   // → 226, 232, 240
         (DisabledForeColor,       Color.FromArgb(108, 117, 125)),   // → 100, 116, 139
-        // ── تصحيحات مطابقة لوحة المصدر (4 — القيم التي استُبدلت الآن) ──
+        // ── تصحيحات مطابقة لوحة المصدر (4) ──
         (FrmMainColor,            Color.FromArgb(238, 242, 246)),   // → 240, 244, 249
         (HeaderBarColor,          Color.FromArgb(15, 45, 74)),      // → 10, 75, 140
         (TextStrongColor,         Color.FromArgb(15, 23, 42)),      // → 30, 41, 59
         (GridCellTextColor,       Color.FromArgb(15, 23, 42)),      // → 30, 41, 59
         // ── تصحيح لون زر «معلومات» إلى لون المصدر (sky-600) ──
         (BtnInfoButtonColor,      Color.FromArgb(8, 145, 178)),     // → 2, 132, 199
+        // ── الجيل الثالث: أزرق «المحاسب سوفت» → العودة للأخضر (2026-11-16) ──
+        (FrmMainColor,            Color.FromArgb(240, 244, 249)),
+        (HeaderBarColor,          Color.FromArgb(10, 75, 140)),
+        (TextStrongColor,         Color.FromArgb(30, 41, 59)),
+        (GridCellTextColor,       Color.FromArgb(30, 41, 59)),
+        (GridHeaderColor,         Color.FromArgb(15, 45, 74)),
+        (GridLineColor,           Color.FromArgb(226, 232, 240)),
+        (GridAlternateRowColor,   Color.FromArgb(248, 250, 252)),
+        (SelectionRowColor,       Color.FromArgb(186, 230, 253)),
+        (DisabledBackColor,       Color.FromArgb(226, 232, 240)),
+        (DisabledForeColor,       Color.FromArgb(100, 116, 139)),
+        (RejectBackgroundColor,   Color.FromArgb(248, 215, 218)),
+        (BtnAddNewButtonColor,    Color.FromArgb(2, 119, 189)),
+        (BtnSaveButtonColor,      Color.FromArgb(5, 150, 105)),
+        (BtnDeleteButtonColor,    Color.FromArgb(225, 29, 72)),
+        (BtnCancelButtonColor,    Color.FromArgb(100, 116, 139)),
+        (BtnInfoButtonColor,      Color.FromArgb(2, 132, 199)),
+        (BtnWarningButtonColor,   Color.FromArgb(245, 158, 11)),
+        (BtnSecondaryButtonColor, Color.FromArgb(248, 250, 252)),
     };
 
     /// <summary>
@@ -351,7 +344,7 @@ public static class ThemePalette
     //  القراءة والكتابة
     // ═════════════════════════════════════════════════════════════════
 
-    /// <summary>تعريفات اللوحة (27 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
+    /// <summary>تعريفات اللوحة (24 لوناً بترتيب العرض في الشاشة، في ست مجموعات).</summary>
     public static IReadOnlyList<ThemeColorDefinition> Definitions => DefinitionsReadOnly;
 
     /// <summary>فهرس التعريفات بالمفتاح (تطابق ترتيبي — نفس أسماء الثوابت).</summary>
@@ -399,20 +392,9 @@ public static class ThemePalette
         void Add(string key, string partner, double minimum) => map[key] = (partner, minimum);
 
         // نصوص/رؤوس فوق خلفيات: 3.0 لنص كبير (شريط/رؤوس) و4.5 لنص عادي.
+        // الشريط لون واحد مسطّح، فقاعدة واحدة تحمي النص الأبيض عليه.
         Add(HeaderTextColor, HeaderBarColor, 3.0);
         Add(HeaderBarColor, HeaderTextColor, 3.0);
-        // شريط العنوان صار **تدرّجاً**، والنص الأبيض يقف على المحطات الثلاث في آنٍ واحد،
-        // فأفتح محطة (النهاية) هي التي تحدّ المقروئية لا البداية الداكنة. القاعدة تحمي
-        // تعديلاً مستقبلياً يجعل الشريط فاتحاً فيبيضّ النص عليه (3.86 مقيسة اليوم).
-        Add(HeaderTextColor, HeaderBarGradientEndColor, 3.0);
-        Add(HeaderBarGradientEndColor, HeaderTextColor, 3.0);
-        // الوسط محميٌّ كذلك: حفظ محطة وسطى فاتحة (مثل خلفية الشاشة #F0F4F9) مع بقاء
-        // البداية داكنة كان يجعل منتصف كل شريط أبيض على أبيض في كل الشاشات — والحد
-        // نفسه (3.0) لأن النص يقف على المحطة الوسطى كما يقف على الطرفين.
-        Add(HeaderTextColor, HeaderBarGradientMidColor, 3.0);
-        Add(HeaderBarGradientMidColor, HeaderTextColor, 3.0);
-        Add(HeaderTextColor, HeaderBarGradientStartColor, 3.0);
-        Add(HeaderBarGradientStartColor, HeaderTextColor, 3.0);
         Add(GridHeaderTextColor, GridHeaderColor, 3.0);
         Add(GridHeaderColor, GridHeaderTextColor, 3.0);
         Add(GridCellTextColor, GridCellBackgroundColor, BodyTextMinimumContrast);
@@ -906,7 +888,7 @@ public static class ThemePalette
     private static readonly Regex HexPattern = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);
 
     /// <summary>
-    /// يتحقّق من **مجموعة ألوان كاملة** (27 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
+    /// يتحقّق من **مجموعة ألوان كاملة** (24 مفتاحاً بصيغة <c>#RRGGBB</c>) ويُعيد **أول**
     /// رسالة رفض عربية، أو <c>null</c> إن كانت المجموعة كلها مقبولة.
     /// <para>
     /// <b>البيت الواحد (RULE-N169 · RULE-N172):</b> كانت هذه الفحوص الخمسة مكتوبة داخل
