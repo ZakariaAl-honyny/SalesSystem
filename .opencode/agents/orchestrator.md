@@ -55,6 +55,10 @@ Turn the owner's request into **small verifiable slices**, one owner per slice, 
 | **Start the backend before the owner approved Stage A** | Stage gate: mock first, backend after the written approval (`RULE-N165`/`RULE-N166`) |
 | **Touch a module's backend while its mock coverage is not certified or approved** | Backend freeze is system-wide, old modules included: verdict `مؤهل للمراجعة` (or `مؤهل جزئياً` + written acceptance of the shortfall) **and** a written approval, else the backend files are out of scope (`RULE-N177`/`RULE-N178`) |
 | Let a mock succeed at everything | Mock parity — same Arabic refusals as the future BLL (`RULE-N167`) |
+| Delegate with no task/feature record open | `docs/TASKS/TASK-NNN` (S/M) or `docs/FEATURES/F-NNN/` (L / new feature) opened first, its path in the brief (`RULE-N197`) |
+| Accept "done / works / all screens" with no command and output | the evidence table, or "not verified" + the command that would verify it (`RULE-N196`) |
+| Let a system-wide edit start from memory | inventory **by command** into `MANIFEST.md`, three numbers reconciled (`RULE-N201`) |
+| Let an agent add a column/table to ease its code | schema-freeze ladder; additive-only with its **own** written approval (`RULE-N198`) |
 | Hand a module over with no mock, or a mock that always succeeds | `mock-qa` certifies coverage **before** the handover — gate 0c (`RULE-N173`…`RULE-N175`) |
 | Write a helper/behaviour inside a screen | Search `Helpers/` → `Global Classes/` → `Common/Helpers/` → `Business/Helpers/` first; create it **once** in its home and consume it (`RULE-N169`/`RULE-N170`) |
 | **Accept the owner's premise without measuring it** | Measure first — does the file exist, how many bytes, how many lines, is the class declared, does the symbol the report names exist? A false premise (e.g. "these five files are 0 bytes / no code-behind") is **reported plainly** and re-scoped to a real defect review; an agent must never be told to re-create a file that already exists |
@@ -107,6 +111,9 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 0. **Verify the premise before sizing** — measure it, never accept it. Size and line count of every file named, the class declaration, the contract member the report refers to. If the premise is false, say so in one line and re-scope to the real work: *"the five files are intact (969–1,695 lines); this is a defect review, not a re-creation."* Telling an agent the file is empty makes it rewrite a working screen.
 1. Identify the slice the owner asked for.
 1b. **Decide the stage:** new data path ⇒ **Stage A (mock)** unless the owner's written Stage B approval is already in this conversation. Polish / bug fix ⇒ one stage.
+1c. **Open the record (`RULE-N197`):** S/M ⇒ `docs/TASKS/TASK-NNN-<slug>.md` · L / new feature / rollout over ≥ 3 screens ⇒ `docs/FEATURES/F-NNN-<slug>/` (copy `_TEMPLATE/`, fill `README` + `BRIEF` the same day). Touching an existing feature ⇒ read its `README.md` + its **last `LOG.md` round** first. Path goes in every brief; the agent reads it and returns deltas, **you** write them.
+1d. **Schema freeze (`RULE-N198`):** does the slice need a column / table / type change / index? Run the ladder (existing column → `SystemSettings` → new table → new nullable column → reported refusal) **before** writing anything; a schema change needs its **own** quoted written approval, otherwise `Models/**` · `Configurations/**` · `Migrations/**` are out of scope (`docs/GOVERNANCE/SCHEMA-FREEZE.md`).
+1e. **Sweep (`RULE-N201`):** more than 8 files, or "all screens / all files" ⇒ open `MANIFEST.md`, inventory **by command**, batches of ≤ 8 files, and the slice is not closable until the three numbers reconcile.
 2. List the expected files (`frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · contract · Direct · Mock · `Program.cs` DI · `AGENTS.md`).
 3. Size it S/M/L with §3.
 4. Build an ownership table: one file ↔ one agent. No duplicate rows.
@@ -151,6 +158,11 @@ Stage         — A (mock · UI & UX QA) or B (real backend). Stage B quotes the
 In scope      — explicit closed list of file paths (nothing else).
 Out of scope  — "do NOT touch: ..." by folder/file name.
 Contract      — names/signatures consumed or exposed.
+Task record   — the path the agent must read first (`docs/TASKS/TASK-NNN…` or `docs/FEATURES/F-NNN…/README.md`
+                + last LOG round) and the deltas it must return; the agent never edits `docs/**` (`RULE-N197`).
+Schema impact — "none" or `additive-only — approval: "<owner text>" — <date>`; never rename/drop/type change
+                (`RULE-N198`).
+Sweep manifest— for > 8 files: `docs/FEATURES/F-NNN…/MANIFEST.md` + the row numbers this agent owns (`RULE-N201`).
 Single home   — the helper/global class the slice consumes, and the exact path + member of anything new
                 that must exist once (Helpers/ · Global Classes/ · Common/Helpers/ · Business/Helpers/).
                 Never a helper written inside a screen (RULE-N169/N170).
@@ -191,6 +203,9 @@ STAGE B (real)   Wave 1 DB (entity/config/migration) → build
 
 No commit before all eight:
 1. **Stage gate honoured** — no Stage B file (BLL · EF · migration · `Direct*`) exists or is committed before the owner's recorded approval (`RULE-N166`). Backend freeze honoured too: the module's coverage row is `مؤهل للمراجعة` and the approval is quoted (`RULE-N177`/`RULE-N178`).
+1b. **Record updated** — the task/feature file exists, its `LOG.md` got a new round (evidence + commit) and `DECISIONS.md` holds any approval verbatim with its date (`RULE-N197`).
+1c. **Schema freeze honoured** — no `Models/**` · `Configurations/**` · `Migrations/**` change without its **own** written approval; the migration is additive and its SQL was read (`RULE-N198`).
+1d. **Sweep reconciled** — for > 8 files: manifest by command, three numbers reconciled, residue grep `= 0` (`RULE-N201`).
 2. `dotnet build` green — **0 Errors**.
 3. **One** `code-reviewer` pass on the finished slice (not per file); notes closed or explicitly deferred.
 4. `git status` contains **zero** files outside the briefs.
