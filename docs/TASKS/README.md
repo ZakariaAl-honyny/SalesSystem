@@ -9,6 +9,7 @@
 docs/TASKS/TASK-000-TEMPLATE.md          ← القالب (لا يُعدَّل إلا بقانون)
 docs/TASKS/TASK-001-<slug>.md            ← مهمة حقيقية
 docs/TASKS/INDEX.md                      ← جدول كل المهام
+docs/TASKS/ARCHIVE/                      ← ملفات تتبع المهام الكبيرة **بعد إغلاقها** (أرشفة لا حذف — `RULE-N202`)
 ```
 
 `slug` إنجليزي قصير بشرطات: `schema-freeze-law` · `frm-product-enter-nav` · `mock-coverage-auth`.

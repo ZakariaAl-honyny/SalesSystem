@@ -127,7 +127,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it c
 1b. **Decide the stage:** new data path ⇒ **Stage A (mock)** unless the owner's written Stage B approval is already in this conversation. Polish / bug fix ⇒ one stage.
 1c. **Open the record (`RULE-N197`):** S/M ⇒ `docs/TASKS/TASK-NNN-<slug>.md` · L / new feature / rollout over ≥ 3 screens ⇒ `docs/FEATURES/F-NNN-<slug>/` (copy `_TEMPLATE/`, fill `README` + `BRIEF` the same day). Touching an existing feature ⇒ read its `README.md` + its **last `LOG.md` round** first. Path goes in every brief; the agent reads it and returns deltas, **you** write them.
 1d. **Schema freeze (`RULE-N198`):** does the slice need a column / table / type change / index? Run the ladder (existing column → `SystemSettings` → new table → new nullable column → reported refusal) **before** writing anything; a schema change needs its **own** quoted written approval, otherwise `Models/**` · `Configurations/**` · `Migrations/**` are out of scope (`docs/GOVERNANCE/SCHEMA-FREEZE.md`).
-1d-bis. **Big task ⇒ switch the pointer (`RULE-N202`):** before the first brief of a task spanning ≥ 3 layers, > 8 files or several parallel agents, write the task name + tracker path into `docs/TASKS/ACTIVE.md` (state `مفتوحة`). Every subagent reads that file first **by its own prompt** — so nobody has to be told. Set it back to "none" only when the task closes; the tracker itself is never deleted.
+1d-bis. **Big task ⇒ switch the pointer (`RULE-N202`):** before the first brief of a task spanning ≥ 3 layers, > 8 files or several parallel agents, write the task name + tracker path into `docs/TASKS/ACTIVE.md` (state `مفتوحة`). Every subagent reads that file first **by its own prompt** — so nobody has to be told. Set it back to "none" only when the task closes; the tracker itself is never deleted — it is closed and archived to `docs/TASKS/ARCHIVE/` with `git mv` (`TASK-005`).
 1e. **Sweep (`RULE-N201`):** more than 8 files, or "all screens / all files" ⇒ open `MANIFEST.md`, inventory **by command**, batches of ≤ 8 files, and the slice is not closable until the three numbers reconcile.
 2. List the expected files (`frmX.cs` · `frmX.Designer.cs` · `frmX.resx` · contract · Direct · Mock · `Program.cs` DI · `AGENTS.md`).
 3. Size it S/M/L with §3.
@@ -176,7 +176,8 @@ Contract      — names/signatures consumed or exposed.
 Task record   — the path the agent must read first (`docs/TASKS/TASK-NNN…` or `docs/FEATURES/F-NNN…/README.md`
                 + last LOG round) and the deltas it must return; the agent never edits `docs/**` (`RULE-N197`).
                 Big system-level task ⇒ **its single tracker file** (`MangeSubaggentsAndTracProgress.md`
-                pattern) is the brief's source; it is updated live and **kept forever** (`RULE-N202`).
+                pattern) is the brief's source; it is updated live, and at closing it is **closed and archived**
+                to `docs/TASKS/ARCHIVE/` — never deleted (`RULE-N202`).
 Schema impact — "none" or `additive-only — approval: "<owner text>" — <date>`; never rename/drop/type change
                 (`RULE-N198`).
 Sweep manifest— for > 8 files: `docs/FEATURES/F-NNN…/MANIFEST.md` + the row numbers this agent owns (`RULE-N201`).
