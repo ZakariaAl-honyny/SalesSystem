@@ -11,6 +11,8 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// «طباعة باركود الأصناف» — معاينة ملصق الباركود لصنف من دليل الأصناف الحقيقي.
 /// الهيكل (RULE-N79 / RULE-N135…N138): العنوان ← أوامر الملصق ← بيانات الملصق ← معاينة الملصق.
 /// RULE-N42: Enter في حقل الباركود = بحث فوري، ويبقى التركيز في الحقل جاهزاً للمسح التالي.
+/// RULE-N191/N194/N180: Enter يمشي بترتيب العرض ثم يُسلِّم التركيز لزر الإجراء بلا تنفيذ،
+/// والحقول المطلوبة تُغذّى من البيت الواحد <see cref="RequiredFieldHelper"/> (لا حكم محلي في الشاشة).
 /// <para>
 /// <b>مصدر البيانات:</b> <see cref="IProductDesktopService.GetAllAsync"/> لملء قائمة الأصناف،
 /// و<see cref="IProductDesktopService.GetByBarcodeAsync"/> للبحث بالباركود (يشمل باركودات الوحدات).
@@ -42,8 +44,11 @@ public partial class frmInventoryBarcode : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
-        // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل «بيانات الملصق» يمشي بترتيب العرض (صفاً صفاً من اليمين لليسار) ثم
+        // يُسلِّم التركيز لزر الإجراء بلا تنفيذ (RULE-N147). ومعالج الباركود في الشاشة مُوصَّل من
+        // المصمّم **قبل** هذا السطر، فيرى Enter أولاً ويستهلكه (e.Handled) فلا ينقل الـHelper التركيز
+        // أيضاً — تنفيذ الأمرين بضغطة واحدة هو نفس عيب PILOT-13 (RULE-N193 / RULE-N42).
+        KeyboardHelper.WireEnterAsTab(gbInfo, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
@@ -54,6 +59,16 @@ public partial class frmInventoryBarcode : Form
         // RULE-N47 — Esc يغلق الشاشة (لا «جديد/تحديث/ترحيل» على هذه الشاشة).
         KeyboardHelper.WireGlobalShortcuts(this,
             (Keys.Escape, () => { if (btnClose.Enabled) btnClose.PerformClick(); }));
+
+        // RULE-N180…N183 — الحقول المطلوبة في البيت الواحد: أيقونة ✗ + رسالة + ومضة رفض عند مغادرة
+        // حقل مطلوب فارغ، و«الحقل الفارغ يحجب Enter» (RULE-N194) بلا أي حكم محلي في هذه الشاشة.
+        // ترتيب الاستدعاء إلزامي: **بعد** WireFocusHighlight و**قبل** GreenThemeHelper.Apply (RULE-N183).
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new(cmbProduct, "يرجى اختيار الصنف أولاً", () => _products.Count > 0),
+            new(txtBarcode, "أدخل أو امسح الباركود أولاً"));
+
+        // RULE-N147 — Enter يُبرز زر الإجراء الحالي (زر إجراء واحد في الشاشة: «طباعة الملصقات»).
+        AcceptButton = _PrimaryActionButton();
 
         ApplyUiTheme();
     }
@@ -74,6 +89,31 @@ public partial class frmInventoryBarcode : Form
         GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
+    // ── الإجراء الأساسي (RULE-N147 / RULE-N191) ──────────────────────────
+
+    /// <summary>
+    /// الزر الأساسي للشاشة — يُقرأ عند كل ضغطة Enter وعند الاشتراك في <c>WireEnterAsTab</c>.
+    /// هذه الشاشة لا تملك آلة أوضاع (عرض/إضافة/تعديل): إجراؤها واحد دائماً وهو «طباعة الملصقات»،
+    /// و«إغلاق» ليس إجراءً أساسياً (Esc و<see cref="Form.CancelButton"/>).
+    /// </summary>
+    private Button? _PrimaryActionButton() => btnPrint;
+
+    /// <summary>
+    /// تحقق النطاقات — نفس الحكم الحرفي الذي كان مضمَّناً داخل <see cref="btnPrint_Click"/>
+    /// (عدد الملصقات يجب أن يكون أكبر من صفر)، مستخرجاً إلى دالة واحدة بلا أي تغيير في الشرط ولا الرسالة.
+    /// </summary>
+    private bool _ValidateRangeRules()
+    {
+        int count = (int)nudLabelsCount.Value;
+        if (count <= 0)
+        {
+            clsDialogs.Warning("يرجى إدخال عدد صحيح من الملصقات.");
+            return false;
+        }
+
+        return true;
+    }
+
     // ── التحميل من دليل الأصناف ─────────────────────────────────────────
 
     private async void frmInventoryBarcode_Load(object? sender, EventArgs e)
@@ -83,6 +123,9 @@ public partial class frmInventoryBarcode : Form
             Cursor = Cursors.WaitCursor;
 
             await _LoadProductsAsync();
+
+            // بداية نظيفة: لا علامة «مطلوب» معلّقة من محاولة سابقة (RULE-N183 — Clear مع كل إعادة ضبط).
+            RequiredFieldHelper.Clear(this);
 
             cmbLabelSize.SelectedIndex = 1;   // متوسط — العناصر معلنة في المصمّم
 
@@ -182,19 +225,12 @@ public partial class frmInventoryBarcode : Form
     {
         if (e.KeyCode != Keys.Enter) return;
 
+        // استهلاك Enter هنا يُبطل نقل التركيز في KeyboardHelper.WireEnterAsTab(scope, …) (RULE-N193):
+        // البحث يعمل ويبقى الحقل جاهزاً للمسح التالي، ولا يُنفَّذ أمران بضغطة واحدة.
         e.Handled = true;
         e.SuppressKeyPress = true;
 
         _FindByBarcodeAsync();
-
-        // WireEnterAsTab موصول بالحقل أيضاً وينقل التركيز للحقل التالي بعده — لذلك نُعيد التركيز
-        // إلى حقل الباركود بعد انتهاء معالجة المفتاح ليبقى جاهزاً للمسح التالي (RULE-N42).
-        BeginInvoke((Action)(() =>
-        {
-            if (txtBarcode.IsDisposed) return;
-            txtBarcode.Focus();
-            txtBarcode.SelectAll();
-        }));
     }
 
     /// <summary>
@@ -204,10 +240,11 @@ public partial class frmInventoryBarcode : Form
     {
         try
         {
-            if (!clsValidation.IsRequired(txtBarcode.Text))
+            // «الباركود مطلوب» حكمه ووسمه في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N183):
+            // أيقونة ✗ + الرسالة + ومضة الرفض من قواعد الشاشة المعلنة في المُنشئ — لا نسخة محلية.
+            if (!RequiredFieldHelper.Validate(this))
             {
-                errorProvider.SetError(txtBarcode, "أدخل أو امسح الباركود أولاً");
-                clsInputFeedback.ShowRejectTooltip(txtBarcode, "أدخل أو امسح الباركود أولاً", tooltip);
+                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
                 return;
             }
 
@@ -224,7 +261,8 @@ public partial class frmInventoryBarcode : Form
                 return;
             }
 
-            errorProvider.SetError(txtBarcode, "");
+            // نجاح البحث = القيمة موجودة: تُرفع علامة «مطلوب» من البيت الواحد (لا مسح محلي للأيقونة).
+            RequiredFieldHelper.Clear(this);
 
             var product = result.Value;
             var listed = _products.FirstOrDefault(p => p.Id == product.Id);
@@ -267,7 +305,18 @@ public partial class frmInventoryBarcode : Form
     {
         try
         {
-            if (_selectedProduct is null)
+            // الحقول المطلوبة (الصنف + الباركود) حكمها ووسمها في البيت الواحد RequiredFieldHelper
+            // (RULE-N172/RULE-N183): يُوسَم كل ناقص ثم ينتقل المؤشر إلى أوله — بلا نسخة محلية.
+            if (!RequiredFieldHelper.Validate(this))
+            {
+                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+                return;
+            }
+
+            // شرطُ الطباعة المشتقّ (لا حقل إدخال): الصنف المحدد نفسه + باركوده المسجَّل في الدليل.
+            // تغذيةُ حقلَي «الصنف/الباركود» عند نقصهما ملكُ RequiredFieldHelper أعلاه (RULE-N172/RULE-N183).
+            var product = _selectedProduct;
+            if (product is null)
             {
                 clsDialogs.Warning("يرجى اختيار الصنف أولاً.");
                 return;
@@ -279,12 +328,9 @@ public partial class frmInventoryBarcode : Form
                 return;
             }
 
+            if (!_ValidateRangeRules()) return;
+
             int count = (int)nudLabelsCount.Value;
-            if (count <= 0)
-            {
-                clsDialogs.Warning("يرجى إدخال عدد صحيح من الملصقات.");
-                return;
-            }
 
             string sizeName = cmbLabelSize.SelectedItem?.ToString() ?? "متوسط";
 
@@ -293,7 +339,7 @@ public partial class frmInventoryBarcode : Form
             // لا خدمة طباعة في هذه النسخة — رسالة صريحة بدل ادّعاء نجاح الطباعة.
             clsDialogs.Info(
                 "معاينة الملصق جاهزة، لكن الطباعة الفعلية لم تُوصَّل بعد (لا توجد خدمة طباعة في هذه النسخة).\r\n" +
-                $"الصنف: {_selectedProduct.Name}\r\n" +
+                $"الصنف: {product.Name}\r\n" +
                 $"الباركود: {_labelBarcode}\r\n" +
                 $"عدد الملصقات: {count} | حجم الملصق: {sizeName}");
         }

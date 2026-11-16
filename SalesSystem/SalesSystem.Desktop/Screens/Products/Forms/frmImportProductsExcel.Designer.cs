@@ -26,7 +26,7 @@ partial class frmImportProductsExcel
         btnSelectFile = new Button();
         btnDownloadTemplate = new Button();
         lblFileCaption = new Label();
-        lblFilePath = new Label();
+        txtFilePath = new TextBox();
         gbOptions = new GroupBox();
         btnGenerateBarcodes = new Button();
         gbPreview = new GroupBox();
@@ -44,6 +44,7 @@ partial class frmImportProductsExcel
         cmsRows = new ContextMenuStrip(components);
         tsmiCopyCellValue = new ToolStripMenuItem();
         tsmiGenerateMissingBarcode = new ToolStripMenuItem();
+        errorProvider = new ErrorProvider(components);
         gbFile.SuspendLayout();
         gbOptions.SuspendLayout();
         gbPreview.SuspendLayout();
@@ -52,6 +53,7 @@ partial class frmImportProductsExcel
         pnlSummary.SuspendLayout();
         pnlFooter.SuspendLayout();
         cmsRows.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
         // 
         // lblMode
@@ -73,7 +75,7 @@ partial class frmImportProductsExcel
         gbFile.Controls.Add(btnSelectFile);
         gbFile.Controls.Add(btnDownloadTemplate);
         gbFile.Controls.Add(lblFileCaption);
-        gbFile.Controls.Add(lblFilePath);
+        gbFile.Controls.Add(txtFilePath);
         gbFile.Dock = DockStyle.Top;
         gbFile.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         gbFile.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
@@ -125,18 +127,22 @@ partial class frmImportProductsExcel
         lblFileCaption.TabIndex = 2;
         lblFileCaption.Text = "الملف:";
         // 
-        // lblFilePath
+        // txtFilePath — حقل الملف المطلوب: للقراءة فقط (يُملأ من مربع الحوار) ويقبل علامة
+        // الأيقونة ✗ ومضة الرفض من RequiredFieldHelper (RULE-N180…N183) — TextBox لا Label
+        // لأن حكم «فارغ» في البيت الواحد يخصّ TextBoxBase/ComboBox.
         // 
-        lblFilePath.BackColor = System.Drawing.Color.White;
-        lblFilePath.BorderStyle = BorderStyle.FixedSingle;
-        lblFilePath.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblFilePath.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblFilePath.Location = new Point(24, 38);
-        lblFilePath.Name = "lblFilePath";
-        lblFilePath.Size = new Size(540, 30);
-        lblFilePath.TabIndex = 3;
-        lblFilePath.Text = "لم يتم اختيار ملف بعد";
-        lblFilePath.TextAlign = ContentAlignment.MiddleRight;
+        txtFilePath.BackColor = System.Drawing.Color.White;
+        txtFilePath.BorderStyle = BorderStyle.FixedSingle;
+        txtFilePath.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+        txtFilePath.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        txtFilePath.Location = new Point(24, 38);
+        txtFilePath.Name = "txtFilePath";
+        txtFilePath.PlaceholderText = "لم يتم اختيار ملف بعد";
+        txtFilePath.ReadOnly = true;
+        txtFilePath.RightToLeft = RightToLeft.Yes;
+        txtFilePath.Size = new Size(540, 30);
+        txtFilePath.TabIndex = 3;
+        txtFilePath.TextAlign = HorizontalAlignment.Right;
         // 
         // gbOptions
         // 
@@ -369,6 +375,11 @@ partial class frmImportProductsExcel
         tsmiGenerateMissingBarcode.Text = "توليد الباركود المفقود";
         tsmiGenerateMissingBarcode.Click += tsmiGenerateMissingBarcode_Click;
         // 
+        // errorProvider — RULE-N145/N182: يُعلَن في المصمّم ويتبنّاه RequiredFieldHelper (لا إنشاء وقت تشغيل)
+        // 
+        errorProvider.ContainerControl = this;
+        errorProvider.RightToLeft = true;
+        // 
         // frmImportProductsExcel
         // 
         AutoScaleMode = AutoScaleMode.None;
@@ -401,6 +412,7 @@ partial class frmImportProductsExcel
         pnlSummary.PerformLayout();
         pnlFooter.ResumeLayout(false);
         cmsRows.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -412,7 +424,7 @@ partial class frmImportProductsExcel
     private Button btnSelectFile;
     private Button btnDownloadTemplate;
     private Label lblFileCaption;
-    private Label lblFilePath;
+    private TextBox txtFilePath;
     private GroupBox gbOptions;
     private Button btnGenerateBarcodes;
     private GroupBox gbPreview;
@@ -430,4 +442,5 @@ partial class frmImportProductsExcel
     private ContextMenuStrip cmsRows;
     private ToolStripMenuItem tsmiCopyCellValue;
     private ToolStripMenuItem tsmiGenerateMissingBarcode;
+    private System.Windows.Forms.ErrorProvider errorProvider;
 }

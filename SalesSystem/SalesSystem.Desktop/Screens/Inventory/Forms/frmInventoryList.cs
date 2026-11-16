@@ -49,7 +49,10 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             _defaultTo = today;
 
             // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط وأسهم RTL.
-            KeyboardHelper.WireEnterAsTab(this);
+            // RULE-N191/N193 — Enter يمشي بترتيب العرض ثم يُسلِّم التركيز لزر الوضع **بلا تنفيذ**؛
+            // والنطاق = الشاشة لأنها شاشة قوائم بلا لوحة محرر. والواجهة ثنائية الوسيط هي التي
+            // تُعلن Enter مفتاحَ إدخال في PreviewKeyDown فلا يبتلعه AcceptButton قبل KeyDown.
+            KeyboardHelper.WireEnterAsTab(this, _PrimaryActionButton);
             KeyboardHelper.WireSelectAllOnFocus(this);
             KeyboardHelper.WireFocusHighlight(this, FocusColor);
             KeyboardHelper.WireArrowNavigation(this);
@@ -79,10 +82,19 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
             => _serviceProvider.GetRequiredService<IReportDesktopService>();
 
         /// <summary>
-        /// الزر الأساسي للشاشة لاختصار Enter (RULE-N147): شاشة عرض بلا «جديد» ⇒ «تحديث».
-        /// يُقرأ عند كل ضغطة Enter.
+        /// الزر الأساسي للشاشة لاختصار Enter (RULE-N147): شاشة عرض بلا آلة أوضاع ⇒ زر الإجراء الوحيد
+        /// «تحديث» (وهو الزر الحقيقي المعلَن في المصمّم). يُقرأ عند كل ضغطة وعند كل حالة — لا مرة واحدة.
+        /// <para>
+        /// RULE-N153: تُعيد <c>null</c> ما دامت شبكة النتائج هي موضع التركيز، فلا يُنفَّذ «تحديث»
+        /// (إعادة تحميل البيانات) بـ<c>Enter</c> عرضية داخل الشبكة — الشبكة تملك <c>Enter</c> لتنقل الأسطر.
+        /// </para>
         /// </summary>
-        private Button? _PrimaryActionButton() => btnRefresh;
+        private Button? _PrimaryActionButton()
+        {
+            if (dgvMovements.ContainsFocus) return null;   // RULE-N153 — الشبكة تملك Enter
+
+            return btnRefresh;
+        }
 
         // ── الثيم ──────────────────────────────────────────────────────────────────
 
@@ -486,9 +498,17 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
             => _ApplyFilter();
 
-        /// <summary>RULE-N59: Enter يطبّق التصفية فوراً (وهي مطبَّقة أصلاً عند كل كتابة).</summary>
+        /// <summary>
+        /// RULE-N59: Enter يطبّق التصفية فوراً (وهي مطبَّقة أصلاً عند كل كتابة).
+        /// <para>
+        /// RULE-N193: هذا المعالج حيّ لأن <see cref="KeyboardHelper.WireEnterAsTab(Control, Func{Button?})"/>
+        /// يُعلن <c>Enter</c> مفتاحَ إدخال (<c>PreviewKeyDown</c>) — وبدونه يبتلعه <c>AcceptButton</c>.
+        /// وحارس <c>e.Handled</c> يمنع تنفيذ الأمرين معاً (تطبيق التصفية + نقل التركيز) بضغطة واحدة.
+        /// </para>
+        /// </summary>
         private void txtFilterValue_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Handled) return;
             if (e.KeyCode != Keys.Enter || e.Modifiers != Keys.None) return;
 
             _ApplyFilter();

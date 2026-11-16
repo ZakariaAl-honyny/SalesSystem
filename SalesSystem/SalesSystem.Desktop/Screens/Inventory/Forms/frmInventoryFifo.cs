@@ -56,8 +56,13 @@ public partial class frmInventoryFifo : Form
         _serviceProvider = serviceProvider;
         InitializeComponent();
 
-        // RULE-N40…RULE-N46 — تنقل Enter/الأسهم + تحديد القيمة + تظليل الحقل النشط.
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 / RULE-N153 — Enter يمشي بترتيب العرض ثم يُسلِّم الزر الأساسي (استدعاء **واحد** فقط:
+        // الفرع ثنائي الوسيط يغطي الفرع أحادي الوسيط). ولا توجد في هذه الشاشة لوحة حقول إدخال
+        // (عرض للقراءة فقط: تسميات + شبكة + زر إغلاق) فيكون النطاق هو النموذج نفسه، فأي حقل
+        // يُضاف لاحقاً يرث ترتيب العرض تلقائياً بلا تعديل في المُنشئ.
+        KeyboardHelper.WireEnterAsTab(this, _PrimaryActionButton);
+
+        // RULE-N40…RULE-N46 — تحديد القيمة + تظليل الحقل النشط + الأسهم.
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));
         KeyboardHelper.WireArrowNavigation(this);
@@ -84,6 +89,23 @@ public partial class frmInventoryFifo : Form
     /// <summary>عقد دفعات المخزون — مصدر طبقات الصرف الوحيد لهذه الشاشة.</summary>
     private IInventoryBatchDesktopService BatchService
         => _serviceProvider.GetRequiredService<IInventoryBatchDesktopService>();
+
+    // ── الزر الأساسي لـEnter (RULE-N147 / RULE-N153) ─────────────────────
+
+    /// <summary>
+    /// الزر الأساسي لـ<c>Enter</c> في هذه الشاشة — <c>null</c> دائماً، وهذا **مقصود لا نسيان**:
+    /// <list type="bullet">
+    /// <item>الشاشة <b>عرض للقراءة فقط</b> بلا آلة أوضاع (لا «جديد» ولا «إضافة/حفظ» ولا «تعديل»)،
+    /// فلا يوجد إجراء ذو معنى ينفّذه <c>Enter</c> (RULE-N147).</item>
+    /// <item>زرها الوحيد <c>btnClose</c> هو <c>CancelButton</c> لـ<c>Esc</c>؛ وجعله زراً أساسياً
+    /// يجعل ضغطة <c>Enter</c> تُغلق الشاشة من تلقاء نفسها بلا طلب المستخدم.</item>
+    /// <item><c>Enter</c> داخل شبكة النتائج <c>dgvLayers</c> يبقى مِلك الشبكة ولا يُنفّذ إجراءً
+    /// أساسياً (RULE-N153) — ويتحقّق ذلك **بنيوياً** لأن التعيين لا يحمل أي زر.</item>
+    /// </list>
+    /// تُقرأ من <c>KeyboardHelper.WireEnterAsTab(scope, primaryButton)</c> عند كل ضغطة،
+    /// فإدخال زر إجراء مستقبلاً = تعديل هذا السطر وحده بلا مسّ المُنشئ.
+    /// </summary>
+    private Button? _PrimaryActionButton() => null;
 
     // ── الثيم (RULE-N50…RULE-N54) ─────────────────────────────────────
 

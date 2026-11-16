@@ -46,7 +46,9 @@ public partial class frmImportProductsExcel : Form
         _SetupGrid();
 
         // RULE-N40…RULE-N47 — كل الستة من KeyboardHelper (RULE-N95)
-        KeyboardHelper.WireEnterAsTab(this);
+        // RULE-N191 — Enter داخل كتلة الملف يمشي بترتيب العرض ثم يُسلِّم **تركيزاً** لزر الوضع بلا تنفيذ.
+        // نطاق التنقل هو كتلة الملف (gbFile) لا النموذج كله: حقل البحث txtSearch تصفيةٌ تبقى على SelectNextControl (RULE-N59).
+        KeyboardHelper.WireEnterAsTab(gbFile, _PrimaryActionButton);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 — الحقل النشط
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45 — أسهم RTL
@@ -59,6 +61,12 @@ public partial class frmImportProductsExcel : Form
         // RULE-N147 — Enter = الزر الأساسي لوضع الاستيراد الحالي (يُقرأ عند كل ضغطة لا مرة واحدة)
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
         _SyncPrimaryAction();
+
+        // RULE-N180…N183 — تغذية الحقل المطلوب حيّاً (أيقونة ✗ + ومضة رفض) للحقل المطلوب الوحيد في الشاشة: مسار الملف.
+        // ترتيب الاستدعاء ملزم: يأتي **بعد** WireFocusHighlight أعلاه (ترتيب اشتراك Leave يحسم مَن يرسم الخلفية أخيراً)
+        // و**قبل** GreenThemeHelper.Apply في ApplyUiTheme أدناه.
+        RequiredFieldHelper.Attach(this, errorProvider,
+            new RequiredField(txtFilePath, "يجب اختيار ملف إكسل أولاً"));
 
         ApplyUiTheme(); // RULE-N50
     }
@@ -132,6 +140,11 @@ public partial class frmImportProductsExcel : Form
 
         // العرض عبر DataView حتى تعمل التصفية الفورية (RULE-N24 / RULE-N60)
         dgvPreview.DataSource = _dtPreview.DefaultView;
+
+        // RULE-N147 — الزر الأساسي يتبع التركيز: فرع «شبكة المعاينة في التركيز ⇒ لا إجراء أساسي»
+        // في _PrimaryActionButton لا يعمل ما لم يُزامَن AcceptButton عند دخول الشبكة وخروجها.
+        dgvPreview.Enter += (_, _) => _SyncPrimaryAction();
+        dgvPreview.Leave += (_, _) => _SyncPrimaryAction();
     }
 
     // ── اختيار الملف والقراءة ──────────────────────────────────────────────────
@@ -152,7 +165,7 @@ public partial class frmImportProductsExcel : Form
                 return;
             }
 
-            lblFilePath.Text = ofd.SafeFileName;
+            txtFilePath.Text = ofd.SafeFileName;
             _ProcessExcelFile(ofd.FileName);
             _SyncPrimaryAction(); // RULE-N147 — بعد ظهور المعاينة يصبح Enter بلا زر أساسي
         }
@@ -457,6 +470,14 @@ public partial class frmImportProductsExcel : Form
 
     private async void btnSave_Click(object sender, EventArgs e)
     {
+        // RULE-N180…N183 — المتطلب الوحيد في الشاشة: ملف مختار. لا اعتماد بلا ملف،
+        // والحكم في البيت الواحد RequiredFieldHelper (أيقونة ✗ + ومضة رفض + التركيز على أول ناقص).
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
+
         if (_openingStockBlocked)
         {
             // دفاع مزدوج: الزر معطّل، والرسالة تُعيد بيان السبب لو استُدعي المعالج بأي مسار آخر.
