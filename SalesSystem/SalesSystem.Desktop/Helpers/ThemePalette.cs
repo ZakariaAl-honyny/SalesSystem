@@ -18,7 +18,16 @@
 //     الدوال (method bodies) لا في المُهيّئات: ApplyToOpenForms تنادي
 //     GreenThemeHelper.Apply و KeyboardHelper.RefreshFocusHighlight بحق،
 //     لأن النداء يقع وقت التشغيل بعد اكتمال التهيئة.
-//   • لا يوجد أي `Color.FromArgb` خارج جدول الافتراضيات أدناه (RULE-N112).
+//   • لا يوجد أي `Color.FromArgb` خارج **جدولَي الألوان** أدناه (RULE-N112):
+//       (أ) AllDefinitions  = الافتراضيات **الحالية** (24 لوناً تُعرَض في شاشة الألوان)،
+//       (ب) RetiredDefaults = **تاريخ الافتراضيات المتقاعدة**: كل قيمة افتراضية سبق
+//           شحنها ثم تغيّرت — بمفتاحها ولونها القديم حرفياً.
+//   • الغرض من RetiredDefaults: لوحة المصمّمين (95 مصمّماً) تحمل القيم الحرفية
+//     للافتراضيات **القديمة**، فبعد تغيير الافتراضي يصير لون المصمّم «لوناً خاصاً»
+//     ولا يُعاد تلوينه (RULE-N134/RULE-N139). بفضل ThemePalette.IsRetiredDefault
+//     يبقى لون المصمّم «لون ثيم» فيُعاد تلوينه فوراً — فلا يلزم تعديل أي
+//     `*.Designer.cs` في أي تغيير ألوان مستقبلي: القيمة القديمة تُنقل إلى
+//     RetiredDefaults ويُحدَّث الافتراضي، لا أكثر.
 //   • التغيير هنا لا يُعيد إنشاء الشاشات: ApplyToOpenForms تُعيد تلوين المفتوح فقط.
 // -----------------------------------------------------------------------------
 
@@ -67,7 +76,7 @@ public static class ThemePalette
     /// <summary>نص شريط العنوان.</summary>
     public const string HeaderTextColor = "headerTextColor";
 
-    /// <summary>النص المميّز (أخضر داكن).</summary>
+    /// <summary>النص المميّز (داكن محايد — (33,37,41) في اللوحة المهنية).</summary>
     public const string TextStrongColor = "textStrongColor";
 
     /// <summary>زر «جديد / إضافة».</summary>
@@ -122,7 +131,8 @@ public static class ThemePalette
     /// لون التحديد والحقل النشط — **مفتاح واحد لاستخدامين** (قرار المالك 2026-11-15):
     /// سطر/خلية الشبكة المحددة (<c>GreenThemeHelper.ApplyGrid</c>) وحقل الإدخال المركَّز
     /// (<c>KeyboardHelper.WireFocusHighlight</c>) يتشاركان القيمة نفسها.
-    /// الافتراضي <c>#FFFFB4</c> = (255,255,180).
+    /// الافتراضي <c>#FFF3CD</c> = (255,243,205) — والقيمة السابقة <c>#FFFFB4</c> = (255,255,180)
+    /// مسجَّلة في <c>RetiredDefaults</c> فيُعاد تلوين أي مصمّم يحملها.
     /// </summary>
     public const string SelectionRowColor = "selectionRowColor";
 
@@ -137,8 +147,9 @@ public static class ThemePalette
     /// ثم «مثل كلمة المرور في شاشة الدخول»). يستهلكها <c>clsInputFeedback.ShowRejectTooltip</c>
     /// عبر <see cref="GreenThemeHelper.RejectBackground"/> — وميض قصير يعود إلى لون المصمّم تلقائياً،
     /// فلا يُترك أي حقل ملوّناً. لون **حالة** لا لون تصميم، ولا يُعلَن في أي `*.Designer.cs`
-    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي `#FFDCDC` = نفس لون الرفض القائم
-    /// حرفياً، فلا تتغيّر أي شاشة قائمة.
+    /// (نفس استثناء `RULE-N154` على `RULE-N134`). الافتراضي `#F8D7DA` = (248,215,218) —
+    /// أحمر حقل باهت من لوحة الحالة المهنية (كان `#FFDCDC` = (255,220,220)، وهو مسجَّل
+    /// في <c>RetiredDefaults</c> فيُعاد تلوين أي شاشة تحمل القيمة القديمة).
     /// </summary>
     public const string RejectBackgroundColor = "rejectBackgroundColor";
 
@@ -156,10 +167,10 @@ public static class ThemePalette
     private static readonly ThemeColorDefinition[] AllDefinitions =
     {
         // ── الشاشة الرئيسية (4) ──
-        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(170, 220, 170)),
-        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(14, 165, 103)),
+        new(FrmMainColor,            "خلفية الشاشة الرئيسية", GroupMain,      Color.FromArgb(240, 242, 245)),
+        new(HeaderBarColor,          "شريط العنوان",          GroupMain,      Color.FromArgb(16, 150, 96)),
         new(HeaderTextColor,         "نص شريط العنوان",       GroupMain,      Color.White),
-        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(14, 82, 52)),
+        new(TextStrongColor,         "النص المميّز",          GroupMain,      Color.FromArgb(33, 37, 41)),
         // ── الأزرار (7) ──
         new(BtnAddNewButtonColor,    "زر «جديد / إضافة»",     GroupButtons,   Color.FromArgb(13, 110, 253)),
         new(BtnSaveButtonColor,      "زر «حفظ»",              GroupButtons,   Color.FromArgb(25, 135, 84)),
@@ -169,23 +180,84 @@ public static class ThemePalette
         new(BtnWarningButtonColor,   "زر «تحذير»",            GroupButtons,   Color.FromArgb(255, 193, 7)),
         new(BtnSecondaryButtonColor, "زر «ثانوي»",            GroupButtons,   Color.FromArgb(248, 249, 250)),
         // ── الصناديق والأشرطة (2) ──
-        new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,    Color.FromArgb(235, 240, 235)),
-        new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,      Color.FromArgb(235, 245, 235)),
+        new(BarBackgroundColor,      "أشرطة الأدوات والحاويات", GroupBars,    Color.White),
+        new(GroupBoxColor,           "صناديق المجموعات",      GroupBars,      Color.White),
         // ── الشبكة (7 — لون التحديد انتقل إلى مجموعة «التحديد والحقل النشط») ──
-        new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,      Color.FromArgb(220, 240, 220)),
-        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(14, 165, 103)),
+        new(GridBackgroundColor,     "خلفية الشبكة",          GroupGrid,      Color.White),
+        new(GridHeaderColor,         "رؤوس أعمدة الشبكة",     GroupGrid,      Color.FromArgb(52, 58, 64)),
         new(GridHeaderTextColor,     "نص رؤوس الأعمدة",       GroupGrid,      Color.White),
-        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(205, 225, 205)),
-        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(245, 252, 245)),
+        new(GridLineColor,           "خطوط الشبكة",           GroupGrid,      Color.FromArgb(222, 226, 230)),
+        new(GridAlternateRowColor,   "الأسطر المتبادلة",      GroupGrid,      Color.FromArgb(248, 249, 250)),
         new(GridCellBackgroundColor, "خلفية خلايا الشبكة",    GroupGrid,      Color.White),
         new(GridCellTextColor,       "نص خلايا الشبكة",       GroupGrid,      Color.FromArgb(33, 37, 41)),
         // ── التحديد والحقل النشط (1) ──
-        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(255, 255, 180)),
+        new(SelectionRowColor,       "لون التحديد والحقل النشط", GroupSelection, Color.FromArgb(255, 243, 205)),
         // ── حالات العرض (3) ──
-        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(224, 224, 224)),
-        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(150, 150, 150)),
-        new(RejectBackgroundColor,   "خلفية الرفض والخطأ",   GroupStates,    Color.FromArgb(255, 220, 220)),
+        new(DisabledBackColor,       "خلفية العنصر المعطّل",  GroupStates,    Color.FromArgb(233, 236, 239)),
+        new(DisabledForeColor,       "نص العنصر المعطّل",     GroupStates,    Color.FromArgb(108, 117, 125)),
+        new(RejectBackgroundColor,   "خلفية الرفض والخطأ",   GroupStates,    Color.FromArgb(248, 215, 218)),
     };
+
+    // ═════════════════════════════════════════════════════════════════
+    //  تاريخ الافتراضيات المتقاعدة (Retired defaults) — RULE-N169/N172
+    //  كل لون كان **افتراضياً** ثم تغيّر يُسجَّل هنا بمفتاحه وقيمته القديمة
+    //  حرفياً. سبب وجوده: مصمّمات الشاشات تحمل القيمة الحرفية للافتراضي وقت
+    //  التصميم، فبعد تغيير الافتراضي يصير لون المصمّم «لوناً خاصاً» لا «لون ثيم»
+    //  فلا يُعاد تلوينه (RULE-N134/RULE-N139). بـ IsRetiredDefault يبقى لون
+    //  المصمّم معروفاً كافتراضي **سبق شحنه** فيُعاد تلوينه — فلا يلزم مسّ أي
+    //  *.Designer.cs عند أي تغيير ألوان مستقبلي (قرار المالك 2026-11-16).
+    //  القاعدة عند أي تغيير جديد: أضف (المفتاح، القيمة القديمة) هنا ثم حدّث
+    //  الافتراضي في AllDefinitions — لا شيء غير ذلك.
+    // ═════════════════════════════════════════════════════════════════
+
+    private static readonly (string Key, Color Value)[] RetiredDefaults =
+    {
+        (FrmMainColor,            Color.FromArgb(170, 220, 170)),   // → 240, 242, 245
+        (HeaderBarColor,          Color.FromArgb(14, 165, 103)),    // → 16, 150, 96
+        (TextStrongColor,         Color.FromArgb(14, 82, 52)),      // → 33, 37, 41
+        (BarBackgroundColor,      Color.FromArgb(235, 240, 235)),   // → White
+        (GroupBoxColor,           Color.FromArgb(235, 245, 235)),   // → White
+        (GridBackgroundColor,     Color.FromArgb(220, 240, 220)),   // → White
+        (GridHeaderColor,         Color.FromArgb(14, 165, 103)),    // → 52, 58, 64
+        (GridLineColor,           Color.FromArgb(205, 225, 205)),   // → 222, 226, 230
+        (GridAlternateRowColor,   Color.FromArgb(245, 252, 245)),   // → 248, 249, 250
+        (SelectionRowColor,       Color.FromArgb(255, 255, 180)),   // → 255, 243, 205
+        (DisabledBackColor,       Color.FromArgb(224, 224, 224)),   // → 233, 236, 239
+        (DisabledForeColor,       Color.FromArgb(150, 150, 150)),   // → 108, 117, 125
+        (RejectBackgroundColor,   Color.FromArgb(255, 220, 220)),   // → 248, 215, 218
+    };
+
+    /// <summary>
+    /// هل <paramref name="color"/> قيمة افتراضية **متقاعدة** (سبق أن شحنها النظام ثم
+    /// تغيّرت) للمفتاح <paramref name="key"/>؟
+    /// <para>
+    /// تُطابق المفتاح **والقيمة معاً** بمقارنة ترتيبية — فلا يعود لون مفتاحٍ آخر
+    /// افتراضياً لمفتاح مختلف. لا ترمي استثناءً أبداً: مفتاح <c>null</c> أو فراغي
+    /// يُعيد <c>false</c> (العرض لا يتوقّف بسبب قيمة مشوّهة).
+    /// </para>
+    /// <para>
+    /// <b>المستهلك الوحيد:</b> <c>GreenThemeHelper.IsThemeColor</c> و
+    /// <c>GreenThemeHelper.IsPaletteOwnedColor</c> — لتمييز لون مصمّمٍ مكتوبٍ بقيمة
+    /// افتراضية قديمة عن لون مصمّم مخصّص (RULE-N139/RULE-N142).
+    /// </para>
+    /// </summary>
+    internal static bool IsRetiredDefault(string key, Color color)
+    {
+        if (string.IsNullOrEmpty(key)) return false;
+
+        int argb = color.ToArgb();
+
+        foreach (var retired in RetiredDefaults)
+        {
+            if (string.Equals(retired.Key, key, StringComparison.Ordinal)
+                && retired.Value.ToArgb() == argb)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static readonly ReadOnlyCollection<ThemeColorDefinition> DefinitionsReadOnly =
         Array.AsReadOnly(AllDefinitions);

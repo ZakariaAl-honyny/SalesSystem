@@ -74,7 +74,7 @@ public static class GreenThemeHelper
     /// <summary>لون الأسطر المتبادلة.</summary>
     public static Color GridAlternate => ThemePalette.Get(ThemePalette.GridAlternateRowColor);
 
-    /// <summary>لون النص المميّز (أخضر داكن).</summary>
+    /// <summary>لون النص المميّز (داكن محايد — 33,37,41).</summary>
     public static Color TextStrong => ThemePalette.Get(ThemePalette.TextStrongColor);
 
     /// <summary>خلفية الخلية/السطر المحدد.</summary>
@@ -383,7 +383,10 @@ public static class GreenThemeHelper
     /// (2) <b>القيمة الافتراضية</b> من <see cref="ThemePalette.Definitions"/> — وهي
     /// اللون الحرفي الذي كتبه المصمّم، (3) آخر قيمة طبّقتها اللوحة في
     /// <see cref="ThemePalette.ApplyToOpenForms"/> — فتتبع الحاوية التغيير الثاني
-    /// والثالث أيضاً بلا إعادة فتح الشاشة.
+    /// والثالث أيضاً بلا إعادة فتح الشاشة، (4) <b>قيمة افتراضية متقاعدة</b> —
+    /// افتراضي سبق شحنه ثم تغيّر (<see cref="ThemePalette.IsRetiredDefault"/>):
+    /// المصمّم ما زال يحمل اللون القديم حرفياً، فيبقى «لون ثيم» يُعاد تلوينه بلا
+    /// تعديل أي مصمّم.
     /// </para>
     /// <para>
     /// بلا (2) تصبح <c>groupBoxColor</c>/<c>barBackgroundColor</c> بلا أثر: اللون الحرفي
@@ -414,6 +417,11 @@ public static class GreenThemeHelper
 
             // (3) قيمة سبق أن طبّقتها اللوحة على الحاويات.
             if (ThemePalette.WasAppliedValue(key, color))
+                return true;
+
+            // (4) افتراضية متقاعدة: لون المصمّم مكتوب بقيمة افتراضية سبق شحنها —
+            //     يبقى «لون ثيم» فيُعاد تلوينه بلا تعديل أي *.Designer.cs (RULE-N139).
+            if (ThemePalette.IsRetiredDefault(key, color))
                 return true;
         }
 
@@ -511,11 +519,17 @@ public static class GreenThemeHelper
     /// هل لون التحديد الحالي «مملوك للوحة» فيجوز إعادة كتابته؟ نعم إذا كان:
     /// (1) <see cref="Color.Empty"/> (لم يضبطه المصمّم)، (2) القيمة الحيّة للمفتاح،
     /// (3) افتراضي المفتاح، (4) أي قيمة حيّة أو افتراضية لأي مفتاح في اللوحة،
-    /// (5) قيمة سبق أن طبّقتها اللوحة. أي لون آخر = لون مصمّم مخصّص ⇒ يُترك.
+    /// (5) قيمة سبق أن طبّقتها اللوحة، (6) <b>قيمة افتراضية متقاعدة</b> للمفتاح أو
+    /// لأي مفتاح في اللوحة (<see cref="ThemePalette.IsRetiredDefault"/>) — لون تحديد
+    /// قديم حرفي في المصمّم يُعاد تلوينه بلا مسّ المصمّم. أي لون آخر = لون مصمّم
+    /// مخصّص ⇒ يُترك.
     /// </summary>
     private static bool IsPaletteOwnedColor(Color color, string key)
     {
         if (color.IsEmpty) return true;
+
+        // (6) افتراضية متقاعدة لهذا المفتاح ⇒ لون مصمّم قديم يُعاد تلوينه.
+        if (ThemePalette.IsRetiredDefault(key, color)) return true;
 
         int argb = color.ToArgb();
 
@@ -528,6 +542,9 @@ public static class GreenThemeHelper
             if (definition.DefaultValue.ToArgb() == argb) return true;
             if (ThemePalette.Get(definition.Key).ToArgb() == argb) return true;
             if (ThemePalette.WasAppliedValue(definition.Key, color)) return true;
+
+            // (6) افتراضية متقاعدة لأي مفتاح آخر (مثل لون تحديد قديم على عمود).
+            if (ThemePalette.IsRetiredDefault(definition.Key, color)) return true;
         }
 
         return false;

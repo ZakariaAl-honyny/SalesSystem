@@ -101,7 +101,7 @@ partial class frmProductMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
         lblMode.ForeColor = Color.White;
@@ -331,7 +331,7 @@ partial class frmProductMaster
         // 
         // grpMainUnit
         // 
-        grpMainUnit.BackColor = Color.FromArgb(200, 230, 200);
+        grpMainUnit.BackColor = Color.White;
         grpMainUnit.Controls.Add(lblMainUnit);
         grpMainUnit.Controls.Add(lblMainUnitReq);
         grpMainUnit.Controls.Add(cmbMainUnit);
@@ -455,7 +455,7 @@ partial class frmProductMaster
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = Color.FromArgb(235, 240, 235);
+        pnlButtons.BackColor = Color.White;
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -600,16 +600,16 @@ partial class frmProductMaster
         // 
         dgvProducts.AllowUserToAddRows = false;
         dgvProducts.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle4.BackColor = Color.FromArgb(245, 252, 245);
+        dataGridViewCellStyle4.BackColor = Color.FromArgb(248, 249, 250);
         dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
         dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvProducts.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvProducts.BackgroundColor = Color.White;
         dgvProducts.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle5.BackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle5.BackColor = Color.FromArgb(52, 58, 64);
         dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
         dataGridViewCellStyle5.ForeColor = Color.White;
-        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(52, 58, 64);
         dataGridViewCellStyle5.SelectionForeColor = Color.White;
         dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
         dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
@@ -618,13 +618,13 @@ partial class frmProductMaster
         dataGridViewCellStyle6.BackColor = Color.White;
         dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
         dataGridViewCellStyle6.ForeColor = Color.FromArgb(33, 37, 41);
-        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(255, 255, 180);
+        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(255, 243, 205);
         dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
         dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
         dgvProducts.Dock = DockStyle.Fill;
         dgvProducts.EnableHeadersVisualStyles = false;
-        dgvProducts.GridColor = Color.FromArgb(205, 225, 205);
+        dgvProducts.GridColor = Color.FromArgb(222, 226, 230);
         dgvProducts.Location = new Point(0, 10);
         dgvProducts.MultiSelect = false;
         dgvProducts.Name = "dgvProducts";
@@ -773,7 +773,7 @@ partial class frmProductMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -831,7 +831,7 @@ partial class frmProductMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = Color.FromArgb(240, 242, 245);
         ClientSize = new Size(1432, 746);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

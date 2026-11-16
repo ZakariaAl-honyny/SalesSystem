@@ -225,7 +225,8 @@ public static class KeyboardHelper
     /// <c>(214,228,240)</c> — أي <see cref="ThemePalette.DefaultFor"/> لمفتاح
     /// <see cref="ThemePalette.SelectionRowColor"/> — أو <see cref="Color.Empty"/>،
     /// فيُستبدل عند كل <c>Enter</c> بالقيمة الحيّة من <see cref="ThemePalette.Get(string)"/>؛
-    /// والقيمة الحيّة الافتراضية هي <c>#FFFFB4</c> = (255,255,180) — لون واحد للتحديد والحقل النشط.
+    /// والقيمة الحيّة الافتراضية هي <c>#FFF3CD</c> = (255,243,205) — لون واحد للتحديد والحقل النشط
+    /// (ولون التظليل السابق المسجَّل في <c>ThemePalette.RetiredDefaults</c> ما زال يُعاد تلوينه تلقائياً).
     /// وأي لون مخصّص تمرّره شاشة يبقى كما هو (لا نُعيد كتابة اختيار الشاشة).
     /// </para>
     /// </summary>
@@ -336,7 +337,7 @@ public static class KeyboardHelper
     /// يحسم لون التظليل عند كل <c>Enter</c>: اللون الحرفي القديم
     /// <c>(214,228,240)</c> = <see cref="ThemePalette.DefaultFor"/> لمفتاح
     /// <see cref="ThemePalette.SelectionRowColor"/>،
-    /// أو <see cref="Color.Empty"/> ⇒ القيمة الحيّة من اللوحة (الافتراضي <c>#FFFFB4</c>)؛ وأي لون آخر
+    /// أو <see cref="Color.Empty"/> ⇒ القيمة الحيّة من اللوحة (الافتراضي <c>#FFF3CD</c> = (255,243,205))؛ وأي لون آخر
     /// (اختيار الشاشة المخصّص) يُحترم كما هو. لا لون حرفي هنا — المصدر <see cref="ThemePalette"/>.
     /// </summary>
     private static Color ResolveFocusHighlightColor(Color requested)
