@@ -6,7 +6,6 @@ using SalesSystem.Business.Printing.Contracts;
 using SalesSystem.DataAccess.Printing;
 using SalesSystem.Business.Interfaces.Repositories;
 using SalesSystem.DTO.Common;
-using SalesSystem.DataAccess.Printing;
 
 namespace SalesSystem.DataAccess.Printing;
 

@@ -67,7 +67,7 @@ public partial class frmInventoryFifo : Form
 
         // RULE-N47 — F2 = اختيار الصنف (نفس اختصار شاشات المخزون الأخرى) · Esc يغلق الشاشة.
         KeyboardHelper.WireGlobalShortcuts(this,
-            (Keys.F2, () => _ChooseProductAsync()),
+            (Keys.F2, () => _ = _ChooseProductAsync()),
             (Keys.Escape, () => { if (btnClose.Enabled) btnClose.PerformClick(); }));
 
         // تغيير الصنف بالنقر المزدوج على الشبكة — لا عنصر جديد (RULE-N145).

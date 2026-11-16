@@ -2,7 +2,6 @@
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
-using SalesSystem.DTO;
 
 namespace SalesSystem.Desktop.Services.Interfaces;
 

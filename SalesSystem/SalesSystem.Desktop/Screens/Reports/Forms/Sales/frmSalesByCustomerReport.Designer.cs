@@ -622,7 +622,4 @@ partial class frmSalesByCustomerReport
     }
 
     // RULE-N134 — أنماط خلايا الشبكة الحرفية (تعيش في المصمّم ليعرضها VS بنفس ألوان التشغيل).
-    private DataGridViewCellStyle dataGridViewCellStyle1;
-    private DataGridViewCellStyle dataGridViewCellStyle2;
-    private DataGridViewCellStyle dataGridViewCellStyle3;
 }

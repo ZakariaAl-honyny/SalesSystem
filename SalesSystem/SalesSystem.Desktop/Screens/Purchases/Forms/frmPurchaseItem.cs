@@ -104,7 +104,7 @@ public partial class frmPurchaseItem : Form
     // ═══════════════════════════════════════════════════════════
     // نتائج الحوار — يقرأها النموذج الأب بعد ShowDialog
     // ═══════════════════════════════════════════════════════════
-    public string ProductName => SelectedProduct?.Name ?? "";
+    public string SelectedProductName => SelectedProduct?.Name ?? "";
     public string Barcode => lblBarcodeValue.Text;
     public string UnitName => cmbUnit.SelectedItem?.ToString() ?? "";
     public decimal Quantity => numQuantity.Value;

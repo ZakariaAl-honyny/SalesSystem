@@ -33,9 +33,6 @@ public partial class frmUserMaster : Form
     /// <summary>null = إضافة مستخدم جديد، &gt; 0 = تعديل مستخدم قائم.</summary>
     private int? _editId;
 
-    /// <summary>يمنع إعادة التقييم أثناء تعبئة القوائم برمجياً.</summary>
-    private bool _isBindingLookups;
-
     /// <summary>يمنع تكرار نداء «إعادة التنشيط» أثناء تنفيذ العملية (RULE-N92).</summary>
     private bool _reactivateBusy;
 
@@ -256,18 +253,10 @@ public partial class frmUserMaster : Form
             // عنصر افتراضي: بدون فرع (BranchId = null).
             _branchLookup.Insert(0, new BranchDto(0, "-- بدون فرع --"));
 
-            _isBindingLookups = true;
-            try
-            {
-                cmbBranch.DisplayMember = "Name";
-                cmbBranch.ValueMember = "Id";
-                cmbBranch.DataSource = _branchLookup;
-                cmbBranch.SelectedIndex = 0;
-            }
-            finally
-            {
-                _isBindingLookups = false;
-            }
+            cmbBranch.DisplayMember = "Name";
+            cmbBranch.ValueMember = "Id";
+            cmbBranch.DataSource = _branchLookup;
+            cmbBranch.SelectedIndex = 0;
         }
         catch (Exception ex)
         {
@@ -580,15 +569,7 @@ public partial class frmUserMaster : Form
         // UpdateUserRequest لا يحتوي على اسم المستخدم → الاسم للقراءة فقط في وضع التعديل.
         txtUserName.Text = u.UserName;
 
-        _isBindingLookups = true;
-        try
-        {
-            _SelectBranch(u.BranchId);
-        }
-        finally
-        {
-            _isBindingLookups = false;
-        }
+        _SelectBranch(u.BranchId);
 
         // كلمة المرور لا تُعرض أبداً — تُترك فارغة، ويُحدَّث بها فقط عند إدخال قيمة جديدة.
         txtPassword.Clear();
@@ -713,16 +694,8 @@ public partial class frmUserMaster : Form
         chkIsActive.Checked = true;
         chkMustChangePassword.Checked = false;
 
-        _isBindingLookups = true;
-        try
-        {
-            if (cmbBranch.Items.Count > 0)
-                cmbBranch.SelectedIndex = 0;
-        }
-        finally
-        {
-            _isBindingLookups = false;
-        }
+        if (cmbBranch.Items.Count > 0)
+            cmbBranch.SelectedIndex = 0;
 
         dgvUsers.ClearSelection();
 

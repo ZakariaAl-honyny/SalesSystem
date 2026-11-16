@@ -8,7 +8,7 @@
 >
 > **حدود هذا الملف:** يحمل **الحصر** و**المخالفة** و**مكان الإصلاح**. تفاصيل شاشات التنسيق (67 شاشة × 240 مخالفة) مصدرها الوحيد `docs/FORMAT-COVERAGE.md`، ولوحة توزيع العمل في `docs/FORMAT-PROGRESS.md` — لا تُنسخ هنا (`RULE-N174` بالقياس).
 >
-> **آخر تحديث:** 2026-11-15 (الموجة 14) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 118 تحذيراً** (بناء كامل `--no-incremental`). §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
+> **آخر تحديث:** 2026-11-16 (الموجة 15) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 86 تحذيراً** (بناء كامل `--no-incremental` — كان 118 قبل الموجة 15). §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
 
 ---
 
@@ -572,6 +572,11 @@
 | **T-69** | `cbStatusFilter` بلا `DisplayMember` ⇒ `ListControl` يعرض `StatusOption { Value = 0, Text = … }` | **= 0** — سطر واحد `DisplayMember = nameof(StatusOption.Text)` | `frmJournalEntries.cs:249` |
 | **T-70** | **حارس تركيز ميت:** `Form.ActiveControl` يعيد الحاوية (`pnlFields`/`gbFilter`) لا الحقل ⇒ `ActiveControl is TextBoxBase` لا يتحقق أبداً، و`Delete` أثناء الكتابة ينفّذ إجراء السجل | **= 0** حارس ميت · بيت واحد `KeyboardHelper.IsTextInputFocused(Form?)` فوق `FindFocusedControl` القائم · يستهلكه `frmAccounts` · `frmJournalEntries` · `frmCustomerMaster` (+ `WireGlobalShortcuts`) | `Helpers\KeyboardHelper.cs:286` |
 | **T-71** | **`WireGlobalShortcuts` يبتلع المفتاح دائماً** ⇒ `Delete` لا يحذف حرفاً في أي حقل نصي بأي شاشة تسجّله (والحارس في الشاشات وُجد لهذا الغرض بالضبط) | **= 0** — الإعفاء مقصور على `Keys.Delete` عندما يكون التركيز في حقل إدخال؛ بقية المفاتيح (F2/F3/F4/F5/Ctrl+S/Esc) تُبتلع كما هي | `Helpers\KeyboardHelper.cs:571` |
+| **T-75** | `using` مكرّر (CS0105) — **2** لا واحدة | **= 0** — `PrintService.cs:9` (`using SalesSystem.DataAccess.Printing;`) و`IInventoryDesktopService.cs:5` (`using SalesSystem.DTO;`) حُذفا والسابق باقٍ | الموجة 15 |
+| **T-76** | عضو يخفي عضواً موروثاً (CS0108) — `ProductName` يخفي `Control.ProductName` | **= 0** — صار `SelectedProductName`؛ والقياس أثبت **صفر** مستهلك للخاصية | `frmPurchaseItem.cs:107` |
+| **T-77** | حقل يُكتب ولا يُقرأ (CS0414) — `_isBindingLookups` | **= 0** — الحقل حُذف و**3** كتل `try/finally` فُكّت إلى عباراتها؛ القياس: لا معالج `cmbBranch_SelectedIndexChanged` أصلاً ⇒ الحارس كان نيّة ميتة، والحذف صفر أثر سلوكي | `frmUserMaster.cs:37,259,583,716` |
+| **T-78** | `Task` غير مُنتظَر (CS4014) | **= 0** — `() => _ = _ChooseProductAsync()` وهو اصطلاح الملف نفسه (السطران 372 · 388) | `frmInventoryFifo.cs:70` |
+| **T-79** | حقول مصمّم ميتة (CS0169) — `dataGridViewCellStyle1/2/3` **×9 تقارير = 27 حقلاً** | **= 0** — حُذفت الحقول غير المستخدمة وحدها؛ أنماط الشبكة الحقيقية (`dataGridViewCellStyle4/5/6` داخل `InitializeComponent`) لم تُمسّ، و`RULE-N134` سليم | 9 مصمّمات في `Screens\Reports\Forms\` |
 
 #### 10.6.2 ما زال مفتوحاً — المرحلة A (قابل للتنفيذ الآن)
 
@@ -584,6 +589,7 @@
 | **T-54** | `_ClampToPickerRange(DateTime)` — منطق حصر تاريخ داخل مدى `DateTimePicker` (نسخة واحدة، غير مكرّرة) | `frmJournalEntries.cs:964` | لا مخالفة الآن؛ يُرقّى إلى بيت تواريخ إن تكرّر في شاشة ثانية | يُراقَب | — |
 | **T-64** | **نص «وضع التجربة» مكرّر:** `private const string RealModeNotice` بنفس النص حرفياً في 3 شاشات، و`MockOnlyNotice` بنص مختلف قليلاً في شاشة رابعة | `frmEmployeeMaster.cs:27` · `frmStocktakingNew.cs:35` · `frmWarehouseTransferNew.cs:36` · `frmInventory.cs:47` | `RULE-N169` — النص المشترك مكانه `DocumentTextHelper` (مثل `StatusOptions`)؛ **لم يُنفَّذ في الموجة 13** لأن توحيد الصياغة يغيّر نصاً يراه المالك ⇒ يُنفَّذ بقراره | `ui-agent` بعد قرار | S |
 | **T-73** | **8 نسخ محلية من حارس التركيز باقية:** `_IsTextInputFocused()` في 7 ماسترات + `_IsTextEditingFocused()` في `frmProductUnitMaster` — كلها **صحيحة وظيفياً اليوم** (لا عيب سلوكي)، لكنها دين `RULE-N172` (3+ نسخ) وتتباين دلالياً: نسخة `frmCustomerMaster` كانت قائمة أزرار يدوية تُسقط `txtId`، ونسخة `frmProductUnitMaster` تنزل سلسلة الحاويات | `frmCashBoxMaster:122` · `frmCategoryMaster:124` · `frmProductMaster:136` · `frmProductUnitMaster:125` · `frmSupplierMaster:123` · `frmUnitMaster:115` · `frmUserMaster:129` · `frmWarehouseMaster:124` | تُحذف كلها وتُستهلك `KeyboardHelper.IsTextInputFocused(this)` — تعديل متطابق ⇒ **S-Batch** على دفعتين (4 + 4) · لا خطر سلوكي لأن مسار الاختصار يمرّ بالبيت أولاً | `ui-agent` | S |
+| **T-74** | **14 نموذجاً `frm*` مسجَّلاً في DI ولا يفتحه أحد** (بحث حدودي `(?<![A-Za-z0-9_])frmX(?![A-Za-z0-9_])` على كل `*.cs` ما عدا ملفَّي النموذج وتصريح `Program.cs`): `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmCustomerSelection` · `frmCustomerStatement` · `frmSupplierSelection` · `frmSupplierStatement` · `frmStocktakingPrint` · `frmStocktakingPrintCard` · `frmStocktakingPrintAdjustment` · `frmWarehouseTransferPrint` — وشاشة `frmPurchaseItem` تحمل تعليقاً يصف «النموذج الأب الذي يقرأ نتائج الحوار» **ولا أب لها في الحل** | §11.17 | `RULE-N102` كود ميت: إما تُفتح من القائمة أو تُحذف من المشروع ومن DI — **قرار مالك** لأنه يغيّر سطح التطبيق (`D-03` مجموعة فرعية منه) | `ui-agent` بعد قرار | S (14 ملفاً × 3) |
 
 > **ملاحظة قياس:** `_ToNullIfEmpty` **= 0** · `_Clamp` **= 0** (المتبقي `_ClampToPickerRange` وهو دالة أخرى) · `private const CashCustomerName` **= 0** · `private _GetStatusText` **= 0** · `CellFormatting` في التقارير **= 0** · `IsDateRangeValid` **= 21** استدعاءً · `NumericInputHelper` **13** مرجعاً · `DocumentTextHelper` **48** مرجعاً · `clsValidation.EndOfDay` **21** استدعاءً. **(كل هذه الأرقام تجاوزها §10.6.5 بعد الموجات 9–12.)**
 >
@@ -595,12 +601,13 @@
 
 #### 10.6.4 قرارات مالك معلَّقة (لا تُنفَّذ بلا نص)
 
-`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً · **`D-09` (جديد)** **النقر على سطر في الشبكة أثناء وضع الإضافة يمحو ما كتبه المستخدم بلا سؤال** — السلوك موجود في **كل** الماسترات بما فيها الشاشة المرجعية `frmProductMaster`، فإصلاحه حارس واحد مشترك يستهلكه الجميع (`RULE-N171`) وتغيير سلوك مرئي: **إبقاء السلوك** / **تأكيد قبل الإفراغ** / **تجاهل النقر ما دام `EntryMode.Adding`**.
+`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً · **`D-09` (جديد)** **النقر على سطر في الشبكة أثناء وضع الإضافة يمحو ما كتبه المستخدم بلا سؤال** — السلوك موجود في **كل** الماسترات بما فيها الشاشة المرجعية `frmProductMaster`، فإصلاحه حارس واحد مشترك يستهلكه الجميع (`RULE-N171`) وتغيير سلوك مرئي: **إبقاء السلوك** / **تأكيد قبل الإفراغ** / **تجاهل النقر ما دام `EntryMode.Adding`** · **`D-10` (جديد)** **`T-74` — 14 نموذجاً مسجَّلاً في DI ولا يفتحه أحد** (القياس الحدودي في الموجة 15): إما تُربط من القائمة/الشاشة الأم أو تُحذف من المشروع ومن DI (`RULE-N102`) — `D-03` مجموعة فرعية منه وعدّه «7» كان أقل من المقيس.
 
 
 #### 10.6.5 القياس النهائي — بعد موجة الإصلاح الكاملة (2026-11-15، المرجع الحالي)
 
-> **البناء:** `dotnet build .\SalesSystem.slnx` ⇒ **0 أخطاء / 118 تحذيراً** (كان 125 — حذف 5 معالجات ميتة و60 جسم دالة مكرّر أنقص 7 تحذيرات). التحذيرات ليست بوابة.
+> **البناء:** `dotnet build .\SalesSystem.slnx --no-incremental` ⇒ **0 أخطاء / 86 تحذيراً** (كان 125 ⇒ 118 في الموجة 14 ⇒ 86 في الموجة 15). التحذيرات ليست بوابة؛ البوابة **0 أخطاء**.
+> **طريقة العدّ:** مجموع التحذيرات من ملخّص البناء الرسمي، والمثيلات المميَّزة بفتح السجل مرة واحدة على `ملف:سطر:رمز` — لأن الأرقام لا تُقارن بين بناء تزايدي وكامل (`§12` في برومبت الـOrchestrator).
 > **كل رقم مقيس بأمر على الشجرة الحالية** — لا مقدَّر ولا منقول. الأمر المستخدم موثَّق في §10.6.
 
 | المقياس | القيمة الآن | كان | الحكم |
@@ -632,6 +639,14 @@
 | نسخ حارس تركيز محلية باقية (`_IsTextInputFocused`/`_IsTextEditingFocused`) | **8** (دين `RULE-N172` — لا عيب سلوكي) | 11 قبل الموجة | ⚠️ `T-73` مفتوح |
 | `ComboBox` مملوء بكائنات بلا `DisplayMember` | **0** في `frmJournalEntries` (كان `cbStatusFilter`) | 1 | ✅ `T-69` |
 | `Delete` مبتلَع داخل حقل إدخال | **0** — الإعفاء في البيت مقصور على `Keys.Delete` | كل شاشة تسجّل `Keys.Delete` | ✅ `T-71` |
+| `using` مكرّر (`CS0105`) | **0** | 2 | ✅ `T-75` |
+| عضو يخفي عضواً موروثاً (`CS0108`) | **0** | 1 | ✅ `T-76` |
+| حقل يُكتب ولا يُقرأ (`CS0414`) | **0** | 1 | ✅ `T-77` |
+| `Task` غير مُنتظَر (`CS4014`) | **0** | 1 | ✅ `T-78` |
+| حقول مصمّم ميتة (`CS0169`) | **0** | 27 (9 تقارير × 3) | ✅ `T-79` |
+| **مجموع التحذيرات** (بناء كامل `--no-incremental`) | **86** تحذيراً · **76** مثيلاً مميَّزاً (`ملف:سطر:رمز`) | 118 تحذيراً · 108 مثيلاً | ✅ الموجة 15 أنقصت **32** |
+| عائلة nullable (`CS8602` 43 · `CS8604` 14 · `CS8618` 13 · `CS8601` 2 · `CS8605` 1 · `CS8600` 1) | **74** مثيلاً — **لم تُمسّ** | 74 | ⚠️ موجة مستقلة: الإصلاح يضيف فحوص `null` فعلية ⇒ سلوك، لا يدخل ضمن تنظيف التحذيرات |
+| `CS8981` — صنف ترحيل اسمه حرفياً `update` | **2** | 2 | ⚠️ مجمَّد `RULE-N177` (داخل `Migrations/**`) |
 
 ---
 
@@ -888,3 +903,44 @@
 **البناء بعد الموجة:** `dotnet build .\SalesSystem.slnx --no-incremental` ⇒ **0 أخطاء / 118 تحذيراً** (الرقم الكامل المقارن — البناء التزايدي يبلّغ 96 فقط لأنه يعيد تحذيرات المشاريع المُعاد ترجمتها وحده).
 
 **تحديث سجل الوكلاء (`.opencode/agents/`):** أُصلح تناقض داخلي في برومبت الـOrchestrator (§5 يسمح لـ`ui-agent` بكتابة `Helpers/**` بينما §10.1 يمنعه مطلقاً ⇒ صار «شريحة البيت المشترك» صريحة)، وأُضيفت خطوة **تحقق من الدعوى** (خطوة 0) وخطوة **قياس نصف قطر العيب** (9b/9c)، وأربعة فخاخ مقيسة جديدة، وفخّ عدم مقارنة أعداد التحذيرات بين بناء تزايدي وكامل. و`code-reviewer` أُعيد بناؤه: كان يطلب `MessageBox.Show` صريحاً في معالجات `async void` (مخالف لبيت `clsDialogs`)، وكان يفتقد فحص النطاق، والدعوى، والسبب الجذري، ونصف القطر.
+
+### 11.17 الموجة 15 — سجل بناء المالك: 8 أخطاء من **نسخة ثانية قديمة** + 32 تحذيراً حقيقياً أُغلقت (4 وكلاء + مراجعة واحدة)
+
+> **سبب الموجة:** المالك لصق — **مرتين** — سجل بناء فيه **8 أخطاء** و4 تحذيرات، وكل مساراته `C:\Users\ALlahabi\Desktop\Sales Management System\...` لا مسار المستودع. القياس قبل أي تعديل (خطوة 0 في قانون الـOrchestrator: **الدعوى تُقاس ولا تُنفَّذ**).
+
+**القياس الأول — من أين جاء السجل فعلاً؟**
+
+| البند | القياس |
+|---|---|
+| شجرة المستودع (OneDrive) | `dotnet build --no-incremental` ⇒ **0 أخطاء / 118 تحذيراً** — الأخطاء الثمانية غير موجودة فيها |
+| مجلد البناء في السجل | **نسخة git ثانية** في `C:\Users\ALlahabi\Desktop\...` — `HEAD c5c872c` (**3 إيداعات خلف master**)، **169** ملفاً معدَّلاً + **10** غير متعقَّبة، و`git diff origin/master` = **195** مساراً |
+| سبب الأخطاء الثمانية | **ملفان** موجودان في المستودع وغائبان هناك — `Helpers\DocumentTextHelper.cs` و`Helpers\NumericInputHelper.cs` — و`clsValidation.cs` هناك **بلا `EndOfDay`** أصلاً. النسخ اليدوي للملفات المعدَّلة لا يجلب الملفات **الجديدة**، فبقي كل شاشة تستدعي بيراً غير موجود |
+| الحكم | **الأخطاء الثمانية لم تكن في المستودع قط**؛ والتحذيرات الأربعة **كانت حقيقية فيه** ⇒ عُوملت على مستوى **الصنف** لا الشاشة (`RULE-N155`) |
+
+| خطأ السجل | سببه المقيس |
+|---|---|
+| `CS0103 DocumentTextHelper` ×3 (`frmJournalEntries:250,1693`) + `CS8130` ×2 (السطر 250 نفسه) | `Helpers\DocumentTextHelper.cs` غائب في النسخة الثانية |
+| `CS0103 NumericInputHelper` ×2 (`frmEmployeeMaster:521` · `frmCustomerMaster:667`) | `Helpers\NumericInputHelper.cs` غائب في النسخة الثانية |
+| `CS1501 EndOfDay` (`frmJournalEntries:615`) | نسخة `clsValidation` هناك أقدم — لا تحتوي العضو |
+
+**ما أُصلح فعلاً في المستودع — الأصناف الخمسة كاملةً (14 ملفاً، 32 مثيلاً):**
+
+| الملف | الحكم | ما نُفِّذ |
+|---|---|---|
+| `DataAccess\Printing\PrintService.cs` | ✅ `T-75` | حُذف `using SalesSystem.DataAccess.Printing;` المكرّر (السطر 9) — **استثناء (ج) `RULE-N178`**: تصحيح نظافة بلا سلوك، داخل باك-إند مجمَّد، وهو المساس الوحيد بـ`DataAccess/**` |
+| `Services\Interfaces\IInventoryDesktopService.cs` | ✅ `T-75` | حُذف `using SalesSystem.DTO;` المكرّر (السطر 5) |
+| `Screens\Purchases\Forms\frmPurchaseItem.cs` | ✅ `T-76` | `ProductName` ⇒ `SelectedProductName` (كان يخفي `Control.ProductName`) — والقياس: **صفر** مستهلك للخاصية في كل الحل |
+| `Screens\Users\Forms\frmUserMaster.cs` | ✅ `T-77` | حُذف `_isBindingLookups` (يُكتب 3 مرات ولا يُقرأ) وفُكّت **3** كتل `try/finally` إلى عباراتها — لا معالج `cmbBranch_SelectedIndexChanged` موجود أصلاً ⇒ الحارس نيّة ميتة، والحذف صفر أثر سلوكي |
+| `Screens\Inventory\Forms\frmInventoryFifo.cs` | ✅ `T-78` | `() => _ = _ChooseProductAsync()` — اصطلاح الملف نفسه (372 · 388) |
+| **9** مصمّمات تقارير (`frmAccountStatementReport` · `frmDailySalesReport` · `frmProductProfitabilityReport` · `frmProfitByCustomerReport` · `frmReturnsReport` · `frmSalesByCategoryReport` · `frmSalesByCustomerReport` · `frmSalesByProductReport` · `frmSalesReport`) | ✅ `T-79` | حُذفت **27** تصريحاً ميتاً (`dataGridViewCellStyle1/2/3` × 9) — والأنماط الحقيقية `4/5/6` داخل `InitializeComponent` لم تُمسّ، و`RULE-N134` سليم |
+
+**صنف العيب (blast radius) — مقيس قبل الإغلاق:** التحذيرات الأربعة في سجل المالك كانت في الحقيقة **32 مثيلاً** على **14 ملفاً**: `CS0169` **27** · `CS0105` **2** · `CS0108` **1** · `CS0414` **1** · `CS4014` **1**. أُغلقت **كلها**، ولم يُترك أي مثيل. **لم تُمسّ** عائلة nullable (`CS8602` 43 · `CS8604` 14 · `CS8618` 13 · `CS8601` 2 · `CS8605` 1 · `CS8600` 1 = **74**) لأن إصلاحها يضيف فحوص `null` فعلية ⇒ سلوك لا تنظيف، و`CS8981` (**2**) داخل `Migrations/**` ⇒ مجمَّد `RULE-N177`.
+
+**حكم المراجعة المستقلة (`code-reviewer` على دلتا الموجة):** **مقبول مع ملاحظات** — **0 Blocker · 0 Major · 2 Minors**، وكلتاهما وُثِّقت لا تُصلَح بالكود هنا:
+(1) المساس بـ`DataAccess/**` تدوينه كاستثناء (ج) `RULE-N178` — دُوِّن أعلاه وفي تقرير التسليم · (2) تعليق `frmPurchaseItem` يصف «النموذج الأب» **ولا أب له في الحل** ⇒ صار `T-74`/`D-10`.
+
+**قياس إضافي مقيس في هذه الموجة — `T-74`:** بحث حدودي (`(?<![A-Za-z0-9_])frmX(?![A-Za-z0-9_])`) على كل `*.cs` ما عدا ملفَّي النموذج وتصريح `Program.cs` ⇒ **14** نموذجاً مسجَّلاً في DI **لا يفتحه أحد**: `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmCustomerSelection` · `frmCustomerStatement` · `frmSupplierSelection` · `frmSupplierStatement` · `frmStocktakingPrint` · `frmStocktakingPrintCard` · `frmStocktakingPrintAdjustment` · `frmWarehouseTransferPrint` — قرار المالك `D-10` (فتح أو حذف، `RULE-N102`).
+
+**البناء بعد الموجة:** `dotnet build .\SalesSystem.slnx --no-incremental` ⇒ **0 أخطاء / 86 تحذيراً** (كان 118) — والأصناف الخمسة **صفر**.
+
+**مزامنة نسخة المالك الثانية:** أُخِذت لقطة قابلة للاسترجاع (`git stash push -u` ⇒ `stash@{0}: pre-sync snapshot 2026-11-16 by orchestrator`) ثم `git reset --hard origin/master` ⇒ النسخة صارت مطابقة للمستودع وبناؤها **0 أخطاء / 118 تحذيراً** (ثم إلى `86` بعد هذه الموجة). الاسترجاع إن أراد: `git stash pop`.
