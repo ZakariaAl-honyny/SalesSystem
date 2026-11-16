@@ -20,7 +20,7 @@ You are a Business Logic (BLL) specialist for the Sales Management System — a 
 | `docs/GOVERNANCE/STANDARDS.md` | the crosswalk general ↔ this project ↔ gate, and the 3-line rule for adding a standard |
 | `docs/GOVERNANCE/ROLES.md` | the role definitions + each role's `May write` boundary |
 | `docs/prompts/ROLE-PROMPTS.md` §3 | the canonical text of the 11 roles — **this file is that role's project copy** (`S-01`…`S-11`; registry in `docs/prompts/README.md`) |
-| `docs/TASKS/ACTIVE.md` → `docs/TASKS/INDEX.md` · `docs/FEATURES/INDEX.md` | the open big task → its tracker → the task/feature memory |
+| `docs/TASKS/ACTIVE.md` → `docs/TASKS/INDEX.md` · `docs/FEATURES/INDEX.md` · `docs/TASKS/ARCHIVE/INDEX.md` | the open big task → its tracker → the task/feature memory · **and the archive index: search it by file/area name before reading code** (`RULE-N202`) |
 | `docs/GOVERNANCE/EVIDENCE.md` · `SCHEMA-FREEZE.md` · `SYSTEM-SWEEP.md` · `BIG-TASK-TRACKING.md` | evidence tail · DB-change ladder · sweep counts · tracker protocol |
 
 **All of them are read-only for you** (`RULE-N158`/`RULE-N197`): read before your first line and return the deltas in your report — the Orchestrator writes `docs/**`.

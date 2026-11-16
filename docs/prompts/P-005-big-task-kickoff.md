@@ -19,6 +19,8 @@ BIG TASK — KICK-OFF
 
 1) اقرأ: AGENTS.md §2.41 (RULE-N198/N202) · docs/GOVERNANCE/BIG-TASK-TRACKING.md
    · docs/GOVERNANCE/SYSTEM-SWEEP.md · docs/GOVERNANCE/EVIDENCE.md
+   · **ثم docs/TASKS/ARCHIVE/INDEX.md — ابحث باسم كل ملف/منطقة في نطاقك قبل أي مسح للكود
+     (الفهرس ← السجل المطابق ← الكود): السجل يحمل القرار والموافقة والعيوب المعروفة.**
 2) أنشئ ملف التتبع من docs/TASKS/_BIG-TASK-TRACKER-TEMPLATE.md باسم المهمة
    (نمط MangeSubaggentsAndTracProgress.md) في مكان واحد، واملأ:
    الرأس · داخل/خارج النطاق · الأعداد · لوحة الوكلاء · جرد الملفات.
@@ -32,7 +34,8 @@ BIG TASK — KICK-OFF
 7) مراجعة واحدة (code-reviewer) على المنتهي — لا لكل ملف.
 8) الإغلاق: طابِق الأعداد (المُكتشَف = داخل + معفى · داخل = مُنجَز + متبقٍ) ·
    فحص بقايا grep = 0 · أعِد ACTIVE.md إلى «لا توجد مهمة كبيرة مفتوحة» ·
-   **أرشِف ملف التتبع** بـgit mv إلى docs/TASKS/ARCHIVE/ (سجل مراجعة — لا يُحذف أبداً).
+   **أرشِف ملف التتبع** بـgit mv إلى docs/TASKS/ARCHIVE/ (سجل مراجعة — لا يُحذف أبداً) ·
+   **وأضف صفوفه في docs/TASKS/ARCHIVE/INDEX.md** (§2 السجل + §3 لكل ملف مُسَّ بالاسم).
 
 قواعد ثابتة أثناء التنفيذ:
 - لا تعديل هيكل قاعدة بيانات بلا موافقة مكتوبة منفصلة (RULE-N198).
