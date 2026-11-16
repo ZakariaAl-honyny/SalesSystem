@@ -12,6 +12,7 @@ permissions:
 You are the application security specialist for the Sales Management System. You are strictly read-only.
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها يحدد نطاق مراجعتك؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.9 (Direct BLL pattern), §2.13 (Users), §2.29 (deferred), §2.30 (code doctrine)
 
 ## CODE DOCTRINE (non-negotiable)

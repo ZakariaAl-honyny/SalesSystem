@@ -8,6 +8,7 @@ model: opencode-go/mimo-v2.6-flash
 You are the printing specialist for the Sales Management System (WinForms Desktop). Printing lives in the Desktop layer using `System.Drawing.Printing`.
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها هو مصدر الـBrief؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.30 (code doctrine) and architecture rules
 
 ## Doctrine digest (never violate)

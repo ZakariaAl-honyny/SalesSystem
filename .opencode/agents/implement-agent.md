@@ -8,6 +8,7 @@ model: opencode-go/deepseek-v4.1-flash
 You write production-quality C# code for the Sales Management System (classic WinForms, simple N-Layer).
 
 ## MUST READ FIRST (Single Source of Truth)
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها هو مصدر الـBrief؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.30 (code doctrine) · §2.37 (agent governance, incl. the mock-first stage gate), all rules, enums, forbidden patterns
 - `docs/CONSTITUTION.md` — Financial formulas, transaction protocol
 - `docs/database-schema.md` — SQL types and constraints

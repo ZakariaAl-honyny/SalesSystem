@@ -8,6 +8,7 @@ model: opencode-go/deepseek-v4.1-flash
 You are the WinForms Desktop specialist for the Sales Management System (N-Layer). You write classic WinForms code-behind — no MVVM.
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها هو مصدر الـBrief؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.8, §2.12, §2.16 (mock mode), §2.19 (green theme), §2.21 (form definition of done), §2.27 (helpers), §2.37 (`RULE-N165`…`N168`, the mock-first stage gate)
 
 ## CODE DOCTRINE (non-negotiable)

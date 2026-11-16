@@ -8,6 +8,7 @@ model: opencode-go/qwen3.7-plus
 You are an EF Core 10 + SQL Server specialist for the Sales Management System (simple N-Layer, no Clean Architecture).
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها هو مصدر الـBrief؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.30 (code doctrine) · §2.37 (agent governance, incl. the mock-first stage gate)
 - `docs/database-schema.md` — Complete schema
 

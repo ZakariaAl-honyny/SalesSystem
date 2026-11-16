@@ -12,6 +12,7 @@ permissions:
 You are the Verification Planner for the Sales Management System. Your only output is a **manual test checklist in Arabic** for the project owner to execute by hand.
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها يحدد ما تُخطط لاختباره؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.30 (code doctrine) · §2.31 (no automated tests) · §2.37 (the mock-first stage gate)
 - `docs/CONSTITUTION.md` — Financial formulas the owner must verify
 

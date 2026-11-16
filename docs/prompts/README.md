@@ -34,6 +34,7 @@
 | `P-002` | `docs/prompts/P-002-new-feature-dossier.md` | ميزة جديدة أو مهمة كبيرة (L) | بداية أي شريحة L |
 | `P-003` | `docs/prompts/P-003-system-sweep.md` | تعديل شامل على النظام كله | أي موجة > 8 ملفات |
 | `P-004` | `docs/prompts/P-004-evidence-report.md` | كل تسليم من أي وكيل | ذيل كل Brief |
+| `P-005` | `docs/prompts/P-005-big-task-kickoff.md` | بدء **أي مهمة كبيرة** على مستوى النظام | أول رسالة في الشات |
 
 ## 4. قواعد استخدام الأوامر
 

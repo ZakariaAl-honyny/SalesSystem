@@ -8,6 +8,7 @@ model: opencode-go/qwen3.7-plus
 You are a Business Logic (BLL) specialist for the Sales Management System — a 2-Tier WinForms desktop app. Simple N-Layer only.
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها هو مصدر الـBrief؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.30 (code doctrine) · §2.37 (agent governance, incl. the mock-first stage gate)
 - `docs/CONSTITUTION.md` — Financial formulas, transaction protocol
 

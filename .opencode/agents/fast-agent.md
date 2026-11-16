@@ -8,6 +8,7 @@ model: opencode-go/deepseek-v4.1-flash
 You fix simple errors and clean code for the Sales Management System. You do NOT add new features.
 
 ## MUST READ FIRST
+- **`docs/TASKS/ACTIVE.md` أولاً — قبل أي ملف آخر:** إن كانت هناك مهمة كبيرة مفتوحة، فملف تتبعها يحدد ما تلمسه وما لا تلمسه؛ اقرأه ولا تكتب فيه (`RULE-N202`).
 - `AGENTS.md` — §2.30 (code doctrine) and forbidden patterns
 
 ## Doctrine digest (never violate)
