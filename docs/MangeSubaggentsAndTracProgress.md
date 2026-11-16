@@ -9,9 +9,11 @@
 
 ---
 
-## 0) الحالة الآن (مقيسة 2026-11-16 — بعد إغلاق الموجة 11)
+## 0) الحالة الآن (مقيسة 2026-11-16 — بعد إغلاق الموجة 18)
 
 > **⚠️ تصحيح إلزامي (`RULE-N174`):** كان هذا الجدول يقول «**36 شاشة مكتملة**». القياس اليوم يُثبت أن **الشاشة المكتملة واحدة فقط**. سبب الفرق: ملفات `Screens/**` أُعيدت إلى `HEAD` مرتين بـ`git checkout` (حادثة `W-10-RESTORE` أدناه)، فضاعت تعديلات كود الشاشات الـ36 — **وبقيت مصمّماتها** لأن مسار الألوان أُعيد تشغيله بعد الاسترجاع. **درس مسجَّل: ممنوع `git checkout -- Screens` نهائياً.**
+
+> **الموقف بعد إغلاق الموجة 18 (مقيس في نفس التشغيل):** **33 من 94** شاشة مكتملة ومُبنية — والمتبقي **61**. البناء `dotnet build .\SalesSystem.slnx --no-incremental` = **0 خطأ / 86 تحذيراً** (= خط الأساس ⇒ صفر تحذير جديد). الشجرة نظيفة، والدفعة مدفوعة: `b74457c`، والتزامن `git rev-list --left-right --count origin/master...master` = **`0 0`** (الدفعة الأولى رُفضت لأن الريموت تقدّم بـ`ce7790e` — صفر تعارض ⇒ rebase ثم push). **التالي المباشر:** الموجة 19 = الصفوف **34→37** (§5.1).
 
 | البند | الرقم | كيف قيس (هذا التشغيل) |
 |---|---|---|
@@ -21,7 +23,7 @@
 | نوافذ طباعة للقراءة فقط | **5** | `frmPurchaseInvoicePrint` · `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` |
 | `WireEnterAsTab(this)` — أحادي (قديم) | **25 ملفاً** | `Select-String 'WireEnterAsTab\s*\(\s*this\s*\)'` |
 | `WireEnterAsTab(scope, func)` — ثنائي (الصحيح) | **33** | التجريبية + الموجات 11–18 (قائمة الأسماء الكاملة في §5) |
-| شاشة بلا `WireEnterAsTab` | **36** | 31 تقريراً + 5 نوافذ طباعة — **الإعفاء الوحيد** (`RULE-N121`)؛ والمحرران «سند قبض» و«مصروف» كانا دَيناً (`RULE-N95`) ويُعالجان في الموجة 13 |
+| شاشة بلا `WireEnterAsTab` | **36** | 31 تقريراً + 5 نوافذ طباعة — **الإعفاء الوحيد** (`RULE-N121`)؛ وقد أُغلق دين المحررين «سند قبض» و«مصروف» في الموجة 13 (`RULE-N95`) |
 | شاشة تُعلن `_PrimaryActionButton` | **29** | `Select-String '_PrimaryActionButton'` |
 | شاشة تضبط `AcceptButton` | **40** | `Select-String 'AcceptButton\s*='` |
 | شاشة تستهلك `RequiredFieldHelper` | **26** | كل شاشات الموجات 11–18 (ماعدا شاشات القراءة/الرقمية بلا حقل نصي مطلوب) + التجريبية |
@@ -181,9 +183,23 @@ private Button? _PrimaryActionButton() => _mode switch
 | 15 | `frmInventoryFifo` · `frmInventoryList` · `frmInventoryBarcode` · `frmImportProductsExcel` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور 484/568/451/765 · **بنيتُ أخطأت أولاً بـ`CS8752`** (قاعدة واحدة تحتاج `new RequiredField(...)`) فأُعيدت إلى مالك الملف وأُصلحت ثم بُني 0 أخطاء · `frmInventoryFifo`/`frmInventoryList` للقراءة فقط (بلا حقول إدخال) · `frmInventoryBarcode` حذف نسخة `clsValidation.IsRequired` المحلية وأثبت أن اشتراك المصمّم يسبق الـHelper فيفوز `Enter` الباركود (`RULE-N42`) · `frmImportProductsExcel` استبدل `Label` بـ`TextBox` للقراءة فقط + `errorProvider` لأن `Label` لا تكون «فارغة» أبداً |
 | 16 | `frmInventory` · `frmJournalEntries` · `frmOpeningStock` · `frmPasswordChange` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور المقيسة **1,160 / 1,735 / 576 / 404** (الأرقام في تقارير الوكلاء كانت منقوصة — المرجع قياس الـOrchestrator) · `frmInventory` للعرض فقط (3 شبكات · لا حقل مطلوب) + `_WireGridEnterOwnership` تطبيقاً لـ`RULE-N153` · `frmJournalEntries` ثنائي على `pnlEntryHeader` و`_PrimaryActionButton` = `null` في الشبكتين وللقيد المُرحَّل، **2 من 20 `SetError` نُقلا** و**18 بقيت حرفياً**، والتوازن `_IsBalanced` بلا مساس · `frmOpeningStock` حذف `_ValidateEmptyTextBox` و`_ValidateForm` → `_ValidateBeforeSave` + `_ValidateRangeRules` (6 حكماً) · `frmPasswordChange` قواعد كلمة المرور الست بنصوصها حرفياً |
 | 17 | `frmPOS` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseInvoice` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور المقيسة **1,616 / 335 / 248 / 781** · `frmPOS`: `_PrimaryActionButton` = `null` في الباركود والشبكة وتحرير الخلية والسلة الفارغة وحالة الانشغال · `IsInputFocused` المحلي حُذف ⇒ `IsTextInputFocused` · 3 من 10 `SetError` نُقلت و7 بقيت · `frmPurchaseInvoice`: `_ValidateForm` **0** و`SetError` **10→6** والرسائل المالية الستّ حرفية · `frmPurchaseCurrency`/`frmPurchaseDiscount`: بلا `Attach` فعلي (الحقل الوحيد `NumericUpDown` وبيت الحقول المطلوبة لا يدعمه — فجوة مسجَّلة) والمدى في `_ValidateRangeRules` |
-| 18 | `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseOtherDetails` · `frmPurchaseReturn` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور **285 / 272 / 163 / 600** · `frmPurchaseReturn` آخر `_ValidateForm` المالية (`SetError` **8→4**) · `frmPurchaseItemInfo` بلا زر أساسي (`null`) لأن زرها الوحيد «إغلاق» وهو `CancelButton` · **+ إصلاح عيب صنف في البيت الواحد:** `KeyboardHelper.IsEnterNavigationInput` صار يستثني `Multiline && AcceptsReturn` فبقي `Enter` سطراً جديداً في الملاحظات — كان 12 حقلاً عديد الأسطر في 12 مصمّماً، **8 منها شُحنت في الموجات 11–17** |
-| 19 | الصفوف 34→63 (بقية المحررات · القوائم · المنتقيات · الطباعة · النظام) ثم 31 تقريراً (الألوان فقط) | | ⬜ | 4 وكلاء لكل موجة · التقارير موجة واحدة (10 قيم متقاعدة × 8 ملفات لكل وكيل) |
+| 18 | `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseOtherDetails` · `frmPurchaseReturn` | ✅ **0 خطأ / 86 تحذيراً** | ✅ | السطور **285 / 272 / 163 / 600** · `frmPurchaseReturn` آخر `_ValidateForm` المالية (`SetError` **8→4**) · `frmPurchaseItemInfo` بلا زر أساسي (`null`) لأن زرها الوحيد «إغلاق» وهو `CancelButton` · **+ إصلاح عيب صنف في البيت الواحد:** `KeyboardHelper.IsEnterNavigationInput` صار يستثني `Multiline && AcceptsReturn` فبقي `Enter` سطراً جديداً في الملاحظات — كان 12 حقلاً عديد الأسطر في 12 مصمّماً، **8 منها شُحنت في الموجات 11–17** · **دُفعت** `b74457c` بعد rebase على `ce7790e` (صفر تعارض · التزامن `0 0`) |
+| 19 | `frmSalesReturn` · `frmStocktakingNew` · `frmSupplierPaymentDialog` · `frmSupplierStatement` | | ⬜ | **جاهزة للإطلاق** — القياس أدناه §5.1 · `frmSalesReturn` آخر `_ValidateForm` مالية متبقية · `frmSupplierPaymentDialog` و`frmSupplierStatement` بلا `_PrimaryActionButton` (تُعلن `null` وتُقرأ للقراءة فقط في الثانية) |
+| 20+ | الصفوف 38→63 (بقية المحررات · القوائم · المنتقيات · الطباعة · النظام) ثم 31 تقريراً (الألوان فقط) | | ⬜ | 4 وكلاء لكل موجة · التقارير موجة واحدة (10 قيم متقاعدة × 8 ملفات لكل وكيل) |
 | الأخيرة | قائمة اختبار عربية + دفع (commit + push) | | ⬜ | **مراجعة `code-reviewer` ألغاها المالك** — ليست عمل الوكيل؛ البوابة تُغلق بالقياس الآلي (0 أخطاء · 0 تحذير جديد · صفر نسخة محلية · كل شاشة مقيسة) |
+
+> **§5.1 — الموجة 19 جاهزة (مقيسة 2026-11-16 بأمر واحد على ملفات `.cs` فقط، بلا مصمّمات):**
+
+| # | الشاشة | السطور | `WireEnterAsTab` | `_ValidateForm` | `SetError` | `_PrimaryActionButton` | `AcceptButton` | ملاحظة الإطلاق |
+|---|---|---|---|---|---|---|---|---|
+| 34 | `frmSalesReturn` | **603** | 1 ⚠ (أحادي) | **2** (تعريف + نداء) | 8 | 4 مراجع | 4 إسنادات | آخر `_ValidateForm` على مسار مالي متبقٍ ⇒ تُعاد تسميتها `_ValidateRangeRules` وتبقى قواعد المرتجع/الكمية/السعر حرفياً |
+| 35 | `frmStocktakingNew` | **778** | 1 ⚠ | 0 | 2 | 5 | 3 | جرد: الشبكة تملك `Enter` (`RULE-N153`) — `_PrimaryActionButton` = `null` عند `ContainsFocus`/`IsCurrentCellInEditMode` |
+| 36 | `frmSupplierPaymentDialog` | **312** | 1 ⚠ | **2** | 4 | **0** | 0 | **لا تملك `_PrimaryActionButton`** ⇒ تُعلنها مرة واحدة بنمط التجريبية (كانت `AcceptButton` غير مضبوط أصلاً ⇒ سلوك Enter لم يكن يعمل) |
+| 37 | `frmSupplierStatement` | **805** | 1 ⚠ | 0 | 0 | **0** | 1 | **كشف حساب = قراءة فقط** ⇒ `_PrimaryActionButton()` تُرجع `null` دائماً ولا تُضاف `AcceptButton` جديدة |
+
+> **قياس السطور أعلاه يخالف ثلاثة أرقام في §6 المكتوبة سابقاً** (`frmSalesReturn` 602→**603** · `frmStocktakingNew` 785→**778** · `frmSupplierPaymentDialog` 326→**312**) — صُحّحت في صفوف الجرد (`RULE-N174`).
+
+> **سجل الدفع المقيس** (`git log --oneline --grep='wave'`): الموجة 18 = `b74457c` · 17 = `5bd9752` · 16 = `beb5479` + `588e49f` · 15 = `9cf604e` · 11–14 = `96ddcb8`. الهاشات الأقدم من `96ddcb8` لم تبقَ في التاريخ بعد rebase.
 
 > **`W-10-RESTORE` — الحادثة والدرس (مسجَّلة بقرار `RULE-N174`):** أُعيدت `Screens/**` إلى `HEAD` مرتين بـ`git checkout` أثناء تنظيف الشجرة، فمُحيت تعديلات كود **36 شاشة** أُنجزت في الموجات 1–9 (وما بقي منها هو المصمّمات لأنها أُعيد توليدها آلياً بعد الاسترجاع). **قاعدتان ملزمتان:** (1) **ممنوع** `git checkout -- Screens/**` — أي تراجع يجب أن يكون **ملفاً بملف بأسماء صريحة**؛ (2) **لا يُقال «مكتمل» لشاشة لم يُقَس استيرادها بعد** — عمود الحالة في §6 يُقاس بالأمر لا بالذاكرة.
 
@@ -232,9 +248,9 @@ private Button? _PrimaryActionButton() => _mode switch
 | 31 | `frmPurchaseItemInfo` | محرر/مستند | Y | 2 ✅ | 0 / 0 | 0 ✅ | 272 | ✅ | 18 |
 | 32 | `frmPurchaseOtherDetails` | محرر/مستند | Y | 2 ✅ | 0 / 0 | 0 ✅ | 163 | ✅ | 18 |
 | 33 | `frmPurchaseReturn` | محرر/مستند | Y | 2 ✅ | 0 / 4 | 0 ✅ | 600 | ✅ | 18 |
-| 34 | `frmSalesReturn` | محرر/مستند | Y | 1 ⚠ | 0 / 5 | 0 ✅ | 602 | ⬜ | — |
-| 35 | `frmStocktakingNew` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 785 | ⬜ | — |
-| 36 | `frmSupplierPaymentDialog` | محرر/مستند | Y | 1 ⚠ | 0 / 2 | 0 ✅ | 326 | ⬜ | — |
+| 34 | `frmSalesReturn` | محرر/مستند | Y | 1 ⚠ | 0 / 8 | 0 ✅ | 603 | ⬜ | — |
+| 35 | `frmStocktakingNew` | محرر/مستند | Y | 1 ⚠ | 0 / 2 | 0 ✅ | 778 | ⬜ | — |
+| 36 | `frmSupplierPaymentDialog` | محرر/مستند | - | 1 ⚠ | 0 / 4 | 0 ✅ | 312 | ⬜ | — |
 | 37 | `frmSupplierStatement` | محرر/مستند | - | 1 ⚠ | 0 / 0 | 0 ✅ | 805 | ⬜ | — |
 | 38 | `frmWarehouseTransferNew` | محرر/مستند | Y | 1 ⚠ | 0 / 0 | 0 ✅ | 739 | ⬜ | — |
 | 39 | `frmListCustomerReceipts` | قائمة | - | 1 ⚠ | 0 / 0 | 0 ✅ | 663 | ⬜ | — |

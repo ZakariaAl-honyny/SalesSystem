@@ -1211,5 +1211,21 @@
 
 **ملاحظات تُبلَّغ للمالك:** أبيض الشريط على `(14,165,103)` = **3.18** (≥ 3.0 للنص الكبير؛ `frmPOS` و`frmFormatingSetting` بـ`12 Bold` على الحدّ الأدنى) · زر التحذير `(255,193,7)` بنص داكن **8.31** · التعطيل **2.24** · **والمصيدة القديمة:** في الوضع الحقيقي لوحة محفوظة في `SystemSettings` تتغلّب على الافتراضيات ⇒ «استعادة الافتراضيات» مرة واحدة.
 
+---
+
+### 11.23 تعميم الشاشة التجريبية — الموجات 11–18 (2026-11-16) · الملف الحيّ `docs/MangeSubaggentsAndTracProgress.md`
+
+> **اللوحة هي المصدر:** كل شاشة وموجة وأرقامها في `docs/MangeSubaggentsAndTracProgress.md` (`RULE-N174` — لا تُنسخ هنا). هذا الصف يثبت **بيوت الكود المشترك** التي مُسَّت في الموجات، لا الشاشات.
+
+| الملف (البيت) | التغيير | التفصيل |
+|---|---|---|
+| `Helpers\KeyboardHelper.cs` | `IsEnterNavigationInput` يستثني `TextBox { Multiline && AcceptsReturn }` | إصلاح **صنف** لا حالة (`§4` خطوة 9b): `Enter` في الملاحظات كان يُنقل تركيزاً بدل سطر جديد. القياس: **12** حقلاً عديد الأسطر في **12** مصمّماً، منها **8** شُحنت في الموجات 11–17 ⇒ كان عيباً حيّاً. **لم يُستثنَ `Multiline` وحده** لأن `TextBox.IsInputKey` لا يعدّ `Enter` مفتاح إدخال إلا مع `AcceptsReturn`، فاستثناء `Multiline` وحده كان سيجعل `AcceptButton` يبتلع `Enter` في **11** حقل ملاحظات آخر (**9** من شاشاتها تضبط `AcceptButton`) — أي عيب أسوأ من المُصلَح |
+| `Screens\**\frm*.cs` (33 شاشة) | ترحيل النمط فقط | الاستهلاك عبر الـHelpers: `KeyboardHelper.WireEnterAsTab(scope, _PrimaryActionButton)` + `RequiredFieldHelper.Attach/Validate/FirstMissing/Clear` + `KeyboardHelper.IsTextInputFocused(this)` — **صفر نسخة محلية** من حارس التركيز أو حكم «مطلوب» في الشاشات المرحَّلة |
+| `docs\MangeSubaggentsAndTracProgress.md` | اللوحة الحيّة | §0 أرقام مقيسة · §5 سجل الموجات · §5.1 الموجة التالية · §6 جرد 94 صفاً |
+
+**القياسات (بأمر في نفس التشغيل):** نماذج `frm*` **94** · ثنائي **33** · أحادي قديم **25** · معفى **36** · `RequiredFieldHelper` **26** شاشة · `_RequiredFieldsValid` **0** · `_FocusFirstMissingField` **0** · `_ValidateForm` **2** (`frmSalesReturn` · `frmSupplierPaymentDialog`) · نسخ محلية لحارس الحقل **0** · `NavigationOptions` في `Screens/**` **0** · `BlocksEnterNavigation` في `Screens/**` **0** · البناء `--no-incremental` = **0 Errors / 86 Warning** (خط الأساس) · **صفر ملف باك-إند** (`RULE-N177`).
+
+**عيب مسجَّل لم يُصلَح (قرار مالك مطلوب):** `PAL-6` — **86** زراً في **56** مصمّماً من 95 تحمل `BackColor` لا يملكه أي مفتاح أزرار في اللوحة (**35** منها على `16,150,96`، ومنها `btnRefresh` في التقارير الـ31) ⇒ لا تُعاد تلوينها عند تغيير اللوحة. التسجيل لا الاستبدال الأعمى.
+
 
 
