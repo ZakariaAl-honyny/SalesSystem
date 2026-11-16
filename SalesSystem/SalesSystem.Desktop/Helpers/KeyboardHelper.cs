@@ -189,6 +189,15 @@ public static class KeyboardHelper
 
                     try
                     {
+                        // الحكم قبل النقل: نقل التركيز يُطلق Leave بعد مغادرة الحقل فتظهر العلامة في المكان الخطأ (RULE-N194).
+                        // SuppressKeyPress يمنع رنّة ويندوز المصاحبة للمفتاح غير المُنفَّذ.
+                        if (RequiredFieldHelper.BlocksEnterNavigation(input))
+                        {
+                            e.Handled = true;
+                            e.SuppressKeyPress = true;
+                            return;
+                        }
+
                         MoveNextByDisplayOrder(input, scope, primaryButton);
                         e.Handled = true;
                         e.SuppressKeyPress = true;

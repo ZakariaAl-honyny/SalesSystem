@@ -687,6 +687,7 @@
 | H-06 | `Global Classes\clsValidation` | `IsDateRangeValid` · `DateRangeErrorMessage` · **`EndOfDay(DateTime)`** | 21 استدعاءً | حراسات نطاق محلية = 0 |
 | H-07 | `Global Classes\clsValidation.EndOfDay` | آخر لحظة في اليوم (حدّ أعلى شامل) | **21** استدعاءً في 20 ملفاً | تعبير «نهاية اليوم» مكتوب يدوياً في شاشة = **0** |
 | H-08 | `Helpers\NavigationOptions.cs` | `EnterFollowsDisplayOrder` · `EnterExitsToModeButton` · `RowBandTolerancePixels` · `ResetToDefaults` — **قيم التنقل الافتراضية الحيّة** (`RULE-N192`) | `KeyboardHelper.WireEnterAsTab(scope, primaryButton)` حصراً | مراجع داخل `Screens/**` = **0** · قراءات حيّة في `KeyboardHelper` = 4 |
+| H-09 | `Helpers\RequiredFieldHelper.BlocksEnterNavigation(Control?)` | عضو واحد يُضاف إلى البيت القائم: «أهذا الحقل المطلوب فارغ الآن؟» — يوسم (✗ + ومضة) ويُرجع `true` | `KeyboardHelper` (فرع `WireEnterAsTab` ثنائي الوسيط) وحده | مراجع داخل `Screens/**` = **0** · حكم «فارغ» داخل `KeyboardHelper` = **0** (لا `IsNullOrWhiteSpace` ولا `SelectedValue`) · التعريف + استهلاك واحد فقط |
 
 ### 11.2 الموجة 1 — بيت الرسائل + قراءة الخلية
 
@@ -1084,4 +1085,48 @@
 **شرطان ملزمان في كل شاشة عند الترحيل (من مراجعة الكود لهذه الموجة):**
 1. **إحدى الواجهتين لا الاثنتان:** الشاشة التي تنتقل إلى `WireEnterAsTab(scope, primaryButton)` **تحذف** استدعاءها الأحادي الوسيط، وإلا فالحارس يمنع الاشتراك المزدوج بصمت ويفوز **الأول**.
 2. **كل معالج `Enter` خاص بالشاشة يضبط `e.Handled = true`** قبل عمله، وإلا نُفِّذ أمر الشاشة (باركود/بحث) **ونقل التركيز معاً** في الضغطة نفسها.
+
+---
+
+### 11.21 الموجة 18 — الحقل المطلوب الفارغ يحجب `Enter` ويُبقي المؤشر عليه (2026-11-16)
+
+> **بلاغ المالك (نصّه):** «the Last note is required faild is empty prevent Enter Vavigation because the user press enter and the Input errror and message will show but the curcer aleady moved to the next faild».
+
+**السبب المقيس:** `KeyboardHelper.MoveNextByDisplayOrder` ينقل التركيز **أولاً** (`.Focus()` على الحقل التالي)، وتقييم `RequiredFieldHelper` معلَّق على `Leave` — فيُطلق **بعد** مغادرة الحقل ⇒ الأيقونة والرسالة والومضة تظهر على حقل غادره المؤشر للتوّ.
+
+| الملف | التغيير | التفصيل |
+|---|---|---|
+| `Helpers\RequiredFieldHelper.cs` | **عضو عام واحد (+58)** | `BlocksEnterNavigation(Control?)` — يطابق الحقل **ثم أسلافه** (العنصر المركّب يضع التركيز في ابنه الداخلي) على قواعد `Registry[form].Rules`، ثم يعيد `!Evaluate(...)` بالافتراضيات (`collapseOthers: true` · `flash: true`) — **نفس تقييم `Leave` حرفياً**، فلا حكم «فارغ» ثانٍ (`RULE-N172`). لا قاعدة / مُلغى / بلا نموذج / أي استثناء ⇒ `false` (فشل مفتوح). صفر لون وصفر `BackColor` داخله |
+| `Helpers\KeyboardHelper.cs` | **استهلاك واحد (+9)** | داخل معالج `Enter` في `WireEnterDisplayOrder`: **بعد** `if (e.Handled) return` و**بعد** حارس `ComboBox { DroppedDown: true }` و**قبل** `MoveNextByDisplayOrder` ⇒ `e.Handled = true` + `e.SuppressKeyPress = true` والتركيز يبقى |
+| `AGENTS.md` | **قاعدة جديدة + إشارات** | `RULE-N194` (§2.38) · إشارة في `RULE-N191` (§2.18) · `§2.20` بند 18 · جدول `§2.27` · سطر `PILOT-14` في سجل §2.39 |
+| `docs\SHARED-HOME-REGISTER.md` | هذا القسم + `H-09` | — |
+
+**`PILOT-14` — العيب في الشاشة التجريبية وأُصلح فيها:**
+
+| # | العيب | البرهان المقيس | الإصلاح |
+|---|---|---|---|
+| **PILOT-14** | `Enter` على حقل مطلوب **فارغ** كان ينقل المؤشر إلى التالي ثم تُطلق `Leave` فتظهر ✗ والومضة على الحقل السابق — «الرسالة تظهر والمؤشر انتقل» (نصّ المالك) | قراءة المسار: `MoveNextByDisplayOrder` ⇒ `.Focus()` على التالي (L278 · L290 · L324 · L332) ثم `field.Leave` ⇒ `Evaluate` (`RequiredFieldHelper.Attach`) | الحكم يُسأل **قبل** النقل من البيت الواحد: الحقل الفارغ يبقى محفوظ التركيز مع ✗ + الرسالة + الومضة؛ والملء يزيل العلامة فوراً ويعود `Enter` للانتقال |
+
+**القياسات (أُنتجت في هذه الموجة):**
+
+| القياس | الطريقة | القيمة |
+|---|---|---|
+| مواضع `BlocksEnterNavigation` | `Select-String` في `Helpers/` | **2** = تعريف (`RequiredFieldHelper.cs:216`) + استهلاك واحد (`KeyboardHelper.cs:194`) |
+| مراجعها داخل `Screens/**` | `Select-String -Pattern 'BlocksEnterNavigation'` | **0** (وممنوع أن يتغيّر — الشاشة تُعلن قواعدها في `Attach` فقط) |
+| حكم «فارغ» داخل `KeyboardHelper` | `Select-String -Pattern 'IsNullOrWhiteSpace\|IsNullOrEmpty'` | **0** (لا نسخة ثانية للحكم) |
+| نطاق الموجة | `git status --short` / `git diff --stat` | **ملفان** (+58 و+9) — لا مصمّم ولا شاشة |
+| البناء | `dotnet build .\SalesSystem.slnx --no-incremental` | **0 أخطاء / 86 تحذيراً** · المثيَّلات المميّزة **76** = خط الأساس |
+| تنسيق الأسطر | فحص CRLF/bare-LF | `RequiredFieldHelper.cs` أُعيد توحيده **CRLF** (507 سطراً · bare-LF = 0) — مطابق لبقية البيت |
+
+**حدود مقصودة (يجب أن يعرفها المالك — من مراجعة الكود):**
+
+| # | الحد | لماذا |
+|---|---|---|
+| 1 | **`Tab` / `Shift+Tab` / الفأرة لا تُحجب** | الطلب كان عن `Enter`؛ الحجب في فرع `Enter` وحده. الخروج بـ`Tab` يُظهر العلامة كما قبل التعديل |
+| 2 | **آخر حقل مطلوب فارغ ⇒ `Enter` لا يُسلِّم لزر الوضع** | نتيجة مباشرة للحجب: املأ الحقل أو استخدم `Tab` |
+| 3 | **ومضة/صوت مع كل ضغطة على الحقل الناقص** | `Evaluate` يُعاد كل ضغطة؛ لا تسريب مؤقّتات (`clsInputFeedback` يوقف مؤقّت الاستعادة) — تنبيه مقصود |
+| 4 | **`BlocksEnterNavigation` يسأل ويوسم معاً** | يُعيد استخدام `Evaluate` بدل نسخة نقية ثانية؛ إن ظهر مستدعٍ ثانٍ يُفصل داخل البيت نفسه |
+
+**حالة الموجة:** 🔄 **الشاشة التجريبية غير مشهودة** — لا تعميم على أي شاشة (`RULE-N184`)، و`T-81` وتعميم `Enter` على 58 موضعاً ينتظران تأكيد المالك 100%.
+
 

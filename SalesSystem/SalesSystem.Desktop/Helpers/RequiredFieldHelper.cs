@@ -187,6 +187,64 @@ public static class RequiredFieldHelper
     }
 
     /// <summary>
+    /// هل يمنع هذا الحقل انتقال <c>Enter</c> الآن لأنه **حقل مطلوب فارغ**؟
+    /// <para>
+    /// <b>هذا هو البيت الواحد للحكم (RULE-N194 / RULE-N169…RULE-N172):</b> «الحقل المطلوب الفارغ لا
+    /// يُغادَر بـ<c>Enter</c>» — ويُستهلك <b>فقط</b> من
+    /// <see cref="KeyboardHelper.WireEnterAsTab(Control, Func{Button?})"/> (فرع <c>Enter</c> ذي الوسيطين)
+    /// قبل أن ينقل التركيز. <b>ولا شاشة تستدعيه:</b> الشاشة تُعلن قواعدها في <see cref="Attach"/> فقط،
+    /// فلا تتعلّم أي شاشة قاعدة جديدة ولا تحمل نسخة ثانية من حكم «فارغ» (RULE-N172).
+    /// </para>
+    /// <para>
+    /// <b>لماذا قبل النقل؟</b> لأن نقل التركيز يُطلق <c>Leave</c> **بعد** أن يكون المؤشر قد غادر الحقل،
+    /// فكانت الأيقونة والرسالة والومضة تظهر على الحقل السابق وقد قفز المؤشر إلى التالي. هنا يُسأل الحكم
+    /// **أولاً**، فإن كان الحقل ناقصاً بقي التركيز عليه وظهرت العلامة في مكانها.
+    /// </para>
+    /// <para>
+    /// <b>التقييم هو نفسه تقييم <c>Leave</c> حرفياً</b> عبر <see cref="Evaluate"/> بالافتراضيات
+    /// (<c>collapseOthers: true</c> · <c>flash: true</c>): قاعدة غير سارية أو حقل معطّل ⇒ لا حجب ولا علامة ·
+    /// فارغ ⇒ أيقونة ✗ + الرسالة + ومضة **وحجب** · ممتلئ ⇒ إزالة العلامة ولا حجب.
+    /// </para>
+    /// <para>
+    /// <b>لا لون هنا:</b> الومضة واستعادة لون المصمّم ملك <c>clsInputFeedback</c>، وهذا الـHelper
+    /// لا يكتب خلفية أي حقل أبداً (RULE-N180…RULE-N182). وأي خطأ ⇒ <c>false</c> (فشل مفتوح):
+    /// قاعدة معطوبة لا تُجمّد التنقل.
+    /// </para>
+    /// </summary>
+    /// <param name="field">الحقل الذي يُضغط فيه <c>Enter</c> (قد يكون ابناً داخلياً لعنصر مركّب).</param>
+    /// <returns><c>true</c> = امنع الانتقال وأبقِ التركيز (مع وسم الرفض) · <c>false</c> = انتقل عادياً.</returns>
+    public static bool BlocksEnterNavigation(Control? field)
+    {
+        if (field is null || field.IsDisposed) return false;
+
+        try
+        {
+            var form = field.FindForm();
+            if (form is null || form.IsDisposed) return false;
+            if (!Registry.TryGetValue(form, out var state)) return false;
+
+            // القاعدة المعلنة تُطابَق بالحقل نفسه ثم بأسلافه: العنصر المركّب يُعلن الشاشة أصله
+            // بينما التركيز قد يكون على ابنه الداخلي (NumericUpDown ⇒ _upDownEdit).
+            for (Control? candidate = field; candidate is not null; candidate = candidate.Parent)
+            {
+                foreach (var ruleState in state.Rules)
+                {
+                    if (!ReferenceEquals(ruleState.Rule.Field, candidate)) continue;
+
+                    // نفس تقييم Leave بالافتراضيات — لا حكم ثانٍ على «فارغ» (RULE-N172).
+                    return !Evaluate(ruleState, state);
+                }
+            }
+
+            return false;   // ليس حقل «مطلوب» معلناً في هذه الشاشة ⇒ لا حجب.
+        }
+        catch
+        {
+            return false;   // فشل مفتوح — قاعدة معطوبة لا تُجمّد التنقل.
+        }
+    }
+
+    /// <summary>
     /// يمسح أيقونة الخطأ ويُعيد خلفية كل حقل إلى لونها الأصلي الملتقَط (لا إلى لون حرفي).
     /// الحقل المعطّل لا تُكتب خلفيته — مظهر التعطيل يملكه <see cref="KeyboardHelper.WireDisabledVisuals"/> (RULE-N154).
     /// </summary>
