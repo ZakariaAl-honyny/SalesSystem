@@ -160,6 +160,8 @@ Out of scope  — "do NOT touch: ..." by folder/file name.
 Contract      — names/signatures consumed or exposed.
 Task record   — the path the agent must read first (`docs/TASKS/TASK-NNN…` or `docs/FEATURES/F-NNN…/README.md`
                 + last LOG round) and the deltas it must return; the agent never edits `docs/**` (`RULE-N197`).
+                Big system-level task ⇒ **its single tracker file** (`MangeSubaggentsAndTracProgress.md`
+                pattern) is the brief's source; it is updated live and **kept forever** (`RULE-N202`).
 Schema impact — "none" or `additive-only — approval: "<owner text>" — <date>`; never rename/drop/type change
                 (`RULE-N198`).
 Sweep manifest— for > 8 files: `docs/FEATURES/F-NNN…/MANIFEST.md` + the row numbers this agent owns (`RULE-N201`).
