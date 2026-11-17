@@ -1,5 +1,4 @@
-﻿using SalesSystem.Models.Accounting;
-using SalesSystem.Common;
+﻿using SalesSystem.Common;
 using SalesSystem.Common.Enums;
 using SalesSystem.Common.Exceptions;
 
@@ -13,7 +12,6 @@ public class Expense : DocumentEntity
 {
     public int ExpenseNo { get; private set; }
     public DateTime ExpenseDate { get; private set; }
-    public int ExpenseAccountId { get; private set; }
     public int CashBoxId { get; private set; }
 
     public decimal Amount { get; private set; }
@@ -22,7 +20,6 @@ public class Expense : DocumentEntity
     public InvoiceStatus Status { get; private set; }
 
     // Navigation properties
-    public virtual Account? ExpenseAccount { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
     private Expense() { } // EF Core
 
@@ -32,7 +29,6 @@ public class Expense : DocumentEntity
     public static Expense Create(
         int expenseNo,
         DateTime expenseDate,
-        int expenseAccountId,
         int cashBoxId,
         decimal amount,
         string? notes = null,
@@ -40,8 +36,6 @@ public class Expense : DocumentEntity
     {
         if (expenseNo <= 0)
             throw new DomainException("رقم المصروف يجب أن يكون أكبر من الصفر.");
-        if (expenseAccountId <= 0)
-            throw new DomainException("حساب المصروف مطلوب.");
         if (cashBoxId <= 0)
             throw new DomainException("الصندوق مطلوب.");
         if (amount <= 0)
@@ -53,7 +47,6 @@ public class Expense : DocumentEntity
             ExpenseDate = expenseDate.Kind == DateTimeKind.Utc
                 ? expenseDate
                 : expenseDate.ToUniversalTime(),
-            ExpenseAccountId = expenseAccountId,
             CashBoxId = cashBoxId,
             Amount = amount,
             Notes = notes,
@@ -95,7 +88,6 @@ public class Expense : DocumentEntity
     /// </summary>
     public void Update(
         DateTime expenseDate,
-        int expenseAccountId,
         int cashBoxId,
         decimal amount,
         string? notes)
@@ -103,8 +95,6 @@ public class Expense : DocumentEntity
         if (Status != InvoiceStatus.Draft)
             throw new DomainException("لا يمكن تعديل مصروف بعد ترحيله.");
 
-        if (expenseAccountId <= 0)
-            throw new DomainException("حساب المصروف مطلوب.");
         if (cashBoxId <= 0)
             throw new DomainException("الصندوق مطلوب.");
         if (amount <= 0)
@@ -113,7 +103,6 @@ public class Expense : DocumentEntity
         ExpenseDate = expenseDate.Kind == DateTimeKind.Utc
             ? expenseDate
             : expenseDate.ToUniversalTime();
-        ExpenseAccountId = expenseAccountId;
         CashBoxId = cashBoxId;
         Amount = amount;
         Notes = notes;

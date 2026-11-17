@@ -6,7 +6,8 @@ namespace SalesSystem.DataAccess.Configurations;
 
 /// <summary>
 /// EF Core configuration for the <see cref="Warehouse"/> entity.
-/// Maps to "Warehouses" table — smallint PK, no AccountId/IsDefault/Notes.
+/// Maps to the "Warehouses" table — smallint primary key, required Name, optional Phone/Address/Notes,
+/// IsActive with a soft-delete query filter.
 /// </summary>
 public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 {

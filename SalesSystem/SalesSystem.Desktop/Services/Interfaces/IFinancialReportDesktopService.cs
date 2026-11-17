@@ -4,19 +4,20 @@ using SalesSystem.DTO.Common;
 
 namespace SalesSystem.Desktop.Services.Interfaces;
 
+/// <summary>
+/// عقد التقارير المالية الباقية في V1 — خمسة تقارير فقط، وكلها مشتقة من المستندات التشغيلية:
+/// قائمة الدخل · تقرير ضريبة القيمة المضافة · التدفق النقدي · كشف حساب العميل · كشف حساب المورد.
+/// </summary>
+/// <remarks>
+/// أُخرجت الوحدة المحاسبية من V1 (قرار المالك 2026-11-17 — «remove all Accounting code»):
+/// أُزيلت الميزانية العمومية · ميزان المراجعة · دفتر الأستاذ · رأس المال العامل · أرصدة الحسابات ·
+/// وأسماء كشوف الحسابات البديلة. فلا حساب دفتر ولا قيد يومية في هذا العقد.
+/// </remarks>
 public interface IFinancialReportDesktopService
 {
     Task<Result<IReadOnlyList<IncomeStatementDto>>> GetIncomeStatementAsync(DateTime from, DateTime to, CancellationToken ct = default);
-    Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default);
     Task<Result<IReadOnlyList<VatReportDto>>> GetVatReportAsync(DateTime from, DateTime to, CancellationToken ct = default);
-    Task<Result<BalanceSheetDto>> GetBalanceSheetAsync(DateTime asOfDate, CancellationToken ct = default);
-    Task<Result<IReadOnlyList<TrialBalanceDto>>> GetTrialBalanceAsync(DateTime asOfDate, CancellationToken ct = default);
-    Task<Result<AccountLedgerDto>> GetGeneralLedgerAsync(int accountId, DateTime from, DateTime to, CancellationToken ct = default);
-    Task<Result<WorkingCapitalSummaryDto>> GetWorkingCapitalAsync(DateTime asOfDate, CancellationToken ct = default);
-    Task<Result<IReadOnlyList<AccountBalanceReportDto>>> GetAccountBalancesAsync(byte? accountType = null, string? search = null, CancellationToken ct = default);
-    Task<Result<IReadOnlyList<AccountStatementDto>>> GetCustomerAccountStatementAsync(int customerId, DateTime from, DateTime to, CancellationToken ct = default);
-    Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierAccountStatementAsync(int supplierId, DateTime from, DateTime to, CancellationToken ct = default);
-    // ─── Aliases matching BLL IFinancialReportService method names (for frmAccountStatementReport migration) ───
+    Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default);
     Task<Result<IReadOnlyList<AccountStatementDto>>> GetAccountStatementAsync(int customerId, DateTime from, DateTime to, CancellationToken ct = default);
     Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierStatementAsync(int supplierId, DateTime from, DateTime to, CancellationToken ct = default);
 }

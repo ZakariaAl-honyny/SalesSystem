@@ -1283,4 +1283,38 @@
 
 **درس مسجَّل:** نُقل الهيكل بلا شهادة الشاشة التجريبية ⇒ رُفض وأُعيد في اليوم نفسه. أي إعادة تخطيط لهذه الشاشة تُعرض أولاً على المالك **قبل** التنفيذ (`RULE-N184` منطقاً).
 
+---
+
+## 14. موجة 2026-11-17 — ✅ **إزالة الوحدة المحاسبية من V1** (`TASK-011`)
+
+> **أوامر المالك:** «remove accounting from MVP v1» · «remove all Accounting code» · «and remove all migrations» · «use many subagents». **18 وكيلاً في 7 موجات**، مالك واحد لكل ملف (`RULE-N158`/`RULE-N159`).
+
+| الملف (البيت/الطبقة) | التغيير | التفصيل |
+|---|---|---|
+| `Models\Accounting\**` | **حذف 11** | 6 كيانات + 5 تعدادات |
+| `Models\Customer|Supplier|CashBox|Expense` | إزالة `AccountId`/`ExpenseAccountId` + التنقّل | لا عمود حساب في أي كيان باقٍ |
+| `Business\Accounting\**` + 3 خدمات + 7 واجهات + `AccountCategoryHelper` | **حذف 16** | صفر `IAccountingIntegrationService`/`IAccountLinkService` |
+| `Business\Services` (11 خدمة) | فصل الاقتران | `SalesService` · `SalesReturnService` · `PurchaseService` · `PurchaseReturnService` · `CustomerReceiptService` · `SupplierPaymentService` · `ExpenseService` · `InventoryAdjustmentService` · `CashBoxService` · `CustomerService` · `SupplierService` — **حدود المعاملة والمخزون والمال لم تُمسّ** |
+| `CashBoxService` + `CashBoxReportService` | **إعادة بناء دفتر الصندوق** | لا يوجد جدول `CashTransactions`: الرصيد كان مجموع سندات القبض − الصرف ⇒ صار **مبيعات نقدية + سندات قبض − مدفوعات موردين − مصروفات** (المرحّل فقط) |
+| `DataAccess` | 6 تكوينات + `AccountingSeeder` + `DbContext` + `UnitOfWork` + `DbSeeder` | صفر جدول محاسبي في الموديل · البذور بلا حسابات |
+| `DataAccess\Migrations\**` | **حذف كل الترحيلات** | بأمر المالك «and remove all migrations» — يولّد `InitialCreate` بنفسه |
+| `DTO` | **حذف 10 + إضافة 1** | `AccountStatementDto` **أُعيد** لأنه كان محذوفاً بالخطأ ويستهلكه `frmAccountStatementReport` (الشاشة المرجعية للتخطيط) |
+| `Services\{Interfaces,Direct,Mock}` | حذف العقود والتنفيذات + إعادة بناء Mock التقارير | `IFinancialReportDesktopService` **12 → 5** |
+| `Screens\Accounting\**` | **حذف 12** | `frmAccounts` · `frmAccountsTree` · `frmJournalEntries` · `ctrlTreeOfAccounts` |
+| `Screens\Reports\...\Accounting` | **حذف 4 تقارير** | ميزان المراجعة · دفتر الأستاذ · الميزانية العمومية · رأس المال العامل — وبقيت 4 تعمل من المستندات |
+| `Program.cs` · `frmMain(.Designer)` · `ReportNavigationHelper` | تنظيف | صفر `Accounting` في `Program.cs` · قائمة «المحاسبة» محذوفة · التقارير المالية 4 عناصر |
+| 9 شاشات/عناصر | إزالة حقول الحساب | `frmCashBoxMaster`(+Designer) · `frmCashBoxTransactions` · `frmAddUpdateExpense` · `frmListExpenses`(+Designer) · `ctrlCustomerCard`(+Designer) · `frmCustomerStatement` · `frmAddUpdateSalesInvoice`(+Designer) |
+
+**القياسات (بأمر في نفس التشغيل):** `dotnet build .\SalesSystem.slnx --no-incremental` = **0 Errors / 100 Warnings** · 157 مساراً (**84 محذوفاً · 72 معدّلاً · 1 مُضاف**) · `ToTable` فريدة = **34** · صفر مرجع لكل من: `Models.Accounting` · `JournalEntr` · `SystemAccountMapping` · `AccountService` · `frmAccounts` · `frmJournalEntries` · `ReceiptVoucher|PaymentVoucher` · `Accounting` في `Program.cs`.
+
+**عيوب وُجدت وأُصلحت في الموجة نفسها (`RULE-N186`):**
+| # | العيب | الإصلاح |
+|---|---|---|
+| `ACC-DEL-1` | حذف `AccountStatementDto` مع ملف `JournalEntryDtos.cs` يكسر **الشاشة المرجعية** للتخطيط | أُعيد من `git show 5f87fb2` حرفياً في ملف مستقل |
+| `ACC-CASH-1` | `MockCashBoxDesktopService.TransferAsync` يُرجع `Success()` بلا أثر مالي | رفض عربي مطابق للوضع الحقيقي |
+| `ACC-CASH-2` | `DirectCashBoxService.TransferAsync` ينادي دالة BLL محذوفة | رفض صريح في الوضعين |
+| `ACC-STMT-1` | كشف حساب العميل كان **يُضاعف** الحركة (فاتورة + قيد) | حُذف مصدر القيود؛ بقي 3 مصادر (فواتير/مرتجعات/سندات) |
+
+**مفتوح:** إسقاط 8 أعمدة + 6 جداول على القاعدة الحيّة + توليد ترحيل = **ملك المالك** (`RULE-N198`) — تفصيل في `TASK-011` §13.4.
+
 

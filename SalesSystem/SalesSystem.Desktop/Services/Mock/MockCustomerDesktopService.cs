@@ -61,11 +61,10 @@ public class MockCustomerDesktopService : ICustomerDesktopService
             return Task.FromResult(Result<CustomerDto>.Failure("رقم الهاتف مستخدم بالفعل"));
 
         var nextId = MockData.Customers.Max(c => c.Id) + 1;
-        var nextAccountId = MockData.Customers.Max(c => c.AccountId) + 1;
         var customer = new CustomerDto(
             Id: nextId, Name: r.Name, Phone: r.Phone, Email: r.Email,
             Address: r.Address, TaxNumber: r.TaxNumber, CreditLimit: r.CreditLimit,
-            IsActive: true, AccountId: nextAccountId, Notes: r.Notes);
+            IsActive: true, Notes: r.Notes);
         MockData.Customers.Add(customer);
         return Task.FromResult(Result<CustomerDto>.Success(customer));
     }

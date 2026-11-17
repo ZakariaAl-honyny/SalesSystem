@@ -22,7 +22,6 @@ public class PurchaseService : IPurchaseService
     private readonly IStoreSettingsService _settingsService;
     private readonly IUpdateProductPricingService _pricingService;
     private readonly ICashBoxService _cashBoxService;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly IDocumentSequenceService _documentSequenceService;
     private readonly IFifoAllocationService _fifoAllocationService;
     private readonly ISystemSettingsRepository _systemSettingsRepo;
@@ -34,7 +33,6 @@ public class PurchaseService : IPurchaseService
         IStoreSettingsService settingsService,
         IUpdateProductPricingService pricingService,
         ICashBoxService cashBoxService,
-        IAccountingIntegrationService accountingService,
         IDocumentSequenceService documentSequenceService,
         IFifoAllocationService fifoAllocationService,
         ISystemSettingsRepository systemSettingsRepo,
@@ -45,7 +43,6 @@ public class PurchaseService : IPurchaseService
         _settingsService = settingsService;
         _pricingService = pricingService;
         _cashBoxService = cashBoxService;
-        _accountingService = accountingService;
         _documentSequenceService = documentSequenceService;
         _fifoAllocationService = fifoAllocationService;
         _systemSettingsRepo = systemSettingsRepo;
@@ -492,7 +489,9 @@ public class PurchaseService : IPurchaseService
                 // ─── Record cash transaction for supplier payment ───────────────
                 if (invoice.PaidAmount > 0)
                 {
-                    // Cash transaction recorded via accounting integration
+                    // Nothing is written here: no cash/accounting entry accompanies a paid purchase invoice
+                    // since the accounting module was deferred to V2 — the paid amount is persisted with the
+                    // invoice by the SaveChangesAsync call below.
                 }
 
                 await _uow.SaveChangesAsync(ct);
@@ -502,13 +501,6 @@ public class PurchaseService : IPurchaseService
                 if (autoPrint)
                 {
                     _logger.LogInformation("AutoPrintAfterPosting enabled for purchase invoice {InvoiceId}", invoice.Id);
-                }
-
-                // ─── Create journal entry for purchase posting ─────────────────
-                var entryResult = await _accountingService.CreatePurchasePostEntryAsync(invoice, userId, ct);
-                if (!entryResult.IsSuccess)
-                {
-                    return Result<PurchaseInvoiceDto>.Failure(entryResult.Error!);
                 }
 
                 _logger.LogInformation("تم ترحيل فاتورة الشراء: المعرف {Id} بواسطة المستخدم {UserId}", invoice.Id, userId);
@@ -554,13 +546,6 @@ public class PurchaseService : IPurchaseService
             {
                 if (invoice.Status == InvoiceStatus.Posted)
                 {
-                    // Create reversal journal entry
-                    var entryResult = await _accountingService.ReversePurchasePostEntryAsync(invoice, userId, ct);
-                    if (!entryResult.IsSuccess)
-                    {
-                        return Result<PurchaseInvoiceDto>.Failure(entryResult.Error!);
-                    }
-
                     // Reverse Stock
                     foreach (var item in invoice.Items)
                     {

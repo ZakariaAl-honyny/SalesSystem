@@ -8,7 +8,7 @@ using SalesSystem.Desktop.Services.Interfaces;
 namespace SalesSystem.Desktop.Screens.Customers.Forms;
 
 /// <summary>
-/// شاشة كشف حساب عميل — تعرض حركات العميل (فواتير بيع، مرتجعات، سندات قبض، قيود يومية)
+/// شاشة كشف حساب عميل — تعرض حركات العميل (فواتير بيع، مرتجعات، سندات قبض)
 /// مع رصيد جاري تراكمي وتحليل أعمار الديون.
 /// البيانات تُجمع من خدمات المحاكاة (Mock Services) الموجودة مسبقاً.
 /// </summary>
@@ -40,7 +40,6 @@ public partial class frmCustomerStatement : Form
     private List<SalesInvoiceDto> _allInvoices = new();
     private List<SalesReturnDto> _allReturns = new();
     private List<CustomerReceiptDto> _allReceipts = new();
-    private List<JournalEntryListDto> _allJournalEntries = new();
 
     public frmCustomerStatement(IServiceProvider serviceProvider)
     {
@@ -162,16 +161,6 @@ public partial class frmCustomerStatement : Form
                 return;
             }
             _allReceipts = receiptResult.Value?.ToList() ?? new();
-
-            // تحميل القيود اليومية
-            var journalResult = await _serviceProvider.GetRequiredService<IJournalEntryDesktopService>()
-                .GetAllAsync();
-            if (!journalResult.IsSuccess)
-            {
-                clsDialogs.Error(journalResult.Error ?? "تعذر تحميل القيود اليومية.");
-                return;
-            }
-            _allJournalEntries = journalResult.Value?.ToList() ?? new();
 
             // تعبئة قائمة العملاء
             cmbCustomer.Items.Clear();
@@ -322,7 +311,7 @@ public partial class frmCustomerStatement : Form
 
     // ── تحديث الكشف ────────────────────────────────────────────────────────────
 
-    private async void _RefreshStatement()
+    private void _RefreshStatement()
     {
         // حارس مزدوج: لا عميل محدد (أو قائمة أقدم من الاختيار) · ولا إعادة دخول أثناء تنفيذ الكشف.
         if (cmbCustomer.SelectedIndex < 0 || cmbCustomer.SelectedIndex >= _customers.Count) return;
@@ -444,39 +433,6 @@ public partial class frmCustomerStatement : Form
                     Debit = 0,
                     Credit = receipt.Amount
                 });
-            }
-
-            // 4. القيود اليومية المرحلة المرتبطة بحساب العميل
-            foreach (var entry in _allJournalEntries.Where(e => e.Status == 2))
-            {
-                try
-                {
-                    var detailResult = await _serviceProvider.GetRequiredService<IJournalEntryDesktopService>()
-                        .GetByIdAsync(entry.Id);
-                    if (detailResult.IsSuccess && detailResult.Value != null)
-                    {
-                        foreach (var line in detailResult.Value.Lines)
-                        {
-                            if (line.AccountId == customer.AccountId)
-                            {
-                                rawMovements.Add(new StatementMovement
-                                {
-                                    Date = entry.EntryDate,
-                                    Type = "قيد يومية",
-                                    Reference = entry.EntryNumber,
-                                    Description = line.Description ?? entry.Description,
-                                    Debit = line.Debit,
-                                    Credit = line.Credit
-                                });
-                            }
-                        }
-                    }
-                }
-                catch (Exception detailEx)
-                {
-                    // قيد واحد معطوب لا يُسقط الكشف كله — يُسجَّل ولا يُعرض للمستخدم (RULE-N29).
-                    Serilog.Log.Warning(detailEx, "تعذر تحميل تفاصيل القيد {EntryId}", entry.Id);
-                }
             }
 
             // ── ترتيب زمني ─────────────────────────────────────────────────────
@@ -673,7 +629,6 @@ public partial class frmCustomerStatement : Form
                     "فاتورة بيع" or "فاتورة بيع نقدية" => GreenThemeHelper.StatusInfo,     // أزرق
                     "سند قبض" or "دفعة مع الفاتورة" or "دفعة مختلطة" => GreenThemeHelper.StatusSuccess,    // أخضر
                     "مردود مبيعات" => GreenThemeHelper.StatusWarning,   // برتقالي
-                    "قيد يومية" => GreenThemeHelper.StatusJournal,     // بنفسجي — ثابت التصنيف
                     _ => GreenThemeHelper.StatusNeutral
                 };
                 break;

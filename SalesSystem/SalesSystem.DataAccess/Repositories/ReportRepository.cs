@@ -136,7 +136,6 @@ public class ReportRepository : IReportRepository
     public async Task<IEnumerable<CustomerFinancialBalanceDto>> GetCustomerBalancesReportAsync(int? customerId, CancellationToken ct)
     {
         var query = _context.Customers
-            .Include(c => c.Account)
             .AsQueryable();
 
         if (customerId.HasValue)
@@ -160,7 +159,6 @@ public class ReportRepository : IReportRepository
     public async Task<IEnumerable<SupplierBalanceReportDto>> GetSupplierBalancesReportAsync(int? supplierId, CancellationToken ct)
     {
         var query = _context.Suppliers
-            .Include(s => s.Account)
             .AsQueryable();
 
         if (supplierId.HasValue)
@@ -696,8 +694,9 @@ public class ReportRepository : IReportRepository
         var totalProductsCount = await _context.Products
             .CountAsync(p => p.IsActive, ct);
 
-        // TODO: Compute from JournalEntryLine balances once accounting engine is fully wired.
-        // Party no longer has PartyType or AccountId — receivables/payables are now on Customer.AccountId and Supplier.AccountId.
+        // Receivables/payables are not computed: there is no accounting engine in V1
+        // (chart of accounts, journal entries and account mappings are deferred to V2),
+        // and customers/suppliers carry no account link — balances come from their invoices.
         var totalReceivables = 0m;
         var totalPayables = 0m;
 

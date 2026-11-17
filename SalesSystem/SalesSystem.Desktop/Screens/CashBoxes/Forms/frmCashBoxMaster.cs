@@ -198,8 +198,6 @@ public partial class frmCashBoxMaster : Form
         table.Columns.Add("Id", typeof(int));
         table.Columns.Add("Name", typeof(string));
         table.Columns.Add("Description", typeof(string));
-        table.Columns.Add("AccountId", typeof(int));
-        table.Columns.Add("AccountName", typeof(string));
         table.Columns.Add("IsActive", typeof(bool));
 
         try
@@ -218,8 +216,6 @@ public partial class frmCashBoxMaster : Form
                         c.Id,
                         c.Name,
                         c.Description ?? "",
-                        c.AccountId,
-                        c.AccountName ?? "",
                         c.IsActive);
                 }
             }
@@ -258,7 +254,6 @@ public partial class frmCashBoxMaster : Form
                 "Id" => "رقم الصندوق",
                 "Name" => "اسم الصندوق",
                 "Description" => "الوصف",
-                "AccountName" => "الحساب",
                 "IsActive" => "نشط",
                 _ => column.HeaderText
             };
@@ -279,8 +274,6 @@ public partial class frmCashBoxMaster : Form
     private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
 
     private void cbStatus_SelectedIndexChanged(object? sender, EventArgs e) => _ApplyFilter();
-
-    private void chkOnlyWithAccount_CheckedChanged(object? sender, EventArgs e) => _ApplyFilter();
 
     /// <summary>Enter يطبّق التصفية فوراً · Esc يمسح كل أدوات التصفية (RULE-N59).</summary>
     private void txtSearch_KeyDown(object? sender, KeyEventArgs e)
@@ -328,7 +321,6 @@ public partial class frmCashBoxMaster : Form
         cbStatus.SelectedIndex = 0;
         cbFilterBy.SelectedIndex = 0;
         chkShowInactive.Checked = false;
-        chkOnlyWithAccount.Checked = false;
     }
 
     /// <summary>يمسح كل أدوات التصفية ويعيد الشبكة إلى حالتها الافتراضية (RULE-N59).</summary>
@@ -345,8 +337,7 @@ public partial class frmCashBoxMaster : Form
         btnClearFilters.Enabled =
             !string.IsNullOrWhiteSpace(txtSearch.Text)
             || cbStatus.SelectedIndex > 0
-            || chkShowInactive.Checked
-            || chkOnlyWithAccount.Checked;
+            || chkShowInactive.Checked;
     }
 
     /// <summary>
@@ -357,7 +348,7 @@ public partial class frmCashBoxMaster : Form
     {
         if (_cashBoxesView is null || _cashBoxesView.Table is null) return;
         if (txtSearch is null || cbFilterBy is null || cbStatus is null
-            || chkShowInactive is null || chkOnlyWithAccount is null)
+            || chkShowInactive is null)
             return;
 
         string text = txtSearch.Text.Trim();
@@ -385,10 +376,6 @@ public partial class frmCashBoxMaster : Form
         if (text.Length > 0)
             conditions.Add(RowFilterHelper.Like(_FilterColumn(), text));
 
-        // ── «المربوط بالحسابات فقط» ──
-        if (chkOnlyWithAccount.Checked)
-            conditions.Add("AccountId > 0");
-
         // RULE-N60: القيمة مُهرَّبة، وإن فشل بناء الصيغة تُترك التصفية السابقة كما هي (لا سقوط إلى «بلا تصفية»).
         try
         {
@@ -407,16 +394,14 @@ public partial class frmCashBoxMaster : Form
     /// <summary>عمود البحث المقابل لاختيار «تصفية بـ» — أسماء أعمدة ثابتة داخل الكود (RULE-N60).</summary>
     private string _FilterColumn() => cbFilterBy.SelectedIndex switch
     {
-        1 => "AccountName",
-        2 => "CONVERT(Id, 'System.String')",
+        1 => "CONVERT(Id, 'System.String')",
         _ => "Name"
     };
 
     /// <summary>
     /// شريط الملخص (RULE-N61): المعروض من الإجمالي + النشط/المعطّل،
     /// ويُعاد حسابه بعد كل تصفية وكل تحميل.
-    /// ملاحظة: `CashBoxDto` لا يحمل رصيداً (الرصيد على الحساب المرتبط فقط)،
-    /// لذا لا يُعرض «إجمالي الأرصدة» هنا.
+    /// ملاحظة: `CashBoxDto` لا يحمل رصيداً، لذا لا يُعرض «إجمالي الأرصدة» هنا.
     /// </summary>
     private void _UpdateSummary()
     {
@@ -657,8 +642,7 @@ public partial class frmCashBoxMaster : Form
             }
             else
             {
-                // AccountId = null → الخدمة تنشئ الحساب المحاسبي المرتبط تلقائياً.
-                var request = new CreateCashBoxRequest(name, AccountId: null, Description: description);
+                var request = new CreateCashBoxRequest(name, Description: description);
                 result = await CashBoxService.CreateAsync(request);
             }
 
@@ -748,7 +732,7 @@ public partial class frmCashBoxMaster : Form
 
     /// <summary>
     /// إعادة تنشيط صندوق معطَّل (RULE-N90…RULE-N94): الزر مفعّل فقط على سطر غير نشط،
-    /// والخدمة تُنفِّذ الدورة داخل معاملة وتُعيد تنشيط الحساب المحاسبي المرتبط (RULE-N93).
+    /// والخدمة تُنفِّذ الدورة كاملة داخل معاملة واحدة.
     /// </summary>
     private async void btnReactivate_Click(object? sender, EventArgs e)
     {

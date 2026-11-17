@@ -11,7 +11,7 @@ namespace SalesSystem.Models;
 public class DocumentSequence : AuditableEntity
 {
     /// <summary>
-    /// Unique document type key (e.g., "SalesInvoice", "PurchaseInvoice", "PaymentVoucher").
+    /// Unique document type key (e.g., "SalesInvoice", "PurchaseInvoice", "SalesReturn").
     /// </summary>
     public string DocumentType { get; private set; } = string.Empty;
 

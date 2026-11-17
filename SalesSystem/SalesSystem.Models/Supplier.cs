@@ -1,12 +1,10 @@
-﻿using SalesSystem.Models.Accounting;
-using SalesSystem.Common;
+﻿using SalesSystem.Common;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Models;
 
 /// <summary>
 /// Supplier entity with direct contact information.
-/// The supplier's balance lives on the linked Chart of Accounts Account (via AccountId FK).
 /// Schema §1.4 — Suppliers table.
 /// </summary>
 public class Supplier : ActivatableEntity
@@ -52,17 +50,6 @@ public class Supplier : ActivatableEntity
     public decimal CreditLimit { get; private set; }
 
     /// <summary>
-    /// FK to the Chart of Accounts Account that holds this supplier's balance.
-    /// </summary>
-    public int AccountId { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the linked Account.
-    /// The balance of this supplier lives on this Account.
-    /// </summary>
-    public virtual Account? Account { get; private set; }
-
-    /// <summary>
     /// تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10
     /// </summary>
     public int? CategoryId { get; private set; }
@@ -73,7 +60,6 @@ public class Supplier : ActivatableEntity
     /// Factory method to create a new supplier with direct contact information.
     /// </summary>
     /// <param name="name">Supplier name (required).</param>
-    /// <param name="accountId">FK to the Account record (must be &gt; 0).</param>
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
@@ -84,7 +70,6 @@ public class Supplier : ActivatableEntity
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public static Supplier Create(
         string name,
-        int accountId,
         string? phone = null,
         string? email = null,
         string? address = null,
@@ -97,15 +82,12 @@ public class Supplier : ActivatableEntity
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المورد مطلوب.");
-        if (accountId <= 0)
-            throw new DomainException("معرّف الحساب غير صالح.");
         if (creditLimit < 0)
             throw new DomainException("الحد الائتماني لا يمكن أن يكون سالباً.");
 
         var supplier = new Supplier
         {
             Name = name.Trim(),
-            AccountId = accountId,
             Phone = phone?.Trim(),
             Email = email?.Trim(),
             Address = address?.Trim(),

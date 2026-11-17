@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SalesSystem.Models.Accounting;
 using SalesSystem.Models;
 using SalesSystem.Common.Enums;
-using SalesSystem.DataAccess.Seeders;
 using System.Linq;
 
 namespace SalesSystem.DataAccess;
@@ -19,15 +17,10 @@ public static class DbSeeder
             logger?.LogInformation("Seeded default product category 'عام'.");
         }
 
-        await AccountingSeeder.SeedAsync(db, logger);
-
         if (!await db.Customers.AnyAsync())
         {
-            var cashCustomerAccount = await db.Set<Account>()
-                .FirstAsync(a => a.AccountCode == "11030001");
             db.Customers.Add(Customer.Create(
-                name: "عميل نقدي",
-                accountId: cashCustomerAccount.Id
+                name: "عميل نقدي"
             ));
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded default customer.");
@@ -35,11 +28,8 @@ public static class DbSeeder
 
         if (!await db.Suppliers.AnyAsync())
         {
-            var cashSupplierAccount = await db.Set<Account>()
-                .FirstAsync(a => a.AccountCode == "21010001");
             db.Suppliers.Add(Supplier.Create(
-                name: "المورد الافتراضي في النظام",
-                accountId: cashSupplierAccount.Id
+                name: "المورد الافتراضي في النظام"
             ));
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded default supplier.");
@@ -62,7 +52,6 @@ public static class DbSeeder
                 SystemSetting.Create("DefaultCashSupplierId", "1", settingType: 2, category: "Purchases", displayName: "المورد النقدي", description: "المورد الافتراضي لمشتريات النقد"),
 
                 SystemSetting.Create("AutoGenerateBarcode", "true", settingType: 4, category: "Barcode", displayName: "توليد باركود تلقائي", description: "توليد باركود تلقائي للمنتجات الجديدة"),
-                SystemSetting.Create("AutoCreateJournalEntry", "true", settingType: 4, category: "Accounting", displayName: "إنشاء قيود محاسبية", description: "إنشاء قيد محاسبي عند ترحيل كل فاتورة"),
 
                 SystemSetting.Create("PaperSize", "A4", settingType: 1, category: "Print", displayName: "حجم الورق", description: "حجم الورق الافتراضي للطباعة"),
                 SystemSetting.Create("PrintCopies", "1", settingType: 2, category: "Print", displayName: "عدد النسخ", description: "عدد نسخ الطباعة الافتراضية"),
@@ -124,20 +113,16 @@ public static class DbSeeder
             logger?.LogInformation("Seeded Store settings into SystemSettings.");
         }
 
-        // ─── Default CashBox (linked to Chart of Accounts) ────────
+        // ─── Default CashBox ────────
         if (!await db.CashBoxes.AnyAsync())
         {
-            var cashAccount = await db.Set<Account>()
-                .FirstAsync(a => a.AccountCode == "11010001");
-
             var defaultCashBox = CashBox.Create(
                 name: "الصندوق الرئيسي",
-                accountId: cashAccount.Id,
                 description: "الصندوق النقدي الافتراضي للمنشأة"
             );
             db.CashBoxes.Add(defaultCashBox);
             await db.SaveChangesAsync();
-            logger?.LogInformation("Seeded default CashBox 'الصندوق الرئيسي' linked to account '{Code}'.", cashAccount.AccountCode);
+            logger?.LogInformation("Seeded default CashBox 'الصندوق الرئيسي'.");
         }
 
         // ─── Default Warehouse (must be before early return) ────────

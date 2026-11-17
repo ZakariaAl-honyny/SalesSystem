@@ -34,7 +34,6 @@ public class MockExpenseDesktopService : IExpenseDesktopService
                 query = query.Where(e =>
                     e.ExpenseNo.ToString().Contains(search) ||
                     (e.Notes ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    (e.ExpenseAccountName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     (e.CashBoxName ?? "").Contains(search, StringComparison.OrdinalIgnoreCase));
             }
 
@@ -81,16 +80,12 @@ public class MockExpenseDesktopService : IExpenseDesktopService
                 ? MockExpensesData.Expenses.Max(e => e.ExpenseNo) + 1
                 : 1001;
 
-            // Resolve account name from mock accounts
-            var account = MockAccountsData.Accounts.FirstOrDefault(a => a.Id == request.ExpenseAccountId);
             var cashBox = MockData.CashBoxes.FirstOrDefault(c => c.Id == request.CashBoxId);
 
             var expense = new ExpenseDto(
                 Id: nextId,
                 ExpenseNo: nextExpenseNo,
                 ExpenseDate: request.ExpenseDate,
-                ExpenseAccountId: request.ExpenseAccountId,
-                ExpenseAccountName: account?.NameAr,
                 CashBoxId: request.CashBoxId,
                 CashBoxName: cashBox?.Name,
                 Amount: request.Amount,
@@ -127,14 +122,11 @@ public class MockExpenseDesktopService : IExpenseDesktopService
             if (string.IsNullOrWhiteSpace(request.Notes))
                 return Task.FromResult(Result<ExpenseDto>.Failure(NotesRequiredError));
 
-            var account = MockAccountsData.Accounts.FirstOrDefault(a => a.Id == request.ExpenseAccountId);
             var cashBox = MockData.CashBoxes.FirstOrDefault(c => c.Id == request.CashBoxId);
 
             var updated = existing with
             {
                 ExpenseDate = request.ExpenseDate,
-                ExpenseAccountId = request.ExpenseAccountId,
-                ExpenseAccountName = account?.NameAr ?? existing.ExpenseAccountName,
                 CashBoxId = request.CashBoxId,
                 CashBoxName = cashBox?.Name ?? existing.CashBoxName,
                 Amount = request.Amount,

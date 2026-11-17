@@ -211,7 +211,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
                 case "LowStockAlert":
                 case "ExpiryAlert":
                 case "CreditLimitAlert":
-                case "AutoCreateJournalEntry":
                 case "ShowBalanceOnPrint":
                 case "PrintSignature":
                 case "AutoPrintAfterPosting":

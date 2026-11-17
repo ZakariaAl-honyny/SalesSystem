@@ -4,6 +4,8 @@ namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
 /// بيانات تجريبية للمصروفات — 6 مصروفات واقعية ببيانات عربية.
+/// لا حساب محاسبي للمصروف (أُخرجت المحاسبة من V1 — قرار المالك 2026-11-17):
+/// الصرف نقدي من الصندوق فقط، والبيان يوضح نوع المصروف.
 /// </summary>
 internal static class MockExpensesData
 {
@@ -14,8 +16,6 @@ internal static class MockExpensesData
             Id: 1,
             ExpenseNo: 1001,
             ExpenseDate: new DateTime(2026, 9, 1),
-            ExpenseAccountId: 33,
-            ExpenseAccountName: "مصروفات الإيجار والكهرباء والمياه",
             CashBoxId: 1,
             CashBoxName: "الصندوق الرئيسي (الخزينة المركزية)",
             Amount: 150000m,
@@ -25,13 +25,11 @@ internal static class MockExpensesData
             IsActive: true
         ),
 
-        // ── 2: كهرباء وמים — مرحّل ──
+        // ── 2: كهرباء ومياه — مرحّل ──
         new ExpenseDto(
             Id: 2,
             ExpenseNo: 1002,
             ExpenseDate: new DateTime(2026, 9, 5),
-            ExpenseAccountId: 33,
-            ExpenseAccountName: "مصروفات الإيجار والكهرباء والمياه",
             CashBoxId: 1,
             CashBoxName: "الصندوق الرئيسي (الخزينة المركزية)",
             Amount: 35000m,
@@ -46,8 +44,6 @@ internal static class MockExpensesData
             Id: 3,
             ExpenseNo: 1003,
             ExpenseDate: new DateTime(2026, 9, 10),
-            ExpenseAccountId: 34,
-            ExpenseAccountName: "رواتب وأجور الموظفين والعمال",
             CashBoxId: 1,
             CashBoxName: "الصندوق الرئيسي (الخزينة المركزية)",
             Amount: 250000m,
@@ -62,8 +58,6 @@ internal static class MockExpensesData
             Id: 4,
             ExpenseNo: 1004,
             ExpenseDate: new DateTime(2026, 9, 18),
-            ExpenseAccountId: 35,
-            ExpenseAccountName: "مصروفات الصيانة وضيافة المحل",
             CashBoxId: 4,
             CashBoxName: "صندوق عهدة النثريات والمصروفات اليومية",
             Amount: 18000m,
@@ -78,8 +72,6 @@ internal static class MockExpensesData
             Id: 5,
             ExpenseNo: 1005,
             ExpenseDate: new DateTime(2026, 9, 20),
-            ExpenseAccountId: 36,
-            ExpenseAccountName: "مصروفات أجور النقل والمواصلات",
             CashBoxId: 4,
             CashBoxName: "صندوق عهدة النثريات والمصروفات اليومية",
             Amount: 12000m,
@@ -94,8 +86,6 @@ internal static class MockExpensesData
             Id: 6,
             ExpenseNo: 1006,
             ExpenseDate: new DateTime(2026, 9, 15),
-            ExpenseAccountId: 39,
-            ExpenseAccountName: "مصروفات نثرية وتشغيلية أخرى",
             CashBoxId: 4,
             CashBoxName: "صندوق عهدة النثريات والمصروفات اليومية",
             Amount: 5500m,

@@ -21,7 +21,6 @@ public class PurchaseReturnService : IPurchaseReturnService
     private readonly IInventoryService _inventoryService;
     private readonly IDocumentSequenceService _sequenceService;
     private readonly ISystemSettingsRepository _systemSettingsRepo;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly IFifoAllocationService _fifoAllocationService;
     private readonly ILogger<PurchaseReturnService> _logger;
 
@@ -30,7 +29,6 @@ public class PurchaseReturnService : IPurchaseReturnService
         IInventoryService inventoryService,
         IDocumentSequenceService sequenceService,
         ISystemSettingsRepository systemSettingsRepo,
-        IAccountingIntegrationService accountingService,
         IFifoAllocationService fifoAllocationService,
         ILogger<PurchaseReturnService> logger)
     {
@@ -38,7 +36,6 @@ public class PurchaseReturnService : IPurchaseReturnService
         _inventoryService = inventoryService;
         _sequenceService = sequenceService;
         _systemSettingsRepo = systemSettingsRepo;
-        _accountingService = accountingService;
         _fifoAllocationService = fifoAllocationService;
         _logger = logger;
     }
@@ -254,16 +251,8 @@ public class PurchaseReturnService : IPurchaseReturnService
                     await _uow.InventoryTransactions.AddAsync(prInvTx, ct);
                 }
 
-                // Create accounting entry for the purchase return
-                var entryResult = await _accountingService.CreatePurchaseReturnEntryAsync(pr, userId, ct);
-                if (!entryResult.IsSuccess)
-                {
-                    _logger.LogWarning("فشل إنشاء القيد المحاسبي لمردود المشتريات {Id}: {Error}", id, entryResult.Error);
-                    return Result<PurchaseReturnDto>.Failure(entryResult.Error!);
-                }
-
-                _logger.LogInformation("تم ترحيل مرتجع المشتريات: {ReturnNo} (المعرف {Id}) — القيد المحاسبي {EntryId}",
-                    pr.ReturnNo, pr.Id, entryResult.Value);
+                _logger.LogInformation("تم ترحيل مرتجع المشتريات: {ReturnNo} (المعرف {Id})",
+                    pr.ReturnNo, pr.Id);
                 return await GetByIdAsync(pr.Id, ct);
             }
             catch (DomainException ex)
@@ -353,14 +342,6 @@ public class PurchaseReturnService : IPurchaseReturnService
                                 null, null, pr.WarehouseId));
                         }
                         await _uow.InventoryTransactions.AddAsync(prCancelInvTx, ct);
-                    }
-
-                    // Reverse the accounting entry for the posted purchase return
-                    var entryResult = await _accountingService.ReversePurchaseReturnEntryAsync(pr, userId, ct);
-                    if (!entryResult.IsSuccess)
-                    {
-                        _logger.LogWarning("فشل إنشاء قيد عكس المحاسبة لمردود المشتريات {Id}: {Error}", id, entryResult.Error);
-                        return Result<PurchaseReturnDto>.Failure(entryResult.Error!);
                     }
                 }
 

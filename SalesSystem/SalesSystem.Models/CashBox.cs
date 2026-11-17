@@ -1,26 +1,17 @@
-﻿using SalesSystem.Models.Accounting;
-using SalesSystem.Common;
+﻿using SalesSystem.Common;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Models;
 
 /// <summary>
-/// Represents a cash register location. Balance is tracked on the linked Account
-/// in the Chart of Accounts. This entity is a lightweight register identifier
+/// Represents a cash register location. This entity is a lightweight register identifier
 /// with metadata for operational use.
-/// Schema: §4.3 CashBoxes — Id, AccountId (int not null FK),
+/// Schema: §4.3 CashBoxes — Id,
 /// Name, Description (nullable), IsActive, CreatedByUserName, UpdatedByUserName, CreatedAt, UpdatedAt.
 /// </summary>
 public class CashBox : ActivatableEntity
 {
     public string Name { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// FK to the Chart of Accounts Account that holds this cash box's balance.
-    /// Required — the service layer resolves the account before entity creation.
-    /// </summary>
-    public int AccountId { get; private set; }
-    public Account? Account { get; private set; }
 
     /// <summary>
     /// Optional description or notes about this cash box.
@@ -30,25 +21,19 @@ public class CashBox : ActivatableEntity
     private CashBox() { } // EF Core
 
     /// <summary>
-    /// Creates a new cash box with the specified name and account.
-    /// AccountId is required — the service layer resolves auto-creation before calling this factory.
+    /// Creates a new cash box with the specified name.
     /// </summary>
     public static CashBox Create(
         string name,
-        int accountId,
         string? description = null,
         string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم الصندوق مطلوب");
 
-        if (accountId <= 0)
-            throw new DomainException("الحساب المحاسبي مطلوب");
-
         var box = new CashBox
         {
             Name = name.Trim(),
-            AccountId = accountId,
             Description = description?.Trim()
         };
         if (!string.IsNullOrWhiteSpace(createdByUserName)) box.SetCreatedBy(createdByUserName.Trim());

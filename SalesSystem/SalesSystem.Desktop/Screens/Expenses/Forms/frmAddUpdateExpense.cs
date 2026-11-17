@@ -26,12 +26,6 @@ public partial class frmAddUpdateExpense : Form
     private byte _loadedStatus = StatusDraft;
 
     /// <summary>
-    /// حساب المصروف للمصروف المحمَّل — يُعاد إرساله كما هو في التعديل، لأن
-    /// <see cref="UpdateExpenseRequest"/> يحمل <c>ExpenseAccountId</c> وإرسال 0 يمحو حساب المصروف القائم.
-    /// </summary>
-    private int _loadedExpenseAccountId;
-
-    /// <summary>
     /// مهمة تحميل قائمة الصناديق المُنطلقة من المُنشئ — تُنتظر قبل تحميل المصروف حتى لا يضيع
     /// الصندوق المحدد (ضبط <c>DataSource</c> يُعيد <c>SelectedIndex</c> إلى ‑1).
     /// </summary>
@@ -170,7 +164,6 @@ public partial class frmAddUpdateExpense : Form
     {
         _editingId = -1;
         _loadedStatus = StatusDraft;   // وضع الإضافة: لا حظر حالة
-        _loadedExpenseAccountId = 0;   // لا حساب مصروف محمَّل في وضع الإضافة
 
         dtpDate.Value = DateTime.Today;
         cmbCashBox.SelectedIndex = -1;
@@ -222,7 +215,6 @@ public partial class frmAddUpdateExpense : Form
             {
                 var expense = result.Value;
                 _loadedStatus = expense.Status;                       // أساس حظر حفظ مصروف غير مسودة
-                _loadedExpenseAccountId = expense.ExpenseAccountId;    // يُعاد إرساله كما هو (لا يُمحى بالحفظ)
                 dtpDate.Value = expense.ExpenseDate;
                 cmbCashBox.SelectedValue = expense.CashBoxId;   // استعادة الصندوق المحدد في وضع التعديل
                 numAmount.Value = expense.Amount;
@@ -350,8 +342,6 @@ public partial class frmAddUpdateExpense : Form
             {
                 var request = new UpdateExpenseRequest(
                     ExpenseDate: dtpDate.Value,
-                    // حساب المصروف المحمَّل يُعاد كما هو — إرسال 0 يمحو حساب المصروف القائم (الشاشة بلا منتقي حساب).
-                    ExpenseAccountId: _loadedExpenseAccountId,
                     CashBoxId: cashBoxId,
                     Amount: numAmount.Value,
                     Notes: notes);
@@ -372,9 +362,6 @@ public partial class frmAddUpdateExpense : Form
             {
                 var request = new CreateExpenseRequest(
                     ExpenseDate: dtpDate.Value,
-                    // لا منتقي «حساب مصروف» في مصمّم الشاشة (المصمّم خارج نطاق هذه المراجعة):
-                    // 0 = بلا حساب محدد ويُحلّ في الباك-إند — مكتوب صريحاً لا كقيمة غامضة.
-                    ExpenseAccountId: 0,
                     CashBoxId: cashBoxId,
                     Amount: numAmount.Value,
                     Notes: notes);

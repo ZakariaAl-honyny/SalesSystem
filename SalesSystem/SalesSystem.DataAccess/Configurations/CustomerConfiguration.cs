@@ -43,20 +43,10 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.IsActive)
             .HasDefaultValue(true);
 
-        // FK to Account
-        builder.HasOne(c => c.Account)
-            .WithMany()
-            .HasForeignKey(c => c.AccountId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired();
-
         // CategoryId is a lookup — no FK constraint (type mismatch with smallint PK)
         builder.Property(c => c.CategoryId).IsRequired(false);
 
         // Indexes
-        builder.HasIndex(c => c.AccountId)
-            .HasDatabaseName("IX_Customers_AccountId");
-
         builder.HasIndex(c => c.CategoryId)
             .HasDatabaseName("IX_Customers_CategoryId");
 

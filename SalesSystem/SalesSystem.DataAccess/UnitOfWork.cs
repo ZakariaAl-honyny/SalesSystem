@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using SalesSystem.Business.Interfaces;
 using SalesSystem.Business.Interfaces.Repositories;
-using SalesSystem.Models.Accounting;
 using SalesSystem.Models;
 using SalesSystem.DataAccess.Repositories;
 
@@ -36,12 +35,6 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<ProductUnit>? _productUnits;
     private IGenericRepository<CashBox>? _cashBoxes;
     private IGenericRepository<SystemSetting>? _systemSettings;
-    private IGenericRepository<Account>? _accounts;
-    private IGenericRepository<JournalEntry>? _journalEntries;
-    private IGenericRepository<JournalEntryLine>? _journalEntryLines;
-    private IGenericRepository<SystemAccountMapping>? _systemAccountMappings;
-    private IGenericRepository<ReceiptVoucher>? _receiptVouchers;
-    private IGenericRepository<PaymentVoucher>? _paymentVouchers;
     private IAuditLogRepository? _auditLogs;
     private IGenericRepository<InventoryBatch>? _inventoryBatches;
     private IGenericRepository<ProductPrice>? _productPrices;
@@ -84,12 +77,6 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<ProductUnit> ProductUnits => _productUnits ??= new GenericRepository<ProductUnit>(_context);
     public IGenericRepository<CashBox> CashBoxes => _cashBoxes ??= new GenericRepository<CashBox>(_context);
     public IGenericRepository<SystemSetting> SystemSettings => _systemSettings ??= new GenericRepository<SystemSetting>(_context);
-    public IGenericRepository<Account> Accounts => _accounts ??= new GenericRepository<Account>(_context);
-    public IGenericRepository<JournalEntry> JournalEntries => _journalEntries ??= new GenericRepository<JournalEntry>(_context);
-    public IGenericRepository<JournalEntryLine> JournalEntryLines => _journalEntryLines ??= new GenericRepository<JournalEntryLine>(_context);
-    public IGenericRepository<SystemAccountMapping> SystemAccountMappings => _systemAccountMappings ??= new GenericRepository<SystemAccountMapping>(_context);
-    public IGenericRepository<ReceiptVoucher> ReceiptVouchers => _receiptVouchers ??= new GenericRepository<ReceiptVoucher>(_context);
-    public IGenericRepository<PaymentVoucher> PaymentVouchers => _paymentVouchers ??= new GenericRepository<PaymentVoucher>(_context);
     public IAuditLogRepository AuditLogs => _auditLogs ??= new AuditLogRepository(_context);
     public IGenericRepository<InventoryBatch> InventoryBatches => _inventoryBatches ??= new GenericRepository<InventoryBatch>(_context);
     public IGenericRepository<ProductPrice> ProductPrices => _productPrices ??= new GenericRepository<ProductPrice>(_context);

@@ -358,7 +358,7 @@ public partial class frmCashBoxTransactions : Form
                         DirectionOut,
                         expense.Amount,
                         0m,
-                        string.IsNullOrWhiteSpace(expense.Notes) ? expense.ExpenseAccountName ?? string.Empty : expense.Notes,
+                        string.IsNullOrWhiteSpace(expense.Notes) ? string.Empty : expense.Notes,
                         (int)expense.Status,
                         expense.StatusName ?? string.Empty,
                         expense.ExpenseDate,

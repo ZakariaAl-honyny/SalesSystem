@@ -92,8 +92,6 @@ public partial class ctrlCustomerCard : UserControl
         lblCreditLimitValue.Text = clsFormat.Money(dto.CreditLimit);
         lblBalanceValue.Text = clsFormat.Money(dto.CurrentBalance);
 
-        lblAccountValue.Text = _OrMissing(dto.AccountName);
-
         // ملاحظات: سطر واحد (يُقصّ بصرياً) والتلميح يعرض النص الكامل.
         string notes = _SingleLine(dto.Notes);
         lblNotesValue.Text = notes.Length == 0 ? MissingText : notes;
@@ -116,7 +114,6 @@ public partial class ctrlCustomerCard : UserControl
         lblTaxNumberValue.Text = MissingText;
         lblCreditLimitValue.Text = clsFormat.Money(0m);
         lblBalanceValue.Text = clsFormat.Money(0m);
-        lblAccountValue.Text = MissingText;
         lblNotesValue.Text = MissingText;
         toolTip1.SetToolTip(lblNotesValue, string.Empty);
 

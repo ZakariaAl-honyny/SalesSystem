@@ -7,7 +7,6 @@ using SalesSystem.Business.Printing.Contracts;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Requests;
-using SalesSystem.Models.Accounting.Enums;
 using SalesSystem.Common.Enums;
 using SalesSystem.Models;
 using DomainDiscountType = SalesSystem.Common.Enums.DiscountType;
@@ -19,10 +18,8 @@ public class SalesService : ISalesService
 {
     private readonly IUnitOfWork _uow;
     private readonly IInventoryService _inventoryService;
-    private readonly ICashBoxService _cashBoxService;
     private readonly IPrintDataService _printDataService;
     private readonly IPrintService _printService;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly IDocumentSequenceService _documentSequenceService;
     private readonly ISystemSettingsRepository _systemSettingsRepo;
     private readonly IProductCostService _productCostService;
@@ -33,10 +30,8 @@ public class SalesService : ISalesService
     public SalesService(
         IUnitOfWork uow,
         IInventoryService inventoryService,
-        ICashBoxService cashBoxService,
         IPrintDataService printDataService,
         IPrintService printService,
-        IAccountingIntegrationService accountingService,
         IDocumentSequenceService documentSequenceService,
         ISystemSettingsRepository systemSettingsRepo,
         IProductCostService productCostService,
@@ -46,10 +41,8 @@ public class SalesService : ISalesService
     {
         _uow = uow;
         _inventoryService = inventoryService;
-        _cashBoxService = cashBoxService;
         _printDataService = printDataService;
         _printService = printService;
-        _accountingService = accountingService;
         _documentSequenceService = documentSequenceService;
         _systemSettingsRepo = systemSettingsRepo;
         _productCostService = productCostService;
@@ -575,28 +568,8 @@ public class SalesService : ISalesService
                         }
                     }
 
-                    // Balance is tracked on the linked Account via journal entries (AccountingIntegrationService).
-                    // Direct In-memory balance tracking on Customer entity is removed — use Account balance instead.
-                }
-
-                // 6. Record payment voucher (سند صرف) if payment is linked to a cash box
-                if (invoice.CashBoxId.HasValue && invoice.PaidAmount > 0)
-                {
-                    var paymentAccountId = await GetCashAccountIdAsync(ct);
-                    var cashResult = await _cashBoxService.RecordInvoicePaymentAsync(
-                        invoice.CashBoxId.Value,
-                        invoice.PaidAmount,
-                        paymentAccountId,
-                        notes: null,
-                        userId: userId,
-                        ct: ct);
-
-                    if (!cashResult.IsSuccess)
-                    {
-                        _logger.LogError("Payment voucher recording failed for invoice {Id}: {Error}",
-                            invoice.Id, cashResult.Error);
-                        return Result<SalesInvoiceDto>.Failure(cashResult.Error!);
-                    }
+                    // Balance is tracked on the linked Account via journal entries.
+                    // Direct In-memory balance tracking on Customer entity is removed.
                 }
 
                 await _uow.SaveChangesAsync(ct);
@@ -608,62 +581,7 @@ public class SalesService : ISalesService
                     _logger.LogInformation("AutoPrintAfterPosting enabled for sales invoice {InvoiceId}", invoice.Id);
                 }
 
-                // 8. Create journal entry for sales posting (revenue + COGS)
-                var totalCost = 0m;
-                var distinctProductIds = invoice.Items
-                    .Select(item => item.ProductId)
-                    .Distinct()
-                    .ToList();
-                foreach (var productId in distinctProductIds)
-                {
-                    var costResult = await _productCostService.GetAverageCostAsync(productId, ct);
-                    var avgCost = costResult.IsSuccess ? costResult.Value : 0m;
-                    var productQty = invoice.Items
-                        .Where(item => item.ProductId == productId)
-                        .Sum(item => item.Quantity);
-                    totalCost += productQty * avgCost;
-                }
-                var entryResult = await _accountingService.CreateSalesPostEntryAsync(invoice, userId, totalCost, ct);
-                if (!entryResult.IsSuccess)
-                {
-                    _logger.LogWarning("Journal entry creation failed for sales invoice post {Id}: {Error}", invoice.Id, entryResult.Error);
-                    return Result<SalesInvoiceDto>.Failure(entryResult.Error!);
-                }
-
-                _logger.LogInformation("Sales Invoice posted: ID {Id} by User {UserId}", invoice.Id, userId);
-
-                var postedResult = await GetByIdAsync(invoice.Id, ct);
-
-                // Fire-and-forget auto-print if enabled — failure MUST NOT roll back the post
-                if (postedResult.IsSuccess && postedResult.Value != null)
-                {
-                    var capturedInvoiceId = invoice.Id;
-                    _ = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            var settingsResult = await _printDataService.GetPrintSettingsAsync(CancellationToken.None);
-                            if (settingsResult.IsSuccess && settingsResult.Value != null && settingsResult.Value.AutoPrintOnPost)
-                            {
-                                var printDataResult = await _printDataService.GetSalesInvoicePrintDataAsync(capturedInvoiceId, CancellationToken.None);
-                                if (printDataResult.IsSuccess && printDataResult.Value != null)
-                                {
-                                    var printResult = await _printService.PrintThermalAsync(printDataResult.Value);
-                                    if (!printResult.IsSuccess)
-                                    {
-                                        _logger.LogWarning("Auto-print failed for invoice {InvoiceId}: {Error}", capturedInvoiceId, printResult.ErrorMessage);
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogWarning(ex, "Auto-print error for invoice {InvoiceId}", capturedInvoiceId);
-                        }
-                    }, CancellationToken.None);
-                }
-
-                return postedResult;
+                return await GetByIdAsync(invoice.Id, ct);
             }
             catch (DomainException ex)
             {
@@ -786,34 +704,6 @@ public class SalesService : ISalesService
                         }
                         await _uow.InventoryTransactions.AddAsync(invTx, ct);
                     }
-
-                    // Create offsetting payment voucher if invoice had cash box
-                    if (invoice.CashBoxId.HasValue && invoice.PaidAmount > 0)
-                    {
-                        var reversalAccountId = await GetCashAccountIdAsync(ct);
-                        var cashResult = await _cashBoxService.RecordInvoicePaymentAsync(
-                            invoice.CashBoxId.Value,
-                            invoice.PaidAmount,
-                            reversalAccountId,
-                            notes: "إلغاء فاتورة - مردود مدفوعات",
-                            userId: userId,
-                            ct: ct);
-
-                        if (!cashResult.IsSuccess)
-                        {
-                            _logger.LogError("Payment reversal failed during sales invoice cancel {Id}: {Error}",
-                                invoice.Id, cashResult.Error);
-                            return Result<SalesInvoiceDto>.Failure(cashResult.Error!);
-                        }
-                    }
-
-                    // Create reversal journal entry for accounting
-                    var reversalResult = await _accountingService.ReverseSalesPostEntryAsync(invoice, userId, ct);
-                    if (!reversalResult.IsSuccess)
-                    {
-                        _logger.LogWarning("Journal entry reversal failed for sales invoice cancel {Id}: {Error}", invoice.Id, reversalResult.Error);
-                        return Result<SalesInvoiceDto>.Failure(reversalResult.Error!);
-                    }
                 }
 
                 // Zero out PaidAmount before Cancel() — financial entries have already been reversed
@@ -838,17 +728,6 @@ public class SalesService : ISalesService
                 return Result<SalesInvoiceDto>.Failure("حدث خطأ أثناء إلغاء الفاتورة");
             }
         }, ct);
-    }
-
-    /// <summary>
-    /// Gets the default cash account ID from SystemAccountMappings for payment voucher recording.
-    /// Falls back to 1 if no mapping is configured.
-    /// </summary>
-    private async Task<int> GetCashAccountIdAsync(CancellationToken ct)
-    {
-        var mapping = await _uow.SystemAccountMappings.FirstOrDefaultAsync(
-            m => m.MappingKey == nameof(SystemAccountKey.DefaultCash), ct);
-        return mapping?.AccountId ?? 1;
     }
 
     private static SalesInvoiceDto MapToDto(SalesInvoice i)

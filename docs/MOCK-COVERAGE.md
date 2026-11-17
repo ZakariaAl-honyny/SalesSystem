@@ -237,3 +237,21 @@ dotnet build .\SalesSystem.slnx
 2. الحكم لا يُكتب يدوياً بالحدس: `mock-qa` يفحص ويُصدره، والـOrchestrator ينسخه إلى الجدول ويذكر تاريخ الفحص.
 3. الموافقة المكتوبة على الباك-إند تُسجَّل في §7 (تاريخ + نص المالك) **قبل** أول ملف Stage B، ولا يُفتح Stage B بدونهما (`RULE-N177`).
 4. لا تُنسخ أرقام هذا السجل داخل `AGENTS.md` أو داخل أي شاشة — يُستهلك بالمرجع (`RULE-N169`).
+
+---
+
+# 9) إزالة الوحدة المحاسبية من V1 (2026-11-17 — قرار `TASK-011`)
+
+> **الأمر:** «remove accounting from MVP v1» · «remove all Accounting code» · «and remove all migrations». الوحدة صارت **V2**: لا حساب ولا قيد ولا سند يدوي في V1 (`Pure POS & Inventory`).
+
+| ما تغيّر في طبقة المحاكاة | التفصيل |
+|---|---|
+| عقود محذوفة | **2**: `IAccountDesktopService` · `IJournalEntryDesktopService` (+ `Mock*` و`Direct*` وبياناتهما) — لم تعودا موجودتين، وليستا «فجوة تغطية» بل **خارج نطاق V1** بإعلان المالك |
+| ملفات Mock محذوفة | **4**: `MockAccountDesktopService` · `MockAccountsData` · `MockJournalEntryDesktopService` · `MockJournalEntriesData` |
+| `IFinancialReportDesktopService` | **12 → 5** دالة: `GetIncomeStatementAsync` · `GetVatReportAsync` · `GetCashFlowReportAsync` · `GetAccountStatementAsync` · `GetSupplierStatementAsync` — كلها من المستندات لا من دليل حسابات |
+| `MockFinancialReportDesktopService` | أُعيد بناؤه من البذور التشغيلية (فواتير · مرتجعات · سندات قبض · مدفوعات موردين · مصروفات) — **صفر** اعتماد على `MockAccountsData`/`MockJournalEntriesData` |
+| `MockCashBoxDesktopService.TransferAsync` | كان يُرجع `Result.Success()` بلا أي أثر مالي (**نجاح مُلفَّق**) ⇒ صار يرفض بنفس نص الوضع الحقيقي حرفياً (`RULE-N167`/`RULE-N168`) |
+| `MockReportDesktopService` | بلا تغيير — لا دالة محاسبية فيه أصلاً |
+| عدد العقود في §3 | **33 → 31** (بعد إخراج العقدين المحاسبيين) — والرقم في §3 صار مرجعاً تاريخياً لهذه الموجة |
+
+> ⚠️ **حكم التغطية لطبقة المحاكاة صار قديماً بهذه الموجة:** `MockFinancialReportDesktopService` أُعيد بناؤه ولم يُصادق عليه `mock-qa` بعد. **قبل أي تسليم Stage A جديد للمالك** يلزم حكم `مؤهل للمراجعة` من `mock-qa` على الـ31 عقداً الباقية (بوابة 0c — `RULE-N175`). مسجَّل كبند مفتوح `OPEN-7` في `TASK-011` §13.4.

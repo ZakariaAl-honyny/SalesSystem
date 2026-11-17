@@ -46,7 +46,6 @@ partial class frmCashBoxMaster
         label1 = new Label();
         cbStatus = new ComboBox();
         chkShowInactive = new CheckBox();
-        chkOnlyWithAccount = new CheckBox();
         btnToggleFilters = new Button();
         pnlSummary = new Panel();
         lblSummary = new Label();
@@ -321,7 +320,6 @@ partial class frmCashBoxMaster
         gbFilter.Controls.Add(label1);
         gbFilter.Controls.Add(cbStatus);
         gbFilter.Controls.Add(chkShowInactive);
-        gbFilter.Controls.Add(chkOnlyWithAccount);
         gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -353,7 +351,7 @@ partial class frmCashBoxMaster
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F);
         cbFilterBy.FormattingEnabled = true;
-        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الحساب", "الرقم" });
+        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الرقم" });
         cbFilterBy.Location = new Point(720, 17);
         cbFilterBy.Margin = new Padding(0);
         cbFilterBy.Name = "cbFilterBy";
@@ -412,18 +410,6 @@ partial class frmCashBoxMaster
         chkShowInactive.TabIndex = 5;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
-        // 
-        // chkOnlyWithAccount
-        // 
-        chkOnlyWithAccount.AutoSize = true;
-        chkOnlyWithAccount.FlatStyle = FlatStyle.Flat;
-        chkOnlyWithAccount.Location = new Point(253, 66);
-        chkOnlyWithAccount.Margin = new Padding(0);
-        chkOnlyWithAccount.Name = "chkOnlyWithAccount";
-        chkOnlyWithAccount.Size = new Size(251, 28);
-        chkOnlyWithAccount.TabIndex = 6;
-        chkOnlyWithAccount.Text = "المربوط بالحسابات فقط";
-        chkOnlyWithAccount.CheckedChanged += chkOnlyWithAccount_CheckedChanged;
         // 
         // btnToggleFilters
         // 
@@ -623,7 +609,6 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.DataGridViewTextBoxColumn colId;
     private System.Windows.Forms.DataGridViewTextBoxColumn colName;
     private System.Windows.Forms.DataGridViewTextBoxColumn colDescription;
-    private System.Windows.Forms.DataGridViewTextBoxColumn colAccountName;
     private System.Windows.Forms.DataGridViewTextBoxColumn colIsActive;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.GroupBox gbFilter;
@@ -634,7 +619,6 @@ partial class frmCashBoxMaster
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.ComboBox cbStatus;
     private System.Windows.Forms.CheckBox chkShowInactive;
-    private System.Windows.Forms.CheckBox chkOnlyWithAccount;
     private System.Windows.Forms.Button btnClearFilters;
     private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.Panel pnlSummary;

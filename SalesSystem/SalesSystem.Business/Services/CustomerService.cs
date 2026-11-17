@@ -15,16 +15,13 @@ public class CustomerService : ICustomerService
 {
     private readonly IUnitOfWork _uow;
     private readonly ILogger<CustomerService> _logger;
-    private readonly IAccountLinkService _accountLink;
 
     public CustomerService(
         IUnitOfWork uow,
-        ILogger<CustomerService> logger,
-        IAccountLinkService accountLink)
+        ILogger<CustomerService> logger)
     {
         _uow = uow;
         _logger = logger;
-        _accountLink = accountLink;
     }
 
     public async Task<Result<CustomerDto>> GetByIdAsync(int id, CancellationToken ct)
@@ -60,16 +57,9 @@ public class CustomerService : ICustomerService
         {
             try
             {
-                // Step 1: Auto-create account under AR parent (1103 — العملاء)
-                var accountResult = await AutoCreateCustomerAccountAsync(request.Name, userId, ct);
-                if (!accountResult.IsSuccess)
-                    return Result<CustomerDto>.Failure(accountResult.Error!, accountResult.ErrorCode);
-                var accountId = accountResult.Value;
-
-                // Step 2: Create Customer record with direct contact fields
+                // Create Customer record with direct contact fields
                 var customer = Customer.Create(
                     name: request.Name,
-                    accountId: accountId,
                     phone: request.Phone,
                     email: request.Email,
                     address: request.Address,
@@ -126,12 +116,6 @@ public class CustomerService : ICustomerService
                     else customer.MarkAsDeleted();
                 }
 
-                // Sync linked Account Name — per accounts summry.md
-                if (customer.AccountId > 0)
-                {
-                    await _accountLink.SyncNameAsync(customer.AccountId, request.Name, ct);
-                }
-
                 await _uow.Customers.UpdateAsync(customer, ct);
                 await _uow.SaveChangesAsync(ct);
 
@@ -159,12 +143,6 @@ public class CustomerService : ICustomerService
 
         return await _uow.ExecuteTransactionAsync(async () =>
         {
-            // Deactivate linked Account — per accounts summry.md
-            if (customer.AccountId > 0)
-            {
-                await _accountLink.DeactivateAsync(customer.AccountId, ct);
-            }
-
             customer.MarkAsDeleted();
             await _uow.SaveChangesAsync(ct);
 
@@ -186,12 +164,6 @@ public class CustomerService : ICustomerService
         {
             try
             {
-                // MarkAsDeleted linked Account — per accounts summry.md
-                if (customer.AccountId > 0)
-                {
-                    await _accountLink.MarkAsDeletedAsync(customer.AccountId, ct);
-                }
-
                 _uow.Customers.DeleteRange(new[] { customer });
                 await _uow.SaveChangesAsync(ct);
 
@@ -219,12 +191,6 @@ public class CustomerService : ICustomerService
         {
             try
             {
-                // Reactivate linked Account — per accounts summry.md
-                if (customer.AccountId > 0)
-                {
-                    await _accountLink.ActivateAsync(customer.AccountId, ct);
-                }
-
                 customer.Restore();
                 await _uow.SaveChangesAsync(ct);
 
@@ -303,28 +269,6 @@ public class CustomerService : ICustomerService
         }
     }
 
-    /// <summary>
-    /// Auto-creates a Level 4 detail account under the AR parent account for this customer.
-    /// Delegates to IAccountLinkService for centralized account creation.
-    /// </summary>
-    private async Task<Result<int>> AutoCreateCustomerAccountAsync(string customerName, int userId, CancellationToken ct)
-    {
-        try
-        {
-            var result = await _accountLink.CreateCustomerAccountAsync(customerName, userId, ct);
-            if (!result.IsSuccess)
-                return result;
-
-            _logger.LogInformation("Auto-created customer account for {Name}, AccountId: {AccountId}", customerName, result.Value);
-            return Result<int>.Success(result.Value);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to auto-create customer account for {CustomerName}", customerName);
-            return Result<int>.Failure("فشل إنشاء الحساب المحاسبي للعميل");
-        }
-    }
-
     private static CustomerDto MapToDto(Customer c)
     {
         return new CustomerDto(
@@ -336,7 +280,6 @@ public class CustomerService : ICustomerService
             c.TaxNumber,
             c.CreditLimit,
             c.IsActive,
-            AccountId: c.AccountId,
             CategoryId: c.CategoryId,
             Notes: c.Notes
         );

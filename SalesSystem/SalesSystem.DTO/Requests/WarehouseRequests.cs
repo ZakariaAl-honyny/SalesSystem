@@ -1,8 +1,7 @@
 ﻿namespace SalesSystem.DTO.Requests;
 
 /// <summary>
-/// Request to create a new warehouse.
-/// AccountId is auto-created by the service (not user-supplied).
+/// Request to create a new warehouse — a name plus optional phone, address and notes.
 /// </summary>
 public record CreateWarehouseRequest(
     string Name,

@@ -1,7 +1,7 @@
 ﻿namespace SalesSystem.DTO.Responses;
 
 /// <summary>
-/// Response for Warehouse entity — smallint PK, no AccountId/Type/ManagerName per schema.
+/// Response for Warehouse entity — smallint PK with name, phone, address, notes and the active flag.
 /// </summary>
 public record WarehouseResponse(
     short Id,

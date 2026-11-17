@@ -41,8 +41,6 @@ partial class ctrlCustomerCard
         lblCreditLimitValue = new Label();
         lblBalanceCaption = new Label();
         lblBalanceValue = new Label();
-        lblAccountCaption = new Label();
-        lblAccountValue = new Label();
         lblNotesCaption = new Label();
         lblNotesValue = new Label();
         gbStatus = new GroupBox();
@@ -74,8 +72,6 @@ partial class ctrlCustomerCard
         gbIdentity.Controls.Add(lblCreditLimitValue);
         gbIdentity.Controls.Add(lblBalanceCaption);
         gbIdentity.Controls.Add(lblBalanceValue);
-        gbIdentity.Controls.Add(lblAccountCaption);
-        gbIdentity.Controls.Add(lblAccountValue);
         gbIdentity.Controls.Add(lblNotesCaption);
         gbIdentity.Controls.Add(lblNotesValue);
         gbIdentity.Dock = DockStyle.Fill;
@@ -274,29 +270,6 @@ partial class ctrlCustomerCard
         lblBalanceValue.Text = "غير مُدخل";
         lblBalanceValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblAccountCaption
-        // 
-        lblAccountCaption.AutoSize = true;
-        lblAccountCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAccountCaption.ForeColor = Color.FromArgb(14, 82, 52);
-        lblAccountCaption.Location = new Point(272, 166);
-        lblAccountCaption.Name = "lblAccountCaption";
-        lblAccountCaption.Size = new Size(194, 24);
-        lblAccountCaption.TabIndex = 16;
-        lblAccountCaption.Text = "الحساب المحاسبي";
-        lblAccountCaption.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // lblAccountValue
-        // 
-        lblAccountValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAccountValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblAccountValue.Location = new Point(26, 166);
-        lblAccountValue.Name = "lblAccountValue";
-        lblAccountValue.Size = new Size(240, 26);
-        lblAccountValue.TabIndex = 17;
-        lblAccountValue.Text = "غير مُدخل";
-        lblAccountValue.TextAlign = ContentAlignment.MiddleLeft;
-        // 
         // lblNotesCaption
         // 
         lblNotesCaption.AutoSize = true;
@@ -435,8 +408,6 @@ partial class ctrlCustomerCard
     private System.Windows.Forms.Label lblCreditLimitValue;
     private System.Windows.Forms.Label lblBalanceCaption;
     private System.Windows.Forms.Label lblBalanceValue;
-    private System.Windows.Forms.Label lblAccountCaption;
-    private System.Windows.Forms.Label lblAccountValue;
     private System.Windows.Forms.Label lblNotesCaption;
     private System.Windows.Forms.Label lblNotesValue;
     private System.Windows.Forms.GroupBox gbStatus;

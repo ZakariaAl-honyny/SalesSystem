@@ -124,7 +124,6 @@ public partial class frmListExpenses : Form
             // كرقم سند). يُربط السطر بمعرّفه عبر Tag كما في قائمة سندات القبض.
             new { Name = "ExpenseNo",       Header = "رقم السند",       Fill = 8,  Min = 100 },
             new { Name = "ExpenseDate",     Header = "التاريخ",         Fill = 12, Min = 120 },
-            new { Name = "ExpenseAccountName", Header = "حساب المصروف", Fill = 15, Min = 150 },
             new { Name = "CashBoxName",     Header = "الصندوق",         Fill = 12, Min = 120 },
             new { Name = "Amount",          Header = "المبلغ",          Fill = 10, Min = 100 },
             new { Name = "Notes",           Header = "الوصف",           Fill = 15, Min = 150 },
@@ -224,9 +223,8 @@ public partial class frmListExpenses : Form
             {
                 1 => query.Where(x => x.ExpenseNo.ToString().Contains(text, StringComparison.Ordinal)),
                 2 => query.Where(x => (x.Notes ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase)),
-                3 => query.Where(x => (x.ExpenseAccountName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase)),
-                4 => query.Where(x => (x.CashBoxName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase)),
-                5 => _FilterByAmount(query, text),
+                3 => query.Where(x => (x.CashBoxName ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase)),
+                4 => _FilterByAmount(query, text),
                 _ => query.Where(x => x.ExpenseNo.ToString().Contains(text, StringComparison.Ordinal)
                                    || (x.Notes ?? string.Empty).Contains(text, StringComparison.OrdinalIgnoreCase)),
             };
@@ -269,7 +267,6 @@ public partial class frmListExpenses : Form
             int rowIndex = dgvExpenses.Rows.Add(
                 ex.ExpenseNo,
                 clsFormat.DateToShort(ex.ExpenseDate),
-                ex.ExpenseAccountName ?? "",
                 ex.CashBoxName ?? "",
                 clsFormat.Money(ex.Amount),
                 ex.Notes ?? "",

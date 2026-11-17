@@ -41,18 +41,10 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
 
         var nextId = MockData.CashBoxes.Count > 0 ? MockData.CashBoxes.Max(c => c.Id) + 1 : 1;
 
-        // الحساب المقابل للصندوق: يُضاف فعلاً إلى دليل الـMock بكود غير مستخدم من السلّم الرسمي
-        // (`MockAccountsData.AddCashBoxAccount` ← `NextChildCode`) — لا صياغة كود يدوية هنا (RULE-N169/N172).
-        var account = MockAccountsData.AddCashBoxAccount(r.Name);
-        if (account is null)
-            return Task.FromResult(Result<CashBoxDto>.Failure("الحساب الأب غير موجود"));
-
+        // لا حساب محاسبي مرتبط بالصندوق — أُخرجت المحاسبة من V1 (قرار المالك 2026-11-17).
         var box = new CashBoxDto(
             Id: nextId,
             Name: r.Name,
-            AccountId: account.Id,
-            AccountName: account.NameAr,
-            AccountCode: account.AccountCode,
             Description: r.Description,
             IsActive: true
         );
@@ -105,9 +97,10 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
         return Task.FromResult(Result.Success());
     }
 
+    // التحويل بين الصناديق غير مدعوم — أُخرجت آلية السندات/القيود مع الوحدة المحاسبية من V1 (قرار المالك 2026-11-17).
     public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
-        // محاكاة بسيطة للتحويل — لا حاجة لتحديث الأرصدة في وضع التجربة
-        return Task.FromResult(Result.Success());
+        return Task.FromResult(Result.Failure(
+            "التحويل بين الصناديق غير مدعوم حالياً — لا توجد آلية سندات أو قيود لتسجيل العملية"));
     }
 }

@@ -14,18 +14,15 @@ public class SupplierPaymentService : ISupplierPaymentService
 {
     private readonly IUnitOfWork _uow;
     private readonly IDocumentSequenceService _sequenceService;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly ILogger<SupplierPaymentService> _logger;
 
     public SupplierPaymentService(
         IUnitOfWork uow,
         IDocumentSequenceService sequenceService,
-        IAccountingIntegrationService accountingService,
         ILogger<SupplierPaymentService> logger)
     {
         _uow = uow;
         _sequenceService = sequenceService;
-        _accountingService = accountingService;
         _logger = logger;
     }
 
@@ -121,7 +118,7 @@ public class SupplierPaymentService : ISupplierPaymentService
         try
         {
             var payment = await _uow.SupplierPayments.FirstOrDefaultAsync(
-                p => p.Id == id, ct, "Supplier", "Supplier.Account");
+                p => p.Id == id, ct, "Supplier");
             if (payment == null)
                 return Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود", ErrorCodes.NotFound);
 
@@ -139,56 +136,38 @@ public class SupplierPaymentService : ISupplierPaymentService
         try
         {
             var payment = await _uow.SupplierPayments.FirstOrDefaultAsync(
-                p => p.Id == id, ct, "Supplier", "Supplier.Account");
+                p => p.Id == id, ct, "Supplier");
             if (payment == null)
                 return Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود", ErrorCodes.NotFound);
 
-            // If the payment is posted and amount changed, we must reverse the old journal entry,
-            // create a new one for the updated amount, all inside a transaction.
+            // If the payment is posted and the amount changed, the new amount must be written to the payment record.
+            // No journal-entry reversal is written with it — the accounting module is deferred to V2.
             if (payment.Status == InvoiceStatus.Posted)
             {
                 var amountChanged = Math.Abs(payment.Amount - request.Amount) > 0.0001m;
                 if (amountChanged)
                 {
-                    var supplierAccountId = payment.Supplier?.AccountId ?? 0;
-                    var supplierName = payment.Supplier?.Name ?? "";
-
-                    var oldAmount = payment.Amount;
-
                     return await _uow.ExecuteTransactionAsync<Result<SupplierPaymentDto>>(async () =>
                     {
-                        // 1. Reverse the original journal entry (uses per-entity supplier account)
-                        var reverseResult = await _accountingService.ReverseSupplierPaymentEntryAsync(
-                            payment.Id, oldAmount, supplierName, supplierAccountId, userId, ct);
-                        if (!reverseResult.IsSuccess)
-                            return Result<SupplierPaymentDto>.Failure(reverseResult.Error!);
-
-                        // 2. Update payment with new amount
-                    payment.Update(
-                        amount: request.Amount,
-                        paymentMethod: (PaymentMethod)request.PaymentMethod,
-                        paymentDate: request.PaymentDate.HasValue
-                            ? DateOnly.FromDateTime(request.PaymentDate.Value)
-                            : null,
-                        notes: request.Notes);
-
-                    // 3. Create new journal entry for updated amount
-                        var entryResult = await _accountingService.CreateSupplierPaymentEntryAsync(
-                            payment, supplierName, userId, ct);
-                        if (!entryResult.IsSuccess)
-                            return Result<SupplierPaymentDto>.Failure(entryResult.Error!);
+                        // Update payment with new amount
+                        payment.Update(
+                            amount: request.Amount,
+                            paymentMethod: (PaymentMethod)request.PaymentMethod,
+                            paymentDate: request.PaymentDate.HasValue
+                                ? DateOnly.FromDateTime(request.PaymentDate.Value)
+                                : null,
+                            notes: request.Notes);
 
                         _logger.LogInformation(
-                            "Supplier payment {Id} amount changed from {OldAmount} to {NewAmount}, " +
-                            "journal entry reversed and recreated by User {UserId}",
-                            id, oldAmount, request.Amount, userId);
+                            "Supplier payment {Id} amount changed from {OldAmount} to {NewAmount} by User {UserId}",
+                            id, payment.Amount, request.Amount, userId);
 
                         return Result<SupplierPaymentDto>.Success(MapToDto(payment, payment.Supplier));
                     }, ct);
                 }
                 else
                 {
-                    // Amount didn't change — just update other fields (no journal entry impact)
+                    // Amount didn't change — just update other fields
                     payment.Update(
                         amount: request.Amount,
                         paymentMethod: (PaymentMethod)request.PaymentMethod,
@@ -237,20 +216,13 @@ public class SupplierPaymentService : ISupplierPaymentService
         try
         {
             var payment = await _uow.SupplierPayments.FirstOrDefaultAsync(
-                p => p.Id == id, ct, "Supplier", "Supplier.Account");
+                p => p.Id == id, ct, "Supplier");
             if (payment == null)
                 return Result.Failure("سند الصرف غير موجود", ErrorCodes.NotFound);
 
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
                 payment.Post();
-
-                // Create journal entry: Dr AP / Cr Cash
-                var supplierName = payment.Supplier?.Name ?? "";
-                var entryResult = await _accountingService.CreateSupplierPaymentEntryAsync(
-                    payment, supplierName, userId, ct);
-                if (!entryResult.IsSuccess)
-                    return Result.Failure(entryResult.Error!);
 
                 await _uow.SaveChangesAsync(ct);
 
@@ -275,23 +247,12 @@ public class SupplierPaymentService : ISupplierPaymentService
         try
         {
             var payment = await _uow.SupplierPayments.FirstOrDefaultAsync(
-                p => p.Id == id, ct, "Supplier", "Supplier.Account");
+                p => p.Id == id, ct, "Supplier");
             if (payment == null)
                 return Result.Failure("سند الصرف غير موجود", ErrorCodes.NotFound);
 
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
-                // If already posted, reverse the journal entry first
-                if (payment.Status == InvoiceStatus.Posted)
-                {
-                    var supplierAccountId = payment.Supplier?.AccountId ?? 0;
-                    var supplierName = payment.Supplier?.Name ?? "";
-                    var reverseResult = await _accountingService.ReverseSupplierPaymentEntryAsync(
-                        payment.Id, payment.Amount, supplierName, supplierAccountId, userId, ct);
-                    if (!reverseResult.IsSuccess)
-                        return Result.Failure(reverseResult.Error!);
-                }
-
                 payment.Cancel();
                 await _uow.SaveChangesAsync(ct);
 
@@ -316,7 +277,7 @@ public class SupplierPaymentService : ISupplierPaymentService
         try
         {
             var payment = await _uow.SupplierPayments.FirstOrDefaultAsync(
-                p => p.Id == id, ct, "Supplier", "Supplier.Account");
+                p => p.Id == id, ct, "Supplier");
             if (payment == null)
                 return Result.Failure("سند الصرف غير موجود", ErrorCodes.NotFound);
 
@@ -325,17 +286,6 @@ public class SupplierPaymentService : ISupplierPaymentService
 
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
-                // If already posted, reverse the journal entry first
-                if (payment.Status == InvoiceStatus.Posted)
-                {
-                    var supplierAccountId = payment.Supplier?.AccountId ?? 0;
-                    var supplierName = payment.Supplier?.Name ?? "";
-                    var reverseResult = await _accountingService.ReverseSupplierPaymentEntryAsync(
-                        payment.Id, payment.Amount, supplierName, supplierAccountId, userId, ct);
-                    if (!reverseResult.IsSuccess)
-                        return Result.Failure(reverseResult.Error!);
-                }
-
                 payment.UpdateTimestamp();
                 _uow.SupplierPayments.DeleteRange(new[] { payment });
                 await _uow.SaveChangesAsync(ct);

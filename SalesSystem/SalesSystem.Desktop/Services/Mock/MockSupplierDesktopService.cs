@@ -54,13 +54,11 @@ public class MockSupplierDesktopService : ISupplierDesktopService
             return Task.FromResult(Result<SupplierDto>.Failure("اسم المورد مستخدم بالفعل"));
 
         var nextId = MockSuppliersData.Suppliers.Count > 0 ? MockSuppliersData.Suppliers.Max(s => s.Id) + 1 : 1;
-        var nextAccountId = MockSuppliersData.Suppliers.Count > 0 ? MockSuppliersData.Suppliers.Max(s => s.AccountId) + 1 : 301;
 
         var supplier = new SupplierDto(
             Id: nextId, Name: r.Name, Phone: r.Phone, Email: r.Email,
             Address: r.Address, TaxNumber: r.TaxNumber, Notes: r.Notes,
             CreditLimit: r.CreditLimit, IsActive: true,
-            AccountId: nextAccountId, AccountName: $"موردون - {r.Name}",
             CategoryId: r.CategoryId);
 
         MockSuppliersData.Suppliers.Add(supplier);

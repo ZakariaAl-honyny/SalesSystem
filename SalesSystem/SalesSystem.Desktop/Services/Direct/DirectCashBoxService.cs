@@ -93,17 +93,11 @@ public class DirectCashBoxService : ICashBoxDesktopService
         }
     }
 
-    public async Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
+    // التحويل بين الصناديق غير مدعوم — أُخرجت آلية السندات/القيود مع الوحدة المحاسبية من V1 (قرار المالك 2026-11-17).
+    public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
-        try
-        {
-            return await _bll.TransferAsync(request, UserId, ct);
-        }
-        catch (Exception ex)
-        {
-            Serilog.Log.Error(ex, "DirectCashBoxService.TransferAsync failed");
-            return Result.Failure("حدث خطأ غير متوقع أثناء تنفيذ التحويل بين الصناديق.");
-        }
+        return Task.FromResult(Result.Failure(
+            "التحويل بين الصناديق غير مدعوم حالياً — لا توجد آلية سندات أو قيود لتسجيل العملية"));
     }
 
     public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)

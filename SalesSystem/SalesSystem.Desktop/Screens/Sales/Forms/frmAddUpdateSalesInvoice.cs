@@ -17,7 +17,6 @@ using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Products.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.DTO.Responses;
-using SalesSystem.Models.Accounting.Enums;
 
 namespace SalesSystem.Desktop.Screens.Sales.Forms;
 
@@ -31,7 +30,6 @@ public partial class frmAddUpdateSalesInvoice : Form
     private BindingList<InvoiceLineItem> _lines = new();
     private List<ProductDto> _allProducts = new();
     private Dictionary<int, List<ProductUnitDto>> _productUnitsCache = new();
-    private List<AccountDto> _bankAccounts = new();
     private List<CashBoxDto> _cashBoxes = new();
     private bool _isUpdating;
     private Guid? _editingLineKey = null;
@@ -57,7 +55,6 @@ public partial class frmAddUpdateSalesInvoice : Form
     private IInvoicePrinter _invoicePrinter => _serviceProvider.GetRequiredService<IInvoicePrinter>();
     private IReceiptPrinter _receiptPrinter => _serviceProvider.GetRequiredService<IReceiptPrinter>();
     private ISettingsDesktopService _settingsApi => _serviceProvider.GetRequiredService<ISettingsDesktopService>();
-    private IAccountDesktopService _accountApi => _serviceProvider.GetRequiredService<IAccountDesktopService>();
     private IInventoryDesktopService _inventoryApi => _serviceProvider.GetRequiredService<IInventoryDesktopService>();
     private ICashBoxDesktopService _cashBoxApi => _serviceProvider.GetRequiredService<ICashBoxDesktopService>();
     private IEventBus EventBus => _serviceProvider.GetRequiredService<IEventBus>();
@@ -169,12 +166,11 @@ public partial class frmAddUpdateSalesInvoice : Form
         // رأس الفاتورة (cmbCustomer · cmbWarehouse · cmbCashBox · dtpDate · txtNotes) **لا** يُوصَّل هنا:
         // Enter فيه يملكه البيت الواحد KeyboardHelper.WireEnterAsTab(gbInvoiceInfo, …) بترتيب العرض (RULE-N191).
         // توصيله ثانياً كان يُنفِّذ التنقل مرتين (أو يمحو ترتيب العرض بـ SelectNextControl حسب TabIndex).
-        // الحقول خارج نطاق الرأس (الخصم · الحساب · المصاريف · المدفوع) تُبقي سلوكها الحالي حرفياً.
+        // الحقول خارج نطاق الرأس (الخصم · المصاريف · المدفوع) تُبقي سلوكها الحالي حرفياً.
         cmbDiscountType.KeyDown += FieldEnter_KeyDown;
         //cmbPaymentType.KeyDown += FieldEnter_KeyDown;
         //cmbBank.KeyDown += FieldEnter_KeyDown;
         //cmbTax.KeyDown += FieldEnter_KeyDown;
-        cmbAccount.KeyDown += FieldEnter_KeyDown;
         //cmbDiscountType.KeyDown += FieldEnter_KeyDown;
         numInvoiceDiscount.KeyDown += FieldEnter_KeyDown;
 
@@ -421,32 +417,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             // (يبقى الحقل معطلاً؛ قيمة TaxAmount في الطلب = 0 و TaxId = null).
             //cmbTax.Enabled = false;
 
-            // Banks from ChartOfAccounts — only accounts under "1102" (البنوك)
-            // (تصفية النوع "أصل" تتم هنا لأن GetAllAsync لا يفلتر بالنوع)
-            var assetAccounts = await _accountApi.GetAllAsync(includeInactive: false);
-            _bankAccounts = assetAccounts.IsSuccess
-                ? assetAccounts.Value.Where(a => a.IsLeaf && !a.IsSystem
-                    && a.Nature == (byte)SalesSystem.Models.Accounting.Enums.AccountType.Asset
-                    && a.AccountCode.StartsWith("1102")).ToList()
-                : new List<AccountDto>();
-
-            //cmbBank.DataSource = _bankAccounts;
-            //cmbBank.DisplayMember = "NameAr";
-            //cmbBank.ValueMember = "Id";
-            //if (_bankAccounts.Count > 0) cmbBank.SelectedIndex = 0;
-
-            // Store/Inventory accounts for cmbAccount (المخزون = 1104 prefix)
-            var storeAccounts = assetAccounts.IsSuccess
-                ? assetAccounts.Value.Where(a => a.IsLeaf && !a.IsSystem
-                    && a.Nature == (byte)SalesSystem.Models.Accounting.Enums.AccountType.Asset
-                    && a.AccountCode.StartsWith("1104")).ToList()
-                : new List<AccountDto>();
-            cmbAccount.DataSource = storeAccounts;
-            cmbAccount.DisplayMember = "NameAr";
-            cmbAccount.ValueMember = "Id";
-            if (storeAccounts.Count > 0) cmbAccount.SelectedIndex = 0;
-
-            // Auto-select store account when warehouse changes
+            // تغيير المستودع ⇒ إعادة قراءة أرصدة المستودع الجديد
             // (إلغاء الاشتراك أولاً حتى لا يتكرر عند إعادة تحميل القوائم من زر "تحديث بيانات الأصناف")
             cmbWarehouse.SelectedIndexChanged -= cmbWarehouse_SelectedIndexChanged;
             cmbWarehouse.SelectedIndexChanged += cmbWarehouse_SelectedIndexChanged;
@@ -1152,7 +1123,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             _warehouseStockForWarehouseId = -1;
             _warehouseStockBase.Clear();
 
-            await LoadLookups();                 // إعادة تحميل العملاء/المستودعات/الصناديق/الأصناف/الحسابات
+            await LoadLookups();                 // إعادة تحميل العملاء/المستودعات/الصناديق/الأصناف
 
             // إعادة تطبيق اختيارات الفاتورة المفتوحة بعد إعادة تحميل القوائم (مسودة قيد التعديل)
             if (_invoice != null)
@@ -3207,22 +3178,11 @@ public partial class frmAddUpdateSalesInvoice : Form
     }
 
     /// <summary>
-    /// When warehouse changes → auto-select the matching store account (1104).
+    /// تغيير المستودع ⇒ إبطال رصيد المستودع المخزَّن حتى تُقرأ أرصدة المستودع الجديد.
     /// </summary>
     private void cmbWarehouse_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        // تغيير المستودع ⇒ إعادة قراءة أرصدة المستودع الجديد
         _warehouseStockForWarehouseId = -1;
-
-        if (_isUpdating) return;
-        if (cmbAccount.DataSource is not List<AccountDto> accounts || accounts.Count == 0) return;
-
-        string warehouseName = cmbWarehouse.Text?.Trim() ?? "";
-        if (string.IsNullOrEmpty(warehouseName)) return;
-
-        var match = accounts.FirstOrDefault(a => warehouseName.Contains(a.NameAr));
-        if (match != null)
-            cmbAccount.SelectedValue = match.Id;
     }
 
     // ═════════════════════════════════════════════════════════════════

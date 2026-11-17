@@ -1,5 +1,4 @@
 ﻿using SalesSystem.Business.Interfaces.Repositories;
-using SalesSystem.Models.Accounting;
 using SalesSystem.Common;
 using SalesSystem.Models;
 
@@ -26,12 +25,6 @@ public interface IUnitOfWork
     IGenericRepository<ProductUnit> ProductUnits { get; }
     IGenericRepository<CashBox> CashBoxes { get; }
     IGenericRepository<SystemSetting> SystemSettings { get; }
-    IGenericRepository<Account> Accounts { get; }
-    IGenericRepository<JournalEntry> JournalEntries { get; }
-    IGenericRepository<JournalEntryLine> JournalEntryLines { get; }
-    IGenericRepository<SystemAccountMapping> SystemAccountMappings { get; }
-    IGenericRepository<ReceiptVoucher> ReceiptVouchers { get; }
-    IGenericRepository<PaymentVoucher> PaymentVouchers { get; }
     IGenericRepository<InventoryBatch> InventoryBatches { get; }
     IGenericRepository<ProductPrice> ProductPrices { get; }
     IAuditLogRepository AuditLogs { get; }

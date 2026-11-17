@@ -11,8 +11,8 @@
 | `TASK-004` | توصيل حزمة المعايير بكل وكيل: قسم `Standards pack` في 11 برومبتاً + `AGENTS.md` §10/§2.41 | S | تكوين الوكلاء | ✅ مغلقة | 2026-11-16 | `TASK-004-standards-pack-wiring.md` |
 | `TASK-005` | بروتوكول أرشفة ملفات تتبع المهام الكبيرة عند الإغلاق (`ARCHIVE/` — أرشفة لا حذف) | S | وثائق | ✅ مغلقة | 2026-11-16 | `TASK-005-archive-protocol.md` |
 | `TASK-006` | فهرس ذاكرة المهام: صف لكل سجل + **فهرس عكسي بالملف/المنطقة** — «الفهرس قبل الكود» | S | وثائق/تكوين وكلاء | ✅ مغلقة | 2026-11-16 | `TASK-006-archive-index.md` |
-| `TASK-008` | حقول دليل الحسابات الهرمية: `NormalBalance` + `AllowCostCenter` (زيادة آمنة) + السمات المشتقة + قواعد الشجرة — **بلا عمود عملة** | L | وثائق ✅ / كود 🔄 | 🔄 مفتوحة — الوثيقة منفَّذة، والكود موقوف على استقرار الشجرة | 2026-11-17 | `TASK-008-accounts-hierarchy-fields.md` |
-| `TASK-011` | إخراج الوحدة المحاسبية من V1 إلى V2 (**Schema V3**): نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) وبقاء `CashBoxes` و`Expenses` (تشغيليان) — **الوثائق منفَّذة، إزالة الكود/الجداول مؤجلة لموافقة DROP مكتوبة** | L | وثائق/هيكل | 🔄 مفتوحة — الوثائق منفَّذة، إزالة الكود مؤجلة | 2026-11-17 | `TASK-011-schema-v3-accounting-deferred.md` |
+| `TASK-008` | حقول دليل الحسابات الهرمية: `NormalBalance` + `AllowCostCenter` (زيادة آمنة) + السمات المشتقة + قواعد الشجرة — **بلا عمود عملة** | L | وثائق/هيكل | ⛔ **سقطت بسقوط الوحدة** — كودها (`AccountService`/`AccountCategoryHelper`/`frmAccounts`) حُذف مع إزالة المحاسبة (`TASK-011` §13) | 2026-11-17 | `TASK-008-accounts-hierarchy-fields.md` |
+| `TASK-011` | إخراج الوحدة المحاسبية من V1 إلى V2 (**Schema V3**): نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) وبقاء `CashBoxes` و`Expenses` (تشغيليان) | L | وثائق + إزالة كود | ✅ **إزالة الكود منفَّذة 2026-11-17** — 84 حذفاً · 72 تعديلاً · بناء 0 أخطاء · 34 جدولاً · صفر ملف ترحيل. ⏸ إسقاط الأعمدة/الجداول على القاعدة الحيّة **للمالك** | 2026-11-17 | `TASK-011-schema-v3-accounting-deferred.md` |
 
 ## ملفات تتبع المهام الكبيرة (`RULE-N202`)
 
@@ -22,7 +22,7 @@
 | المهمة | ملف التتبع | الحالة | الأعداد (مُنجَز/داخل) |
 |---|---|---|---|
 | فصل وحدة `Users` (لا FK · هوية نصية) | `TASK-007-users-module-decoupling.md` | 🔄 | — |
-| حقول دليل الحسابات الهرمية (`TASK-008`) | `TASK-008-accounts-hierarchy-fields.md` | 🔄 (وثائق ✅ · كود ⏸) | 6/10 بنداً في الوثيقة |
+| حقول دليل الحسابات الهرمية (`TASK-008`) | `TASK-008-accounts-hierarchy-fields.md` | ⛔ سقطت مع إزالة الوحدة | — |
 | <اسم المهمة> | `<path>` | ⬜ / 🔄 / ✅ | <0/0> |
 
 ### مؤرشفة (`docs/TASKS/ARCHIVE/` — تُقرأ ولا تُحذف)

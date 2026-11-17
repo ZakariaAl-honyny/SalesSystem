@@ -2,7 +2,6 @@
 
 public record CreateExpenseRequest(
     DateTime ExpenseDate,
-    int ExpenseAccountId,
     int CashBoxId,
     decimal Amount,
     string? Notes
@@ -10,7 +9,6 @@ public record CreateExpenseRequest(
 
 public record UpdateExpenseRequest(
     DateTime ExpenseDate,
-    int ExpenseAccountId,
     int CashBoxId,
     decimal Amount,
     string? Notes

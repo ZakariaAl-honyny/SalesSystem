@@ -1,12 +1,10 @@
-﻿using SalesSystem.Models.Accounting;
-using SalesSystem.Common;
+﻿using SalesSystem.Common;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Models;
 
 /// <summary>
 /// Customer entity with direct contact information.
-/// The customer's balance lives on the linked Chart of Accounts Account (via AccountId FK).
 /// Schema §1.2 — Customers table.
 /// </summary>
 public class Customer : ActivatableEntity
@@ -42,17 +40,6 @@ public class Customer : ActivatableEntity
     public string? Notes { get; private set; }
 
     /// <summary>
-    /// FK to the Chart of Accounts Account that holds this customer's balance.
-    /// </summary>
-    public int AccountId { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the linked Account.
-    /// The balance of this customer lives on this Account.
-    /// </summary>
-    public virtual Account? Account { get; private set; }
-
-    /// <summary>
     /// تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10
     /// </summary>
     public int? CategoryId { get; private set; }
@@ -73,7 +60,6 @@ public class Customer : ActivatableEntity
     /// Factory method to create a new customer with direct contact information.
     /// </summary>
     /// <param name="name">Customer name (required).</param>
-    /// <param name="accountId">FK to the Account record (must be &gt; 0).</param>
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
@@ -85,7 +71,6 @@ public class Customer : ActivatableEntity
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public static Customer Create(
         string name,
-        int accountId,
         string? phone = null,
         string? email = null,
         string? address = null,
@@ -98,15 +83,12 @@ public class Customer : ActivatableEntity
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم العميل مطلوب.");
-        if (accountId <= 0)
-            throw new DomainException("معرّف الحساب غير صالح.");
         if (creditLimit < 0)
             throw new DomainException("حد الائتمان لا يمكن أن يكون سالباً.");
 
         var customer = new Customer
         {
             Name = name.Trim(),
-            AccountId = accountId,
             Phone = phone?.Trim(),
             Email = email?.Trim(),
             Address = address?.Trim(),
@@ -125,7 +107,6 @@ public class Customer : ActivatableEntity
     /// <summary>
     /// Checks whether adding an additional amount would exceed the credit limit.
     /// Non-throwing — the caller decides whether to block.
-    /// Balance is read from the linked Account, not stored on Customer.
     /// </summary>
     /// <param name="additionalAmount">The additional amount to check against the limit.</param>
     /// <returns>True if the transaction is within the credit limit (or no limit is set).</returns>

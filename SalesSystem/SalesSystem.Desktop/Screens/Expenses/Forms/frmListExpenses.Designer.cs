@@ -366,7 +366,7 @@ partial class frmListExpenses
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbFilterBy.FormattingEnabled = true;
-        cbFilterBy.Items.AddRange(new object[] { "لا شيء", "رقم السند", "البيان", "حساب المصروف", "الصندوق", "المبلغ" });
+        cbFilterBy.Items.AddRange(new object[] { "لا شيء", "رقم السند", "البيان", "الصندوق", "المبلغ" });
         cbFilterBy.Location = new Point(859, 28);
         cbFilterBy.Margin = new Padding(0);
         cbFilterBy.Name = "cbFilterBy";

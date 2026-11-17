@@ -147,12 +147,8 @@ public static class ReportNavigationHelper
 
         new("التقارير المحاسبية والمالية", new[]
         {
-            new ReportEntry("ميزان المراجعة", typeof(frmTrialBalanceReport)),
-            new ReportEntry("دفتر الأستاذ العام", typeof(frmGeneralLedgerReport)),
             new ReportEntry("قائمة الدخل", typeof(frmIncomeStatementReport)),
-            new ReportEntry("الميزانية العمومية", typeof(frmBalanceSheetReport)),
             new ReportEntry("تقرير التدفقات النقدية", typeof(frmCashFlowReport)),
-            new ReportEntry("رأس المال العامل", typeof(frmWorkingCapitalReport)),
             new ReportEntry("تقرير ضريبة القيمة المضافة", typeof(frmVatReport)),
             new ReportEntry("كشف حساب الطرف", typeof(frmAccountStatementReport)),
         }),

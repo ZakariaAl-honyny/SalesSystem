@@ -14,18 +14,15 @@ public class CustomerReceiptService : ICustomerReceiptService
 {
     private readonly IUnitOfWork _uow;
     private readonly IDocumentSequenceService _sequenceService;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly ILogger<CustomerReceiptService> _logger;
 
     public CustomerReceiptService(
         IUnitOfWork uow,
         IDocumentSequenceService sequenceService,
-        IAccountingIntegrationService accountingService,
         ILogger<CustomerReceiptService> logger)
     {
         _uow = uow;
         _sequenceService = sequenceService;
-        _accountingService = accountingService;
         _logger = logger;
     }
 
@@ -49,7 +46,7 @@ public class CustomerReceiptService : ICustomerReceiptService
         try
         {
             var receipt = await _uow.CustomerReceipts.FirstOrDefaultAsync(
-                r => r.Id == id, ct, "Customer", "Customer.Account", "CashBox", "Applications");
+                r => r.Id == id, ct, "Customer", "CashBox", "Applications");
             if (receipt == null)
                 return Result<CustomerReceiptDto>.Failure("سند القبض غير موجود", ErrorCodes.NotFound);
 
@@ -104,7 +101,7 @@ public class CustomerReceiptService : ICustomerReceiptService
         try
         {
             var receipt = await _uow.CustomerReceipts.FirstOrDefaultAsync(
-                r => r.Id == id, ct, "Customer", "Customer.Account", "CashBox", "Applications");
+                r => r.Id == id, ct, "Customer", "CashBox", "Applications");
             if (receipt == null)
                 return Result<CustomerReceiptDto>.Failure("سند القبض غير موجود", ErrorCodes.NotFound);
 
@@ -147,20 +144,13 @@ public class CustomerReceiptService : ICustomerReceiptService
         try
         {
             var receipt = await _uow.CustomerReceipts.FirstOrDefaultAsync(
-                r => r.Id == id, ct, "Applications", "Customer", "Customer.Account");
+                r => r.Id == id, ct, "Applications", "Customer");
             if (receipt == null)
                 return Result.Failure("سند القبض غير موجود", ErrorCodes.NotFound);
 
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
                 receipt.Post();
-
-                // Create journal entry: Dr Cash / Cr AR
-                var customerName = receipt.Customer?.Name ?? "";
-                var entryResult = await _accountingService.CreateCustomerPaymentEntryAsync(
-                    receipt, customerName, userId, ct);
-                if (!entryResult.IsSuccess)
-                    return Result.Failure(entryResult.Error!);
 
                 await _uow.SaveChangesAsync(ct);
 
@@ -185,23 +175,12 @@ public class CustomerReceiptService : ICustomerReceiptService
         try
         {
             var receipt = await _uow.CustomerReceipts.FirstOrDefaultAsync(
-                r => r.Id == id, ct, "Customer", "Customer.Account");
+                r => r.Id == id, ct, "Customer");
             if (receipt == null)
                 return Result.Failure("سند القبض غير موجود", ErrorCodes.NotFound);
 
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
-                // If already posted, reverse the journal entry first
-                if (receipt.Status == InvoiceStatus.Posted)
-                {
-                    var customerAccountId = receipt.Customer?.AccountId ?? 0;
-                    var customerName = receipt.Customer?.Name ?? "";
-                    var reverseResult = await _accountingService.ReverseCustomerPaymentEntryAsync(
-                        receipt.Id, receipt.Amount, customerName, customerAccountId, userId, ct);
-                    if (!reverseResult.IsSuccess)
-                        return Result.Failure(reverseResult.Error!);
-                }
-
                 receipt.Cancel();
                 await _uow.SaveChangesAsync(ct);
 
@@ -250,7 +229,7 @@ public class CustomerReceiptService : ICustomerReceiptService
 
             // Reload with full includes for the response
             var updatedReceipt = await _uow.CustomerReceipts.FirstOrDefaultAsync(
-                r => r.Id == receiptId, ct, "Customer", "Customer.Account", "CashBox", "Applications");
+                r => r.Id == receiptId, ct, "Customer", "CashBox", "Applications");
             return Result<CustomerReceiptDto>.Success(MapToDto(updatedReceipt!));
         }
         catch (DomainException ex)
@@ -270,7 +249,7 @@ public class CustomerReceiptService : ICustomerReceiptService
         try
         {
             var receipt = await _uow.CustomerReceipts.FirstOrDefaultAsync(
-                r => r.Id == id, ct, "Customer", "Customer.Account");
+                r => r.Id == id, ct, "Customer");
             if (receipt == null)
                 return Result.Failure("سند القبض غير موجود", ErrorCodes.NotFound);
 
@@ -279,17 +258,6 @@ public class CustomerReceiptService : ICustomerReceiptService
 
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
-                // If already posted, reverse the journal entry first
-                if (receipt.Status == InvoiceStatus.Posted)
-                {
-                    var customerAccountId = receipt.Customer?.AccountId ?? 0;
-                    var customerName = receipt.Customer?.Name ?? "";
-                    var reverseResult = await _accountingService.ReverseCustomerPaymentEntryAsync(
-                        receipt.Id, receipt.Amount, customerName, customerAccountId, userId, ct);
-                    if (!reverseResult.IsSuccess)
-                        return Result.Failure(reverseResult.Error!);
-                }
-
                 receipt.UpdateTimestamp();
                 _uow.CustomerReceipts.DeleteRange(new[] { receipt });
                 await _uow.SaveChangesAsync(ct);

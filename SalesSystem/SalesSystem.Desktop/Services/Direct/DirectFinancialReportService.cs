@@ -6,12 +6,15 @@ using BizInterfaces = SalesSystem.Business.Interfaces.Services;
 namespace SalesSystem.Desktop.Services.Direct;
 
 /// <summary>
-/// غلاف مباشر لخدمة التقارير المالية — ينادي طبقة الأعمال داخل نفس العملية.
+/// غلاف مباشر لخدمة التقارير المالية الباقية في V1 — ينادي طبقة الأعمال داخل نفس العملية.
+/// خمسة تقارير فقط: قائمة الدخل · تقرير الضريبة · التدفق النقدي · كشف حساب العميل · كشف حساب المورد.
 /// </summary>
+/// <remarks>
+/// أُخرجت الوحدة المحاسبية من V1 (قرار المالك 2026-11-17 — «remove all Accounting code»):
+/// لا ميزانية عمومية ولا ميزان مراجعة ولا دفتر أستاذ ولا رأس مال عامل ولا أرصدة حسابات في هذا الغلاف.
+/// </remarks>
 public class DirectFinancialReportService : IFinancialReportDesktopService
 {
-    private const string NotAvailableMessage = "هذا التقرير غير متاح في الإصدار الحالي";
-
     private readonly BizInterfaces.IFinancialReportService _bll;
 
     public DirectFinancialReportService(BizInterfaces.IFinancialReportService bll)
@@ -35,19 +38,6 @@ public class DirectFinancialReportService : IFinancialReportDesktopService
         }
     }
 
-    public async Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(
-        DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default)
-    {
-        try
-        {
-            return await _bll.GetCashFlowReportAsync(from, to, cashBoxId, ct);
-        }
-        catch (Exception)
-        {
-            return Result<CashFlowReportDto>.Failure("تعذر تحميل تقرير التدفق النقدي. حاول مرة أخرى.");
-        }
-    }
-
     public async Task<Result<IReadOnlyList<VatReportDto>>> GetVatReportAsync(
         DateTime from, DateTime to, CancellationToken ct = default)
     {
@@ -64,65 +54,20 @@ public class DirectFinancialReportService : IFinancialReportDesktopService
         }
     }
 
-    public async Task<Result<BalanceSheetDto>> GetBalanceSheetAsync(DateTime asOfDate, CancellationToken ct = default)
+    public async Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(
+        DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default)
     {
         try
         {
-            return await _bll.GetBalanceSheetAsync(asOfDate, ct);
+            return await _bll.GetCashFlowReportAsync(from, to, cashBoxId, ct);
         }
         catch (Exception)
         {
-            return Result<BalanceSheetDto>.Failure("تعذر تحميل الميزانية العمومية. حاول مرة أخرى.");
+            return Result<CashFlowReportDto>.Failure("تعذر تحميل تقرير التدفق النقدي. حاول مرة أخرى.");
         }
     }
 
-    public async Task<Result<IReadOnlyList<TrialBalanceDto>>> GetTrialBalanceAsync(
-        DateTime asOfDate, CancellationToken ct = default)
-    {
-        try
-        {
-            var result = await _bll.GetTrialBalanceAsync(asOfDate, ct);
-            return result.IsSuccess
-                ? Result<IReadOnlyList<TrialBalanceDto>>.Success(result.Value!)
-                : Result<IReadOnlyList<TrialBalanceDto>>.Failure(result.Error!, result.ErrorCode);
-        }
-        catch (Exception)
-        {
-            return Result<IReadOnlyList<TrialBalanceDto>>.Failure("تعذر تحميل ميزان المراجعة. حاول مرة أخرى.");
-        }
-    }
-
-    public async Task<Result<AccountLedgerDto>> GetGeneralLedgerAsync(
-        int accountId, DateTime from, DateTime to, CancellationToken ct = default)
-    {
-        try
-        {
-            var result = await _bll.GetGeneralLedgerAsync(accountId, from, to, ct);
-            return result.IsSuccess
-                ? Result<AccountLedgerDto>.Success(MapToDesktop(result.Value!))
-                : Result<AccountLedgerDto>.Failure(result.Error!, result.ErrorCode);
-        }
-        catch (Exception)
-        {
-            return Result<AccountLedgerDto>.Failure("تعذر تحميل دفتر الأستاذ. حاول مرة أخرى.");
-        }
-    }
-
-    public Task<Result<WorkingCapitalSummaryDto>> GetWorkingCapitalAsync(
-        DateTime asOfDate, CancellationToken ct = default)
-    {
-        // TODO: غير مطبّق في طبقة الأعمال بعد.
-        return Task.FromResult(Result<WorkingCapitalSummaryDto>.Failure(NotAvailableMessage));
-    }
-
-    public Task<Result<IReadOnlyList<AccountBalanceReportDto>>> GetAccountBalancesAsync(
-        byte? accountType = null, string? search = null, CancellationToken ct = default)
-    {
-        // TODO: غير مطبّق في طبقة الأعمال بعد.
-        return Task.FromResult(Result<IReadOnlyList<AccountBalanceReportDto>>.Failure(NotAvailableMessage));
-    }
-
-    public async Task<Result<IReadOnlyList<AccountStatementDto>>> GetCustomerAccountStatementAsync(
+    public async Task<Result<IReadOnlyList<AccountStatementDto>>> GetAccountStatementAsync(
         int customerId, DateTime from, DateTime to, CancellationToken ct = default)
     {
         try
@@ -138,7 +83,7 @@ public class DirectFinancialReportService : IFinancialReportDesktopService
         }
     }
 
-    public async Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierAccountStatementAsync(
+    public async Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierStatementAsync(
         int supplierId, DateTime from, DateTime to, CancellationToken ct = default)
     {
         try
@@ -153,34 +98,4 @@ public class DirectFinancialReportService : IFinancialReportDesktopService
             return Result<IReadOnlyList<AccountStatementDto>>.Failure("تعذر تحميل كشف حساب المورد. حاول مرة أخرى.");
         }
     }
-
-    // ─── BLL-name aliases (delegates to the same BLL methods) ────────────
-
-    public Task<Result<IReadOnlyList<AccountStatementDto>>> GetAccountStatementAsync(
-        int customerId, DateTime from, DateTime to, CancellationToken ct = default)
-        => GetCustomerAccountStatementAsync(customerId, from, to, ct);
-
-    public Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierStatementAsync(
-        int supplierId, DateTime from, DateTime to, CancellationToken ct = default)
-        => GetSupplierAccountStatementAsync(supplierId, from, to, ct);
-
-    // ─── Mapping: Business DTO → Desktop DTO ───────────────────────────────
-
-    private static AccountLedgerDto MapToDesktop(GeneralLedgerDto src) => new(
-        AccountCode: src.AccountCode,
-        AccountNameAr: src.AccountName,
-        OpeningBalance: src.OpeningBalance,
-        Lines: src.Lines is null
-            ? new List<AccountLedgerLineDto>()
-            : src.Lines.Select(l => new AccountLedgerLineDto(
-                Date: l.Date,
-                EntryNumber: l.EntryNumber,
-                Description: l.Description,
-                ReferenceNumber: null, // TODO: سطر الأعمال لا يحتوي رقم مرجع
-                Debit: l.Debit,
-                Credit: l.Credit,
-                RunningBalance: l.RunningBalance)).ToList(),
-        TotalDebit: src.TotalDebit,
-        TotalCredit: src.TotalCredit,
-        ClosingBalance: src.ClosingBalance);
 }

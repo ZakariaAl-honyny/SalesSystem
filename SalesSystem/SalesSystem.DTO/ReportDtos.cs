@@ -3,90 +3,6 @@
 namespace SalesSystem.DTO;
 
 // ═══════════════════════════════════════════════════════
-// Phase 31 — Financial Reports
-// ═══════════════════════════════════════════════════════
-
-/// <summary>
-/// Recursive node in the hierarchical income statement — RULE-422.
-/// Title, type (Header/SubTotal/Total), Amount, FormattedAmount, Level, optional Children.
-/// </summary>
-public record IncomeStatementHierarchyDto(
-    string Title,
-    string Type,
-    decimal Amount,
-    string? FormattedAmount,
-    int Level,
-    List<IncomeStatementHierarchyDto>? Children = null);
-
-/// <summary>
-/// Balance sheet line — account name, code, balance, and formatted display amount.
-/// </summary>
-public record BalanceSheetLineDto(
-    string AccountName,
-    string AccountCode,
-    decimal Balance,
-    string FormattedBalance);
-
-/// <summary>
-/// Section of the balance sheet (name, total, formatted total, lines).
-/// </summary>
-public record BalanceSheetSectionDto(
-    string Name,
-    decimal Total,
-    string FormattedTotal,
-    List<BalanceSheetLineDto> Lines);
-
-/// <summary>
-/// Balance sheet — Assets, Liabilities, Equity with totals and balanced flag.
-/// </summary>
-public record BalanceSheetDto(
-    decimal TotalAssets,
-    decimal TotalLiabilities,
-    decimal TotalEquity,
-    decimal TotalLiabilitiesAndEquity,
-    bool IsBalanced,
-    List<BalanceSheetSectionDto> Sections);
-
-/// <summary>
-/// Trial balance — account code, name, opening/transactions/closing debit/credit, type label.
-/// </summary>
-public record TrialBalanceDto(
-    string AccountCode,
-    string AccountName,
-    decimal OpeningDebit,
-    decimal OpeningCredit,
-    decimal TransactionDebit,
-    decimal TransactionCredit,
-    decimal ClosingDebit,
-    decimal ClosingCredit,
-    string? AccountTypeLabel);
-
-/// <summary>
-/// General ledger line — date, entry number, description, debit, credit, running balance.
-/// </summary>
-public record GeneralLedgerLineDto(
-    DateTime Date,
-    string EntryNumber,
-    string Description,
-    decimal Debit,
-    decimal Credit,
-    decimal RunningBalance);
-
-/// <summary>
-/// General ledger for a single account.
-/// </summary>
-public record GeneralLedgerDto(
-    string AccountCode,
-    string AccountName,
-    DateTime FromDate,
-    DateTime ToDate,
-    decimal OpeningBalance,
-    List<GeneralLedgerLineDto> Lines,
-    decimal TotalDebit,
-    decimal TotalCredit,
-    decimal ClosingBalance);
-
-// ═══════════════════════════════════════════════════════
 // Phase 31 — Sales Reports
 // ═══════════════════════════════════════════════════════
 
@@ -207,32 +123,6 @@ public record DailyClosureReportDto(
     decimal TotalExpense,
     decimal NetBalance,
     bool IsReconciled);
-
-/// <summary>
-/// Receipt voucher report line.
-/// </summary>
-public record ReceiptVoucherReportDto(
-    int Id,
-    int VoucherNo,
-    DateTime VoucherDate,
-    string CashBoxName,
-    string AccountName,
-    decimal TotalAmount,
-    string? Notes,
-    string StatusDisplay);
-
-/// <summary>
-/// Payment voucher report line.
-/// </summary>
-public record PaymentVoucherReportDto(
-    int Id,
-    int VoucherNo,
-    DateTime VoucherDate,
-    string CashBoxName,
-    string AccountName,
-    decimal TotalAmount,
-    string? Notes,
-    string StatusDisplay);
 
 // ═══════════════════════════════════════════════════════
 // Phase 31 — User Activity & Login Reports
@@ -608,34 +498,3 @@ public record AgingReportDto(
     decimal Days61To90,
     decimal Days90Plus,
     decimal TotalDue);
-
-/// <summary>
-/// Working capital summary — current assets, liabilities, ratio.
-/// </summary>
-public record WorkingCapitalSummaryDto(
-    decimal CurrentAssets,
-    decimal CurrentLiabilities,
-    decimal WorkingCapital,
-    decimal CurrentRatio,
-    List<WorkingCapitalAccountDto> Accounts);
-
-/// <summary>
-/// A single account in the working capital breakdown.
-/// </summary>
-public record WorkingCapitalAccountDto(
-    string AccountName,
-    string AccountCode,
-    decimal Balance,
-    string Type);
-
-/// <summary>
-/// Account balance report line — all accounts with debit/credit/net.
-/// </summary>
-public record AccountBalanceReportDto(
-    string AccountCode,
-    string AccountName,
-    string AccountTypeDisplay,
-    int Level,
-    decimal DebitBalance,
-    decimal CreditBalance,
-    decimal NetBalance);

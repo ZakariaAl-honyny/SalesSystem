@@ -18,13 +18,6 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
         builder.Property(e => e.Notes).HasMaxLength(500).IsRequired(false);
         builder.Property(e => e.PostedAt).IsRequired(false);
 
-        // FK to ExpenseAccount (Account)
-        builder.HasOne(e => e.ExpenseAccount)
-            .WithMany()
-            .HasForeignKey(e => e.ExpenseAccountId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired();
-
         // FK to CashBox
         builder.HasOne(e => e.CashBox)
             .WithMany()
@@ -36,10 +29,6 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
         builder.HasIndex(e => e.ExpenseNo)
             .IsUnique()
             .HasDatabaseName("IX_Expenses_ExpenseNo");
-
-        // Index on ExpenseAccountId for filtering
-        builder.HasIndex(e => e.ExpenseAccountId)
-            .HasDatabaseName("IX_Expenses_ExpenseAccountId");
 
         // Index on ExpenseDate for date-range queries
         builder.HasIndex(e => e.ExpenseDate)

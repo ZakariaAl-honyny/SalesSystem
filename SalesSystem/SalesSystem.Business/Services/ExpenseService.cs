@@ -13,18 +13,15 @@ namespace SalesSystem.Business.Services;
 public class ExpenseService : IExpenseService
 {
     private readonly IUnitOfWork _uow;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly IDocumentSequenceService _sequenceService;
     private readonly ILogger<ExpenseService> _logger;
 
     public ExpenseService(
         IUnitOfWork uow,
-        IAccountingIntegrationService accountingService,
         IDocumentSequenceService sequenceService,
         ILogger<ExpenseService> logger)
     {
         _uow = uow;
-        _accountingService = accountingService;
         _sequenceService = sequenceService;
         _logger = logger;
     }
@@ -43,7 +40,6 @@ public class ExpenseService : IExpenseService
                 var expense = Expense.Create(
                     expenseNo,
                     request.ExpenseDate,
-                    request.ExpenseAccountId,
                     request.CashBoxId,
                     request.Amount,
                     request.Notes);
@@ -55,7 +51,7 @@ public class ExpenseService : IExpenseService
                     expense.ExpenseNo, expense.Id, userId);
 
                 var created = await _uow.Expenses.FirstOrDefaultAsync(
-                    e => e.Id == expense.Id, ct, "ExpenseAccount", "CashBox");
+                    e => e.Id == expense.Id, ct, "CashBox");
                 return Result<ExpenseDto>.Success(MapToDto(created!));
             }
             catch (DomainException ex)
@@ -76,7 +72,7 @@ public class ExpenseService : IExpenseService
         try
         {
             var expense = await _uow.Expenses.FirstOrDefaultAsync(
-                e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                e => e.Id == id, ct, "CashBox");
             if (expense == null)
                 return Result<ExpenseDto>.Failure("المصروف غير موجود", ErrorCodes.NotFound);
 
@@ -112,7 +108,7 @@ public class ExpenseService : IExpenseService
                 page,
                 pageSize,
                 ct,
-                includePaths: new[] { "ExpenseAccount", "CashBox" });
+                includePaths: new[] { "CashBox" });
 
             var dtos = items.Select(MapToDto).ToList();
             var result = PagedResult<ExpenseDto>.Create(dtos, totalCount, page, pageSize);
@@ -131,13 +127,12 @@ public class ExpenseService : IExpenseService
         try
         {
             var expense = await _uow.Expenses.FirstOrDefaultAsync(
-                e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                e => e.Id == id, ct, "CashBox");
             if (expense == null)
                 return Result<ExpenseDto>.Failure("المصروف غير موجود", ErrorCodes.NotFound);
 
             expense.Update(
                 request.ExpenseDate,
-                request.ExpenseAccountId,
                 request.CashBoxId,
                 request.Amount,
                 request.Notes);
@@ -147,7 +142,7 @@ public class ExpenseService : IExpenseService
             _logger.LogInformation("Expense {Id} updated by User {UserId}", id, userId);
 
             var updated = await _uow.Expenses.FirstOrDefaultAsync(
-                e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                e => e.Id == id, ct, "CashBox");
             return Result<ExpenseDto>.Success(MapToDto(updated!));
         }
         catch (DomainException ex)
@@ -193,7 +188,7 @@ public class ExpenseService : IExpenseService
             try
             {
                 var expense = await _uow.Expenses.FirstOrDefaultAsync(
-                    e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                    e => e.Id == id, ct, "CashBox");
                 if (expense == null)
                     return Result<ExpenseDto>.Failure("المصروف غير موجود", ErrorCodes.NotFound);
 
@@ -201,15 +196,10 @@ public class ExpenseService : IExpenseService
                 expense.Post();
                 await _uow.SaveChangesAsync(ct);
 
-                // Create journal entry: Dr ExpenseAccount / Cr CashBox.Account
-                var jeResult = await _accountingService.CreateExpenseEntryAsync(expense, userId, ct);
-                if (!jeResult.IsSuccess)
-                    return Result<ExpenseDto>.Failure(jeResult.Error!);
-
                 _logger.LogInformation("Expense {Id} posted by User {UserId}", id, userId);
 
                 var posted = await _uow.Expenses.FirstOrDefaultAsync(
-                    e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                    e => e.Id == id, ct, "CashBox");
                 return Result<ExpenseDto>.Success(MapToDto(posted!));
             }
             catch (DomainException ex)
@@ -232,7 +222,7 @@ public class ExpenseService : IExpenseService
             try
             {
                 var expense = await _uow.Expenses.FirstOrDefaultAsync(
-                    e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                    e => e.Id == id, ct, "CashBox");
                 if (expense == null)
                     return Result<ExpenseDto>.Failure("المصروف غير موجود", ErrorCodes.NotFound);
 
@@ -242,18 +232,10 @@ public class ExpenseService : IExpenseService
                 expense.Cancel();
                 await _uow.SaveChangesAsync(ct);
 
-                // If was posted, create reversal journal entry: Dr CashBox.Account / Cr ExpenseAccount
-                if (wasPosted)
-                {
-                    var jeResult = await _accountingService.ReverseExpenseEntryAsync(expense, 0, ct);
-                    if (!jeResult.IsSuccess)
-                        return Result<ExpenseDto>.Failure(jeResult.Error!);
-                }
-
                 _logger.LogInformation("Expense {Id} cancelled", id);
 
                 var cancelled = await _uow.Expenses.FirstOrDefaultAsync(
-                    e => e.Id == id, ct, "ExpenseAccount", "CashBox");
+                    e => e.Id == id, ct, "CashBox");
                 return Result<ExpenseDto>.Success(MapToDto(cancelled!));
             }
             catch (DomainException ex)
@@ -277,8 +259,6 @@ public class ExpenseService : IExpenseService
             expense.Id,
             expense.ExpenseNo,
             expense.ExpenseDate,
-            expense.ExpenseAccountId,
-            expense.ExpenseAccount?.NameAr,
             expense.CashBoxId,
             expense.CashBox?.Name,
             expense.Amount,

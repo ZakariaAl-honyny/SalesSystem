@@ -22,9 +22,6 @@ public enum SaleMode : byte { Retail = 1, Wholesale = 2 }
 /// </summary>
 public enum DiscountType : byte { Amount = 0, Percentage = 1 }
 
-/// <summary>
-/// أنواع معاملات الخزينة النقدية (للتوافق مع التقارير المالية القديمة — سيتم استبدالها بـ ReceiptVoucher/PaymentVoucher)
-/// </summary>
 public enum UserRole : byte
 {
     Admin = 1,
@@ -37,6 +34,10 @@ public enum UserRole : byte
     Observer = 8
 }
 
+/// <summary>
+/// أنواع معاملات الخزينة النقدية (الحركة النقدية المسجّلة على الصندوق — للتقارير المالية).
+/// سندات القبض/الصرف اليدوية أُخرجت من V1 ومؤجلة إلى V2.
+/// </summary>
 public enum CashTransactionType : byte
 {
     OpeningBalance = 1,

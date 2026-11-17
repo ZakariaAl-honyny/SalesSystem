@@ -23,7 +23,6 @@ using SalesSystem.Desktop.Screens.Products.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.Desktop.Screens.Purchases.Forms;
 using SalesSystem.Desktop.Screens.Customers.Forms;
-using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
@@ -41,7 +40,6 @@ using SalesSystem.DTO.Common;
 using SalesSystem.DataAccess;
 using SalesSystem.DataAccess.Services;
 using SalesSystem.Business.Interfaces;
-using SalesSystem.Business.Accounting.Services;
 using BizInterfaces = SalesSystem.Business.Interfaces.Services;
 using BizServices = SalesSystem.Business.Services;
 
@@ -89,7 +87,6 @@ static class Program
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
-                        services.AddTransient<IAccountDesktopService, MockAccountDesktopService>();
                         services.AddTransient<IAuthDesktopService, MockAuthDesktopService>();
                         services.AddTransient<IBackupDesktopService, MockBackupDesktopService>();
                         services.AddTransient<ICashBoxDesktopService, MockCashBoxDesktopService>();
@@ -103,7 +100,6 @@ static class Program
                         services.AddTransient<IInventoryAdjustmentDesktopService, MockInventoryAdjustmentDesktopService>();
                         services.AddTransient<IInventoryDesktopService, MockInventoryDesktopService>();
                         services.AddTransient<IInventoryBatchDesktopService, MockInventoryBatchDesktopService>();
-                        services.AddTransient<IJournalEntryDesktopService, MockJournalEntryDesktopService>();
                         services.AddTransient<IProductDesktopService, MockProductDesktopService>();
                         services.AddTransient<IPurchaseInvoiceDesktopService, MockPurchaseInvoiceDesktopService>();
                         services.AddTransient<IPurchaseReportDesktopService, MockPurchaseReportDesktopService>();
@@ -131,7 +127,6 @@ static class Program
                     }
                     else
                     {
-                        services.AddTransient<IAccountDesktopService, DirectAccountService>();
                         services.AddTransient<IAuthDesktopService, DirectAuthService>();
                         services.AddTransient<IBackupDesktopService, DirectBackupService>();
                         services.AddTransient<ICashBoxDesktopService, DirectCashBoxService>();
@@ -145,7 +140,6 @@ static class Program
                         services.AddTransient<IInventoryAdjustmentDesktopService, DirectInventoryAdjustmentService>();
                         services.AddTransient<IInventoryDesktopService, DirectInventoryService>();
                         services.AddTransient<IInventoryBatchDesktopService, DirectInventoryBatchService>();
-                        services.AddTransient<IJournalEntryDesktopService, DirectJournalEntryService>();
                         services.AddTransient<IProductDesktopService, DirectProductService>();
                         services.AddTransient<IPurchaseInvoiceDesktopService, DirectPurchaseInvoiceService>();
                         services.AddTransient<IPurchaseReportDesktopService, DirectPurchaseReportService>();
@@ -197,16 +191,7 @@ static class Program
                     services.AddScoped<SalesSystem.Business.Printing.Contracts.IPrintDataService,
                                        SalesSystem.DataAccess.Printing.PrintDataService>();
 
-                    // Accounting Services
-                    services.AddScoped<BizInterfaces.IAccountingIntegrationService, AccountingIntegrationService>();
-                    services.AddScoped<BizInterfaces.IJournalEntryNumberGenerator, JournalEntryNumberGenerator>();
-                    services.AddScoped<BizInterfaces.IJournalEntryService, JournalEntryService>();
-                    services.AddScoped<BizInterfaces.ISystemAccountService, SystemAccountService>();
-
                     // Business Services
-                    services.AddScoped<BizInterfaces.IAccountCodeGeneratorService, BizServices.AccountCodeGeneratorService>();
-                    services.AddScoped<BizInterfaces.IAccountLinkService, BizServices.AccountLinkService>();
-                    services.AddScoped<BizInterfaces.IAccountService, BizServices.AccountService>();
                     services.AddScoped<BizInterfaces.IAuditLogService, BizServices.AuditLogService>();
                     services.AddScoped<BizInterfaces.IBarcodeLookupService, BizServices.BarcodeLookupService>();
                     services.AddScoped<BizInterfaces.ICashBoxReportService, BizServices.CashBoxReportService>();
@@ -221,7 +206,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IInventoryAdjustmentService, BizServices.InventoryAdjustmentService>();
                     services.AddScoped<BizInterfaces.IInventoryBatchService, BizServices.InventoryBatchService>();
                     services.AddScoped<BizInterfaces.IInventoryService, BizServices.InventoryService>();
-                    services.AddScoped<BizInterfaces.IPaymentVoucherService, BizServices.PaymentVoucherService>();
                     services.AddScoped<BizInterfaces.IProductCategoryService, BizServices.ProductCategoryService>();
                     services.AddScoped<BizInterfaces.IProductCostService, BizServices.ProductCostService>();
                     services.AddScoped<BizInterfaces.IProductImportService, BizServices.ProductImportService>();
@@ -231,7 +215,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IPurchaseReportService, BizServices.PurchaseReportService>();
                     services.AddScoped<BizInterfaces.IPurchaseReturnService, BizServices.PurchaseReturnService>();
                     services.AddScoped<BizInterfaces.IPurchaseService, BizServices.PurchaseService>();
-                    services.AddScoped<BizInterfaces.IReceiptVoucherService, BizServices.ReceiptVoucherService>();
                     services.AddScoped<BizInterfaces.IReportService, BizServices.ReportService>();
                     services.AddScoped<BizInterfaces.ISalesReportService, BizServices.SalesReportService>();
                     services.AddScoped<BizInterfaces.ISalesReturnService, BizServices.SalesReturnService>();
@@ -303,12 +286,8 @@ static class Program
                     services.AddTransient<frmWarehouseMovementReport>();
                     services.AddTransient<frmDetailedStockLedgerReport>();
                     services.AddTransient<frmExpiredProductsReport>();
-                    services.AddTransient<frmTrialBalanceReport>();
-                    services.AddTransient<frmGeneralLedgerReport>();
                     services.AddTransient<frmIncomeStatementReport>();
-                    services.AddTransient<frmBalanceSheetReport>();
                     services.AddTransient<frmCashFlowReport>();
-                    services.AddTransient<frmWorkingCapitalReport>();
                     services.AddTransient<frmVatReport>();
                     services.AddTransient<frmAccountStatementReport>();
                     services.AddTransient<frmAgingReport>();
@@ -322,10 +301,6 @@ static class Program
                     services.AddTransient<frmFormatingSetting>();
                     // Master forms — replace the removed frmList* / frmAddUpdate* screens
                     services.AddTransient<frmUserMaster>();
-                    services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmAccounts>();
-                    services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmJournalEntries>();
-                    services.AddTransient<frmAccountsTree>();
-                    services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Controls.ctrlTreeOfAccounts>();
 
                     // Inventory Module - New Forms
                     services.AddTransient<frmListInventoryAdjustments>();
@@ -345,9 +320,6 @@ static class Program
                     // CustomerReceipts Module
                     services.AddTransient<frmListCustomerReceipts>();
                     services.AddTransient<frmAddUpdateCustomerReceipt>();
-
-                    // PaymentVouchers Module
-                    // (removed with the hidden V2 payment-voucher screens)
 
                     // Supplier Payments Module
                     services.AddTransient<frmListSupplierPayments>();

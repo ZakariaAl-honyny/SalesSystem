@@ -91,12 +91,8 @@ namespace SalesSystem.Desktop.Screens
             msReportLowStock = new ToolStripMenuItem();
             msReportExpiredProducts = new ToolStripMenuItem();
             msReportFinance = new ToolStripMenuItem();
-            msReportTrialBalance = new ToolStripMenuItem();
-            msReportGeneralLedger = new ToolStripMenuItem();
             msReportIncomeStatement = new ToolStripMenuItem();
-            msReportBalanceSheet = new ToolStripMenuItem();
             msReportCashFlow = new ToolStripMenuItem();
-            msReportWorkingCapital = new ToolStripMenuItem();
             msReportVat = new ToolStripMenuItem();
             msReportAccountStatement = new ToolStripMenuItem();
             msReportParties = new ToolStripMenuItem();
@@ -125,11 +121,6 @@ namespace SalesSystem.Desktop.Screens
             msbtnPOS = new ToolStripMenuItem();
             // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
             msbtnInventory = new ToolStripMenuItem();
-            // ── المحاسبة (جديد) ───────────────────────────────────────────────────────────────────
-            msAccounting = new ToolStripMenuItem();
-            msbtnChartOfAccounts = new ToolStripMenuItem();
-            msbtnAccountsTree = new ToolStripMenuItem();
-            msbtnJournalEntries = new ToolStripMenuItem();
             // ── شاشات أُضيفت إلى القائمة (استيراد الأصناف · FIFO · باركود · حاسبة) ──
             msbtnImportProducts = new ToolStripMenuItem();
             msbtnInventoryFifo = new ToolStripMenuItem();
@@ -152,7 +143,7 @@ namespace SalesSystem.Desktop.Screens
             msMainMenu.ShowItemToolTips = true;
             msMainMenu.Items.AddRange(new ToolStripItem[] {
                 msbtnDashboard, msFile, msSale, msBuy, msBasis, msStore, msRevenue,
-                msAccounting, msData, msReport, msTools, msSettings, msAccoutSettings
+                msData, msReport, msTools, msSettings, msAccoutSettings
             });
             // RULE-N134: نفس قيم GreenThemeHelper (BarBackground · TextStrong) في المصمّم ووقت التشغيل
             msMainMenu.BackColor = System.Drawing.Color.White;
@@ -456,38 +447,6 @@ namespace SalesSystem.Desktop.Screens
             msbtnManageUsers.Text = "المستخدمين";
             msbtnManageUsers.Click += msbtnManageUsers_Click;
             // 
-            // msAccounting
-            // 
-            msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnChartOfAccounts,
-                msbtnAccountsTree,
-                msbtnJournalEntries
-            });
-            msAccounting.Name = "msAccounting";
-            msAccounting.Size = new Size(105, 33);
-            msAccounting.Text = "المحاسبة";
-            // 
-            // msbtnChartOfAccounts
-            // 
-            msbtnChartOfAccounts.Name = "msbtnChartOfAccounts";
-            msbtnChartOfAccounts.Size = new Size(300, 38);
-            msbtnChartOfAccounts.Text = "دليل الحسابات";
-            msbtnChartOfAccounts.Click += msbtnChartOfAccounts_Click;
-            // 
-            // msbtnAccountsTree
-            // 
-            msbtnAccountsTree.Name = "msbtnAccountsTree";
-            msbtnAccountsTree.Size = new Size(300, 38);
-            msbtnAccountsTree.Text = "شجرة دليل الحسابات";
-            msbtnAccountsTree.Click += msbtnAccountsTree_Click;
-            // 
-            // msbtnJournalEntries
-            // 
-            msbtnJournalEntries.Name = "msbtnJournalEntries";
-            msbtnJournalEntries.Size = new Size(300, 38);
-            msbtnJournalEntries.Text = "القيود المحاسبية";
-            msbtnJournalEntries.Click += msbtnJournalEntries_Click;
-            // 
             // msbtnImportProducts
             // 
             msbtnImportProducts.Name = "msbtnImportProducts";
@@ -710,32 +669,14 @@ namespace SalesSystem.Desktop.Screens
             // msReportFinance
             // 
             msReportFinance.DropDownItems.AddRange(new ToolStripItem[] {
-                msReportTrialBalance,
-                msReportGeneralLedger,
                 msReportIncomeStatement,
-                msReportBalanceSheet,
                 msReportCashFlow,
-                msReportWorkingCapital,
                 msReportVat,
                 msReportAccountStatement
             });
             msReportFinance.Name = "msReportFinance";
             msReportFinance.Size = new Size(300, 38);
             msReportFinance.Text = "التقارير المالية والمحاسبية";
-            // 
-            // msReportTrialBalance
-            // 
-            msReportTrialBalance.Name = "msReportTrialBalance";
-            msReportTrialBalance.Size = new Size(280, 34);
-            msReportTrialBalance.Text = "ميزان المراجعة";
-            msReportTrialBalance.Click += msReportTrialBalance_Click;
-            // 
-            // msReportGeneralLedger
-            // 
-            msReportGeneralLedger.Name = "msReportGeneralLedger";
-            msReportGeneralLedger.Size = new Size(280, 34);
-            msReportGeneralLedger.Text = "دفتر الأستاذ";
-            msReportGeneralLedger.Click += msReportGeneralLedger_Click;
             // 
             // msReportIncomeStatement
             // 
@@ -744,26 +685,12 @@ namespace SalesSystem.Desktop.Screens
             msReportIncomeStatement.Text = "قائمة الدخل";
             msReportIncomeStatement.Click += msReportIncomeStatement_Click;
             // 
-            // msReportBalanceSheet
-            // 
-            msReportBalanceSheet.Name = "msReportBalanceSheet";
-            msReportBalanceSheet.Size = new Size(280, 34);
-            msReportBalanceSheet.Text = "الميزانية العمومية";
-            msReportBalanceSheet.Click += msReportBalanceSheet_Click;
-            // 
             // msReportCashFlow
             // 
             msReportCashFlow.Name = "msReportCashFlow";
             msReportCashFlow.Size = new Size(280, 34);
             msReportCashFlow.Text = "التدفقات النقدية";
             msReportCashFlow.Click += msReportCashFlow_Click;
-            // 
-            // msReportWorkingCapital
-            // 
-            msReportWorkingCapital.Name = "msReportWorkingCapital";
-            msReportWorkingCapital.Size = new Size(280, 34);
-            msReportWorkingCapital.Text = "رأس المال العامل";
-            msReportWorkingCapital.Click += msReportWorkingCapital_Click;
             // 
             // msReportVat
             // 
@@ -1004,13 +931,9 @@ namespace SalesSystem.Desktop.Screens
         private ToolStripMenuItem msReportProductMovement;
         private ToolStripMenuItem msReportLowStock;
         private ToolStripMenuItem msReportExpiredProducts;
-        // التقارير المالية والمحاسبية (8)
-        private ToolStripMenuItem msReportTrialBalance;
-        private ToolStripMenuItem msReportGeneralLedger;
+        // التقارير المالية والمحاسبية (4)
         private ToolStripMenuItem msReportIncomeStatement;
-        private ToolStripMenuItem msReportBalanceSheet;
         private ToolStripMenuItem msReportCashFlow;
-        private ToolStripMenuItem msReportWorkingCapital;
         private ToolStripMenuItem msReportVat;
         private ToolStripMenuItem msReportAccountStatement;
         // تقارير العملاء والموردين (3)
@@ -1020,10 +943,6 @@ namespace SalesSystem.Desktop.Screens
         // تقارير الصندوق (2)
         private ToolStripMenuItem msReportCashBoxSummary;
         private ToolStripMenuItem msReportDailyClosure;
-        private ToolStripMenuItem msAccounting;
-        private ToolStripMenuItem msbtnChartOfAccounts;
-        private ToolStripMenuItem msbtnAccountsTree;
-        private ToolStripMenuItem msbtnJournalEntries;
         // شاشات أُضيفت إلى القائمة (RULE-N71/N76)
         private ToolStripMenuItem msbtnImportProducts;
         private ToolStripMenuItem msbtnInventoryFifo;

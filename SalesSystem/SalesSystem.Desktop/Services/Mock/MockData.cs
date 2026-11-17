@@ -13,8 +13,8 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     // ⚠️ قاعدة الرصيد (مصدر حقيقة واحد = المستندات): CurrentBalance لعميل = مجموع
     // RemainingAmount لفواتير البيع **المرحّلة فقط** (Status == 2) الخاصة به — نفس
-    // ما يحسبه تقرير الأعمار (MockReportDesktopService.BuildAgingRow) وما يقيّده دفتر
-    // الأستاذ على حساب المدينين 113 وما تعرضه لوحة التحكم (TotalReceivables).
+    // ما يحسبه تقرير الأعمار (MockReportDesktopService.BuildAgingRow) وما تعرضه لوحة
+    // التحكم (TotalReceivables).
     // المسودة (1001 · 1004 · 1006) والملغاة (1003) لا تُحتسب لأنها ليست استحقاقاً بعد:
     //   1 أحمد محمد علي            → 1007 متبقي 17,500 − 17,500 = 0
     //   2 شركة النور للتجارة       → 1002 متبقي 175,000 − 175,000 = 0
@@ -27,26 +27,19 @@ internal static class MockData
     public static List<CustomerDto> Customers { get; } = new()
     {
         new CustomerDto(1, "أحمد محمد علي", "777123456", "ahmed@email.com",
-            "شارع الزبيري - صنعاء", null, 500000m, true, 101,
-            "عملاء - أحمد محمد علي", null, null, 0m),
+            "شارع الزبيري - صنعاء", null, 500000m, true, null, null, 0m),
         new CustomerDto(2, "شركة النور للتجارة", "777987654", "alnoor@trade.com",
-            "شارع الستين - صنعاء", "1234567890", 2000000m, true, 102,
-            "عملاء - شركة النور للتجارة", null, "عميل جملة", 0m),
+            "شارع الستين - صنعاء", "1234567890", 2000000m, true, null, "عميل جملة", 0m),
         new CustomerDto(3, "مؤسسة اليمن الحديثة", "733456789", null,
-            "شارع تعز - عدن", null, 1000000m, true, 103,
-            "عملاء - مؤسسة اليمن الحديثة", null, null, 0m),
+            "شارع تعز - عدن", null, 1000000m, true, null, null, 0m),
         new CustomerDto(4, "محمد عبدالرحمن السالمي", "771234567", null,
-            "حجة - ميدي", null, 200000m, true, 104,
-            "عملاء - محمد عبدالرحمن السالمي", null, null, 12500m),
+            "حجة - ميدي", null, 200000m, true, null, null, 12500m),
         new CustomerDto(5, "عبدالله حسن المقطري", "778889990", null,
-            "ذمار - شارع جمال", null, 0m, true, 105,
-            "عملاء - عبدالله حسن المقطري", null, null, 0m),
+            "ذمار - شارع جمال", null, 0m, true, null, null, 0m),
         new CustomerDto(6, "محلات البدر للمواد الغذائية", "775556667", "albadr@food.com",
-            "إب - شارع الحرية", null, 3000000m, true, 106,
-            "عملاء - محلات البدر للمواد الغذائية", null, "جملة", 0m),
+            "إب - شارع الحرية", null, 3000000m, true, null, "جملة", 0m),
         new CustomerDto(7, "سالم أحمد باوزير", "770001112", null,
-            "الحديدة - شارع الصيادلة", null, 0m, false, 107,
-            "عملاء - سالم أحمد باوزير", null, "معطل", 0m)
+            "الحديدة - شارع الصيادلة", null, 0m, false, null, "معطل", 0m)
     };
 
     // ═══════════════════════════════════════════════
@@ -64,14 +57,12 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     public static List<CashBoxDto> CashBoxes { get; } = new()
     {
-        // Id, Name, AccountId, AccountName, AccountCode, Description, IsActive
+        // Id, Name, Description, IsActive — لا حساب محاسبي مرتبط (أُخرجت المحاسبة من V1)
         new CashBoxDto(
-            1, "الصندوق الرئيسي", 4,
-            "الصندوق الرئيسي (الخزينة المركزية)", "11010001",
+            1, "الصندوق الرئيسي",
             "الصندوق النقدي الرئيسي للمحل", true),
         new CashBoxDto(
-            2, "صندوق المعرض", 5,
-            "صندوق نقطة بيع POS كاشير 1", "11010002",
+            2, "صندوق المعرض",
             "صندوق نقطة البيع في المعرض", true)
     };
 

@@ -14,7 +14,6 @@ using SalesSystem.Desktop.Screens.Products.Forms;
 using SalesSystem.Desktop.Screens.Purchases.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.Desktop.Screens.Customers.Forms;
-using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
@@ -307,17 +306,6 @@ public partial class frmMain : Form
     private void msbtnManageUsers_Click(object sender, EventArgs e)
         => OpenScreen<frmUserMaster>();
 
-    // ── المحاسبة (Accounting) ────────────────────────────────────────────────
-
-    private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
-        => OpenScreen<frmAccounts>();
-
-    private void msbtnAccountsTree_Click(object sender, EventArgs e)
-        => OpenScreen<frmAccountsTree>();
-
-    private void msbtnJournalEntries_Click(object sender, EventArgs e)
-        => OpenScreen<frmJournalEntries>();
-
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
     // RULE-N70/N71/N72: تقرير واحد = شاشة واحدة، كل تقرير يُفتح من عنصره في تصنيفه.
 
@@ -379,23 +367,11 @@ public partial class frmMain : Form
         => OpenScreen<frmExpiredProductsReport>();
 
     // التقارير المالية والمحاسبية
-    private void msReportTrialBalance_Click(object sender, EventArgs e)
-        => OpenScreen<frmTrialBalanceReport>();
-
-    private void msReportGeneralLedger_Click(object sender, EventArgs e)
-        => OpenScreen<frmGeneralLedgerReport>();
-
     private void msReportIncomeStatement_Click(object sender, EventArgs e)
         => OpenScreen<frmIncomeStatementReport>();
 
-    private void msReportBalanceSheet_Click(object sender, EventArgs e)
-        => OpenScreen<frmBalanceSheetReport>();
-
     private void msReportCashFlow_Click(object sender, EventArgs e)
         => OpenScreen<frmCashFlowReport>();
-
-    private void msReportWorkingCapital_Click(object sender, EventArgs e)
-        => OpenScreen<frmWorkingCapitalReport>();
 
     private void msReportVat_Click(object sender, EventArgs e)
         => OpenScreen<frmVatReport>();

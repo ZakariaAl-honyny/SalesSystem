@@ -15,7 +15,6 @@ public class SalesReturnService : ISalesReturnService
     private readonly IInventoryService _inventoryService;
     private readonly IDocumentSequenceService _sequenceService;
     private readonly ICashBoxService _cashBoxService;
-    private readonly IAccountingIntegrationService _accountingService;
     private readonly IProductCostService _productCostService;
     private readonly IFifoAllocationService _fifoAllocationService;
     private readonly ILogger<SalesReturnService> _logger;
@@ -25,7 +24,6 @@ public class SalesReturnService : ISalesReturnService
         IInventoryService inventoryService,
         IDocumentSequenceService sequenceService,
         ICashBoxService cashBoxService,
-        IAccountingIntegrationService accountingService,
         IProductCostService productCostService,
         IFifoAllocationService fifoAllocationService,
         ILogger<SalesReturnService> logger)
@@ -34,7 +32,6 @@ public class SalesReturnService : ISalesReturnService
         _inventoryService = inventoryService;
         _sequenceService = sequenceService;
         _cashBoxService = cashBoxService;
-        _accountingService = accountingService;
         _productCostService = productCostService;
         _fifoAllocationService = fifoAllocationService;
         _logger = logger;
@@ -275,16 +272,6 @@ public class SalesReturnService : ISalesReturnService
                     }
                 }
 
-                // Create journal entry for the sales return with actual cost
-                var entryResult = await _accountingService.CreateSalesReturnEntryAsync(
-                    sr, totalCost, userId, ct);
-                if (!entryResult.IsSuccess)
-                {
-                    _logger.LogWarning("Journal entry creation failed for sales return {Id}: {Error}",
-                        sr.Id, entryResult.Error);
-                    return Result<SalesReturnDto>.Failure(entryResult.Error!);
-                }
-
                 await _uow.SaveChangesAsync(ct);
 
                 _logger.LogInformation("Sales Return posted: {ReturnNo} (ID: {Id})", sr.ReturnNo, sr.Id);
@@ -392,16 +379,6 @@ public class SalesReturnService : ISalesReturnService
                                 null, null, sr.WarehouseId));
                         }
                         await _uow.InventoryTransactions.AddAsync(srCancelInvTx, ct);
-                    }
-
-                    // Reverse the journal entry for the posted sales return
-                    var reversalResult = await _accountingService.ReverseSalesReturnEntryAsync(
-                        sr, totalCost, userId, ct);
-                    if (!reversalResult.IsSuccess)
-                    {
-                        _logger.LogWarning("Journal entry reversal failed for sales return {Id}: {Error}",
-                            sr.Id, reversalResult.Error);
-                        return Result<SalesReturnDto>.Failure(reversalResult.Error!);
                     }
                 }
 

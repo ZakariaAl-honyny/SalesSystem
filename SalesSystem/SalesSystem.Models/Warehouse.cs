@@ -1,5 +1,4 @@
-﻿using SalesSystem.Models.Accounting;
-using SalesSystem.Common;
+﻿using SalesSystem.Common;
 using SalesSystem.Common.Exceptions;
 
 namespace SalesSystem.Models;

@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SalesSystem.Common;
 using SalesSystem.Models;
-using SalesSystem.Models.Accounting;
 
 namespace SalesSystem.DataAccess;
 
@@ -40,10 +39,6 @@ public class SalesDbContext : DbContext
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
     public DbSet<ProductPrice> ProductPrices => Set<ProductPrice>();
     public DbSet<InventoryBatch> InventoryBatches => Set<InventoryBatch>();
-    public DbSet<Account> Accounts => Set<Account>();
-    public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
-    public DbSet<JournalEntryLine> JournalEntryLines => Set<JournalEntryLine>();
-    public DbSet<SystemAccountMapping> SystemAccountMappings => Set<SystemAccountMapping>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<InventoryAdjustment> InventoryAdjustments => Set<InventoryAdjustment>();
     public DbSet<InventoryAdjustmentLine> InventoryAdjustmentLines => Set<InventoryAdjustmentLine>();

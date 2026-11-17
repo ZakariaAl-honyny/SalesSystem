@@ -42,20 +42,10 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.Property(s => s.IsActive)
             .HasDefaultValue(true);
 
-        // FK to Account
-        builder.HasOne(s => s.Account)
-            .WithMany()
-            .HasForeignKey(s => s.AccountId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired();
-
         // CategoryId is a lookup — no FK constraint (type mismatch with smallint PK)
         builder.Property(s => s.CategoryId).IsRequired(false);
 
         // Indexes
-        builder.HasIndex(s => s.AccountId)
-            .HasDatabaseName("IX_Suppliers_AccountId");
-
         builder.HasIndex(s => s.CategoryId)
             .HasDatabaseName("IX_Suppliers_CategoryId");
 

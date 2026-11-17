@@ -1,18 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 using SalesSystem.Business.Interfaces;
 using SalesSystem.Business.Interfaces.Services;
-using SalesSystem.DTO.Common;
-using SalesSystem.DTO;
-using SalesSystem.Models.Accounting;
-using SalesSystem.Models.Accounting.Enums;
-using SalesSystem.Models;
 using SalesSystem.Common.Enums;
+using SalesSystem.DTO;
+using SalesSystem.DTO.Common;
+using SalesSystem.Models;
 
 namespace SalesSystem.Business.Services;
 
 /// <summary>
-/// Service for cash box-related reports — summary, receipt vouchers, and payment vouchers.
-/// Uses IUnitOfWork for all data access (no direct DbContext injection).
+/// Service for cash box summary reports.
+/// Summary is computed from operational documents: sales, receipts, payments, and expenses.
 /// </summary>
 public class CashBoxReportService : ICashBoxReportService
 {
@@ -25,65 +23,81 @@ public class CashBoxReportService : ICashBoxReportService
         _logger = logger;
     }
 
-    // ─── Cash Box Summary ──────────────────────────────────────────────────────
-
-    /// <inheritdoc />
+    /// <summary>
+    /// Gets cash box summary showing balance information per cash box.
+    /// Computed from operational documents as of the specified date.
+    /// </summary>
     public async Task<Result<List<CashBoxSummaryDto>>> GetCashBoxSummaryAsync(
         DateTime? asOfDate = null,
         CancellationToken ct = default)
     {
         try
         {
-            _logger.LogInformation("Generating cash box summary as of {AsOfDate}",
-                asOfDate ?? DateTime.Today);
+            var effectiveDate = asOfDate ?? DateTime.UtcNow.Date;
+            _logger.LogInformation("Generating cash box summary as of {Date}", effectiveDate);
 
-            var effectiveDate = asOfDate ?? DateTime.Today;
-
-            // Get all active cash boxes
+            // Get all cash boxes (including inactive for historical reporting)
             var cashBoxes = await _uow.CashBoxes.ToListAsync(ct: ct);
-
             if (cashBoxes.Count == 0)
             {
-                _logger.LogWarning("No cash boxes found for summary report");
+                _logger.LogInformation("No cash boxes found for summary report");
                 return Result<List<CashBoxSummaryDto>>.Success(new List<CashBoxSummaryDto>());
             }
 
-            var cashBoxIds = cashBoxes.Select(cb => cb.Id).ToList();
+            var results = new List<CashBoxSummaryDto>();
 
-            // Get posted receipt vouchers (income) up to the effective date
-            var receiptVouchers = await _uow.ReceiptVouchers.ToListAsync(
-                rv => rv.Status == VoucherStatus.Posted
-                   && rv.VoucherDate <= effectiveDate
-                   && cashBoxIds.Contains(rv.CashBoxId),
-                ct: ct);
-
-            // Get posted payment vouchers (expenses) up to the effective date
-            var paymentVouchers = await _uow.PaymentVouchers.ToListAsync(
-                pv => pv.Status == VoucherStatus.Posted
-                   && pv.VoucherDate <= effectiveDate
-                   && cashBoxIds.Contains(pv.CashBoxId),
-                ct: ct);
-
-            // Group receipts and payments by cash box
-            var incomeByBox = receiptVouchers
-                .GroupBy(rv => rv.CashBoxId)
-                .ToDictionary(g => g.Key, g => g.Sum(rv => rv.TotalAmount));
-
-            var expenseByBox = paymentVouchers
-                .GroupBy(pv => pv.CashBoxId)
-                .ToDictionary(g => g.Key, g => g.Sum(pv => pv.TotalAmount));
-
-            var results = cashBoxes.Select(cb =>
+            foreach (var box in cashBoxes)
             {
-                var totalIncome = incomeByBox.GetValueOrDefault(cb.Id, 0m);
-                var totalExpense = expenseByBox.GetValueOrDefault(cb.Id, 0m);
-                return new CashBoxSummaryDto(
-                    CashBoxId: cb.Id,
-                    CashBoxName: cb.Name,
+                var boxId = box.Id;
+
+                // + Cash sales: Posted invoices where CashBoxId matches, PaymentType == Cash, up to effectiveDate
+                var cashSales = await _uow.SalesInvoices.ToListAsync(
+                    si => si.CashBoxId == boxId
+                       && si.Status == InvoiceStatus.Posted
+                       && si.PaymentType == PaymentType.Cash
+                       && si.InvoiceDate <= effectiveDate,
+                    ct: ct);
+                var cashSalesTotal = cashSales.Sum(si => si.PaidAmount);
+
+                // + Customer receipts: Posted receipts where CashBoxId matches, up to effectiveDate
+                var customerReceipts = await _uow.CustomerReceipts.ToListAsync(
+                    cr => cr.CashBoxId == boxId
+                       && cr.Status == InvoiceStatus.Posted
+                       && cr.ReceiptDate <= effectiveDate,
+                    ct: ct);
+                var receiptsTotal = customerReceipts.Sum(cr => cr.Amount);
+
+                // - Supplier payments: Posted payments where CashBoxId matches, up to effectiveDate
+                var supplierPayments = await _uow.SupplierPayments.ToListAsync(
+                    sp => sp.CashBoxId == boxId
+                       && sp.Status == InvoiceStatus.Posted
+                       && sp.PaymentDate <= DateOnly.FromDateTime(effectiveDate),
+                    ct: ct);
+                var paymentsTotal = supplierPayments.Sum(sp => sp.Amount);
+
+                // - Expenses: Posted expenses where CashBoxId matches, up to effectiveDate
+                var expenses = await _uow.Expenses.ToListAsync(
+                    e => e.CashBoxId == boxId
+                       && e.Status == InvoiceStatus.Posted
+                       && e.ExpenseDate <= effectiveDate,
+                    ct: ct);
+                var expensesTotal = expenses.Sum(e => e.Amount);
+
+                var totalIncome = cashSalesTotal + receiptsTotal;
+                var totalExpense = paymentsTotal + expensesTotal;
+                var netBalance = totalIncome - totalExpense;
+
+                results.Add(new CashBoxSummaryDto(
+                    CashBoxId: boxId,
+                    CashBoxName: box.Name,
                     TotalIncome: totalIncome,
                     TotalExpense: totalExpense,
-                    NetBalance: totalIncome - totalExpense);
-            }).ToList();
+                    NetBalance: netBalance));
+
+                _logger.LogDebug(
+                    "CashBox {Id} ({Name}): Income={Income}, Expense={Expense}, Balance={Balance}",
+                    boxId, box.Name, totalIncome, totalExpense, netBalance);
+            }
 
             _logger.LogInformation("Cash box summary generated: {Count} boxes", results.Count);
             return Result<List<CashBoxSummaryDto>>.Success(results);
@@ -95,129 +109,4 @@ public class CashBoxReportService : ICashBoxReportService
                 "حدث خطأ أثناء إنشاء ملخص الصناديق النقدية");
         }
     }
-
-    // ─── Receipt Voucher Report ────────────────────────────────────────────────
-
-    /// <inheritdoc />
-    public async Task<Result<List<ReceiptVoucherReportDto>>> GetReceiptVoucherReportAsync(
-        DateTime from,
-        DateTime to,
-        int? cashBoxId = null,
-        CancellationToken ct = default)
-    {
-        try
-        {
-            if (from > to)
-            {
-                _logger.LogWarning("Receipt voucher report failed: start date {From} after end date {To}", from, to);
-                return Result<List<ReceiptVoucherReportDto>>.Failure(
-                    "تاريخ البداية يجب أن يكون قبل تاريخ النهاية");
-            }
-
-            _logger.LogInformation(
-                "Generating receipt voucher report from {From} to {To} for cash box {CashBoxId}",
-                from, to, cashBoxId);
-
-            var vouchers = await _uow.ReceiptVouchers.ToListAsync(
-                rv => rv.VoucherDate >= from
-                   && rv.VoucherDate <= to
-                   && (!cashBoxId.HasValue || rv.CashBoxId == cashBoxId.Value),
-                q => q.OrderByDescending(rv => rv.VoucherDate),
-                ct: ct,
-                includePaths: new[] { "CashBox", "Account" });
-
-            var dtos = vouchers.Select(MapToReceiptDto).ToList();
-
-            _logger.LogInformation("Receipt voucher report generated: {Count} vouchers", dtos.Count);
-            return Result<List<ReceiptVoucherReportDto>>.Success(dtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating receipt voucher report");
-            return Result<List<ReceiptVoucherReportDto>>.Failure(
-                "حدث خطأ أثناء إنشاء تقرير سندات القبض");
-        }
-    }
-
-    // ─── Payment Voucher Report ────────────────────────────────────────────────
-
-    /// <inheritdoc />
-    public async Task<Result<List<PaymentVoucherReportDto>>> GetPaymentVoucherReportAsync(
-        DateTime from,
-        DateTime to,
-        int? cashBoxId = null,
-        CancellationToken ct = default)
-    {
-        try
-        {
-            if (from > to)
-            {
-                _logger.LogWarning("Payment voucher report failed: start date {From} after end date {To}", from, to);
-                return Result<List<PaymentVoucherReportDto>>.Failure(
-                    "تاريخ البداية يجب أن يكون قبل تاريخ النهاية");
-            }
-
-            _logger.LogInformation(
-                "Generating payment voucher report from {From} to {To} for cash box {CashBoxId}",
-                from, to, cashBoxId);
-
-            var vouchers = await _uow.PaymentVouchers.ToListAsync(
-                pv => pv.VoucherDate >= from
-                   && pv.VoucherDate <= to
-                   && (!cashBoxId.HasValue || pv.CashBoxId == cashBoxId.Value),
-                q => q.OrderByDescending(pv => pv.VoucherDate),
-                ct: ct,
-                includePaths: new[] { "CashBox", "Account" });
-
-            var dtos = vouchers.Select(MapToPaymentDto).ToList();
-
-            _logger.LogInformation("Payment voucher report generated: {Count} vouchers", dtos.Count);
-            return Result<List<PaymentVoucherReportDto>>.Success(dtos);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating payment voucher report");
-            return Result<List<PaymentVoucherReportDto>>.Failure(
-                "حدث خطأ أثناء إنشاء تقرير سندات الصرف");
-        }
-    }
-
-    // ─── Private Mappers ───────────────────────────────────────────────────────
-
-    private static ReceiptVoucherReportDto MapToReceiptDto(ReceiptVoucher voucher)
-    {
-        return new ReceiptVoucherReportDto(
-            Id: voucher.Id,
-            VoucherNo: voucher.VoucherNo,
-            VoucherDate: voucher.VoucherDate,
-            CashBoxName: voucher.CashBox?.Name ?? string.Empty,
-            AccountName: voucher.Account?.NameAr ?? string.Empty,
-            TotalAmount: voucher.TotalAmount,
-            Notes: voucher.Notes,
-            StatusDisplay: GetStatusDisplay(voucher.Status));
-    }
-
-    private static PaymentVoucherReportDto MapToPaymentDto(PaymentVoucher voucher)
-    {
-        return new PaymentVoucherReportDto(
-            Id: voucher.Id,
-            VoucherNo: voucher.VoucherNo,
-            VoucherDate: voucher.VoucherDate,
-            CashBoxName: voucher.CashBox?.Name ?? string.Empty,
-            AccountName: voucher.Account?.NameAr ?? string.Empty,
-            TotalAmount: voucher.TotalAmount,
-            Notes: voucher.Notes,
-            StatusDisplay: GetStatusDisplay(voucher.Status));
-    }
-
-    /// <summary>
-    /// Converts the VoucherStatus to an Arabic display name.
-    /// </summary>
-    private static string GetStatusDisplay(VoucherStatus status) => status switch
-    {
-        VoucherStatus.Draft => "مسودة",
-        VoucherStatus.Posted => "مرحّل",
-        VoucherStatus.Cancelled => "ملغي",
-        _ => "غير معروف"
-    };
 }

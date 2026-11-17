@@ -78,7 +78,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblStatus = new Label();
             lblExpensesLabel = new Label();
             txtExpenses = new TextBox();
-            cmbAccount = new ComboBox();
             gbEntry = new GroupBox();
             pnlEntry = new Panel();
             lblBarcodeLabel = new Label();
@@ -796,16 +795,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             txtExpenses.TextAlign = HorizontalAlignment.Center;
             txtExpenses.TextChanged += OnCalculateTotals;
             // 
-            // cmbAccount
-            // 
-            cmbAccount.BackColor = System.Drawing.Color.White;
-            cmbAccount.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbAccount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            cmbAccount.Location = new Point(1110, 65);
-            cmbAccount.Name = "cmbAccount";
-            cmbAccount.Size = new Size(205, 32);
-            cmbAccount.TabIndex = 8;
-            // 
             // gbEntry
             // 
             gbEntry.BackColor = System.Drawing.Color.White;
@@ -1195,7 +1184,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             gbTotals.Controls.Add(cmbDiscountType);
             gbTotals.Controls.Add(lblExpensesLabel);
             gbTotals.Controls.Add(txtExpenses);
-            gbTotals.Controls.Add(cmbAccount);
             gbTotals.Controls.Add(lblPaid);
             gbTotals.Controls.Add(txtPaid);
             gbTotals.Controls.Add(lblTafqitLabel);
@@ -1451,7 +1439,6 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
         private System.Windows.Forms.Label lblTafqitValue;
         private System.Windows.Forms.Label lblExpensesLabel;
         private System.Windows.Forms.TextBox txtExpenses;
-        private System.Windows.Forms.ComboBox cmbAccount;
         private SalesSystem.Desktop.Controls.Common.MoneyTextBox txtPaid;
 
         // Quick Info (summary bar between gbTotals and the item-actions bar)

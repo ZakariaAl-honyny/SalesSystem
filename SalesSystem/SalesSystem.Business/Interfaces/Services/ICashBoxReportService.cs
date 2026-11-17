@@ -1,10 +1,11 @@
-﻿using SalesSystem.DTO.Common;
-using SalesSystem.DTO;
+﻿using SalesSystem.DTO;
+using SalesSystem.DTO.Common;
 
 namespace SalesSystem.Business.Interfaces.Services;
 
 /// <summary>
-/// Service for cash box-related reports.
+/// Service for cash box summary reports.
+/// Summary is computed from operational documents: sales, receipts, payments, and expenses.
 /// </summary>
 public interface ICashBoxReportService
 {
@@ -12,14 +13,4 @@ public interface ICashBoxReportService
     /// Gets cash box summary showing balance information per cash box.
     /// </summary>
     Task<Result<List<CashBoxSummaryDto>>> GetCashBoxSummaryAsync(DateTime? asOfDate = null, CancellationToken ct = default);
-
-    /// <summary>
-    /// Gets receipt vouchers for a specific period.
-    /// </summary>
-    Task<Result<List<ReceiptVoucherReportDto>>> GetReceiptVoucherReportAsync(DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default);
-
-    /// <summary>
-    /// Gets payment vouchers for a specific period.
-    /// </summary>
-    Task<Result<List<PaymentVoucherReportDto>>> GetPaymentVoucherReportAsync(DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default);
 }
