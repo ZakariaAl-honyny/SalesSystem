@@ -543,6 +543,12 @@ public partial class frmCustomerMaster : Form
 
     private void cmsRefresh_Click(object? sender, EventArgs e) => btnRefresh.PerformClick();
 
+    /// <summary>F-002: «بطاقة العميل» من قائمة السياق = نفس زر «بطاقة» — مسار واحد بلا تكرار (RULE-N169).</summary>
+    private void cmsShowCard_Click(object? sender, EventArgs e) => btnShowCard.PerformClick();
+
+    /// <summary>F-002: «بحث وتصفية عن عميل» من قائمة السياق = نفس زرّه — مسار واحد بلا تكرار (RULE-N169).</summary>
+    private void cmsFindCustomer_Click(object? sender, EventArgs e) => btnFindCustomer.PerformClick();
+
     private void cmsExport_Click(object? sender, EventArgs e) => _ExportGridToExcel();
 
     /// <summary>
@@ -561,6 +567,11 @@ public partial class frmCustomerMaster : Form
         cmsReactivate.Enabled = hasRow && !isActive;
         cmsRefresh.Enabled = true;
         cmsExport.Enabled = _customersView is { Count: > 0 };
+
+        // F-002: «بطاقة العميل» مثل زر «بطاقة» (تعرض السجل المحدد) و«بحث وتصفية عن عميل» مثل زرّه
+        // (منتقٍ مستقل) — الحالة تُقرأ من الزرّين ولا تُكرَّر (RULE-N169 / RULE-N150).
+        cmsShowCard.Enabled = btnShowCard.Enabled;
+        cmsFindCustomer.Enabled = btnFindCustomer.Enabled;
     }
 
     /// <summary>تصدير الشبكة الحالية إلى Excel عبر <see cref="ExportHelper"/> الموحّد.</summary>

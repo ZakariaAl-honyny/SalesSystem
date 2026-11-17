@@ -71,8 +71,10 @@ partial class frmCustomerMaster
         dgvCustomers = new DataGridView();
         cmsGrid = new ContextMenuStrip(components);
         cmsEdit = new ToolStripMenuItem();
+        cmsShowCard = new ToolStripMenuItem();
         cmsDelete = new ToolStripMenuItem();
         cmsReactivate = new ToolStripMenuItem();
+        cmsFindCustomer = new ToolStripMenuItem();
         cmsSeparator = new ToolStripSeparator();
         cmsRefresh = new ToolStripMenuItem();
         cmsExport = new ToolStripMenuItem();
@@ -780,10 +782,10 @@ partial class frmCustomerMaster
         cmsGrid.BackColor = Color.White;
         cmsGrid.Font = new Font("Tahoma", 10F);
         cmsGrid.ImageScalingSize = new Size(24, 24);
-        cmsGrid.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsDelete, cmsReactivate, cmsSeparator, cmsRefresh, cmsExport });
+        cmsGrid.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsShowCard, cmsDelete, cmsReactivate, cmsFindCustomer, cmsSeparator, cmsRefresh, cmsExport });
         cmsGrid.Name = "cmsGrid";
         cmsGrid.RightToLeft = RightToLeft.Yes;
-        cmsGrid.Size = new Size(245, 160);
+        cmsGrid.Size = new Size(245, 220);
         cmsGrid.Opening += cmsGrid_Opening;
         // 
         // cmsEdit
@@ -792,6 +794,13 @@ partial class frmCustomerMaster
         cmsEdit.Size = new Size(244, 30);
         cmsEdit.Text = "✏️ تعديل";
         cmsEdit.Click += cmsEdit_Click;
+        // 
+        // cmsShowCard
+        // 
+        cmsShowCard.Name = "cmsShowCard";
+        cmsShowCard.Size = new Size(244, 30);
+        cmsShowCard.Text = "بطاقة العميل";
+        cmsShowCard.Click += cmsShowCard_Click;
         // 
         // cmsDelete
         // 
@@ -806,6 +815,13 @@ partial class frmCustomerMaster
         cmsReactivate.Size = new Size(244, 30);
         cmsReactivate.Text = "↺ إعادة تنشيط";
         cmsReactivate.Click += cmsReactivate_Click;
+        // 
+        // cmsFindCustomer
+        // 
+        cmsFindCustomer.Name = "cmsFindCustomer";
+        cmsFindCustomer.Size = new Size(244, 30);
+        cmsFindCustomer.Text = "بحث وتصفية عن عميل";
+        cmsFindCustomer.Click += cmsFindCustomer_Click;
         // 
         // cmsSeparator
         // 
@@ -931,8 +947,10 @@ partial class frmCustomerMaster
     private System.Windows.Forms.DataGridView dgvCustomers;
     private System.Windows.Forms.ContextMenuStrip cmsGrid;
     private System.Windows.Forms.ToolStripMenuItem cmsEdit;
+    private System.Windows.Forms.ToolStripMenuItem cmsShowCard;
     private System.Windows.Forms.ToolStripMenuItem cmsDelete;
     private System.Windows.Forms.ToolStripMenuItem cmsReactivate;
+    private System.Windows.Forms.ToolStripMenuItem cmsFindCustomer;
     private System.Windows.Forms.ToolStripSeparator cmsSeparator;
     private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
     private System.Windows.Forms.ToolStripMenuItem cmsExport;

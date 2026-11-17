@@ -79,3 +79,22 @@
 ### الحالة
 
 `Customers` **منجزة داخل الشريحة**. التالي بأمر المالك: وحدة واحدة في كل مرة — `Suppliers` ثم `Users` ثم البقية (`PLAN.md` §4) مع نقل درسَي `WFO1000` و`F2-2` إلى كل brief.
+
+---
+
+## الجولة 3 — 2026-11-17 — إلغاء «المعاينة داخل الشاشة» واعتماد قائمة الشبكة (قرار المالك)
+
+**نصّ المالك:** «just use them do not edit on frmCustomerMaster — use button for and right DGV menu for show data by frmShowCustomerCard or filter and show by frmFindCustomer».
+
+| الخطوة | ما جرى | الدليل |
+|---|---|---|
+| إلغاء لوحة المعاينة | `git checkout --` على ملفَي الشاشة ⇒ عادت إلى `25db2e6` | `git diff --stat` = **فارغ** للملفين بعد الرجوع · `grep ctrlCustomerCard1\|pnlCard\|btnToggleCard` = **0** |
+| بديل العرض | عنصران في `cmsGrid` (قائمة الزر الأيمن للشبكة): **«بطاقة العميل»** بعد «تعديل» · **«بحث وتصفية عن عميل»** بعد «إعادة تنشيط» | `cmsGrid.Size.Height: 160 → 220` · 22 سطر مصمّم + 11 سطر شيفرة |
+| مسار واحد (RULE-N169) | `cmsShowCard_Click → btnShowCard.PerformClick()` · `cmsFindCustomer_Click → btnFindCustomer.PerformClick()` | لا منطق مكرّر · التفعيل سطران في `cmsGrid_Opening` |
+| ما لم يُمسّ | `_ApplyModeState` · `gbFilter` · `btnShowCard_Click` · `btnFindCustomer_Click` · بقية عناصر القائمة | diff الشيفرة = 4 أسطر إضافة + تعليقان |
+
+**قرار D15:** البطاقة والمنتقي **نافذتان مستقلتان** لا تُدمجان داخل شاشة الدليل؛ الدخول إليهما من **الأزرار + قائمة الزر الأيمن**، وشاشة الدليل تبقى على هيكلها المرجعي (§2.36 · `RULE-N79`) بلا تعديل عرض.
+
+**البناء بعد الموجة:** `Build succeeded · 0 Error(s) · 118 Warning(s)`.
+
+**بنود اختبار جديدة (29–33):** «بطاقة العميل» من قائمة الزر الأيمن · «بحث وتصفية عن عميل» · عناصر القائمة معطّلة بلا تحديد · تعمل على نتيجة مصفّاة · ترتيب العناصر بلا تداخل.
