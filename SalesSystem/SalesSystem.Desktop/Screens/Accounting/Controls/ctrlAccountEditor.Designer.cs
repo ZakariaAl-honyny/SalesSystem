@@ -46,6 +46,15 @@ partial class ctrlAccountEditor
         txtDescription = new TextBox();
         lblNotes = new Label();
         txtNotes = new TextBox();
+        lblDerivedCaption = new Label();
+        lblDerivedLevel = new Label();
+        txtDerivedLevel = new TextBox();
+        lblDerivedFinancialStatement = new Label();
+        txtDerivedFinancialStatement = new TextBox();
+        lblDerivedIsSystem = new Label();
+        txtDerivedIsSystem = new TextBox();
+        lblDerivedAudit = new Label();
+        txtDerivedAudit = new TextBox();
         pnlActions = new Panel();
         lblValidationHint = new Label();
         flpActions = new FlowLayoutPanel();
@@ -79,12 +88,21 @@ partial class ctrlAccountEditor
         gbAccountData.Controls.Add(txtDescription);
         gbAccountData.Controls.Add(lblNotes);
         gbAccountData.Controls.Add(txtNotes);
+        gbAccountData.Controls.Add(lblDerivedCaption);
+        gbAccountData.Controls.Add(lblDerivedLevel);
+        gbAccountData.Controls.Add(txtDerivedLevel);
+        gbAccountData.Controls.Add(lblDerivedFinancialStatement);
+        gbAccountData.Controls.Add(txtDerivedFinancialStatement);
+        gbAccountData.Controls.Add(lblDerivedIsSystem);
+        gbAccountData.Controls.Add(txtDerivedIsSystem);
+        gbAccountData.Controls.Add(lblDerivedAudit);
+        gbAccountData.Controls.Add(txtDerivedAudit);
         gbAccountData.Dock = DockStyle.Fill;
         gbAccountData.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         gbAccountData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbAccountData.Location = new Point(0, 0);
         gbAccountData.Name = "gbAccountData";
-        gbAccountData.Size = new Size(460, 556);
+        gbAccountData.Size = new Size(460, 616);
         gbAccountData.TabIndex = 1;
         gbAccountData.TabStop = false;
         gbAccountData.Text = "بيانات الحساب";
@@ -220,6 +238,7 @@ partial class ctrlAccountEditor
         cbNature.Size = new Size(296, 32);
         cbNature.TabIndex = 5;
         toolTip.SetToolTip(cbNature, "نوع الحساب: أصول · خصوم · حقوق ملكية · إيرادات · مصروفات");
+        cbNature.SelectedIndexChanged += cbNature_SelectedIndexChanged;
         // 
         // lblNormalBalance
         // 
@@ -342,13 +361,140 @@ partial class ctrlAccountEditor
         txtNotes.Size = new Size(296, 56);
         txtNotes.TabIndex = 11;
         // 
+        // lblDerivedCaption
+        // 
+        lblDerivedCaption.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        lblDerivedCaption.AutoSize = false;
+        lblDerivedCaption.BorderStyle = BorderStyle.Fixed3D;
+        lblDerivedCaption.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblDerivedCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblDerivedCaption.Location = new Point(12, 446);
+        lblDerivedCaption.Name = "lblDerivedCaption";
+        lblDerivedCaption.Size = new Size(434, 22);
+        lblDerivedCaption.TabIndex = 12;
+        lblDerivedCaption.Text = "محسوب تلقائياً بواسطة النظام";
+        lblDerivedCaption.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // lblDerivedLevel
+        // 
+        lblDerivedLevel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblDerivedLevel.AutoSize = false;
+        lblDerivedLevel.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblDerivedLevel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblDerivedLevel.Location = new Point(286, 478);
+        lblDerivedLevel.Name = "lblDerivedLevel";
+        lblDerivedLevel.Size = new Size(160, 22);
+        lblDerivedLevel.TabIndex = 13;
+        lblDerivedLevel.Text = "المستوى";
+        lblDerivedLevel.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // txtDerivedLevel
+        // 
+        txtDerivedLevel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        txtDerivedLevel.BackColor = System.Drawing.Color.White;
+        txtDerivedLevel.BorderStyle = BorderStyle.FixedSingle;
+        txtDerivedLevel.Font = new Font("Tahoma", 10F);
+        txtDerivedLevel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        txtDerivedLevel.Location = new Point(12, 474);
+        txtDerivedLevel.Name = "txtDerivedLevel";
+        txtDerivedLevel.ReadOnly = true;
+        txtDerivedLevel.Size = new Size(266, 28);
+        txtDerivedLevel.TabIndex = 14;
+        txtDerivedLevel.TabStop = false;
+        toolTip.SetToolTip(txtDerivedLevel, "مستوى الحساب يحدّده النظام: مستوى الأب + 1، والحساب الرئيسي = مستوى 1");
+        // 
+        // lblDerivedFinancialStatement
+        // 
+        lblDerivedFinancialStatement.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblDerivedFinancialStatement.AutoSize = false;
+        lblDerivedFinancialStatement.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblDerivedFinancialStatement.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblDerivedFinancialStatement.Location = new Point(286, 512);
+        lblDerivedFinancialStatement.Name = "lblDerivedFinancialStatement";
+        lblDerivedFinancialStatement.Size = new Size(160, 22);
+        lblDerivedFinancialStatement.TabIndex = 15;
+        lblDerivedFinancialStatement.Text = "القائمة المالية";
+        lblDerivedFinancialStatement.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // txtDerivedFinancialStatement
+        // 
+        txtDerivedFinancialStatement.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        txtDerivedFinancialStatement.BackColor = System.Drawing.Color.White;
+        txtDerivedFinancialStatement.BorderStyle = BorderStyle.FixedSingle;
+        txtDerivedFinancialStatement.Font = new Font("Tahoma", 10F);
+        txtDerivedFinancialStatement.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        txtDerivedFinancialStatement.Location = new Point(12, 508);
+        txtDerivedFinancialStatement.Name = "txtDerivedFinancialStatement";
+        txtDerivedFinancialStatement.ReadOnly = true;
+        txtDerivedFinancialStatement.Size = new Size(266, 28);
+        txtDerivedFinancialStatement.TabIndex = 16;
+        txtDerivedFinancialStatement.TabStop = false;
+        toolTip.SetToolTip(txtDerivedFinancialStatement, "القائمة المالية تُشتق من نوع الحساب: أصول/خصوم/حقوق ملكية ⇒ الميزانية العمومية · إيرادات/مصروفات ⇒ قائمة الدخل");
+        // 
+        // lblDerivedIsSystem
+        // 
+        lblDerivedIsSystem.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblDerivedIsSystem.AutoSize = false;
+        lblDerivedIsSystem.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblDerivedIsSystem.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblDerivedIsSystem.Location = new Point(286, 546);
+        lblDerivedIsSystem.Name = "lblDerivedIsSystem";
+        lblDerivedIsSystem.Size = new Size(160, 22);
+        lblDerivedIsSystem.TabIndex = 17;
+        lblDerivedIsSystem.Text = "حساب نظامي";
+        lblDerivedIsSystem.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // txtDerivedIsSystem
+        // 
+        txtDerivedIsSystem.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        txtDerivedIsSystem.BackColor = System.Drawing.Color.White;
+        txtDerivedIsSystem.BorderStyle = BorderStyle.FixedSingle;
+        txtDerivedIsSystem.Font = new Font("Tahoma", 10F);
+        txtDerivedIsSystem.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        txtDerivedIsSystem.Location = new Point(12, 542);
+        txtDerivedIsSystem.Name = "txtDerivedIsSystem";
+        txtDerivedIsSystem.ReadOnly = true;
+        txtDerivedIsSystem.Size = new Size(266, 28);
+        txtDerivedIsSystem.TabIndex = 18;
+        txtDerivedIsSystem.TabStop = false;
+        toolTip.SetToolTip(txtDerivedIsSystem, "الحسابات النظامية تُنشأ من بذور النظام ومزامنته فقط — ولا يُنشأ حساب نظامي من الشاشة");
+        // 
+        // lblDerivedAudit
+        // 
+        lblDerivedAudit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblDerivedAudit.AutoSize = false;
+        lblDerivedAudit.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        lblDerivedAudit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblDerivedAudit.Location = new Point(286, 580);
+        lblDerivedAudit.Name = "lblDerivedAudit";
+        lblDerivedAudit.Size = new Size(160, 22);
+        lblDerivedAudit.TabIndex = 19;
+        lblDerivedAudit.Text = "تاريخ الإنشاء ومُنشئه";
+        lblDerivedAudit.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // txtDerivedAudit
+        // 
+        txtDerivedAudit.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        txtDerivedAudit.BackColor = System.Drawing.Color.White;
+        txtDerivedAudit.BorderStyle = BorderStyle.FixedSingle;
+        txtDerivedAudit.Enabled = false;
+        txtDerivedAudit.Font = new Font("Tahoma", 10F);
+        txtDerivedAudit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        txtDerivedAudit.Location = new Point(12, 576);
+        txtDerivedAudit.Name = "txtDerivedAudit";
+        txtDerivedAudit.ReadOnly = true;
+        txtDerivedAudit.Size = new Size(266, 28);
+        txtDerivedAudit.TabIndex = 20;
+        txtDerivedAudit.TabStop = false;
+        toolTip.SetToolTip(txtDerivedAudit, "يُسجَّل تلقائياً عند الحفظ من جلسة المستخدم");
+        // 
         // pnlActions
         // 
         pnlActions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlActions.Controls.Add(lblValidationHint);
         pnlActions.Controls.Add(flpActions);
         pnlActions.Dock = DockStyle.Bottom;
-        pnlActions.Location = new Point(0, 556);
+        pnlActions.Location = new Point(0, 616);
         pnlActions.Name = "pnlActions";
         pnlActions.Size = new Size(460, 84);
         pnlActions.TabIndex = 0;
@@ -428,8 +574,9 @@ partial class ctrlAccountEditor
         Controls.Add(pnlActions);
         Font = new Font("Tahoma", 10F);
         Name = "ctrlAccountEditor";
+        MinimumSize = new Size(340, 700);
         RightToLeft = RightToLeft.Yes;
-        Size = new Size(460, 640);
+        Size = new Size(460, 700);
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
         gbAccountData.ResumeLayout(false);
         gbAccountData.PerformLayout();
@@ -460,6 +607,15 @@ partial class ctrlAccountEditor
     private System.Windows.Forms.TextBox txtDescription;
     private System.Windows.Forms.Label lblNotes;
     private System.Windows.Forms.TextBox txtNotes;
+    private System.Windows.Forms.Label lblDerivedCaption;
+    private System.Windows.Forms.Label lblDerivedLevel;
+    private System.Windows.Forms.TextBox txtDerivedLevel;
+    private System.Windows.Forms.Label lblDerivedFinancialStatement;
+    private System.Windows.Forms.TextBox txtDerivedFinancialStatement;
+    private System.Windows.Forms.Label lblDerivedIsSystem;
+    private System.Windows.Forms.TextBox txtDerivedIsSystem;
+    private System.Windows.Forms.Label lblDerivedAudit;
+    private System.Windows.Forms.TextBox txtDerivedAudit;
     private System.Windows.Forms.Panel pnlActions;
     private System.Windows.Forms.Label lblValidationHint;
     private System.Windows.Forms.FlowLayoutPanel flpActions;

@@ -61,6 +61,9 @@ public partial class ctrlAccountEditor : UserControl
     private const string ParentsLoadFailedMessage = "تعذر تحميل قائمة الحسابات الأب.";
     private const string HostFormMissingMessage = "تعذر التحقق من الحقول المطلوبة — المحرر غير مُضمَّن في شاشة بعد.";
 
+    /// <summary>نص «لا قيمة» الموحّد لصفوف العرض المحسوبة (—).</summary>
+    private const string NoValueText = "—";
+
     /// <summary>نص الخيار الجذري: لا أب ⇒ حساب رئيسي (كوده يولّده النظام عند الحفظ).</summary>
     private const string RootParentText = "(بلا أب — حساب رئيسي)";
 
@@ -313,6 +316,7 @@ public partial class ctrlAccountEditor : UserControl
 
         _ClearValidation();
         _ApplyModeState();
+        _RefreshDerivedFields();   // صفوف «محسوب تلقائياً» تعكس السجل المعروض
     }
 
     /// <summary>
@@ -356,6 +360,7 @@ public partial class ctrlAccountEditor : UserControl
 
         _ClearValidation();
         _ApplyModeState();
+        _RefreshDerivedFields();   // صفوف «محسوب تلقائياً» تُشتق من الأب/النوع (وضع الإضافة)
 
         if (_mode == CrudMode.Adding) _ = RefreshCodePreviewAsync();
 
@@ -833,6 +838,93 @@ public partial class ctrlAccountEditor : UserControl
 
     private byte? _SelectedNormalBalance() => (cbNormalBalance.SelectedItem as NormalBalanceOption)?.Value;
 
+    private byte? _SelectedNatureValue() => (cbNature.SelectedItem as NatureOption)?.Value;
+
+    // ═════════════════════════════════════════════════════════════════
+    //  «محسوب تلقائياً بواسطة النظام» — عرض للقراءة فقط (لا كتابة ولا خدمة)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// يحدّث صفوف العرض المحسوبة: المستوى · القائمة المالية · حساب نظامي · تاريخ الإنشاء ومُنشئه.
+    /// <para>
+    /// <b>عرض فقط:</b> لا تكتب شيئاً في أي طلب ولا تنادي أي خدمة — القيم كلها مما قرأه العنصر
+    /// أو مشتقة من مدخلات المستخدم بنفس قواعد الخلفية (RULE-N177: لا مسّ للباك-إند).
+    /// </para>
+    /// <para>
+    /// تُستدعى من ثلاثة مواضع فقط: <see cref="LoadAccount"/> · <see cref="ResetEditor"/> ·
+    /// وعند تغيير الأب (<see cref="cbParent_SelectedIndexChanged"/>) أو النوع
+    /// (<see cref="cbNature_SelectedIndexChanged"/>). دالة متزامنة: لا جديد في RULE-N205.
+    /// </para>
+    /// </summary>
+    private void _RefreshDerivedFields()
+    {
+        // (1) سجل معروض ⇒ القيم المحفوظة/المحسوبة عليه (وضعا العرض والتعديل).
+        if (_currentAccount is { } account)
+        {
+            txtDerivedLevel.Text = $"مستوى {account.Level}";
+            txtDerivedFinancialStatement.Text = _DescribeFinancialStatement(account.FinancialStatement);
+            txtDerivedIsSystem.Text = account.IsSystem ? "نعم" : "لا";
+            txtDerivedAudit.Text = NoValueText;   // AccountDto لا يحمل حقول التدقيق
+            return;
+        }
+
+        // (2) وضع الإضافة ⇒ ما سيستخدمه النظام فعلاً عند الحفظ.
+        if (_mode == CrudMode.Adding)
+        {
+            txtDerivedLevel.Text = $"مستوى {_DerivedLevelForNewAccount()}";
+            txtDerivedFinancialStatement.Text = _DescribeFinancialStatement(_FinancialStatementFor(_SelectedNatureValue()));
+            txtDerivedIsSystem.Text = "لا";       // الخدمة تُثبّت isSystem = false عند الإنشاء
+            txtDerivedAudit.Text = NoValueText;   // يُسجَّل عند الحفظ من جلسة المستخدم
+            return;
+        }
+
+        // (3) وضع عرض بلا سجل ⇒ لا قيمة.
+        txtDerivedLevel.Text = NoValueText;
+        txtDerivedFinancialStatement.Text = NoValueText;
+        txtDerivedIsSystem.Text = NoValueText;
+        txtDerivedAudit.Text = NoValueText;
+    }
+
+    /// <summary>
+    /// المستوى الذي سيستخدمه النظام للحساب الجديد: مستوى الأب + 1 (نفس قاعدة
+    /// <c>AccountService.CreateAsync</c>)، والحساب الرئيسي (بلا أب) = 1.
+    /// </summary>
+    private byte _DerivedLevelForNewAccount()
+    {
+        int? parentId = _SelectedParentId();
+
+        return parentId is int id && _accountsById.TryGetValue(id, out var parent)
+            ? (byte)(parent.Level + 1)
+            : (byte)1;
+    }
+
+    /// <summary>
+    /// <b>مرآة عرض لقاعدة الكيان</b> <c>Account.FinancialStatement</c>
+    /// (<c>Nature &lt;= 3 ? 1 : 2</c>): تُستخدم لبيان ما سيسجّله النظام للحساب الجديد.
+    /// <para>
+    /// ليست مصدر حقيقة ثانياً: لا تُرسَل مع أي طلب ولا تُخزَّن ولا تنادي خدمة — والحساب
+    /// المحفوظ يُقرأ من <c>AccountDto.FinancialStatement</c> مباشرةً. وتُعيد <c>0</c> (لا قيمة)
+    /// إن لم يُختر نوع بعد.
+    /// </para>
+    /// </summary>
+    /// <param name="nature">نوع الحساب المختار (1..5) أو <c>null</c>.</param>
+    private static byte _FinancialStatementFor(byte? nature)
+    {
+        if (nature is null || nature == 0) return 0;   // لم يُختر نوع بعد ⇒ لا قيمة
+
+        return nature.Value <= 3
+            ? (byte)1                                // أصول · خصوم · حقوق ملكية ⇒ الميزانية العمومية
+            : (byte)2;                               // إيرادات · مصروفات ⇒ قائمة الدخل
+    }
+
+    /// <summary>اسم القائمة المالية بالعربية لصف العرض: 1 الميزانية · 2 قائمة الدخل · غير ذلك «—».</summary>
+    private static string _DescribeFinancialStatement(byte financialStatement) => financialStatement switch
+    {
+        1 => "الميزانية العمومية",
+        2 => "قائمة الدخل",
+        _ => NoValueText
+    };
+
     /// <summary>معرّفات الحساب المستثنى وكل فروعه وأحفاده (حدّ دورات يمنع حلقة لا نهائية).</summary>
     private static HashSet<int> _BuildExclusionSet(IReadOnlyList<AccountDto> accounts, int? excludeId)
     {
@@ -866,14 +958,23 @@ public partial class ctrlAccountEditor : UserControl
     //  المعالجات — رفع الأحداث والتوصيل
     // ═════════════════════════════════════════════════════════════════
 
-    /// <summary>تغيّر الأب ⇒ معاينة كود الابن (وضع الإضافة فقط، وبلا ردود متأخرة).</summary>
+    /// <summary>تغيّر الأب ⇒ معاينة كود الابن (وضع الإضافة فقط) + تحديث المستوى المحسوب.</summary>
     private void cbParent_SelectedIndexChanged(object? sender, EventArgs e)
     {
         if (_binding) return;
 
         _requestedParentId = null;   // اختيار المستخدم يلغي أي أب مطلوب سابقاً من الشاشة
 
+        _RefreshDerivedFields();     // «المستوى» يتبع الأب
         _ = RefreshCodePreviewAsync();
+    }
+
+    /// <summary>تغيّر النوع ⇒ تحديث «القائمة المالية» المشتقة (عرض فقط).</summary>
+    private void cbNature_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_binding) return;
+
+        _RefreshDerivedFields();
     }
 
     private void btnSave_Click(object? sender, EventArgs e) => SaveRequested?.Invoke(this, EventArgs.Empty);
