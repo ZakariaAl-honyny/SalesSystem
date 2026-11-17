@@ -676,7 +676,7 @@ namespace SalesSystem.Desktop.Screens
             });
             msReportFinance.Name = "msReportFinance";
             msReportFinance.Size = new Size(300, 38);
-            msReportFinance.Text = "التقارير المالية والمحاسبية";
+            msReportFinance.Text = "التقارير المالية";
             // 
             // msReportIncomeStatement
             // 
@@ -931,7 +931,7 @@ namespace SalesSystem.Desktop.Screens
         private ToolStripMenuItem msReportProductMovement;
         private ToolStripMenuItem msReportLowStock;
         private ToolStripMenuItem msReportExpiredProducts;
-        // التقارير المالية والمحاسبية (4)
+        // التقارير المالية (4)
         private ToolStripMenuItem msReportIncomeStatement;
         private ToolStripMenuItem msReportCashFlow;
         private ToolStripMenuItem msReportVat;

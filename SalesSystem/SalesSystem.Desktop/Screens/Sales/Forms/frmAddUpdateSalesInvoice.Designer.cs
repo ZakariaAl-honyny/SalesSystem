@@ -200,7 +200,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnPost.Size = new Size(183, 36);
             btnPost.TabIndex = 2;
             btnPost.Text = "✅ حفظ وترحيل (F4)";
-            toolTip1.SetToolTip(btnPost, "حفظ وترحيل (F4): يحفظ الفاتورة ويُرحّلها فوراً.\nيخصم الكميات من المخزن ويُرحّل القيد المحاسبي،\nوبعدها تُقفل الفاتورة نهائياً ولا يمكن تعديلها.");
+            toolTip1.SetToolTip(btnPost, "حفظ وترحيل (F4): يحفظ الفاتورة ويُرحّلها فوراً.\nيخصم الكميات من المخزن ويُحدّث رصيد العميل، دون أي قيد محاسبي،\nوبعدها تُقفل الفاتورة نهائياً ولا يمكن تعديلها.");
             btnPost.UseVisualStyleBackColor = false;
             btnPost.Click += btnPost_Click;
             // 

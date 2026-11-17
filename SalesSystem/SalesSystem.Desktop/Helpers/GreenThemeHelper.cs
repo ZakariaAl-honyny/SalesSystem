@@ -128,9 +128,6 @@ public static class GreenThemeHelper
     /// <summary>حالة باهتة/مسكوتة (نص ثانوي).</summary>
     public static Color StatusMuted { get; } = Color.FromArgb(108, 117, 125);
 
-    /// <summary>لون نوع حركة «قيد يومية» في كشوف الحسابات (بنفسجي — لون تصنيف لا لون حالة).</summary>
-    public static Color StatusJournal { get; } = Color.FromArgb(142, 68, 173);
-
     /// <summary>
     /// خلفية وميض الرفض — مفتاح اللوحة الوحيد <see cref="ThemePalette.RejectBackgroundColor"/>
     /// (يُقرأ حيّاً، فيسري تغيير المالك فوراً). لون **حالة** لا يُعلَن في أي مصمّم (RULE-N154).

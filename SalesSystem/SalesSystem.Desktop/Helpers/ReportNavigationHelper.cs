@@ -145,7 +145,7 @@ public static class ReportNavigationHelper
             new ReportEntry("المنتجات منتهية الصلاحية", typeof(frmExpiredProductsReport)),
         }),
 
-        new("التقارير المحاسبية والمالية", new[]
+        new("التقارير المالية", new[]
         {
             new ReportEntry("قائمة الدخل", typeof(frmIncomeStatementReport)),
             new ReportEntry("تقرير التدفقات النقدية", typeof(frmCashFlowReport)),

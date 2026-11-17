@@ -366,7 +366,7 @@ public partial class frmMain : Form
     private void msReportExpiredProducts_Click(object sender, EventArgs e)
         => OpenScreen<frmExpiredProductsReport>();
 
-    // التقارير المالية والمحاسبية
+    // التقارير المالية
     private void msReportIncomeStatement_Click(object sender, EventArgs e)
         => OpenScreen<frmIncomeStatementReport>();
 
