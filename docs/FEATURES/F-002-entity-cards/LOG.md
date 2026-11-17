@@ -98,3 +98,25 @@
 **البناء بعد الموجة:** `Build succeeded · 0 Error(s) · 118 Warning(s)`.
 
 **بنود اختبار جديدة (29–33):** «بطاقة العميل» من قائمة الزر الأيمن · «بحث وتصفية عن عميل» · عناصر القائمة معطّلة بلا تحديد · تعمل على نتيجة مصفّاة · ترتيب العناصر بلا تداخل.
+
+---
+
+## الجولة 4 — 2026-11-17 — صندوق اقتراحات (ComboBox) بدل حقل التصفية النصي
+
+**نصّ المالك:** «ctrlCustomerCardWithFilter.cs use cmbBox instead od text filter for Suggestion data the same for Help to find data if this is better do it».
+
+**الحكم قبل التنفيذ:** أفضل لهذا النظام (متجر صغير/متوسط): كتابة «أح» تُظهر اقتراحات، والاختيار يُحمّل البطاقة فوراً بلا زر بحث. القيد المُعلَن: عند آلاف العملاء تصبح القائمة ثقيلة ويُعاد عندها إلى النص + الشبكة.
+
+| البند | ما جرى |
+|---|---|
+| المصمّم | حُذف `cbFilterBy` · `txtFilterValue` · `btnFind` · وأُضيف `cbCustomer` (`DropDownStyle = DropDown` · `AutoCompleteMode = SuggestAppend` · `AutoCompleteSource = ListItems` · `MaxDropDownItems = 20`) + `btnReload` «تحديث القائمة» |
+| الشيفرة | `CustomerPick(Id, Display)` (`"{Name} — {Phone}"` بانحدار نظيف) · قائمة كسولة واحدة عبر `GetAllAsync(search: null, includeInactive: true)` · `SelectedIndexChanged` يُحمّل البطاقة ويُطلق `CustomerSelected` (بحارس `FilterEnabled`) |
+| المطابقة عند `Enter` | العرض الكامل ← الاسم بالضبط ← الهاتف بالضبط ← أول `StartsWith` ← «لا يوجد عميل مطابق» |
+| حرّاس إعادة الدخول | `_syncingCombo` (ضبط برمجي لا يُطلق تحميلاً) · `_isSearching` · `_listLoaded` |
+| حُذف نهائياً | `_FindFromFilterAsync` · `_FindByNameOrPhoneAsync` · `FilterOption` · `CustomerFilterKind` · `_SelectedFilterKind` · `_IsExactMatch` — `grep` لكل منها = **0** |
+| العقد العام | **لم يتغيّر**: `Attach` · `CustomerSelected` · `FilterEnabled` · `ShowAddNew` · `LoadCustomerAsync(int\|string)` · `ResetCustomerInfo` · `FilterFocus` (و`frmFindCustomer` لا يمسّ) |
+| ملاحظة نظافة | `frmFindCustomer.Designer.cs`/`.resx` كانا قد تغيّرا في الشجرة بألوان بصيغة مختصرة (`RULE-N204`) وحذف `components` وحقل ميت ⇒ **رُجِّعا إلى `HEAD`** ولم يُدرجا في الكومِت |
+
+**البناء:** `Build succeeded · 0 Error(s) · 118 Warning(s)`.
+
+**بنود اختبار (34–42) تحلّ محلّ بنود «تصفية بـ: المعرّف/الاسم/الهاتف»:** الكتابة تُظهر اقتراحات (حد 20) · الاختيار يُحمّل البطاقة فوراً ويُفعّل «اختيار» · `Enter` بالهاتف يعمل · نص غير موجود ⇒ «لا يوجد عميل مطابق» + تصفير · نص فارغ ⇒ رسالة عربية · «تحديث القائمة» يُعيد القراءة ويُبقي العميل الحالي · عميل جديد يظهر بعد التحديث · `Enter` لا ينقل التركيز ولا يُغلق النموذج · `FilterFocus` يحدد النص.

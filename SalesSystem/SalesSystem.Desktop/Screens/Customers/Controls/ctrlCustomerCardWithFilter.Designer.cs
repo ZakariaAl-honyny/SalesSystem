@@ -18,14 +18,15 @@ partial class ctrlCustomerCardWithFilter
     //     التي يطبّقها GreenThemeHelper وقت التشغيل، وبصيغة Convert.ToInt32.
     //   • ‏RULE-N145: gbFilters وأدواته وزرّاه عناصر دائمة — مُعلنة هنا ولا تُبنى وقت التشغيل.
     //   • ‏RULE-N125: ctrlCustomerCard1 هو المراسي Fill ويُضاف أولاً، وgbFilters (Top) بعده.
+    //   • قرار المالك 2026-11-17: صندوق بحث واحد باقتراحات (ComboBox) بدل «تصفية بـ + نص + زر بحث».
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        toolTip1 = new ToolTip(components);
         gbFilters = new GroupBox();
         label1 = new Label();
-        cbFilterBy = new ComboBox();
-        txtFilterValue = new TextBox();
-        btnFind = new Button();
+        cbCustomer = new ComboBox();
+        btnReload = new Button();
         btnAddNew = new Button();
         ctrlCustomerCard1 = new ctrlCustomerCard();
         gbFilters.SuspendLayout();
@@ -35,9 +36,8 @@ partial class ctrlCustomerCardWithFilter
         // 
         gbFilters.BackColor = Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbFilters.Controls.Add(label1);
-        gbFilters.Controls.Add(cbFilterBy);
-        gbFilters.Controls.Add(txtFilterValue);
-        gbFilters.Controls.Add(btnFind);
+        gbFilters.Controls.Add(cbCustomer);
+        gbFilters.Controls.Add(btnReload);
         gbFilters.Controls.Add(btnAddNew);
         gbFilters.Dock = DockStyle.Top;
         gbFilters.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -54,55 +54,49 @@ partial class ctrlCustomerCardWithFilter
         // 
         label1.AutoSize = false;
         label1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        label1.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label1.Location = new Point(45, 24);
+        label1.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        label1.Location = new Point(8, 24);
         label1.Name = "label1";
-        label1.Size = new Size(95, 26);
+        label1.Size = new Size(120, 26);
         label1.TabIndex = 0;
-        label1.Text = "تصفية بـ:";
+        label1.Text = "ابحث عن عميل:";
         label1.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // cbFilterBy
+        // cbCustomer
         // 
-        cbFilterBy.BackColor = Color.White;
-        cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
-        cbFilterBy.FlatStyle = FlatStyle.Flat;
-        cbFilterBy.Font = new Font("Tahoma", 10F);
-        cbFilterBy.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        cbFilterBy.FormattingEnabled = true;
-        cbFilterBy.Location = new Point(148, 20);
-        cbFilterBy.Name = "cbFilterBy";
-        cbFilterBy.Size = new Size(146, 32);
-        cbFilterBy.TabIndex = 1;
-        cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+        cbCustomer.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+        cbCustomer.AutoCompleteSource = AutoCompleteSource.ListItems;
+        cbCustomer.BackColor = Color.White;
+        cbCustomer.DropDownStyle = ComboBoxStyle.DropDown;
+        cbCustomer.FlatStyle = FlatStyle.Flat;
+        cbCustomer.Font = new Font("Tahoma", 10F);
+        cbCustomer.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        cbCustomer.FormattingEnabled = true;
+        cbCustomer.Location = new Point(138, 21);
+        cbCustomer.MaxDropDownItems = 20;
+        cbCustomer.Name = "cbCustomer";
+        cbCustomer.RightToLeft = RightToLeft.Yes;
+        cbCustomer.Size = new Size(320, 32);
+        cbCustomer.TabIndex = 1;
+        cbCustomer.SelectedIndexChanged += cbCustomer_SelectedIndexChanged;
+        cbCustomer.KeyDown += cbCustomer_KeyDown;
         // 
-        // txtFilterValue
+        // btnReload
         // 
-        txtFilterValue.BackColor = Color.White;
-        txtFilterValue.BorderStyle = BorderStyle.FixedSingle;
-        txtFilterValue.Font = new Font("Tahoma", 10F);
-        txtFilterValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        txtFilterValue.Location = new Point(304, 22);
-        txtFilterValue.Name = "txtFilterValue";
-        txtFilterValue.Size = new Size(250, 32);
-        txtFilterValue.TabIndex = 2;
-        txtFilterValue.KeyDown += txtFilterValue_KeyDown;
-        // 
-        // btnFind
-        // 
-        btnFind.BackColor = Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
-        btnFind.Cursor = Cursors.Hand;
-        btnFind.FlatAppearance.BorderSize = 0;
-        btnFind.FlatStyle = FlatStyle.Flat;
-        btnFind.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnFind.ForeColor = Color.White;
-        btnFind.Location = new Point(564, 20);
-        btnFind.Name = "btnFind";
-        btnFind.Size = new Size(100, 32);
-        btnFind.TabIndex = 3;
-        btnFind.Text = "بحث";
-        btnFind.UseVisualStyleBackColor = false;
-        btnFind.Click += btnFind_Click;
+        btnReload.BackColor = Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnReload.Cursor = Cursors.Hand;
+        btnReload.FlatAppearance.BorderSize = 0;
+        btnReload.FlatStyle = FlatStyle.Flat;
+        btnReload.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReload.ForeColor = Color.White;
+        btnReload.Location = new Point(468, 20);
+        btnReload.Name = "btnReload";
+        btnReload.Size = new Size(120, 32);
+        btnReload.TabIndex = 2;
+        btnReload.Text = "تحديث القائمة";
+        btnReload.UseVisualStyleBackColor = false;
+        toolTip1.SetToolTip(btnReload, "إعادة تحميل قائمة العملاء");
+        btnReload.Click += btnReload_Click;
         // 
         // btnAddNew
         // 
@@ -112,10 +106,10 @@ partial class ctrlCustomerCardWithFilter
         btnAddNew.FlatStyle = FlatStyle.Flat;
         btnAddNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnAddNew.ForeColor = Color.White;
-        btnAddNew.Location = new Point(674, 20);
+        btnAddNew.Location = new Point(598, 20);
         btnAddNew.Name = "btnAddNew";
-        btnAddNew.Size = new Size(100, 32);
-        btnAddNew.TabIndex = 4;
+        btnAddNew.Size = new Size(110, 32);
+        btnAddNew.TabIndex = 3;
         btnAddNew.Text = "جديد";
         btnAddNew.UseVisualStyleBackColor = false;
         btnAddNew.Click += btnAddNew_Click;
@@ -142,11 +136,11 @@ partial class ctrlCustomerCardWithFilter
         ResumeLayout(false);
     }
 
+    private System.Windows.Forms.ToolTip toolTip1;
     private System.Windows.Forms.GroupBox gbFilters;
     private System.Windows.Forms.Label label1;
-    private System.Windows.Forms.ComboBox cbFilterBy;
-    private System.Windows.Forms.TextBox txtFilterValue;
-    private System.Windows.Forms.Button btnFind;
+    private System.Windows.Forms.ComboBox cbCustomer;
+    private System.Windows.Forms.Button btnReload;
     private System.Windows.Forms.Button btnAddNew;
     private ctrlCustomerCard ctrlCustomerCard1;
 }

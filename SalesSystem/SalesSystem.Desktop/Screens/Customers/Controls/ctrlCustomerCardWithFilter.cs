@@ -10,16 +10,16 @@ using Serilog;
 namespace SalesSystem.Desktop.Screens.Customers.Controls;
 
 /// <summary>
-/// «بطاقة العميل + تصفية» — عنصر قابل للتضمين (F-002).
+/// «بطاقة العميل + بحث» — عنصر قابل للتضمين (F-002).
 /// <para>
-/// يبحث عن العميل بثلاثة طرق (المعرّف · الاسم · الهاتف) عبر <c>ICustomerDesktopService</c> فقط،
-/// ويعرض النتيجة داخل <see cref="ctrlCustomerCard"/> التي لا تعرف أي خدمة.
+/// <b>قرار المالك 2026-11-17:</b> صندوق بحث واحد باقتراحات (<see cref="ComboBox"/>) بدل
+/// «تصفية بـ + حقل نص + زر بحث»: الكتابة تُقترح الأسماء/الهواتف، واختيار أي اقتراح يُحمّل
+/// البطاقة فوراً — فلا خطوة «اضغط بحث» ولا حقلان متزامنان.
 /// </para>
 /// <para>
-/// <b>الاستخدام:</b> استدعِ <see cref="Attach"/> أولاً (مثل أي عنصر يُحلّ منه شيء من DI)،
-/// ثم <see cref="LoadCustomerAsync(int,CancellationToken)"/> أو <see cref="LoadCustomerAsync(string,CancellationToken)"/>،
-/// واستمع إلى <see cref="CustomerSelected"/>. إن لم يُستدعَ <see cref="Attach"/> يبقى العنصر
-/// <b>خامداً</b> ويُبلّغ برسالة عربية بدل رمي استثناء (RULE-N28).
+/// البيانات كلها من <c>ICustomerDesktopService</c> فقط، والبطاقة <see cref="ctrlCustomerCard"/>
+/// لا تعرف أي خدمة. والقائمة تُحمَّل مرة واحدة (كسولة) وتُحدَّث بزر «تحديث القائمة» — فلا طلب
+/// خدمة مع كل حرف يكتبه المستخدم.
 /// </para>
 /// </summary>
 public partial class ctrlCustomerCardWithFilter : UserControl
@@ -28,10 +28,29 @@ public partial class ctrlCustomerCardWithFilter : UserControl
 
     private const string NoMatchMessage = "لا يوجد عميل مطابق";
 
+    private const string EmptySearchMessage = "يرجى كتابة اسم العميل أو رقم هاتفه أولاً.";
+
+    private const string ListLoadFailedMessage = "تعذر تحميل قائمة العملاء. يرجى إعادة المحاولة.";
+
     private IServiceProvider? _serviceProvider;
 
-    /// <summary>يمنع بحثين متوازيين على نفس البطاقة (نتيجتان تكتبان فوق بعضهما).</summary>
+    /// <summary>اقتراحات صندوق البحث (اسم معروض + معرّف) — مرتَّبة بالاسم.</summary>
+    private readonly List<CustomerPick> _picks = [];
+
+    /// <summary>مقارنة فورية: المعرّف ← الاقتراح (بلا بحث خطّي).</summary>
+    private readonly Dictionary<int, CustomerPick> _pickById = [];
+
+    /// <summary>سجلات الخدمة كاملة (للاسم/الهاتف في المطابقة) — تُملأ مع القائمة بلا طلب إضافي.</summary>
+    private readonly Dictionary<int, CustomerDto> _byId = [];
+
+    /// <summary>هل حُمّلت القائمة مرة واحدة؟ (التحميل كسول — أول استخدام فقط).</summary>
+    private bool _listLoaded;
+
+    /// <summary>تحميل بطاقة جارٍ — يمنع تداخل تحميلين على البطاقة نفسها.</summary>
     private bool _isSearching;
+
+    /// <summary>منع إعادة الدخول: نضبط الاختيار برمجياً فلا يجب أن يُطلق تحميلاً.</summary>
+    private bool _syncingCombo;
 
     public ctrlCustomerCardWithFilter()
     {
@@ -41,24 +60,16 @@ public partial class ctrlCustomerCardWithFilter : UserControl
         // (نموذج العرض وحده يعرضه ويستهلك EditRequested).
         ctrlCustomerCard1.ShowEditLink = false;
 
-        // القائمة تُملأ بعناصر مُسمّاة: المنطق يقرأ العنصر لا النص العربي (RULE-N60/RULE-N24).
-        cbFilterBy.DisplayMember = nameof(FilterOption.Text);
-        cbFilterBy.Items.AddRange(new object[]
-        {
-            new FilterOption("المعرّف", CustomerFilterKind.Id),
-            new FilterOption("الاسم", CustomerFilterKind.Name),
-            new FilterOption("الهاتف", CustomerFilterKind.Phone)
-        });
-        cbFilterBy.SelectedIndex = 0;
+        // عناصر مصدر الاقتراح: سجلات مُسمّاة، والعرض من خاصية Display لا من نص حر (RULE-N60).
+        cbCustomer.DisplayMember = nameof(CustomerPick.Display);
 
-        // RULE-N40…RULE-N47 — تنقّل وتحديد وتظليل الحقل النشط وأسهم RTL.
-        // ملاحظة مقيسة (PILOT-13 / RULE-N193): النسخة ثنائية الوسيط هي التي تُعلن Enter مفتاح إدخال
-        // فيصل إلى KeyDown قبل أن يبتلعه AcceptButton، وتحترم e.Handled فلا تنقل التركيز مع بحث Enter.
-        KeyboardHelper.WireEnterAsTab(gbFilters, () => btnFind);
+        // RULE-N40…RULE-N47 — النسخة ثنائية الوسيط تُعلن Enter مفتاحَ إدخال (RULE-N193) وتحترم
+        // e.Handled ⇒ Enter في صندوق البحث يُنفّذ بحثنا ولا ينقل التركيز ولا ينفّذ AcceptButton.
+        KeyboardHelper.WireEnterAsTab(gbFilters, () => btnReload);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);
-        KeyboardHelper.WireButtonDisabledVisual(btnFind, btnAddNew);   // RULE-N43
+        KeyboardHelper.WireButtonDisabledVisual(btnReload, btnAddNew);   // RULE-N43
 
         // WireGlobalShortcuts غير منطبقة على UserControl (توقيعها Form) — الاختصارات في النماذج الحاضنة.
 
@@ -70,11 +81,11 @@ public partial class ctrlCustomerCardWithFilter : UserControl
     /// <summary>يُطلق بعد كل عرض/تصفير — يُقرأ منه العميل المختار (وعنصر <c>null</c> عند التصفير).</summary>
     public event EventHandler<CustomerDto?>? CustomerSelected;
 
-    // WFO1000: واجهة وقت تشغيل لا خاصية مصمّم — المصمّم لا يعرضها ولا يُسلسلها.
     /// <summary>
-    /// تعطيل/تفعيل صندوق التصفية كاملاً. التعطيل <b>لا يُصفّر</b> البطاقة (نمط المرجع:
-    /// يُقفل بعد الاختيار فيبقى السجل معروضاً).
+    /// تعطيل/تفعيل صندوق البحث كاملاً (التسمية + الصندوق + زرّيه). التعطيل <b>لا يُصفّر</b>
+    /// البطاقة (نمط المرجع: يُقفل بعد الاختيار فيبقى السجل معروضاً).
     /// </summary>
+    // WFO1000: واجهة وقت تشغيل لا خاصية مصمّم — المصمّم لا يعرضها ولا يُسلسلها.
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool FilterEnabled
@@ -105,7 +116,7 @@ public partial class ctrlCustomerCardWithFilter : UserControl
         _serviceProvider = serviceProvider;
     }
 
-    /// <summary>تحميل بطاقة عميل بمعرّفه عبر <c>GetByIdAsync</c>.</summary>
+    /// <summary>تحميل بطاقة عميل بمعرّفه (مع مزامنة صندوق البحث إن كان السجل في القائمة).</summary>
     public async Task LoadCustomerAsync(int id, CancellationToken ct = default)
     {
         if (!_EnsureAttached()) return;
@@ -119,9 +130,11 @@ public partial class ctrlCustomerCardWithFilter : UserControl
         if (_isSearching) return;
 
         _isSearching = true;
-        Cursor = Cursors.WaitCursor;
         try
         {
+            await _EnsureListAsync(ct);   // تملك مؤشر الانتظار الخاص بها
+
+            Cursor = Cursors.WaitCursor;
             var result = await Service.GetByIdAsync(id, ct);
 
             if (!result.IsSuccess || result.Value is null)
@@ -130,7 +143,7 @@ public partial class ctrlCustomerCardWithFilter : UserControl
                 return;
             }
 
-            _Show(result.Value);
+            _Show(result.Value, syncCombo: true);
         }
         catch (Exception ex)
         {
@@ -144,24 +157,42 @@ public partial class ctrlCustomerCardWithFilter : UserControl
         }
     }
 
-    /// <summary>البحث عن عميل بالاسم — <b>حدُّ الخطأ</b> لواجهة العنصر العامة (RULE-N14/RULE-N25).</summary>
+    /// <summary>
+    /// البحث داخل القائمة المحمّلة بالاسم أو الهاتف (بلا طلب قائمة جديد)، ثم طلب واحد
+    /// للسجل عبر <c>GetByIdAsync</c> — فالبيانات المعروضة هي بيانات الخدمة لا نص القائمة.
+    /// </summary>
     public async Task LoadCustomerAsync(string name, CancellationToken ct = default)
     {
-        string value = name?.Trim() ?? string.Empty;
+        string typed = name?.Trim() ?? string.Empty;
 
-        if (value.Length == 0)
+        if (typed.Length == 0)
         {
-            _ClearSelection("يرجى إدخال اسم العميل أولاً.");
+            _ClearSelection(EmptySearchMessage);
             return;
         }
 
         try
         {
-            await _FindByNameOrPhoneAsync(CustomerFilterKind.Name, value, ct);
+            if (!_EnsureAttached()) return;
+
+            if (!await _EnsureListAsync(ct))
+            {
+                _ClearSelection(ListLoadFailedMessage);
+                return;
+            }
+
+            var pick = _ResolveTyped(typed);
+            if (pick is null)
+            {
+                _ClearSelection(NoMatchMessage);
+                return;
+            }
+
+            await LoadCustomerAsync(pick.Id, ct);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ أثناء البحث عن عميل بالاسم {Name}", value);
+            Log.Error(ex, "خطأ أثناء البحث عن عميل بالاسم {Name}", typed);
             _ClearSelection("تعذر البحث عن العميل. يرجى إعادة المحاولة.");
         }
     }
@@ -169,13 +200,13 @@ public partial class ctrlCustomerCardWithFilter : UserControl
     /// <summary>يُفرّغ البطاقة (بلا بحث وبلا رسالة) — يُستدعى عند تغيير السياق في الحاضن.</summary>
     public void ResetCustomerInfo() => ctrlCustomerCard1.ResetCustomerInfo();
 
-    /// <summary>يضع المؤشر في حقل التصفية ويحدد قيمته (نمط المرجع: بعد الإضافة أو عند بدء البحث).</summary>
+    /// <summary>يضع المؤشر في صندوق البحث ويحدد نصه (نمط المرجع: بعد الإضافة أو عند بدء البحث).</summary>
     public void FilterFocus()
     {
         if (!gbFilters.Enabled) return;
 
-        txtFilterValue.Focus();
-        txtFilterValue.SelectAll();
+        cbCustomer.Focus();
+        cbCustomer.SelectAll();
     }
 
     // ── المظهر ────────────────────────────────────────────────────────────────
@@ -186,114 +217,189 @@ public partial class ctrlCustomerCardWithFilter : UserControl
         GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
 
-    // ── البحث ─────────────────────────────────────────────────────────────────
-
-    /// <summary>«بحث» — يقرأ نوع التصفية من العنصر المحدد لا من نصه.</summary>
-    private void btnFind_Click(object? sender, EventArgs e) => _ = _FindFromFilterAsync();
+    // ── قائمة الاقتراحات ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Enter داخل حقل التصفية = بحث فوري (مثل RULE-N42/RULE-N59).
-    /// يُعلَن كمُعالَج قبل مُعالج <c>KeyboardHelper</c> (اشتراك المصمّم أسبق)، والـHelper يحترم
-    /// <c>e.Handled</c> فلا ينقل التركيز — كما يمنع <c>SuppressKeyPress</c> تنفيذ
-    /// <c>AcceptButton</c> للنموذج الحاضن (PILOT-13 / RULE-N153 / RULE-N193).
+    /// تحميل القائمة مرة واحدة (كسول). تُعيد <c>false</c> عند فشل القراءة — والمتصل هو من
+    /// يُظهر الرسالة العربية، فالدالة نفسها بلا <c>catch</c> (RULE-N205: الحدّ عند المستدعي).
     /// </summary>
-    private void txtFilterValue_KeyDown(object? sender, KeyEventArgs e)
+    private async Task<bool> _EnsureListAsync(CancellationToken ct)
+    {
+        if (_listLoaded) return true;
+        if (_serviceProvider is null) return false;
+
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            var result = await Service.GetAllAsync(search: null, includeInactive: true, ct);
+
+            if (!result.IsSuccess || result.Value is null) return false;
+
+            _picks.Clear();
+            _pickById.Clear();
+            _byId.Clear();
+
+            foreach (var customer in result.Value.OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var pick = new CustomerPick(customer.Id, _BuildDisplay(customer));
+
+                _picks.Add(pick);
+                _pickById[customer.Id] = pick;
+                _byId[customer.Id] = customer;
+            }
+
+            _listLoaded = true;
+
+            _BindCombo((cbCustomer.SelectedItem as CustomerPick)?.Id);
+            return true;
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>يملأ الصندوق بالاقتراحات ويُعيد تحديد العميل الحالي إن بقي في القائمة.</summary>
+    private void _BindCombo(int? selectedId)
+    {
+        _syncingCombo = true;
+        try
+        {
+            cbCustomer.BeginUpdate();
+            cbCustomer.Items.Clear();
+            cbCustomer.Items.AddRange(_picks.Cast<object>().ToArray());
+            cbCustomer.EndUpdate();
+
+            if (selectedId is int id && _pickById.TryGetValue(id, out var pick))
+                cbCustomer.SelectedItem = pick;
+            else
+                cbCustomer.SelectedIndex = -1;
+        }
+        finally
+        {
+            _syncingCombo = false;
+        }
+    }
+
+    /// <summary>
+    /// مزامنة الصندوق مع سجل معروض بلا إعادة دخول: موجود في القائمة ⇒ يُحدَّد؛ غير موجود
+    /// (سجل معطّل/جديد لم تُحدَّث القائمة) ⇒ يُعرض نصه بلا اختيار فلا تظهر قائمة فارغة.
+    /// </summary>
+    private void _SyncComboTo(CustomerDto customer)
+    {
+        _syncingCombo = true;
+        try
+        {
+            if (_pickById.TryGetValue(customer.Id, out var pick))
+            {
+                if (!ReferenceEquals(cbCustomer.SelectedItem, pick)) cbCustomer.SelectedItem = pick;
+                return;
+            }
+
+            cbCustomer.SelectedIndex = -1;
+            cbCustomer.Text = _BuildDisplay(customer);
+        }
+        finally
+        {
+            _syncingCombo = false;
+        }
+    }
+
+    /// <summary>
+    /// مطابقة النص المكتوب بالترتيب: العرض الكامل ← الاسم بالضبط ← الهاتف بالضبط ←
+    /// أول اقتراح يبدأ بالنص (اقتراح لا يطابق يبقى «لا يوجد عميل مطابق»).
+    /// </summary>
+    private CustomerPick? _ResolveTyped(string typed)
+    {
+        var byDisplay = _picks.FirstOrDefault(p =>
+            string.Equals(p.Display, typed, StringComparison.CurrentCultureIgnoreCase));
+
+        if (byDisplay is not null) return byDisplay;
+
+        var byName = _picks.FirstOrDefault(p =>
+            _byId.TryGetValue(p.Id, out var customer) &&
+            string.Equals(customer.Name?.Trim(), typed, StringComparison.CurrentCultureIgnoreCase));
+
+        if (byName is not null) return byName;
+
+        var byPhone = _picks.FirstOrDefault(p =>
+            _byId.TryGetValue(p.Id, out var customer) &&
+            string.Equals(customer.Phone?.Trim(), typed, StringComparison.OrdinalIgnoreCase));
+
+        if (byPhone is not null) return byPhone;
+
+        return _picks.FirstOrDefault(p =>
+            p.Display.StartsWith(typed, StringComparison.CurrentCultureIgnoreCase));
+    }
+
+    /// <summary>
+    /// نص الاقتراح: «الاسم — الهاتف» وينحدر بنظافة عند غياب أحدهما (ولا يظهر «— —» أبداً).
+    /// </summary>
+    private static string _BuildDisplay(CustomerDto customer)
+    {
+        string name = customer.Name?.Trim() ?? string.Empty;
+        string phone = customer.Phone?.Trim() ?? string.Empty;
+
+        if (name.Length == 0 && phone.Length == 0) return "عميل #" + customer.Id;
+        if (phone.Length == 0) return name;
+        if (name.Length == 0) return phone;
+
+        return $"{name} — {phone}";
+    }
+
+    // ── المعالجات ─────────────────────────────────────────────────────────────
+
+    /// <summary>اختيار اقتراح = تحميل فوري للبطاقة (بلا زر بحث) — والمزامنة البرمجية لا تُعيد الدخول.</summary>
+    private void cbCustomer_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_syncingCombo || _isSearching) return;
+        if (cbCustomer.SelectedItem is not CustomerPick pick) return;
+
+        // حدّ الخطأ موجود داخل LoadCustomerAsync (RULE-N205) ⇒ لا حارس ثانٍ هنا.
+        _ = LoadCustomerAsync(pick.Id);
+    }
+
+    /// <summary>
+    /// Enter في صندوق البحث = ابحث عن النص المكتوب (مثل RULE-N42/RULE-N59)، ويُعلَن كمُعالَج
+    /// فلا ينقل التركيز ولا ينفّذ <c>AcceptButton</c> للحاضن (PILOT-13 / RULE-N153).
+    /// </summary>
+    private void cbCustomer_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode != Keys.Enter) return;
 
         e.Handled = true;
         e.SuppressKeyPress = true;
 
-        _ = _FindFromFilterAsync();
+        _ = _SearchTypedAsync();
     }
 
-    /// <summary>تغيير نوع التصفية يُفرّغ القيمة (لا يبقى معرّف في حقل بحث بالاسم).</summary>
-    private void cbFilterBy_SelectedIndexChanged(object? sender, EventArgs e) => txtFilterValue.Clear();
-
-    /// <summary>
-    /// مسار البحث الواحد من صندوق التصفية (زر «بحث» أو <c>Enter</c>).
-    /// يُستدعى بلا انتظار من معالجَين (<c>_ = …</c>) ⇒ جسده كله داخل <c>try/catch</c>
-    /// فلا يفلت استثناء من مهمة غير مراقَبة (RULE-N25/RULE-N29).
-    /// </summary>
-    private async Task _FindFromFilterAsync()
+    /// <summary>«تحديث القائمة»: يُفرّغ القائمة ويُعيد تحميلها ويُعيد تحديد العميل الحالي إن بقي.</summary>
+    private async void btnReload_Click(object? sender, EventArgs e)
     {
+        if (!_EnsureAttached()) return;
+
         try
         {
-            if (!_EnsureAttached()) return;
+            int? currentId = (cbCustomer.SelectedItem as CustomerPick)?.Id;
 
-            CustomerFilterKind kind = _SelectedFilterKind();
-            string value = txtFilterValue.Text.Trim();
+            _listLoaded = false;
+            _BindCombo(null);
 
-            if (value.Length == 0)
+            if (!await _EnsureListAsync(CancellationToken.None))
             {
-                _ClearSelection("يرجى إدخال قيمة البحث أولاً.");
-                FilterFocus();
+                clsDialogs.Error(ListLoadFailedMessage);
                 return;
             }
 
-            if (kind == CustomerFilterKind.Id)
-            {
-                // غير الرقمي = رفض عربي واضح بلا استثناء ولا بحث عشوائي.
-                if (!int.TryParse(value, out int id))
-                {
-                    _ClearSelection("معرّف العميل يجب أن يكون رقماً.");
-                    FilterFocus();
-                    return;
-                }
+            _BindCombo(currentId);
 
-                await LoadCustomerAsync(id);
-                return;
-            }
-
-            await _FindByNameOrPhoneAsync(kind, value, CancellationToken.None);
+            // السجل السابق لم يعد في القائمة (حُذف) ⇒ لا تُترك بطاقة معلّقة على سجل غير موجود.
+            if (currentId is int id && !_pickById.ContainsKey(id)) _ClearSelection(null);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ غير متوقع أثناء البحث عن عميل من صندوق التصفية");
-            clsDialogs.Error("تعذر تنفيذ البحث. يرجى المحاولة مرة أخرى.");
-        }
-    }
-
-    /// <summary>
-    /// البحث بالاسم/الهاتف: يُطلب من الخدمة ما يطابق القيمة، ثم يُفضَّل <b>المطابق تماماً</b>
-    /// (تجاهل حالة الأحرف والمسافات)، وإلا أول نتيجة — وإن لم توجد نتيجة رُفض البحث برسالة عربية.
-    /// <para>
-    /// <b>بلا <c>catch</c> بقرار المالك (2026-11-17):</b> دالة داخلية يناديها حدّان يملكان معالجة الخطأ
-    /// (<see cref="LoadCustomerAsync(string, CancellationToken)"/> و<c>_FindFromFilterAsync</c>) ⇒
-    /// الاستثناء يصعد إليهما، و<see cref="finally"/> يبقى لأن إعادة ضبط <c>_isSearching</c> والمؤشر واجب لا يُتجاوَز.
-    /// </para>
-    /// </summary>
-    private async Task _FindByNameOrPhoneAsync(
-        CustomerFilterKind kind, string value, CancellationToken ct)
-    {
-        if (_isSearching) return;
-
-        _isSearching = true;
-        Cursor = Cursors.WaitCursor;
-        try
-        {
-            // includeInactive: البحث في القائمة الكاملة — البطاقة تُظهر «معطّل» بدل إخفاء السجل.
-            var result = await Service.GetAllAsync(value, includeInactive: true, ct);
-
-            if (!result.IsSuccess || result.Value is null)
-            {
-                _ClearSelection(result.Error ?? "تعذر البحث عن العميل. يرجى إعادة المحاولة.");
-                return;
-            }
-
-            if (result.Value.Count == 0)
-            {
-                _ClearSelection(NoMatchMessage);
-                return;
-            }
-
-            var exact = result.Value.FirstOrDefault(c => _IsExactMatch(c, kind, value));
-            _Show(exact ?? result.Value[0]);
-        }
-        finally
-        {
-            _isSearching = false;
-            Cursor = Cursors.Default;
+            Log.Error(ex, "خطأ أثناء تحديث قائمة العملاء في مكوّن البحث");
+            clsDialogs.Error("تعذر تحديث قائمة العملاء. يرجى إعادة المحاولة.");
         }
     }
 
@@ -327,15 +433,58 @@ public partial class ctrlCustomerCardWithFilter : UserControl
         return false;
     }
 
-    private CustomerFilterKind _SelectedFilterKind()
-        => cbFilterBy.SelectedItem is FilterOption option ? option.Kind : CustomerFilterKind.Name;
+    /// <summary>
+    /// بحث Enter على النص المكتوب — يُستدعى بلا انتظار من معالج متزامن ⇒ <b>هو</b> حدّ الخطأ
+    /// (RULE-N205). نجاحه يُطلق مساراً واحداً: تحديد الاقتراح ⇒ <c>SelectedIndexChanged</c> ⇒ تحميل.
+    /// </summary>
+    private async Task _SearchTypedAsync()
+    {
+        try
+        {
+            if (!_EnsureAttached()) return;
+
+            string typed = cbCustomer.Text.Trim();
+
+            if (typed.Length == 0)
+            {
+                _ClearSelection(EmptySearchMessage);
+                return;
+            }
+
+            if (!await _EnsureListAsync(CancellationToken.None))
+            {
+                _ClearSelection(ListLoadFailedMessage);
+                return;
+            }
+
+            var pick = _ResolveTyped(typed);
+
+            if (pick is null)
+            {
+                _ClearSelection(NoMatchMessage);
+                return;
+            }
+
+            if (ReferenceEquals(cbCustomer.SelectedItem, pick))
+                await LoadCustomerAsync(pick.Id);   // مُحدَّد أصلاً ⇒ لا حدث تغيير ليُعتمد عليه
+            else
+                cbCustomer.SelectedItem = pick;     // يُطلق المسار الواحد
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء البحث عن عميل من مربع الاقتراح");
+            clsDialogs.Error("تعذر تنفيذ البحث. يرجى المحاولة مرة أخرى.");
+        }
+    }
 
     /// <summary>يعرض سجلاً ويُبلّغ الحاضن — الإبلاغ مقصور على وضع التصفية المفعّلة (نمط المرجع).</summary>
-    private void _Show(CustomerDto dto)
+    private void _Show(CustomerDto customer, bool syncCombo)
     {
-        ctrlCustomerCard1.LoadData(dto);
+        if (syncCombo) _SyncComboTo(customer);
 
-        if (FilterEnabled) CustomerSelected?.Invoke(this, dto);
+        ctrlCustomerCard1.LoadData(customer);
+
+        if (FilterEnabled) CustomerSelected?.Invoke(this, customer);
     }
 
     /// <summary>يُصفّر البطاقة ويُبلّغ الحاضن بالتصفير (حتى يُعطّل زر «اختيار» في المنتقي).</summary>
@@ -343,38 +492,24 @@ public partial class ctrlCustomerCardWithFilter : UserControl
     {
         ctrlCustomerCard1.ResetCustomerInfo();
 
+        _syncingCombo = true;
+        try
+        {
+            cbCustomer.SelectedIndex = -1;
+            cbCustomer.Text = string.Empty;
+        }
+        finally
+        {
+            _syncingCombo = false;
+        }
+
         if (!string.IsNullOrWhiteSpace(message)) clsDialogs.Warning(message);
 
         if (FilterEnabled) CustomerSelected?.Invoke(this, null);
     }
 
-    private static bool _IsExactMatch(CustomerDto customer, CustomerFilterKind kind, string value)
-        => kind == CustomerFilterKind.Phone
-            ? string.Equals(customer.Phone?.Trim(), value, StringComparison.OrdinalIgnoreCase)
-            : string.Equals(customer.Name?.Trim(), value, StringComparison.OrdinalIgnoreCase);
-
     // ── عناصر داخلية ──────────────────────────────────────────────────────────
 
-    /// <summary>خيار «تصفية بـ» — نص معروض + نوع يُقرأ في المنطق (لا مقارنة نص عربي).</summary>
-    private sealed class FilterOption
-    {
-        public FilterOption(string text, CustomerFilterKind kind)
-        {
-            Text = text;
-            Kind = kind;
-        }
-
-        public string Text { get; }
-
-        public CustomerFilterKind Kind { get; }
-
-        public override string ToString() => Text;
-    }
-
-    private enum CustomerFilterKind
-    {
-        Id,
-        Name,
-        Phone
-    }
+    /// <summary>اقتراح واحد في صندوق البحث: معرّف + نص معروض (DisplayMember).</summary>
+    private sealed record CustomerPick(int Id, string Display);
 }
