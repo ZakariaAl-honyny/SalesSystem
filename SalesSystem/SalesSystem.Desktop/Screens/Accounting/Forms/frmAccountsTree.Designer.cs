@@ -28,7 +28,7 @@ partial class frmAccountsTree
         lblTitle.ForeColor = System.Drawing.Color.White;
         lblTitle.Location = new Point(0, 0);
         lblTitle.Name = "lblTitle";
-        lblTitle.Size = new Size(960, 46);
+        lblTitle.Size = new Size(1000, 46);
         lblTitle.TabIndex = 0;
         lblTitle.Text = "(( شجرة دليل الحسابات ))";
         lblTitle.TextAlign = ContentAlignment.MiddleCenter;
@@ -41,7 +41,7 @@ partial class frmAccountsTree
         ctrlTreeOfAccounts1.Location = new Point(0, 46);
         ctrlTreeOfAccounts1.Name = "ctrlTreeOfAccounts1";
         ctrlTreeOfAccounts1.RightToLeft = RightToLeft.Yes;
-        ctrlTreeOfAccounts1.Size = new Size(960, 588);
+        ctrlTreeOfAccounts1.Size = new Size(1000, 628);
         ctrlTreeOfAccounts1.TabIndex = 1;
         // 
         // btnClose
@@ -53,9 +53,9 @@ partial class frmAccountsTree
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(0, 634);
+        btnClose.Location = new Point(0, 674);
         btnClose.Name = "btnClose";
-        btnClose.Size = new Size(960, 46);
+        btnClose.Size = new Size(1000, 46);
         btnClose.TabIndex = 2;
         btnClose.Text = "إغلاق";
         toolTip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
@@ -67,13 +67,13 @@ partial class frmAccountsTree
         AutoScaleMode = AutoScaleMode.None;
         BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         CancelButton = btnClose;
-        ClientSize = new Size(960, 680);
+        ClientSize = new Size(1000, 720);
         Controls.Add(ctrlTreeOfAccounts1);
         Controls.Add(btnClose);
         Controls.Add(lblTitle);
         Font = new Font("Tahoma", 10F);
         FormBorderStyle = FormBorderStyle.Sizable;
-        MinimumSize = new Size(780, 540);
+        MinimumSize = new Size(860, 580);
         Name = "frmAccountsTree";
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;

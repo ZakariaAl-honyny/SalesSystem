@@ -6,11 +6,16 @@
 //     «بيانات الحسابات» ← «الإجماليات» — كل كتلة صندوق واحد بعنوان، ولا صندوق داخل صندوق.
 //
 // • العناصر الثلاثة القابلة للتضمين (RULE-N169 — لا نسخة ثانية من منطقها هنا):
-//     ctrlTreeOfAccounts   عرض هرمي + بحث + اختيار سريع (ShowCrudActions = false:
+//     ctrlTreeOfAccounts   عرض شجري للقراءة فقط + اختيار سريع (بلا أزرار ولا تصفية:
 //                          العمليات كلها من شريط الشاشة، RULE-N100).
 //     ctrlAccountEditor    بيانات الحساب + معاينة الكود + الحقول الهرمية + التحقق.
 //     ctrlCrudToolbar      الأزرار الملوّنة وآلة حالتها.
 //   فلا نسخة ثانية من: حقول المحرر · خيارات الأنواع · حكم «مطلوب» · تلوين الأزرار.
+//
+// • **الشجرة تقود الشبكة** (حسب مواصفة المالك docs/acounts.md): النقر على عقدة يملأ المحرّر
+//   **وفي الوقت نفسه** يصفّي الشبكة على الحساب وفروعه (أو على الطبيعة كاملة عند عقدة طبيعة).
+//   التصفية تُطبَّق **قبل** فتح السجل، لأن السطر يجب أن يكون موجوداً في الشبكة كي يُحدَّد فيها.
+//   معرفات الفروع تأتي من الشجرة نفسها (GetSubtreeIds/GetNatureIds) — لا حساب هرمي هنا.
 //
 // • آلة الحالة واحدة `_ApplyModeState()` (النظير RULE-N150): هي **المكان الوحيد** الذي
 //   يُغذّي الشريط المشترك (SetMode/HasSelection/AllowDelete) ويضبط Enabled لأزرار الشاشة.
@@ -90,6 +95,15 @@ public partial class frmAccounts : Form
     /// <summary>مزامنة تحديد (شبكة ↔ شجرة ↔ محرّر): تُكتم أحداث التحديد العابرة.</summary>
     private bool _syncingSelection;
 
+    /// <summary>
+    /// معرّفات تصفية الشجرة المختارة — <c>null</c> = لا تصفية عقدة. تُملأ من الشجرة
+    /// (GetSubtreeIds للحساب، GetNatureIds للطبيعة) وتُركَّب مع بقية أدوات التصفية.
+    /// </summary>
+    private HashSet<int>? _treeFilterIds;
+
+    /// <summary>وصف تصفية العقدة لشريط الملخص («الكود — الاسم» أو «طبيعة: …») — <c>null</c> = بلا تصفية عقدة.</summary>
+    private string? _treeFilterLabel;
+
     /// <summary>خيار نوع الحساب في التصفية — الربط بالقيمة لا بالنص العربي (RULE-N60).</summary>
     private sealed record NatureOption(byte Value, string Text)
     {
@@ -134,12 +148,10 @@ public partial class frmAccounts : Form
         KeyboardHelper.WireButtonDisabledVisual(btnPermanentDelete, btnClearFilters);
 
         // ── المكوّنات القابلة للتضمين ─────────────────────────────────────────
-        Tree.Attach(_serviceProvider);    // + ShowCrudActions = false من المصمّم
+        Tree.Attach(_serviceProvider);    // شجرة عرض للقراءة فقط
         Editor.Attach(_serviceProvider);  // قائمة الآباء + معاينة الكود
 
         Tree.AccountSelected += Tree_AccountSelected;
-        Tree.AddChildRequested += Tree_AddChildRequested;
-        Tree.EditRequested += Tree_EditRequested;
 
         Toolbar.AddRequested += Toolbar_AddRequested;
         Toolbar.EditRequested += Toolbar_EditRequested;
@@ -188,13 +200,13 @@ public partial class frmAccounts : Form
     /// <summary>خيارات التصفية فقط — خيارات المحرّر ملك عنصر المحرّر (RULE-N169).</summary>
     private void _LoadFilterOptions()
     {
+        // أسماء الطبائع من البيت الواحد في الشجرة — لا قائمة ثانية للأسماء العربية (RULE-N172).
         cbNatureFilter.Items.Clear();
         cbNatureFilter.Items.Add(new NatureOption(0, "كل الأنواع"));
-        cbNatureFilter.Items.Add(new NatureOption(1, "أصول"));
-        cbNatureFilter.Items.Add(new NatureOption(2, "خصوم"));
-        cbNatureFilter.Items.Add(new NatureOption(3, "حقوق ملكية"));
-        cbNatureFilter.Items.Add(new NatureOption(4, "إيرادات"));
-        cbNatureFilter.Items.Add(new NatureOption(5, "مصروفات"));
+
+        for (byte nature = 1; nature <= 5; nature++)
+            cbNatureFilter.Items.Add(new NatureOption(nature, ctrlTreeOfAccounts.NatureName(nature)));
+
         cbNatureFilter.SelectedIndex = 0;
 
         cbFilterBy.Items.Clear();
@@ -208,7 +220,13 @@ public partial class frmAccounts : Form
     private void _SetupToolTips()
     {
         toolTip.SetToolTip(cbFilterBy, "عمود البحث: الكود أو الاسم العربي أو الاسم الإنجليزي");
-        toolTip.SetToolTip(cbNatureFilter, "تصفية بنوع الحساب (أصول · خصوم · حقوق ملكية · إيرادات · مصروفات)");
+        toolTip.SetToolTip(cbNatureFilter, "تصفية بطبيعة الحساب — بنفس أسماء عقد الشجرة");
+
+        // تلميح واحد للزر الواحد: يبدأ بما في المصمّم ويُضيف أن تصفية عقدة الشجرة تُمسح معه
+        // («مسح التصفية» و«تحديث» يرفعانها، فلا تبقى الشبكة محصورة في فرع).
+        toolTip.SetToolTip(btnClearFilters,
+            "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات — ويشمل تصفية عقدة الشجرة المختارة");
+
         toolTip.SetToolTip(dgvAccounts, "نقر مزدوج = فتح الحساب في المحرّر للتعديل");
     }
 
@@ -656,7 +674,8 @@ public partial class frmAccounts : Form
            || chkShowInactive.Checked
            || chkOnlyLeaf.Checked
            || chkOnlySystem.Checked
-           || chkOnlyParents.Checked;
+           || chkOnlyParents.Checked
+           || _treeFilterIds is not null;   // تصفية عقدة الشجرة تُحتسب تصفيةً نشطة (RULE-N148)
 
     /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث».</summary>
     private void _ClearFilterInputs()
@@ -665,6 +684,12 @@ public partial class frmAccounts : Form
         _syncingSelection = true; // التصفية لا تلمس المحرر: نمنع مزامنة التحديد أثناء المسح
         try
         {
+            // تصفية عقدة الشجرة تُمسح أولاً: الحالة أولاً (فلا تُقرأ في تطبيق وسيط) ثم اختيار
+            // الشجرة، والحارس مرفوع فلا يهرب منه حدث اختيار يفتح المحرّر أو يعيد التصفية.
+            _treeFilterIds = null;
+            _treeFilterLabel = null;
+            Tree.ClearSelection();
+
             txtFilterValue.Clear();
 
             if (cbFilterBy.Items.Count > 0) cbFilterBy.SelectedIndex = 0;       // «الكود»
@@ -707,6 +732,14 @@ public partial class frmAccounts : Form
 
         if (cbNatureFilter.SelectedItem is NatureOption { Value: > 0 } nature)
             conditions.Add($"NatureValue = {nature.Value}");
+
+        // تصفية عقدة الشجرة: تُركَّب مع بقية الأدوات فتعمل التصفيتان معاً (RULE-N59).
+        // الشرط على عمود Id الرقمي وحده — لا نص مستخدم هنا، ولا حاجة لتهريب.
+        // الشجرة الفارغة (طبيعة بلا حسابات) تُظهر صفراً صراحةً بدل «كل الحسابات».
+        if (_treeFilterIds is { } treeIds)
+            conditions.Add(treeIds.Count == 0
+                ? "Id = -1"
+                : "Id IN (" + string.Join(",", treeIds) + ")");
 
         // RULE-N60: العمود يُحدَّد بالـ SelectedIndex لا بمقارنة نص عربي،
         // والقيمة تُهرَّب في RowFilterHelper لا داخل الشاشة (RULE-N112).
@@ -779,11 +812,16 @@ public partial class frmAccounts : Form
         }
 
         // الأعداد تُنسَّق من البيت الواحد clsFormat.Number — لا إدراج خام في النص (RULE-N169)
-        lblSummary.Text =
+        string summary =
             $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_totalCount)} — "
             + $"أصول: {clsFormat.Number(assets)} · خصوم: {clsFormat.Number(liabilities)} · "
             + $"حقوق ملكية: {clsFormat.Number(equity)} · إيرادات: {clsFormat.Number(revenue)} · "
             + $"مصروفات: {clsFormat.Number(expenses)}";
+
+        // عند تصفية عقدة الشجرة يُذكر اسم العقدة صريحاً: «المعروض» وحده لا يقول أي فرع نراه.
+        if (_treeFilterLabel is { Length: > 0 } treeLabel) summary += " — العقدة: " + treeLabel;
+
+        lblSummary.Text = summary;
     }
 
     /// <summary>عند عدم وجود نتائج تُعرض طبقة «لا توجد بيانات» مكان جسم الشبكة.</summary>
@@ -839,19 +877,37 @@ public partial class frmAccounts : Form
 
     private void Tree_AccountSelected(object? sender, AccountTreeNodeDto? node)
     {
-        if (_syncingSelection || node is null) return;
+        if (_syncingSelection) return;
 
-        _OnRecordSelected(node.Id);
+        // عقدة حساب: تُصفّى الشبكة على الحساب وفروعه **قبل** فتح السجل — تحديد السطر في
+        // الشبكة يحتاج سطراً موجوداً، ولو أُخِّر الفتح لذهب المؤشر إلى سجل غير معروض.
+        if (node is not null)
+        {
+            _treeFilterIds = new HashSet<int>(Tree.GetSubtreeIds(node.Id));
+            _treeFilterLabel = node.AccountCode + " — " + node.NameAr;
+
+            _ApplyFilter();
+            _OnRecordSelected(node.Id);
+            return;
+        }
+
+        // عقدة طبيعة (لا حساب لها): تُصفّى الشبكة على الطبيعة كاملة، ولا سجل يُفتح.
+        if (Tree.SelectedNature is byte nature)
+        {
+            _treeFilterIds = new HashSet<int>(Tree.GetNatureIds(nature));
+            _treeFilterLabel = "طبيعة: " + ctrlTreeOfAccounts.NatureName(nature);
+
+            _ApplyFilter();
+            return;
+        }
+
+        // ذهب الاختيار (لا حساب ولا طبيعة): تُرفع تصفية العقدة وحدها بلا إعادة تحميل.
+        if (_treeFilterIds is null && _treeFilterLabel is null) return;
+
+        _treeFilterIds = null;
+        _treeFilterLabel = null;
+        _ApplyFilter();
     }
-
-    /// <summary>
-    /// «إضافة فرعي» من الشجرة — الحدث موصول كما يقتضي العقد، ولا يُطلق الآن لأن
-    /// <c>ShowCrudActions = false</c> (الشاشة تملك العمليات كلها).
-    /// </summary>
-    private void Tree_AddChildRequested(object? sender, int parentId) => _StartNewEntry(parentId);
-
-    /// <summary>«تعديل» من الشجرة — نفس المسار، ونفس السبب أعلاه.</summary>
-    private void Tree_EditRequested(object? sender, int id) => _OnRecordSelected(id);
 
     // ── Save / Delete ────────────────────────────────────────────────────────
 

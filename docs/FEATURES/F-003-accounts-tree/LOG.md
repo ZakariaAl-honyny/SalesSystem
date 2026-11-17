@@ -86,3 +86,54 @@
 **البناء:** `Build succeeded · 0 Error(s)`.
 
 **بند مفتوح (تغطية الوضع التجريبي):** حكم `IAccountDesktopService` في `docs/MOCK-COVERAGE.md` = **`مؤهل جزئياً — تكافؤ الرفض ناقص`** (`ف-AC-5`…`ف-AC-9`). هذه ليست أعطال منطق خلفي بل **تكافؤ Mock** (رفض الكود المكرر/الورقة كأب/الحد الأقصى للعمق في `MockAccountDesktopService` وبياناته) — تُغلق في شريحة Mock خاصة، وهي شرط أي عمل باك-إند مستقبلي على الوحدة.
+
+---
+
+## الجولة 6 — 2026-11-17 — الشجرة عرض فقط: بلا أزرار وبلا تصفية
+
+**نصّ المالك:** «no this for view tree of account no buttons or filter for show accounts on tree shap» — ثم «I use it inside frmaccounts».
+
+| البند | ما جرى |
+|---|---|
+| `ctrlTreeOfAccounts` | أُعيد بناؤه **عرضاً شجرياً للقراءة فقط**: صندوق واحد «شجرة الحسابات» بداخله `tvAccounts` يملؤه (`Dock=Fill`). **حُذف**: `ctrlCrudToolbar` · صف توسيع/طيّ/حذف نهائي · «بحث وتصفية» (`cbSearchBy`/`txtSearch`/`searchTimer`) · `pnlSummary`/`lblSummary` · `cmsAccounts` · `toolTip1` |
+| الواجهة العامة | بقيت: `Attach` · `RefreshAsync` · `SelectAccount` · `SelectedAccountId` · `SelectedAccount` · `AccountSelected`. **حُذفت** (صفر مستهلك بعد الحذف): `ShowCrudActions` · `AddChildRequested` · `EditRequested` · `NatureSelected` · `GetSubtreeIds` · `GetNatureIds` · `ExpandAll` · `CollapseAll` |
+| المستوى الأول | خمس عقد ثابتة (أصول 1 · خصوم 2 · حقوق ملكية 3 · إيرادات 4 · مصروفات 5) بنص «الاسم (N) — عدد الحسابات»، وتحت كل واحدة هرمية الحسابات الكاملة بأي عمق — بلا حد للعمق وبلا تصفية |
+| `frmAccounts` | حُذف توصيل `Tree.AddChildRequested`/`Tree.EditRequested` ومعالجاهما، وسطر `ShowCrudActions = false` من المصمّم — الشجرة تُبلّغ عن الاختيار فقط، والأوامر من شريط الشاشة |
+| `frmAccountsTree` | صار **نافذة عرض مستقلة** فقط: بلا فتح `frmAccounts` من الشجرة، وبلا `using` لم تعد لازمة |
+| القياس | `ctrlTreeOfAccounts.cs` = **392** سطراً (كان 1011) · المصمّم **69** (كان 428) · `resx` **66** (كان 76) · `grep "ctrlCrudToolbar|txtSearch|cbSearchBy|lblSummary|ContextMenu|DeleteAsync|PermanentDelete"` داخل العنصر = **0** |
+| البناء | `dotnet build SalesSystem.Desktop.csproj` = **0 Error(s)** |
+| خارج النطاق | `ctrlAccountEditor*` مملوك لشريحة جارية لمالك آخر — **لم يُمسّ** في هذه الجولة (التعديل العابر أُعيد إلى حالته) |
+
+**اختبار يدوي مختصر:** افتح «دليل الحسابات» ⇒ الشجرة يسار بلا أزرار/تصفية · تظهر العقد الخمس أعلى الشجرة · وسّع «الأصول (1)» ⇒ الحسابات وفروعها بأي عمق · اختر حساباً ⇒ يُعبَّأ المحرّر يميناً ويُحدَّد سطره في الشبكة · طيّ/توسيع بقائمة `+`/`−` · إعادة فتح `frmAccountsTree` ⇒ نفس الشجرة بلا أي أمر.
+
+---
+
+## الجولة 7 — 2026-11-17 — الشجرة تُصفّي الشبكة (طلب المالك في `docs/acounts.md`)
+
+**المصدر:** «بمجرد النقر على أي عقدة … **وفي نفس الوقت** تتفاعل مع جدول العرض لتصفية أو التركيز على الحسابات التابعة لتلك العقدة». قبل هذه الجولة كان الاختيار يفتح السجل فقط، والشبكة لا تتغيّر — **فجوة مقيسة** (`frmAccounts.cs:838` ⇒ `_OnRecordSelected` وحده).
+
+| البند | ما جرى |
+|---|---|
+| `ctrlTreeOfAccounts` (البيت الواحد للهيكل) | **أُعيد** ما حُذف في الجولة 6 بعد أن ظهر مستهلك حقيقي له: `GetSubtreeIds(int)` · `GetNatureIds(byte)` · زائد `SelectedNature` (`byte?`) و`ClearSelection()` — والمشي على `_roots` (شجرة الخدمة) لا على `TreeView`، بدالة تجميع واحدة `_CollectIds`. و`NatureDisplayName` صارت `public static NatureName` ليستهلكها `frmAccounts` |
+| `frmAccounts` | حالة واحدة `_treeFilterIds`/`_treeFilterLabel` تُضاف إلى **نفس** `conditions` في `_ApplyFilter()` بشرط `Id IN (…)` (فارغة ⇒ `Id = -1`) — فتتقاطع بـ`AND` مع التصفية الفورية. عقدة حساب ⇒ تصفية + فتح السجل · عقدة طبيعة ⇒ تصفية فقط بلا فتح · إفراغ التحديد ⇒ رفع التصفية |
+| المسح | `_ClearFilterInputs()` تُفرّغ تصفية الشجرة و`Tree.ClearSelection()` داخل حارس `_syncingSelection` ⇒ «مسح التصفية» و`Esc` و`F5` تعيد الكل. ونقر الشبكة **لا** يُصفّي (المزامنة تحت الحارس) |
+| إلغاء تكرار | خيارات «نوع الحساب» في صندوق التصفية صارت تُبنى من `ctrlTreeOfAccounts.NatureName` — **قائمة تسميات واحدة** في النظام (`RULE-N172`) |
+| الملخص | `lblSummary` يضيف «— العقدة: <الكود — الاسم>» عند وجود تصفية شجرية (`RULE-N61`) |
+| **بند مقيس لم يُغلق** | تصفية العقدة تعرض **النشط فقط** لأن `_roots` تأتي من `GetTreeAsync` المرشَّح بـ`IsActive` — فحساب معطّل داخل الفرع لا يظهر بتصفية عقدته حتى مع «إظهار غير النشط». يُغلق بقرار (تصفية بالمعرّفات من القائمة الكاملة `_accounts` بدل `_roots`) |
+| البناء | **Build succeeded · 0 Error(s)** |
+
+## الجولة 8 — 2026-11-17 — حذف بلوك «محسوب تلقائياً بواسطة النظام»
+
+**نصّ المالك:** «delete from UI محسوب تلقائياً بواسطة النظام».
+
+| البند | القياس |
+|---|---|
+| محذوف من المصمّم | **11** عنصراً: `lblDerivedCaption` + أربعة أزواج (تسمية + صندوق) + زوج «يقبل القيود» — أُزيلت تعريفاتها و`Controls.Add` وكتل خصائصها وتلميحاتها |
+| محذوف من الكود | `_RefreshDerivedFields()` (**5** مواضع استدعاء) · `NoValueText` (9 مراجع) · `_DerivedLevelForNewAccount` · `_DescribeFinancialStatement` · `_FinancialStatementFor` · `_SelectedNatureValue` (استدعاؤه الوحيد كان داخل البلوك) · معالج `cbNature_SelectedIndexChanged` (كان جسمه سطراً واحداً هو `_RefreshDerivedFields`) — **كل حذف سبقه عدّ مراجع** (`RULE-N195`) |
+| بقي كما هو | `cbAccountType` ⇒ `IsLeaf` · `TryBuildCreate/Update` · معاينة الكود · `RequiredFieldHelper` · `GreenThemeHelper.Apply(this)` آخر سطر · صفر `catch` جديد (`RULE-N205`) |
+| القياس بعد الحذف | `Derived` = **0** · `_RefreshDerivedFields` = **0** · `NoValueText` = **0** في الملفين وفي `Screens/Accounting`. السطور: المصمّم **674 → 485** · الكود **1071 → 957** |
+| أثر جانبي مقيس | آخر عنصر باقٍ `txtNotes` (`Y=390`, ارتفاع 56 ⇒ `Bottom=446`) داخل `gbAccountData` (ارتفاع 666) ⇒ **فراغ 220 بكسل** أسفل الصندوق. **لم أُغيّر الهندسة** (تضييقها يمسّ حجم المحرّر و`pnlActions` — قرار مالك) |
+| البناء | **Build succeeded · 0 Error(s)** (`99` تحذيراً في بناء تزايدي) |
+
+**قياس تخطيطي يخصّ الشاشة كلها (لم يُلمس):** `ctrlAccountEditor1` ارتفاعه **750** (`MinimumSize`) داخل `pnlEditorHost` ارتفاعه **~350** (`ClientSize 900 − 550` محجوزة للكتل الثابتة) — أي أن الصف السفلي من «بيانات الحساب» وشريط «حفظ/إلغاء» **تحتاج تمريراً**؛ والعلاج المقيس: `pnlEditorHost.AutoScroll = true` (موجود) أو نشر المحرّر على عمودين (العنصر عرضه 460 داخل حاوية 1072 ⇒ 600 بكسل مهدرة أفقياً).
+

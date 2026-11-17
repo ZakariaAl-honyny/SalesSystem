@@ -401,7 +401,6 @@ partial class frmAccounts
         ctrlTreeOfAccounts1.Location = new Point(0, 0);
         ctrlTreeOfAccounts1.Name = "ctrlTreeOfAccounts1";
         ctrlTreeOfAccounts1.RightToLeft = RightToLeft.Yes;
-        ctrlTreeOfAccounts1.ShowCrudActions = false;
         ctrlTreeOfAccounts1.Size = new Size(356, 350);
         ctrlTreeOfAccounts1.TabIndex = 0;
         // 

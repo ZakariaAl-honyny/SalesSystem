@@ -1,15 +1,12 @@
 // -----------------------------------------------------------------------------
-// frmAccountsTree.cs — غلاف رقيق لشجرة دليل الحسابات (F-003 · المرحلة أ)
+// frmAccountsTree.cs — غلاف رقيق لعرض شجرة دليل الحسابات (قراءة فقط)
 //
 // • الشاشة لا تعرف الخدمة ولا تبني الشجرة: كل ذلك في ctrlTreeOfAccounts، وهي تُهيَّأ
 //   بـAttach ثم RefreshAsync (RULE-N66 — الغلاف رقيق بلا منطق تحميل).
-// • «إضافة حساب فرعي» و«تعديل» لا يُنفَّذان هنا: يُطلق العنصر حدثاً، ونحن نفتح
-//   frmAccounts — البيت الواحد لتحرير الحساب (RULE-N100) — عبر clsGlobal._OpenForm
-//   (RULE-N132) وبلا إغلاق هذه الشاشة.
-// • التحميل والفتح والخدمة عبر IServiceProvider (RULE-N02/N03/N04).
+// • عرض فقط: لا أوامر ولا محرّر هنا. تحرير الحساب بيته frmAccounts (RULE-N100).
+// • التحميل والخدمة عبر IServiceProvider (RULE-N02/N03/N04).
 // -----------------------------------------------------------------------------
 
-using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using Serilog;
@@ -17,8 +14,7 @@ using Serilog;
 namespace SalesSystem.Desktop.Screens.Accounting.Forms;
 
 /// <summary>
-/// نافذة اختبار/استخدام مستقلة للشجرة. الغرض أن تكون قابلة للتضمين لاحقاً داخل
-/// <c>frmAccounts</c> بعد إقفال المهمة التي تملك تلك الشاشة.
+/// نافذة عرض مستقلة لشجرة الحسابات — عنصر <c>ctrlTreeOfAccounts</c> يملؤها.
 /// </summary>
 public partial class frmAccountsTree : Form
 {
@@ -32,10 +28,6 @@ public partial class frmAccountsTree : Form
 
         InitializeComponent();
 
-        // التوجيه إلى البيت الواحد للتحرير (RULE-N100): العنصر يُطلق، والنموذج يفتح
-        ctrlTreeOfAccounts1.AddChildRequested += CtrlTree_AddChildRequested;
-        ctrlTreeOfAccounts1.EditRequested += CtrlTree_EditRequested;
-
         // RULE-N40…RULE-N47 — الستة كاملة في نموذج جديد (§2.21 بند 7)
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
@@ -47,10 +39,7 @@ public partial class frmAccountsTree : Form
         ApplyUiTheme();
     }
 
-    /// <summary>
-    /// يُهيّئ الشجرة ويحمّلها. عام لأن حاضناً مستقبلياً (دمج الشجرة في <c>frmAccounts</c>)
-    /// يستطيع قيادة هذه النافذة بلا معرفة تفاصيلها.
-    /// </summary>
+    /// <summary>يُهيّئ الشجرة ويحمّلها.</summary>
     public async Task LoadAsync(CancellationToken ct = default)
     {
         ctrlTreeOfAccounts1.Attach(_serviceProvider);
@@ -70,22 +59,6 @@ public partial class frmAccountsTree : Form
             clsDialogs.Warning(LoadFailedMessage);
         }
     }
-
-    // ── التوجيه إلى محرّر الحسابات (RULE-N100) ────────────────────────────────
-
-    private void CtrlTree_AddChildRequested(object? sender, int parentAccountId) => OpenAccountsScreen();
-
-    private void CtrlTree_EditRequested(object? sender, int accountId) => OpenAccountsScreen();
-
-    /// <summary>
-    /// يفتح شاشة دليل الحسابات (محرّرها الوحيد) من DI عبر النمط المعتمد.
-    /// <para>
-    /// لا استهداف بمعرّف الحساب: <c>frmAccounts</c> لا يعرّض واجهة «اختر حساباً بالمعرّف»
-    /// حتى اليوم، فتُفتح الشاشة ويختار المستخدم الحساب فيها — بند مفتوح في تقرير F-003.
-    /// </para>
-    /// </summary>
-    private void OpenAccountsScreen()
-        => clsGlobal._OpenForm(_serviceProvider.GetRequiredService<frmAccounts>());
 
     // ── المظهر ────────────────────────────────────────────────────────────────
 
