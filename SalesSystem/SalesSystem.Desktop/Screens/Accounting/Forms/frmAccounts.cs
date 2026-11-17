@@ -1249,4 +1249,9 @@ public partial class frmAccounts : Form
         foreach (var child in node.Children)
             _AppendTreeNode(builder, child, depth + 1);
     }
+
+    private void lblOpeningBalance_Click(object sender, EventArgs e)
+    {
+
+    }
 }

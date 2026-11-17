@@ -936,4 +936,9 @@ public partial class frmAddUpdateInventoryAdjustment : Form
 
     private void miRefresh_Click(object sender, EventArgs e)
         => _Reload();
+
+    private void lblLinesCount_Click(object sender, EventArgs e)
+    {
+
+    }
 }

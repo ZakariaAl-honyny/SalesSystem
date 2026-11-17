@@ -18,27 +18,27 @@ partial class frmInventoryBarcode
         components = new System.ComponentModel.Container();
         errorProvider = new ErrorProvider(components);
         tooltip = new ToolTip(components);
-        lblMode = new Label();
-        gbToolbar = new GroupBox();
         btnPrint = new Button();
         btnClose = new Button();
-        gbInfo = new GroupBox();
-        lblProduct = new Label();
         cmbProduct = new ComboBox();
-        lblScanBarcode = new Label();
         txtBarcode = new TextBox();
-        lblBarcode = new Label();
         lblBarcodeValue = new Label();
-        lblLabelsCount = new Label();
         nudLabelsCount = new NumericUpDown();
-        lblLabelSize = new Label();
         cmbLabelSize = new ComboBox();
-        gbPreview = new GroupBox();
         pnlBarcodePreview = new Panel();
+        lblMode = new Label();
+        gbToolbar = new GroupBox();
+        gbInfo = new GroupBox();
+        lblLabelSize = new Label();
+        lblLabelsCount = new Label();
+        lblBarcode = new Label();
+        lblScanBarcode = new Label();
+        lblProduct = new Label();
+        gbPreview = new GroupBox();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)nudLabelsCount).BeginInit();
         gbToolbar.SuspendLayout();
         gbInfo.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)nudLabelsCount).BeginInit();
         gbPreview.SuspendLayout();
         SuspendLayout();
         // 
@@ -53,166 +53,77 @@ partial class frmInventoryBarcode
         tooltip.InitialDelay = 300;
         tooltip.ReshowDelay = 100;
         // 
-        // lblMode
-        // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
-        lblMode.Dock = DockStyle.Top;
-        lblMode.FlatStyle = FlatStyle.Flat;
-        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = System.Drawing.Color.White;
-        lblMode.Location = new Point(0, 0);
-        lblMode.Name = "lblMode";
-        lblMode.Size = new Size(580, 42);
-        lblMode.TabIndex = 0;
-        lblMode.Text = "طباعة باركود الأصناف";
-        lblMode.TextAlign = ContentAlignment.MiddleCenter;
-        // 
-        // gbToolbar
-        // 
-        gbToolbar.BackColor = System.Drawing.Color.White;
-        gbToolbar.Controls.Add(btnClose);
-        gbToolbar.Controls.Add(btnPrint);
-        gbToolbar.Dock = DockStyle.Top;
-        gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        gbToolbar.Location = new Point(0, 42);
-        gbToolbar.Name = "gbToolbar";
-        gbToolbar.Padding = new Padding(8);
-        gbToolbar.RightToLeft = RightToLeft.Yes;
-        gbToolbar.Size = new Size(580, 68);
-        gbToolbar.TabIndex = 1;
-        gbToolbar.TabStop = false;
-        gbToolbar.Text = "أوامر الملصق";
-        // 
         // btnPrint
         // 
-        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
         btnPrint.Cursor = Cursors.Hand;
         btnPrint.FlatAppearance.BorderSize = 0;
         btnPrint.FlatStyle = FlatStyle.Flat;
         btnPrint.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnPrint.ForeColor = System.Drawing.Color.White;
-        btnPrint.Location = new Point(12, 16);
+        btnPrint.ForeColor = Color.White;
+        btnPrint.Location = new Point(491, 26);
         btnPrint.MinimumSize = new Size(100, 34);
         btnPrint.Name = "btnPrint";
         btnPrint.Size = new Size(150, 36);
         btnPrint.TabIndex = 0;
         btnPrint.Text = "طباعة الملصقات";
+        tooltip.SetToolTip(btnPrint, "طباعة الملصقات (نسخة تجريبية)");
         btnPrint.UseVisualStyleBackColor = false;
         btnPrint.Click += btnPrint_Click;
-        tooltip.SetToolTip(btnPrint, "طباعة الملصقات (نسخة تجريبية)");
         // 
         // btnClose
         // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.Cursor = Cursors.Hand;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(172, 16);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(346, 26);
         btnClose.MinimumSize = new Size(100, 34);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 36);
         btnClose.TabIndex = 1;
         btnClose.Text = "إغلاق";
+        tooltip.SetToolTip(btnClose, "إغلاق النافذة (Esc)");
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
-        tooltip.SetToolTip(btnClose, "إغلاق النافذة (Esc)");
-        // 
-        // gbInfo
-        // 
-        gbInfo.BackColor = System.Drawing.Color.White;
-        gbInfo.Controls.Add(cmbLabelSize);
-        gbInfo.Controls.Add(lblLabelSize);
-        gbInfo.Controls.Add(nudLabelsCount);
-        gbInfo.Controls.Add(lblLabelsCount);
-        gbInfo.Controls.Add(lblBarcodeValue);
-        gbInfo.Controls.Add(lblBarcode);
-        gbInfo.Controls.Add(txtBarcode);
-        gbInfo.Controls.Add(lblScanBarcode);
-        gbInfo.Controls.Add(cmbProduct);
-        gbInfo.Controls.Add(lblProduct);
-        gbInfo.Dock = DockStyle.Top;
-        gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        gbInfo.Location = new Point(0, 110);
-        gbInfo.Name = "gbInfo";
-        gbInfo.Padding = new Padding(8);
-        gbInfo.RightToLeft = RightToLeft.Yes;
-        gbInfo.Size = new Size(580, 200);
-        gbInfo.TabIndex = 2;
-        gbInfo.TabStop = false;
-        gbInfo.Text = "بيانات الملصق";
-        // 
-        // lblProduct
-        // 
-        lblProduct.AutoSize = true;
-        lblProduct.Font = new Font("Tahoma", 10F);
-        lblProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblProduct.Location = new Point(12, 32);
-        lblProduct.Name = "lblProduct";
-        lblProduct.Size = new Size(60, 21);
-        lblProduct.TabIndex = 0;
-        lblProduct.Text = "الصنف:";
         // 
         // cmbProduct
         // 
-        cmbProduct.BackColor = System.Drawing.Color.White;
+        cmbProduct.BackColor = Color.White;
         cmbProduct.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbProduct.FlatStyle = FlatStyle.Flat;
         cmbProduct.Font = new Font("Tahoma", 10F);
-        cmbProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        cmbProduct.ForeColor = Color.FromArgb(33, 37, 41);
         cmbProduct.FormattingEnabled = true;
-        cmbProduct.Location = new Point(100, 28);
+        cmbProduct.Location = new Point(83, 36);
         cmbProduct.Name = "cmbProduct";
-        cmbProduct.Size = new Size(430, 29);
+        cmbProduct.Size = new Size(430, 32);
         cmbProduct.TabIndex = 1;
-        cmbProduct.SelectedIndexChanged += cmbProduct_SelectedIndexChanged;
         tooltip.SetToolTip(cmbProduct, "اختر الصنف لعرض الباركود الخاص به");
-        // 
-        // lblScanBarcode
-        // 
-        lblScanBarcode.AutoSize = true;
-        lblScanBarcode.Font = new Font("Tahoma", 10F);
-        lblScanBarcode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblScanBarcode.Location = new Point(12, 78);
-        lblScanBarcode.Name = "lblScanBarcode";
-        lblScanBarcode.Size = new Size(236, 21);
-        lblScanBarcode.TabIndex = 2;
-        lblScanBarcode.Text = "بحث بالباركود (امسح أو اكتب ثم Enter):";
+        cmbProduct.SelectedIndexChanged += cmbProduct_SelectedIndexChanged;
         // 
         // txtBarcode
         // 
-        txtBarcode.BackColor = System.Drawing.Color.White;
+        txtBarcode.BackColor = Color.White;
         txtBarcode.Font = new Font("Tahoma", 10F);
-        txtBarcode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        txtBarcode.Location = new Point(300, 74);
+        txtBarcode.ForeColor = Color.FromArgb(33, 37, 41);
+        txtBarcode.Location = new Point(56, 81);
         txtBarcode.Name = "txtBarcode";
-        txtBarcode.Size = new Size(230, 27);
+        txtBarcode.Size = new Size(230, 32);
         txtBarcode.TabIndex = 3;
         txtBarcode.TextAlign = HorizontalAlignment.Center;
-        txtBarcode.KeyDown += txtBarcode_KeyDown;
         tooltip.SetToolTip(txtBarcode, "امسح الباركود ثم Enter — يُحدَّد الصنف فوراً ويبقى الحقل جاهزاً للمسح التالي");
-        // 
-        // lblBarcode
-        // 
-        lblBarcode.AutoSize = true;
-        lblBarcode.Font = new Font("Tahoma", 10F);
-        lblBarcode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblBarcode.Location = new Point(12, 124);
-        lblBarcode.Name = "lblBarcode";
-        lblBarcode.Size = new Size(78, 21);
-        lblBarcode.TabIndex = 4;
-        lblBarcode.Text = "الباركود:";
+        txtBarcode.KeyDown += txtBarcode_KeyDown;
         // 
         // lblBarcodeValue
         // 
-        lblBarcodeValue.BackColor = System.Drawing.Color.White;
+        lblBarcodeValue.BackColor = Color.White;
         lblBarcodeValue.BorderStyle = BorderStyle.FixedSingle;
         lblBarcodeValue.Font = new Font("Consolas", 10F, FontStyle.Bold);
-        lblBarcodeValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblBarcodeValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblBarcodeValue.Location = new Point(112, 120);
         lblBarcodeValue.Name = "lblBarcodeValue";
         lblBarcodeValue.Size = new Size(418, 28);
@@ -221,94 +132,183 @@ partial class frmInventoryBarcode
         lblBarcodeValue.TextAlign = ContentAlignment.MiddleCenter;
         tooltip.SetToolTip(lblBarcodeValue, "باركود الصنف المحدد (يتم تعبئته تلقائياً)");
         // 
-        // lblLabelsCount
-        // 
-        lblLabelsCount.AutoSize = true;
-        lblLabelsCount.Font = new Font("Tahoma", 10F);
-        lblLabelsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblLabelsCount.Location = new Point(12, 170);
-        lblLabelsCount.Name = "lblLabelsCount";
-        lblLabelsCount.Size = new Size(100, 21);
-        lblLabelsCount.TabIndex = 6;
-        lblLabelsCount.Text = "عدد الملصقات:";
-        // 
         // nudLabelsCount
         // 
-        nudLabelsCount.BackColor = System.Drawing.Color.White;
+        nudLabelsCount.BackColor = Color.White;
         nudLabelsCount.Font = new Font("Tahoma", 10F);
-        nudLabelsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        nudLabelsCount.Location = new Point(140, 166);
+        nudLabelsCount.ForeColor = Color.FromArgb(33, 37, 41);
+        nudLabelsCount.Location = new Point(41, 157);
         nudLabelsCount.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
         nudLabelsCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
         nudLabelsCount.Name = "nudLabelsCount";
-        nudLabelsCount.Size = new Size(150, 27);
+        nudLabelsCount.Size = new Size(150, 32);
         nudLabelsCount.TabIndex = 7;
         nudLabelsCount.TextAlign = HorizontalAlignment.Center;
-        nudLabelsCount.Value = new decimal(new int[] { 10, 0, 0, 0 });
         tooltip.SetToolTip(nudLabelsCount, "عدد ملصقات الباركود المطلوب طباعتها (1 - 1000)");
+        nudLabelsCount.Value = new decimal(new int[] { 10, 0, 0, 0 });
+        // 
+        // cmbLabelSize
+        // 
+        cmbLabelSize.BackColor = Color.White;
+        cmbLabelSize.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbLabelSize.FlatStyle = FlatStyle.Flat;
+        cmbLabelSize.Font = new Font("Tahoma", 10F);
+        cmbLabelSize.ForeColor = Color.FromArgb(33, 37, 41);
+        cmbLabelSize.FormattingEnabled = true;
+        cmbLabelSize.Items.AddRange(new object[] { "صغير", "متوسط", "كبير" });
+        cmbLabelSize.Location = new Point(354, 157);
+        cmbLabelSize.Name = "cmbLabelSize";
+        cmbLabelSize.Size = new Size(110, 32);
+        cmbLabelSize.TabIndex = 9;
+        tooltip.SetToolTip(cmbLabelSize, "اختر حجم ملصق الباركود");
+        // 
+        // pnlBarcodePreview
+        // 
+        pnlBarcodePreview.BackColor = Color.White;
+        pnlBarcodePreview.BorderStyle = BorderStyle.FixedSingle;
+        pnlBarcodePreview.Dock = DockStyle.Fill;
+        pnlBarcodePreview.Location = new Point(8, 33);
+        pnlBarcodePreview.Name = "pnlBarcodePreview";
+        pnlBarcodePreview.Size = new Size(633, 349);
+        pnlBarcodePreview.TabIndex = 0;
+        tooltip.SetToolTip(pnlBarcodePreview, "معاينة الباركود قبل الطباعة");
+        pnlBarcodePreview.Paint += pnlBarcodePreview_Paint;
+        // 
+        // lblMode
+        // 
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
+        lblMode.Dock = DockStyle.Top;
+        lblMode.FlatStyle = FlatStyle.Flat;
+        lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
+        lblMode.ForeColor = Color.White;
+        lblMode.Location = new Point(0, 0);
+        lblMode.Name = "lblMode";
+        lblMode.Size = new Size(649, 42);
+        lblMode.TabIndex = 0;
+        lblMode.Text = "طباعة باركود الأصناف";
+        lblMode.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // gbToolbar
+        // 
+        gbToolbar.BackColor = Color.White;
+        gbToolbar.Controls.Add(btnClose);
+        gbToolbar.Controls.Add(btnPrint);
+        gbToolbar.Dock = DockStyle.Top;
+        gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbToolbar.ForeColor = Color.FromArgb(33, 37, 41);
+        gbToolbar.Location = new Point(0, 42);
+        gbToolbar.Name = "gbToolbar";
+        gbToolbar.Padding = new Padding(8);
+        gbToolbar.Size = new Size(649, 68);
+        gbToolbar.TabIndex = 1;
+        gbToolbar.TabStop = false;
+        gbToolbar.Text = "أوامر الملصق";
+        // 
+        // gbInfo
+        // 
+        gbInfo.BackColor = Color.White;
+        gbInfo.Controls.Add(cmbLabelSize);
+        gbInfo.Controls.Add(lblLabelsCount);
+        gbInfo.Controls.Add(lblLabelSize);
+        gbInfo.Controls.Add(nudLabelsCount);
+        gbInfo.Controls.Add(lblBarcodeValue);
+        gbInfo.Controls.Add(lblBarcode);
+        gbInfo.Controls.Add(txtBarcode);
+        gbInfo.Controls.Add(lblScanBarcode);
+        gbInfo.Controls.Add(cmbProduct);
+        gbInfo.Controls.Add(lblProduct);
+        gbInfo.Dock = DockStyle.Top;
+        gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbInfo.ForeColor = Color.FromArgb(33, 37, 41);
+        gbInfo.Location = new Point(0, 110);
+        gbInfo.Name = "gbInfo";
+        gbInfo.Padding = new Padding(8);
+        gbInfo.RightToLeft = RightToLeft.Yes;
+        gbInfo.Size = new Size(649, 200);
+        gbInfo.TabIndex = 2;
+        gbInfo.TabStop = false;
+        gbInfo.Text = "بيانات الملصق";
         // 
         // lblLabelSize
         // 
         lblLabelSize.AutoSize = true;
         lblLabelSize.Font = new Font("Tahoma", 10F);
-        lblLabelSize.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblLabelSize.Location = new Point(320, 170);
+        lblLabelSize.ForeColor = Color.FromArgb(33, 37, 41);
+        lblLabelSize.Location = new Point(470, 161);
         lblLabelSize.Name = "lblLabelSize";
-        lblLabelSize.Size = new Size(83, 21);
+        lblLabelSize.Size = new Size(127, 24);
         lblLabelSize.TabIndex = 8;
         lblLabelSize.Text = "حجم الملصق:";
         // 
-        // cmbLabelSize
+        // lblLabelsCount
         // 
-        cmbLabelSize.BackColor = System.Drawing.Color.White;
-        cmbLabelSize.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbLabelSize.FlatStyle = FlatStyle.Flat;
-        cmbLabelSize.Font = new Font("Tahoma", 10F);
-        cmbLabelSize.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        cmbLabelSize.FormattingEnabled = true;
-        cmbLabelSize.Items.AddRange(new object[] { "صغير", "متوسط", "كبير" });
-        cmbLabelSize.Location = new Point(420, 166);
-        cmbLabelSize.Name = "cmbLabelSize";
-        cmbLabelSize.Size = new Size(110, 29);
-        cmbLabelSize.TabIndex = 9;
-        tooltip.SetToolTip(cmbLabelSize, "اختر حجم ملصق الباركود");
+        lblLabelsCount.AutoSize = true;
+        lblLabelsCount.Font = new Font("Tahoma", 10F);
+        lblLabelsCount.ForeColor = Color.FromArgb(33, 37, 41);
+        lblLabelsCount.Location = new Point(197, 161);
+        lblLabelsCount.Name = "lblLabelsCount";
+        lblLabelsCount.Size = new Size(132, 24);
+        lblLabelsCount.TabIndex = 6;
+        lblLabelsCount.Text = "عدد الملصقات:";
+        lblLabelsCount.Click += lblLabelsCount_Click;
+        // 
+        // lblBarcode
+        // 
+        lblBarcode.AutoSize = true;
+        lblBarcode.Font = new Font("Tahoma", 10F);
+        lblBarcode.ForeColor = Color.FromArgb(33, 37, 41);
+        lblBarcode.Location = new Point(536, 124);
+        lblBarcode.Name = "lblBarcode";
+        lblBarcode.Size = new Size(76, 24);
+        lblBarcode.TabIndex = 4;
+        lblBarcode.Text = "الباركود:";
+        // 
+        // lblScanBarcode
+        // 
+        lblScanBarcode.AutoSize = true;
+        lblScanBarcode.Font = new Font("Tahoma", 10F);
+        lblScanBarcode.ForeColor = Color.FromArgb(33, 37, 41);
+        lblScanBarcode.Location = new Point(292, 84);
+        lblScanBarcode.Name = "lblScanBarcode";
+        lblScanBarcode.Size = new Size(345, 24);
+        lblScanBarcode.TabIndex = 2;
+        lblScanBarcode.Text = "بحث بالباركود (امسح أو اكتب ثم Enter):";
+        // 
+        // lblProduct
+        // 
+        lblProduct.AutoSize = true;
+        lblProduct.Font = new Font("Tahoma", 10F);
+        lblProduct.ForeColor = Color.FromArgb(33, 37, 41);
+        lblProduct.Location = new Point(519, 44);
+        lblProduct.Name = "lblProduct";
+        lblProduct.Size = new Size(68, 24);
+        lblProduct.TabIndex = 0;
+        lblProduct.Text = "الصنف:";
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = System.Drawing.Color.White;
+        gbPreview.BackColor = Color.White;
         gbPreview.Controls.Add(pnlBarcodePreview);
         gbPreview.Dock = DockStyle.Fill;
         gbPreview.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbPreview.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbPreview.ForeColor = Color.FromArgb(33, 37, 41);
         gbPreview.Location = new Point(0, 310);
         gbPreview.Name = "gbPreview";
         gbPreview.Padding = new Padding(8);
         gbPreview.RightToLeft = RightToLeft.Yes;
-        gbPreview.Size = new Size(580, 390);
+        gbPreview.Size = new Size(649, 390);
         gbPreview.TabIndex = 3;
         gbPreview.TabStop = false;
         gbPreview.Text = "معاينة الملصق";
-        // 
-        // pnlBarcodePreview
-        // 
-        pnlBarcodePreview.BackColor = System.Drawing.Color.White;
-        pnlBarcodePreview.BorderStyle = BorderStyle.FixedSingle;
-        pnlBarcodePreview.Dock = DockStyle.Fill;
-        pnlBarcodePreview.Location = new Point(8, 24);
-        pnlBarcodePreview.Name = "pnlBarcodePreview";
-        pnlBarcodePreview.Size = new Size(564, 358);
-        pnlBarcodePreview.TabIndex = 0;
-        pnlBarcodePreview.Paint += pnlBarcodePreview_Paint;
-        tooltip.SetToolTip(pnlBarcodePreview, "معاينة الباركود قبل الطباعة");
         // 
         // frmInventoryBarcode
         // 
         AcceptButton = btnPrint;
         AutoScaleMode = AutoScaleMode.None;
         AutoValidate = AutoValidate.EnableAllowFocusChange;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
-        ClientSize = new Size(580, 700);
+        ClientSize = new Size(649, 700);
         Controls.Add(gbPreview);
         Controls.Add(gbInfo);
         Controls.Add(gbToolbar);
@@ -324,10 +324,10 @@ partial class frmInventoryBarcode
         Text = "طباعة باركود";
         Load += frmInventoryBarcode_Load;
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
+        ((System.ComponentModel.ISupportInitialize)nudLabelsCount).EndInit();
         gbToolbar.ResumeLayout(false);
         gbInfo.ResumeLayout(false);
         gbInfo.PerformLayout();
-        ((System.ComponentModel.ISupportInitialize)nudLabelsCount).EndInit();
         gbPreview.ResumeLayout(false);
         ResumeLayout(false);
     }

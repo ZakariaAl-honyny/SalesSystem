@@ -54,7 +54,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlHeader.BackColor = Color.FromArgb(16, 150, 96);
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -65,10 +65,10 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Margin = new Padding(0);
         lblMode.Name = "lblMode";
@@ -79,11 +79,11 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.White;
+        gbToolbar.BackColor = Color.White;
         gbToolbar.Controls.Add(flpToolbar);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbToolbar.ForeColor = Color.FromArgb(33, 37, 41);
         gbToolbar.Location = new Point(0, 50);
         gbToolbar.Margin = new Padding(0);
         gbToolbar.Name = "gbToolbar";
@@ -95,27 +95,26 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // flpToolbar
         // 
-        flpToolbar.BackColor = System.Drawing.Color.White;
+        flpToolbar.BackColor = Color.White;
         flpToolbar.Controls.Add(btnSave);
         flpToolbar.Controls.Add(btnClose);
         flpToolbar.Dock = DockStyle.Fill;
-        flpToolbar.FlowDirection = FlowDirection.RightToLeft;
-        flpToolbar.Location = new Point(8, 24);
+        flpToolbar.Location = new Point(8, 29);
         flpToolbar.Margin = new Padding(0);
         flpToolbar.Name = "flpToolbar";
         flpToolbar.Padding = new Padding(6, 0, 6, 0);
-        flpToolbar.Size = new Size(684, 44);
+        flpToolbar.Size = new Size(684, 51);
         flpToolbar.TabIndex = 0;
         flpToolbar.WrapContents = false;
         // 
         // btnSave
         // 
-        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnSave.BackColor = Color.FromArgb(25, 135, 84);
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnSave.ForeColor = System.Drawing.Color.White;
-        btnSave.Location = new Point(530, 6);
+        btnSave.ForeColor = Color.White;
+        btnSave.Location = new Point(528, 6);
         btnSave.Margin = new Padding(4, 6, 4, 6);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(140, 40);
@@ -126,12 +125,12 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // btnClose
         // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(382, 6);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(380, 6);
         btnClose.Margin = new Padding(4, 6, 4, 6);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 40);
@@ -142,7 +141,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // gbDocumentInfo
         // 
-        gbDocumentInfo.BackColor = System.Drawing.Color.White;
+        gbDocumentInfo.BackColor = Color.White;
         gbDocumentInfo.Controls.Add(label4);
         gbDocumentInfo.Controls.Add(dtpDate);
         gbDocumentInfo.Controls.Add(label1);
@@ -153,7 +152,7 @@ partial class frmAddUpdateCustomerReceipt
         gbDocumentInfo.Controls.Add(numAmount);
         gbDocumentInfo.Dock = DockStyle.Top;
         gbDocumentInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbDocumentInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbDocumentInfo.ForeColor = Color.FromArgb(33, 37, 41);
         gbDocumentInfo.Location = new Point(0, 134);
         gbDocumentInfo.Margin = new Padding(0);
         gbDocumentInfo.Name = "gbDocumentInfo";
@@ -166,8 +165,8 @@ partial class frmAddUpdateCustomerReceipt
         // label4
         // 
         label4.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label4.Location = new Point(45, 32);
+        label4.ForeColor = Color.FromArgb(33, 37, 41);
+        label4.Location = new Point(503, 32);
         label4.Margin = new Padding(0);
         label4.Name = "label4";
         label4.Size = new Size(130, 26);
@@ -177,7 +176,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // dtpDate
         // 
-        dtpDate.BackColor = System.Drawing.Color.White;
+        dtpDate.BackColor = Color.White;
         dtpDate.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpDate.Format = DateTimePickerFormat.Short;
         dtpDate.Location = new Point(190, 30);
@@ -190,8 +189,8 @@ partial class frmAddUpdateCustomerReceipt
         // label1
         // 
         label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label1.Location = new Point(45, 82);
+        label1.ForeColor = Color.FromArgb(33, 37, 41);
+        label1.Location = new Point(503, 82);
         label1.Margin = new Padding(0);
         label1.Name = "label1";
         label1.Size = new Size(130, 26);
@@ -201,7 +200,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // cmbCustomer
         // 
-        cmbCustomer.BackColor = System.Drawing.Color.White;
+        cmbCustomer.BackColor = Color.White;
         cmbCustomer.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCustomer.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmbCustomer.FormattingEnabled = true;
@@ -215,8 +214,8 @@ partial class frmAddUpdateCustomerReceipt
         // label2
         // 
         label2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label2.Location = new Point(45, 132);
+        label2.ForeColor = Color.FromArgb(33, 37, 41);
+        label2.Location = new Point(503, 132);
         label2.Margin = new Padding(0);
         label2.Name = "label2";
         label2.Size = new Size(130, 26);
@@ -226,7 +225,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // cmbCashBox
         // 
-        cmbCashBox.BackColor = System.Drawing.Color.White;
+        cmbCashBox.BackColor = Color.White;
         cmbCashBox.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCashBox.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmbCashBox.FormattingEnabled = true;
@@ -240,8 +239,8 @@ partial class frmAddUpdateCustomerReceipt
         // label3
         // 
         label3.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label3.Location = new Point(45, 182);
+        label3.ForeColor = Color.FromArgb(33, 37, 41);
+        label3.Location = new Point(503, 182);
         label3.Margin = new Padding(0);
         label3.Name = "label3";
         label3.Size = new Size(130, 26);
@@ -251,7 +250,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // numAmount
         // 
-        numAmount.BackColor = System.Drawing.Color.White;
+        numAmount.BackColor = Color.White;
         numAmount.DecimalPlaces = 2;
         numAmount.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         numAmount.Location = new Point(190, 180);
@@ -267,12 +266,12 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // gbDetails
         // 
-        gbDetails.BackColor = System.Drawing.Color.White;
+        gbDetails.BackColor = Color.White;
         gbDetails.Controls.Add(label5);
         gbDetails.Controls.Add(txtNotes);
         gbDetails.Dock = DockStyle.Top;
         gbDetails.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbDetails.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbDetails.ForeColor = Color.FromArgb(33, 37, 41);
         gbDetails.Location = new Point(0, 362);
         gbDetails.Margin = new Padding(0);
         gbDetails.Name = "gbDetails";
@@ -285,8 +284,8 @@ partial class frmAddUpdateCustomerReceipt
         // label5
         // 
         label5.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label5.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label5.Location = new Point(20, 28);
+        label5.ForeColor = Color.FromArgb(33, 37, 41);
+        label5.Location = new Point(572, 29);
         label5.Margin = new Padding(0);
         label5.Name = "label5";
         label5.Size = new Size(160, 26);
@@ -296,9 +295,9 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // txtNotes
         // 
-        txtNotes.BackColor = System.Drawing.Color.White;
+        txtNotes.BackColor = Color.White;
         txtNotes.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        txtNotes.Location = new Point(190, 26);
+        txtNotes.Location = new Point(112, 27);
         txtNotes.Margin = new Padding(0);
         txtNotes.Multiline = true;
         txtNotes.Name = "txtNotes";
@@ -309,12 +308,12 @@ partial class frmAddUpdateCustomerReceipt
         // 
         // gbTotals
         // 
-        gbTotals.BackColor = System.Drawing.Color.White;
+        gbTotals.BackColor = Color.White;
         gbTotals.Controls.Add(label6);
         gbTotals.Controls.Add(lblNetTotalAmount);
         gbTotals.Dock = DockStyle.Top;
         gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbTotals.ForeColor = Color.FromArgb(33, 37, 41);
         gbTotals.Location = new Point(0, 478);
         gbTotals.Margin = new Padding(0);
         gbTotals.Name = "gbTotals";
@@ -327,8 +326,8 @@ partial class frmAddUpdateCustomerReceipt
         // label6
         // 
         label6.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        label6.Location = new Point(60, 22);
+        label6.ForeColor = Color.FromArgb(33, 37, 41);
+        label6.Location = new Point(430, 22);
         label6.Margin = new Padding(0);
         label6.Name = "label6";
         label6.Size = new Size(160, 28);
@@ -339,18 +338,18 @@ partial class frmAddUpdateCustomerReceipt
         // lblNetTotalAmount
         // 
         lblNetTotalAmount.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNetTotalAmount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblNetTotalAmount.Location = new Point(230, 20);
+        lblNetTotalAmount.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNetTotalAmount.Location = new Point(190, 22);
         lblNetTotalAmount.Margin = new Padding(0);
         lblNetTotalAmount.Name = "lblNetTotalAmount";
         lblNetTotalAmount.Size = new Size(240, 30);
         lblNetTotalAmount.TabIndex = 1;
         lblNetTotalAmount.Text = "0.00";
-        lblNetTotalAmount.TextAlign = ContentAlignment.MiddleRight;
+        lblNetTotalAmount.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = Color.White;
         pnlFooter.Controls.Add(lblHint);
         pnlFooter.Dock = DockStyle.Bottom;
         pnlFooter.Location = new Point(0, 542);
@@ -363,7 +362,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         lblHint.Dock = DockStyle.Fill;
         lblHint.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblHint.ForeColor = Color.FromArgb(33, 37, 41);
         lblHint.Location = new Point(0, 0);
         lblHint.Margin = new Padding(0);
         lblHint.Name = "lblHint";
@@ -371,19 +370,19 @@ partial class frmAddUpdateCustomerReceipt
         lblHint.Size = new Size(700, 34);
         lblHint.TabIndex = 0;
         lblHint.Text = "F2 سند جديد · F4 حفظ · F5 تحديث · Esc إلغاء";
-        lblHint.TextAlign = ContentAlignment.MiddleRight;
+        lblHint.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // toolTip1
         // 
         toolTip1.AutomaticDelay = 300;
-        toolTip1.BackColor = System.Drawing.Color.White;
-        toolTip1.ForeColor = System.Drawing.Color.Black;
+        toolTip1.BackColor = Color.White;
+        toolTip1.ForeColor = Color.Black;
         // 
         // liveTip
         // 
         liveTip.AutomaticDelay = 300;
-        liveTip.BackColor = System.Drawing.Color.White;
-        liveTip.ForeColor = System.Drawing.Color.Black;
+        liveTip.BackColor = Color.White;
+        liveTip.ForeColor = Color.Black;
         // 
         // errorProvider
         // 
@@ -395,7 +394,7 @@ partial class frmAddUpdateCustomerReceipt
         // 
         AcceptButton = btnSave;
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
         ClientSize = new Size(700, 576);
         Controls.Add(pnlFooter);

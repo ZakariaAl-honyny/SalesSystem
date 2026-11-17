@@ -16,6 +16,9 @@ partial class frmUserMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
         lblMode = new Label();
         pnlFields = new Panel();
         lblCode = new Label();
@@ -40,7 +43,6 @@ partial class frmUserMaster
         btnClose = new Button();
         pnlFilters = new Panel();
         gbFilter = new GroupBox();
-        btnToggleFilters = new Button();
         label1 = new Label();
         cbStatus = new ComboBox();
         label2 = new Label();
@@ -51,14 +53,11 @@ partial class frmUserMaster
         chkOnlyLocked = new CheckBox();
         chkOnlyMustChangePassword = new CheckBox();
         btnClearFilters = new Button();
+        btnToggleFilters = new Button();
         pnlSummary = new Panel();
         lblSummary = new Label();
         pnlGrid = new Panel();
         dgvUsers = new DataGridView();
-        colId = new DataGridViewTextBoxColumn();
-        colUserName = new DataGridViewTextBoxColumn();
-        colIsLocked = new DataGridViewTextBoxColumn();
-        colIsActive = new DataGridViewTextBoxColumn();
         cmsGrid = new ContextMenuStrip(components);
         mnuEdit = new ToolStripMenuItem();
         mnuDeactivate = new ToolStripMenuItem();
@@ -80,10 +79,10 @@ partial class frmUserMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1432, 50);
@@ -114,17 +113,17 @@ partial class frmUserMaster
         // lblCode
         // 
         lblCode.AutoSize = true;
-        lblCode.Location = new Point(1267, 15);
+        lblCode.Location = new Point(803, 15);
         lblCode.Name = "lblCode";
-        lblCode.Size = new Size(110, 24);
+        lblCode.Size = new Size(133, 24);
         lblCode.TabIndex = 0;
         lblCode.Text = "رقم المستخدم";
         // 
         // txtCode
         // 
-        txtCode.Location = new Point(1267, 42);
+        txtCode.BackColor = Color.White;
+        txtCode.Location = new Point(803, 42);
         txtCode.Name = "txtCode";
-        txtCode.BackColor = System.Drawing.Color.White;
         txtCode.ReadOnly = true;
         txtCode.Size = new Size(110, 32);
         txtCode.TabIndex = 0;
@@ -133,9 +132,9 @@ partial class frmUserMaster
         // lblUserName
         // 
         lblUserName.AutoSize = true;
-        lblUserName.Location = new Point(1160, 15);
+        lblUserName.Location = new Point(574, 15);
         lblUserName.Name = "lblUserName";
-        lblUserName.Size = new Size(102, 24);
+        lblUserName.Size = new Size(143, 24);
         lblUserName.TabIndex = 2;
         lblUserName.Text = "اسم المستخدم";
         // 
@@ -143,34 +142,36 @@ partial class frmUserMaster
         // 
         lblUserNameReq.AutoSize = true;
         lblUserNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblUserNameReq.ForeColor = System.Drawing.Color.Red;
-        lblUserNameReq.Location = new Point(1142, 15);
+        lblUserNameReq.ForeColor = Color.Red;
+        lblUserNameReq.Location = new Point(548, 15);
         lblUserNameReq.Name = "lblUserNameReq";
+        lblUserNameReq.Size = new Size(23, 24);
+        lblUserNameReq.TabIndex = 3;
         lblUserNameReq.Text = "*";
         // 
         // txtUserName
         // 
-        txtUserName.Location = new Point(960, 42);
+        txtUserName.BackColor = Color.White;
+        txtUserName.Location = new Point(495, 42);
         txtUserName.Name = "txtUserName";
-        txtUserName.BackColor = System.Drawing.Color.White;
         txtUserName.Size = new Size(300, 32);
         txtUserName.TabIndex = 1;
         // 
         // lblBranch
         // 
         lblBranch.AutoSize = true;
-        lblBranch.Location = new Point(1267, 95);
+        lblBranch.Location = new Point(877, 83);
         lblBranch.Name = "lblBranch";
-        lblBranch.Size = new Size(48, 24);
+        lblBranch.Size = new Size(51, 24);
         lblBranch.TabIndex = 6;
         lblBranch.Text = "الفرع";
         // 
         // cmbBranch
         // 
-        cmbBranch.BackColor = System.Drawing.Color.White;
+        cmbBranch.BackColor = Color.White;
         cmbBranch.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbBranch.FlatStyle = FlatStyle.Flat;
-        cmbBranch.Location = new Point(1157, 122);
+        cmbBranch.Location = new Point(767, 110);
         cmbBranch.Name = "cmbBranch";
         cmbBranch.Size = new Size(220, 32);
         cmbBranch.TabIndex = 3;
@@ -178,17 +179,17 @@ partial class frmUserMaster
         // lblPassword
         // 
         lblPassword.AutoSize = true;
-        lblPassword.Location = new Point(1070, 95);
+        lblPassword.Location = new Point(536, 83);
         lblPassword.Name = "lblPassword";
-        lblPassword.Size = new Size(137, 24);
+        lblPassword.Size = new Size(186, 24);
         lblPassword.TabIndex = 8;
         lblPassword.Text = "كلمة المرور (اختياري)";
         // 
         // txtPassword
         // 
-        txtPassword.Location = new Point(950, 122);
+        txtPassword.BackColor = Color.White;
+        txtPassword.Location = new Point(495, 110);
         txtPassword.Name = "txtPassword";
-        txtPassword.BackColor = System.Drawing.Color.White;
         txtPassword.PasswordChar = '●';
         txtPassword.Size = new Size(257, 32);
         txtPassword.TabIndex = 4;
@@ -197,33 +198,33 @@ partial class frmUserMaster
         // 
         chkMustChangePassword.AutoSize = true;
         chkMustChangePassword.Enabled = false;
-        chkMustChangePassword.Location = new Point(1070, 160);
+        chkMustChangePassword.Location = new Point(695, 160);
         chkMustChangePassword.Name = "chkMustChangePassword";
-        chkMustChangePassword.Size = new Size(260, 28);
+        chkMustChangePassword.Size = new Size(292, 28);
         chkMustChangePassword.TabIndex = 7;
         chkMustChangePassword.Text = "يجب تغيير كلمة المرور (للقراءة)";
         // 
         // chkIsLocked
         // 
         chkIsLocked.AutoSize = true;
-        chkIsLocked.Location = new Point(900, 160);
+        chkIsLocked.Location = new Point(525, 160);
         chkIsLocked.Name = "chkIsLocked";
-        chkIsLocked.Size = new Size(90, 28);
+        chkIsLocked.Size = new Size(80, 28);
         chkIsLocked.TabIndex = 5;
         chkIsLocked.Text = "مقفل";
         // 
         // chkIsActive
         // 
         chkIsActive.AutoSize = true;
-        chkIsActive.Location = new Point(780, 160);
+        chkIsActive.Location = new Point(405, 160);
         chkIsActive.Name = "chkIsActive";
-        chkIsActive.Size = new Size(70, 28);
+        chkIsActive.Size = new Size(77, 28);
         chkIsActive.TabIndex = 6;
         chkIsActive.Text = "نشط";
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = System.Drawing.Color.White;
+        pnlButtons.BackColor = Color.White;
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -240,10 +241,10 @@ partial class frmUserMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
+        btnNew.BackColor = Color.FromArgb(40, 167, 69);
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = System.Drawing.Color.White;
+        btnNew.ForeColor = Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
@@ -254,10 +255,10 @@ partial class frmUserMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(0), Convert.ToInt32(123), Convert.ToInt32(255));
+        btnSave.BackColor = Color.FromArgb(0, 123, 255);
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = System.Drawing.Color.White;
+        btnSave.ForeColor = Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
@@ -268,10 +269,10 @@ partial class frmUserMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(152), Convert.ToInt32(0));
+        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = System.Drawing.Color.White;
+        btnEdit.ForeColor = Color.White;
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -282,10 +283,10 @@ partial class frmUserMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
+        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = System.Drawing.Color.White;
+        btnDelete.ForeColor = Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
@@ -296,15 +297,13 @@ partial class frmUserMaster
         // 
         // btnReactivate
         // 
-        // RULE-N92 / RULE-N134: نفس قيمة ثابت الثيم حرفياً (GreenThemeHelper.ActionInfoBackground = 23,162,184)
-        // ليتساوى المصمّم ووقت التشغيل. الزر معطّل افتراضياً ويُفعَّل فقط للسجل المعطّل (RULE-N92).
-        btnReactivate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
         btnReactivate.Cursor = Cursors.Hand;
         btnReactivate.Enabled = false;
         btnReactivate.FlatAppearance.BorderSize = 0;
         btnReactivate.FlatStyle = FlatStyle.Flat;
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnReactivate.ForeColor = System.Drawing.Color.White;
+        btnReactivate.ForeColor = Color.White;
         btnReactivate.Location = new Point(689, 13);
         btnReactivate.Name = "btnReactivate";
         btnReactivate.Size = new Size(160, 35);
@@ -316,10 +315,10 @@ partial class frmUserMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = System.Drawing.Color.White;
+        btnRefresh.ForeColor = Color.White;
         btnRefresh.Location = new Point(553, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
@@ -330,10 +329,10 @@ partial class frmUserMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = System.Drawing.Color.White;
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(417, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
@@ -369,41 +368,20 @@ partial class frmUserMaster
         gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        gbFilter.Location = new Point(6, 4);
+        gbFilter.Location = new Point(146, 4);
         gbFilter.Margin = new Padding(0);
         gbFilter.Name = "gbFilter";
         gbFilter.Padding = new Padding(8);
         gbFilter.RightToLeft = RightToLeft.Yes;
-        gbFilter.Size = new Size(1420, 104);
+        gbFilter.Size = new Size(1280, 104);
         gbFilter.TabIndex = 0;
         gbFilter.TabStop = false;
         gbFilter.Text = "بحث وتصفية";
         // 
-        // btnToggleFilters
-        // 
-        // RULE-N145: زر «إخفاء/إظهار التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لِما يُطبَّق
-        // وقت التشغيل، والسلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله
-        // FilterPanelHelper.Attach — لا يُنشأ الزر وقت التشغيل.
-        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        btnToggleFilters.Cursor = Cursors.Hand;
-        btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        btnToggleFilters.FlatAppearance.BorderSize = 1;
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
-        btnToggleFilters.FlatStyle = FlatStyle.Popup;
-        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        btnToggleFilters.Location = new Point(6, 4);
-        btnToggleFilters.Name = "btnToggleFilters";
-        btnToggleFilters.Size = new Size(140, 104);
-        btnToggleFilters.TabIndex = 25;
-        btnToggleFilters.Text = "إخفاء التصفية";
-        btnToggleFilters.UseVisualStyleBackColor = false;
-        // 
         // label1
         // 
         label1.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        label1.Location = new Point(1290, 20);
+        label1.Location = new Point(987, 30);
         label1.Margin = new Padding(0);
         label1.Name = "label1";
         label1.Size = new Size(90, 24);
@@ -413,23 +391,23 @@ partial class frmUserMaster
         // 
         // cbStatus
         // 
-        cbStatus.BackColor = System.Drawing.Color.White;
+        cbStatus.BackColor = Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
         cbStatus.Font = new Font("Tahoma", 9F);
         cbStatus.FormattingEnabled = true;
         cbStatus.Items.AddRange(new object[] { "الكل", "نشط", "معطّل" });
-        cbStatus.Location = new Point(1152, 18);
+        cbStatus.Location = new Point(849, 28);
         cbStatus.Margin = new Padding(0);
         cbStatus.Name = "cbStatus";
-        cbStatus.Size = new Size(130, 26);
+        cbStatus.Size = new Size(130, 30);
         cbStatus.TabIndex = 1;
         cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
         // 
         // label2
         // 
         label2.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        label2.Location = new Point(1032, 20);
+        label2.Location = new Point(729, 30);
         label2.Margin = new Padding(0);
         label2.Name = "label2";
         label2.Size = new Size(110, 24);
@@ -439,23 +417,23 @@ partial class frmUserMaster
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = System.Drawing.Color.White;
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 9F);
         cbFilterBy.FormattingEnabled = true;
         cbFilterBy.Items.AddRange(new object[] { "اسم المستخدم", "رقم المستخدم" });
-        cbFilterBy.Location = new Point(884, 18);
+        cbFilterBy.Location = new Point(581, 28);
         cbFilterBy.Margin = new Padding(0);
         cbFilterBy.Name = "cbFilterBy";
-        cbFilterBy.Size = new Size(146, 26);
+        cbFilterBy.Size = new Size(146, 30);
         cbFilterBy.TabIndex = 3;
         cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
         // 
         // lblSearch
         // 
         lblSearch.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblSearch.Location = new Point(800, 20);
+        lblSearch.Location = new Point(497, 30);
         lblSearch.Margin = new Padding(0);
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(76, 24);
@@ -465,26 +443,26 @@ partial class frmUserMaster
         // 
         // txtSearch
         // 
+        txtSearch.BackColor = Color.White;
         txtSearch.Font = new Font("Tahoma", 9F);
-        txtSearch.Location = new Point(460, 18);
+        txtSearch.Location = new Point(157, 28);
         txtSearch.Margin = new Padding(0);
         txtSearch.Name = "txtSearch";
-        txtSearch.BackColor = System.Drawing.Color.White;
         txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
-        txtSearch.Size = new Size(330, 26);
+        txtSearch.Size = new Size(330, 29);
         txtSearch.TabIndex = 5;
         txtSearch.TextChanged += txtSearch_TextChanged;
-        txtSearch.KeyPress += txtSearch_KeyPress;
         txtSearch.KeyDown += txtSearch_KeyDown;
+        txtSearch.KeyPress += txtSearch_KeyPress;
         // 
         // chkShowInactive
         // 
         chkShowInactive.AutoSize = true;
         chkShowInactive.FlatStyle = FlatStyle.Flat;
-        chkShowInactive.Location = new Point(1245, 54);
+        chkShowInactive.Location = new Point(849, 63);
         chkShowInactive.Margin = new Padding(0);
         chkShowInactive.Name = "chkShowInactive";
-        chkShowInactive.Size = new Size(166, 24);
+        chkShowInactive.Size = new Size(172, 26);
         chkShowInactive.TabIndex = 6;
         chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
@@ -493,10 +471,10 @@ partial class frmUserMaster
         // 
         chkOnlyLocked.AutoSize = true;
         chkOnlyLocked.FlatStyle = FlatStyle.Flat;
-        chkOnlyLocked.Location = new Point(1055, 54);
+        chkOnlyLocked.Location = new Point(694, 63);
         chkOnlyLocked.Margin = new Padding(0);
         chkOnlyLocked.Name = "chkOnlyLocked";
-        chkOnlyLocked.Size = new Size(160, 24);
+        chkOnlyLocked.Size = new Size(147, 26);
         chkOnlyLocked.TabIndex = 7;
         chkOnlyLocked.Text = "المقفلون فقط";
         chkOnlyLocked.CheckedChanged += chkOnlyLocked_CheckedChanged;
@@ -505,33 +483,48 @@ partial class frmUserMaster
         // 
         chkOnlyMustChangePassword.AutoSize = true;
         chkOnlyMustChangePassword.FlatStyle = FlatStyle.Flat;
-        chkOnlyMustChangePassword.Location = new Point(740, 54);
+        chkOnlyMustChangePassword.Location = new Point(437, 64);
         chkOnlyMustChangePassword.Margin = new Padding(0);
         chkOnlyMustChangePassword.Name = "chkOnlyMustChangePassword";
-        chkOnlyMustChangePassword.Size = new Size(300, 24);
+        chkOnlyMustChangePassword.Size = new Size(247, 26);
         chkOnlyMustChangePassword.TabIndex = 8;
         chkOnlyMustChangePassword.Text = "ملزمون بتغيير كلمة المرور";
         chkOnlyMustChangePassword.CheckedChanged += chkOnlyMustChangePassword_CheckedChanged;
         // 
         // btnClearFilters
         // 
-        // RULE-N148 / RULE-N145: زر «مسح التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لثابت الثيم
-        // (GreenThemeHelper.ActionNeutralBackground = 108,117,125) — لا يُنشأ وقت التشغيل.
-        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = System.Drawing.Color.White;
-        btnClearFilters.Location = new Point(585, 50);
+        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.Location = new Point(240, 60);
         btnClearFilters.Name = "btnClearFilters";
-        btnClearFilters.Size = new Size(145, 32);
+        btnClearFilters.Size = new Size(187, 32);
         btnClearFilters.TabIndex = 9;
-        btnClearFilters.Text = "🧹 مسح التصفية";
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
         toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
         btnClearFilters.UseVisualStyleBackColor = false;
         btnClearFilters.Click += btnClearFilters_Click;
+        // 
+        // btnToggleFilters
+        // 
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.Cursor = Cursors.Hand;
+        btnToggleFilters.Dock = DockStyle.Left;
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.Location = new Point(6, 4);
+        btnToggleFilters.Name = "btnToggleFilters";
+        btnToggleFilters.Size = new Size(140, 104);
+        btnToggleFilters.TabIndex = 25;
+        btnToggleFilters.Text = "إخفاء التصفية";
+        btnToggleFilters.UseVisualStyleBackColor = false;
         // 
         // pnlSummary
         // 
@@ -547,13 +540,13 @@ partial class frmUserMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
         lblSummary.TabIndex = 0;
         lblSummary.Text = "المعروض: 0 من 0";
-        lblSummary.TextAlign = ContentAlignment.MiddleRight;
+        lblSummary.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlGrid
         // 
@@ -567,28 +560,34 @@ partial class frmUserMaster
         // 
         // dgvUsers
         // 
-        // RULE-N134: نفس قيم ثيم GreenThemeHelper حرفياً — ليتساوى المصمّم ووقت التشغيل.
         dgvUsers.AllowUserToAddRows = false;
         dgvUsers.AllowUserToDeleteRows = false;
-        dgvUsers.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        dgvUsers.AutoGenerateColumns = false;
+        dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
+        dgvUsers.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvUsers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvUsers.BackgroundColor = System.Drawing.Color.White;
+        dgvUsers.BackgroundColor = Color.White;
         dgvUsers.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvUsers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-        dgvUsers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-        dgvUsers.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-        dgvUsers.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle2.BackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle2.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle2.ForeColor = Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle2.SelectionForeColor = Color.White;
+        dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+        dgvUsers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvUsers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        dgvUsers.Columns.AddRange(new DataGridViewColumn[] { colId, colUserName, colIsLocked, colIsActive });
         dgvUsers.ContextMenuStrip = cmsGrid;
-        dgvUsers.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-        dgvUsers.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dgvUsers.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
-        dgvUsers.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle3.BackColor = Color.White;
+        dataGridViewCellStyle3.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 243, 205);
+        dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+        dgvUsers.DefaultCellStyle = dataGridViewCellStyle3;
         dgvUsers.Dock = DockStyle.Fill;
         dgvUsers.EnableHeadersVisualStyles = false;
-        dgvUsers.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        dgvUsers.GridColor = Color.FromArgb(222, 226, 230);
         dgvUsers.Location = new Point(10, 10);
         dgvUsers.MultiSelect = false;
         dgvUsers.Name = "dgvUsers";
@@ -602,83 +601,47 @@ partial class frmUserMaster
         dgvUsers.CellClick += dgvUsers_CellClick;
         dgvUsers.CellDoubleClick += dgvUsers_CellDoubleClick;
         // 
-        // colId
+        // cmsGrid
         // 
-        colId.DataPropertyName = "Id";
-        colId.FillWeight = 12F;
-        colId.HeaderText = "رقم المستخدم";
-        colId.MinimumWidth = 90;
-        colId.Name = "colId";
-        colId.ReadOnly = true;
-        // 
-        // colUserName
-        // 
-        colUserName.DataPropertyName = "UserName";
-        colUserName.FillWeight = 58F;
-        colUserName.HeaderText = "اسم المستخدم";
-        colUserName.MinimumWidth = 220;
-        colUserName.Name = "colUserName";
-        colUserName.ReadOnly = true;
-        // 
-        // colIsLocked
-        // 
-        colIsLocked.DataPropertyName = "IsLocked";
-        colIsLocked.FillWeight = 15F;
-        colIsLocked.HeaderText = "مقفل";
-        colIsLocked.MinimumWidth = 80;
-        colIsLocked.Name = "colIsLocked";
-        colIsLocked.ReadOnly = true;
-        // 
-        // colIsActive
-        // 
-        colIsActive.DataPropertyName = "IsActive";
-        colIsActive.FillWeight = 15F;
-        colIsActive.HeaderText = "نشط";
-        colIsActive.MinimumWidth = 70;
-        colIsActive.Name = "colIsActive";
-        colIsActive.ReadOnly = true;
-        // 
-        // cmsGrid (RULE-N23)
-        // 
-        cmsGrid.BackColor = System.Drawing.Color.White;
+        cmsGrid.BackColor = Color.White;
         cmsGrid.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsGrid.ImageScalingSize = new Size(24, 24);
         cmsGrid.Items.AddRange(new ToolStripItem[] { mnuEdit, mnuDeactivate, mnuRefresh, mnuSeparator, mnuExport });
         cmsGrid.Name = "cmsGrid";
         cmsGrid.RightToLeft = RightToLeft.Yes;
-        cmsGrid.Size = new Size(220, 130);
+        cmsGrid.Size = new Size(284, 130);
         cmsGrid.Opening += cmsGrid_Opening;
         // 
         // mnuEdit
         // 
         mnuEdit.Name = "mnuEdit";
-        mnuEdit.Size = new Size(219, 30);
+        mnuEdit.Size = new Size(283, 30);
         mnuEdit.Text = "✏️ تعديل السطر المحدد";
         mnuEdit.Click += mnuEdit_Click;
         // 
         // mnuDeactivate
         // 
         mnuDeactivate.Name = "mnuDeactivate";
-        mnuDeactivate.Size = new Size(219, 30);
+        mnuDeactivate.Size = new Size(283, 30);
         mnuDeactivate.Text = "🗑 تعطيل السطر المحدد";
         mnuDeactivate.Click += mnuDeactivate_Click;
         // 
         // mnuRefresh
         // 
         mnuRefresh.Name = "mnuRefresh";
-        mnuRefresh.Size = new Size(219, 30);
+        mnuRefresh.Size = new Size(283, 30);
         mnuRefresh.Text = "🔄 تحديث البيانات (F5)";
         mnuRefresh.Click += mnuRefresh_Click;
         // 
         // mnuSeparator
         // 
         mnuSeparator.Name = "mnuSeparator";
-        mnuSeparator.Size = new Size(216, 6);
+        mnuSeparator.Size = new Size(280, 6);
         // 
         // mnuExport
         // 
         mnuExport.Name = "mnuExport";
-        mnuExport.Size = new Size(219, 30);
+        mnuExport.Size = new Size(283, 30);
         mnuExport.Text = "📊 تصدير إلى Excel";
         mnuExport.Click += mnuExport_Click;
         // 
@@ -691,7 +654,7 @@ partial class frmUserMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         ClientSize = new Size(1432, 782);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

@@ -15,6 +15,7 @@ partial class frmCashBoxTransactions
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
         pnlHeader = new Panel();
         lblMode = new Label();
         gbToolbar = new GroupBox();
@@ -48,9 +49,9 @@ partial class frmCashBoxTransactions
         dgvTransactions = new DataGridView();
         cmsTransactions = new ContextMenuStrip(components);
         tsmiOpenDocument = new ToolStripMenuItem();
+        tsSep1 = new ToolStripSeparator();
         tsmiExport = new ToolStripMenuItem();
         tsmiRefresh = new ToolStripMenuItem();
-        tsSep1 = new ToolStripSeparator();
         lblEmpty = new Label();
         pnlFooter = new Panel();
         lblHint = new Label();
@@ -69,7 +70,7 @@ partial class frmCashBoxTransactions
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlHeader.BackColor = Color.FromArgb(16, 150, 96);
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -80,10 +81,10 @@ partial class frmCashBoxTransactions
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Margin = new Padding(0);
         lblMode.Name = "lblMode";
@@ -94,11 +95,11 @@ partial class frmCashBoxTransactions
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.White;
+        gbToolbar.BackColor = Color.White;
         gbToolbar.Controls.Add(flpToolbar);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbToolbar.ForeColor = Color.FromArgb(33, 37, 41);
         gbToolbar.Location = new Point(0, 50);
         gbToolbar.Margin = new Padding(0);
         gbToolbar.Name = "gbToolbar";
@@ -110,27 +111,26 @@ partial class frmCashBoxTransactions
         // 
         // flpToolbar
         // 
-        flpToolbar.BackColor = System.Drawing.Color.White;
+        flpToolbar.BackColor = Color.White;
         flpToolbar.Controls.Add(btnRefresh);
         flpToolbar.Controls.Add(btnClose);
         flpToolbar.Dock = DockStyle.Fill;
-        flpToolbar.FlowDirection = FlowDirection.RightToLeft;
-        flpToolbar.Location = new Point(8, 24);
+        flpToolbar.Location = new Point(8, 29);
         flpToolbar.Margin = new Padding(0);
         flpToolbar.Name = "flpToolbar";
         flpToolbar.Padding = new Padding(6, 0, 6, 0);
-        flpToolbar.Size = new Size(1304, 40);
+        flpToolbar.Size = new Size(1304, 43);
         flpToolbar.TabIndex = 0;
         flpToolbar.WrapContents = false;
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnRefresh.BackColor = Color.FromArgb(108, 117, 125);
         btnRefresh.FlatAppearance.BorderSize = 0;
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRefresh.ForeColor = System.Drawing.Color.White;
-        btnRefresh.Location = new Point(1152, 4);
+        btnRefresh.ForeColor = Color.White;
+        btnRefresh.Location = new Point(1148, 4);
         btnRefresh.Margin = new Padding(4);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(140, 34);
@@ -141,12 +141,12 @@ partial class frmCashBoxTransactions
         // 
         // btnClose
         // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
+        btnClose.BackColor = Color.FromArgb(220, 53, 69);
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(1004, 4);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(1000, 4);
         btnClose.Margin = new Padding(4);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(140, 34);
@@ -157,7 +157,7 @@ partial class frmCashBoxTransactions
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = System.Drawing.Color.White;
+        pnlFilters.BackColor = Color.White;
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -170,7 +170,7 @@ partial class frmCashBoxTransactions
         // 
         // gbFilter
         // 
-        gbFilter.BackColor = System.Drawing.Color.White;
+        gbFilter.BackColor = Color.White;
         gbFilter.Controls.Add(lblCashBox);
         gbFilter.Controls.Add(cmbCashBox);
         gbFilter.Controls.Add(lblFilterBy);
@@ -190,31 +190,32 @@ partial class frmCashBoxTransactions
         gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbFilter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        gbFilter.Location = new Point(152, 4);
+        gbFilter.ForeColor = Color.FromArgb(33, 37, 41);
+        gbFilter.Location = new Point(146, 4);
         gbFilter.Margin = new Padding(0);
         gbFilter.Name = "gbFilter";
         gbFilter.Padding = new Padding(10);
-        gbFilter.Size = new Size(1162, 104);
+        gbFilter.Size = new Size(1168, 104);
         gbFilter.TabIndex = 1;
         gbFilter.TabStop = false;
         gbFilter.Text = "بحث وتصفية";
         // 
         // lblCashBox
         // 
+        lblCashBox.AutoSize = true;
         lblCashBox.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCashBox.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblCashBox.Location = new Point(1050, 32);
+        lblCashBox.ForeColor = Color.FromArgb(33, 37, 41);
+        lblCashBox.Location = new Point(1055, 32);
         lblCashBox.Margin = new Padding(0);
         lblCashBox.Name = "lblCashBox";
-        lblCashBox.Size = new Size(85, 26);
+        lblCashBox.Size = new Size(101, 24);
         lblCashBox.TabIndex = 0;
         lblCashBox.Text = "الصندوق:";
         lblCashBox.TextAlign = ContentAlignment.MiddleRight;
         // 
         // cmbCashBox
         // 
-        cmbCashBox.BackColor = System.Drawing.Color.White;
+        cmbCashBox.BackColor = Color.White;
         cmbCashBox.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCashBox.FlatStyle = FlatStyle.Flat;
         cmbCashBox.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -228,19 +229,20 @@ partial class frmCashBoxTransactions
         // 
         // lblFilterBy
         // 
+        lblFilterBy.AutoSize = true;
         lblFilterBy.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblFilterBy.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblFilterBy.Location = new Point(758, 32);
+        lblFilterBy.ForeColor = Color.FromArgb(33, 37, 41);
+        lblFilterBy.Location = new Point(750, 32);
         lblFilterBy.Margin = new Padding(0);
         lblFilterBy.Name = "lblFilterBy";
-        lblFilterBy.Size = new Size(90, 26);
+        lblFilterBy.Size = new Size(95, 24);
         lblFilterBy.TabIndex = 2;
         lblFilterBy.Text = "تصفية بـ:";
         lblFilterBy.TextAlign = ContentAlignment.MiddleRight;
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = System.Drawing.Color.White;
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -255,7 +257,7 @@ partial class frmCashBoxTransactions
         // 
         // txtFilterValue
         // 
-        txtFilterValue.BackColor = System.Drawing.Color.White;
+        txtFilterValue.BackColor = Color.White;
         txtFilterValue.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtFilterValue.Location = new Point(385, 28);
         txtFilterValue.Margin = new Padding(0);
@@ -267,24 +269,24 @@ partial class frmCashBoxTransactions
         // 
         // lblStatus
         // 
+        lblStatus.AutoSize = true;
         lblStatus.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStatus.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblStatus.ForeColor = Color.FromArgb(33, 37, 41);
         lblStatus.Location = new Point(292, 32);
         lblStatus.Margin = new Padding(0);
         lblStatus.Name = "lblStatus";
-        lblStatus.Size = new Size(85, 26);
+        lblStatus.Size = new Size(72, 24);
         lblStatus.TabIndex = 5;
         lblStatus.Text = "الحالة:";
         lblStatus.TextAlign = ContentAlignment.MiddleRight;
         // 
         // cbStatus
         // 
-        cbStatus.BackColor = System.Drawing.Color.White;
+        cbStatus.BackColor = Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
         cbStatus.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cbStatus.FormattingEnabled = true;
-        // عناصر الحالة تُملأ وقت التشغيل من DocumentTextHelper.StatusOptions (RULE-N169) — لا قائمة مكرّرة في المصمّم.
         cbStatus.Location = new Point(165, 28);
         cbStatus.Margin = new Padding(0);
         cbStatus.Name = "cbStatus";
@@ -294,22 +296,23 @@ partial class frmCashBoxTransactions
         // 
         // lblFrom
         // 
+        lblFrom.AutoSize = true;
         lblFrom.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblFrom.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblFrom.Location = new Point(1068, 64);
+        lblFrom.ForeColor = Color.FromArgb(33, 37, 41);
+        lblFrom.Location = new Point(1068, 68);
         lblFrom.Margin = new Padding(0);
         lblFrom.Name = "lblFrom";
-        lblFrom.Size = new Size(60, 26);
+        lblFrom.Size = new Size(46, 24);
         lblFrom.TabIndex = 7;
         lblFrom.Text = "من:";
         lblFrom.TextAlign = ContentAlignment.MiddleRight;
         // 
         // dtpFrom
         // 
-        dtpFrom.BackColor = System.Drawing.Color.White;
+        dtpFrom.BackColor = Color.White;
         dtpFrom.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpFrom.Format = DateTimePickerFormat.Short;
-        dtpFrom.Location = new Point(905, 60);
+        dtpFrom.Location = new Point(905, 65);
         dtpFrom.Margin = new Padding(0);
         dtpFrom.Name = "dtpFrom";
         dtpFrom.Size = new Size(155, 32);
@@ -319,8 +322,8 @@ partial class frmCashBoxTransactions
         // lblTo
         // 
         lblTo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTo.Location = new Point(845, 64);
+        lblTo.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTo.Location = new Point(845, 68);
         lblTo.Margin = new Padding(0);
         lblTo.Name = "lblTo";
         lblTo.Size = new Size(52, 26);
@@ -330,10 +333,10 @@ partial class frmCashBoxTransactions
         // 
         // dtpTo
         // 
-        dtpTo.BackColor = System.Drawing.Color.White;
+        dtpTo.BackColor = Color.White;
         dtpTo.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpTo.Format = DateTimePickerFormat.Short;
-        dtpTo.Location = new Point(682, 60);
+        dtpTo.Location = new Point(682, 65);
         dtpTo.Margin = new Padding(0);
         dtpTo.Name = "dtpTo";
         dtpTo.Size = new Size(155, 32);
@@ -342,14 +345,13 @@ partial class frmCashBoxTransactions
         // 
         // btnRangeToday
         // 
-        btnRangeToday.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        btnRangeToday.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        btnRangeToday.FlatAppearance.BorderSize = 1;
-        btnRangeToday.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnRangeToday.BackColor = Color.FromArgb(248, 249, 250);
+        btnRangeToday.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRangeToday.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnRangeToday.FlatStyle = FlatStyle.Popup;
         btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRangeToday.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        btnRangeToday.Location = new Point(578, 58);
+        btnRangeToday.ForeColor = Color.FromArgb(33, 37, 41);
+        btnRangeToday.Location = new Point(578, 64);
         btnRangeToday.Margin = new Padding(0);
         btnRangeToday.Name = "btnRangeToday";
         btnRangeToday.Size = new Size(96, 34);
@@ -360,14 +362,13 @@ partial class frmCashBoxTransactions
         // 
         // btnRangeMonth
         // 
-        btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        btnRangeMonth.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        btnRangeMonth.FlatAppearance.BorderSize = 1;
-        btnRangeMonth.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnRangeMonth.BackColor = Color.FromArgb(248, 249, 250);
+        btnRangeMonth.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRangeMonth.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnRangeMonth.FlatStyle = FlatStyle.Popup;
         btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRangeMonth.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        btnRangeMonth.Location = new Point(448, 58);
+        btnRangeMonth.ForeColor = Color.FromArgb(33, 37, 41);
+        btnRangeMonth.Location = new Point(440, 64);
         btnRangeMonth.Margin = new Padding(0);
         btnRangeMonth.Name = "btnRangeMonth";
         btnRangeMonth.Size = new Size(122, 34);
@@ -378,14 +379,13 @@ partial class frmCashBoxTransactions
         // 
         // btnRange30
         // 
-        btnRange30.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        btnRange30.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        btnRange30.FlatAppearance.BorderSize = 1;
-        btnRange30.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnRange30.BackColor = Color.FromArgb(248, 249, 250);
+        btnRange30.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnRange30.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnRange30.FlatStyle = FlatStyle.Popup;
         btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRange30.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        btnRange30.Location = new Point(316, 58);
+        btnRange30.ForeColor = Color.FromArgb(33, 37, 41);
+        btnRange30.Location = new Point(316, 64);
         btnRange30.Margin = new Padding(0);
         btnRange30.Name = "btnRange30";
         btnRange30.Size = new Size(124, 34);
@@ -397,8 +397,8 @@ partial class frmCashBoxTransactions
         // chkOnlyCancelled
         // 
         chkOnlyCancelled.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        chkOnlyCancelled.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        chkOnlyCancelled.Location = new Point(158, 62);
+        chkOnlyCancelled.ForeColor = Color.FromArgb(33, 37, 41);
+        chkOnlyCancelled.Location = new Point(158, 67);
         chkOnlyCancelled.Margin = new Padding(0);
         chkOnlyCancelled.Name = "chkOnlyCancelled";
         chkOnlyCancelled.Size = new Size(150, 28);
@@ -410,8 +410,8 @@ partial class frmCashBoxTransactions
         // chkShowInactive
         // 
         chkShowInactive.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        chkShowInactive.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        chkShowInactive.Location = new Point(12, 62);
+        chkShowInactive.ForeColor = Color.FromArgb(33, 37, 41);
+        chkShowInactive.Location = new Point(12, 67);
         chkShowInactive.Margin = new Padding(0);
         chkShowInactive.Name = "chkShowInactive";
         chkShowInactive.Size = new Size(140, 28);
@@ -422,40 +422,33 @@ partial class frmCashBoxTransactions
         // 
         // btnClearFilters
         // 
-        // RULE-N148: «مسح التصفية» يمسح أدوات التصفية فقط بلا إعادة تحميل (RULE-N134 — القيم حرفية).
-        // الموضع: نهاية الصف الأول من اليمين إلى اليسار (RULE-N127) داخل padding الصندوق (10) ومحاذٍ لعمود
-        // chkShowInactive في الصف الثاني (x = 12)، وبفاصل 8px عن cbStatus (x = 165) — لا تقاطع مع أي عنصر.
-        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = System.Drawing.Color.White;
+        btnClearFilters.ForeColor = Color.White;
         btnClearFilters.Location = new Point(12, 28);
         btnClearFilters.Margin = new Padding(0);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(145, 32);
         btnClearFilters.TabIndex = 16;
-        btnClearFilters.Text = "🧹 مسح التصفية";
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
         toolTip1.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
         btnClearFilters.UseVisualStyleBackColor = false;
         btnClearFilters.Click += btnClearFilters_Click;
         // 
         // btnToggleFilters
         // 
-        // RULE-N145: زر «إخفاء/إظهار التصفية» مُعلَن في المصمّم بقيم حرفية مطابقة لـ
-        // ThemeHelper.Secondary + FilterPanelHelper حتى يظهر في المصمّم كما يظهر وقت التشغيل.
-        // السلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
-        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        btnToggleFilters.FlatAppearance.BorderSize = 1;
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Margin = new Padding(0);
         btnToggleFilters.Name = "btnToggleFilters";
@@ -466,7 +459,7 @@ partial class frmCashBoxTransactions
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.White;
+        pnlSummary.BackColor = Color.White;
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Controls.Add(lblRecordsCount);
         pnlSummary.Dock = DockStyle.Top;
@@ -480,7 +473,7 @@ partial class frmCashBoxTransactions
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
         lblSummary.Location = new Point(90, 0);
         lblSummary.Margin = new Padding(0);
         lblSummary.Name = "lblSummary";
@@ -488,13 +481,13 @@ partial class frmCashBoxTransactions
         lblSummary.Size = new Size(1230, 40);
         lblSummary.TabIndex = 0;
         lblSummary.Text = "عدد الحركات: 0 — الوارد: 0.00 · الصادر: 0.00 · الرصيد: 0.00";
-        lblSummary.TextAlign = ContentAlignment.MiddleRight;
+        lblSummary.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // lblRecordsCount
         // 
         lblRecordsCount.Dock = DockStyle.Left;
         lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblRecordsCount.ForeColor = Color.FromArgb(33, 37, 41);
         lblRecordsCount.Location = new Point(0, 0);
         lblRecordsCount.Margin = new Padding(0);
         lblRecordsCount.Name = "lblRecordsCount";
@@ -505,7 +498,7 @@ partial class frmCashBoxTransactions
         // 
         // pnlGrid
         // 
-        pnlGrid.BackColor = System.Drawing.Color.White;
+        pnlGrid.BackColor = Color.White;
         pnlGrid.Controls.Add(dgvTransactions);
         pnlGrid.Controls.Add(lblEmpty);
         pnlGrid.Dock = DockStyle.Fill;
@@ -513,7 +506,7 @@ partial class frmCashBoxTransactions
         pnlGrid.Margin = new Padding(0);
         pnlGrid.Name = "pnlGrid";
         pnlGrid.Padding = new Padding(6);
-        pnlGrid.Size = new Size(1320, 408);
+        pnlGrid.Size = new Size(1320, 416);
         pnlGrid.TabIndex = 4;
         // 
         // dgvTransactions
@@ -521,39 +514,16 @@ partial class frmCashBoxTransactions
         dgvTransactions.AllowUserToAddRows = false;
         dgvTransactions.AllowUserToDeleteRows = false;
         dgvTransactions.AllowUserToResizeRows = false;
-        dgvTransactions.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-        {
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250))
-        };
-        dgvTransactions.AutoGenerateColumns = false;
         dgvTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvTransactions.BackgroundColor = System.Drawing.Color.White;
+        dgvTransactions.BackgroundColor = Color.White;
         dgvTransactions.BorderStyle = BorderStyle.None;
         dgvTransactions.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvTransactions.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-        {
-            Alignment = DataGridViewContentAlignment.MiddleCenter,
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96)),
-            Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0),
-            ForeColor = System.Drawing.Color.White,
-            SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96)),
-            WrapMode = DataGridViewTriState.True
-        };
+        dgvTransactions.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
         dgvTransactions.ColumnHeadersHeight = 45;
         dgvTransactions.ContextMenuStrip = cmsTransactions;
-        dgvTransactions.DefaultCellStyle = new DataGridViewCellStyle
-        {
-            Alignment = DataGridViewContentAlignment.MiddleCenter,
-            BackColor = System.Drawing.Color.White,
-            Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0),
-            ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41)),
-            SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205)),
-            SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41)),
-            WrapMode = DataGridViewTriState.False
-        };
         dgvTransactions.Dock = DockStyle.Fill;
         dgvTransactions.EnableHeadersVisualStyles = false;
-        dgvTransactions.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        dgvTransactions.GridColor = Color.FromArgb(222, 226, 230);
         dgvTransactions.Location = new Point(6, 6);
         dgvTransactions.Margin = new Padding(0);
         dgvTransactions.MultiSelect = false;
@@ -563,39 +533,38 @@ partial class frmCashBoxTransactions
         dgvTransactions.RowHeadersWidth = 62;
         dgvTransactions.RowTemplate.Height = 32;
         dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvTransactions.Size = new Size(1308, 396);
+        dgvTransactions.Size = new Size(1308, 404);
         dgvTransactions.TabIndex = 0;
-        dgvTransactions.ShowCellToolTips = true;
         dgvTransactions.KeyDown += dgvTransactions_KeyDown;
         // 
         // cmsTransactions
         // 
-        cmsTransactions.BackColor = System.Drawing.Color.White;
+        cmsTransactions.BackColor = Color.White;
         cmsTransactions.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsTransactions.ImageScalingSize = new Size(24, 24);
         cmsTransactions.Items.AddRange(new ToolStripItem[] { tsmiOpenDocument, tsSep1, tsmiExport, tsmiRefresh });
         cmsTransactions.Name = "cmsTransactions";
         cmsTransactions.RightToLeft = RightToLeft.Yes;
-        cmsTransactions.Size = new Size(180, 130);
+        cmsTransactions.Size = new Size(242, 100);
         cmsTransactions.Opening += cmsTransactions_Opening;
         // 
         // tsmiOpenDocument
         // 
         tsmiOpenDocument.Name = "tsmiOpenDocument";
         tsmiOpenDocument.ShortcutKeyDisplayString = "Enter";
-        tsmiOpenDocument.Size = new Size(179, 30);
+        tsmiOpenDocument.Size = new Size(241, 30);
         tsmiOpenDocument.Text = "فتح المستند";
         tsmiOpenDocument.Click += tsmiOpenDocument_Click;
         // 
         // tsSep1
         // 
         tsSep1.Name = "tsSep1";
-        tsSep1.Size = new Size(176, 6);
+        tsSep1.Size = new Size(238, 6);
         // 
         // tsmiExport
         // 
         tsmiExport.Name = "tsmiExport";
-        tsmiExport.Size = new Size(179, 30);
+        tsmiExport.Size = new Size(241, 30);
         tsmiExport.Text = "تصدير إلى Excel";
         tsmiExport.Click += tsmiExport_Click;
         // 
@@ -603,20 +572,20 @@ partial class frmCashBoxTransactions
         // 
         tsmiRefresh.Name = "tsmiRefresh";
         tsmiRefresh.ShortcutKeyDisplayString = "F5";
-        tsmiRefresh.Size = new Size(179, 30);
+        tsmiRefresh.Size = new Size(241, 30);
         tsmiRefresh.Text = "تحديث";
         tsmiRefresh.Click += tsmiRefresh_Click;
         // 
         // lblEmpty
         // 
-        lblEmpty.BackColor = System.Drawing.Color.White;
+        lblEmpty.BackColor = Color.White;
         lblEmpty.Dock = DockStyle.Fill;
         lblEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblEmpty.ForeColor = Color.FromArgb(33, 37, 41);
         lblEmpty.Location = new Point(6, 6);
         lblEmpty.Margin = new Padding(0);
         lblEmpty.Name = "lblEmpty";
-        lblEmpty.Size = new Size(1308, 396);
+        lblEmpty.Size = new Size(1308, 404);
         lblEmpty.TabIndex = 1;
         lblEmpty.Text = "لا توجد بيانات للعرض";
         lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
@@ -624,7 +593,7 @@ partial class frmCashBoxTransactions
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = Color.White;
         pnlFooter.Controls.Add(lblHint);
         pnlFooter.Dock = DockStyle.Bottom;
         pnlFooter.Location = new Point(0, 694);
@@ -637,7 +606,7 @@ partial class frmCashBoxTransactions
         // 
         lblHint.Dock = DockStyle.Fill;
         lblHint.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblHint.ForeColor = Color.FromArgb(33, 37, 41);
         lblHint.Location = new Point(0, 0);
         lblHint.Margin = new Padding(0);
         lblHint.Name = "lblHint";
@@ -645,18 +614,18 @@ partial class frmCashBoxTransactions
         lblHint.Size = new Size(1320, 34);
         lblHint.TabIndex = 0;
         lblHint.Text = "F5 تحديث · F9 إخفاء/إظهار التصفية · Enter فتح المستند · Esc مسح التصفية/إغلاق";
-        lblHint.TextAlign = ContentAlignment.MiddleRight;
+        lblHint.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // toolTip1
         // 
         toolTip1.AutomaticDelay = 300;
-        toolTip1.BackColor = System.Drawing.Color.White;
-        toolTip1.ForeColor = System.Drawing.Color.Black;
+        toolTip1.BackColor = Color.White;
+        toolTip1.ForeColor = Color.Black;
         // 
         // frmCashBoxTransactions
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
         ClientSize = new Size(1320, 728);
         Controls.Add(pnlGrid);

@@ -82,7 +82,7 @@ partial class frmBackup
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlHeader.BackColor = Color.FromArgb(16, 150, 96);
         pnlHeader.Controls.Add(lblSubtitle);
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
@@ -95,10 +95,10 @@ partial class frmBackup
         // lblSubtitle
         // 
         lblSubtitle.AutoSize = false;
-        lblSubtitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblSubtitle.BackColor = Color.FromArgb(16, 150, 96);
         lblSubtitle.Dock = DockStyle.Top;
         lblSubtitle.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblSubtitle.ForeColor = System.Drawing.Color.White;
+        lblSubtitle.ForeColor = Color.White;
         lblSubtitle.Location = new Point(0, 40);
         lblSubtitle.Name = "lblSubtitle";
         lblSubtitle.Padding = new Padding(12, 0, 12, 0);
@@ -109,10 +109,10 @@ partial class frmBackup
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1100, 40);
@@ -122,7 +122,7 @@ partial class frmBackup
         // 
         // pnlToolbar
         // 
-        pnlToolbar.BackColor = System.Drawing.Color.White;
+        pnlToolbar.BackColor = Color.White;
         pnlToolbar.Controls.Add(gbActions);
         pnlToolbar.Dock = DockStyle.Top;
         pnlToolbar.Location = new Point(0, 76);
@@ -134,11 +134,11 @@ partial class frmBackup
         // 
         // gbActions
         // 
-        gbActions.BackColor = System.Drawing.Color.White;
+        gbActions.BackColor = Color.White;
         gbActions.Controls.Add(flpActions);
         gbActions.Dock = DockStyle.Fill;
         gbActions.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbActions.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbActions.ForeColor = Color.FromArgb(33, 37, 41);
         gbActions.Location = new Point(8, 8);
         gbActions.Name = "gbActions";
         gbActions.Padding = new Padding(8);
@@ -149,7 +149,7 @@ partial class frmBackup
         // 
         // flpActions
         // 
-        flpActions.BackColor = System.Drawing.Color.White;
+        flpActions.BackColor = Color.White;
         flpActions.Controls.Add(btnCreateBackup);
         flpActions.Controls.Add(btnRestoreBackup);
         flpActions.Controls.Add(btnRefresh);
@@ -164,12 +164,12 @@ partial class frmBackup
         // 
         // btnCreateBackup
         // 
-        btnCreateBackup.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnCreateBackup.BackColor = Color.FromArgb(25, 135, 84);
         btnCreateBackup.Cursor = Cursors.Hand;
         btnCreateBackup.FlatAppearance.BorderSize = 0;
         btnCreateBackup.FlatStyle = FlatStyle.Flat;
         btnCreateBackup.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnCreateBackup.ForeColor = System.Drawing.Color.White;
+        btnCreateBackup.ForeColor = Color.White;
         btnCreateBackup.Location = new Point(6, 2);
         btnCreateBackup.Margin = new Padding(0, 0, 8, 0);
         btnCreateBackup.Name = "btnCreateBackup";
@@ -182,12 +182,12 @@ partial class frmBackup
         // 
         // btnRestoreBackup
         // 
-        btnRestoreBackup.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
+        btnRestoreBackup.BackColor = Color.FromArgb(220, 53, 69);
         btnRestoreBackup.Cursor = Cursors.Hand;
         btnRestoreBackup.FlatAppearance.BorderSize = 0;
         btnRestoreBackup.FlatStyle = FlatStyle.Flat;
         btnRestoreBackup.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRestoreBackup.ForeColor = System.Drawing.Color.White;
+        btnRestoreBackup.ForeColor = Color.White;
         btnRestoreBackup.Location = new Point(226, 2);
         btnRestoreBackup.Margin = new Padding(0, 0, 8, 0);
         btnRestoreBackup.Name = "btnRestoreBackup";
@@ -200,12 +200,12 @@ partial class frmBackup
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnRefresh.BackColor = Color.FromArgb(108, 117, 125);
         btnRefresh.Cursor = Cursors.Hand;
         btnRefresh.FlatAppearance.BorderSize = 0;
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRefresh.ForeColor = System.Drawing.Color.White;
+        btnRefresh.ForeColor = Color.White;
         btnRefresh.Location = new Point(446, 2);
         btnRefresh.Margin = new Padding(0, 0, 8, 0);
         btnRefresh.Name = "btnRefresh";
@@ -218,7 +218,7 @@ partial class frmBackup
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = System.Drawing.Color.White;
+        pnlFilters.BackColor = Color.White;
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -231,7 +231,7 @@ partial class frmBackup
         // 
         // gbFilter
         // 
-        gbFilter.BackColor = System.Drawing.Color.White;
+        gbFilter.BackColor = Color.White;
         gbFilter.Controls.Add(label2);
         gbFilter.Controls.Add(cbFilterBy);
         gbFilter.Controls.Add(txtFilterValue);
@@ -245,7 +245,7 @@ partial class frmBackup
         gbFilter.Controls.Add(btnClearFilters);
         gbFilter.Dock = DockStyle.Fill;
         gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbFilter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbFilter.ForeColor = Color.FromArgb(33, 37, 41);
         gbFilter.Location = new Point(136, 4);
         gbFilter.Margin = new Padding(0);
         gbFilter.Name = "gbFilter";
@@ -260,7 +260,7 @@ partial class frmBackup
         // 
         label2.AutoSize = true;
         label2.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        label2.ForeColor = Color.FromArgb(33, 37, 41);
         label2.Location = new Point(838, 30);
         label2.Name = "label2";
         label2.Size = new Size(74, 22);
@@ -269,7 +269,7 @@ partial class frmBackup
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = System.Drawing.Color.White;
+        cbFilterBy.BackColor = Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -283,7 +283,7 @@ partial class frmBackup
         // 
         // txtFilterValue
         // 
-        txtFilterValue.BackColor = System.Drawing.Color.White;
+        txtFilterValue.BackColor = Color.White;
         txtFilterValue.BorderStyle = BorderStyle.FixedSingle;
         txtFilterValue.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         txtFilterValue.Location = new Point(404, 26);
@@ -298,7 +298,7 @@ partial class frmBackup
         // 
         label1.AutoSize = true;
         label1.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        label1.ForeColor = Color.FromArgb(33, 37, 41);
         label1.Location = new Point(356, 30);
         label1.Name = "label1";
         label1.Size = new Size(34, 22);
@@ -307,7 +307,7 @@ partial class frmBackup
         // 
         // dtpFrom
         // 
-        dtpFrom.BackColor = System.Drawing.Color.White;
+        dtpFrom.BackColor = Color.White;
         dtpFrom.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpFrom.Format = DateTimePickerFormat.Short;
         dtpFrom.Location = new Point(216, 26);
@@ -321,7 +321,7 @@ partial class frmBackup
         // 
         label3.AutoSize = true;
         label3.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        label3.ForeColor = Color.FromArgb(33, 37, 41);
         label3.Location = new Point(168, 30);
         label3.Name = "label3";
         label3.Size = new Size(36, 22);
@@ -330,7 +330,7 @@ partial class frmBackup
         // 
         // dtpTo
         // 
-        dtpTo.BackColor = System.Drawing.Color.White;
+        dtpTo.BackColor = Color.White;
         dtpTo.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dtpTo.Format = DateTimePickerFormat.Short;
         dtpTo.Location = new Point(30, 26);
@@ -342,12 +342,12 @@ partial class frmBackup
         // 
         // btnRangeToday
         // 
-        btnRangeToday.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnRangeToday.BackColor = Color.FromArgb(23, 162, 184);
         btnRangeToday.Cursor = Cursors.Hand;
         btnRangeToday.FlatAppearance.BorderSize = 0;
         btnRangeToday.FlatStyle = FlatStyle.Flat;
         btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRangeToday.ForeColor = System.Drawing.Color.White;
+        btnRangeToday.ForeColor = Color.White;
         btnRangeToday.Location = new Point(808, 68);
         btnRangeToday.Name = "btnRangeToday";
         btnRangeToday.Size = new Size(118, 30);
@@ -359,12 +359,12 @@ partial class frmBackup
         // 
         // btnRangeMonth
         // 
-        btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnRangeMonth.BackColor = Color.FromArgb(23, 162, 184);
         btnRangeMonth.Cursor = Cursors.Hand;
         btnRangeMonth.FlatAppearance.BorderSize = 0;
         btnRangeMonth.FlatStyle = FlatStyle.Flat;
         btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRangeMonth.ForeColor = System.Drawing.Color.White;
+        btnRangeMonth.ForeColor = Color.White;
         btnRangeMonth.Location = new Point(682, 68);
         btnRangeMonth.Name = "btnRangeMonth";
         btnRangeMonth.Size = new Size(118, 30);
@@ -376,12 +376,12 @@ partial class frmBackup
         // 
         // btnRange30
         // 
-        btnRange30.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnRange30.BackColor = Color.FromArgb(23, 162, 184);
         btnRange30.Cursor = Cursors.Hand;
         btnRange30.FlatAppearance.BorderSize = 0;
         btnRange30.FlatStyle = FlatStyle.Flat;
         btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnRange30.ForeColor = System.Drawing.Color.White;
+        btnRange30.ForeColor = Color.White;
         btnRange30.Location = new Point(556, 68);
         btnRange30.Name = "btnRange30";
         btnRange30.Size = new Size(118, 30);
@@ -393,12 +393,12 @@ partial class frmBackup
         // 
         // btnClearFilters
         // 
-        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClearFilters.ForeColor = System.Drawing.Color.White;
+        btnClearFilters.ForeColor = Color.White;
         btnClearFilters.Location = new Point(408, 68);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(140, 30);
@@ -410,15 +410,15 @@ partial class frmBackup
         // 
         // btnToggleFilters
         // 
-        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
         btnToggleFilters.FlatAppearance.BorderSize = 1;
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(130, 112);
@@ -429,7 +429,7 @@ partial class frmBackup
         // 
         // pnlGrid
         // 
-        pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        pnlGrid.BackColor = Color.FromArgb(240, 242, 245);
         pnlGrid.Controls.Add(lblEmpty);
         pnlGrid.Controls.Add(gbBackups);
         pnlGrid.Dock = DockStyle.Fill;
@@ -442,10 +442,10 @@ partial class frmBackup
         // 
         // lblEmpty
         // 
-        lblEmpty.BackColor = System.Drawing.Color.White;
+        lblEmpty.BackColor = Color.White;
         lblEmpty.Dock = DockStyle.Fill;
         lblEmpty.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblEmpty.ForeColor = Color.FromArgb(33, 37, 41);
         lblEmpty.Location = new Point(10, 10);
         lblEmpty.Name = "lblEmpty";
         lblEmpty.Size = new Size(1080, 338);
@@ -456,11 +456,11 @@ partial class frmBackup
         // 
         // gbBackups
         // 
-        gbBackups.BackColor = System.Drawing.Color.White;
+        gbBackups.BackColor = Color.White;
         gbBackups.Controls.Add(dgvBackups);
         gbBackups.Dock = DockStyle.Fill;
         gbBackups.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbBackups.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbBackups.ForeColor = Color.FromArgb(33, 37, 41);
         gbBackups.Location = new Point(10, 10);
         gbBackups.Name = "gbBackups";
         gbBackups.Padding = new Padding(10);
@@ -474,32 +474,32 @@ partial class frmBackup
         dgvBackups.AllowUserToAddRows = false;
         dgvBackups.AllowUserToDeleteRows = false;
         dgvBackups.AllowUserToResizeRows = false;
-        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
         dgvBackups.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvBackups.AutoGenerateColumns = false;
         dgvBackups.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvBackups.BackgroundColor = System.Drawing.Color.White;
+        dgvBackups.BackgroundColor = Color.White;
         dgvBackups.BorderStyle = BorderStyle.None;
         dgvBackups.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        dataGridViewCellStyle2.BackColor = Color.FromArgb(16, 150, 96);
         dataGridViewCellStyle2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
-        dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle2.ForeColor = Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(16, 150, 96);
+        dataGridViewCellStyle2.SelectionForeColor = Color.White;
         dgvBackups.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvBackups.ColumnHeadersHeight = 45;
         dgvBackups.Columns.AddRange(new DataGridViewColumn[] { colFileName, colCreatedAt });
         dgvBackups.ContextMenuStrip = cmsBackups;
-        dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+        dataGridViewCellStyle3.BackColor = Color.White;
         dataGridViewCellStyle3.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
-        dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 243, 205);
+        dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
         dgvBackups.DefaultCellStyle = dataGridViewCellStyle3;
         dgvBackups.Dock = DockStyle.Fill;
         dgvBackups.EnableHeadersVisualStyles = false;
-        dgvBackups.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        dgvBackups.GridColor = Color.FromArgb(222, 226, 230);
         dgvBackups.Location = new Point(10, 33);
         dgvBackups.Margin = new Padding(0);
         dgvBackups.MultiSelect = false;
@@ -539,7 +539,7 @@ partial class frmBackup
         // 
         // cmsBackups
         // 
-        cmsBackups.BackColor = System.Drawing.Color.White;
+        cmsBackups.BackColor = Color.White;
         cmsBackups.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsBackups.ImageScalingSize = new Size(24, 24);
         cmsBackups.Items.AddRange(new ToolStripItem[] { createBackupToolStripMenuItem, restoreToolStripMenuItem, toolStripSeparator1, refreshToolStripMenuItem });
@@ -576,7 +576,7 @@ partial class frmBackup
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.White;
+        pnlSummary.BackColor = Color.White;
         pnlSummary.Controls.Add(gbSummary);
         pnlSummary.Dock = DockStyle.Bottom;
         pnlSummary.Location = new Point(0, 654);
@@ -588,11 +588,11 @@ partial class frmBackup
         // 
         // gbSummary
         // 
-        gbSummary.BackColor = System.Drawing.Color.White;
+        gbSummary.BackColor = Color.White;
         gbSummary.Controls.Add(lblSummary);
         gbSummary.Dock = DockStyle.Fill;
         gbSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        gbSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbSummary.ForeColor = Color.FromArgb(33, 37, 41);
         gbSummary.Location = new Point(6, 4);
         gbSummary.Name = "gbSummary";
         gbSummary.Padding = new Padding(8, 0, 8, 0);
@@ -605,7 +605,7 @@ partial class frmBackup
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
         lblSummary.Location = new Point(8, 20);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1072, 26);
@@ -615,7 +615,7 @@ partial class frmBackup
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = Color.White;
         pnlFooter.Controls.Add(flpFooter);
         pnlFooter.Controls.Add(lblStatus);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -628,10 +628,10 @@ partial class frmBackup
         // 
         // lblStatus
         // 
-        lblStatus.BackColor = System.Drawing.Color.White;
+        lblStatus.BackColor = Color.White;
         lblStatus.Dock = DockStyle.Fill;
         lblStatus.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStatus.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblStatus.ForeColor = Color.FromArgb(33, 37, 41);
         lblStatus.Location = new Point(8, 8);
         lblStatus.Name = "lblStatus";
         lblStatus.Padding = new Padding(6, 0, 6, 0);
@@ -642,7 +642,7 @@ partial class frmBackup
         // 
         // flpFooter
         // 
-        flpFooter.BackColor = System.Drawing.Color.White;
+        flpFooter.BackColor = Color.White;
         flpFooter.Controls.Add(btnClose);
         flpFooter.Dock = DockStyle.Right;
         flpFooter.FlowDirection = FlowDirection.LeftToRight;
@@ -655,13 +655,13 @@ partial class frmBackup
         // 
         // btnClose
         // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.Cursor = Cursors.Hand;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = System.Drawing.Color.White;
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(8, 2);
         btnClose.Margin = new Padding(0);
         btnClose.Name = "btnClose";
@@ -676,7 +676,7 @@ partial class frmBackup
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
         ClientSize = new Size(1100, 776);
         Controls.Add(pnlGrid);

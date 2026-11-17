@@ -201,43 +201,64 @@ public partial class frmCustomerStatement : Form
 
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColDate", HeaderText = "التاريخ", FillWeight = 12, MinimumWidth = 90,
+            Name = "ColDate",
+            HeaderText = "التاريخ",
+            FillWeight = 12,
+            MinimumWidth = 90,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
         });
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColType", HeaderText = "النوع", FillWeight = 11, MinimumWidth = 90,
+            Name = "ColType",
+            HeaderText = "النوع",
+            FillWeight = 11,
+            MinimumWidth = 90,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
         });
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColReference", HeaderText = "المرجع", FillWeight = 12, MinimumWidth = 100,
+            Name = "ColReference",
+            HeaderText = "المرجع",
+            FillWeight = 12,
+            MinimumWidth = 100,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
         });
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColDescription", HeaderText = "البيان", FillWeight = 20, MinimumWidth = 160,
+            Name = "ColDescription",
+            HeaderText = "البيان",
+            FillWeight = 20,
+            MinimumWidth = 160,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColDebit", HeaderText = "مدين", FillWeight = 13, MinimumWidth = 90,
+            Name = "ColDebit",
+            HeaderText = "مدين",
+            FillWeight = 13,
+            MinimumWidth = 90,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColCredit", HeaderText = "دائن", FillWeight = 13, MinimumWidth = 90,
+            Name = "ColCredit",
+            HeaderText = "دائن",
+            FillWeight = 13,
+            MinimumWidth = 90,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColBalance", HeaderText = "الرصيد", FillWeight = 14, MinimumWidth = 100,
+            Name = "ColBalance",
+            HeaderText = "الرصيد",
+            FillWeight = 14,
+            MinimumWidth = 100,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
@@ -247,7 +268,10 @@ public partial class frmCustomerStatement : Form
         // لون الرصيد بلا تمييز. القراءة عبر GridRowHelper فقط (RULE-N179).
         dgvStatement.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColBalanceValue", HeaderText = "قيمة الرصيد", Visible = false, ReadOnly = true
+            Name = "ColBalanceValue",
+            HeaderText = "قيمة الرصيد",
+            Visible = false,
+            ReadOnly = true
         });
     }
 
@@ -260,25 +284,37 @@ public partial class frmCustomerStatement : Form
 
         dgvAging.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColPeriod", HeaderText = "الفترة", FillWeight = 35, MinimumWidth = 200,
+            Name = "ColPeriod",
+            HeaderText = "الفترة",
+            FillWeight = 35,
+            MinimumWidth = 200,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
         dgvAging.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColInvCount", HeaderText = "عدد الفواتير", FillWeight = 15, MinimumWidth = 90,
+            Name = "ColInvCount",
+            HeaderText = "عدد الفواتير",
+            FillWeight = 15,
+            MinimumWidth = 90,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
         });
         dgvAging.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColAmount", HeaderText = "المبلغ المستحق", FillWeight = 25, MinimumWidth = 120,
+            Name = "ColAmount",
+            HeaderText = "المبلغ المستحق",
+            FillWeight = 25,
+            MinimumWidth = 120,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
         });
         dgvAging.Columns.Add(new DataGridViewTextBoxColumn
         {
-            Name = "ColPercent", HeaderText = "النسبة", FillWeight = 15, MinimumWidth = 80,
+            Name = "ColPercent",
+            HeaderText = "النسبة",
+            FillWeight = 15,
+            MinimumWidth = 80,
             ReadOnly = true,
             DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
         });
@@ -744,4 +780,9 @@ public partial class frmCustomerStatement : Form
 
     private void btnClose_Click(object sender, EventArgs e)
         => Close();
+
+    private void flowFilter_Paint(object sender, PaintEventArgs e)
+    {
+
+    }
 }

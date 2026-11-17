@@ -887,5 +887,10 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
         {
             btnAddSupplierPayment_Click(sender, e);
         }
+
+        private void gbFilter_Enter(object sender, EventArgs e)
+        {
+
+        }
     }
 }

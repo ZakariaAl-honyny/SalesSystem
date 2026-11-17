@@ -58,7 +58,8 @@ public partial class frmInventoryBarcode : Form
 
         // RULE-N47 — Esc يغلق الشاشة (لا «جديد/تحديث/ترحيل» على هذه الشاشة).
         KeyboardHelper.WireGlobalShortcuts(this,
-            (Keys.Escape, () => { if (btnClose.Enabled) btnClose.PerformClick(); }));
+            (Keys.Escape, () => { if (btnClose.Enabled) btnClose.PerformClick(); }
+        ));
 
         // RULE-N180…N183 — الحقول المطلوبة في البيت الواحد: أيقونة ✗ + رسالة + ومضة رفض عند مغادرة
         // حقل مطلوب فارغ، و«الحقل الفارغ يحجب Enter» (RULE-N194) بلا أي حكم محلي في هذه الشاشة.
@@ -447,5 +448,10 @@ public partial class frmInventoryBarcode : Form
                 Color.Black,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
+    }
+
+    private void lblLabelsCount_Click(object sender, EventArgs e)
+    {
+
     }
 }

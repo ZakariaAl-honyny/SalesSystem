@@ -18,6 +18,8 @@ partial class frmWarehouseTransferPrint
         lblTitle = new Label();
         lblAccent = new Label();
         pnlPreviewCard = new Panel();
+        lblCardFooter = new Label();
+        pnlDashedSeparator = new Panel();
         tblFields = new TableLayoutPanel();
         lblTransferNoValue = new Label();
         lblTransferNoLabel = new Label();
@@ -38,8 +40,6 @@ partial class frmWarehouseTransferPrint
         pnlCardHeader = new Panel();
         lblTransferTitle = new Label();
         lblStoreName = new Label();
-        pnlDashedSeparator = new Panel();
-        lblCardFooter = new Label();
         pnlFooter = new Panel();
         btnClose = new Button();
         btnPrint = new Button();
@@ -53,15 +53,14 @@ partial class frmWarehouseTransferPrint
         // 
         // pnlHeader
         // 
-        // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlHeader.BackColor = Color.FromArgb(16, 150, 96);
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
         pnlHeader.Name = "pnlHeader";
-        pnlHeader.Size = new Size(441, 46);
+        pnlHeader.Size = new Size(630, 46);
         pnlHeader.TabIndex = 0;
         // 
         // lblMockBadge
@@ -69,8 +68,8 @@ partial class frmWarehouseTransferPrint
         lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         lblMockBadge.AutoSize = true;
         lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMockBadge.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(241), Convert.ToInt32(196), Convert.ToInt32(15));
-        lblMockBadge.Location = new Point(317, 13);
+        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
+        lblMockBadge.Location = new Point(506, 13);
         lblMockBadge.Name = "lblMockBadge";
         lblMockBadge.Size = new Size(174, 21);
         lblMockBadge.TabIndex = 2;
@@ -78,32 +77,30 @@ partial class frmWarehouseTransferPrint
         // 
         // lblTitle
         // 
-        lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblTitle.BackColor = Color.FromArgb(16, 150, 96);
         lblTitle.Dock = DockStyle.Fill;
         lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTitle.ForeColor = System.Drawing.Color.White;
+        lblTitle.ForeColor = Color.White;
         lblTitle.Location = new Point(0, 0);
         lblTitle.Name = "lblTitle";
-        lblTitle.Size = new Size(441, 42);
+        lblTitle.Size = new Size(630, 42);
         lblTitle.TabIndex = 1;
         lblTitle.Text = "طباعة سند تحويل مخزني";
         lblTitle.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // lblAccent
         // 
-        lblAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblAccent.BackColor = Color.FromArgb(33, 37, 41);
         lblAccent.Dock = DockStyle.Bottom;
         lblAccent.Location = new Point(0, 42);
         lblAccent.Name = "lblAccent";
-        lblAccent.Size = new Size(441, 4);
+        lblAccent.Size = new Size(630, 4);
         lblAccent.TabIndex = 3;
         // 
         // pnlPreviewCard
         // 
-        pnlPreviewCard.BackColor = System.Drawing.Color.White;
+        pnlPreviewCard.BackColor = Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
-        // RULE-N125 — ترتيب الإضافة يحكم الإرساء: العنصر المرسى أعلى البطاقة يُضاف أخيراً
-        // (الأبناء يُرسون من آخر المجموعة إلى أولها) فيظهر الرأس ثم الحقول ثم الفاصل ثم التذييل.
         pnlPreviewCard.Controls.Add(lblCardFooter);
         pnlPreviewCard.Controls.Add(pnlDashedSeparator);
         pnlPreviewCard.Controls.Add(tblFields);
@@ -114,9 +111,32 @@ partial class frmWarehouseTransferPrint
         pnlPreviewCard.Size = new Size(400, 366);
         pnlPreviewCard.TabIndex = 1;
         // 
+        // lblCardFooter
+        // 
+        lblCardFooter.BackColor = Color.White;
+        lblCardFooter.Dock = DockStyle.Bottom;
+        lblCardFooter.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblCardFooter.ForeColor = Color.FromArgb(108, 117, 125);
+        lblCardFooter.Location = new Point(0, 326);
+        lblCardFooter.Name = "lblCardFooter";
+        lblCardFooter.Size = new Size(398, 38);
+        lblCardFooter.TabIndex = 3;
+        lblCardFooter.Text = "توقيع أمين المستودع: ....................    توقيع المستلم: ....................";
+        lblCardFooter.TextAlign = ContentAlignment.MiddleCenter;
+        // 
+        // pnlDashedSeparator
+        // 
+        pnlDashedSeparator.BackColor = Color.White;
+        pnlDashedSeparator.Dock = DockStyle.Top;
+        pnlDashedSeparator.Location = new Point(0, 312);
+        pnlDashedSeparator.Name = "pnlDashedSeparator";
+        pnlDashedSeparator.Size = new Size(398, 14);
+        pnlDashedSeparator.TabIndex = 2;
+        pnlDashedSeparator.Paint += pnlDashedSeparator_Paint;
+        // 
         // tblFields
         // 
-        tblFields.BackColor = System.Drawing.Color.White;
+        tblFields.BackColor = Color.White;
         tblFields.ColumnCount = 2;
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -137,7 +157,7 @@ partial class frmWarehouseTransferPrint
         tblFields.Controls.Add(lblNoteValue, 1, 7);
         tblFields.Controls.Add(lblNoteLabel, 0, 7);
         tblFields.Dock = DockStyle.Top;
-        tblFields.Location = new Point(0, 88);
+        tblFields.Location = new Point(0, 74);
         tblFields.Name = "tblFields";
         tblFields.Padding = new Padding(12, 4, 12, 4);
         tblFields.RightToLeft = RightToLeft.Yes;
@@ -159,7 +179,7 @@ partial class frmWarehouseTransferPrint
         lblTransferNoValue.AutoSize = true;
         lblTransferNoValue.Dock = DockStyle.Fill;
         lblTransferNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferNoValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblTransferNoValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblTransferNoValue.Location = new Point(15, 4);
         lblTransferNoValue.Name = "lblTransferNoValue";
         lblTransferNoValue.Size = new Size(258, 26);
@@ -172,7 +192,7 @@ partial class frmWarehouseTransferPrint
         lblTransferNoLabel.AutoSize = true;
         lblTransferNoLabel.Dock = DockStyle.Fill;
         lblTransferNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferNoLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblTransferNoLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblTransferNoLabel.Location = new Point(279, 4);
         lblTransferNoLabel.Name = "lblTransferNoLabel";
         lblTransferNoLabel.Size = new Size(104, 26);
@@ -185,7 +205,7 @@ partial class frmWarehouseTransferPrint
         lblDateValue.AutoSize = true;
         lblDateValue.Dock = DockStyle.Fill;
         lblDateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblDateValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblDateValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblDateValue.Location = new Point(15, 30);
         lblDateValue.Name = "lblDateValue";
         lblDateValue.Size = new Size(258, 26);
@@ -198,7 +218,7 @@ partial class frmWarehouseTransferPrint
         lblDateLabel.AutoSize = true;
         lblDateLabel.Dock = DockStyle.Fill;
         lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDateLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblDateLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblDateLabel.Location = new Point(279, 30);
         lblDateLabel.Name = "lblDateLabel";
         lblDateLabel.Size = new Size(104, 26);
@@ -211,7 +231,7 @@ partial class frmWarehouseTransferPrint
         lblFromWarehouseValue.AutoEllipsis = true;
         lblFromWarehouseValue.Dock = DockStyle.Fill;
         lblFromWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblFromWarehouseValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblFromWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblFromWarehouseValue.Location = new Point(15, 56);
         lblFromWarehouseValue.Name = "lblFromWarehouseValue";
         lblFromWarehouseValue.Size = new Size(258, 26);
@@ -224,7 +244,7 @@ partial class frmWarehouseTransferPrint
         lblFromWarehouseLabel.AutoSize = true;
         lblFromWarehouseLabel.Dock = DockStyle.Fill;
         lblFromWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblFromWarehouseLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblFromWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblFromWarehouseLabel.Location = new Point(279, 56);
         lblFromWarehouseLabel.Name = "lblFromWarehouseLabel";
         lblFromWarehouseLabel.Size = new Size(104, 26);
@@ -237,7 +257,7 @@ partial class frmWarehouseTransferPrint
         lblToWarehouseValue.AutoEllipsis = true;
         lblToWarehouseValue.Dock = DockStyle.Fill;
         lblToWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblToWarehouseValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblToWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblToWarehouseValue.Location = new Point(15, 82);
         lblToWarehouseValue.Name = "lblToWarehouseValue";
         lblToWarehouseValue.Size = new Size(258, 26);
@@ -250,7 +270,7 @@ partial class frmWarehouseTransferPrint
         lblToWarehouseLabel.AutoSize = true;
         lblToWarehouseLabel.Dock = DockStyle.Fill;
         lblToWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblToWarehouseLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblToWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblToWarehouseLabel.Location = new Point(279, 82);
         lblToWarehouseLabel.Name = "lblToWarehouseLabel";
         lblToWarehouseLabel.Size = new Size(104, 26);
@@ -263,7 +283,7 @@ partial class frmWarehouseTransferPrint
         lblDriverValue.AutoEllipsis = true;
         lblDriverValue.Dock = DockStyle.Fill;
         lblDriverValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblDriverValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblDriverValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblDriverValue.Location = new Point(15, 108);
         lblDriverValue.Name = "lblDriverValue";
         lblDriverValue.Size = new Size(258, 26);
@@ -276,7 +296,7 @@ partial class frmWarehouseTransferPrint
         lblDriverLabel.AutoSize = true;
         lblDriverLabel.Dock = DockStyle.Fill;
         lblDriverLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDriverLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblDriverLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblDriverLabel.Location = new Point(279, 108);
         lblDriverLabel.Name = "lblDriverLabel";
         lblDriverLabel.Size = new Size(104, 26);
@@ -289,7 +309,7 @@ partial class frmWarehouseTransferPrint
         lblVehiclePlateValue.AutoEllipsis = true;
         lblVehiclePlateValue.Dock = DockStyle.Fill;
         lblVehiclePlateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblVehiclePlateValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblVehiclePlateValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblVehiclePlateValue.Location = new Point(15, 134);
         lblVehiclePlateValue.Name = "lblVehiclePlateValue";
         lblVehiclePlateValue.Size = new Size(258, 26);
@@ -302,7 +322,7 @@ partial class frmWarehouseTransferPrint
         lblVehiclePlateLabel.AutoSize = true;
         lblVehiclePlateLabel.Dock = DockStyle.Fill;
         lblVehiclePlateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblVehiclePlateLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblVehiclePlateLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblVehiclePlateLabel.Location = new Point(279, 134);
         lblVehiclePlateLabel.Name = "lblVehiclePlateLabel";
         lblVehiclePlateLabel.Size = new Size(104, 26);
@@ -315,7 +335,7 @@ partial class frmWarehouseTransferPrint
         lblItemCountValue.AutoEllipsis = true;
         lblItemCountValue.Dock = DockStyle.Fill;
         lblItemCountValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblItemCountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblItemCountValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblItemCountValue.Location = new Point(15, 160);
         lblItemCountValue.Name = "lblItemCountValue";
         lblItemCountValue.Size = new Size(258, 26);
@@ -328,7 +348,7 @@ partial class frmWarehouseTransferPrint
         lblItemCountLabel.AutoSize = true;
         lblItemCountLabel.Dock = DockStyle.Fill;
         lblItemCountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblItemCountLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblItemCountLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblItemCountLabel.Location = new Point(279, 160);
         lblItemCountLabel.Name = "lblItemCountLabel";
         lblItemCountLabel.Size = new Size(104, 26);
@@ -338,11 +358,11 @@ partial class frmWarehouseTransferPrint
         // 
         // lblNoteValue
         // 
-        lblNoteValue.BackColor = System.Drawing.Color.White;
+        lblNoteValue.BackColor = Color.White;
         lblNoteValue.BorderStyle = BorderStyle.FixedSingle;
         lblNoteValue.Dock = DockStyle.Fill;
         lblNoteValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNoteValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblNoteValue.ForeColor = Color.FromArgb(33, 37, 41);
         lblNoteValue.Location = new Point(15, 186);
         lblNoteValue.Name = "lblNoteValue";
         lblNoteValue.Size = new Size(258, 56);
@@ -355,7 +375,7 @@ partial class frmWarehouseTransferPrint
         lblNoteLabel.AutoSize = true;
         lblNoteLabel.Dock = DockStyle.Fill;
         lblNoteLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNoteLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
+        lblNoteLabel.ForeColor = Color.FromArgb(52, 73, 94);
         lblNoteLabel.Location = new Point(279, 186);
         lblNoteLabel.Name = "lblNoteLabel";
         lblNoteLabel.Size = new Size(104, 56);
@@ -365,11 +385,11 @@ partial class frmWarehouseTransferPrint
         // 
         // pnlCardHeader
         // 
-        pnlCardHeader.BackColor = System.Drawing.Color.White;
+        pnlCardHeader.BackColor = Color.White;
         pnlCardHeader.Controls.Add(lblTransferTitle);
         pnlCardHeader.Controls.Add(lblStoreName);
         pnlCardHeader.Dock = DockStyle.Top;
-        pnlCardHeader.Location = new Point(0, 14);
+        pnlCardHeader.Location = new Point(0, 0);
         pnlCardHeader.Name = "pnlCardHeader";
         pnlCardHeader.Size = new Size(398, 74);
         pnlCardHeader.TabIndex = 0;
@@ -378,7 +398,7 @@ partial class frmWarehouseTransferPrint
         // 
         lblTransferTitle.Dock = DockStyle.Top;
         lblTransferTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTransferTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblTransferTitle.ForeColor = Color.FromArgb(33, 37, 41);
         lblTransferTitle.Location = new Point(0, 30);
         lblTransferTitle.Name = "lblTransferTitle";
         lblTransferTitle.Size = new Size(398, 40);
@@ -390,7 +410,7 @@ partial class frmWarehouseTransferPrint
         // 
         lblStoreName.Dock = DockStyle.Top;
         lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblStoreName.ForeColor = Color.FromArgb(33, 37, 41);
         lblStoreName.Location = new Point(0, 0);
         lblStoreName.Name = "lblStoreName";
         lblStoreName.Size = new Size(398, 30);
@@ -398,49 +418,26 @@ partial class frmWarehouseTransferPrint
         lblStoreName.Text = "متجر النور التجاري";
         lblStoreName.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // pnlDashedSeparator
-        // 
-        pnlDashedSeparator.BackColor = System.Drawing.Color.White;
-        pnlDashedSeparator.Dock = DockStyle.Top;
-        pnlDashedSeparator.Location = new Point(0, 0);
-        pnlDashedSeparator.Name = "pnlDashedSeparator";
-        pnlDashedSeparator.Size = new Size(398, 14);
-        pnlDashedSeparator.TabIndex = 2;
-        pnlDashedSeparator.Paint += pnlDashedSeparator_Paint;
-        // 
-        // lblCardFooter
-        // 
-        lblCardFooter.BackColor = System.Drawing.Color.White;
-        lblCardFooter.Dock = DockStyle.Bottom;
-        lblCardFooter.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCardFooter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
-        lblCardFooter.Location = new Point(0, 326);
-        lblCardFooter.Name = "lblCardFooter";
-        lblCardFooter.Size = new Size(398, 38);
-        lblCardFooter.TabIndex = 3;
-        lblCardFooter.Text = "توقيع أمين المستودع: ....................    توقيع المستلم: ....................";
-        lblCardFooter.TextAlign = ContentAlignment.MiddleCenter;
-        // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = Color.White;
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
         pnlFooter.Dock = DockStyle.Bottom;
-        pnlFooter.Location = new Point(0, 428);
+        pnlFooter.Location = new Point(0, 462);
         pnlFooter.Name = "pnlFooter";
-        pnlFooter.Size = new Size(441, 66);
+        pnlFooter.Size = new Size(630, 66);
         pnlFooter.TabIndex = 2;
         // 
         // btnClose
         // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = System.Drawing.Color.White;
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -452,12 +449,12 @@ partial class frmWarehouseTransferPrint
         // btnPrint
         // 
         btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
         btnPrint.FlatAppearance.BorderSize = 0;
         btnPrint.FlatStyle = FlatStyle.Flat;
         btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnPrint.ForeColor = System.Drawing.Color.White;
-        btnPrint.Location = new Point(289, 12);
+        btnPrint.ForeColor = Color.White;
+        btnPrint.Location = new Point(478, 12);
         btnPrint.Name = "btnPrint";
         btnPrint.Size = new Size(132, 42);
         btnPrint.TabIndex = 1;
@@ -467,19 +464,19 @@ partial class frmWarehouseTransferPrint
         // 
         // lblFooterLine
         // 
-        lblFooterLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
         lblFooterLine.Dock = DockStyle.Top;
         lblFooterLine.Location = new Point(0, 0);
         lblFooterLine.Name = "lblFooterLine";
-        lblFooterLine.Size = new Size(441, 2);
+        lblFooterLine.Size = new Size(630, 2);
         lblFooterLine.TabIndex = 0;
         // 
         // frmWarehouseTransferPrint
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
-        ClientSize = new Size(441, 494);
+        ClientSize = new Size(630, 528);
         Controls.Add(pnlFooter);
         Controls.Add(pnlPreviewCard);
         Controls.Add(pnlHeader);
@@ -500,7 +497,6 @@ partial class frmWarehouseTransferPrint
         pnlCardHeader.ResumeLayout(false);
         pnlFooter.ResumeLayout(false);
         ResumeLayout(false);
-        PerformLayout();
     }
 
     #endregion

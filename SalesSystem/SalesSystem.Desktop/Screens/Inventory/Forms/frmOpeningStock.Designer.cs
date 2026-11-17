@@ -17,42 +17,40 @@ partial class frmOpeningStock
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
         errorProvider = new ErrorProvider(components);
         tooltip = new ToolTip(components);
-        liveTip = new ToolTip(components);
-        cmsLines = new ContextMenuStrip(components);
-        miAddProduct = new ToolStripMenuItem();
-        miRemoveLine = new ToolStripMenuItem();
-        lblMode = new Label();
-        gbToolbar = new GroupBox();
         btnAddProduct = new Button();
         btnRemoveProduct = new Button();
         btnSave = new Button();
         btnCancel = new Button();
-        gbInfo = new GroupBox();
-        lblWarehouse = new Label();
         cmbWarehouse = new ComboBox();
-        lblDate = new Label();
         dtpDate = new DateTimePicker();
-        gbItems = new GroupBox();
         dgvLines = new DataGridView();
-        colProductName = new DataGridViewTextBoxColumn();
-        colUnit = new DataGridViewComboBoxColumn();
-        colQuantity = new DataGridViewTextBoxColumn();
-        colUnitCost = new DataGridViewTextBoxColumn();
-        colTotalCost = new DataGridViewTextBoxColumn();
+        cmsLines = new ContextMenuStrip(components);
+        miAddProduct = new ToolStripMenuItem();
+        miRemoveLine = new ToolStripMenuItem();
+        txtTotalCost = new TextBox();
+        liveTip = new ToolTip(components);
+        lblMode = new Label();
+        gbToolbar = new GroupBox();
+        gbInfo = new GroupBox();
+        lblDate = new Label();
+        lblWarehouse = new Label();
+        gbItems = new GroupBox();
         lblProductsHeader = new Label();
         gbTotals = new GroupBox();
-        lblItemCountCaption = new Label();
-        lblItemCountValue = new Label();
         lblTotalCostCaption = new Label();
-        txtTotalCost = new TextBox();
+        lblItemCountValue = new Label();
+        lblItemCountCaption = new Label();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)dgvLines).BeginInit();
         cmsLines.SuspendLayout();
         gbToolbar.SuspendLayout();
         gbInfo.SuspendLayout();
         gbItems.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)dgvLines).BeginInit();
         gbTotals.SuspendLayout();
         SuspendLayout();
         // 
@@ -67,41 +65,198 @@ partial class frmOpeningStock
         tooltip.InitialDelay = 300;
         tooltip.ReshowDelay = 100;
         // 
-        // liveTip
+        // btnAddProduct
         // 
-        liveTip.AutoPopDelay = 4000;
-        liveTip.InitialDelay = 200;
-        liveTip.ReshowDelay = 100;
+        btnAddProduct.BackColor = Color.FromArgb(13, 110, 253);
+        btnAddProduct.Cursor = Cursors.Hand;
+        btnAddProduct.FlatAppearance.BorderSize = 0;
+        btnAddProduct.FlatStyle = FlatStyle.Flat;
+        btnAddProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnAddProduct.ForeColor = Color.White;
+        btnAddProduct.Location = new Point(819, 26);
+        btnAddProduct.MinimumSize = new Size(100, 34);
+        btnAddProduct.Name = "btnAddProduct";
+        btnAddProduct.Size = new Size(170, 36);
+        btnAddProduct.TabIndex = 0;
+        btnAddProduct.Text = "+ إضافة منتج";
+        tooltip.SetToolTip(btnAddProduct, "إضافة منتج جديد للقائمة (F2)");
+        btnAddProduct.UseVisualStyleBackColor = false;
+        btnAddProduct.Click += btnAddProduct_Click;
+        // 
+        // btnRemoveProduct
+        // 
+        btnRemoveProduct.BackColor = Color.FromArgb(220, 53, 69);
+        btnRemoveProduct.Cursor = Cursors.Hand;
+        btnRemoveProduct.FlatAppearance.BorderSize = 0;
+        btnRemoveProduct.FlatStyle = FlatStyle.Flat;
+        btnRemoveProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnRemoveProduct.ForeColor = Color.White;
+        btnRemoveProduct.Location = new Point(673, 26);
+        btnRemoveProduct.MinimumSize = new Size(100, 34);
+        btnRemoveProduct.Name = "btnRemoveProduct";
+        btnRemoveProduct.Size = new Size(140, 36);
+        btnRemoveProduct.TabIndex = 1;
+        btnRemoveProduct.Text = "حذف السطر";
+        tooltip.SetToolTip(btnRemoveProduct, "حذف المنتج المحدد من القائمة");
+        btnRemoveProduct.UseVisualStyleBackColor = false;
+        btnRemoveProduct.Click += btnRemoveProduct_Click;
+        // 
+        // btnSave
+        // 
+        btnSave.BackColor = Color.FromArgb(25, 135, 84);
+        btnSave.Cursor = Cursors.Hand;
+        btnSave.FlatAppearance.BorderSize = 0;
+        btnSave.FlatStyle = FlatStyle.Flat;
+        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnSave.ForeColor = Color.White;
+        btnSave.Location = new Point(517, 26);
+        btnSave.MinimumSize = new Size(100, 34);
+        btnSave.Name = "btnSave";
+        btnSave.Size = new Size(150, 36);
+        btnSave.TabIndex = 2;
+        btnSave.Text = "حفظ وترحيل";
+        tooltip.SetToolTip(btnSave, "حفظ وترحيل الأرصدة الافتتاحية (F4)");
+        btnSave.UseVisualStyleBackColor = false;
+        btnSave.Click += btnSave_Click;
+        // 
+        // btnCancel
+        // 
+        btnCancel.BackColor = Color.FromArgb(108, 117, 125);
+        btnCancel.Cursor = Cursors.Hand;
+        btnCancel.DialogResult = DialogResult.Cancel;
+        btnCancel.FlatAppearance.BorderSize = 0;
+        btnCancel.FlatStyle = FlatStyle.Flat;
+        btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnCancel.ForeColor = Color.White;
+        btnCancel.Location = new Point(371, 26);
+        btnCancel.MinimumSize = new Size(100, 34);
+        btnCancel.Name = "btnCancel";
+        btnCancel.Size = new Size(140, 36);
+        btnCancel.TabIndex = 3;
+        btnCancel.Text = "إلغاء";
+        tooltip.SetToolTip(btnCancel, "إلغاء وإغلاق النافذة (Esc)");
+        btnCancel.UseVisualStyleBackColor = false;
+        btnCancel.Click += btnCancel_Click;
+        // 
+        // cmbWarehouse
+        // 
+        cmbWarehouse.BackColor = Color.White;
+        cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbWarehouse.FlatStyle = FlatStyle.Flat;
+        cmbWarehouse.Font = new Font("Tahoma", 10F);
+        cmbWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
+        cmbWarehouse.FormattingEnabled = true;
+        cmbWarehouse.Location = new Point(110, 26);
+        cmbWarehouse.Name = "cmbWarehouse";
+        cmbWarehouse.Size = new Size(280, 32);
+        cmbWarehouse.TabIndex = 1;
+        tooltip.SetToolTip(cmbWarehouse, "اختر المخزن الذي ستضاف إليه الأرصدة");
+        // 
+        // dtpDate
+        // 
+        dtpDate.Font = new Font("Tahoma", 10F);
+        dtpDate.Format = DateTimePickerFormat.Short;
+        dtpDate.Location = new Point(505, 26);
+        dtpDate.Name = "dtpDate";
+        dtpDate.RightToLeft = RightToLeft.Yes;
+        dtpDate.Size = new Size(280, 32);
+        dtpDate.TabIndex = 3;
+        tooltip.SetToolTip(dtpDate, "تاريخ الجرد الافتتاحي");
+        // 
+        // dgvLines
+        // 
+        dgvLines.AllowUserToAddRows = false;
+        dgvLines.AllowUserToDeleteRows = false;
+        dataGridViewCellStyle4.BackColor = Color.FromArgb(248, 249, 250);
+        dgvLines.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+        dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvLines.BackgroundColor = Color.White;
+        dgvLines.BorderStyle = BorderStyle.None;
+        dgvLines.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle5.BackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle5.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        dataGridViewCellStyle5.ForeColor = Color.White;
+        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle5.SelectionForeColor = Color.White;
+        dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
+        dgvLines.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+        dgvLines.ColumnHeadersHeight = 42;
+        dgvLines.ContextMenuStrip = cmsLines;
+        dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle6.BackColor = Color.White;
+        dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle6.ForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(255, 243, 205);
+        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+        dgvLines.DefaultCellStyle = dataGridViewCellStyle6;
+        dgvLines.Dock = DockStyle.Fill;
+        dgvLines.EnableHeadersVisualStyles = false;
+        dgvLines.GridColor = Color.FromArgb(222, 226, 230);
+        dgvLines.Location = new Point(8, 59);
+        dgvLines.Name = "dgvLines";
+        dgvLines.RowHeadersVisible = false;
+        dgvLines.RowHeadersWidth = 62;
+        dgvLines.RowTemplate.Height = 30;
+        dgvLines.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvLines.Size = new Size(984, 325);
+        dgvLines.TabIndex = 1;
+        tooltip.SetToolTip(dgvLines, "أدخل الكميات وتكاليف الوحدة للمنتجات. اختر الوحدة المناسبة من القائمة المنسدلة.");
+        dgvLines.CellValueChanged += dgvLines_CellValueChanged;
+        dgvLines.CurrentCellDirtyStateChanged += dgvLines_CurrentCellDirtyStateChanged;
+        dgvLines.EditingControlShowing += dgvLines_EditingControlShowing;
         // 
         // cmsLines
         // 
         cmsLines.Font = new Font("Tahoma", 10F);
+        cmsLines.ImageScalingSize = new Size(24, 24);
         cmsLines.Items.AddRange(new ToolStripItem[] { miAddProduct, miRemoveLine });
         cmsLines.Name = "cmsLines";
         cmsLines.RightToLeft = RightToLeft.Yes;
-        cmsLines.Size = new Size(210, 52);
+        cmsLines.Size = new Size(245, 64);
         // 
         // miAddProduct
         // 
         miAddProduct.Name = "miAddProduct";
-        miAddProduct.Size = new Size(209, 24);
+        miAddProduct.Size = new Size(244, 30);
         miAddProduct.Text = "إضافة منتج (F2)";
         miAddProduct.Click += miAddProduct_Click;
         // 
         // miRemoveLine
         // 
         miRemoveLine.Name = "miRemoveLine";
-        miRemoveLine.Size = new Size(209, 24);
+        miRemoveLine.Size = new Size(244, 30);
         miRemoveLine.Text = "حذف السطر المحدد";
         miRemoveLine.Click += miRemoveLine_Click;
         // 
+        // txtTotalCost
+        // 
+        txtTotalCost.BackColor = Color.White;
+        txtTotalCost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        txtTotalCost.ForeColor = Color.FromArgb(33, 37, 41);
+        txtTotalCost.Location = new Point(466, 26);
+        txtTotalCost.Name = "txtTotalCost";
+        txtTotalCost.ReadOnly = true;
+        txtTotalCost.Size = new Size(200, 32);
+        txtTotalCost.TabIndex = 3;
+        txtTotalCost.Text = "0.00";
+        txtTotalCost.TextAlign = HorizontalAlignment.Center;
+        tooltip.SetToolTip(txtTotalCost, "إجمالي تكلفة الأرصدة الافتتاحية (اقترب بالمؤشر لعرض التفقيط)");
+        // 
+        // liveTip
+        // 
+        liveTip.AutoPopDelay = 4000;
+        liveTip.InitialDelay = 200;
+        liveTip.ReshowDelay = 100;
+        // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Top;
         lblMode.FlatStyle = FlatStyle.Flat;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1000, 42);
@@ -111,14 +266,14 @@ partial class frmOpeningStock
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.White;
+        gbToolbar.BackColor = Color.White;
         gbToolbar.Controls.Add(btnCancel);
         gbToolbar.Controls.Add(btnSave);
         gbToolbar.Controls.Add(btnRemoveProduct);
         gbToolbar.Controls.Add(btnAddProduct);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbToolbar.ForeColor = Color.FromArgb(33, 37, 41);
         gbToolbar.Location = new Point(0, 42);
         gbToolbar.Name = "gbToolbar";
         gbToolbar.Padding = new Padding(8);
@@ -128,89 +283,16 @@ partial class frmOpeningStock
         gbToolbar.TabStop = false;
         gbToolbar.Text = "أوامر المستند";
         // 
-        // btnAddProduct
-        // 
-        btnAddProduct.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
-        btnAddProduct.Cursor = Cursors.Hand;
-        btnAddProduct.FlatAppearance.BorderSize = 0;
-        btnAddProduct.FlatStyle = FlatStyle.Flat;
-        btnAddProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnAddProduct.ForeColor = System.Drawing.Color.White;
-        btnAddProduct.Location = new Point(12, 16);
-        btnAddProduct.MinimumSize = new Size(100, 34);
-        btnAddProduct.Name = "btnAddProduct";
-        btnAddProduct.Size = new Size(170, 36);
-        btnAddProduct.TabIndex = 0;
-        btnAddProduct.Text = "+ إضافة منتج";
-        btnAddProduct.UseVisualStyleBackColor = false;
-        btnAddProduct.Click += btnAddProduct_Click;
-        tooltip.SetToolTip(btnAddProduct, "إضافة منتج جديد للقائمة (F2)");
-        // 
-        // btnRemoveProduct
-        // 
-        btnRemoveProduct.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
-        btnRemoveProduct.Cursor = Cursors.Hand;
-        btnRemoveProduct.FlatAppearance.BorderSize = 0;
-        btnRemoveProduct.FlatStyle = FlatStyle.Flat;
-        btnRemoveProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRemoveProduct.ForeColor = System.Drawing.Color.White;
-        btnRemoveProduct.Location = new Point(192, 16);
-        btnRemoveProduct.MinimumSize = new Size(100, 34);
-        btnRemoveProduct.Name = "btnRemoveProduct";
-        btnRemoveProduct.Size = new Size(140, 36);
-        btnRemoveProduct.TabIndex = 1;
-        btnRemoveProduct.Text = "حذف السطر";
-        btnRemoveProduct.UseVisualStyleBackColor = false;
-        btnRemoveProduct.Click += btnRemoveProduct_Click;
-        tooltip.SetToolTip(btnRemoveProduct, "حذف المنتج المحدد من القائمة");
-        // 
-        // btnSave
-        // 
-        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
-        btnSave.Cursor = Cursors.Hand;
-        btnSave.FlatAppearance.BorderSize = 0;
-        btnSave.FlatStyle = FlatStyle.Flat;
-        btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = System.Drawing.Color.White;
-        btnSave.Location = new Point(345, 16);
-        btnSave.MinimumSize = new Size(100, 34);
-        btnSave.Name = "btnSave";
-        btnSave.Size = new Size(150, 36);
-        btnSave.TabIndex = 2;
-        btnSave.Text = "حفظ وترحيل";
-        btnSave.UseVisualStyleBackColor = false;
-        btnSave.Click += btnSave_Click;
-        tooltip.SetToolTip(btnSave, "حفظ وترحيل الأرصدة الافتتاحية (F4)");
-        // 
-        // btnCancel
-        // 
-        btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
-        btnCancel.Cursor = Cursors.Hand;
-        btnCancel.DialogResult = DialogResult.Cancel;
-        btnCancel.FlatAppearance.BorderSize = 0;
-        btnCancel.FlatStyle = FlatStyle.Flat;
-        btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnCancel.ForeColor = System.Drawing.Color.White;
-        btnCancel.Location = new Point(505, 16);
-        btnCancel.MinimumSize = new Size(100, 34);
-        btnCancel.Name = "btnCancel";
-        btnCancel.Size = new Size(140, 36);
-        btnCancel.TabIndex = 3;
-        btnCancel.Text = "إلغاء";
-        btnCancel.UseVisualStyleBackColor = false;
-        btnCancel.Click += btnCancel_Click;
-        tooltip.SetToolTip(btnCancel, "إلغاء وإغلاق النافذة (Esc)");
-        // 
         // gbInfo
         // 
-        gbInfo.BackColor = System.Drawing.Color.White;
+        gbInfo.BackColor = Color.White;
         gbInfo.Controls.Add(dtpDate);
         gbInfo.Controls.Add(lblDate);
         gbInfo.Controls.Add(cmbWarehouse);
         gbInfo.Controls.Add(lblWarehouse);
         gbInfo.Dock = DockStyle.Top;
         gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbInfo.ForeColor = Color.FromArgb(33, 37, 41);
         gbInfo.Location = new Point(0, 110);
         gbInfo.Name = "gbInfo";
         gbInfo.Padding = new Padding(8);
@@ -220,61 +302,36 @@ partial class frmOpeningStock
         gbInfo.TabStop = false;
         gbInfo.Text = "بيانات المستند";
         // 
-        // lblWarehouse
-        // 
-        lblWarehouse.AutoSize = true;
-        lblWarehouse.Font = new Font("Tahoma", 10F);
-        lblWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblWarehouse.Location = new Point(12, 30);
-        lblWarehouse.Name = "lblWarehouse";
-        lblWarehouse.Size = new Size(76, 21);
-        lblWarehouse.TabIndex = 0;
-        lblWarehouse.Text = "المخزن:";
-        // 
-        // cmbWarehouse
-        // 
-        cmbWarehouse.BackColor = System.Drawing.Color.White;
-        cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbWarehouse.FlatStyle = FlatStyle.Flat;
-        cmbWarehouse.Font = new Font("Tahoma", 10F);
-        cmbWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        cmbWarehouse.FormattingEnabled = true;
-        cmbWarehouse.Location = new Point(110, 26);
-        cmbWarehouse.Name = "cmbWarehouse";
-        cmbWarehouse.Size = new Size(280, 29);
-        cmbWarehouse.TabIndex = 1;
-        tooltip.SetToolTip(cmbWarehouse, "اختر المخزن الذي ستضاف إليه الأرصدة");
-        // 
         // lblDate
         // 
         lblDate.AutoSize = true;
         lblDate.Font = new Font("Tahoma", 10F);
-        lblDate.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblDate.Location = new Point(420, 30);
+        lblDate.ForeColor = Color.FromArgb(33, 37, 41);
+        lblDate.Location = new Point(791, 30);
         lblDate.Name = "lblDate";
-        lblDate.Size = new Size(70, 21);
+        lblDate.Size = new Size(68, 24);
         lblDate.TabIndex = 2;
         lblDate.Text = "التاريخ:";
         // 
-        // dtpDate
+        // lblWarehouse
         // 
-        dtpDate.Font = new Font("Tahoma", 10F);
-        dtpDate.Format = DateTimePickerFormat.Short;
-        dtpDate.Location = new Point(505, 26);
-        dtpDate.Name = "dtpDate";
-        dtpDate.RightToLeft = RightToLeft.Yes;
-        dtpDate.Size = new Size(280, 27);
-        dtpDate.TabIndex = 3;
-        tooltip.SetToolTip(dtpDate, "تاريخ الجرد الافتتاحي");
+        lblWarehouse.AutoSize = true;
+        lblWarehouse.Font = new Font("Tahoma", 10F);
+        lblWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouse.Location = new Point(396, 30);
+        lblWarehouse.Name = "lblWarehouse";
+        lblWarehouse.Size = new Size(75, 24);
+        lblWarehouse.TabIndex = 0;
+        lblWarehouse.Text = "المخزن:";
         // 
         // gbItems
         // 
-        gbItems.BackColor = System.Drawing.Color.White;
+        gbItems.BackColor = Color.White;
         gbItems.Controls.Add(dgvLines);
         gbItems.Controls.Add(lblProductsHeader);
         gbItems.Dock = DockStyle.Fill;
         gbItems.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbItems.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbItems.ForeColor = Color.FromArgb(33, 37, 41);
         gbItems.Location = new Point(0, 196);
         gbItems.Name = "gbItems";
         gbItems.Padding = new Padding(8);
@@ -288,110 +345,24 @@ partial class frmOpeningStock
         // 
         lblProductsHeader.Dock = DockStyle.Top;
         lblProductsHeader.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblProductsHeader.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblProductsHeader.Location = new Point(8, 24);
+        lblProductsHeader.ForeColor = Color.FromArgb(33, 37, 41);
+        lblProductsHeader.Location = new Point(8, 33);
         lblProductsHeader.Name = "lblProductsHeader";
         lblProductsHeader.Size = new Size(984, 26);
         lblProductsHeader.TabIndex = 0;
         lblProductsHeader.Text = "أرصدة المنتجات — أدخل الكمية وسعر التكلفة لكل صنف، والوحدة من القائمة المنسدلة";
         lblProductsHeader.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // dgvLines
-        // 
-        dgvLines.AllowUserToAddRows = false;
-        dgvLines.AllowUserToDeleteRows = false;
-        dgvLines.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        dgvLines.AutoGenerateColumns = false;
-        dgvLines.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvLines.BackgroundColor = System.Drawing.Color.White;
-        dgvLines.BorderStyle = BorderStyle.None;
-        dgvLines.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvLines.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvLines.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-        dgvLines.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        dgvLines.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-        dgvLines.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-        dgvLines.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
-        dgvLines.ColumnHeadersHeight = 42;
-        dgvLines.Columns.AddRange(new DataGridViewColumn[] { colProductName, colUnit, colQuantity, colUnitCost, colTotalCost });
-        dgvLines.ContextMenuStrip = cmsLines;
-        dgvLines.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-        dgvLines.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvLines.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dgvLines.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
-        dgvLines.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dgvLines.Dock = DockStyle.Fill;
-        dgvLines.EnableHeadersVisualStyles = false;
-        dgvLines.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        dgvLines.Location = new Point(8, 50);
-        dgvLines.Name = "dgvLines";
-        dgvLines.RowHeadersVisible = false;
-        dgvLines.RowTemplate.Height = 30;
-        dgvLines.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvLines.Size = new Size(984, 334);
-        dgvLines.TabIndex = 1;
-        dgvLines.CellValueChanged += dgvLines_CellValueChanged;
-        dgvLines.CurrentCellDirtyStateChanged += dgvLines_CurrentCellDirtyStateChanged;
-        dgvLines.EditingControlShowing += dgvLines_EditingControlShowing;
-        tooltip.SetToolTip(dgvLines, "أدخل الكميات وتكاليف الوحدة للمنتجات. اختر الوحدة المناسبة من القائمة المنسدلة.");
-        // 
-        // colProductName
-        // 
-        colProductName.DataPropertyName = "ProductName";
-        colProductName.HeaderText = "اسم المنتج";
-        colProductName.MinimumWidth = 150;
-        colProductName.Name = "colProductName";
-        colProductName.ReadOnly = true;
-        // 
-        // colUnit
-        // 
-        colUnit.DataPropertyName = "ProductUnitId";
-        colUnit.DisplayMember = "UnitName";
-        colUnit.DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox;
-        colUnit.FlatStyle = FlatStyle.Flat;
-        colUnit.HeaderText = "الوحدة";
-        colUnit.MinimumWidth = 90;
-        colUnit.Name = "colUnit";
-        colUnit.ValueMember = "Id";
-        // 
-        // colQuantity
-        // 
-        colQuantity.DataPropertyName = "Quantity";
-        colQuantity.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-        colQuantity.DefaultCellStyle.Format = "N3";
-        colQuantity.HeaderText = "الكمية";
-        colQuantity.MinimumWidth = 90;
-        colQuantity.Name = "colQuantity";
-        // 
-        // colUnitCost
-        // 
-        colUnitCost.DataPropertyName = "UnitCost";
-        colUnitCost.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-        colUnitCost.DefaultCellStyle.Format = "N2";
-        colUnitCost.HeaderText = "سعر التكلفة";
-        colUnitCost.MinimumWidth = 100;
-        colUnitCost.Name = "colUnitCost";
-        // 
-        // colTotalCost
-        // 
-        colTotalCost.DataPropertyName = "TotalCost";
-        colTotalCost.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-        colTotalCost.DefaultCellStyle.Format = "N2";
-        colTotalCost.HeaderText = "الإجمالي";
-        colTotalCost.MinimumWidth = 100;
-        colTotalCost.Name = "colTotalCost";
-        colTotalCost.ReadOnly = true;
-        // 
         // gbTotals
         // 
-        gbTotals.BackColor = System.Drawing.Color.White;
+        gbTotals.BackColor = Color.White;
         gbTotals.Controls.Add(txtTotalCost);
         gbTotals.Controls.Add(lblTotalCostCaption);
         gbTotals.Controls.Add(lblItemCountValue);
         gbTotals.Controls.Add(lblItemCountCaption);
         gbTotals.Dock = DockStyle.Bottom;
         gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbTotals.ForeColor = Color.FromArgb(33, 37, 41);
         gbTotals.Location = new Point(0, 588);
         gbTotals.Name = "gbTotals";
         gbTotals.Padding = new Padding(8);
@@ -401,59 +372,45 @@ partial class frmOpeningStock
         gbTotals.TabStop = false;
         gbTotals.Text = "الإجماليات";
         // 
-        // lblItemCountCaption
+        // lblTotalCostCaption
         // 
-        lblItemCountCaption.AutoSize = true;
-        lblItemCountCaption.Font = new Font("Tahoma", 10F);
-        lblItemCountCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblItemCountCaption.Location = new Point(12, 30);
-        lblItemCountCaption.Name = "lblItemCountCaption";
-        lblItemCountCaption.Size = new Size(90, 21);
-        lblItemCountCaption.TabIndex = 0;
-        lblItemCountCaption.Text = "عدد الأصناف:";
+        lblTotalCostCaption.AutoSize = true;
+        lblTotalCostCaption.Font = new Font("Tahoma", 10F);
+        lblTotalCostCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalCostCaption.Location = new Point(671, 30);
+        lblTotalCostCaption.Name = "lblTotalCostCaption";
+        lblTotalCostCaption.Size = new Size(142, 24);
+        lblTotalCostCaption.TabIndex = 2;
+        lblTotalCostCaption.Text = "إجمالي التكلفة:";
         // 
         // lblItemCountValue
         // 
         lblItemCountValue.AutoSize = true;
         lblItemCountValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblItemCountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblItemCountValue.Location = new Point(112, 30);
+        lblItemCountValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblItemCountValue.Location = new Point(258, 30);
         lblItemCountValue.Name = "lblItemCountValue";
-        lblItemCountValue.Size = new Size(23, 21);
+        lblItemCountValue.Size = new Size(23, 24);
         lblItemCountValue.TabIndex = 1;
         lblItemCountValue.Text = "0";
         // 
-        // lblTotalCostCaption
+        // lblItemCountCaption
         // 
-        lblTotalCostCaption.AutoSize = true;
-        lblTotalCostCaption.Font = new Font("Tahoma", 10F);
-        lblTotalCostCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalCostCaption.Location = new Point(200, 30);
-        lblTotalCostCaption.Name = "lblTotalCostCaption";
-        lblTotalCostCaption.Size = new Size(110, 21);
-        lblTotalCostCaption.TabIndex = 2;
-        lblTotalCostCaption.Text = "إجمالي التكلفة:";
-        // 
-        // txtTotalCost
-        // 
-        txtTotalCost.BackColor = System.Drawing.Color.White;
-        txtTotalCost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        txtTotalCost.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        txtTotalCost.Location = new Point(320, 26);
-        txtTotalCost.Name = "txtTotalCost";
-        txtTotalCost.ReadOnly = true;
-        txtTotalCost.Size = new Size(200, 27);
-        txtTotalCost.TabIndex = 3;
-        txtTotalCost.Text = "0.00";
-        txtTotalCost.TextAlign = HorizontalAlignment.Center;
-        tooltip.SetToolTip(txtTotalCost, "إجمالي تكلفة الأرصدة الافتتاحية (اقترب بالمؤشر لعرض التفقيط)");
+        lblItemCountCaption.AutoSize = true;
+        lblItemCountCaption.Font = new Font("Tahoma", 10F);
+        lblItemCountCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblItemCountCaption.Location = new Point(287, 30);
+        lblItemCountCaption.Name = "lblItemCountCaption";
+        lblItemCountCaption.Size = new Size(117, 24);
+        lblItemCountCaption.TabIndex = 0;
+        lblItemCountCaption.Text = "عدد الأصناف:";
         // 
         // frmOpeningStock
         // 
         AcceptButton = btnSave;
         AutoScaleMode = AutoScaleMode.None;
         AutoValidate = AutoValidate.EnableAllowFocusChange;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnCancel;
         ClientSize = new Size(1000, 660);
         Controls.Add(gbItems);
@@ -472,12 +429,12 @@ partial class frmOpeningStock
         Text = "بضاعة أول المدة";
         Load += frmOpeningStock_Load;
         ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
+        ((System.ComponentModel.ISupportInitialize)dgvLines).EndInit();
         cmsLines.ResumeLayout(false);
         gbToolbar.ResumeLayout(false);
         gbInfo.ResumeLayout(false);
         gbInfo.PerformLayout();
         gbItems.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)dgvLines).EndInit();
         gbTotals.ResumeLayout(false);
         gbTotals.PerformLayout();
         ResumeLayout(false);

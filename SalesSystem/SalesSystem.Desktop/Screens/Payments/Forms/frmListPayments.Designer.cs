@@ -14,760 +14,768 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.lblMode = new System.Windows.Forms.Label();
-            this.pnlHeader = new System.Windows.Forms.Panel();
-            this.pnlFilters = new System.Windows.Forms.Panel();
-            this.gbFilter = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.cbFilterBy = new System.Windows.Forms.ComboBox();
-            this.txtFilterValue = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.cbStatus = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.dtpFrom = new System.Windows.Forms.DateTimePicker();
-            this.label4 = new System.Windows.Forms.Label();
-            this.dtpTo = new System.Windows.Forms.DateTimePicker();
-            this.btnRangeToday = new System.Windows.Forms.Button();
-            this.btnRange30 = new System.Windows.Forms.Button();
-            this.btnRangeMonth = new System.Windows.Forms.Button();
-            this.chkOnlyCancelled = new System.Windows.Forms.CheckBox();
-            this.btnClearFilters = new System.Windows.Forms.Button();
-            this.btnToggleFilters = new System.Windows.Forms.Button();
-            this.lblCustomerEmpty = new System.Windows.Forms.Label();
-            this.lblSupplierEmpty = new System.Windows.Forms.Label();
-            this.pnlSummary = new System.Windows.Forms.Panel();
-            this.lblSummary = new System.Windows.Forms.Label();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.tabPayments = new System.Windows.Forms.TabControl();
-            this.tpCustomerPayments = new System.Windows.Forms.TabPage();
-            this.dgvCustomerPayments = new System.Windows.Forms.DataGridView();
-            this.pnlCustomerTop = new System.Windows.Forms.Panel();
-            this.btnAddCustomerPayment = new System.Windows.Forms.Button();
-            this.lblCustomerCount = new System.Windows.Forms.Label();
-            this.lblCustomerCountTitle = new System.Windows.Forms.Label();
-            this.tpSupplierPayments = new System.Windows.Forms.TabPage();
-            this.dgvSupplierPayments = new System.Windows.Forms.DataGridView();
-            this.pnlSupplierTop = new System.Windows.Forms.Panel();
-            this.btnAddSupplierPayment = new System.Windows.Forms.Button();
-            this.lblSupplierCount = new System.Windows.Forms.Label();
-            this.lblSupplierCountTitle = new System.Windows.Forms.Label();
-            this.btnClose = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
-            this.cmsCustomerPayments = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiCustomerRefresh = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiCustomerEdit = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiCustomerAdd = new System.Windows.Forms.ToolStripMenuItem();
-            this.cmsSupplierPayments = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiSupplierRefresh = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmiSupplierEdit = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiSupplierAdd = new System.Windows.Forms.ToolStripMenuItem();
-            this.pnlHeader.SuspendLayout();
-            this.pnlFilters.SuspendLayout();
-            this.gbFilter.SuspendLayout();
-            this.pnlSummary.SuspendLayout();
-            this.tabPayments.SuspendLayout();
-            this.tpCustomerPayments.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCustomerPayments)).BeginInit();
-            this.pnlCustomerTop.SuspendLayout();
-            this.tpSupplierPayments.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSupplierPayments)).BeginInit();
-            this.pnlSupplierTop.SuspendLayout();
-            this.cmsCustomerPayments.SuspendLayout();
-            this.cmsSupplierPayments.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            lblMode = new Label();
+            pnlHeader = new Panel();
+            btnRefresh = new Button();
+            btnClose = new Button();
+            pnlFilters = new Panel();
+            gbFilter = new GroupBox();
+            label2 = new Label();
+            cbFilterBy = new ComboBox();
+            txtFilterValue = new TextBox();
+            label1 = new Label();
+            cbStatus = new ComboBox();
+            label3 = new Label();
+            dtpFrom = new DateTimePicker();
+            label4 = new Label();
+            dtpTo = new DateTimePicker();
+            btnRangeToday = new Button();
+            btnRange30 = new Button();
+            btnRangeMonth = new Button();
+            chkOnlyCancelled = new CheckBox();
+            btnClearFilters = new Button();
+            btnToggleFilters = new Button();
+            lblCustomerEmpty = new Label();
+            lblSupplierEmpty = new Label();
+            pnlSummary = new Panel();
+            lblSummary = new Label();
+            toolTip1 = new ToolTip(components);
+            tabPayments = new TabControl();
+            tpCustomerPayments = new TabPage();
+            dgvCustomerPayments = new DataGridView();
+            cmsCustomerPayments = new ContextMenuStrip(components);
+            tsmiCustomerRefresh = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            tsmiCustomerEdit = new ToolStripMenuItem();
+            tsmiCustomerAdd = new ToolStripMenuItem();
+            pnlCustomerTop = new Panel();
+            btnAddCustomerPayment = new Button();
+            lblCustomerCount = new Label();
+            lblCustomerCountTitle = new Label();
+            tpSupplierPayments = new TabPage();
+            dgvSupplierPayments = new DataGridView();
+            cmsSupplierPayments = new ContextMenuStrip(components);
+            tsmiSupplierRefresh = new ToolStripMenuItem();
+            toolStripSeparator2 = new ToolStripSeparator();
+            tsmiSupplierEdit = new ToolStripMenuItem();
+            tsmiSupplierAdd = new ToolStripMenuItem();
+            pnlSupplierTop = new Panel();
+            btnAddSupplierPayment = new Button();
+            lblSupplierCount = new Label();
+            lblSupplierCountTitle = new Label();
+            pnlHeader.SuspendLayout();
+            pnlFilters.SuspendLayout();
+            gbFilter.SuspendLayout();
+            pnlSummary.SuspendLayout();
+            tabPayments.SuspendLayout();
+            tpCustomerPayments.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCustomerPayments).BeginInit();
+            cmsCustomerPayments.SuspendLayout();
+            pnlCustomerTop.SuspendLayout();
+            tpSupplierPayments.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvSupplierPayments).BeginInit();
+            cmsSupplierPayments.SuspendLayout();
+            pnlSupplierTop.SuspendLayout();
+            SuspendLayout();
             // 
             // lblMode
             // 
-            this.lblMode.AutoSize = false;
-            this.lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
-            this.lblMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.lblMode.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.lblMode.ForeColor = System.Drawing.Color.White;
-            this.lblMode.Location = new System.Drawing.Point(0, 0);
-            this.lblMode.Name = "lblMode";
-            this.lblMode.Size = new System.Drawing.Size(1070, 56);
-            this.lblMode.TabIndex = 30;
-            this.lblMode.Text = "إدارة المقبوضات والمدفوعات";
-            this.lblMode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblMode.BackColor = Color.FromArgb(16, 150, 96);
+            lblMode.Dock = DockStyle.Fill;
+            lblMode.FlatStyle = FlatStyle.Flat;
+            lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
+            lblMode.ForeColor = Color.White;
+            lblMode.Location = new Point(0, 0);
+            lblMode.Name = "lblMode";
+            lblMode.Size = new Size(1070, 56);
+            lblMode.TabIndex = 30;
+            lblMode.Text = "إدارة المقبوضات والمدفوعات";
+            lblMode.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // pnlHeader
             // 
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
-            // RULE-N130 + RULE-N125: btnRefresh يُضاف أولاً ليجلس أمام lblMode (Dock=Fill) بلا إعادة ترتيب العناصر المُرصوفة.
-            this.pnlHeader.Controls.Add(this.btnRefresh);
-            this.pnlHeader.Controls.Add(this.lblMode);
-            this.pnlHeader.Controls.Add(this.btnClose);
-            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(1200, 56);
-            this.pnlHeader.TabIndex = 30;
-            // 
-            // pnlFilters
-            // 
-            this.pnlFilters.BackColor = System.Drawing.Color.White;
-            this.pnlFilters.Controls.Add(this.gbFilter);
-            this.pnlFilters.Controls.Add(this.btnToggleFilters);
-            this.pnlFilters.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlFilters.Location = new System.Drawing.Point(0, 56);
-            this.pnlFilters.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlFilters.Name = "pnlFilters";
-            this.pnlFilters.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
-            this.pnlFilters.Size = new System.Drawing.Size(1200, 112);
-            this.pnlFilters.TabIndex = 20;
-            // 
-            // gbFilter
-            // 
-            this.gbFilter.BackColor = System.Drawing.Color.White;
-            this.gbFilter.Controls.Add(this.label2);
-            this.gbFilter.Controls.Add(this.cbFilterBy);
-            this.gbFilter.Controls.Add(this.txtFilterValue);
-            this.gbFilter.Controls.Add(this.label1);
-            this.gbFilter.Controls.Add(this.cbStatus);
-            this.gbFilter.Controls.Add(this.label3);
-            this.gbFilter.Controls.Add(this.dtpFrom);
-            this.gbFilter.Controls.Add(this.label4);
-            this.gbFilter.Controls.Add(this.dtpTo);
-            this.gbFilter.Controls.Add(this.btnRangeToday);
-            this.gbFilter.Controls.Add(this.btnRange30);
-            this.gbFilter.Controls.Add(this.btnRangeMonth);
-            this.gbFilter.Controls.Add(this.chkOnlyCancelled);
-            this.gbFilter.Controls.Add(this.btnClearFilters);
-            this.gbFilter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbFilter.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.gbFilter.Location = new System.Drawing.Point(6, 4);
-            this.gbFilter.Margin = new System.Windows.Forms.Padding(0);
-            this.gbFilter.Name = "gbFilter";
-            this.gbFilter.Padding = new System.Windows.Forms.Padding(8);
-            this.gbFilter.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.gbFilter.Size = new System.Drawing.Size(1188, 104);
-            this.gbFilter.TabIndex = 0;
-            this.gbFilter.TabStop = false;
-            this.gbFilter.Text = "بحث وتصفية";
-            // 
-            // label2
-            // 
-            this.label2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.label2.Location = new System.Drawing.Point(12, 30);
-            this.label2.Margin = new System.Windows.Forms.Padding(0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(96, 26);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "تصفية بـ:";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cbFilterBy
-            // 
-            this.cbFilterBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbFilterBy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbFilterBy.BackColor = System.Drawing.Color.White;
-            this.cbFilterBy.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.cbFilterBy.FormattingEnabled = true;
-            this.cbFilterBy.Location = new System.Drawing.Point(112, 26);
-            this.cbFilterBy.Margin = new System.Windows.Forms.Padding(0);
-            this.cbFilterBy.Name = "cbFilterBy";
-            this.cbFilterBy.Size = new System.Drawing.Size(176, 30);
-            this.cbFilterBy.TabIndex = 1;
-            this.cbFilterBy.SelectedIndexChanged += new System.EventHandler(this.cbFilterBy_SelectedIndexChanged);
-            // 
-            // txtFilterValue
-            // 
-            this.txtFilterValue.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.txtFilterValue.Location = new System.Drawing.Point(292, 26);
-            this.txtFilterValue.Margin = new System.Windows.Forms.Padding(0);
-            this.txtFilterValue.Name = "txtFilterValue";
-            this.txtFilterValue.BackColor = System.Drawing.Color.White;
-            this.txtFilterValue.Size = new System.Drawing.Size(236, 30);
-            this.txtFilterValue.TabIndex = 2;
-            this.txtFilterValue.TextChanged += new System.EventHandler(this.txtFilterValue_TextChanged);
-            this.txtFilterValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilterValue_KeyDown);
-            // 
-            // label1
-            // 
-            this.label1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.label1.Location = new System.Drawing.Point(536, 30);
-            this.label1.Margin = new System.Windows.Forms.Padding(0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 26);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "الحالة:";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cbStatus
-            // 
-            this.cbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbStatus.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbStatus.BackColor = System.Drawing.Color.White;
-            this.cbStatus.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.cbStatus.FormattingEnabled = true;
-            this.cbStatus.Location = new System.Drawing.Point(612, 26);
-            this.cbStatus.Margin = new System.Windows.Forms.Padding(0);
-            this.cbStatus.Name = "cbStatus";
-            this.cbStatus.Size = new System.Drawing.Size(124, 30);
-            this.cbStatus.TabIndex = 4;
-            this.cbStatus.SelectedIndexChanged += new System.EventHandler(this.cbStatus_SelectedIndexChanged);
-            // 
-            // label3
-            // 
-            this.label3.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.label3.Location = new System.Drawing.Point(744, 30);
-            this.label3.Margin = new System.Windows.Forms.Padding(0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(52, 26);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "من:";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // dtpFrom
-            // 
-            this.dtpFrom.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpFrom.Location = new System.Drawing.Point(800, 26);
-            this.dtpFrom.Margin = new System.Windows.Forms.Padding(0);
-            this.dtpFrom.Name = "dtpFrom";
-            this.dtpFrom.BackColor = System.Drawing.Color.White;
-            this.dtpFrom.Size = new System.Drawing.Size(146, 30);
-            this.dtpFrom.TabIndex = 6;
-            this.dtpFrom.ValueChanged += new System.EventHandler(this.dtpFrom_ValueChanged);
-            // 
-            // label4
-            // 
-            this.label4.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.label4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.label4.Location = new System.Drawing.Point(954, 30);
-            this.label4.Margin = new System.Windows.Forms.Padding(0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(52, 26);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "إلى:";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // dtpTo
-            // 
-            this.dtpTo.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpTo.Location = new System.Drawing.Point(1010, 26);
-            this.dtpTo.Margin = new System.Windows.Forms.Padding(0);
-            this.dtpTo.Name = "dtpTo";
-            this.dtpTo.BackColor = System.Drawing.Color.White;
-            this.dtpTo.Size = new System.Drawing.Size(146, 30);
-            this.dtpTo.TabIndex = 8;
-            this.dtpTo.ValueChanged += new System.EventHandler(this.dtpTo_ValueChanged);
-            // 
-            // btnRangeToday
-            // 
-            this.btnRangeToday.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            this.btnRangeToday.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-            this.btnRangeToday.FlatAppearance.BorderSize = 1;
-            this.btnRangeToday.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRangeToday.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRangeToday.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.btnRangeToday.Location = new System.Drawing.Point(12, 62);
-            this.btnRangeToday.Name = "btnRangeToday";
-            this.btnRangeToday.Size = new System.Drawing.Size(100, 32);
-            this.btnRangeToday.TabIndex = 9;
-            this.btnRangeToday.Text = "اليوم";
-            this.btnRangeToday.UseVisualStyleBackColor = false;
-            this.btnRangeToday.Click += new System.EventHandler(this.btnRangeToday_Click);
-            // 
-            // btnRange30
-            // 
-            this.btnRange30.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            this.btnRange30.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-            this.btnRange30.FlatAppearance.BorderSize = 1;
-            this.btnRange30.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRange30.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRange30.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.btnRange30.Location = new System.Drawing.Point(122, 62);
-            this.btnRange30.Name = "btnRange30";
-            this.btnRange30.Size = new System.Drawing.Size(138, 32);
-            this.btnRange30.TabIndex = 10;
-            this.btnRange30.Text = "آخر 30 يوماً";
-            this.btnRange30.UseVisualStyleBackColor = false;
-            this.btnRange30.Click += new System.EventHandler(this.btnRange30_Click);
-            // 
-            // btnRangeMonth
-            // 
-            this.btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            this.btnRangeMonth.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-            this.btnRangeMonth.FlatAppearance.BorderSize = 1;
-            this.btnRangeMonth.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRangeMonth.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRangeMonth.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.btnRangeMonth.Location = new System.Drawing.Point(270, 62);
-            this.btnRangeMonth.Name = "btnRangeMonth";
-            this.btnRangeMonth.Size = new System.Drawing.Size(130, 32);
-            this.btnRangeMonth.TabIndex = 11;
-            this.btnRangeMonth.Text = "هذا الشهر";
-            this.btnRangeMonth.UseVisualStyleBackColor = false;
-            this.btnRangeMonth.Click += new System.EventHandler(this.btnRangeMonth_Click);
-            // 
-            // chkOnlyCancelled
-            // 
-            this.chkOnlyCancelled.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.chkOnlyCancelled.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.chkOnlyCancelled.Location = new System.Drawing.Point(412, 66);
-            this.chkOnlyCancelled.Margin = new System.Windows.Forms.Padding(0);
-            this.chkOnlyCancelled.Name = "chkOnlyCancelled";
-            this.chkOnlyCancelled.Size = new System.Drawing.Size(170, 26);
-            this.chkOnlyCancelled.TabIndex = 12;
-            this.chkOnlyCancelled.Text = "الملغاة فقط";
-            this.chkOnlyCancelled.UseVisualStyleBackColor = false;
-            this.chkOnlyCancelled.CheckedChanged += new System.EventHandler(this.chkOnlyCancelled_CheckedChanged);
-            // 
-            // btnClearFilters
-            // 
-            // RULE-N148: «مسح التصفية» — الصف الثاني، يسار مجموعة مربعات الاختيار (فاصل 10px) — قيم حرفية فقط.
-            this.btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
-            this.btnClearFilters.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnClearFilters.Enabled = false;
-            this.btnClearFilters.FlatAppearance.BorderSize = 0;
-            this.btnClearFilters.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnClearFilters.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnClearFilters.ForeColor = System.Drawing.Color.White;
-            this.btnClearFilters.Location = new System.Drawing.Point(592, 62);
-            this.btnClearFilters.Name = "btnClearFilters";
-            this.btnClearFilters.Size = new System.Drawing.Size(145, 32);
-            this.btnClearFilters.TabIndex = 13;
-            this.btnClearFilters.Text = "🧹 مسح التصفية";
-            this.toolTip1.SetToolTip(this.btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
-            this.btnClearFilters.UseVisualStyleBackColor = false;
-            this.btnClearFilters.Click += new System.EventHandler(this.btnClearFilters_Click);
-            // 
-            // btnToggleFilters
-            // 
-            // RULE-N145: مُعلَن في المصمّم بقيم حرفية مطابقة لما يُطبَّق وقت التشغيل.
-            // السلوك (النقرة · F9 · التلميح · الحالة المحفوظة) يُوصِّله FilterPanelHelper.Attach.
-            this.btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            this.btnToggleFilters.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnToggleFilters.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-            this.btnToggleFilters.FlatAppearance.BorderSize = 1;
-            this.btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
-            this.btnToggleFilters.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btnToggleFilters.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.btnToggleFilters.Location = new System.Drawing.Point(6, 4);
-            this.btnToggleFilters.Name = "btnToggleFilters";
-            this.btnToggleFilters.Size = new System.Drawing.Size(140, 104);
-            this.btnToggleFilters.TabIndex = 13;
-            this.btnToggleFilters.Text = "إخفاء التصفية";
-            this.btnToggleFilters.UseVisualStyleBackColor = false;
-            // 
-            // pnlSummary
-            // 
-            this.pnlSummary.BackColor = System.Drawing.Color.White;
-            this.pnlSummary.Controls.Add(this.lblSummary);
-            this.pnlSummary.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlSummary.Location = new System.Drawing.Point(0, 671);
-            this.pnlSummary.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlSummary.Name = "pnlSummary";
-            this.pnlSummary.Size = new System.Drawing.Size(1200, 32);
-            this.pnlSummary.TabIndex = 10;
-            // 
-            // lblSummary
-            // 
-            this.lblSummary.AutoSize = false;
-            this.lblSummary.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblSummary.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblSummary.Location = new System.Drawing.Point(0, 0);
-            this.lblSummary.Name = "lblSummary";
-            this.lblSummary.Size = new System.Drawing.Size(1200, 32);
-            this.lblSummary.TabIndex = 0;
-            this.lblSummary.Text = "المعروض: 0 من 0 — الإجمالي: 0.00";
-            this.lblSummary.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // tabPayments
-            // 
-            this.tabPayments.Controls.Add(this.tpCustomerPayments);
-            this.tabPayments.Controls.Add(this.tpSupplierPayments);
-            this.tabPayments.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabPayments.Font = new System.Drawing.Font("Tahoma", 9F);
-            this.tabPayments.Location = new System.Drawing.Point(0, 168);
-            this.tabPayments.Name = "tabPayments";
-            this.tabPayments.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.tabPayments.RightToLeftLayout = true;
-            this.tabPayments.SelectedIndex = 0;
-            this.tabPayments.Size = new System.Drawing.Size(1200, 503);
-            this.tabPayments.TabIndex = 1;
-            this.tabPayments.SelectedIndexChanged += new System.EventHandler(this.tabPayments_SelectedIndexChanged);
-            // 
-            // tpCustomerPayments
-            // 
-            this.tpCustomerPayments.BackColor = System.Drawing.Color.White;
-            this.tpCustomerPayments.Controls.Add(this.lblCustomerEmpty);
-            this.tpCustomerPayments.Controls.Add(this.dgvCustomerPayments);
-            this.tpCustomerPayments.Controls.Add(this.pnlCustomerTop);
-            this.tpCustomerPayments.Location = new System.Drawing.Point(4, 28);
-            this.tpCustomerPayments.Name = "tpCustomerPayments";
-            this.tpCustomerPayments.Padding = new System.Windows.Forms.Padding(3);
-            this.tpCustomerPayments.Size = new System.Drawing.Size(1192, 471);
-            this.tpCustomerPayments.TabIndex = 0;
-            this.tpCustomerPayments.Text = "\u0645\u0642\u0628\u0648\u0636\u0627\u062a \u0627\u0644\u0639\u0645\u0644\u0627\u0621";
-            // 
-            // dgvCustomerPayments
-            // 
-            this.dgvCustomerPayments.AllowUserToAddRows = false;
-            this.dgvCustomerPayments.AllowUserToDeleteRows = false;
-            this.dgvCustomerPayments.AllowUserToOrderColumns = true;
-            this.dgvCustomerPayments.AllowUserToResizeRows = false;
-            this.dgvCustomerPayments.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            this.dgvCustomerPayments.AutoGenerateColumns = false;
-            this.dgvCustomerPayments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvCustomerPayments.BackgroundColor = System.Drawing.Color.White;
-            this.dgvCustomerPayments.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-            this.dgvCustomerPayments.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
-            this.dgvCustomerPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.dgvCustomerPayments.ColumnHeadersHeight = 45;
-            this.dgvCustomerPayments.ContextMenuStrip = this.cmsCustomerPayments;
-            this.dgvCustomerPayments.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-            this.dgvCustomerPayments.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.dgvCustomerPayments.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
-            this.dgvCustomerPayments.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.dgvCustomerPayments.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvCustomerPayments.EnableHeadersVisualStyles = false;
-            this.dgvCustomerPayments.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-            this.dgvCustomerPayments.Location = new System.Drawing.Point(3, 43);
-            this.dgvCustomerPayments.MultiSelect = false;
-            this.dgvCustomerPayments.Name = "dgvCustomerPayments";
-            this.dgvCustomerPayments.ReadOnly = true;
-            this.dgvCustomerPayments.RowHeadersVisible = false;
-            this.dgvCustomerPayments.RowHeadersWidth = 51;
-            this.dgvCustomerPayments.RowTemplate.Height = 32;
-            this.dgvCustomerPayments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCustomerPayments.Size = new System.Drawing.Size(1186, 425);
-            this.dgvCustomerPayments.TabIndex = 1;
-            this.dgvCustomerPayments.DoubleClick += new System.EventHandler(this.dgvCustomerPayments_DoubleClick);
-            // 
-            // pnlCustomerTop
-            // 
-            this.pnlCustomerTop.BackColor = System.Drawing.Color.White;
-            this.pnlCustomerTop.Controls.Add(this.btnAddCustomerPayment);
-            this.pnlCustomerTop.Controls.Add(this.lblCustomerCount);
-            this.pnlCustomerTop.Controls.Add(this.lblCustomerCountTitle);
-            this.pnlCustomerTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlCustomerTop.Height = 40;
-            this.pnlCustomerTop.Name = "pnlCustomerTop";
-            this.pnlCustomerTop.TabIndex = 0;
-            // 
-            // btnAddCustomerPayment
-            // 
-            this.btnAddCustomerPayment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddCustomerPayment.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
-            this.btnAddCustomerPayment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddCustomerPayment.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnAddCustomerPayment.ForeColor = System.Drawing.Color.White;
-            this.btnAddCustomerPayment.Location = new System.Drawing.Point(920, 5);
-            this.btnAddCustomerPayment.Name = "btnAddCustomerPayment";
-            this.btnAddCustomerPayment.Size = new System.Drawing.Size(106, 30);
-            this.btnAddCustomerPayment.TabIndex = 2;
-            this.btnAddCustomerPayment.Text = "\u0642\u0628\u0636 \u062c\u062f\u064a\u062f";
-            this.btnAddCustomerPayment.UseVisualStyleBackColor = false;
-            this.btnAddCustomerPayment.Click += new System.EventHandler(this.btnAddCustomerPayment_Click);
-            // 
-            // lblCustomerCount
-            // 
-            this.lblCustomerCount.AutoSize = true;
-            this.lblCustomerCount.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblCustomerCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblCustomerCount.Location = new System.Drawing.Point(50, 10);
-            this.lblCustomerCount.Name = "lblCustomerCount";
-            this.lblCustomerCount.Size = new System.Drawing.Size(22, 18);
-            this.lblCustomerCount.TabIndex = 1;
-            this.lblCustomerCount.Text = "0";
-            // 
-            // lblCustomerCountTitle
-            // 
-            this.lblCustomerCountTitle.AutoSize = true;
-            this.lblCustomerCountTitle.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblCustomerCountTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblCustomerCountTitle.Location = new System.Drawing.Point(10, 10);
-            this.lblCustomerCountTitle.Name = "lblCustomerCountTitle";
-            this.lblCustomerCountTitle.Size = new System.Drawing.Size(40, 18);
-            this.lblCustomerCountTitle.TabIndex = 0;
-            this.lblCustomerCountTitle.Text = "\u0627\u0644\u0639\u062f\u062f:";
-            // 
-            // lblCustomerEmpty
-            // 
-            // سطر «لا توجد بيانات» — RULE-N22: عنصر دائم مُعلَن في المصمّم لا يُبنى وقت التشغيل.
-            this.lblCustomerEmpty.BackColor = System.Drawing.Color.Transparent;
-            this.lblCustomerEmpty.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblCustomerEmpty.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.lblCustomerEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblCustomerEmpty.Name = "lblCustomerEmpty";
-            this.lblCustomerEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblCustomerEmpty.Text = "لا توجد مقبوضات مطابقة للمعايير الحالية";
-            this.lblCustomerEmpty.Visible = false;
-            // 
-            // tpSupplierPayments
-            // 
-            this.tpSupplierPayments.BackColor = System.Drawing.Color.White;
-            this.tpSupplierPayments.Controls.Add(this.lblSupplierEmpty);
-            this.tpSupplierPayments.Controls.Add(this.dgvSupplierPayments);
-            this.tpSupplierPayments.Controls.Add(this.pnlSupplierTop);
-            this.tpSupplierPayments.Location = new System.Drawing.Point(4, 28);
-            this.tpSupplierPayments.Name = "tpSupplierPayments";
-            this.tpSupplierPayments.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSupplierPayments.Size = new System.Drawing.Size(1192, 471);
-            this.tpSupplierPayments.TabIndex = 1;
-            this.tpSupplierPayments.Text = "\u0645\u062f\u0641\u0648\u0639\u0627\u062a \u0627\u0644\u0645\u0648\u0631\u062f\u064a\u0646";
-            // 
-            // dgvSupplierPayments
-            // 
-            this.dgvSupplierPayments.AllowUserToAddRows = false;
-            this.dgvSupplierPayments.AllowUserToDeleteRows = false;
-            this.dgvSupplierPayments.AllowUserToOrderColumns = true;
-            this.dgvSupplierPayments.AllowUserToResizeRows = false;
-            this.dgvSupplierPayments.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            this.dgvSupplierPayments.AutoGenerateColumns = false;
-            this.dgvSupplierPayments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvSupplierPayments.BackgroundColor = System.Drawing.Color.White;
-            this.dgvSupplierPayments.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-            this.dgvSupplierPayments.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
-            this.dgvSupplierPayments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.dgvSupplierPayments.ColumnHeadersHeight = 45;
-            this.dgvSupplierPayments.ContextMenuStrip = this.cmsSupplierPayments;
-            this.dgvSupplierPayments.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-            this.dgvSupplierPayments.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.dgvSupplierPayments.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
-            this.dgvSupplierPayments.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.dgvSupplierPayments.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvSupplierPayments.EnableHeadersVisualStyles = false;
-            this.dgvSupplierPayments.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-            this.dgvSupplierPayments.Location = new System.Drawing.Point(3, 43);
-            this.dgvSupplierPayments.MultiSelect = false;
-            this.dgvSupplierPayments.Name = "dgvSupplierPayments";
-            this.dgvSupplierPayments.ReadOnly = true;
-            this.dgvSupplierPayments.RowHeadersVisible = false;
-            this.dgvSupplierPayments.RowHeadersWidth = 51;
-            this.dgvSupplierPayments.RowTemplate.Height = 32;
-            this.dgvSupplierPayments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvSupplierPayments.Size = new System.Drawing.Size(1186, 425);
-            this.dgvSupplierPayments.TabIndex = 1;
-            this.dgvSupplierPayments.DoubleClick += new System.EventHandler(this.dgvSupplierPayments_DoubleClick);
-            // 
-            // pnlSupplierTop
-            // 
-            this.pnlSupplierTop.BackColor = System.Drawing.Color.White;
-            this.pnlSupplierTop.Controls.Add(this.btnAddSupplierPayment);
-            this.pnlSupplierTop.Controls.Add(this.lblSupplierCount);
-            this.pnlSupplierTop.Controls.Add(this.lblSupplierCountTitle);
-            this.pnlSupplierTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlSupplierTop.Height = 40;
-            this.pnlSupplierTop.Name = "pnlSupplierTop";
-            this.pnlSupplierTop.TabIndex = 0;
-            // 
-            // btnAddSupplierPayment
-            // 
-            this.btnAddSupplierPayment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddSupplierPayment.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
-            this.btnAddSupplierPayment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAddSupplierPayment.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.btnAddSupplierPayment.ForeColor = System.Drawing.Color.White;
-            this.btnAddSupplierPayment.Location = new System.Drawing.Point(920, 5);
-            this.btnAddSupplierPayment.Name = "btnAddSupplierPayment";
-            this.btnAddSupplierPayment.Size = new System.Drawing.Size(106, 30);
-            this.btnAddSupplierPayment.TabIndex = 2;
-            this.btnAddSupplierPayment.Text = "\u0635\u0631\u0641 \u062c\u062f\u064a\u062f";
-            this.btnAddSupplierPayment.UseVisualStyleBackColor = false;
-            this.btnAddSupplierPayment.Click += new System.EventHandler(this.btnAddSupplierPayment_Click);
-            // 
-            // lblSupplierCount
-            // 
-            this.lblSupplierCount.AutoSize = true;
-            this.lblSupplierCount.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblSupplierCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblSupplierCount.Location = new System.Drawing.Point(50, 10);
-            this.lblSupplierCount.Name = "lblSupplierCount";
-            this.lblSupplierCount.Size = new System.Drawing.Size(22, 18);
-            this.lblSupplierCount.TabIndex = 1;
-            this.lblSupplierCount.Text = "0";
-            // 
-            // lblSupplierCountTitle
-            // 
-            this.lblSupplierCountTitle.AutoSize = true;
-            this.lblSupplierCountTitle.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold);
-            this.lblSupplierCountTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblSupplierCountTitle.Location = new System.Drawing.Point(10, 10);
-            this.lblSupplierCountTitle.Name = "lblSupplierCountTitle";
-            this.lblSupplierCountTitle.Size = new System.Drawing.Size(40, 18);
-            this.lblSupplierCountTitle.TabIndex = 0;
-            this.lblSupplierCountTitle.Text = "\u0627\u0644\u0639\u062f\u062f:";
-            // 
-            // lblSupplierEmpty
-            // 
-            // سطر «لا توجد بيانات» — RULE-N22: عنصر دائم مُعلَن في المصمّم لا يُبنى وقت التشغيل.
-            this.lblSupplierEmpty.BackColor = System.Drawing.Color.Transparent;
-            this.lblSupplierEmpty.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblSupplierEmpty.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.lblSupplierEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            this.lblSupplierEmpty.Name = "lblSupplierEmpty";
-            this.lblSupplierEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblSupplierEmpty.Text = "لا توجد مدفوعات مطابقة للمعايير الحالية";
-            this.lblSupplierEmpty.Visible = false;
+            pnlHeader.BackColor = Color.FromArgb(16, 150, 96);
+            pnlHeader.Controls.Add(btnRefresh);
+            pnlHeader.Controls.Add(lblMode);
+            pnlHeader.Controls.Add(btnClose);
+            pnlHeader.Dock = DockStyle.Top;
+            pnlHeader.Location = new Point(0, 0);
+            pnlHeader.Name = "pnlHeader";
+            pnlHeader.Size = new Size(1200, 56);
+            pnlHeader.TabIndex = 30;
             // 
             // btnRefresh
             // 
-            // RULE-N148: «تحديث» كامل — بجانب «إغلاق» في شريط أوامر الشاشة (pnlHeader).
-            // قيم حرفية مطابقة لثوابت GreenThemeHelper (ActionInfoBackground) — RULE-N134/N140.
-            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
-            this.btnRefresh.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRefresh.FlatAppearance.BorderSize = 0;
-            this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRefresh.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.btnRefresh.ForeColor = System.Drawing.Color.White;
-            this.btnRefresh.Location = new System.Drawing.Point(920, 11);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(140, 35);
-            this.btnRefresh.TabIndex = 1;
-            this.btnRefresh.Text = "🔄 تحديث";
-            this.toolTip1.SetToolTip(this.btnRefresh, "تحديث كل البيانات وإرجاع الشاشة إلى الافتراضي — F5");
-            this.btnRefresh.UseVisualStyleBackColor = false;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+            btnRefresh.Cursor = Cursors.Hand;
+            btnRefresh.FlatAppearance.BorderSize = 0;
+            btnRefresh.FlatStyle = FlatStyle.Flat;
+            btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnRefresh.ForeColor = Color.White;
+            btnRefresh.Location = new Point(924, 11);
+            btnRefresh.Name = "btnRefresh";
+            btnRefresh.Size = new Size(140, 35);
+            btnRefresh.TabIndex = 1;
+            btnRefresh.Text = "🔄 تحديث";
+            toolTip1.SetToolTip(btnRefresh, "تحديث كل البيانات وإرجاع الشاشة إلى الافتراضي — F5");
+            btnRefresh.UseVisualStyleBackColor = false;
+            btnRefresh.Click += btnRefresh_Click;
             // 
             // btnClose
             // 
-            this.btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
-            this.btnClose.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnClose.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
-            this.btnClose.ForeColor = System.Drawing.Color.White;
-            this.btnClose.Location = new System.Drawing.Point(1070, 0);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(130, 56);
-            this.btnClose.TabIndex = 0;
-            this.btnClose.Text = "إغلاق";
-            this.btnClose.UseVisualStyleBackColor = false;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            btnClose.BackColor = Color.FromArgb(108, 117, 125);
+            btnClose.Dock = DockStyle.Right;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnClose.ForeColor = Color.White;
+            btnClose.Location = new Point(1070, 0);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(130, 56);
+            btnClose.TabIndex = 0;
+            btnClose.Text = "إغلاق";
+            btnClose.UseVisualStyleBackColor = false;
+            btnClose.Click += btnClose_Click;
+            // 
+            // pnlFilters
+            // 
+            pnlFilters.BackColor = Color.White;
+            pnlFilters.Controls.Add(gbFilter);
+            pnlFilters.Controls.Add(btnToggleFilters);
+            pnlFilters.Dock = DockStyle.Top;
+            pnlFilters.Location = new Point(0, 56);
+            pnlFilters.Margin = new Padding(0);
+            pnlFilters.Name = "pnlFilters";
+            pnlFilters.Padding = new Padding(6, 4, 6, 4);
+            pnlFilters.Size = new Size(1200, 112);
+            pnlFilters.TabIndex = 20;
+            // 
+            // gbFilter
+            // 
+            gbFilter.BackColor = Color.White;
+            gbFilter.Controls.Add(label2);
+            gbFilter.Controls.Add(cbFilterBy);
+            gbFilter.Controls.Add(txtFilterValue);
+            gbFilter.Controls.Add(label1);
+            gbFilter.Controls.Add(cbStatus);
+            gbFilter.Controls.Add(label3);
+            gbFilter.Controls.Add(dtpFrom);
+            gbFilter.Controls.Add(label4);
+            gbFilter.Controls.Add(dtpTo);
+            gbFilter.Controls.Add(btnRangeToday);
+            gbFilter.Controls.Add(btnRange30);
+            gbFilter.Controls.Add(btnRangeMonth);
+            gbFilter.Controls.Add(chkOnlyCancelled);
+            gbFilter.Controls.Add(btnClearFilters);
+            gbFilter.Dock = DockStyle.Fill;
+            gbFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            gbFilter.Location = new Point(146, 4);
+            gbFilter.Margin = new Padding(0);
+            gbFilter.Name = "gbFilter";
+            gbFilter.Padding = new Padding(8);
+            gbFilter.RightToLeft = RightToLeft.Yes;
+            gbFilter.Size = new Size(1048, 104);
+            gbFilter.TabIndex = 0;
+            gbFilter.TabStop = false;
+            gbFilter.Text = "بحث وتصفية";
+            gbFilter.Enter += gbFilter_Enter;
+            // 
+            // label2
+            // 
+            label2.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            label2.ForeColor = Color.FromArgb(33, 37, 41);
+            label2.Location = new Point(942, 24);
+            label2.Margin = new Padding(0);
+            label2.Name = "label2";
+            label2.Size = new Size(96, 26);
+            label2.TabIndex = 0;
+            label2.Text = "تصفية بـ:";
+            label2.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // cbFilterBy
+            // 
+            cbFilterBy.BackColor = Color.White;
+            cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbFilterBy.FlatStyle = FlatStyle.Flat;
+            cbFilterBy.Font = new Font("Tahoma", 9F);
+            cbFilterBy.FormattingEnabled = true;
+            cbFilterBy.Location = new Point(746, 22);
+            cbFilterBy.Margin = new Padding(0);
+            cbFilterBy.Name = "cbFilterBy";
+            cbFilterBy.Size = new Size(176, 30);
+            cbFilterBy.TabIndex = 1;
+            cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
+            // 
+            // txtFilterValue
+            // 
+            txtFilterValue.BackColor = Color.White;
+            txtFilterValue.Font = new Font("Tahoma", 9F);
+            txtFilterValue.Location = new Point(490, 23);
+            txtFilterValue.Margin = new Padding(0);
+            txtFilterValue.Name = "txtFilterValue";
+            txtFilterValue.Size = new Size(236, 29);
+            txtFilterValue.TabIndex = 2;
+            txtFilterValue.TextChanged += txtFilterValue_TextChanged;
+            txtFilterValue.KeyDown += txtFilterValue_KeyDown;
+            // 
+            // label1
+            // 
+            label1.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            label1.ForeColor = Color.FromArgb(33, 37, 41);
+            label1.Location = new Point(942, 63);
+            label1.Margin = new Padding(0);
+            label1.Name = "label1";
+            label1.Size = new Size(72, 26);
+            label1.TabIndex = 3;
+            label1.Text = "الحالة:";
+            label1.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // cbStatus
+            // 
+            cbStatus.BackColor = Color.White;
+            cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbStatus.FlatStyle = FlatStyle.Flat;
+            cbStatus.Font = new Font("Tahoma", 9F);
+            cbStatus.FormattingEnabled = true;
+            cbStatus.Location = new Point(812, 61);
+            cbStatus.Margin = new Padding(0);
+            cbStatus.Name = "cbStatus";
+            cbStatus.Size = new Size(124, 30);
+            cbStatus.TabIndex = 4;
+            cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
+            // 
+            // label3
+            // 
+            label3.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            label3.ForeColor = Color.FromArgb(33, 37, 41);
+            label3.Location = new Point(418, 24);
+            label3.Margin = new Padding(0);
+            label3.Name = "label3";
+            label3.Size = new Size(52, 26);
+            label3.TabIndex = 5;
+            label3.Text = "من:";
+            label3.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // dtpFrom
+            // 
+            dtpFrom.BackColor = Color.White;
+            dtpFrom.Font = new Font("Tahoma", 9F);
+            dtpFrom.Format = DateTimePickerFormat.Short;
+            dtpFrom.Location = new Point(252, 23);
+            dtpFrom.Margin = new Padding(0);
+            dtpFrom.Name = "dtpFrom";
+            dtpFrom.Size = new Size(146, 29);
+            dtpFrom.TabIndex = 6;
+            dtpFrom.ValueChanged += dtpFrom_ValueChanged;
+            // 
+            // label4
+            // 
+            label4.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            label4.ForeColor = Color.FromArgb(33, 37, 41);
+            label4.Location = new Point(180, 24);
+            label4.Margin = new Padding(0);
+            label4.Name = "label4";
+            label4.Size = new Size(52, 26);
+            label4.TabIndex = 7;
+            label4.Text = "إلى:";
+            label4.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // dtpTo
+            // 
+            dtpTo.BackColor = Color.White;
+            dtpTo.Font = new Font("Tahoma", 9F);
+            dtpTo.Format = DateTimePickerFormat.Short;
+            dtpTo.Location = new Point(14, 23);
+            dtpTo.Margin = new Padding(0);
+            dtpTo.Name = "dtpTo";
+            dtpTo.Size = new Size(146, 29);
+            dtpTo.TabIndex = 8;
+            dtpTo.ValueChanged += dtpTo_ValueChanged;
+            // 
+            // btnRangeToday
+            // 
+            btnRangeToday.BackColor = Color.FromArgb(248, 249, 250);
+            btnRangeToday.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnRangeToday.FlatStyle = FlatStyle.Flat;
+            btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnRangeToday.ForeColor = Color.FromArgb(33, 37, 41);
+            btnRangeToday.Location = new Point(12, 60);
+            btnRangeToday.Name = "btnRangeToday";
+            btnRangeToday.Size = new Size(100, 32);
+            btnRangeToday.TabIndex = 9;
+            btnRangeToday.Text = "اليوم";
+            btnRangeToday.UseVisualStyleBackColor = false;
+            btnRangeToday.Click += btnRangeToday_Click;
+            // 
+            // btnRange30
+            // 
+            btnRange30.BackColor = Color.FromArgb(248, 249, 250);
+            btnRange30.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnRange30.FlatStyle = FlatStyle.Flat;
+            btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnRange30.ForeColor = Color.FromArgb(33, 37, 41);
+            btnRange30.Location = new Point(118, 60);
+            btnRange30.Name = "btnRange30";
+            btnRange30.Size = new Size(138, 32);
+            btnRange30.TabIndex = 10;
+            btnRange30.Text = "آخر 30 يوماً";
+            btnRange30.UseVisualStyleBackColor = false;
+            btnRange30.Click += btnRange30_Click;
+            // 
+            // btnRangeMonth
+            // 
+            btnRangeMonth.BackColor = Color.FromArgb(248, 249, 250);
+            btnRangeMonth.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnRangeMonth.FlatStyle = FlatStyle.Flat;
+            btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnRangeMonth.ForeColor = Color.FromArgb(33, 37, 41);
+            btnRangeMonth.Location = new Point(262, 60);
+            btnRangeMonth.Name = "btnRangeMonth";
+            btnRangeMonth.Size = new Size(130, 32);
+            btnRangeMonth.TabIndex = 11;
+            btnRangeMonth.Text = "هذا الشهر";
+            btnRangeMonth.UseVisualStyleBackColor = false;
+            btnRangeMonth.Click += btnRangeMonth_Click;
+            // 
+            // chkOnlyCancelled
+            // 
+            chkOnlyCancelled.Font = new Font("Tahoma", 9F);
+            chkOnlyCancelled.ForeColor = Color.FromArgb(33, 37, 41);
+            chkOnlyCancelled.Location = new Point(398, 63);
+            chkOnlyCancelled.Margin = new Padding(0);
+            chkOnlyCancelled.Name = "chkOnlyCancelled";
+            chkOnlyCancelled.Size = new Size(170, 26);
+            chkOnlyCancelled.TabIndex = 12;
+            chkOnlyCancelled.Text = "الملغاة فقط";
+            chkOnlyCancelled.UseVisualStyleBackColor = false;
+            chkOnlyCancelled.CheckedChanged += chkOnlyCancelled_CheckedChanged;
+            // 
+            // btnClearFilters
+            // 
+            btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+            btnClearFilters.Cursor = Cursors.Hand;
+            btnClearFilters.Enabled = false;
+            btnClearFilters.FlatAppearance.BorderSize = 0;
+            btnClearFilters.FlatStyle = FlatStyle.Flat;
+            btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnClearFilters.ForeColor = Color.White;
+            btnClearFilters.Location = new Point(574, 60);
+            btnClearFilters.Name = "btnClearFilters";
+            btnClearFilters.Size = new Size(232, 32);
+            btnClearFilters.TabIndex = 13;
+            btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+            toolTip1.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
+            btnClearFilters.UseVisualStyleBackColor = false;
+            btnClearFilters.Click += btnClearFilters_Click;
+            // 
+            // btnToggleFilters
+            // 
+            btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+            btnToggleFilters.Cursor = Cursors.Hand;
+            btnToggleFilters.Dock = DockStyle.Left;
+            btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
+            btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+            btnToggleFilters.FlatStyle = FlatStyle.Popup;
+            btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+            btnToggleFilters.Location = new Point(6, 4);
+            btnToggleFilters.Name = "btnToggleFilters";
+            btnToggleFilters.Size = new Size(140, 104);
+            btnToggleFilters.TabIndex = 13;
+            btnToggleFilters.Text = "إخفاء التصفية";
+            btnToggleFilters.UseVisualStyleBackColor = false;
+            // 
+            // lblCustomerEmpty
+            // 
+            lblCustomerEmpty.BackColor = Color.Transparent;
+            lblCustomerEmpty.Dock = DockStyle.Fill;
+            lblCustomerEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblCustomerEmpty.ForeColor = Color.FromArgb(33, 37, 41);
+            lblCustomerEmpty.Location = new Point(3, 43);
+            lblCustomerEmpty.Name = "lblCustomerEmpty";
+            lblCustomerEmpty.Size = new Size(1186, 422);
+            lblCustomerEmpty.TabIndex = 0;
+            lblCustomerEmpty.Text = "لا توجد مقبوضات مطابقة للمعايير الحالية";
+            lblCustomerEmpty.TextAlign = ContentAlignment.MiddleCenter;
+            lblCustomerEmpty.Visible = false;
+            // 
+            // lblSupplierEmpty
+            // 
+            lblSupplierEmpty.BackColor = Color.Transparent;
+            lblSupplierEmpty.Dock = DockStyle.Fill;
+            lblSupplierEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblSupplierEmpty.ForeColor = Color.FromArgb(33, 37, 41);
+            lblSupplierEmpty.Location = new Point(3, 43);
+            lblSupplierEmpty.Name = "lblSupplierEmpty";
+            lblSupplierEmpty.Size = new Size(1186, 422);
+            lblSupplierEmpty.TabIndex = 0;
+            lblSupplierEmpty.Text = "لا توجد مدفوعات مطابقة للمعايير الحالية";
+            lblSupplierEmpty.TextAlign = ContentAlignment.MiddleCenter;
+            lblSupplierEmpty.Visible = false;
+            // 
+            // pnlSummary
+            // 
+            pnlSummary.BackColor = Color.White;
+            pnlSummary.Controls.Add(lblSummary);
+            pnlSummary.Dock = DockStyle.Bottom;
+            pnlSummary.Location = new Point(0, 671);
+            pnlSummary.Margin = new Padding(0);
+            pnlSummary.Name = "pnlSummary";
+            pnlSummary.Size = new Size(1200, 32);
+            pnlSummary.TabIndex = 10;
+            // 
+            // lblSummary
+            // 
+            lblSummary.Dock = DockStyle.Fill;
+            lblSummary.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
+            lblSummary.Location = new Point(0, 0);
+            lblSummary.Name = "lblSummary";
+            lblSummary.Size = new Size(1200, 32);
+            lblSummary.TabIndex = 0;
+            lblSummary.Text = "المعروض: 0 من 0 — الإجمالي: 0.00";
+            lblSummary.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // tabPayments
+            // 
+            tabPayments.Controls.Add(tpCustomerPayments);
+            tabPayments.Controls.Add(tpSupplierPayments);
+            tabPayments.Dock = DockStyle.Fill;
+            tabPayments.Font = new Font("Tahoma", 9F);
+            tabPayments.Location = new Point(0, 168);
+            tabPayments.Name = "tabPayments";
+            tabPayments.RightToLeft = RightToLeft.Yes;
+            tabPayments.RightToLeftLayout = true;
+            tabPayments.SelectedIndex = 0;
+            tabPayments.Size = new Size(1200, 503);
+            tabPayments.TabIndex = 1;
+            tabPayments.SelectedIndexChanged += tabPayments_SelectedIndexChanged;
+            // 
+            // tpCustomerPayments
+            // 
+            tpCustomerPayments.BackColor = Color.White;
+            tpCustomerPayments.Controls.Add(lblCustomerEmpty);
+            tpCustomerPayments.Controls.Add(dgvCustomerPayments);
+            tpCustomerPayments.Controls.Add(pnlCustomerTop);
+            tpCustomerPayments.Location = new Point(4, 31);
+            tpCustomerPayments.Name = "tpCustomerPayments";
+            tpCustomerPayments.Padding = new Padding(3);
+            tpCustomerPayments.Size = new Size(1192, 468);
+            tpCustomerPayments.TabIndex = 0;
+            tpCustomerPayments.Text = "مقبوضات العملاء";
+            // 
+            // dgvCustomerPayments
+            // 
+            dgvCustomerPayments.AllowUserToAddRows = false;
+            dgvCustomerPayments.AllowUserToDeleteRows = false;
+            dgvCustomerPayments.AllowUserToOrderColumns = true;
+            dgvCustomerPayments.AllowUserToResizeRows = false;
+            dataGridViewCellStyle7.BackColor = Color.FromArgb(248, 249, 250);
+            dgvCustomerPayments.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
+            dgvCustomerPayments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvCustomerPayments.BackgroundColor = Color.White;
+            dgvCustomerPayments.BorderStyle = BorderStyle.None;
+            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = Color.FromArgb(52, 58, 64);
+            dataGridViewCellStyle8.Font = new Font("Tahoma", 9F);
+            dataGridViewCellStyle8.ForeColor = Color.White;
+            dataGridViewCellStyle8.SelectionBackColor = Color.FromArgb(52, 58, 64);
+            dataGridViewCellStyle8.SelectionForeColor = Color.White;
+            dataGridViewCellStyle8.WrapMode = DataGridViewTriState.True;
+            dgvCustomerPayments.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            dgvCustomerPayments.ColumnHeadersHeight = 45;
+            dgvCustomerPayments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvCustomerPayments.ContextMenuStrip = cmsCustomerPayments;
+            dataGridViewCellStyle9.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = Color.White;
+            dataGridViewCellStyle9.Font = new Font("Tahoma", 9F);
+            dataGridViewCellStyle9.ForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle9.SelectionBackColor = Color.FromArgb(255, 243, 205);
+            dataGridViewCellStyle9.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle9.WrapMode = DataGridViewTriState.False;
+            dgvCustomerPayments.DefaultCellStyle = dataGridViewCellStyle9;
+            dgvCustomerPayments.Dock = DockStyle.Fill;
+            dgvCustomerPayments.EnableHeadersVisualStyles = false;
+            dgvCustomerPayments.GridColor = Color.FromArgb(222, 226, 230);
+            dgvCustomerPayments.Location = new Point(3, 43);
+            dgvCustomerPayments.MultiSelect = false;
+            dgvCustomerPayments.Name = "dgvCustomerPayments";
+            dgvCustomerPayments.ReadOnly = true;
+            dgvCustomerPayments.RowHeadersVisible = false;
+            dgvCustomerPayments.RowHeadersWidth = 51;
+            dgvCustomerPayments.RowTemplate.Height = 32;
+            dgvCustomerPayments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvCustomerPayments.Size = new Size(1186, 422);
+            dgvCustomerPayments.TabIndex = 1;
+            dgvCustomerPayments.DoubleClick += dgvCustomerPayments_DoubleClick;
             // 
             // cmsCustomerPayments
             // 
-            this.cmsCustomerPayments.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.cmsCustomerPayments.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiCustomerRefresh,
-            this.toolStripSeparator1,
-            this.tsmiCustomerEdit,
-            this.tsmiCustomerAdd});
-            this.cmsCustomerPayments.Name = "cmsCustomerPayments";
-            this.cmsCustomerPayments.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.cmsCustomerPayments.Size = new System.Drawing.Size(161, 88);
-            this.cmsCustomerPayments.Opening += new System.ComponentModel.CancelEventHandler(this.cmsCustomerPayments_Opening);
+            cmsCustomerPayments.ImageScalingSize = new Size(20, 20);
+            cmsCustomerPayments.Items.AddRange(new ToolStripItem[] { tsmiCustomerRefresh, toolStripSeparator1, tsmiCustomerEdit, tsmiCustomerAdd });
+            cmsCustomerPayments.Name = "cmsCustomerPayments";
+            cmsCustomerPayments.RightToLeft = RightToLeft.Yes;
+            cmsCustomerPayments.Size = new Size(164, 106);
+            cmsCustomerPayments.Opening += cmsCustomerPayments_Opening;
             // 
             // tsmiCustomerRefresh
             // 
-            this.tsmiCustomerRefresh.Name = "tsmiCustomerRefresh";
-            this.tsmiCustomerRefresh.Size = new System.Drawing.Size(160, 26);
-            this.tsmiCustomerRefresh.Text = "\u062a\u062d\u062f\u064a\u062b";
-            this.tsmiCustomerRefresh.Click += new System.EventHandler(this.tsmiCustomerRefresh_Click);
+            tsmiCustomerRefresh.Name = "tsmiCustomerRefresh";
+            tsmiCustomerRefresh.Size = new Size(163, 32);
+            tsmiCustomerRefresh.Text = "تحديث";
+            tsmiCustomerRefresh.Click += tsmiCustomerRefresh_Click;
             // 
             // toolStripSeparator1
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(157, 6);
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(160, 6);
             // 
             // tsmiCustomerEdit
             // 
-            this.tsmiCustomerEdit.Name = "tsmiCustomerEdit";
-            this.tsmiCustomerEdit.Size = new System.Drawing.Size(160, 26);
-            this.tsmiCustomerEdit.Text = "\u0641\u062a\u062d \u0627\u0644\u0633\u0646\u062f";
-            this.tsmiCustomerEdit.Click += new System.EventHandler(this.tsmiCustomerEdit_Click);
+            tsmiCustomerEdit.Name = "tsmiCustomerEdit";
+            tsmiCustomerEdit.Size = new Size(163, 32);
+            tsmiCustomerEdit.Text = "فتح السند";
+            tsmiCustomerEdit.Click += tsmiCustomerEdit_Click;
             // 
             // tsmiCustomerAdd
             // 
-            this.tsmiCustomerAdd.Name = "tsmiCustomerAdd";
-            this.tsmiCustomerAdd.Size = new System.Drawing.Size(160, 26);
-            this.tsmiCustomerAdd.Text = "\u0642\u0628\u0636 \u062c\u062f\u064a\u062f";
-            this.tsmiCustomerAdd.Click += new System.EventHandler(this.tsmiCustomerAdd_Click);
+            tsmiCustomerAdd.Name = "tsmiCustomerAdd";
+            tsmiCustomerAdd.Size = new Size(163, 32);
+            tsmiCustomerAdd.Text = "قبض جديد";
+            tsmiCustomerAdd.Click += tsmiCustomerAdd_Click;
+            // 
+            // pnlCustomerTop
+            // 
+            pnlCustomerTop.BackColor = Color.White;
+            pnlCustomerTop.Controls.Add(btnAddCustomerPayment);
+            pnlCustomerTop.Controls.Add(lblCustomerCount);
+            pnlCustomerTop.Controls.Add(lblCustomerCountTitle);
+            pnlCustomerTop.Dock = DockStyle.Top;
+            pnlCustomerTop.Location = new Point(3, 3);
+            pnlCustomerTop.Name = "pnlCustomerTop";
+            pnlCustomerTop.Size = new Size(1186, 40);
+            pnlCustomerTop.TabIndex = 0;
+            // 
+            // btnAddCustomerPayment
+            // 
+            btnAddCustomerPayment.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddCustomerPayment.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddCustomerPayment.FlatStyle = FlatStyle.Flat;
+            btnAddCustomerPayment.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnAddCustomerPayment.ForeColor = Color.White;
+            btnAddCustomerPayment.Location = new Point(1906, 5);
+            btnAddCustomerPayment.Name = "btnAddCustomerPayment";
+            btnAddCustomerPayment.Size = new Size(106, 30);
+            btnAddCustomerPayment.TabIndex = 2;
+            btnAddCustomerPayment.Text = "قبض جديد";
+            btnAddCustomerPayment.UseVisualStyleBackColor = false;
+            btnAddCustomerPayment.Click += btnAddCustomerPayment_Click;
+            // 
+            // lblCustomerCount
+            // 
+            lblCustomerCount.AutoSize = true;
+            lblCustomerCount.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblCustomerCount.ForeColor = Color.FromArgb(33, 37, 41);
+            lblCustomerCount.Location = new Point(50, 10);
+            lblCustomerCount.Name = "lblCustomerCount";
+            lblCustomerCount.Size = new Size(21, 22);
+            lblCustomerCount.TabIndex = 1;
+            lblCustomerCount.Text = "0";
+            // 
+            // lblCustomerCountTitle
+            // 
+            lblCustomerCountTitle.AutoSize = true;
+            lblCustomerCountTitle.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblCustomerCountTitle.ForeColor = Color.FromArgb(33, 37, 41);
+            lblCustomerCountTitle.Location = new Point(10, 10);
+            lblCustomerCountTitle.Name = "lblCustomerCountTitle";
+            lblCustomerCountTitle.Size = new Size(60, 22);
+            lblCustomerCountTitle.TabIndex = 0;
+            lblCustomerCountTitle.Text = "العدد:";
+            // 
+            // tpSupplierPayments
+            // 
+            tpSupplierPayments.BackColor = Color.White;
+            tpSupplierPayments.Controls.Add(lblSupplierEmpty);
+            tpSupplierPayments.Controls.Add(dgvSupplierPayments);
+            tpSupplierPayments.Controls.Add(pnlSupplierTop);
+            tpSupplierPayments.Location = new Point(4, 31);
+            tpSupplierPayments.Name = "tpSupplierPayments";
+            tpSupplierPayments.Padding = new Padding(3);
+            tpSupplierPayments.Size = new Size(1192, 468);
+            tpSupplierPayments.TabIndex = 1;
+            tpSupplierPayments.Text = "مدفوعات الموردين";
+            // 
+            // dgvSupplierPayments
+            // 
+            dgvSupplierPayments.AllowUserToAddRows = false;
+            dgvSupplierPayments.AllowUserToDeleteRows = false;
+            dgvSupplierPayments.AllowUserToOrderColumns = true;
+            dgvSupplierPayments.AllowUserToResizeRows = false;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
+            dgvSupplierPayments.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dgvSupplierPayments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvSupplierPayments.BackgroundColor = Color.White;
+            dgvSupplierPayments.BorderStyle = BorderStyle.None;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = Color.FromArgb(52, 58, 64);
+            dataGridViewCellStyle2.Font = new Font("Tahoma", 9F);
+            dataGridViewCellStyle2.ForeColor = Color.White;
+            dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(52, 58, 64);
+            dataGridViewCellStyle2.SelectionForeColor = Color.White;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            dgvSupplierPayments.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dgvSupplierPayments.ColumnHeadersHeight = 45;
+            dgvSupplierPayments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvSupplierPayments.ContextMenuStrip = cmsSupplierPayments;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = Color.White;
+            dataGridViewCellStyle3.Font = new Font("Tahoma", 9F);
+            dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 243, 205);
+            dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            dgvSupplierPayments.DefaultCellStyle = dataGridViewCellStyle3;
+            dgvSupplierPayments.Dock = DockStyle.Fill;
+            dgvSupplierPayments.EnableHeadersVisualStyles = false;
+            dgvSupplierPayments.GridColor = Color.FromArgb(222, 226, 230);
+            dgvSupplierPayments.Location = new Point(3, 43);
+            dgvSupplierPayments.MultiSelect = false;
+            dgvSupplierPayments.Name = "dgvSupplierPayments";
+            dgvSupplierPayments.ReadOnly = true;
+            dgvSupplierPayments.RowHeadersVisible = false;
+            dgvSupplierPayments.RowHeadersWidth = 51;
+            dgvSupplierPayments.RowTemplate.Height = 32;
+            dgvSupplierPayments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvSupplierPayments.Size = new Size(1186, 422);
+            dgvSupplierPayments.TabIndex = 1;
+            dgvSupplierPayments.DoubleClick += dgvSupplierPayments_DoubleClick;
             // 
             // cmsSupplierPayments
             // 
-            this.cmsSupplierPayments.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.cmsSupplierPayments.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiSupplierRefresh,
-            this.toolStripSeparator2,
-            this.tsmiSupplierEdit,
-            this.tsmiSupplierAdd});
-            this.cmsSupplierPayments.Name = "cmsSupplierPayments";
-            this.cmsSupplierPayments.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.cmsSupplierPayments.Size = new System.Drawing.Size(161, 88);
-            this.cmsSupplierPayments.Opening += new System.ComponentModel.CancelEventHandler(this.cmsSupplierPayments_Opening);
+            cmsSupplierPayments.ImageScalingSize = new Size(20, 20);
+            cmsSupplierPayments.Items.AddRange(new ToolStripItem[] { tsmiSupplierRefresh, toolStripSeparator2, tsmiSupplierEdit, tsmiSupplierAdd });
+            cmsSupplierPayments.Name = "cmsSupplierPayments";
+            cmsSupplierPayments.RightToLeft = RightToLeft.Yes;
+            cmsSupplierPayments.Size = new Size(166, 106);
+            cmsSupplierPayments.Opening += cmsSupplierPayments_Opening;
             // 
             // tsmiSupplierRefresh
             // 
-            this.tsmiSupplierRefresh.Name = "tsmiSupplierRefresh";
-            this.tsmiSupplierRefresh.Size = new System.Drawing.Size(160, 26);
-            this.tsmiSupplierRefresh.Text = "\u062a\u062d\u062f\u064a\u062b";
-            this.tsmiSupplierRefresh.Click += new System.EventHandler(this.tsmiSupplierRefresh_Click);
+            tsmiSupplierRefresh.Name = "tsmiSupplierRefresh";
+            tsmiSupplierRefresh.Size = new Size(165, 32);
+            tsmiSupplierRefresh.Text = "تحديث";
+            tsmiSupplierRefresh.Click += tsmiSupplierRefresh_Click;
             // 
             // toolStripSeparator2
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(157, 6);
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(162, 6);
             // 
             // tsmiSupplierEdit
             // 
-            this.tsmiSupplierEdit.Name = "tsmiSupplierEdit";
-            this.tsmiSupplierEdit.Size = new System.Drawing.Size(160, 26);
-            this.tsmiSupplierEdit.Text = "\u0641\u062a\u062d \u0627\u0644\u0633\u0646\u062f";
-            this.tsmiSupplierEdit.Click += new System.EventHandler(this.tsmiSupplierEdit_Click);
+            tsmiSupplierEdit.Name = "tsmiSupplierEdit";
+            tsmiSupplierEdit.Size = new Size(165, 32);
+            tsmiSupplierEdit.Text = "فتح السند";
+            tsmiSupplierEdit.Click += tsmiSupplierEdit_Click;
             // 
             // tsmiSupplierAdd
             // 
-            this.tsmiSupplierAdd.Name = "tsmiSupplierAdd";
-            this.tsmiSupplierAdd.Size = new System.Drawing.Size(160, 26);
-            this.tsmiSupplierAdd.Text = "\u0635\u0631\u0641 \u062c\u062f\u064a\u062f";
-            this.tsmiSupplierAdd.Click += new System.EventHandler(this.tsmiSupplierAdd_Click);
+            tsmiSupplierAdd.Name = "tsmiSupplierAdd";
+            tsmiSupplierAdd.Size = new Size(165, 32);
+            tsmiSupplierAdd.Text = "صرف جديد";
+            tsmiSupplierAdd.Click += tsmiSupplierAdd_Click;
+            // 
+            // pnlSupplierTop
+            // 
+            pnlSupplierTop.BackColor = Color.White;
+            pnlSupplierTop.Controls.Add(btnAddSupplierPayment);
+            pnlSupplierTop.Controls.Add(lblSupplierCount);
+            pnlSupplierTop.Controls.Add(lblSupplierCountTitle);
+            pnlSupplierTop.Dock = DockStyle.Top;
+            pnlSupplierTop.Location = new Point(3, 3);
+            pnlSupplierTop.Name = "pnlSupplierTop";
+            pnlSupplierTop.Size = new Size(1186, 40);
+            pnlSupplierTop.TabIndex = 0;
+            // 
+            // btnAddSupplierPayment
+            // 
+            btnAddSupplierPayment.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddSupplierPayment.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddSupplierPayment.FlatStyle = FlatStyle.Flat;
+            btnAddSupplierPayment.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            btnAddSupplierPayment.ForeColor = Color.White;
+            btnAddSupplierPayment.Location = new Point(1906, 5);
+            btnAddSupplierPayment.Name = "btnAddSupplierPayment";
+            btnAddSupplierPayment.Size = new Size(106, 30);
+            btnAddSupplierPayment.TabIndex = 2;
+            btnAddSupplierPayment.Text = "صرف جديد";
+            btnAddSupplierPayment.UseVisualStyleBackColor = false;
+            btnAddSupplierPayment.Click += btnAddSupplierPayment_Click;
+            // 
+            // lblSupplierCount
+            // 
+            lblSupplierCount.AutoSize = true;
+            lblSupplierCount.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblSupplierCount.ForeColor = Color.FromArgb(33, 37, 41);
+            lblSupplierCount.Location = new Point(50, 10);
+            lblSupplierCount.Name = "lblSupplierCount";
+            lblSupplierCount.Size = new Size(21, 22);
+            lblSupplierCount.TabIndex = 1;
+            lblSupplierCount.Text = "0";
+            // 
+            // lblSupplierCountTitle
+            // 
+            lblSupplierCountTitle.AutoSize = true;
+            lblSupplierCountTitle.Font = new Font("Tahoma", 9F, FontStyle.Bold);
+            lblSupplierCountTitle.ForeColor = Color.FromArgb(33, 37, 41);
+            lblSupplierCountTitle.Location = new Point(10, 10);
+            lblSupplierCountTitle.Name = "lblSupplierCountTitle";
+            lblSupplierCountTitle.Size = new Size(60, 22);
+            lblSupplierCountTitle.TabIndex = 0;
+            lblSupplierCountTitle.Text = "العدد:";
             // 
             // frmListPayments
             // 
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
-            this.ClientSize = new System.Drawing.Size(1200, 703);
-            this.Controls.Add(this.tabPayments);
-            this.Controls.Add(this.pnlSummary);
-            this.Controls.Add(this.pnlFilters);
-            this.Controls.Add(this.pnlHeader);
-            this.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.Name = "frmListPayments";
-            this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.RightToLeftLayout = true;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "إدارة المقبوضات والمدفوعات";
-            this.Load += new System.EventHandler(this.frmListPayments_Load);
-            this.pnlHeader.ResumeLayout(false);
-            this.pnlFilters.ResumeLayout(false);
-            this.gbFilter.ResumeLayout(false);
-            this.gbFilter.PerformLayout();
-            this.pnlSummary.ResumeLayout(false);
-            this.tabPayments.ResumeLayout(false);
-            this.tpCustomerPayments.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCustomerPayments)).EndInit();
-            this.pnlCustomerTop.ResumeLayout(false);
-            this.pnlCustomerTop.PerformLayout();
-            this.tpSupplierPayments.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSupplierPayments)).EndInit();
-            this.pnlSupplierTop.ResumeLayout(false);
-            this.pnlSupplierTop.PerformLayout();
-            this.cmsCustomerPayments.ResumeLayout(false);
-            this.cmsSupplierPayments.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleMode = AutoScaleMode.None;
+            BackColor = Color.FromArgb(240, 242, 245);
+            ClientSize = new Size(1200, 703);
+            Controls.Add(tabPayments);
+            Controls.Add(pnlSummary);
+            Controls.Add(pnlFilters);
+            Controls.Add(pnlHeader);
+            Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            Name = "frmListPayments";
+            RightToLeft = RightToLeft.Yes;
+            RightToLeftLayout = true;
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "إدارة المقبوضات والمدفوعات";
+            Load += frmListPayments_Load;
+            pnlHeader.ResumeLayout(false);
+            pnlFilters.ResumeLayout(false);
+            gbFilter.ResumeLayout(false);
+            gbFilter.PerformLayout();
+            pnlSummary.ResumeLayout(false);
+            tabPayments.ResumeLayout(false);
+            tpCustomerPayments.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvCustomerPayments).EndInit();
+            cmsCustomerPayments.ResumeLayout(false);
+            pnlCustomerTop.ResumeLayout(false);
+            pnlCustomerTop.PerformLayout();
+            tpSupplierPayments.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvSupplierPayments).EndInit();
+            cmsSupplierPayments.ResumeLayout(false);
+            pnlSupplierTop.ResumeLayout(false);
+            pnlSupplierTop.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion

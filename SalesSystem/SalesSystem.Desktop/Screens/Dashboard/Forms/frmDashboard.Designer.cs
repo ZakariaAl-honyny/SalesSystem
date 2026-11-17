@@ -18,35 +18,39 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
             toolTip = new ToolTip(components);
             SuspendLayout();
             // 
-            // lblMode — شريط عنوان الشاشة (RULE-N27 / RULE-N53)
+            // lblMode
             // 
-            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            lblMode.BackColor = Color.FromArgb(16, 150, 96);
             lblMode.Dock = DockStyle.Top;
             lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            lblMode.ForeColor = System.Drawing.Color.White;
-            lblMode.Height = 44;
+            lblMode.ForeColor = Color.White;
+            lblMode.Location = new Point(0, 0);
             lblMode.Name = "lblMode";
+            lblMode.Size = new Size(1275, 44);
             lblMode.TabIndex = 0;
             lblMode.Text = "لوحة المعلومات";
             lblMode.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // pnlHost — يحوي ctrlDashboard بـ Dock=Fill
+            // pnlHost
             // 
-            pnlHost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            pnlHost.BackColor = Color.FromArgb(240, 242, 245);
             pnlHost.Dock = DockStyle.Fill;
+            pnlHost.Location = new Point(0, 0);
             pnlHost.Name = "pnlHost";
+            pnlHost.Size = new Size(1275, 655);
             pnlHost.TabIndex = 1;
             // 
             // btnClose
             // 
-            btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+            btnClose.BackColor = Color.FromArgb(108, 117, 125);
             btnClose.Cursor = Cursors.Hand;
             btnClose.Dock = DockStyle.Bottom;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnClose.ForeColor = System.Drawing.Color.White;
-            btnClose.Height = 52;
+            btnClose.ForeColor = Color.White;
+            btnClose.Location = new Point(0, 603);
             btnClose.Name = "btnClose";
+            btnClose.Size = new Size(1275, 52);
             btnClose.TabIndex = 2;
             btnClose.Text = "إغلاق";
             toolTip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
@@ -57,13 +61,12 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
             // 
             AcceptButton = btnClose;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = Color.FromArgb(240, 242, 245);
             CancelButton = btnClose;
-            ClientSize = new Size(1200, 620);
-            // ترتيب الإرساء (RULE-N125): Fill أولاً ثم Bottom ثم Top — يُرسى آخر المُضاف أولاً
-            Controls.Add(pnlHost);
+            ClientSize = new Size(1275, 655);
             Controls.Add(btnClose);
             Controls.Add(lblMode);
+            Controls.Add(pnlHost);
             Font = new Font("Tahoma", 12F);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;

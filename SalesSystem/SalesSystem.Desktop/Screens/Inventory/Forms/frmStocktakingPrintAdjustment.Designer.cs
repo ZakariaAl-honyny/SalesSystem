@@ -49,52 +49,53 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlHeader
         // 
-        // RULE-N134/N140 — الثيم الأخضر: قيم حرفية مطابقة لثوابت وقت التشغيل (بلا أي مرجع لـ Helpers هنا).
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlHeader.BackColor = Color.FromArgb(16, 150, 96);
         pnlHeader.Controls.Add(lblMockBadge);
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(lblAccent);
         pnlHeader.Dock = DockStyle.Top;
+        pnlHeader.Location = new Point(0, 0);
         pnlHeader.Name = "pnlHeader";
-        pnlHeader.Size = new Size(440, 46);
+        pnlHeader.Size = new Size(593, 46);
         pnlHeader.TabIndex = 0;
-        // 
-        // lblTitle
-        // 
-        lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
-        lblTitle.Dock = DockStyle.Fill;
-        lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTitle.ForeColor = System.Drawing.Color.White;
-        lblTitle.Location = new Point(0, 0);
-        lblTitle.Name = "lblTitle";
-        lblTitle.Size = new Size(440, 42);
-        lblTitle.TabIndex = 1;
-        lblTitle.Text = "طباعة سند تسوية جرد";
-        lblTitle.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // lblMockBadge
         // 
         lblMockBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         lblMockBadge.AutoSize = true;
         lblMockBadge.Font = new Font("Tahoma", 8.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblMockBadge.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(241), Convert.ToInt32(196), Convert.ToInt32(15));
-        lblMockBadge.Location = new Point(316, 13);
+        lblMockBadge.ForeColor = Color.FromArgb(241, 196, 15);
+        lblMockBadge.Location = new Point(469, 13);
         lblMockBadge.Name = "lblMockBadge";
-        lblMockBadge.Size = new Size(112, 21);
+        lblMockBadge.Size = new Size(174, 21);
         lblMockBadge.TabIndex = 2;
         lblMockBadge.Text = "وضع التجربة (Mock)";
         // 
+        // lblTitle
+        // 
+        lblTitle.BackColor = Color.FromArgb(16, 150, 96);
+        lblTitle.Dock = DockStyle.Fill;
+        lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblTitle.ForeColor = Color.White;
+        lblTitle.Location = new Point(0, 0);
+        lblTitle.Name = "lblTitle";
+        lblTitle.Size = new Size(593, 42);
+        lblTitle.TabIndex = 1;
+        lblTitle.Text = "طباعة سند تسوية جرد";
+        lblTitle.TextAlign = ContentAlignment.MiddleCenter;
+        // 
         // lblAccent
         // 
-        lblAccent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblAccent.BackColor = Color.FromArgb(33, 37, 41);
         lblAccent.Dock = DockStyle.Bottom;
-        lblAccent.Height = 4;
+        lblAccent.Location = new Point(0, 42);
         lblAccent.Name = "lblAccent";
+        lblAccent.Size = new Size(593, 4);
         lblAccent.TabIndex = 3;
         // 
         // pnlPreviewCard
         // 
-        pnlPreviewCard.BackColor = System.Drawing.Color.White;
+        pnlPreviewCard.BackColor = Color.White;
         pnlPreviewCard.BorderStyle = BorderStyle.FixedSingle;
         pnlPreviewCard.Controls.Add(pnlCardHeader);
         pnlPreviewCard.Controls.Add(tblFields);
@@ -108,7 +109,7 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlCardHeader
         // 
-        pnlCardHeader.BackColor = System.Drawing.Color.White;
+        pnlCardHeader.BackColor = Color.White;
         pnlCardHeader.Controls.Add(lblAdjustmentTitle);
         pnlCardHeader.Controls.Add(lblStoreName);
         pnlCardHeader.Location = new Point(0, 0);
@@ -116,21 +117,10 @@ partial class frmStocktakingPrintAdjustment
         pnlCardHeader.Size = new Size(398, 74);
         pnlCardHeader.TabIndex = 0;
         // 
-        // lblStoreName
-        // 
-        lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblStoreName.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblStoreName.Location = new Point(0, 0);
-        lblStoreName.Name = "lblStoreName";
-        lblStoreName.Size = new Size(398, 30);
-        lblStoreName.TabIndex = 0;
-        lblStoreName.Text = "متجر النور التجاري";
-        lblStoreName.TextAlign = ContentAlignment.MiddleCenter;
-        // 
         // lblAdjustmentTitle
         // 
         lblAdjustmentTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblAdjustmentTitle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblAdjustmentTitle.ForeColor = Color.FromArgb(33, 37, 41);
         lblAdjustmentTitle.Location = new Point(0, 30);
         lblAdjustmentTitle.Name = "lblAdjustmentTitle";
         lblAdjustmentTitle.Size = new Size(398, 40);
@@ -138,9 +128,20 @@ partial class frmStocktakingPrintAdjustment
         lblAdjustmentTitle.Text = "سند تسوية جرد";
         lblAdjustmentTitle.TextAlign = ContentAlignment.MiddleCenter;
         // 
+        // lblStoreName
+        // 
+        lblStoreName.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblStoreName.ForeColor = Color.FromArgb(33, 37, 41);
+        lblStoreName.Location = new Point(0, 0);
+        lblStoreName.Name = "lblStoreName";
+        lblStoreName.Size = new Size(398, 30);
+        lblStoreName.TabIndex = 0;
+        lblStoreName.Text = "متجر النور التجاري";
+        lblStoreName.TextAlign = ContentAlignment.MiddleCenter;
+        // 
         // tblFields
         // 
-        tblFields.BackColor = System.Drawing.Color.White;
+        tblFields.BackColor = Color.White;
         tblFields.ColumnCount = 2;
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
         tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -170,167 +171,167 @@ partial class frmStocktakingPrintAdjustment
         tblFields.Size = new Size(398, 190);
         tblFields.TabIndex = 1;
         // 
-        // lblVoucherNoLabel
-        // 
-        lblVoucherNoLabel.AutoSize = true;
-        lblVoucherNoLabel.Dock = DockStyle.Fill;
-        lblVoucherNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblVoucherNoLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblVoucherNoLabel.Location = new Point(15, 7);
-        lblVoucherNoLabel.Name = "lblVoucherNoLabel";
-        lblVoucherNoLabel.Size = new Size(104, 20);
-        lblVoucherNoLabel.TabIndex = 0;
-        lblVoucherNoLabel.Text = "رقم السند";
-        lblVoucherNoLabel.TextAlign = ContentAlignment.MiddleRight;
-        // 
         // lblVoucherNoValue
         // 
         lblVoucherNoValue.AutoEllipsis = true;
         lblVoucherNoValue.AutoSize = true;
         lblVoucherNoValue.Dock = DockStyle.Fill;
         lblVoucherNoValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblVoucherNoValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblVoucherNoValue.Location = new Point(125, 7);
+        lblVoucherNoValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblVoucherNoValue.Location = new Point(15, 4);
         lblVoucherNoValue.Name = "lblVoucherNoValue";
-        lblVoucherNoValue.Size = new Size(258, 20);
+        lblVoucherNoValue.Size = new Size(258, 26);
         lblVoucherNoValue.TabIndex = 1;
         lblVoucherNoValue.Text = "ADJ-2026-001";
         lblVoucherNoValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblDateLabel
+        // lblVoucherNoLabel
         // 
-        lblDateLabel.AutoSize = true;
-        lblDateLabel.Dock = DockStyle.Fill;
-        lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblDateLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblDateLabel.Location = new Point(15, 33);
-        lblDateLabel.Name = "lblDateLabel";
-        lblDateLabel.Size = new Size(104, 20);
-        lblDateLabel.TabIndex = 2;
-        lblDateLabel.Text = "التاريخ";
-        lblDateLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblVoucherNoLabel.AutoSize = true;
+        lblVoucherNoLabel.Dock = DockStyle.Fill;
+        lblVoucherNoLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblVoucherNoLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblVoucherNoLabel.Location = new Point(279, 4);
+        lblVoucherNoLabel.Name = "lblVoucherNoLabel";
+        lblVoucherNoLabel.Size = new Size(104, 26);
+        lblVoucherNoLabel.TabIndex = 0;
+        lblVoucherNoLabel.Text = "رقم السند";
+        lblVoucherNoLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblDateValue
         // 
         lblDateValue.AutoSize = true;
         lblDateValue.Dock = DockStyle.Fill;
         lblDateValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblDateValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblDateValue.Location = new Point(125, 33);
+        lblDateValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblDateValue.Location = new Point(15, 30);
         lblDateValue.Name = "lblDateValue";
-        lblDateValue.Size = new Size(258, 20);
+        lblDateValue.Size = new Size(258, 26);
         lblDateValue.TabIndex = 3;
         lblDateValue.Text = "21/09/2026";
         lblDateValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblWarehouseLabel
+        // lblDateLabel
         // 
-        lblWarehouseLabel.AutoSize = true;
-        lblWarehouseLabel.Dock = DockStyle.Fill;
-        lblWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblWarehouseLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblWarehouseLabel.Location = new Point(15, 59);
-        lblWarehouseLabel.Name = "lblWarehouseLabel";
-        lblWarehouseLabel.Size = new Size(104, 20);
-        lblWarehouseLabel.TabIndex = 4;
-        lblWarehouseLabel.Text = "المستودع";
-        lblWarehouseLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblDateLabel.AutoSize = true;
+        lblDateLabel.Dock = DockStyle.Fill;
+        lblDateLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblDateLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblDateLabel.Location = new Point(279, 30);
+        lblDateLabel.Name = "lblDateLabel";
+        lblDateLabel.Size = new Size(104, 26);
+        lblDateLabel.TabIndex = 2;
+        lblDateLabel.Text = "التاريخ";
+        lblDateLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblWarehouseValue
         // 
         lblWarehouseValue.AutoEllipsis = true;
         lblWarehouseValue.Dock = DockStyle.Fill;
         lblWarehouseValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblWarehouseValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblWarehouseValue.Location = new Point(125, 59);
+        lblWarehouseValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouseValue.Location = new Point(15, 56);
         lblWarehouseValue.Name = "lblWarehouseValue";
-        lblWarehouseValue.Size = new Size(258, 20);
+        lblWarehouseValue.Size = new Size(258, 26);
         lblWarehouseValue.TabIndex = 5;
         lblWarehouseValue.Text = "المستودع الرئيسي";
         lblWarehouseValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblReasonLabel
+        // lblWarehouseLabel
         // 
-        lblReasonLabel.AutoSize = true;
-        lblReasonLabel.Dock = DockStyle.Fill;
-        lblReasonLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblReasonLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblReasonLabel.Location = new Point(15, 85);
-        lblReasonLabel.Name = "lblReasonLabel";
-        lblReasonLabel.Size = new Size(104, 24);
-        lblReasonLabel.TabIndex = 6;
-        lblReasonLabel.Text = "سبب التسوية";
-        lblReasonLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblWarehouseLabel.AutoSize = true;
+        lblWarehouseLabel.Dock = DockStyle.Fill;
+        lblWarehouseLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblWarehouseLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblWarehouseLabel.Location = new Point(279, 56);
+        lblWarehouseLabel.Name = "lblWarehouseLabel";
+        lblWarehouseLabel.Size = new Size(104, 26);
+        lblWarehouseLabel.TabIndex = 4;
+        lblWarehouseLabel.Text = "المستودع";
+        lblWarehouseLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblReasonValue
         // 
         lblReasonValue.AutoEllipsis = true;
         lblReasonValue.Dock = DockStyle.Fill;
         lblReasonValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblReasonValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
-        lblReasonValue.Location = new Point(125, 85);
+        lblReasonValue.ForeColor = Color.FromArgb(220, 53, 69);
+        lblReasonValue.Location = new Point(15, 82);
         lblReasonValue.Name = "lblReasonValue";
-        lblReasonValue.Size = new Size(258, 24);
+        lblReasonValue.Size = new Size(258, 30);
         lblReasonValue.TabIndex = 7;
         lblReasonValue.Text = "تلف";
         lblReasonValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblItemCountLabel
+        // lblReasonLabel
         // 
-        lblItemCountLabel.AutoSize = true;
-        lblItemCountLabel.Dock = DockStyle.Fill;
-        lblItemCountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblItemCountLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblItemCountLabel.Location = new Point(15, 115);
-        lblItemCountLabel.Name = "lblItemCountLabel";
-        lblItemCountLabel.Size = new Size(104, 20);
-        lblItemCountLabel.TabIndex = 8;
-        lblItemCountLabel.Text = "عدد الأصناف";
-        lblItemCountLabel.TextAlign = ContentAlignment.MiddleRight;
+        lblReasonLabel.AutoSize = true;
+        lblReasonLabel.Dock = DockStyle.Fill;
+        lblReasonLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblReasonLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblReasonLabel.Location = new Point(279, 82);
+        lblReasonLabel.Name = "lblReasonLabel";
+        lblReasonLabel.Size = new Size(104, 30);
+        lblReasonLabel.TabIndex = 6;
+        lblReasonLabel.Text = "سبب التسوية";
+        lblReasonLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // lblItemCountValue
         // 
         lblItemCountValue.AutoEllipsis = true;
         lblItemCountValue.Dock = DockStyle.Fill;
         lblItemCountValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblItemCountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblItemCountValue.Location = new Point(125, 115);
+        lblItemCountValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblItemCountValue.Location = new Point(15, 112);
         lblItemCountValue.Name = "lblItemCountValue";
-        lblItemCountValue.Size = new Size(258, 20);
+        lblItemCountValue.Size = new Size(258, 26);
         lblItemCountValue.TabIndex = 9;
         lblItemCountValue.Text = "4 أصناف";
         lblItemCountValue.TextAlign = ContentAlignment.MiddleLeft;
+        // 
+        // lblItemCountLabel
+        // 
+        lblItemCountLabel.AutoSize = true;
+        lblItemCountLabel.Dock = DockStyle.Fill;
+        lblItemCountLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblItemCountLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblItemCountLabel.Location = new Point(279, 112);
+        lblItemCountLabel.Name = "lblItemCountLabel";
+        lblItemCountLabel.Size = new Size(104, 26);
+        lblItemCountLabel.TabIndex = 8;
+        lblItemCountLabel.Text = "عدد الأصناف";
+        lblItemCountLabel.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // lblTotalValue
+        // 
+        lblTotalValue.BackColor = Color.White;
+        lblTotalValue.BorderStyle = BorderStyle.FixedSingle;
+        lblTotalValue.Dock = DockStyle.Fill;
+        lblTotalValue.Font = new Font("Tahoma", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        lblTotalValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalValue.Location = new Point(15, 138);
+        lblTotalValue.Name = "lblTotalValue";
+        lblTotalValue.Size = new Size(258, 48);
+        lblTotalValue.TabIndex = 11;
+        lblTotalValue.Text = "8,400 ريال يمني";
+        lblTotalValue.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // lblTotalLabel
         // 
         lblTotalLabel.AutoSize = true;
         lblTotalLabel.Dock = DockStyle.Fill;
         lblTotalLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblTotalLabel.Location = new Point(15, 141);
+        lblTotalLabel.ForeColor = Color.FromArgb(52, 73, 94);
+        lblTotalLabel.Location = new Point(279, 138);
         lblTotalLabel.Name = "lblTotalLabel";
-        lblTotalLabel.Size = new Size(104, 42);
+        lblTotalLabel.Size = new Size(104, 48);
         lblTotalLabel.TabIndex = 10;
         lblTotalLabel.Text = "إجمالي قيمة التسوية";
         lblTotalLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
-        // lblTotalValue
-        // 
-        lblTotalValue.BackColor = System.Drawing.Color.White;
-        lblTotalValue.BorderStyle = BorderStyle.FixedSingle;
-        lblTotalValue.Dock = DockStyle.Fill;
-        lblTotalValue.Font = new Font("Tahoma", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalValue.Location = new Point(125, 141);
-        lblTotalValue.Name = "lblTotalValue";
-        lblTotalValue.Size = new Size(258, 42);
-        lblTotalValue.TabIndex = 11;
-        lblTotalValue.Text = "8,400 ريال يمني";
-        lblTotalValue.TextAlign = ContentAlignment.MiddleCenter;
-        // 
         // pnlDashedSeparator
         // 
-        pnlDashedSeparator.BackColor = System.Drawing.Color.White;
+        pnlDashedSeparator.BackColor = Color.White;
         pnlDashedSeparator.Location = new Point(0, 264);
         pnlDashedSeparator.Name = "pnlDashedSeparator";
         pnlDashedSeparator.Size = new Size(398, 14);
@@ -339,9 +340,9 @@ partial class frmStocktakingPrintAdjustment
         // 
         // lblCardFooter
         // 
-        lblCardFooter.BackColor = System.Drawing.Color.White;
+        lblCardFooter.BackColor = Color.White;
         lblCardFooter.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblCardFooter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        lblCardFooter.ForeColor = Color.FromArgb(108, 117, 125);
         lblCardFooter.Location = new Point(0, 278);
         lblCardFooter.Name = "lblCardFooter";
         lblCardFooter.Size = new Size(398, 108);
@@ -351,48 +352,24 @@ partial class frmStocktakingPrintAdjustment
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = Color.White;
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Controls.Add(btnPrint);
         pnlFooter.Controls.Add(lblFooterLine);
         pnlFooter.Dock = DockStyle.Bottom;
+        pnlFooter.Location = new Point(0, 479);
         pnlFooter.Name = "pnlFooter";
-        pnlFooter.Size = new Size(440, 66);
+        pnlFooter.Size = new Size(593, 66);
         pnlFooter.TabIndex = 2;
-        // 
-        // lblFooterLine
-        // 
-        lblFooterLine.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        lblFooterLine.Dock = DockStyle.Top;
-        lblFooterLine.Height = 2;
-        lblFooterLine.Name = "lblFooterLine";
-        lblFooterLine.TabIndex = 0;
-        // 
-        // btnPrint
-        // 
-        btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        btnPrint.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
-        btnPrint.FlatAppearance.BorderSize = 0;
-        btnPrint.FlatStyle = FlatStyle.Flat;
-        btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnPrint.ForeColor = System.Drawing.Color.White;
-        btnPrint.Location = new Point(288, 12);
-        btnPrint.Name = "btnPrint";
-        btnPrint.Size = new Size(132, 42);
-        btnPrint.TabIndex = 1;
-        btnPrint.Text = "طباعة";
-        btnPrint.UseVisualStyleBackColor = false;
-        btnPrint.Click += btnPrint_Click;
         // 
         // btnClose
         // 
-        btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnClose.ForeColor = System.Drawing.Color.White;
+        btnClose.ForeColor = Color.White;
         btnClose.Location = new Point(12, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(100, 42);
@@ -401,12 +378,37 @@ partial class frmStocktakingPrintAdjustment
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
+        // btnPrint
+        // 
+        btnPrint.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        btnPrint.BackColor = Color.FromArgb(25, 135, 84);
+        btnPrint.FlatAppearance.BorderSize = 0;
+        btnPrint.FlatStyle = FlatStyle.Flat;
+        btnPrint.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        btnPrint.ForeColor = Color.White;
+        btnPrint.Location = new Point(441, 12);
+        btnPrint.Name = "btnPrint";
+        btnPrint.Size = new Size(132, 42);
+        btnPrint.TabIndex = 1;
+        btnPrint.Text = "طباعة";
+        btnPrint.UseVisualStyleBackColor = false;
+        btnPrint.Click += btnPrint_Click;
+        // 
+        // lblFooterLine
+        // 
+        lblFooterLine.BackColor = Color.FromArgb(222, 226, 230);
+        lblFooterLine.Dock = DockStyle.Top;
+        lblFooterLine.Location = new Point(0, 0);
+        lblFooterLine.Name = "lblFooterLine";
+        lblFooterLine.Size = new Size(593, 2);
+        lblFooterLine.TabIndex = 0;
+        // 
         // frmStocktakingPrintAdjustment
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
-        ClientSize = new Size(440, 520);
+        ClientSize = new Size(593, 545);
         Controls.Add(pnlFooter);
         Controls.Add(pnlPreviewCard);
         Controls.Add(pnlHeader);
@@ -427,7 +429,6 @@ partial class frmStocktakingPrintAdjustment
         tblFields.PerformLayout();
         pnlFooter.ResumeLayout(false);
         ResumeLayout(false);
-        PerformLayout();
     }
 
     #endregion

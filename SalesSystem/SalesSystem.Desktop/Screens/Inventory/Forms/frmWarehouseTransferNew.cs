@@ -90,7 +90,8 @@ public partial class frmWarehouseTransferNew : Form
             {
                 if (_documentId is null) btnSave.PerformClick();
                 else btnPost.PerformClick();
-            }));
+            }
+        ));
 
         // RULE-N147 — Enter = الزر الأساسي للوضع الحالي («حفظ السند» ثم «ترحيل» بعد الحفظ)، ولا يعمل داخل شبكة السطور.
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
@@ -735,5 +736,10 @@ public partial class frmWarehouseTransferNew : Form
         if (value is string s && string.IsNullOrWhiteSpace(s)) return null;
 
         return clsFormat.TryParseQuantity(value.ToString(), out decimal parsed) ? parsed : null;
+    }
+
+    private void lblDriverName_Click(object sender, EventArgs e)
+    {
+
     }
 }

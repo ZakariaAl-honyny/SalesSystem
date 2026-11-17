@@ -35,7 +35,6 @@
     <Folder Include="Screens\Categories\NewFolder\" />
     <Folder Include="Screens\CustomerReceipts\Controls\" />
     <Folder Include="Screens\Customers\Controls\" />
-    <Folder Include="Screens\Dashboard\Controls\" />
     <Folder Include="Screens\Expenses\Controls\" />
     <Folder Include="Screens\Inventory\Controls\" />
     <Folder Include="Screens\Payments\NewFolder\" />

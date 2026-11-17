@@ -16,10 +16,15 @@ partial class frmInventoryFifo
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
         tooltip = new ToolTip(components);
+        dgvLayers = new DataGridView();
         cmsLayers = new ContextMenuStrip(components);
         miCopyBatch = new ToolStripMenuItem();
         miClose = new ToolStripMenuItem();
+        btnClose = new Button();
         pnlTitle = new Panel();
         lblMode = new Label();
         pnlInfo = new Panel();
@@ -29,7 +34,6 @@ partial class frmInventoryFifo
         lblWarehouse = new Label();
         lblMethodBadge = new Label();
         gbGrid = new GroupBox();
-        dgvLayers = new DataGridView();
         lblEmptyState = new Label();
         pnlFooter = new Panel();
         gbTotals = new GroupBox();
@@ -38,15 +42,14 @@ partial class frmInventoryFifo
         lblTotalQtyValue = new Label();
         lblTotalCostCaption = new Label();
         lblTotalCostValue = new Label();
-        btnClose = new Button();
         lblNote = new Label();
+        ((System.ComponentModel.ISupportInitialize)dgvLayers).BeginInit();
         cmsLayers.SuspendLayout();
         pnlTitle.SuspendLayout();
         pnlInfo.SuspendLayout();
         gbInfo.SuspendLayout();
         tlpInfo.SuspendLayout();
         gbGrid.SuspendLayout();
-        ((System.ComponentModel.ISupportInitialize)dgvLayers).BeginInit();
         pnlFooter.SuspendLayout();
         gbTotals.SuspendLayout();
         tlpFooter.SuspendLayout();
@@ -58,74 +61,141 @@ partial class frmInventoryFifo
         tooltip.InitialDelay = 300;
         tooltip.ReshowDelay = 100;
         // 
+        // dgvLayers
+        // 
+        dgvLayers.AllowUserToAddRows = false;
+        dgvLayers.AllowUserToDeleteRows = false;
+        dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
+        dgvLayers.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+        dgvLayers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        dgvLayers.BackgroundColor = Color.White;
+        dgvLayers.BorderStyle = BorderStyle.None;
+        dgvLayers.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        dataGridViewCellStyle2.BackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle2.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        dataGridViewCellStyle2.ForeColor = Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle2.SelectionForeColor = Color.White;
+        dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+        dgvLayers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+        dgvLayers.ColumnHeadersHeight = 46;
+        dgvLayers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+        dgvLayers.ContextMenuStrip = cmsLayers;
+        dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+        dataGridViewCellStyle3.BackColor = Color.White;
+        dataGridViewCellStyle3.Font = new Font("Tahoma", 10F);
+        dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 243, 205);
+        dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+        dgvLayers.DefaultCellStyle = dataGridViewCellStyle3;
+        dgvLayers.Dock = DockStyle.Fill;
+        dgvLayers.EnableHeadersVisualStyles = false;
+        dgvLayers.GridColor = Color.FromArgb(222, 226, 230);
+        dgvLayers.Location = new Point(8, 33);
+        dgvLayers.MultiSelect = false;
+        dgvLayers.Name = "dgvLayers";
+        dgvLayers.ReadOnly = true;
+        dgvLayers.RowHeadersVisible = false;
+        dgvLayers.RowHeadersWidth = 62;
+        dgvLayers.RowTemplate.Height = 30;
+        dgvLayers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        dgvLayers.Size = new Size(935, 323);
+        dgvLayers.TabIndex = 0;
+        tooltip.SetToolTip(dgvLayers, "الطبقة الأولى هي التالية للصرف");
+        dgvLayers.CellFormatting += dgvLayers_CellFormatting;
+        dgvLayers.RowPrePaint += dgvLayers_RowPrePaint;
+        // 
         // cmsLayers
         // 
         cmsLayers.Font = new Font("Tahoma", 10F);
+        cmsLayers.ImageScalingSize = new Size(24, 24);
         cmsLayers.Items.AddRange(new ToolStripItem[] { miCopyBatch, miClose });
         cmsLayers.Name = "cmsLayers";
         cmsLayers.RightToLeft = RightToLeft.Yes;
-        cmsLayers.Size = new Size(210, 52);
+        cmsLayers.Size = new Size(237, 64);
         // 
         // miCopyBatch
         // 
         miCopyBatch.Name = "miCopyBatch";
-        miCopyBatch.Size = new Size(209, 24);
+        miCopyBatch.Size = new Size(236, 30);
         miCopyBatch.Text = "نسخ رقم التشغيلة";
         miCopyBatch.Click += miCopyBatch_Click;
         // 
         // miClose
         // 
         miClose.Name = "miClose";
-        miClose.Size = new Size(209, 24);
+        miClose.Size = new Size(236, 30);
         miClose.Text = "إغلاق";
         miClose.Click += miClose_Click;
         // 
+        // btnClose
+        // 
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.Cursor = Cursors.Hand;
+        btnClose.DialogResult = DialogResult.Cancel;
+        btnClose.Dock = DockStyle.Fill;
+        btnClose.FlatAppearance.BorderSize = 0;
+        btnClose.FlatStyle = FlatStyle.Flat;
+        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnClose.ForeColor = Color.White;
+        btnClose.Location = new Point(0, 0);
+        btnClose.Margin = new Padding(12, 0, 0, 0);
+        btnClose.Name = "btnClose";
+        btnClose.Size = new Size(175, 38);
+        btnClose.TabIndex = 4;
+        btnClose.Text = "إغلاق";
+        tooltip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
+        btnClose.UseVisualStyleBackColor = false;
+        btnClose.Click += btnClose_Click;
+        // 
         // pnlTitle
         // 
-        pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlTitle.BackColor = Color.FromArgb(16, 150, 96);
         pnlTitle.Controls.Add(lblMode);
         pnlTitle.Dock = DockStyle.Top;
         pnlTitle.Location = new Point(0, 0);
         pnlTitle.Name = "pnlTitle";
-        pnlTitle.Size = new Size(760, 52);
+        pnlTitle.Size = new Size(951, 52);
         pnlTitle.TabIndex = 0;
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = Color.FromArgb(16, 150, 96);
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-        lblMode.ForeColor = System.Drawing.Color.White;
+        lblMode.ForeColor = Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
-        lblMode.Size = new Size(760, 52);
+        lblMode.Size = new Size(951, 52);
         lblMode.TabIndex = 0;
         lblMode.Text = "طبقات الصرف FIFO / FEFO";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlInfo
         // 
-        pnlInfo.BackColor = System.Drawing.Color.White;
+        pnlInfo.BackColor = Color.White;
         pnlInfo.Controls.Add(gbInfo);
         pnlInfo.Dock = DockStyle.Top;
         pnlInfo.Location = new Point(0, 52);
         pnlInfo.Name = "pnlInfo";
         pnlInfo.Padding = new Padding(8);
-        pnlInfo.Size = new Size(760, 84);
+        pnlInfo.Size = new Size(951, 84);
         pnlInfo.TabIndex = 1;
         // 
         // gbInfo
         // 
-        gbInfo.BackColor = System.Drawing.Color.White;
+        gbInfo.BackColor = Color.White;
         gbInfo.Controls.Add(tlpInfo);
         gbInfo.Dock = DockStyle.Fill;
         gbInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbInfo.ForeColor = Color.FromArgb(33, 37, 41);
         gbInfo.Location = new Point(8, 8);
         gbInfo.Name = "gbInfo";
         gbInfo.Padding = new Padding(6);
         gbInfo.RightToLeft = RightToLeft.Yes;
-        gbInfo.Size = new Size(744, 68);
+        gbInfo.Size = new Size(935, 68);
         gbInfo.TabIndex = 0;
         gbInfo.TabStop = false;
         gbInfo.Text = "بيانات الصنف";
@@ -140,22 +210,22 @@ partial class frmInventoryFifo
         tlpInfo.Controls.Add(lblWarehouse, 1, 0);
         tlpInfo.Controls.Add(lblMethodBadge, 2, 0);
         tlpInfo.Dock = DockStyle.Fill;
-        tlpInfo.Location = new Point(6, 22);
+        tlpInfo.Location = new Point(6, 31);
         tlpInfo.Name = "tlpInfo";
         tlpInfo.RowCount = 1;
         tlpInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-        tlpInfo.Size = new Size(732, 40);
+        tlpInfo.Size = new Size(923, 31);
         tlpInfo.TabIndex = 0;
         // 
         // lblProduct
         // 
         lblProduct.Dock = DockStyle.Fill;
         lblProduct.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblProduct.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblProduct.Location = new Point(479, 0);
+        lblProduct.ForeColor = Color.FromArgb(33, 37, 41);
+        lblProduct.Location = new Point(612, 0);
         lblProduct.Margin = new Padding(3, 0, 12, 0);
         lblProduct.Name = "lblProduct";
-        lblProduct.Size = new Size(241, 40);
+        lblProduct.Size = new Size(308, 31);
         lblProduct.TabIndex = 0;
         lblProduct.Text = "الصنف: زيت نباتي 1 لتر";
         lblProduct.TextAlign = ContentAlignment.MiddleLeft;
@@ -164,95 +234,56 @@ partial class frmInventoryFifo
         // 
         lblWarehouse.Dock = DockStyle.Fill;
         lblWarehouse.Font = new Font("Tahoma", 10F);
-        lblWarehouse.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblWarehouse.Location = new Point(231, 0);
+        lblWarehouse.ForeColor = Color.FromArgb(33, 37, 41);
+        lblWarehouse.Location = new Point(289, 0);
         lblWarehouse.Margin = new Padding(3, 0, 12, 0);
         lblWarehouse.Name = "lblWarehouse";
-        lblWarehouse.Size = new Size(241, 40);
+        lblWarehouse.Size = new Size(308, 31);
         lblWarehouse.TabIndex = 1;
         lblWarehouse.Text = "المستودع: المستودع الرئيسي";
         lblWarehouse.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblMethodBadge
         // 
-        lblMethodBadge.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMethodBadge.BackColor = Color.FromArgb(16, 150, 96);
         lblMethodBadge.Dock = DockStyle.Fill;
         lblMethodBadge.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblMethodBadge.ForeColor = System.Drawing.Color.White;
-        lblMethodBadge.Location = new Point(3, 4);
+        lblMethodBadge.ForeColor = Color.White;
+        lblMethodBadge.Location = new Point(0, 4);
         lblMethodBadge.Margin = new Padding(12, 4, 0, 4);
         lblMethodBadge.Name = "lblMethodBadge";
         lblMethodBadge.Padding = new Padding(8, 2, 8, 2);
-        lblMethodBadge.Size = new Size(213, 32);
+        lblMethodBadge.Size = new Size(265, 23);
         lblMethodBadge.TabIndex = 2;
         lblMethodBadge.Text = "FIFO / FEFO";
         lblMethodBadge.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // gbGrid
         // 
-        gbGrid.BackColor = System.Drawing.Color.White;
+        gbGrid.BackColor = Color.White;
         gbGrid.Controls.Add(dgvLayers);
         gbGrid.Controls.Add(lblEmptyState);
         gbGrid.Dock = DockStyle.Fill;
         gbGrid.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbGrid.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbGrid.ForeColor = Color.FromArgb(33, 37, 41);
         gbGrid.Location = new Point(0, 136);
         gbGrid.Name = "gbGrid";
         gbGrid.Padding = new Padding(8);
         gbGrid.RightToLeft = RightToLeft.Yes;
-        gbGrid.Size = new Size(760, 364);
+        gbGrid.Size = new Size(951, 364);
         gbGrid.TabIndex = 2;
         gbGrid.TabStop = false;
         gbGrid.Text = "طبقات المخزون مرتبة بأولوية الصرف";
         // 
-        // dgvLayers
-        // 
-        dgvLayers.AllowUserToAddRows = false;
-        dgvLayers.AllowUserToDeleteRows = false;
-        dgvLayers.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-        dgvLayers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvLayers.BackgroundColor = System.Drawing.Color.White;
-        dgvLayers.BorderStyle = BorderStyle.None;
-        dgvLayers.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-        dgvLayers.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dgvLayers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-        dgvLayers.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        dgvLayers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
-        dgvLayers.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(58), Convert.ToInt32(64));
-        dgvLayers.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
-        dgvLayers.ColumnHeadersHeight = 46;
-        dgvLayers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-        dgvLayers.ContextMenuStrip = cmsLayers;
-        dgvLayers.DefaultCellStyle.BackColor = System.Drawing.Color.White;
-        dgvLayers.DefaultCellStyle.Font = new Font("Tahoma", 10F);
-        dgvLayers.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dgvLayers.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
-        dgvLayers.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dgvLayers.Dock = DockStyle.Fill;
-        dgvLayers.EnableHeadersVisualStyles = false;
-        dgvLayers.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
-        dgvLayers.Location = new Point(8, 24);
-        dgvLayers.MultiSelect = false;
-        dgvLayers.Name = "dgvLayers";
-        dgvLayers.ReadOnly = true;
-        dgvLayers.RowHeadersVisible = false;
-        dgvLayers.RowTemplate.Height = 30;
-        dgvLayers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        dgvLayers.Size = new Size(744, 332);
-        dgvLayers.TabIndex = 0;
-        dgvLayers.CellFormatting += dgvLayers_CellFormatting;
-        dgvLayers.RowPrePaint += dgvLayers_RowPrePaint;
-        tooltip.SetToolTip(dgvLayers, "الطبقة الأولى هي التالية للصرف");
-        // 
         // lblEmptyState
         // 
-        lblEmptyState.BackColor = System.Drawing.Color.White;
+        lblEmptyState.BackColor = Color.White;
         lblEmptyState.Dock = DockStyle.Fill;
         lblEmptyState.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblEmptyState.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblEmptyState.Location = new Point(8, 24);
+        lblEmptyState.ForeColor = Color.FromArgb(33, 37, 41);
+        lblEmptyState.Location = new Point(8, 33);
         lblEmptyState.Name = "lblEmptyState";
-        lblEmptyState.Size = new Size(744, 332);
+        lblEmptyState.Size = new Size(935, 323);
         lblEmptyState.TabIndex = 1;
         lblEmptyState.Text = "لا توجد بيانات";
         lblEmptyState.TextAlign = ContentAlignment.MiddleCenter;
@@ -260,27 +291,27 @@ partial class frmInventoryFifo
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = Color.White;
         pnlFooter.Controls.Add(gbTotals);
         pnlFooter.Dock = DockStyle.Bottom;
         pnlFooter.Location = new Point(0, 500);
         pnlFooter.Name = "pnlFooter";
         pnlFooter.Padding = new Padding(8);
-        pnlFooter.Size = new Size(760, 120);
+        pnlFooter.Size = new Size(951, 120);
         pnlFooter.TabIndex = 3;
         // 
         // gbTotals
         // 
-        gbTotals.BackColor = System.Drawing.Color.White;
+        gbTotals.BackColor = Color.White;
         gbTotals.Controls.Add(tlpFooter);
         gbTotals.Dock = DockStyle.Fill;
         gbTotals.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbTotals.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbTotals.ForeColor = Color.FromArgb(33, 37, 41);
         gbTotals.Location = new Point(8, 8);
         gbTotals.Name = "gbTotals";
         gbTotals.Padding = new Padding(6);
         gbTotals.RightToLeft = RightToLeft.Yes;
-        gbTotals.Size = new Size(744, 104);
+        gbTotals.Size = new Size(935, 104);
         gbTotals.TabIndex = 0;
         gbTotals.TabStop = false;
         gbTotals.Text = "الإجماليات";
@@ -300,23 +331,23 @@ partial class frmInventoryFifo
         tlpFooter.Controls.Add(btnClose, 4, 0);
         tlpFooter.Controls.Add(lblNote, 0, 1);
         tlpFooter.Dock = DockStyle.Fill;
-        tlpFooter.Location = new Point(6, 22);
+        tlpFooter.Location = new Point(6, 31);
         tlpFooter.Name = "tlpFooter";
         tlpFooter.RowCount = 2;
         tlpFooter.RowStyles.Add(new RowStyle(SizeType.Percent, 58F));
         tlpFooter.RowStyles.Add(new RowStyle(SizeType.Percent, 42F));
-        tlpFooter.Size = new Size(732, 76);
+        tlpFooter.Size = new Size(923, 67);
         tlpFooter.TabIndex = 0;
         // 
         // lblTotalQtyCaption
         // 
         lblTotalQtyCaption.Dock = DockStyle.Fill;
         lblTotalQtyCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotalQtyCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalQtyCaption.Location = new Point(552, 0);
+        lblTotalQtyCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalQtyCaption.Location = new Point(701, 0);
         lblTotalQtyCaption.Margin = new Padding(3, 0, 8, 0);
         lblTotalQtyCaption.Name = "lblTotalQtyCaption";
-        lblTotalQtyCaption.Size = new Size(172, 44);
+        lblTotalQtyCaption.Size = new Size(219, 38);
         lblTotalQtyCaption.TabIndex = 0;
         lblTotalQtyCaption.Text = "إجمالي الكمية المتبقية:";
         lblTotalQtyCaption.TextAlign = ContentAlignment.MiddleLeft;
@@ -325,11 +356,11 @@ partial class frmInventoryFifo
         // 
         lblTotalQtyValue.Dock = DockStyle.Fill;
         lblTotalQtyValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblTotalQtyValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalQtyValue.Location = new Point(442, 0);
+        lblTotalQtyValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalQtyValue.Location = new Point(567, 0);
         lblTotalQtyValue.Margin = new Padding(3, 0, 12, 0);
         lblTotalQtyValue.Name = "lblTotalQtyValue";
-        lblTotalQtyValue.Size = new Size(94, 44);
+        lblTotalQtyValue.Size = new Size(123, 38);
         lblTotalQtyValue.TabIndex = 1;
         lblTotalQtyValue.Text = "0.000";
         lblTotalQtyValue.TextAlign = ContentAlignment.MiddleLeft;
@@ -338,11 +369,11 @@ partial class frmInventoryFifo
         // 
         lblTotalCostCaption.Dock = DockStyle.Fill;
         lblTotalCostCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTotalCostCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalCostCaption.Location = new Point(257, 0);
+        lblTotalCostCaption.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalCostCaption.Location = new Point(333, 0);
         lblTotalCostCaption.Margin = new Padding(3, 0, 8, 0);
         lblTotalCostCaption.Name = "lblTotalCostCaption";
-        lblTotalCostCaption.Size = new Size(172, 44);
+        lblTotalCostCaption.Size = new Size(219, 38);
         lblTotalCostCaption.TabIndex = 2;
         lblTotalCostCaption.Text = "إجمالي التكلفة:";
         lblTotalCostCaption.TextAlign = ContentAlignment.MiddleLeft;
@@ -351,44 +382,24 @@ partial class frmInventoryFifo
         // 
         lblTotalCostValue.Dock = DockStyle.Fill;
         lblTotalCostValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblTotalCostValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalCostValue.Location = new Point(147, 0);
+        lblTotalCostValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTotalCostValue.Location = new Point(199, 0);
         lblTotalCostValue.Margin = new Padding(3, 0, 12, 0);
         lblTotalCostValue.Name = "lblTotalCostValue";
-        lblTotalCostValue.Size = new Size(94, 44);
+        lblTotalCostValue.Size = new Size(123, 38);
         lblTotalCostValue.TabIndex = 3;
         lblTotalCostValue.Text = "0.00";
         lblTotalCostValue.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // btnClose
-        // 
-        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
-        btnClose.Cursor = Cursors.Hand;
-        btnClose.DialogResult = DialogResult.Cancel;
-        btnClose.Dock = DockStyle.Fill;
-        btnClose.FlatAppearance.BorderSize = 0;
-        btnClose.FlatStyle = FlatStyle.Flat;
-        btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(0, 0);
-        btnClose.Margin = new Padding(12, 0, 0, 0);
-        btnClose.Name = "btnClose";
-        btnClose.Size = new Size(135, 44);
-        btnClose.TabIndex = 4;
-        btnClose.Text = "إغلاق";
-        btnClose.UseVisualStyleBackColor = false;
-        btnClose.Click += btnClose_Click;
-        tooltip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
         // 
         // lblNote
         // 
         tlpFooter.SetColumnSpan(lblNote, 5);
         lblNote.Dock = DockStyle.Fill;
         lblNote.Font = new Font("Tahoma", 9F, FontStyle.Italic);
-        lblNote.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblNote.Location = new Point(3, 44);
+        lblNote.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNote.Location = new Point(3, 38);
         lblNote.Name = "lblNote";
-        lblNote.Size = new Size(726, 32);
+        lblNote.Size = new Size(917, 29);
         lblNote.TabIndex = 5;
         lblNote.Text = "ملاحظة: يُصرف الأقدم أولاً (أو الأقرب صلاحية عند تفعيل FEFO) — التشغيلة التالية للصرف: B-2026-001";
         lblNote.TextAlign = ContentAlignment.MiddleLeft;
@@ -396,9 +407,9 @@ partial class frmInventoryFifo
         // frmInventoryFifo
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = Color.FromArgb(240, 242, 245);
         CancelButton = btnClose;
-        ClientSize = new Size(760, 620);
+        ClientSize = new Size(951, 620);
         Controls.Add(gbGrid);
         Controls.Add(pnlFooter);
         Controls.Add(pnlInfo);
@@ -413,13 +424,13 @@ partial class frmInventoryFifo
         StartPosition = FormStartPosition.CenterScreen;
         Text = "طبقات FIFO/FEFO";
         Load += frmInventoryFifo_Load;
+        ((System.ComponentModel.ISupportInitialize)dgvLayers).EndInit();
         cmsLayers.ResumeLayout(false);
         pnlTitle.ResumeLayout(false);
         pnlInfo.ResumeLayout(false);
         gbInfo.ResumeLayout(false);
         tlpInfo.ResumeLayout(false);
         gbGrid.ResumeLayout(false);
-        ((System.ComponentModel.ISupportInitialize)dgvLayers).EndInit();
         pnlFooter.ResumeLayout(false);
         gbTotals.ResumeLayout(false);
         tlpFooter.ResumeLayout(false);

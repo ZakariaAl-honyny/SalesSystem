@@ -125,10 +125,13 @@ public partial class frmJournalEntries : Form
         KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
         KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
             (Keys.F2, () => btnNew.PerformClick()),
-            (Keys.F3, () => { if (btnEdit.Enabled) btnEdit.PerformClick(); }),
-            (Keys.F4, () => { if (btnPost.Enabled) btnPost.PerformClick(); }),
+            (Keys.F3, () => { if (btnEdit.Enabled) btnEdit.PerformClick(); }
+        ),
+            (Keys.F4, () => { if (btnPost.Enabled) btnPost.PerformClick(); }
+        ),
             (Keys.F5, () => _ = _RefreshAsync()),
-            (Keys.Control | Keys.S, () => { if (btnSave.Enabled) btnSave.PerformClick(); }),
+            (Keys.Control | Keys.S, () => { if (btnSave.Enabled) btnSave.PerformClick(); }
+        ),
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
 
@@ -1732,4 +1735,14 @@ public partial class frmJournalEntries : Form
     /// (RULE-N171/N172): كانت هذه الدالة تكرّر الترجمة محلياً بشكل مختلف عن بقية الشاشات.
     /// </summary>
     private static string _StatusText(int status) => DocumentTextHelper.StatusText((byte)status);
+
+    private void cbEntryType_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void lblTo_Click(object sender, EventArgs e)
+    {
+
+    }
 }
