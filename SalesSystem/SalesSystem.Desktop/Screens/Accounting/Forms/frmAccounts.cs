@@ -1,27 +1,75 @@
+// -----------------------------------------------------------------------------
+// frmAccounts.cs — دليل الحسابات (شجرة يسار + محرّر يمين + شبكة أسفل)
+//
+// • الشكل (RULE-N135…N138 + الشاشة المرجعية frmAddUpdateSalesInvoice):
+//     «شريط العنوان» ← «أوامر الحسابات» ← «بحث وتصفية» ← [شجرة | محرّر] ←
+//     «بيانات الحسابات» ← «الإجماليات» — كل كتلة صندوق واحد بعنوان، ولا صندوق داخل صندوق.
+//
+// • العناصر الثلاثة القابلة للتضمين (RULE-N169 — لا نسخة ثانية من منطقها هنا):
+//     ctrlTreeOfAccounts   عرض هرمي + بحث + اختيار سريع (ShowCrudActions = false:
+//                          العمليات كلها من شريط الشاشة، RULE-N100).
+//     ctrlAccountEditor    بيانات الحساب + معاينة الكود + الحقول الهرمية + التحقق.
+//     ctrlCrudToolbar      الأزرار الملوّنة وآلة حالتها.
+//   فلا نسخة ثانية من: حقول المحرر · خيارات الأنواع · حكم «مطلوب» · تلوين الأزرار.
+//
+// • آلة الحالة واحدة `_ApplyModeState()` (النظير RULE-N150): هي **المكان الوحيد** الذي
+//   يُغذّي الشريط المشترك (SetMode/HasSelection/AllowDelete) ويضبط Enabled لأزرار الشاشة.
+//
+// • الوضع: Browsing (فتح/بعد الحفظ/إلغاء الإضافة) · Adding («+ إضافة») · Editing (اختيار
+//   حساب من الشجرة أو الشبكة). المحرّر يعرض الوضع على حقوله بنفسه (§2.36).
+//
+// • الاختصارات: F2 = إضافة · F3 = تعديل المحدد · F5 = تحديث كامل · Delete = تعطيل ·
+//   Esc = مسح التصفية (داخل صندوقها) / إلغاء الإضافة-التعديل / إغلاق (RULE-N47).
+//   ولا زر أساسي للنموذج (AcceptButton = null): أزرار الشريط المشترك لا تُنقَر بـEnter
+//   أبداً — فلا حفظ صامت من داخل حقول المحرّر أو شبكة السطور (RULE-N153/RULE-N193).
+//
+// • RULE-N205: `catch` واحد لكل حدّ فعلي — معالجات `async void` عبر `_RunSafeAsync`،
+//   ومعالج الحذف النهائي بنفسه، و`finally` تُعيد المؤشر والعلم دائماً.
+// -----------------------------------------------------------------------------
+
 using System.Data;
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
-using SalesSystem.Common.Helpers;
-using SalesSystem.DTO;
-using SalesSystem.DTO.Requests;
+using SalesSystem.Desktop.Controls.Common;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.Screens.Accounting.Controls;
 using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.DTO;
+using SalesSystem.DTO.Requests;
 using Serilog;
 
 namespace SalesSystem.Desktop.Screens.Accounting.Forms;
 
 /// <summary>
-/// شاشة دليل الحسابات (Chart of Accounts) — نموذج Master يجمع:
-/// نموذج إدخال/تعديل الحساب + شبكة عرض هرمية + صندوق تصفية موحّد + شريط ملخص.
-/// كل الخدمات تُحل عبر <see cref="IServiceProvider"/> من واجهة <see cref="IAccountDesktopService"/> فقط
-/// (RULE-N05/RULE-N06) — لا وصول لأي طبقة أخرى، ولا اتصال شبكي، ولا DbContext.
+/// شاشة دليل الحسابات: شجرة هرمية + محرّر حساب + شبكة عرض/تصفية، وشريط أوامر موحّد.
+/// <para>
+/// كل القراءات والكتابات تمرّ عبر <see cref="IAccountDesktopService"/> من حزمة الخدمات
+/// المحقونة (RULE-N05/N06) — لا DbContext ولا HTTP ولا أي طبقة أدنى.
+/// </para>
 /// </summary>
 public partial class frmAccounts : Form
 {
+    // ── رسائل عربية (RULE-N28) ────────────────────────────────────────────────
+    private const string LoadFailedMessage = "تعذر تحميل دليل الحسابات. يرجى إعادة المحاولة.";
+    private const string LoadUnexpectedMessage = "حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.";
+    private const string RefreshFailedMessage = "تعذر تحديث البيانات. يرجى إعادة المحاولة.";
+    private const string SaveFailedMessage = "حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.";
+    private const string DeleteFailedMessage = "حدث خطأ أثناء التعطيل. يرجى إعادة المحاولة.";
+    private const string PermanentDeleteFailedMessage = "حدث خطأ أثناء الحذف النهائي. يرجى إعادة المحاولة.";
+    private const string SelectFirstMessage = "يرجى اختيار حساب من الشجرة أو الشبكة أولاً.";
+    private const string SystemAccountMessage =
+        "هذا حساب نظامي — لا يمكن تعطيله أو تعديله أو حذفه من هذه الشاشة.";
+
     private readonly IServiceProvider _serviceProvider = null!;
 
     private IAccountDesktopService AccountService => _serviceProvider.GetRequiredService<IAccountDesktopService>();
+
+    // ── العناصر القابلة للتضمين (معلنة في المصمّم — RULE-N145) ─────────────────
+    private ctrlCrudToolbar Toolbar => ctrlCrudToolbar1;
+
+    private ctrlTreeOfAccounts Tree => ctrlTreeOfAccounts1;
+
+    private ctrlAccountEditor Editor => ctrlAccountEditor1;
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly List<AccountDto> _accounts = new();
@@ -30,22 +78,20 @@ public partial class frmAccounts : Form
     private DataView _accountsView = new();
     private int _totalCount;
 
-    /// <summary>null = وضع الإضافة، &gt; 0 = تعديل الحساب المحدد.</summary>
+    /// <summary>الحساب المعروض/المعدَّل (<c>null</c> = لا سجل محدد).</summary>
     private int? _editId;
 
+    /// <summary>وضع الشاشة الوحيد: عرض · إضافة · تعديل (§2.36).</summary>
+    private CrudMode _mode = CrudMode.Browsing;
+
+    /// <summary>عملية جارية (حفظ/تعطيل/تحديث) — يُعطّل كل ما قد يُطلق عملية أخرى.</summary>
     private bool _actionButtonsBusy;
 
-    /// <summary>يمنع مزامنة التحديد مع المحرر أثناء إعادة تحميل الشبكة أو إعادة ضبطها.</summary>
-    private bool _loadingSelection;
+    /// <summary>مزامنة تحديد (شبكة ↔ شجرة ↔ محرّر): تُكتم أحداث التحديد العابرة.</summary>
+    private bool _syncingSelection;
 
-    /// <summary>خيار نوع الحساب — الربط بالقيمة لا بالنص العربي (RULE-N60).</summary>
+    /// <summary>خيار نوع الحساب في التصفية — الربط بالقيمة لا بالنص العربي (RULE-N60).</summary>
     private sealed record NatureOption(byte Value, string Text)
-    {
-        public override string ToString() => Text;
-    }
-
-    /// <summary>خيار الحساب الأب — <c>null</c> = حساب رئيسي بلا أب.</summary>
-    private sealed record ParentOption(int? Id, string Text)
     {
         public override string ToString() => Text;
     }
@@ -60,45 +106,57 @@ public partial class frmAccounts : Form
     {
         _serviceProvider = serviceProvider;
 
-        // RULE-N40…RULE-N47 + RULE-N95: الستة من KeyboardHelper في المُنشئ.
-        // RULE-N191: Enter داخل لوحة المحرر (pnlFields = «بيانات الحساب») يمشي بترتيب العرض صفاً صفاً
-        // ثم يُسلِّم التركيز لزر الوضع بلا تنفيذ؛ وحقول التصفية خارج النطاق تحتفظ بـ SelectNextControl.
-        KeyboardHelper.WireEnterAsTab(pnlFields, _PrimaryActionButton);
+        // RULE-N40…RULE-N47 — لوحة المفاتيح على حقول الشاشة الباقية (التصفية) وعلى ما
+        // لم توصّله مكوّناتها بنفسها: الحقول التي وصّلها المحرّر/الشجرة مسبقاً تُتجاهل
+        // بحارس التوصيل نفسه في KeyboardHelper (MarkWired) فلا توصيل مزدوج.
+        KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
-        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46
-        KeyboardHelper.WireArrowNavigation(this);                                  // RULE-N45
-        KeyboardHelper.WireGlobalShortcuts(this,                                   // RULE-N47
-            (Keys.F2, () => btnNew.PerformClick()),
-            (Keys.F3, () => btnEdit.PerformClick()),
-            (Keys.F5, () => _ = _RefreshAsync()),
-            (Keys.Control | Keys.S, () => _PrimaryActionButton()?.PerformClick()),
+        KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
+        KeyboardHelper.WireArrowNavigation(this);                                                        // RULE-N45
+        KeyboardHelper.WireGlobalShortcuts(this,                                                        // RULE-N47
+            (Keys.F2, () => _StartNewEntry(Tree.SelectedAccountId)),
+            (Keys.F3, _StartEditFromSelection),
+            (Keys.F5, () => _ = _RunSafeAsync(_RefreshAsync, RefreshFailedMessage)),
             (Keys.Delete, _HandleDeleteShortcut),
             (Keys.Escape, _HandleEscape));
 
-        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً: أيقونة ✗ + الرسالة + ومضة رفض عند مغادرة
-        // حقل مطلوب فارغ. ترتيب الاستدعاء إلزامي (RULE-N183): **بعد** WireFocusHighlight وقبل
-        // GreenThemeHelper.Apply (الذي ينتهي به ApplyUiTheme أدناه) حتى لا يلتقط مظهر التعطيل لوناً مؤقتاً.
-        // الشاشة تُعلن القواعد فقط — لا أيقونة ولا لون ولا استعادة خلفية هنا (RULE-N169…RULE-N172).
-        RequiredFieldHelper.Attach(this, errorProvider,
-            new RequiredField(txtNameAr, "الاسم العربي للحساب مطلوب"));
-
-        // RULE-N147: Enter = الزر الأساسي للوضع الحالي (يُقرأ عند كل ضغطة)، و«AcceptButton»
-        // يُضبط مركزياً في _UpdateActionButtons (RULE-N150) لا هنا.
+        // RULE-N147: لا زر أساسي للنموذج — أزرار الوضع تعيش في الشريط المشترك الذي لا
+        // يُعرِّض زرّه (خارج نطاق هذه الموجة)، و`_PrimaryActionButton` تُرجع null فيبقى
+        // AcceptButton فارغاً: Enter لا يحفظ ولا يُرحّل من أي مكان (RULE-N153/RULE-N193).
         KeyboardHelper.WireModeEnter(this, _PrimaryActionButton);
+
+        _LoadFilterOptions();
+        _SetupToolTips();
 
         ApplyUiTheme();
 
         // RULE-N43: يُوصَّل بعد الثيم حتى يلتقط ألوان الأزرار النهائية.
-        KeyboardHelper.WireButtonDisabledVisual(
-            btnSave, btnEdit, btnDelete, btnPermanentDelete, btnClearFilters);
+        KeyboardHelper.WireButtonDisabledVisual(btnPermanentDelete, btnClearFilters);
 
-        _LoadNatureOptions();
-        _SetupToolTips();
+        // ── المكوّنات القابلة للتضمين ─────────────────────────────────────────
+        Tree.Attach(_serviceProvider);    // + ShowCrudActions = false من المصمّم
+        Editor.Attach(_serviceProvider);  // قائمة الآباء + معاينة الكود
 
-        // RULE-N97: التفقيط الحيّ على الحقل المالي الوحيد في الشاشة.
-        LiveTafqeetHelper.Attach(liveTip,
-            (numOpeningBalance, "الرصيد الافتتاحي", LiveTafqeetHelper.ReadMode.Money));
+        Tree.AccountSelected += Tree_AccountSelected;
+        Tree.AddChildRequested += Tree_AddChildRequested;
+        Tree.EditRequested += Tree_EditRequested;
+
+        Toolbar.AddRequested += Toolbar_AddRequested;
+        Toolbar.EditRequested += Toolbar_EditRequested;
+        Toolbar.SaveRequested += _OnSaveRequested;
+        Toolbar.CancelEditRequested += _OnCancelRequested;
+        Toolbar.DeleteRequested += Toolbar_DeleteRequested;
+        Toolbar.RefreshRequested += Toolbar_RefreshRequested;
+        Toolbar.CloseRequested += Toolbar_CloseRequested;
+
+        // الزرّان الداخليان للمحرّر يرفعان حدثين فقط: نفس مساري «حفظ» و«إلغاء التعديل»
+        // (معالج واحد لكل مسار — فلا يبقى زر مرئي في المحرّر بلا أثر ولا منطق ثانٍ).
+        Editor.SaveRequested += _OnSaveRequested;
+        Editor.CancelRequested += _OnCancelRequested;
+
         FilterPanelHelper.Attach(this, _serviceProvider);
+
+        _ApplyModeState();   // فتح الشاشة = وضع العرض (§2.36)
     }
 
     // ── Theme (RULE-N50…RULE-N54) ────────────────────────────────────────────
@@ -107,22 +165,6 @@ public partial class frmAccounts : Form
     private void ApplyUiTheme()
     {
         ThemeHelper.ApplyMainFormStyle(this); // يفرض أبيض/Segoe UI ⇒ يُمحى لاحقاً
-
-        ThemeHelper.ApplyButtonStyle(btnNew, ThemeHelper.ButtonType.Success);
-        ThemeHelper.ApplyButtonStyle(btnSave, ThemeHelper.ButtonType.Primary);
-        ThemeHelper.ApplyButtonStyle(btnEdit, ThemeHelper.ButtonType.Warning);
-        ThemeHelper.ApplyButtonStyle(btnDelete, ThemeHelper.ButtonType.Danger);
-        ThemeHelper.ApplyButtonStyle(btnPermanentDelete, ThemeHelper.ButtonType.Danger);
-        ThemeHelper.ApplyButtonStyle(btnRefresh, ThemeHelper.ButtonType.Neutral);
-        ThemeHelper.ApplyButtonStyle(btnClose, ThemeHelper.ButtonType.Neutral);
-
-        // RULE-N21: Tahoma لكل الأزرار (ThemeHelper يفرض Segoe UI).
-        foreach (var btn in new[]
-                 { btnNew, btnSave, btnEdit, btnDelete, btnPermanentDelete, btnRefresh, btnClose })
-        {
-            btn.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btn.UseVisualStyleBackColor = false;
-        }
 
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvAccounts);
@@ -133,26 +175,19 @@ public partial class frmAccounts : Form
         dgvAccounts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvAccounts.MultiSelect = false;
 
-        // طبقة «لا توجد بيانات» فوق الشبكة (RULE-N54: الألوان من الـ Helper فقط).
+        // طبقة «لا توجد بيانات» وسطر الملخص: النص المميّز من البيت الواحد.
         lblEmptyState.BackColor = Color.White;
         lblEmptyState.ForeColor = GreenThemeHelper.TextStrong;
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;
 
         GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
     }
 
     // ── Options / ToolTips ───────────────────────────────────────────────────
 
-    /// <summary>خيارات النوع (المحرر + التصفية) مربوطة بالقيمة الرقمية لا بالنص (RULE-N60).</summary>
-    private void _LoadNatureOptions()
+    /// <summary>خيارات التصفية فقط — خيارات المحرّر ملك عنصر المحرّر (RULE-N169).</summary>
+    private void _LoadFilterOptions()
     {
-        cbNature.Items.Clear();
-        cbNature.Items.Add(new NatureOption(1, "أصول"));
-        cbNature.Items.Add(new NatureOption(2, "خصوم"));
-        cbNature.Items.Add(new NatureOption(3, "حقوق ملكية"));
-        cbNature.Items.Add(new NatureOption(4, "إيرادات"));
-        cbNature.Items.Add(new NatureOption(5, "مصروفات"));
-        cbNature.SelectedIndex = 0;
-
         cbNatureFilter.Items.Clear();
         cbNatureFilter.Items.Add(new NatureOption(0, "كل الأنواع"));
         cbNatureFilter.Items.Add(new NatureOption(1, "أصول"));
@@ -169,62 +204,41 @@ public partial class frmAccounts : Form
         cbFilterBy.SelectedIndex = 0;
     }
 
-    /// <summary>RULE-N47: كل زر يحمل اختصاره في تلميحه.</summary>
+    /// <summary>RULE-N47: كل زر/أداة تحمل تلميحها — والتلميح المكرّر لا يُكتب مرتين.</summary>
     private void _SetupToolTips()
     {
-        toolTip.SetToolTip(btnNew, "حساب جديد (F2)");
-        toolTip.SetToolTip(btnSave, "حفظ الحساب — إضافة أو تعديل (Ctrl+S)");
-        toolTip.SetToolTip(btnEdit, "تعديل الحساب المحدد (F3)");
-        toolTip.SetToolTip(btnDelete, "تعطيل / حذف الحساب المحدد (Delete)");
-        toolTip.SetToolTip(btnPermanentDelete, "حذف نهائي للحساب المحدد — غير النظامي فقط");
-        toolTip.SetToolTip(btnRefresh, "تحديث البيانات (F5)");
-        toolTip.SetToolTip(btnClose, "إغلاق الشاشة (Esc)");
-        toolTip.SetToolTip(txtFilterValue, "بحث فوري — Esc يمسح كل التصفية");
-        toolTip.SetToolTip(chkIsSystem,
-            "الحسابات النظامية تُنشأ من بذور النظام ومزامنته فقط — العلم للعرض ولا يُنشئ حساباً نظامياً من الشاشة");
-        toolTip.SetToolTip(txtAccountCode, "رمز الحساب يُولّده النظام ولا يُعدَّل يدوياً");
+        toolTip.SetToolTip(cbFilterBy, "عمود البحث: الكود أو الاسم العربي أو الاسم الإنجليزي");
+        toolTip.SetToolTip(cbNatureFilter, "تصفية بنوع الحساب (أصول · خصوم · حقوق ملكية · إيرادات · مصروفات)");
+        toolTip.SetToolTip(dgvAccounts, "نقر مزدوج = فتح الحساب في المحرّر للتعديل");
     }
 
     // ── Load ─────────────────────────────────────────────────────────────────
 
     private async void frmAccounts_Load(object? sender, EventArgs e)
-    {
-        Cursor = Cursors.WaitCursor;
-        try
+        => await _RunSafeAsync(async () =>
         {
             await _LoadAsync();
             _ResetForm();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ غير متوقع أثناء تحميل دليل الحسابات");
-            clsDialogs.Error("حدث خطأ غير متوقع أثناء تحميل الشاشة. يرجى إعادة المحاولة.");
-        }
-        finally
-        {
-            Cursor = Cursors.Default;
-        }
-    }
+        }, LoadUnexpectedMessage);
 
     /// <summary>
     /// «تحديث» (F5) — تحديث **كامل** (RULE-N148): تُمسح أدوات التصفية أولاً، ثم تُعاد قراءة
-    /// الحسابات من الخدمة (ومنها تُبنى خيارات الحساب الأب) وتُعاد الشبكة والملخص، ويُعاد
-    /// التحديد والمحرر إلى الحالة الافتراضية — ولا يقتصر على مسح التصفية.
+    /// الحسابات (ومنها خيارات المحرّر والشجرة) وتُعاد الشبكة والملخص، ويُعاد التحديد
+    /// والمحرّر إلى الحالة الافتراضية — ولا يقتصر على مسح التصفية.
     /// </summary>
     private async Task _RefreshAsync()
     {
+        if (_actionButtonsBusy) return;
+
         Cursor = Cursors.WaitCursor;
         try
         {
-            _ClearFilterInputs();   // التصفية تعود للافتراضي
-            _editId = null;         // إعادة ضبط التحديد قبل إعادة القراءة
-            await _LoadAsync();     // إعادة بناء الشبكة والدلائل والملخص من الخدمة
-            _ResetForm();           // محرر فارغ + بلا تحديد + شريط الوضع والأزرار
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تحديث دليل الحسابات");
-            clsDialogs.Error("تعذر تحديث البيانات. يرجى إعادة المحاولة.");
+            _ClearFilterInputs();
+            _editId = null;
+            _mode = CrudMode.Browsing;
+
+            await _LoadAsync();
+            _ResetForm();
         }
         finally
         {
@@ -235,9 +249,8 @@ public partial class frmAccounts : Form
     // ── Data Loading ─────────────────────────────────────────────────────────
 
     /// <summary>
-    /// يحمّل كل الحسابات (بما فيها غير النشطة) ثم يبني جدول العرض ويطبّق التصفية.
-    /// تُترك أعلام التنشيط للحقل <c>IsActive</c> في الجدول كي تصفّيها <c>chkShowInactive</c>
-    /// من طرف العميل (مثل <c>frmCustomerMaster</c>).
+    /// يحمّل كل الحسابات (بما فيها غير النشطة) ثم يبني جدول العرض ويطبّق التصفية،
+    /// ويُغذّي عنصري المحرّر والشجرة من نفس القراءة (لا قراءة ثانية للشاشة).
     /// </summary>
     private async Task _LoadAsync()
     {
@@ -245,7 +258,7 @@ public partial class frmAccounts : Form
 
         if (!result.IsSuccess || result.Value is null)
         {
-            clsDialogs.Error(result.Error ?? "تعذر تحميل دليل الحسابات. يرجى إعادة المحاولة.");
+            clsDialogs.Error(result.Error ?? LoadFailedMessage);
             return;
         }
 
@@ -258,6 +271,54 @@ public partial class frmAccounts : Form
             _accountsById[account.Id] = account;
         }
 
+        var table = _BuildGridTable();
+        _totalCount = table.Rows.Count;
+
+        _syncingSelection = true;
+        try
+        {
+            _accountsView = new DataView(table);
+            dgvAccounts.DataSource = _accountsView;
+        }
+        finally
+        {
+            _syncingSelection = false;
+        }
+
+        // الدلائل: آباء المحرّر (واستثناء فروعه) + الشجرة — تحت حارس واحد حتى لا يُشعل
+        // تحديث الشجرة حدث اختيار يفتح المحرّر أثناء التحميل.
+        var wasSyncing = _syncingSelection;
+        _syncingSelection = true;
+        try
+        {
+            Editor.BindParents(_accounts, _editId);
+            await Tree.RefreshAsync();
+        }
+        finally
+        {
+            _syncingSelection = wasSyncing;
+        }
+
+        _ApplyFilter();
+
+        if (_editId is int selectedId && _accountsById.ContainsKey(selectedId))
+        {
+            _SelectGridRow(selectedId);
+            _SelectTreeRow(selectedId);
+        }
+        else
+        {
+            _editId = null;
+            _ClearGridSelection();
+        }
+
+        _UpdateModeHeader();
+        _ApplyModeState();
+    }
+
+    /// <summary>يبني جدول عرض الشاشة: أعمدة الشبكة الـ13 + أعمدة الحكم/التصفية — مصدر واحد.</summary>
+    private DataTable _BuildGridTable()
+    {
         var table = new DataTable();
         table.Columns.Add("Id", typeof(int));
         table.Columns.Add("AccountCode", typeof(string));
@@ -274,64 +335,36 @@ public partial class frmAccounts : Form
         table.Columns.Add("IsSystemText", typeof(string));
         table.Columns.Add("Status", typeof(string));
         table.Columns.Add("NatureValue", typeof(byte));
+        table.Columns.Add("TreePath", typeof(string));            // مشتق في الـDTO — لا يُخزَّن
+        table.Columns.Add("Balance", typeof(string));             // مُنسَّق بـ clsFormat.Money (البيت الواحد)
+        table.Columns.Add("FinancialStatement", typeof(string));  // عربي جاهز من الـ DTO
+        table.Columns.Add("Category", typeof(string));            // التصنيف أو «حساب مالي عام»
 
-        foreach (var a in _accounts.OrderBy(a => a.AccountCode, StringComparer.Ordinal))
+        foreach (var account in _accounts.OrderBy(a => a.AccountCode, StringComparer.Ordinal))
         {
             table.Rows.Add(
-                a.Id,
-                a.AccountCode,
-                a.NameAr,
-                _IndentedName(a),
-                a.NameEn ?? string.Empty,
-                a.NatureDisplay,      // عربي جاهز من الـ DTO — لا نُعيد تعيينه
-                a.LevelDisplay,       // عربي جاهز من الـ DTO
-                a.ParentAccountName ?? string.Empty,
-                a.IsLeaf,
-                a.IsSystem,
-                a.IsActive,
-                a.IsLeaf ? "نعم" : "لا",
-                a.IsSystem ? "نعم" : "لا",
-                a.IsActive ? "نشط" : "معطّل",
-                a.Nature);
+                account.Id,
+                account.AccountCode,
+                account.NameAr,
+                _IndentedName(account),
+                account.NameEn ?? string.Empty,
+                account.NatureDisplay,      // عربي جاهز من الـ DTO — لا نُعيد تعيينه
+                account.LevelDisplay,       // عربي جاهز من الـ DTO
+                account.ParentAccountName ?? string.Empty,
+                account.IsLeaf,
+                account.IsSystem,
+                account.IsActive,
+                account.IsLeaf ? "نعم" : "لا",
+                account.IsSystem ? "نعم" : "لا",
+                account.IsActive ? "نشط" : "معطّل",
+                account.Nature,
+                account.TreePath,
+                clsFormat.Money(account.Balance),   // RULE-N169: التنسيق من البيت الواحد لا من الشاشة
+                account.FinancialStatementDisplay,  // عربي جاهز من الـ DTO
+                account.CategoryLabel ?? "حساب مالي عام");
         }
 
-        _totalCount = table.Rows.Count;
-
-        _loadingSelection = true;
-        try
-        {
-            _accountsView = new DataView(table);
-            dgvAccounts.DataSource = _accountsView;
-        }
-        finally
-        {
-            _loadingSelection = false;
-        }
-
-        _LoadParentOptions();
-        _ApplyFilter();
-
-        if (_editId is int id && _accountsById.ContainsKey(id))
-        {
-            _SelectGridRow(id);
-        }
-        else
-        {
-            _loadingSelection = true; // ClearSelection لا يجب أن ينقل المحرر إلى السطر الأول
-            try
-            {
-                _editId = null;
-                dgvAccounts.ClearSelection();
-            }
-            finally
-            {
-                _loadingSelection = false;
-            }
-        }
-
-        _UpdateModeHeader();
-        _UpdateActionButtons();
-        _UpdateClearFiltersState(); // RULE-N148: حالة «مسح التصفية» بعد التحميل
+        return table;
     }
 
     /// <summary>إبراز التسلسل الهرمي في عمود الاسم العربي دون TreeView (RULE: عرض هرمي).</summary>
@@ -340,256 +373,160 @@ public partial class frmAccounts : Form
             ? new string(' ', (account.Level - 1) * 2) + "└ " + account.NameAr
             : account.NameAr;
 
-    // ── Combo: الحساب الأب ───────────────────────────────────────────────────
+    // ── آلة الحالة الوحيدة (§2.36 / نظير RULE-N150) ───────────────────────────
 
     /// <summary>
-    /// يعبّئ خيارات الحساب الأب بالحسابات غير الورقية فقط،
-    /// مع استثناء الحساب الجاري تعديله وكل فروعه (منع الدوران).
+    /// المكان **الوحيد** الذي يُغذّي الشريط المشترك ويضبط تفعيل أزرار الشاشة
+    /// (حذف نهائي · مسح التصفية · بنود قائمة السياق) ويُزامن وضع المحرّر.
+    /// تُستدعى بعد كل انتقال: تحميل · إضافة · اختيار · حفظ · تعطيل · تحديث · تصفية.
     /// </summary>
-    private void _LoadParentOptions()
+    private void _ApplyModeState()
     {
-        int? previousParentId = (cbParent.SelectedItem as ParentOption)?.Id;
+        bool busy = _actionButtonsBusy;
+        bool hasSelection = _editId is int selectedId && _accountsById.ContainsKey(selectedId);
+        bool systemAccount = hasSelection && _accountsById[_editId!.Value].IsSystem;
 
-        // الحساب الأب الحالي للحساب المفتوح يبقى في القائمة دائماً (ولو كان معطّلاً أو ورقياً):
-        // لو اختفى لظهر المحرر على «بلا أب» وحُفظ التعديل بالحساب في الجذر — فقدان صلة صامت.
-        int? currentParentId = _editId is int openId && _accountsById.TryGetValue(openId, out var openAccount)
-            ? openAccount.ParentId
-            : null;
+        // زامن وضع المحرّر مع وضع الشاشة: نفس المدخل الوحيد (idempotent — لا حالة ثانية).
+        Editor.SetMode(_mode);
 
-        cbParent.Items.Clear();
-        cbParent.Items.Add(new ParentOption(null, "(بلا أب — حساب رئيسي)"));
+        // الشريط المشترك: ثلاثة مدخلات فقط ويحكم هو على أزراره (RULE-N169).
+        Toolbar.SetMode(_mode);
+        Toolbar.HasSelection = hasSelection;
+        Toolbar.AllowDelete = hasSelection && !systemAccount && !busy;
+        Toolbar.ShowSave = true;
+        Toolbar.ShowClose = true;
 
-        foreach (var candidate in _accounts
-                     .Where(a => a.Id == currentParentId || (!a.IsLeaf && a.IsActive))
-                     .OrderBy(a => a.AccountCode, StringComparer.Ordinal))
-        {
-            if (_editId is int editingId
-                && (candidate.Id == editingId || _IsDescendantOf(candidate.Id, editingId)))
-            {
-                continue;
-            }
+        // الصف الثانوي الخاص بالشاشة + قائمة سياق الشبكة: نفس المدخلات فلا حكم ثانٍ.
+        btnPermanentDelete.Enabled = hasSelection && !systemAccount && !busy;
+        cmsEdit.Enabled = hasSelection && !busy;
+        cmsDelete.Enabled = hasSelection && !systemAccount && !busy;
 
-            cbParent.Items.Add(new ParentOption(candidate.Id, $"{candidate.AccountCode} — {candidate.NameAr}"));
-        }
+        // RULE-N148: «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الافتراضي.
+        btnClearFilters.Enabled = _HasActiveFilter() && !busy;
 
-        // عند فتح حساب: يُحدَّد أبوه الفعلي (لا التحديد السابق للقائمة).
-        int? selectionId = _editId is not null ? currentParentId : previousParentId;
-
-        var match = cbParent.Items.OfType<ParentOption>()
-            .FirstOrDefault(o => o.Id == selectionId);
-
-        cbParent.SelectedItem = match ?? cbParent.Items[0];
-    }
-
-    /// <summary>هل الحساب <paramref name="accountId"/> فرع من <paramref name="ancestorId"/>؟</summary>
-    private bool _IsDescendantOf(int accountId, int ancestorId)
-    {
-        var current = accountId;
-
-        // حدّ أقصى للدورات يحمي من بيانات فاسدة (دورة آباء) بدل حلقة لا نهائية.
-        for (var guard = 0; guard < 64; guard++)
-        {
-            if (!_accountsById.TryGetValue(current, out var node) || node.ParentId is not int parentId)
-                return false;
-
-            if (parentId == ancestorId)
-                return true;
-
-            current = parentId;
-        }
-
-        return false;
-    }
-
-    // ── Editor: Fill / Reset / Mode ──────────────────────────────────────────
-
-    private void _LoadIntoEditor(int accountId)
-    {
-        if (!_accountsById.TryGetValue(accountId, out var account))
-            return;
-
-        bool wasLoadingSelection = _loadingSelection;
-        _loadingSelection = true;
-        try
-        {
-            _editId = account.Id;
-
-            txtAccountCode.Text = account.AccountCode;
-            txtAccountCode.Enabled = true;            // الرمز للقراءة فقط ويظهر في وضع التعديل
-            txtNameAr.Text = account.NameAr;
-            txtNameEn.Text = account.NameEn ?? string.Empty;
-
-            var natureOption = cbNature.Items.OfType<NatureOption>()
-                .FirstOrDefault(o => o.Value == account.Nature);
-            if (natureOption is not null)
-                cbNature.SelectedItem = natureOption;
-
-            chkIsLeaf.Checked = account.IsLeaf;
-
-            // حساب نظامي: العلم للعرض فقط في وضع التعديل (لا يُغيَّر بعد الإنشاء).
-            chkIsSystem.Checked = account.IsSystem;
-            chkIsSystem.Enabled = false;
-
-            // الرصيد الافتتاحي يُقيَّد عند الإنشاء فقط (ترحيله يتم بالقيد الافتتاحي).
-            numOpeningBalance.Value = 0;
-            numOpeningBalance.Enabled = false;
-
-            txtDescription.Text = account.Description ?? string.Empty;
-            txtNotes.Text = account.Notes ?? string.Empty;
-
-            // الحساب النظامي للعرض فقط: الخدمة ترفض تعديله، فلا تُترك حقول مفتوحة لا يمكن حفظها.
-            _SetEditorReadOnly(account.IsSystem);
-
-            _LoadParentOptions();
-
-            var parentOption = cbParent.Items.OfType<ParentOption>()
-                .FirstOrDefault(o => o.Id == account.ParentId);
-            if (parentOption is not null)
-                cbParent.SelectedItem = parentOption;
-
-            errorProvider.Clear();
-            RequiredFieldHelper.Clear(this);
-        }
-        finally
-        {
-            _loadingSelection = wasLoadingSelection;
-        }
-
-        _UpdateModeHeader();
-        _UpdateActionButtons();
-    }
-
-    /// <summary>
-    /// إعادة المحرر إلى وضع «إضافة حساب جديد»: تفريغ الحقول + بلا تحديد في الشبكة + تحديث شريط الوضع والأزرار.
-    /// </summary>
-    /// <param name="focusNameAr">
-    /// <c>false</c> عند إعادة الضبط بسبب تصفية أزالت السجل المعروض — لا يُسلَب التركيز من صندوق البحث.
-    /// </param>
-    private void _ResetForm(bool focusNameAr = true)
-    {
-        bool wasLoadingSelection = _loadingSelection;
-        _loadingSelection = true;
-        try
-        {
-            _editId = null;
-
-            txtAccountCode.Clear();
-            txtAccountCode.Enabled = false;           // الرمز نظامي ويُولَّد عند الحفظ
-            txtNameAr.Clear();
-            txtNameEn.Clear();
-
-            if (cbNature.Items.Count > 0)
-                cbNature.SelectedIndex = 0;
-
-            chkIsLeaf.Checked = false;
-            // الحسابات النظامية تُنشأ من بذور/مزامنة النظام فقط، والخدمة تتجاهل هذا العلم —
-            // فالعلم للعرض فقط دائماً ولا يوهم المستخدم بإنشاء حساب نظامي (RULE-N167).
-            chkIsSystem.Checked = false;
-            chkIsSystem.Enabled = false;
-            errorProvider.SetError(chkIsSystem, string.Empty);
-
-            _SetEditorReadOnly(false);                // وضع الإضافة: كل حقول الإدخال مفتوحة
-
-            numOpeningBalance.Value = 0;
-            numOpeningBalance.Enabled = true;         // الرصيد الافتتاحي في وضع الإنشاء فقط
-
-            txtDescription.Clear();
-            txtNotes.Clear();
-
-            _LoadParentOptions();
-            cbParent.SelectedIndex = 0;
-
-            errorProvider.Clear();
-            RequiredFieldHelper.Clear(this);
-            dgvAccounts.ClearSelection();
-        }
-        finally
-        {
-            _loadingSelection = wasLoadingSelection;
-        }
-
-        _UpdateModeHeader();
-        _UpdateActionButtons();
-
-        if (focusNameAr)
-            txtNameAr.Focus();
-    }
-
-    /// <summary>RULE-N44: مؤشر الوضع أعلى الشاشة.</summary>
-    private void _UpdateModeHeader()
-    {
-        if (_editId is int id && _accountsById.TryGetValue(id, out var account))
-        {
-            lblMode.Text = account.IsSystem
-                ? $"دليل الحسابات — حساب نظامي (عرض فقط): {account.NameAr}"
-                : $"دليل الحسابات — تعديل الحساب: {account.NameAr}";
-            return;
-        }
-
-        lblMode.Text = "دليل الحسابات — إضافة حساب جديد";
-    }
-
-    /// <summary>
-    /// RULE-N43/RULE-N149: قفل حقول المحرر للحساب النظامي (الخدمة ترفض تعديله) —
-    /// فلا يُترك إدخال يمكن كتابته بلا أي طريق للحفظ. تُفتح كلها في وضع الإضافة.
-    /// </summary>
-    private void _SetEditorReadOnly(bool readOnly)
-    {
-        txtNameAr.ReadOnly = readOnly;
-        txtNameEn.ReadOnly = readOnly;
-        txtDescription.ReadOnly = readOnly;
-        txtNotes.ReadOnly = readOnly;
-
-        cbNature.Enabled = !readOnly;
-        cbParent.Enabled = !readOnly;
-        chkIsLeaf.Enabled = !readOnly;
-    }
-
-    /// <summary>
-    /// RULE-N43/RULE-N147/RULE-N150: آلة الحالة الوحيدة للأزرار وقائمة السياق والزر الأساسي —
-    /// تُستدعى بعد كل انتقال (تحميل · جديد · اختيار سطر · حفظ · تعطيل · حذف · تحديث · تصفية تُخفي السجل).
-    /// </summary>
-    private void _UpdateActionButtons()
-    {
-        bool hasSelection = _editId.HasValue;
-        bool isSystem = hasSelection
-                        && _accountsById.TryGetValue(_editId!.Value, out var account)
-                        && account.IsSystem;
-
-        btnNew.Enabled = !_actionButtonsBusy;                                    // «جديد» متاح دائماً للخروج من وضع التعديل
-        btnSave.Enabled = !hasSelection && !_actionButtonsBusy;                   // الحفظ في وضع الإضافة
-        // الحساب النظامي محمي: الخدمة ترفض تعديله وتعطيله وحذفه نهائياً — فلا يُفعَّل زر لعملية مرفوضة.
-        btnEdit.Enabled = hasSelection && !isSystem && !_actionButtonsBusy;
-        btnDelete.Enabled = hasSelection && !isSystem && !_actionButtonsBusy;
-        btnPermanentDelete.Enabled = hasSelection && !isSystem && !_actionButtonsBusy;
-
-        // RULE-N43: بنود قائمة السياق تتبع نفس الآلة — لا بند يُنقَر بلا أثر (الزر المعطّل لا يُنفَّذ بـ PerformClick).
-        cmsEdit.Enabled = btnEdit.Enabled;
-        cmsDelete.Enabled = btnDelete.Enabled;
-
-        // RULE-N147/RULE-N150: الزر الأساسي لِـ Enter يُضبط في المكان الواحد (آلة حالة الشاشة) لا في المُنشئ،
-        // فيتبع الوضع الحالي: إضافة ⇒ «حفظ» · تعديل ⇒ «تعديل» (RULE-N191).
         AcceptButton = _PrimaryActionButton();
     }
 
     /// <summary>
-    /// RULE-N147/RULE-N191: الزر الأساسي للوضع الحالي — «إضافة» (لا سجل مفتوح ⇒ <c>_editId == null</c>)
-    /// ⇒ <c>btnSave</c> · «تعديل» (سجل محدد) ⇒ <c>btnEdit</c>. لا وضع «عرض» في هذه الشاشة: المحرر
-    /// يفتح جاهزاً للإضافة، و«جديد» متاح دائماً للخروج من وضع التعديل.
-    /// يُقرأ عند كل ضغطة Enter وعند كل انتقال حالة — لا مرة واحدة في المُنشئ.
+    /// الزر الأساسي لـ <c>Enter</c> (RULE-N147) — <c>null</c> بقصد: أزرار الوضع تعيش في
+    /// <see cref="ctrlCrudToolbar"/> الذي لا يُعرِّض زرّه، وبقاء <c>AcceptButton</c> فارغاً
+    /// يضمن أن <c>Enter</c> لا يحفظ ولا يُرحّل من أي حقل أو شبكة (RULE-N153/RULE-N193).
+    /// والانتقال بين حقول المحرّر بـ<c>Enter</c> يملكه المحرّر نفسه (RULE-N191).
     /// </summary>
-    private Button? _PrimaryActionButton() => _editId is null ? btnSave : btnEdit;
+    private Button? _PrimaryActionButton() => null;
+
+    // ── Transitions — كل انتقال يمرّ من هنا ───────────────────────────────────
+
+    /// <summary>
+    /// «جديد» / F2 / «إضافة فرعي»: يفتح المحرّر للإضافة مع الأب المطلوب (أو المحدد في الشجرة).
+    /// </summary>
+    private void _StartNewEntry(int? parentId)
+    {
+        _editId = null;
+        _mode = CrudMode.Adding;
+
+        _ClearGridSelection();
+
+        Editor.SetMode(CrudMode.Adding);
+        Editor.ResetEditor(parentId);
+
+        _UpdateModeHeader();
+        _ApplyModeState();
+    }
+
+    /// <summary>
+    /// انتقال إلى «تعديل»/«عرض» السجل — المصدر الوحيد للتحديد من الشجرة **و** الشبكة.
+    /// </summary>
+    private void _OnRecordSelected(int accountId)
+    {
+        if (_syncingSelection) return;
+        if (!_accountsById.TryGetValue(accountId, out var account)) return;
+
+        _syncingSelection = true;
+        try
+        {
+            _editId = account.Id;
+            _mode = CrudMode.Editing;
+
+            // المحرّر: بيانات السجل ثم الوضع (الترتيب يهمّ: إعادة الضبط تركّز حقلاً في وضع العرض).
+            Editor.LoadAccount(account);
+            Editor.SetMode(CrudMode.Editing);
+
+            _SelectGridRow(account.Id);
+            _SelectTreeRow(account.Id);
+        }
+        finally
+        {
+            _syncingSelection = false;
+        }
+
+        _UpdateModeHeader();
+        _ApplyModeState();
+    }
+
+    /// <summary>
+    /// إعادة الشاشة إلى **وضع العرض**: بلا تحديد، أو مع السجل المطلوب (بعد الحفظ/الإلغاء).
+    /// </summary>
+    private void _ResetForm(int? selectId = null)
+    {
+        _editId = selectId;
+        _mode = CrudMode.Browsing;
+
+        if (selectId is int id)
+        {
+            _SelectGridRow(id);
+            _SelectTreeRow(id);
+        }
+        else
+        {
+            _ClearGridSelection();
+        }
+
+        Editor.SetMode(CrudMode.Browsing);
+        Editor.LoadAccount(selectId is int selected && _accountsById.TryGetValue(selected, out var account) ? account : null);
+
+        _UpdateModeHeader();
+        _ApplyModeState();
+    }
+
+    /// <summary>RULE-N44: مؤشر الوضع أعلى الشاشة — يتحدث مع كل تغيير حالة.</summary>
+    private void _UpdateModeHeader()
+    {
+        if (_mode == CrudMode.Adding)
+        {
+            // نفس أهلية خيارات «الحساب الأب» في المحرّر: تُذكر صلة الأب فقط إن كان الحساب
+            // المحدد في الشجرة مؤهَّلاً فعلاً (غير ورقي ونشط) — وإلا فالإضافة إلى الجذر.
+            lblMode.Text = Tree.SelectedAccountId is int parentId
+                           && _accountsById.TryGetValue(parentId, out var parent)
+                           && !parent.IsLeaf
+                           && parent.IsActive
+                ? $"دليل الحسابات — إضافة حساب فرعي تحت: {parent.NameAr}"
+                : "دليل الحسابات — إضافة حساب جديد";
+            return;
+        }
+
+        if (_editId is int id && _accountsById.TryGetValue(id, out var account))
+        {
+            lblMode.Text = account.IsSystem
+                ? $"دليل الحسابات — حساب نظامي (عرض فقط): {account.NameAr}"
+                : _mode == CrudMode.Editing
+                    ? $"دليل الحسابات — تعديل الحساب: {account.NameAr}"
+                    : $"دليل الحسابات — وضع العرض: {account.NameAr}";
+            return;
+        }
+
+        lblMode.Text = "دليل الحسابات — وضع العرض";
+    }
 
     // ── Grid ─────────────────────────────────────────────────────────────────
 
     private void dgvAccounts_SelectionChanged(object? sender, EventArgs e)
     {
-        if (_loadingSelection) return;
-
+        if (_syncingSelection) return;
         if (_SelectedAccountId() is not int id) return;
-        if (_editId == id) return;
+        if (_editId == id && _mode == CrudMode.Editing) return;
 
-        _LoadIntoEditor(id);
+        _OnRecordSelected(id);
     }
 
     private void dgvAccounts_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
@@ -598,8 +535,8 @@ public partial class frmAccounts : Form
 
         if (_SelectedAccountId() is int id)
         {
-            _LoadIntoEditor(id);
-            txtNameAr.Focus(); // نقر مزدوج = وضع التعديل (RULE §2.21 #14)
+            _OnRecordSelected(id);
+            Editor.Focus();   // نقر مزدوج = تعديل مباشر (RULE §2.21 #14)
         }
     }
 
@@ -631,7 +568,8 @@ public partial class frmAccounts : Form
             if (row.DataBoundItem is not DataRowView view || view["Id"] is not int rowId || rowId != accountId)
                 continue;
 
-            _loadingSelection = true;
+            var wasSyncing = _syncingSelection;
+            _syncingSelection = true;
             try
             {
                 row.Selected = true;
@@ -639,10 +577,39 @@ public partial class frmAccounts : Form
             }
             finally
             {
-                _loadingSelection = false;
+                _syncingSelection = wasSyncing;
             }
 
             break;
+        }
+    }
+
+    private void _ClearGridSelection()
+    {
+        var wasSyncing = _syncingSelection;
+        _syncingSelection = true;
+        try
+        {
+            dgvAccounts.ClearSelection();
+        }
+        finally
+        {
+            _syncingSelection = wasSyncing;
+        }
+    }
+
+    /// <summary>تحديد العقدة في الشجرة بلا إشعال حدث الاختيار (يمنع دورة شبكة ↔ شجرة).</summary>
+    private void _SelectTreeRow(int accountId)
+    {
+        var wasSyncing = _syncingSelection;
+        _syncingSelection = true;
+        try
+        {
+            Tree.SelectAccount(accountId);
+        }
+        finally
+        {
+            _syncingSelection = wasSyncing;
         }
     }
 
@@ -672,14 +639,8 @@ public partial class frmAccounts : Form
     }
 
     /// <summary>
-    /// Esc في صندوق التصفية = مسح كل أدوات التصفية والعودة لعرض كامل (RULE-N59).
-    /// يبقى المعالج باسمه القديم ويستهلك منطق «مسح التصفية» نفسه (RULE-N148).
-    /// </summary>
-    private void _ClearFilters() => _ClearAllFilters();
-
-    /// <summary>
     /// «مسح التصفية» — يمسح **أدوات التصفية فقط** ويعيد الشبكة إلى وضعها الافتراضي،
-    /// بلا إعادة تحميل ولا لمس للمحرر (RULE-N148). «تحديث» هو المسؤول عن إعادة تحميل البيانات.
+    /// بلا إعادة تحميل ولا لمس للمحرر (RULE-N148). «تحديث» هو المسؤول عن إعادة التحميل.
     /// </summary>
     private void btnClearFilters_Click(object? sender, EventArgs e)
     {
@@ -687,20 +648,27 @@ public partial class frmAccounts : Form
         txtFilterValue.Focus();
     }
 
-    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح التصفية» و«تحديث».</summary>
+    /// <summary>هل توجد تصفية تختلف عن الافتراضي؟ (RULE-N148 — حكم واحد لزر «مسح التصفية»)</summary>
+    private bool _HasActiveFilter()
+        => !string.IsNullOrWhiteSpace(txtFilterValue.Text)
+           || cbFilterBy.SelectedIndex > 0
+           || cbNatureFilter.SelectedIndex > 0
+           || chkShowInactive.Checked
+           || chkOnlyLeaf.Checked
+           || chkOnlySystem.Checked
+           || chkOnlyParents.Checked;
+
+    /// <summary>تفريغ أدوات التصفية وحدها (بلا تطبيق ولا تحميل) — تُستهلك من «مسح» و«تحديث».</summary>
     private void _ClearFilterInputs()
     {
-        bool wasLoadingSelection = _loadingSelection;
-        _loadingSelection = true; // التصفية لا تلمس المحرر: نمنع مزامنة التحديد أثناء المسح
+        var wasSyncing = _syncingSelection;
+        _syncingSelection = true; // التصفية لا تلمس المحرر: نمنع مزامنة التحديد أثناء المسح
         try
         {
             txtFilterValue.Clear();
 
-            if (cbFilterBy.Items.Count > 0)
-                cbFilterBy.SelectedIndex = 0;       // «الكود» = القيمة الافتراضية
-
-            if (cbNatureFilter.Items.Count > 0)
-                cbNatureFilter.SelectedIndex = 0;   // «كل الأنواع» = القيمة الافتراضية
+            if (cbFilterBy.Items.Count > 0) cbFilterBy.SelectedIndex = 0;       // «الكود»
+            if (cbNatureFilter.Items.Count > 0) cbNatureFilter.SelectedIndex = 0; // «كل الأنواع»
 
             chkShowInactive.Checked = false;
             chkOnlyLeaf.Checked = false;
@@ -709,7 +677,7 @@ public partial class frmAccounts : Form
         }
         finally
         {
-            _loadingSelection = wasLoadingSelection;
+            _syncingSelection = wasSyncing;
         }
     }
 
@@ -717,21 +685,7 @@ public partial class frmAccounts : Form
     private void _ClearAllFilters()
     {
         _ClearFilterInputs();
-
         _ApplyFilter();
-    }
-
-    /// <summary>RULE-N43/RULE-N148: «مسح التصفية» مفعّل فقط عند وجود تصفية تختلف عن الافتراضي.</summary>
-    private void _UpdateClearFiltersState()
-    {
-        btnClearFilters.Enabled =
-            !string.IsNullOrWhiteSpace(txtFilterValue.Text)
-            || cbFilterBy.SelectedIndex > 0
-            || cbNatureFilter.SelectedIndex > 0
-            || chkShowInactive.Checked
-            || chkOnlyLeaf.Checked
-            || chkOnlySystem.Checked
-            || chkOnlyParents.Checked;
     }
 
     private void _ApplyFilter()
@@ -740,23 +694,16 @@ public partial class frmAccounts : Form
         {
             _UpdateSummary();
             _UpdateEmptyState();
-            _UpdateClearFiltersState();
+            _ApplyModeState();
             return;
         }
 
         var conditions = new List<string>();
 
-        if (!chkShowInactive.Checked)
-            conditions.Add("IsActive = true");
-
-        if (chkOnlyLeaf.Checked)
-            conditions.Add("IsLeaf = true");
-
-        if (chkOnlyParents.Checked)
-            conditions.Add("IsLeaf = false");
-
-        if (chkOnlySystem.Checked)
-            conditions.Add("IsSystem = true");
+        if (!chkShowInactive.Checked) conditions.Add("IsActive = true");
+        if (chkOnlyLeaf.Checked) conditions.Add("IsLeaf = true");
+        if (chkOnlyParents.Checked) conditions.Add("IsLeaf = false");
+        if (chkOnlySystem.Checked) conditions.Add("IsSystem = true");
 
         if (cbNatureFilter.SelectedItem is NatureOption { Value: > 0 } nature)
             conditions.Add($"NatureValue = {nature.Value}");
@@ -776,34 +723,25 @@ public partial class frmAccounts : Form
             conditions.Add(RowFilterHelper.Like(column, text));
         }
 
+        var wasSyncing = _syncingSelection;
+        _syncingSelection = true; // تغيير التصفية لا ينقل المحرر إلى سطر آخر
         try
         {
-            bool wasLoadingSelection = _loadingSelection;
-            _loadingSelection = true; // تغيير التصفية لا ينقل المحرر إلى سطر آخر
-            try
-            {
-                _accountsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : string.Empty;
-            }
-            finally
-            {
-                _loadingSelection = wasLoadingSelection;
-            }
+            _accountsView.RowFilter = conditions.Count > 0 ? string.Join(" AND ", conditions) : string.Empty;
         }
-        catch (Exception ex)
+        finally
         {
-            // نص بحث غير صالح لا يُسقط الشاشة — نُسجّل ونُظهر كل البيانات.
-            Log.Warning(ex, "تعذر تطبيق تصفية دليل الحسابات");
-            _accountsView.RowFilter = string.Empty;
+            _syncingSelection = wasSyncing;
         }
 
-        // RULE-N150: التصفية قد تُخفي السجل المفتوح في المحرر — فلا يبقى «تعديل/تعطيل» فعّالاً
-        // على سجل غير معروض في الشبكة (والتركيز يبقى في صندوق البحث).
+        // RULE-N150: التصفية قد تُخفي السجل المعروض — فلا يبقى «تعديل/تعطيل» فعّالاً على
+        // سجل غير معروض، ولا يبقى المحرّر على سجل خارج الشبكة.
         if (_editId is int editedId && !_IsRowVisible(editedId))
-            _ResetForm(focusNameAr: false);
+            _ResetForm();
 
         _UpdateSummary();
         _UpdateEmptyState();
-        _UpdateClearFiltersState(); // RULE-N148: حالة زر «مسح التصفية» بعد كل تطبيق
+        _ApplyModeState();
     }
 
     /// <summary>هل السجل <paramref name="accountId"/> معروض في الشبكة بعد التصفية الحالية؟</summary>
@@ -844,7 +782,8 @@ public partial class frmAccounts : Form
         lblSummary.Text =
             $"المعروض: {clsFormat.Number(shown)} من {clsFormat.Number(_totalCount)} — "
             + $"أصول: {clsFormat.Number(assets)} · خصوم: {clsFormat.Number(liabilities)} · "
-            + $"حقوق ملكية: {clsFormat.Number(equity)} · إيرادات: {clsFormat.Number(revenue)} · مصروفات: {clsFormat.Number(expenses)}";
+            + $"حقوق ملكية: {clsFormat.Number(equity)} · إيرادات: {clsFormat.Number(revenue)} · "
+            + $"مصروفات: {clsFormat.Number(expenses)}";
     }
 
     /// <summary>عند عدم وجود نتائج تُعرض طبقة «لا توجد بيانات» مكان جسم الشبكة.</summary>
@@ -853,174 +792,110 @@ public partial class frmAccounts : Form
         bool isEmpty = _accountsView.Table is null || _accountsView.Count == 0;
 
         lblEmptyState.Visible = isEmpty;
-        if (isEmpty)
-            lblEmptyState.BringToFront();
+        if (isEmpty) lblEmptyState.BringToFront();
     }
 
-    // ── Validation (RULE-N28/N29 — رسائل عربية فقط) ─────────────────────────
+    // ── Toolbar events — الشريط المشترك يرفع، والشاشة تنفّذ ───────────────────
 
-    // فحوص هذه الشاشة الخاصة — ليست حكم «مطلوب/فارغ» (ذلك في البيت الواحد RequiredFieldHelper).
+    private void Toolbar_AddRequested(object? sender, EventArgs e) => _StartNewEntry(Tree.SelectedAccountId);
+
+    /// <summary>«تعديل» — يُفعّل عند وجود سجل محدد في وضع العرض فقط.</summary>
+    private void Toolbar_EditRequested(object? sender, EventArgs e) => _StartEditFromSelection();
+
+    /// <summary>«حفظ» — من الشريط المشترك ومن الزر الداخلي للمحرّر (مسار واحد).</summary>
+    private async void _OnSaveRequested(object? sender, EventArgs e)
+        => await _RunSafeAsync(_SaveAsync, SaveFailedMessage);
+
+    /// <summary>«إلغاء التعديل» — من الشريط المشترك ومن الزر الداخلي للمحرّر (مسار واحد).</summary>
+    private void _OnCancelRequested(object? sender, EventArgs e) => _ResetForm(_editId);
+
+    private async void Toolbar_DeleteRequested(object? sender, EventArgs e)
+        => await _RunSafeAsync(_DeleteAsync, DeleteFailedMessage);
+
+    private async void Toolbar_RefreshRequested(object? sender, EventArgs e)
+        => await _RunSafeAsync(_RefreshAsync, RefreshFailedMessage);
+
+    private void Toolbar_CloseRequested(object? sender, EventArgs e) => Close();
+
+    /// <summary>F3 / «تعديل»: ينتقل إلى وضع التعديل للسجل المحدد.</summary>
+    private void _StartEditFromSelection()
+    {
+        if (_editId is not int id)
+        {
+            clsDialogs.Warning(SelectFirstMessage);
+            return;
+        }
+
+        _OnRecordSelected(id);
+
+        if (_editId == id && _mode == CrudMode.Editing)
+        {
+            // المحرّر أُعيد تحميله في وضع التعديل: تُركّز أولى حقوله للكتابة الفورية.
+            Editor.Focus();
+        }
+    }
+
+    // ── Tree events — العمليات كلها من الشريط (RULE-N100) ─────────────────────
+
+    private void Tree_AccountSelected(object? sender, AccountTreeNodeDto? node)
+    {
+        if (_syncingSelection || node is null) return;
+
+        _OnRecordSelected(node.Id);
+    }
 
     /// <summary>
-    /// التحقق غير المتعلق بالحقول «الفارغة»: اختيار نوع الحساب · دورة الحساب الأب ·
-    /// تحويل حساب له فروع إلى حساب ترحيل · قيود الرصيد الافتتاحي.
-    /// <para>
-    /// حكم «مطلوب/فارغ» يعيش في البيت الواحد <see cref="RequiredFieldHelper"/> (RULE-N172/RULE-N180…N183) —
-    /// لذلك لا تُكتب علامة على <c>txtNameAr</c> هنا: أي مسح لها في هذا الميتود يمحو الأيقونة التي وسمها
-    /// <see cref="RequiredFieldHelper.Validate"/> قبله.
-    /// </para>
-    /// <para>
-    /// قاعدة «نوع الحساب» تبقى هنا حرفياً لأنها ليست حقل نصي فارغ: القائمة مبنية بعناصر
-    /// (<c>cbNature.Items</c>) بلا <c>ValueMember</c>، فحكم الـHelper على القوائم المنسدلة
-    /// (<c>SelectedValue</c>) لا يمثّلها.
-    /// </para>
+    /// «إضافة فرعي» من الشجرة — الحدث موصول كما يقتضي العقد، ولا يُطلق الآن لأن
+    /// <c>ShowCrudActions = false</c> (الشاشة تملك العمليات كلها).
     /// </summary>
-    private bool _ValidateRangeRules()
-    {
-        bool isValid = true;
+    private void Tree_AddChildRequested(object? sender, int parentId) => _StartNewEntry(parentId);
 
-        errorProvider.SetError(cbNature, string.Empty);
-        errorProvider.SetError(cbParent, string.Empty);
-        errorProvider.SetError(numOpeningBalance, string.Empty);
-        errorProvider.SetError(chkIsLeaf, string.Empty);
+    /// <summary>«تعديل» من الشجرة — نفس المسار، ونفس السبب أعلاه.</summary>
+    private void Tree_EditRequested(object? sender, int id) => _OnRecordSelected(id);
 
-        if (cbNature.SelectedItem is not NatureOption)
-        {
-            errorProvider.SetError(cbNature, "يجب اختيار نوع الحساب");
-            clsInputFeedback.ShowRejectTooltip(cbNature, "يجب اختيار نوع الحساب", toolTip);   // GAP-08b
-            isValid = false;
-        }
-
-        int? parentId = (cbParent.SelectedItem as ParentOption)?.Id;
-
-        if (_editId is int editingId && parentId is int candidateParentId
-            && (candidateParentId == editingId || _IsDescendantOf(candidateParentId, editingId)))
-        {
-            errorProvider.SetError(cbParent, "لا يمكن اختيار الحساب نفسه أو أحد فروعه كحساب أب");
-            clsInputFeedback.ShowRejectTooltip(cbParent,
-                "لا يمكن اختيار الحساب نفسه أو أحد فروعه كحساب أب", toolTip);   // GAP-08b
-            isValid = false;
-        }
-
-        // حساب له فروع لا يصبح «قابلاً للترحيل»: يصير أباً ورقةً فينكسر تسلسل الشجرة (الخدمة لا تفحصه).
-        if (_editId is int leafTargetId && chkIsLeaf.Checked
-            && _accounts.Exists(a => a.ParentId == leafTargetId))
-        {
-            const string leafError =
-                "هذا الحساب له حسابات فرعية — لا يمكن تحويله إلى حساب فرعي قابل للترحيل قبل نقل فروعه";
-            errorProvider.SetError(chkIsLeaf, leafError);
-            clsInputFeedback.ShowRejectTooltip(chkIsLeaf, leafError, toolTip);
-            isValid = false;
-        }
-
-        // الترحيل على الحسابات التفصيلية فقط: رصيد افتتاحي على حساب تجميعي يفسد أرصدة الشجرة.
-        if (_editId is null && !chkIsLeaf.Checked && numOpeningBalance.Value > 0)
-        {
-            const string openingError =
-                "الرصيد الافتتاحي يُسجَّل على حساب فرعي قابل للترحيل — فعّل «حساب فرعي قابل للترحيل»";
-            errorProvider.SetError(numOpeningBalance, openingError);
-            clsInputFeedback.ShowRejectTooltip(numOpeningBalance, openingError, toolTip);
-            isValid = false;
-        }
-
-        if (_editId is null && numOpeningBalance.Value < 0)
-        {
-            errorProvider.SetError(numOpeningBalance, "الرصيد الافتتاحي لا يمكن أن يكون سالباً");
-            clsInputFeedback.ShowRejectTooltip(numOpeningBalance,
-                "الرصيد الافتتاحي لا يمكن أن يكون سالباً", toolTip);   // GAP-08b
-            isValid = false;
-        }
-
-        if (!isValid)
-            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
-
-        return isValid;
-    }
-
-    // ── Buttons ──────────────────────────────────────────────────────────────
-
-    private void btnNew_Click(object? sender, EventArgs e) => _ResetForm();
-
-    private void btnClose_Click(object? sender, EventArgs e) => Close();
-
-    /// <summary>Esc: داخل صندوق التصفية يمسح التصفية، وخارجها يُغلق الشاشة.</summary>
-    private void _HandleEscape()
-    {
-        if (txtFilterValue.Focused)
-        {
-            _ClearFilters();
-            return;
-        }
-
-        Close();
-    }
-
-    /// <summary>Delete يُعطّل الحساب فقط عندما لا يكون المؤشر داخل حقل نصي.</summary>
-    private void _HandleDeleteShortcut()
-    {
-        // الفحص عبر بيت واحد (RULE-N169/N171): ActiveControl يعيد الحاوية لا الحقل المركَّز نفسه.
-        if (KeyboardHelper.IsTextInputFocused(this))
-            return;
-
-        btnDelete.PerformClick();
-    }
-
-    private void btnSave_Click(object? sender, EventArgs e) => _ = _SaveAsync();
-
-    private void btnEdit_Click(object? sender, EventArgs e) => _ = _SaveAsync();
-
-    private async void btnRefresh_Click(object? sender, EventArgs e) => await _RefreshAsync();
+    // ── Save / Delete ────────────────────────────────────────────────────────
 
     /// <summary>
-    /// حفظ الحساب: <c>_editId == null</c> ⇒ <c>CreateAsync</c>، وإلا <c>UpdateAsync</c>.
-    /// <c>AccountCode</c> يُولَّد في الخدمة — لا يُرسَل من الشاشة.
+    /// حفظ الحساب: <c>Adding</c> ⇒ <c>CreateAsync</c>، و<c>Editing</c> ⇒ <c>UpdateAsync</c>.
+    /// الطلب يُبنى في المحرّر (<c>TryBuildCreate/TryBuildUpdate</c>) — التحقق كله هناك،
+    /// و<c>AccountCode</c> يولّده النظام فلا يُرسَل من الشاشة.
     /// </summary>
     private async Task _SaveAsync()
     {
         // حماية من النقر المزدوج: لا ندخل الحفظ مرتين قبل أن يُصفَّر العلم في finally.
         if (_actionButtonsBusy) return;
 
-        // الحقول المطلوبة: الحكم والعَلم في البيت الواحد RequiredFieldHelper (RULE-N172/RULE-N184) —
-        // يُوسَم كل ناقص (أيقونة ✗ + ومضة) ثم ينتقل المؤشر إلى أوله، والأزرار تبقى مفعّلة.
-        if (!RequiredFieldHelper.Validate(this))
+        bool isUpdate = _mode == CrudMode.Editing && _editId is not null;
+
+        // الحارسان «|| x is null» لتدفّق النوع عند المُصرِّف فقط: TryBuild* لا يُعيد true
+        // إلا بطلب صالح غير فارغ — فلا تغيير في السلوك.
+        CreateAccountRequest? createRequest = null;
+        UpdateAccountRequest? updateRequest = null;
+
+        if (isUpdate)
         {
-            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
-            return;
+            if (!Editor.TryBuildUpdate(out var update) || update is null) return;   // الرسالة والحقل في المحرّر
+            updateRequest = update;
+        }
+        else
+        {
+            if (!Editor.TryBuildCreate(out var create) || create is null) return;
+            createRequest = create;
         }
 
-        // فحوص هذه الشاشة غير المتعلقة بالفراغ (نوع الحساب · دورة الأب · الترحيل · الرصيد الافتتاحي).
-        if (!_ValidateRangeRules())
-            return;
-
-        bool isUpdate = _editId is int;
-        int? requestedId = _editId;
+        int? targetId = isUpdate ? _editId : null;
 
         Cursor = Cursors.WaitCursor;
         _actionButtonsBusy = true;
-        _UpdateActionButtons();
+        _ApplyModeState();
 
         try
         {
-            string nameAr = txtNameAr.Text.Trim();
-            string? nameEn = txtNameEn.Text?.Trim().ToNullIfEmpty();
-            byte nature = ((NatureOption)cbNature.SelectedItem!).Value;
-            bool isLeaf = chkIsLeaf.Checked;
-            int? parentId = (cbParent.SelectedItem as ParentOption)?.Id;
-            string? description = txtDescription.Text?.Trim().ToNullIfEmpty();
-            string? notes = txtNotes.Text?.Trim().ToNullIfEmpty();
-
             int? savedId;
 
-            if (isUpdate && requestedId is int id)
+            if (updateRequest is not null && targetId is int id)
             {
-                // التصنيف (CategoryId) ليس له حقل في هذه الشاشة — نُمرّر المحفوظ كما هو
-                // بدل تصفيره، وإلا فُقد تصنيف الحساب صامتاً عند أول تعديل.
-                short? categoryId = _accountsById.TryGetValue(id, out var stored) ? stored.CategoryId : null;
-
-                var request = new UpdateAccountRequest(
-                    nameAr, nameEn, nature, isLeaf, parentId, categoryId, description, notes);
-
-                var result = await AccountService.UpdateAsync(id, request);
+                var result = await AccountService.UpdateAsync(id, updateRequest);
 
                 if (!result.IsSuccess)
                 {
@@ -1030,15 +905,9 @@ public partial class frmAccounts : Form
 
                 savedId = id;
             }
-            else
+            else if (createRequest is not null)
             {
-                // الحسابات النظامية تُنشأ من بذور/مزامنة النظام فقط، والخدمة تُهمل هذا العلم وتُنشئ
-                // الحساب عادياً (AccountService.CreateAsync) — فإرسال ما لا يُطبَّق نجاح كاذب؛ القيمة ثابتة false.
-                var request = new CreateAccountRequest(
-                    nameAr, nameEn, nature, isLeaf, parentId, false,
-                    null, description, notes, numOpeningBalance.Value);
-
-                var result = await AccountService.CreateAsync(request);
+                var result = await AccountService.CreateAsync(createRequest);
 
                 if (!result.IsSuccess)
                 {
@@ -1048,44 +917,41 @@ public partial class frmAccounts : Form
 
                 savedId = result.Value;
             }
-
-            clsDialogs.Success(isUpdate ? "تم تعديل الحساب بنجاح." : "تمت إضافة الحساب بنجاح.");
-
-            _editId = savedId;
-            await _LoadAsync();
-
-            if (savedId is int newId)
+            else
             {
-                _SelectGridRow(newId);
-                _LoadIntoEditor(newId);
+                // لا طلب صالح: الحارسان أعلاه يمنعان الوصول إلى هنا — لا شيء يُحفظ.
+                return;
             }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء حفظ الحساب");
-            clsDialogs.Error("حدث خطأ أثناء الحفظ. يرجى إعادة المحاولة.");
+
+            clsDialogs.Success(updateRequest is not null ? "تم تعديل الحساب بنجاح." : "تمت إضافة الحساب بنجاح.");
+
+            _editId = savedId;      // إعادة التحميل تُحدد السجل المحفوظ في الشبكة والشجرة
+            await _LoadAsync();
+            _ResetForm(savedId);    // وضع العرض مع بقاء السجل المحفوظ معروضاً
         }
         finally
         {
             _actionButtonsBusy = false;
-            _UpdateActionButtons();
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
     }
 
     /// <summary>تعطيل الحساب (حذف ناعم) — الحسابات النظامية يرفضها BLL وتُعرَض رسالته.</summary>
-    private async void btnDelete_Click(object? sender, EventArgs e)
+    private async Task _DeleteAsync()
     {
+        if (_actionButtonsBusy) return;
+
         if (_editId is not int id || !_accountsById.TryGetValue(id, out var account))
         {
-            clsDialogs.Warning("يرجى اختيار حساب من القائمة أولاً.");
+            clsDialogs.Warning(SelectFirstMessage);
             return;
         }
 
         if (account.IsSystem)
         {
             // الحساب النظامي محمي في الخدمة نفسها: لا تعديل ولا تعطيل ولا حذف نهائي.
-            clsDialogs.Warning("هذا حساب نظامي — لا يمكن تعطيله أو تعديله أو حذفه من هذه الشاشة.");
+            clsDialogs.Warning(SystemAccountMessage);
             return;
         }
 
@@ -1097,7 +963,7 @@ public partial class frmAccounts : Form
 
         Cursor = Cursors.WaitCursor;
         _actionButtonsBusy = true;
-        _UpdateActionButtons();
+        _ApplyModeState();
 
         try
         {
@@ -1115,28 +981,23 @@ public partial class frmAccounts : Form
                 clsDialogs.Error($"لم يتم تعطيل الحساب.\n{result.Error}");
             }
         }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تعطيل الحساب {AccountId}", id);
-            clsDialogs.Error("حدث خطأ أثناء التعطيل. يرجى إعادة المحاولة.");
-        }
         finally
         {
             _actionButtonsBusy = false;
-            _UpdateActionButtons();
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
     }
 
     /// <summary>
-    /// حذف نهائي — تحذير أقوى، ويكون الزر معطّلاً للحسابات النظامية (RULE-N92/N93).
-    /// كل رفض من BLL (حساب مستخدم/له فروق) يُعرَض نصّه العربي كما هو.
+    /// حذف نهائي — تحذير أقوى، ويبقى الزر معطّلاً للحسابات النظامية من آلة الحالة.
+    /// كل رفض من BLL يُعرَض نصّه العربي كما هو.
     /// </summary>
     private async void btnPermanentDelete_Click(object? sender, EventArgs e)
     {
         if (_editId is not int id || !_accountsById.TryGetValue(id, out var account))
         {
-            clsDialogs.Warning("يرجى اختيار حساب من القائمة أولاً.");
+            clsDialogs.Warning(SelectFirstMessage);
             return;
         }
 
@@ -1156,7 +1017,7 @@ public partial class frmAccounts : Form
 
         Cursor = Cursors.WaitCursor;
         _actionButtonsBusy = true;
-        _UpdateActionButtons();
+        _ApplyModeState();
 
         try
         {
@@ -1176,82 +1037,73 @@ public partial class frmAccounts : Form
         }
         catch (Exception ex)
         {
+            // حدّ الأمان لمعالج async void (RULE-N25/N205): رسالة عربية بلا نص الاستثناء.
             Log.Error(ex, "خطأ أثناء الحذف النهائي للحساب {AccountId}", id);
-            clsDialogs.Error("حدث خطأ أثناء الحذف النهائي. يرجى إعادة المحاولة.");
+            clsDialogs.Error(PermanentDeleteFailedMessage);
         }
         finally
         {
             _actionButtonsBusy = false;
-            _UpdateActionButtons();
+            _ApplyModeState();
             Cursor = Cursors.Default;
         }
+    }
+
+    // ── Shortcuts ────────────────────────────────────────────────────────────
+
+    /// <summary>Esc: داخل صندوق التصفية يمسحها، وفي وضع الإضافة/التعديل يلغي، وإلا يُغلق.</summary>
+    private void _HandleEscape()
+    {
+        if (txtFilterValue.Focused)
+        {
+            _ClearAllFilters();
+            return;
+        }
+
+        if (_mode != CrudMode.Browsing)
+        {
+            _ResetForm(_editId);
+            return;
+        }
+
+        Close();
+    }
+
+    /// <summary>Delete يُعطّل الحساب فقط في وضع العرض وعندما لا يكون المؤشر داخل حقل نصي.</summary>
+    private void _HandleDeleteShortcut()
+    {
+        // الفحص عبر بيت واحد (RULE-N169): ActiveControl يعيد الحاوية لا الحقل المركَّز نفسه.
+        if (KeyboardHelper.IsTextInputFocused(this)) return;
+        if (_mode != CrudMode.Browsing) return;
+
+        _ = _RunSafeAsync(_DeleteAsync, DeleteFailedMessage);
     }
 
     // ── Context menu (RULE-N23) ──────────────────────────────────────────────
 
-    private void cmsEdit_Click(object? sender, EventArgs e)
+    private void cmsEdit_Click(object? sender, EventArgs e) => _StartEditFromSelection();
+
+    private void cmsDelete_Click(object? sender, EventArgs e) => _ = _RunSafeAsync(_DeleteAsync, DeleteFailedMessage);
+
+    private async void cmsRefresh_Click(object? sender, EventArgs e)
+        => await _RunSafeAsync(_RefreshAsync, RefreshFailedMessage);
+
+    // ── حدّ الأمان الوحيد للمعالجات غير المتزامنة (RULE-N205) ──────────────────
+
+    /// <summary>
+    /// ينفّذ عملية غير متزامنة ويعرض رسالة عربية واحدة عند فشلها — بدل تكرار
+    /// <c>try/catch</c> في كل معالج. لا يرمي أبداً.
+    /// </summary>
+    private static async Task _RunSafeAsync(Func<Task> operation, string failureMessage)
     {
-        if (_SelectedAccountId() is int id)
-        {
-            _LoadIntoEditor(id);
-            txtNameAr.Focus();
-        }
-    }
-
-    private void cmsDelete_Click(object? sender, EventArgs e) => btnDelete.PerformClick();
-
-    private async void cmsRefresh_Click(object? sender, EventArgs e) => await _RefreshAsync();
-
-    private async void cmsTree_Click(object? sender, EventArgs e)
-    {
-        Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await AccountService.GetTreeAsync();
-
-            if (!result.IsSuccess || result.Value is null)
-            {
-                clsDialogs.Error(result.Error ?? "تعذر تحميل شجرة الحسابات.");
-                return;
-            }
-
-            var builder = new StringBuilder();
-            foreach (var root in result.Value)
-                _AppendTreeNode(builder, root, 0);
-
-            const int maxLength = 4000;
-            string text = builder.Length > maxLength
-                ? builder.ToString(0, maxLength) + "\n… (الشجرة أطول من أن تُعرض كاملة)"
-                : builder.ToString();
-
-            clsDialogs.Info(text);
+            await operation();
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ أثناء عرض شجرة الحسابات");
-            clsDialogs.Error("تعذر عرض شجرة الحسابات. يرجى إعادة المحاولة.");
+            Log.Error(ex, "دليل الحسابات: {FailureMessage}", failureMessage);
+            clsDialogs.Error(failureMessage);
         }
-        finally
-        {
-            Cursor = Cursors.Default;
-        }
-    }
-
-    /// <summary>يبني تمثيلاً نصياً متدرّجاً للشجرة (بدل TreeView داخل شاشة الدليل).</summary>
-    private static void _AppendTreeNode(StringBuilder builder, AccountTreeNodeDto node, int depth)
-    {
-        builder.Append(new string(' ', depth * 2));
-        builder.Append("└ ");
-        builder.Append(node.AccountCode);
-        builder.Append(" — ");
-        builder.AppendLine(node.NameAr);
-
-        foreach (var child in node.Children)
-            _AppendTreeNode(builder, child, depth + 1);
-    }
-
-    private void lblOpeningBalance_Click(object sender, EventArgs e)
-    {
-
     }
 }

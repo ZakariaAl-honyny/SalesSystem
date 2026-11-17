@@ -8,9 +8,17 @@ partial class ctrlTreeOfAccounts
     //   • المصمّم = التشغيل (RULE-N134 / RULE-N140 / RULE-N204): كل لون بصيغة Convert.ToInt32
     //     وبالقيمة الحرفية نفسها التي يطبّقها GreenThemeHelper وقت التشغيل — ولا مرجع لأي عضو
     //     في Helpers/ داخل هذا الملف (RULE-N128).
-    //   • RULE-N145: كل زر وشريط وحقل وقائمة دائمة مُعلَنة هنا — لا يُبنى عنصر دائم وقت التشغيل.
-    //   • RULE-N125 (ترتيب الإرساء): tvAccounts (Fill) يُضاف أولاً، ثم pnlStatus (Bottom)،
+    //   • هيكل شاشة المرجع (frmAddUpdateSalesInvoice) من أعلى لأسفل، كل كتلة صندوق واحد بعنوان
+    //     ولا صندوق داخل صندوق (RULE-N137):
+    //       (1) gbCommands «أوامر الحسابات» — شريط CRUD المشترك + صف ثانوي خاص بالشجرة
+    //       (2) gbSearch   «بحث وتصفية»
+    //       (3) gbTree     «شجرة الحسابات»  (Fill)
+    //       (4) pnlSummary «ملخص» (شريط سفلي، سطر واحد)
+    //     شريط العنوان ليس هنا: يملكه النموذج الحاضن (frmAccountsTree).
+    //   • RULE-N125 (ترتيب الإرساء): gbTree (Fill) يُضاف أولاً، ثم pnlSummary (Bottom)،
     //     ثم gbSearch وgbCommands (Top) — فيُرسي آخر المُضاف (gbCommands) في الأعلى.
+    //   • داخل gbCommands: flpSecondary يُضاف أولاً ثم ctrlCrudToolbar1 — فيصعد شريط الأوامر
+    //     فوق الصف الثانوي (نفس منطق ctrlDashboard: آخر Top يُضاف يُرسى أولاً).
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
@@ -26,29 +34,28 @@ partial class ctrlTreeOfAccounts
         miExpandAll = new ToolStripMenuItem();
         miCollapseAll = new ToolStripMenuItem();
         gbCommands = new GroupBox();
-        flpCommands = new FlowLayoutPanel();
-        btnAddChild = new Button();
-        btnEdit = new Button();
-        btnDelete = new Button();
-        btnDeletePermanent = new Button();
-        btnRefresh = new Button();
+        flpSecondary = new FlowLayoutPanel();
         btnExpandAll = new Button();
         btnCollapseAll = new Button();
+        btnDeletePermanent = new Button();
+        ctrlCrudToolbar1 = new SalesSystem.Desktop.Controls.Common.ctrlCrudToolbar();
         gbSearch = new GroupBox();
         flpSearch = new FlowLayoutPanel();
         lblSearchBy = new Label();
         cbSearchBy = new ComboBox();
         txtSearch = new TextBox();
         lblSearchHint = new Label();
+        gbTree = new GroupBox();
         tvAccounts = new TreeView();
-        pnlStatus = new Panel();
-        lblStatus = new Label();
+        pnlSummary = new Panel();
+        lblSummary = new Label();
         cmsAccounts.SuspendLayout();
         gbCommands.SuspendLayout();
-        flpCommands.SuspendLayout();
+        flpSecondary.SuspendLayout();
         gbSearch.SuspendLayout();
         flpSearch.SuspendLayout();
-        pnlStatus.SuspendLayout();
+        gbTree.SuspendLayout();
+        pnlSummary.SuspendLayout();
         SuspendLayout();
         // 
         // toolTip1
@@ -79,21 +86,21 @@ partial class ctrlTreeOfAccounts
         miAddChild.Name = "miAddChild";
         miAddChild.Size = new Size(195, 26);
         miAddChild.Text = "إضافة حساب فرعي";
-        miAddChild.Click += btnAddChild_Click;
+        miAddChild.Click += CtrlToolbar_AddRequested;
         // 
         // miEdit
         // 
         miEdit.Name = "miEdit";
         miEdit.Size = new Size(195, 26);
         miEdit.Text = "تعديل";
-        miEdit.Click += btnEdit_Click;
+        miEdit.Click += CtrlToolbar_EditRequested;
         // 
         // miDelete
         // 
         miDelete.Name = "miDelete";
         miDelete.Size = new Size(195, 26);
         miDelete.Text = "حذف";
-        miDelete.Click += btnDelete_Click;
+        miDelete.Click += CtrlToolbar_DeleteRequested;
         // 
         // miDeletePermanent
         // 
@@ -112,7 +119,7 @@ partial class ctrlTreeOfAccounts
         miRefresh.Name = "miRefresh";
         miRefresh.Size = new Size(195, 26);
         miRefresh.Text = "تحديث";
-        miRefresh.Click += btnRefresh_Click;
+        miRefresh.Click += CtrlToolbar_RefreshRequested;
         // 
         // miExpandAll
         // 
@@ -131,125 +138,43 @@ partial class ctrlTreeOfAccounts
         // gbCommands
         // 
         gbCommands.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
-        gbCommands.Controls.Add(flpCommands);
+        gbCommands.Controls.Add(flpSecondary);
+        gbCommands.Controls.Add(ctrlCrudToolbar1);
         gbCommands.Dock = DockStyle.Top;
         gbCommands.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         gbCommands.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbCommands.Location = new Point(0, 0);
         gbCommands.Name = "gbCommands";
         gbCommands.Padding = new Padding(8, 6, 8, 6);
-        gbCommands.Size = new Size(940, 64);
+        gbCommands.Size = new Size(980, 128);
         gbCommands.TabIndex = 0;
         gbCommands.TabStop = false;
         gbCommands.Text = "أوامر الحسابات";
         // 
-        // flpCommands
+        // ctrlCrudToolbar1
         // 
-        flpCommands.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
-        flpCommands.Controls.Add(btnAddChild);
-        flpCommands.Controls.Add(btnEdit);
-        flpCommands.Controls.Add(btnDelete);
-        flpCommands.Controls.Add(btnDeletePermanent);
-        flpCommands.Controls.Add(btnRefresh);
-        flpCommands.Controls.Add(btnExpandAll);
-        flpCommands.Controls.Add(btnCollapseAll);
-        flpCommands.Dock = DockStyle.Fill;
-        flpCommands.FlowDirection = FlowDirection.RightToLeft;
-        flpCommands.Location = new Point(8, 22);
-        flpCommands.Name = "flpCommands";
-        flpCommands.Size = new Size(924, 36);
-        flpCommands.TabIndex = 0;
-        flpCommands.WrapContents = false;
+        ctrlCrudToolbar1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+        ctrlCrudToolbar1.Dock = DockStyle.Top;
+        ctrlCrudToolbar1.Font = new Font("Tahoma", 10F);
+        ctrlCrudToolbar1.Location = new Point(8, 28);
+        ctrlCrudToolbar1.Name = "ctrlCrudToolbar1";
+        ctrlCrudToolbar1.RightToLeft = RightToLeft.Yes;
+        ctrlCrudToolbar1.Size = new Size(964, 46);
+        ctrlCrudToolbar1.TabIndex = 0;
         // 
-        // btnAddChild
+        // flpSecondary
         // 
-        btnAddChild.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
-        btnAddChild.Cursor = Cursors.Hand;
-        btnAddChild.FlatAppearance.BorderSize = 0;
-        btnAddChild.FlatStyle = FlatStyle.Flat;
-        btnAddChild.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnAddChild.ForeColor = System.Drawing.Color.White;
-        btnAddChild.Location = new Point(770, 2);
-        btnAddChild.Margin = new Padding(4, 2, 4, 2);
-        btnAddChild.Name = "btnAddChild";
-        btnAddChild.Size = new Size(150, 34);
-        btnAddChild.TabIndex = 0;
-        btnAddChild.Text = "إضافة حساب فرعي";
-        toolTip1.SetToolTip(btnAddChild, "إضافة حساب فرعي تحت الحساب المحدد (F2 — تفتح شاشة دليل الحسابات)");
-        btnAddChild.UseVisualStyleBackColor = false;
-        btnAddChild.Click += btnAddChild_Click;
-        // 
-        // btnEdit
-        // 
-        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(193), Convert.ToInt32(7));
-        btnEdit.Cursor = Cursors.Hand;
-        btnEdit.FlatAppearance.BorderSize = 0;
-        btnEdit.FlatStyle = FlatStyle.Flat;
-        btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
-        btnEdit.Location = new Point(666, 2);
-        btnEdit.Margin = new Padding(4, 2, 4, 2);
-        btnEdit.Name = "btnEdit";
-        btnEdit.Size = new Size(100, 34);
-        btnEdit.TabIndex = 1;
-        btnEdit.Text = "تعديل";
-        toolTip1.SetToolTip(btnEdit, "تعديل الحساب المحدد (تفتح شاشة دليل الحسابات)");
-        btnEdit.UseVisualStyleBackColor = false;
-        btnEdit.Click += btnEdit_Click;
-        // 
-        // btnDelete
-        // 
-        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
-        btnDelete.Cursor = Cursors.Hand;
-        btnDelete.FlatAppearance.BorderSize = 0;
-        btnDelete.FlatStyle = FlatStyle.Flat;
-        btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = System.Drawing.Color.White;
-        btnDelete.Location = new Point(562, 2);
-        btnDelete.Margin = new Padding(4, 2, 4, 2);
-        btnDelete.Name = "btnDelete";
-        btnDelete.Size = new Size(100, 34);
-        btnDelete.TabIndex = 2;
-        btnDelete.Text = "حذف";
-        toolTip1.SetToolTip(btnDelete, "تعطيل الحساب المحدد بعد تأكيد");
-        btnDelete.UseVisualStyleBackColor = false;
-        btnDelete.Click += btnDelete_Click;
-        // 
-        // btnDeletePermanent
-        // 
-        btnDeletePermanent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
-        btnDeletePermanent.Cursor = Cursors.Hand;
-        btnDeletePermanent.FlatAppearance.BorderSize = 0;
-        btnDeletePermanent.FlatStyle = FlatStyle.Flat;
-        btnDeletePermanent.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDeletePermanent.ForeColor = System.Drawing.Color.White;
-        btnDeletePermanent.Location = new Point(438, 2);
-        btnDeletePermanent.Margin = new Padding(4, 2, 4, 2);
-        btnDeletePermanent.Name = "btnDeletePermanent";
-        btnDeletePermanent.Size = new Size(120, 34);
-        btnDeletePermanent.TabIndex = 3;
-        btnDeletePermanent.Text = "حذف نهائي";
-        toolTip1.SetToolTip(btnDeletePermanent, "حذف نهائي للحساب المحدد — غير النظامي وبلا حسابات فرعية فقط");
-        btnDeletePermanent.UseVisualStyleBackColor = false;
-        btnDeletePermanent.Click += btnDeletePermanent_Click;
-        // 
-        // btnRefresh
-        // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
-        btnRefresh.Cursor = Cursors.Hand;
-        btnRefresh.FlatAppearance.BorderSize = 0;
-        btnRefresh.FlatStyle = FlatStyle.Flat;
-        btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = System.Drawing.Color.White;
-        btnRefresh.Location = new Point(324, 2);
-        btnRefresh.Margin = new Padding(4, 2, 4, 2);
-        btnRefresh.Name = "btnRefresh";
-        btnRefresh.Size = new Size(110, 34);
-        btnRefresh.TabIndex = 4;
-        btnRefresh.Text = "تحديث";
-        toolTip1.SetToolTip(btnRefresh, "إعادة تحميل شجرة الحسابات (F5)");
-        btnRefresh.UseVisualStyleBackColor = false;
-        btnRefresh.Click += btnRefresh_Click;
+        flpSecondary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        flpSecondary.Controls.Add(btnExpandAll);
+        flpSecondary.Controls.Add(btnCollapseAll);
+        flpSecondary.Controls.Add(btnDeletePermanent);
+        flpSecondary.Dock = DockStyle.Top;
+        flpSecondary.FlowDirection = FlowDirection.RightToLeft;
+        flpSecondary.Location = new Point(8, 74);
+        flpSecondary.Name = "flpSecondary";
+        flpSecondary.Size = new Size(964, 46);
+        flpSecondary.TabIndex = 1;
+        flpSecondary.WrapContents = false;
         // 
         // btnExpandAll
         // 
@@ -259,11 +184,11 @@ partial class ctrlTreeOfAccounts
         btnExpandAll.FlatStyle = FlatStyle.Flat;
         btnExpandAll.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnExpandAll.ForeColor = System.Drawing.Color.White;
-        btnExpandAll.Location = new Point(200, 2);
-        btnExpandAll.Margin = new Padding(4, 2, 4, 2);
+        btnExpandAll.Location = new Point(840, 3);
+        btnExpandAll.Margin = new Padding(4, 3, 0, 3);
         btnExpandAll.Name = "btnExpandAll";
-        btnExpandAll.Size = new Size(120, 34);
-        btnExpandAll.TabIndex = 5;
+        btnExpandAll.Size = new Size(120, 40);
+        btnExpandAll.TabIndex = 0;
         btnExpandAll.Text = "توسيع الكل";
         toolTip1.SetToolTip(btnExpandAll, "توسيع كل مجموعات الشجرة");
         btnExpandAll.UseVisualStyleBackColor = false;
@@ -277,15 +202,33 @@ partial class ctrlTreeOfAccounts
         btnCollapseAll.FlatStyle = FlatStyle.Flat;
         btnCollapseAll.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnCollapseAll.ForeColor = System.Drawing.Color.White;
-        btnCollapseAll.Location = new Point(76, 2);
-        btnCollapseAll.Margin = new Padding(4, 2, 4, 2);
+        btnCollapseAll.Location = new Point(716, 3);
+        btnCollapseAll.Margin = new Padding(4, 3, 0, 3);
         btnCollapseAll.Name = "btnCollapseAll";
-        btnCollapseAll.Size = new Size(120, 34);
-        btnCollapseAll.TabIndex = 6;
+        btnCollapseAll.Size = new Size(120, 40);
+        btnCollapseAll.TabIndex = 1;
         btnCollapseAll.Text = "طيّ الكل";
         toolTip1.SetToolTip(btnCollapseAll, "طيّ كل مجموعات الشجرة");
         btnCollapseAll.UseVisualStyleBackColor = false;
         btnCollapseAll.Click += btnCollapseAll_Click;
+        // 
+        // btnDeletePermanent
+        // 
+        btnDeletePermanent.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
+        btnDeletePermanent.Cursor = Cursors.Hand;
+        btnDeletePermanent.FlatAppearance.BorderSize = 0;
+        btnDeletePermanent.FlatStyle = FlatStyle.Flat;
+        btnDeletePermanent.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnDeletePermanent.ForeColor = System.Drawing.Color.White;
+        btnDeletePermanent.Location = new Point(582, 3);
+        btnDeletePermanent.Margin = new Padding(4, 3, 0, 3);
+        btnDeletePermanent.Name = "btnDeletePermanent";
+        btnDeletePermanent.Size = new Size(130, 40);
+        btnDeletePermanent.TabIndex = 2;
+        btnDeletePermanent.Text = "حذف نهائي";
+        toolTip1.SetToolTip(btnDeletePermanent, "حذف نهائي للحساب المحدد — غير النظامي وبلا حسابات فرعية فقط");
+        btnDeletePermanent.UseVisualStyleBackColor = false;
+        btnDeletePermanent.Click += btnDeletePermanent_Click;
         // 
         // gbSearch
         // 
@@ -294,10 +237,10 @@ partial class ctrlTreeOfAccounts
         gbSearch.Dock = DockStyle.Top;
         gbSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         gbSearch.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        gbSearch.Location = new Point(0, 64);
+        gbSearch.Location = new Point(0, 128);
         gbSearch.Name = "gbSearch";
         gbSearch.Padding = new Padding(8, 6, 8, 6);
-        gbSearch.Size = new Size(940, 64);
+        gbSearch.Size = new Size(980, 64);
         gbSearch.TabIndex = 1;
         gbSearch.TabStop = false;
         gbSearch.Text = "بحث وتصفية";
@@ -313,7 +256,7 @@ partial class ctrlTreeOfAccounts
         flpSearch.FlowDirection = FlowDirection.RightToLeft;
         flpSearch.Location = new Point(8, 22);
         flpSearch.Name = "flpSearch";
-        flpSearch.Size = new Size(924, 36);
+        flpSearch.Size = new Size(964, 36);
         flpSearch.TabIndex = 0;
         flpSearch.WrapContents = false;
         // 
@@ -322,7 +265,7 @@ partial class ctrlTreeOfAccounts
         lblSearchBy.AutoSize = true;
         lblSearchBy.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         lblSearchBy.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblSearchBy.Location = new Point(836, 11);
+        lblSearchBy.Location = new Point(876, 11);
         lblSearchBy.Margin = new Padding(8, 9, 4, 3);
         lblSearchBy.Name = "lblSearchBy";
         lblSearchBy.Size = new Size(76, 20);
@@ -338,7 +281,7 @@ partial class ctrlTreeOfAccounts
         cbSearchBy.Font = new Font("Tahoma", 10F);
         cbSearchBy.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         cbSearchBy.FormattingEnabled = true;
-        cbSearchBy.Location = new Point(688, 8);
+        cbSearchBy.Location = new Point(728, 8);
         cbSearchBy.Margin = new Padding(4, 6, 4, 3);
         cbSearchBy.Name = "cbSearchBy";
         cbSearchBy.RightToLeft = RightToLeft.Yes;
@@ -352,7 +295,7 @@ partial class ctrlTreeOfAccounts
         txtSearch.BorderStyle = BorderStyle.FixedSingle;
         txtSearch.Font = new Font("Tahoma", 10F);
         txtSearch.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        txtSearch.Location = new Point(340, 8);
+        txtSearch.Location = new Point(380, 8);
         txtSearch.Margin = new Padding(4, 7, 4, 3);
         txtSearch.Name = "txtSearch";
         txtSearch.RightToLeft = RightToLeft.Yes;
@@ -365,13 +308,28 @@ partial class ctrlTreeOfAccounts
         lblSearchHint.AutoSize = true;
         lblSearchHint.Font = new Font("Tahoma", 9F);
         lblSearchHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblSearchHint.Location = new Point(87, 13);
+        lblSearchHint.Location = new Point(127, 13);
         lblSearchHint.Margin = new Padding(8, 11, 4, 3);
         lblSearchHint.Name = "lblSearchHint";
         lblSearchHint.Size = new Size(241, 18);
         lblSearchHint.TabIndex = 3;
         lblSearchHint.Text = "اكتب للتصفية الفورية — Enter ينقل التركيز إلى الشجرة";
         lblSearchHint.TextAlign = ContentAlignment.MiddleRight;
+        // 
+        // gbTree
+        // 
+        gbTree.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbTree.Controls.Add(tvAccounts);
+        gbTree.Dock = DockStyle.Fill;
+        gbTree.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        gbTree.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        gbTree.Location = new Point(0, 192);
+        gbTree.Name = "gbTree";
+        gbTree.Padding = new Padding(6);
+        gbTree.Size = new Size(980, 434);
+        gbTree.TabIndex = 2;
+        gbTree.TabStop = false;
+        gbTree.Text = "شجرة الحسابات";
         // 
         // tvAccounts
         // 
@@ -384,56 +342,58 @@ partial class ctrlTreeOfAccounts
         tvAccounts.FullRowSelect = true;
         tvAccounts.HideSelection = false;
         tvAccounts.ItemHeight = 26;
-        tvAccounts.Location = new Point(0, 128);
+        tvAccounts.Location = new Point(6, 28);
         tvAccounts.Name = "tvAccounts";
         tvAccounts.ShowLines = true;
+        tvAccounts.ShowPlusMinus = true;
         tvAccounts.ShowRootLines = true;
-        tvAccounts.Size = new Size(940, 482);
-        tvAccounts.TabIndex = 2;
+        tvAccounts.Size = new Size(968, 400);
+        tvAccounts.TabIndex = 0;
         tvAccounts.AfterSelect += tvAccounts_AfterSelect;
         // 
-        // pnlStatus
+        // pnlSummary
         // 
-        pnlStatus.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
-        pnlStatus.Controls.Add(lblStatus);
-        pnlStatus.Dock = DockStyle.Bottom;
-        pnlStatus.Location = new Point(0, 610);
-        pnlStatus.Name = "pnlStatus";
-        pnlStatus.Size = new Size(940, 30);
-        pnlStatus.TabIndex = 3;
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlSummary.Controls.Add(lblSummary);
+        pnlSummary.Dock = DockStyle.Bottom;
+        pnlSummary.Location = new Point(0, 626);
+        pnlSummary.Name = "pnlSummary";
+        pnlSummary.Size = new Size(980, 34);
+        pnlSummary.TabIndex = 3;
         // 
-        // lblStatus
+        // lblSummary
         // 
-        lblStatus.Dock = DockStyle.Fill;
-        lblStatus.Font = new Font("Tahoma", 9F);
-        lblStatus.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblStatus.Location = new Point(0, 0);
-        lblStatus.Name = "lblStatus";
-        lblStatus.Padding = new Padding(8, 0, 8, 0);
-        lblStatus.Size = new Size(940, 30);
-        lblStatus.TabIndex = 0;
-        lblStatus.Text = "عدد الحسابات المعروضة: 0";
-        lblStatus.TextAlign = ContentAlignment.MiddleRight;
+        lblSummary.Dock = DockStyle.Fill;
+        lblSummary.Font = new Font("Tahoma", 9F);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lblSummary.Location = new Point(0, 0);
+        lblSummary.Name = "lblSummary";
+        lblSummary.Padding = new Padding(8, 0, 8, 0);
+        lblSummary.Size = new Size(980, 34);
+        lblSummary.TabIndex = 0;
+        lblSummary.Text = "عدد الحسابات المعروضة: 0";
+        lblSummary.TextAlign = ContentAlignment.MiddleRight;
         // 
         // ctrlTreeOfAccounts
         // 
         AutoScaleMode = AutoScaleMode.None;
         BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
-        Controls.Add(tvAccounts);
-        Controls.Add(pnlStatus);
+        Controls.Add(gbTree);
+        Controls.Add(pnlSummary);
         Controls.Add(gbSearch);
         Controls.Add(gbCommands);
         Font = new Font("Tahoma", 10F);
         Name = "ctrlTreeOfAccounts";
         RightToLeft = RightToLeft.Yes;
-        Size = new Size(940, 640);
+        Size = new Size(980, 660);
         cmsAccounts.ResumeLayout(false);
         gbCommands.ResumeLayout(false);
-        flpCommands.ResumeLayout(false);
+        flpSecondary.ResumeLayout(false);
         gbSearch.ResumeLayout(false);
         flpSearch.ResumeLayout(false);
         flpSearch.PerformLayout();
-        pnlStatus.ResumeLayout(false);
+        gbTree.ResumeLayout(false);
+        pnlSummary.ResumeLayout(false);
         ResumeLayout(false);
     }
 
@@ -449,21 +409,19 @@ partial class ctrlTreeOfAccounts
     private System.Windows.Forms.ToolStripMenuItem miExpandAll;
     private System.Windows.Forms.ToolStripMenuItem miCollapseAll;
     private System.Windows.Forms.GroupBox gbCommands;
-    private System.Windows.Forms.FlowLayoutPanel flpCommands;
-    private System.Windows.Forms.Button btnAddChild;
-    private System.Windows.Forms.Button btnEdit;
-    private System.Windows.Forms.Button btnDelete;
-    private System.Windows.Forms.Button btnDeletePermanent;
-    private System.Windows.Forms.Button btnRefresh;
+    private System.Windows.Forms.FlowLayoutPanel flpSecondary;
     private System.Windows.Forms.Button btnExpandAll;
     private System.Windows.Forms.Button btnCollapseAll;
+    private System.Windows.Forms.Button btnDeletePermanent;
+    private SalesSystem.Desktop.Controls.Common.ctrlCrudToolbar ctrlCrudToolbar1;
     private System.Windows.Forms.GroupBox gbSearch;
     private System.Windows.Forms.FlowLayoutPanel flpSearch;
     private System.Windows.Forms.Label lblSearchBy;
     private System.Windows.Forms.ComboBox cbSearchBy;
     private System.Windows.Forms.TextBox txtSearch;
     private System.Windows.Forms.Label lblSearchHint;
+    private System.Windows.Forms.GroupBox gbTree;
     private System.Windows.Forms.TreeView tvAccounts;
-    private System.Windows.Forms.Panel pnlStatus;
-    private System.Windows.Forms.Label lblStatus;
+    private System.Windows.Forms.Panel pnlSummary;
+    private System.Windows.Forms.Label lblSummary;
 }

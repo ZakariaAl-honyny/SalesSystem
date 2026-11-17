@@ -3,22 +3,31 @@
 //
 // • عنصر قابل للتضمين: يعرض دليل الحسابات هرمياً (أب ← أبناء) من
 //   IAccountDesktopService.GetTreeAsync — لا وصول لأي طبقة أدنى (RULE-N05 / RULE-N06).
+// • المستوى الأول ثابت: خمس عقد طبائع («الأصول (1) — 24 حساباً» … «المصروفات (5)»)
+//   ثم الحسابات الجذرية تحت طبيعتها وفروعها كما وصلت من الخدمة (بلا حد للعمق)، فيرى
+//   المحاسب هيكل الدليل كاملاً حتى لو كانت طبيعة ما بلا حسابات.
 // • الغرض: **إيجاد الحساب بسرعة** — تصفية فورية بالكود أو بالاسم (كبح 250 مللي)
-//   تُظهر الحسابات المطابقة **مع أسلافها** ثم تُوسّع النتيجة، وبلا مطابقة تُعرض
-//   عقدة واحدة باهتة «لا توجد حسابات مطابقة» (لا استثناء ولا MessageBox).
+//   تُظهر المطابقات **مع أسلافها** وتُبقي عقد الطبائع الخمس (السياق لا يُفقد)، ثم تُوسّع
+//   النتيجة؛ وبلا مطابقة على مستوى الشجرة كلها عقدة واحدة باهتة «لا توجد حسابات مطابقة».
+// • يعرّض للحاضن ما يحتاجه لتصفية شبكته: GetSubtreeIds (الفرع) و GetNatureIds (الطبيعة).
 // • CRUD من الشجرة بقرار المالك، بلا بناء محرّر ثانٍ (RULE-N100): «إضافة حساب فرعي»
 //   و«تعديل» يُطلقان حدثاً فقط ويُفتح frmAccounts في الحاضن؛ و«حذف»/«حذف نهائي»
 //   ينادِيان الخدمة بعد clsDialogs.Confirm.
+// • شريط الأوامر الملوّن هو العنصر المشترك ctrlCrudToolbar (البيت الواحد — Controls/Common):
+//   يُعلَن في المصمّم ويُغذَّى بالمدخلات من `_ApplyActionState()` وحدها، فلا نسخة ثانية
+//   من الألوان ولا من آلة الحالة، ولا أزرار CRUD خاصة بهذه الشاشة.
 // • آلة الحالة واحدة `_ApplyActionState()` تُستدعى بعد كل تغيير (اختيار · تحديث · انشغال)
 //   — ولا يُضبط Enabled/Visible داخل معالج (النظير `RULE-N150` للعناصر).
 // • الحدود الوحيدة لـtry/catch (RULE-N205): RefreshAsync · قراءة بيانات الحساب
 //   (fire-and-forget) · معالجا الحذف (async void). وما عداها بلا catch.
 //
-// التجميع (§2.34 / RULE-N135…N138): أوامر الحسابات ← بحث وتصفية ← الشجرة ← شريط الحالة.
+// التجميع (§2.34 / RULE-N135…N138) — كشاشة المرجع frmAddUpdateSalesInvoice:
+//   «أوامر الحسابات» ← «بحث وتصفية» ← «شجرة الحسابات» ← شريط «ملخص».
 // -----------------------------------------------------------------------------
 
 using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using SalesSystem.Desktop.Controls.Common;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
@@ -28,7 +37,9 @@ using Serilog;
 namespace SalesSystem.Desktop.Screens.Accounting.Controls;
 
 /// <summary>
-/// شجرة دليل الحسابات: عرض هرمي + بحث فوري + عمليات (إضافة فرعي · تعديل · حذف · حذف نهائي).
+/// شجرة دليل الحسابات: مستوى أول ثابت بخمس طبائع، ثم هرمية الحسابات الكاملة (أي عمق)،
+/// وبحث فوري يُبقي السياق، وآلتا تصفية للحاضن (<see cref="GetSubtreeIds"/> ·
+/// <see cref="GetNatureIds"/>)، وعمليات إضافة فرعي · تعديل · حذف · حذف نهائي.
 /// <para>الاستخدام: <see cref="Attach"/> ثم <see cref="RefreshAsync"/> — ويُفضَّل أن يملك الحاضن
 /// الاختصارات (F5/Esc) لأن <c>KeyboardHelper.WireGlobalShortcuts</c> تخصّ النماذج.</para>
 /// </summary>
@@ -41,12 +52,25 @@ public partial class ctrlTreeOfAccounts : UserControl
     private const string DeleteRefusedSystemMessage = "لا يمكن حذف حساب نظامي نهائياً.";
     private const string DeleteRefusedChildrenMessage = "لا يمكن الحذف النهائي لحساب له حسابات فرعية.";
     private const string DeleteRefusedUnknownMessage = "تعذر التحقق من بيانات الحساب — لا يمكن الحذف النهائي الآن.";
+    private const string AddUnderLeafMessage = "لا يمكن إضافة حساب فرعي تحت حساب حركة نهائي — اختر حساباً تجميعياً.";
 
     private const string NoMatchNodeText = "لا توجد حسابات مطابقة";
-    private const string EmptyTreeText = "لا توجد حسابات في الدليل";
 
     /// <summary>الفاصل بين الكود والاسم في نص العقدة (قرار الشكل: «الكود — الاسم»).</summary>
     private const string NodeSeparator = " — ";
+
+    /// <summary>
+    /// الطبائع الخمس بترتيبها الرقمي — **المصدر الوحيد** لتسميات المستوى الأول ونص شريط الملخص
+    /// (أسماء جمعية بقرار المالك، وليست <c>AccountDto.NatureDisplay</c> المفردة).
+    /// </summary>
+    private static readonly (byte Nature, string Name)[] NatureNames =
+    [
+        (1, "الأصول"),
+        (2, "الخصوم"),
+        (3, "حقوق الملكية"),
+        (4, "الإيرادات"),
+        (5, "المصروفات"),
+    ];
 
     /// <summary>حقلا التصفية: الاسم يُقرأ من خاصية <c>Display</c> (DisplayMember) لا من نص حر (RULE-N60).</summary>
     private static readonly SearchField[] SearchFields =
@@ -62,6 +86,9 @@ public partial class ctrlTreeOfAccounts : UserControl
 
     /// <summary>الحساب المحدد حالياً (مرجع الشجرة، وقد يكون نسخة مُقلَّمة أثناء التصفية).</summary>
     private AccountTreeNodeDto? _selectedAccount;
+
+    /// <summary>الطبيعة المحددة حالياً (عندما تكون العقدة المحددة عقدة طبيعة لا حساباً).</summary>
+    private byte? _selectedNature;
 
     /// <summary>ذاكرة بيانات الحساب لكل معرّف — الحكم «نظامي؟» لا يأتي من عقدة الشجرة.</summary>
     private readonly Dictionary<int, AccountDto?> _accountById = [];
@@ -88,13 +115,22 @@ public partial class ctrlTreeOfAccounts : UserControl
         cbSearchBy.DisplayMember = nameof(SearchField.Display);
         cbSearchBy.DataSource = SearchFields.ToList();
 
+        // شريط الأوامر المشترك: الشجرة تستمع لأحداثه فقط — ولا تبنيه ولا تحكم على أزراره بنفسها.
+        ctrlCrudToolbar1.AddRequested += CtrlToolbar_AddRequested;
+        ctrlCrudToolbar1.EditRequested += CtrlToolbar_EditRequested;
+        ctrlCrudToolbar1.DeleteRequested += CtrlToolbar_DeleteRequested;
+        ctrlCrudToolbar1.RefreshRequested += CtrlToolbar_RefreshRequested;
+        ctrlCrudToolbar1.CloseRequested += CtrlToolbar_CloseRequested;
+        // SaveRequested/CancelEditRequested غير موصولين عمداً: لا محرّر داخل الشجرة (RULE-N100)،
+        // وShowSave يبقى false فيُخفى «حفظ» أصلاً.
+
         // RULE-N40…RULE-N46 — لوحة المفاتيح (WireGlobalShortcuts تخصّ النماذج ⇒ في الحاضن).
         KeyboardHelper.WireEnterAsTab(this);
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor)); // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                                        // RULE-N45
         KeyboardHelper.WireButtonDisabledVisual(                                                          // RULE-N43
-            btnAddChild, btnEdit, btnDelete, btnDeletePermanent, btnRefresh, btnExpandAll, btnCollapseAll);
+            btnExpandAll, btnCollapseAll, btnDeletePermanent);
 
         ApplyUiTheme();
         _ApplyActionState();
@@ -132,8 +168,11 @@ public partial class ctrlTreeOfAccounts : UserControl
         }
     }
 
-    /// <summary>يُطلق عند كل تغيّر للاختيار (وعند تفريغه يصل <c>null</c>).</summary>
+    /// <summary>يُطلق عند كل تغيّر للاختيار (وعند تفريغه يصل <c>null</c>، ومنه عقدة الطبيعة).</summary>
     public event EventHandler<AccountTreeNodeDto?>? AccountSelected;
+
+    /// <summary>يُطلق عند تفعيل عقدة طبيعة (المستوى الأول) بالرقم 1..5 — للحاضن لتصفية شبكته.</summary>
+    public event EventHandler<byte>? NatureSelected;
 
     /// <summary>طلب إضافة حساب فرعي تحت الحساب المحدد — الحاضن يفتح محرّر الحسابات (RULE-N100).</summary>
     public event EventHandler<int>? AddChildRequested;
@@ -245,10 +284,71 @@ public partial class ctrlTreeOfAccounts : UserControl
     public void CollapseAll() => tvAccounts.CollapseAll();
 
     /// <summary>
-    /// يوسّع أسلاف الحساب ويحدده ويُطلق <see cref="AccountSelected"/>.
-    /// يُعيد <c>false</c> إن لم يكن الحساب معروضاً الآن (مثلاً استبعده بحث نشط).
+    /// يوسّع أسلاف الحساب (ومنهم عقدة الطبيعة) ويحدده ويُطلق <see cref="AccountSelected"/>.
+    /// إن كان الحساب خارج نتيجة التصفية الحالية تُمسح التصفية أولاً ثم يُحدَّد.
+    /// يُعيد <c>false</c> إن لم يوجد الحساب في الشجرة المحمّلة أصلاً.
     /// </summary>
-    public bool SelectAccount(int id) => _SelectNode(id, focusTree: true);
+    public bool SelectAccount(int id)
+    {
+        if (_SelectNode(id, focusTree: true)) return true;
+
+        // الحساب ليس في العرض المصفّى ⇒ امسح التصفية (بلا كبح) وأعد المحاولة
+        if (txtSearch.TextLength == 0) return false;
+
+        _ResetSearch();
+        return _SelectNode(id, focusTree: true);
+    }
+
+    /// <summary>
+    /// معرّفات الحساب وكل أبنائه (ترتيب الشجرة: الحساب ثم أبناؤه) — من الشجرة **الكاملة**
+    /// لا من العرض المصفّى، لتصفية شبكة الحاضن. تُعيد قائمة فارغة إن لم يوجد المعرّف.
+    /// </summary>
+    public IReadOnlyList<int> GetSubtreeIds(int accountId)
+    {
+        var account = _FindInFullTree(_roots, accountId);
+        if (account is null) return Array.Empty<int>();
+
+        var ids = new List<int>();
+        _CollectTreeIds(account, ids);
+        return ids;
+    }
+
+    /// <summary>معرّفات كل حسابات طبيعة (1..5) وفروعها — من الشجرة الكاملة، لتصفية شبكة الحاضن.</summary>
+    public IReadOnlyList<int> GetNatureIds(byte nature)
+    {
+        var ids = new List<int>();
+
+        foreach (var root in _roots)
+        {
+            if (root.Nature != nature) continue;
+
+            _CollectTreeIds(root, ids);
+        }
+
+        return ids;
+    }
+
+    /// <summary>يجمع المعرّفات بترتيب الشجرة: الحساب أولاً ثم أبناءه recursively.</summary>
+    private static void _CollectTreeIds(AccountTreeNodeDto account, List<int> ids)
+    {
+        ids.Add(account.Id);
+
+        foreach (var child in account.Children) _CollectTreeIds(child, ids);
+    }
+
+    /// <summary>يبحث عن حساب في الشجرة الكاملة (لا في العقد المعروضة).</summary>
+    private static AccountTreeNodeDto? _FindInFullTree(IReadOnlyList<AccountTreeNodeDto> nodes, int accountId)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.Id == accountId) return node;
+
+            var found = _FindInFullTree(node.Children, accountId);
+            if (found is not null) return found;
+        }
+
+        return null;
+    }
 
     // ═════════════════════════════════════════════════════════════════
     //  الخدمة (RULE-N04)
@@ -268,8 +368,9 @@ public partial class ctrlTreeOfAccounts : UserControl
     private Font GroupFont => _groupFont ??= new Font("Tahoma", tvAccounts.Font.Size, FontStyle.Bold);
 
     /// <summary>
-    /// إعادة بناء العقد المعروضة من <c>_roots</c> مع التصفية النشطة.
-    /// بلا مطابقة: عقدة واحدة باهتة بلا معرّف — لا استثناء ولا MessageBox.
+    /// إعادة بناء العقد المعروضة من <c>_roots</c> مع التصفية النشطة — **بمستوى أول ثابت**:
+    /// خمس عقد طبائع (1..5) ثم الحسابات الجذرية تحت طبيعتها وفروعها كما وصلت من الخدمة.
+    /// بلا مطابقة على مستوى الشجرة كلها: عقدة واحدة باهتة بلا معرّف (لا خمس عقد فارغة).
     /// </summary>
     private void _RebuildTree()
     {
@@ -281,19 +382,31 @@ public partial class ctrlTreeOfAccounts : UserControl
         try
         {
             _selectedAccount = null;
+            _selectedNature = null;
             tvAccounts.Nodes.Clear();
 
             List<AccountTreeNodeDto> visible = filtering
                 ? _Filter(_roots, term, SelectedSearchField)
                 : _roots;
 
-            if (visible.Count == 0)
+            if (filtering && _CountAccountsIn(visible) == 0)
             {
-                tvAccounts.Nodes.Add(_CreatePlaceholderNode(filtering ? NoMatchNodeText : EmptyTreeText));
+                // «لا توجد حسابات مطابقة» عقدة واحدة للشجرة كلها — لا واحدة لكل طبيعة
+                tvAccounts.Nodes.Add(_CreatePlaceholderNode(NoMatchNodeText));
             }
             else
             {
-                foreach (var root in visible) tvAccounts.Nodes.Add(_CreateNode(root));
+                // الطبائع الخمس حاضرة دائماً (ولو فارغة) فيرى المحاسب هيكل الدليل كاملاً.
+                // الطبيعة مضمونة 1..5 من الخدمة (الكيان يرفض غيرها)، فلا تنشأ سادسة.
+                foreach (var (nature, _) in NatureNames)
+                {
+                    var accounts = visible
+                        .Where(root => root.Nature == nature)
+                        .OrderBy(root => root.AccountCode, StringComparer.Ordinal)
+                        .ToList();
+
+                    tvAccounts.Nodes.Add(_CreateNatureNode(nature, accounts));
+                }
             }
         }
         finally
@@ -308,7 +421,29 @@ public partial class ctrlTreeOfAccounts : UserControl
         _UpdateStatus();
     }
 
-    /// <summary>بناء عقدة واحدة وأبنائها recursively — نصها «الكود — الاسم» ووسمها الحساب نفسه.</summary>
+    /// <summary>
+    /// عقدة طبيعة (المستوى الأول): خط عريض + لون النص المميّز + وسم <see cref="NatureTag"/>
+    /// ونصها «الأصول (1) — 24 حساباً» (العدد من الشجرة المعروضة نفسها).
+    /// </summary>
+    private TreeNode _CreateNatureNode(byte nature, IReadOnlyList<AccountTreeNodeDto> accounts)
+    {
+        int count = _CountAccountsIn(accounts);
+
+        var node = new TreeNode(
+            NatureDisplayName(nature) + " (" + nature + ") — " + DescribeAccountCount(count))
+        {
+            Name = "nature" + nature,
+            Tag = new NatureTag(nature),
+            ForeColor = GreenThemeHelper.TextStrong,
+            NodeFont = GroupFont,
+        };
+
+        foreach (var account in accounts) node.Nodes.Add(_CreateNode(account));
+
+        return node;
+    }
+
+    /// <summary>بناء عقدة حساب وأبنائها recursively — نصها «الكود — الاسم» ووسمها الحساب نفسه.</summary>
     private TreeNode _CreateNode(AccountTreeNodeDto account)
     {
         var node = new TreeNode(account.AccountCode + NodeSeparator + account.NameAr)
@@ -328,6 +463,41 @@ public partial class ctrlTreeOfAccounts : UserControl
     /// <summary>عقدة بديلة باهتة بلا معرّف — الاختيار عليها لا يُفعّل أي زر (Tag = null).</summary>
     private static TreeNode _CreatePlaceholderNode(string text)
         => new(text) { ForeColor = GreenThemeHelper.DisabledFore };
+
+    /// <summary>عدد الحسابات في مجموعة عقد (مع الأبناء) — لعدّاد عقدة الطبيعة.</summary>
+    private static int _CountAccountsIn(IReadOnlyList<AccountTreeNodeDto> nodes)
+    {
+        int count = 0;
+
+        foreach (var node in nodes)
+        {
+            count++;
+            count += _CountAccountsIn(node.Children);
+        }
+
+        return count;
+    }
+
+    /// <summary>اسم الطبيعة (جمع) من الجدول الواحد — لا نص عربي مكرّر في أي موضع آخر.</summary>
+    private static string NatureDisplayName(byte nature)
+    {
+        foreach (var (value, name) in NatureNames)
+        {
+            if (value == nature) return name;
+        }
+
+        return "الطبيعة " + nature;
+    }
+
+    /// <summary>صياغة عربية سليمة لعدّ الحسابات داخل عقدة الطبيعة.</summary>
+    private static string DescribeAccountCount(int count) => count switch
+    {
+        0 => "لا حسابات",
+        1 => "حساب واحد",
+        2 => "حسابان",
+        <= 10 => clsFormat.Number(count) + " حسابات",
+        _ => clsFormat.Number(count) + " حساباً",
+    };
 
     /// <summary>
     /// تصفية recursive: يُبقي الحساب المطابق **بكل أبنائه** (سياق كامل)، ويُبقي أسلاف
@@ -383,14 +553,22 @@ public partial class ctrlTreeOfAccounts : UserControl
         // أثناء إعادة البناء لا تُطلق أحداث عابرة: الحدث الحقيقي يأتي من _SelectNode بعده
         if (_rebuilding) return;
 
-        var account = e.Node?.Tag as AccountTreeNodeDto;
+        var tag = e.Node?.Tag;
+        var account = tag as AccountTreeNodeDto;
+        var nature = (tag as NatureTag)?.Nature;
+
         _selectedAccount = account;
+        _selectedNature = nature;
 
         // الحكم «نظامي؟» لا يوجد في عقدة الشجرة — يُقرأ من الخدمة مرة واحدة لكل معرّف
         if (account is not null) _ = _EnsureAccountInfoAsync(account.Id);
 
         _ApplyActionState();
         _UpdateStatus();
+
+        // عقدة الطبيعة: الحاضن يعرف الطبيعة من حدثها، ويبقى AccountSelected(null) لمن لا يسمعه
+        if (nature is byte selectedNature) NatureSelected?.Invoke(this, selectedNature);
+
         AccountSelected?.Invoke(this, account);
     }
 
@@ -418,44 +596,65 @@ public partial class ctrlTreeOfAccounts : UserControl
     }
 
     /// <summary>
-    /// آلة الحالة الوحيدة للأزرار وعناصر قائمة السياق (النظير `RULE-N150` للعناصر):
+    /// آلة الحالة الوحيدة للأزرار وقائمة السياق (النظير `RULE-N150` للعناصر):
     /// تُستدعى بعد كل اختيار/تحديث/انشغال — وممنوع ضبط Enabled/Visible داخل أي معالج.
+    /// <para>
+    /// شريط الأوامر المشترك لا يحكم بنفسه: يُغذَّى بثلاثة مدخلات من هنا فقط
+    /// (<c>HasSelection</c> · <c>AllowDelete</c> · <c>SetMode</c>) ويحسب أزراره داخلياً.
+    /// </para>
     /// </summary>
     private void _ApplyActionState()
     {
-        bool crudVisible = _showCrudActions;
-        bool hasSelection = _selectedAccount is not null;
         bool idle = !_busy;
+        bool hasSelection = _selectedAccount is not null;
+        bool allowDelete = idle && !_IsSystemAccount(_selectedAccount);
+        bool canDeletePermanently = idle && _CanDeletePermanently(_selectedAccount);
         bool hasNodes = tvAccounts.Nodes.Count > 0;
 
-        btnAddChild.Visible = crudVisible;
-        btnEdit.Visible = crudVisible;
-        btnDelete.Visible = crudVisible;
-        btnDeletePermanent.Visible = crudVisible;
+        // حارس حساب الحركة: لا «إضافة فرعي» تحت حساب ورقي نهائي (RULE: الترحيل على الأوراق فقط)
+        bool leafSelection = _selectedAccount is { IsLeaf: true };
+        bool canAddChild = idle && hasSelection && !leafSelection;
 
-        miAddChild.Visible = crudVisible;
-        miEdit.Visible = crudVisible;
-        miDelete.Visible = crudVisible;
-        miDeletePermanent.Visible = crudVisible;
+        // ── الشريط المشترك (البيت الواحد) ──
+        ctrlCrudToolbar1.Visible = _showCrudActions;
+        if (_showCrudActions)
+        {
+            ctrlCrudToolbar1.HasSelection = hasSelection && idle;
+            ctrlCrudToolbar1.AllowDelete = allowDelete;
+            // الشجرة ليست محرّراً: إنشاء/تعديل الحساب بيته frmAccounts (RULE-N100) ⇒ وضع العرض دائماً
+            ctrlCrudToolbar1.SetMode(CrudMode.Browsing);
+        }
 
-        btnAddChild.Enabled = idle && hasSelection;
-        btnEdit.Enabled = idle && hasSelection;
-        btnDelete.Enabled = idle && hasSelection;
-        btnDeletePermanent.Enabled = idle && _CanDeletePermanently(_selectedAccount);
-
-        btnRefresh.Enabled = idle;
+        // ── الصف الثانوي الخاص بالشجرة ──
         btnExpandAll.Enabled = idle && hasNodes;
         btnCollapseAll.Enabled = idle && hasNodes;
+        btnDeletePermanent.Visible = _showCrudActions;
+        btnDeletePermanent.Enabled = canDeletePermanently;
 
-        // قائمة السياق تعرض حالة الأزرار نفسها — لا حكم ثانٍ ولا نسخة ثانية (RULE-N169)
-        miAddChild.Enabled = btnAddChild.Enabled;
-        miEdit.Enabled = btnEdit.Enabled;
-        miDelete.Enabled = btnDelete.Enabled;
-        miDeletePermanent.Enabled = btnDeletePermanent.Enabled;
-        miRefresh.Enabled = btnRefresh.Enabled;
+        // ── قائمة السياق تعكس نفس المدخلات (لا حكم ثالث) ──
+        miAddChild.Visible = _showCrudActions;
+        miEdit.Visible = _showCrudActions;
+        miDelete.Visible = _showCrudActions;
+        miDeletePermanent.Visible = _showCrudActions;
+
+        // «إضافة حساب فرعي» يُعطَّل على الورقة هنا (مكان الحكم الوحيد) — لا داخل معالج نقر
+        miAddChild.Enabled = canAddChild;
+        miEdit.Enabled = hasSelection && idle;
+        miDelete.Enabled = hasSelection && allowDelete;
+        miDeletePermanent.Enabled = canDeletePermanently;
+        miRefresh.Enabled = idle;
         miExpandAll.Enabled = btnExpandAll.Enabled;
         miCollapseAll.Enabled = btnCollapseAll.Enabled;
     }
+
+    /// <summary>
+    /// هل الحساب نظامي **مؤكَّد**؟ «المجهول» ليس نظامياً هنا: الحذف العادي ترفضه الخدمة
+    /// نفسها للحسابات النظامية، أما الحذف النهائي فيبقى يفشل مغلقاً في <see cref="_CanDeletePermanently"/>.
+    /// </summary>
+    private bool _IsSystemAccount(AccountTreeNodeDto? account)
+        => account is not null
+           && _accountById.TryGetValue(account.Id, out var dto)
+           && dto is { IsSystem: true };
 
     /// <summary>
     /// الحذف النهائي مسموح فقط لحساب: غير نظامي **مؤكَّد**، وبلا حسابات فرعية.
@@ -488,6 +687,7 @@ public partial class ctrlTreeOfAccounts : UserControl
         {
             // الشجرة تُطلق AfterSelect عند تغيّر الاختيار فقط — نُطلق الحدث يدوياً كي لا يضيع الطلب
             _selectedAccount = node.Tag as AccountTreeNodeDto;
+            _selectedNature = (node.Tag as NatureTag)?.Nature;
             _ApplyActionState();
             _UpdateStatus();
             AccountSelected?.Invoke(this, _selectedAccount);
@@ -521,15 +721,38 @@ public partial class ctrlTreeOfAccounts : UserControl
         return null;
     }
 
-    /// <summary>شريط الحالة: عدد الحسابات المعروضة (من <c>clsFormat.Number</c>) + الحساب المحدد.</summary>
+    /// <summary>
+    /// شريط «ملخص»: عدد الحسابات المعروضة (من <c>clsFormat.Number</c>) + المحدد
+    /// (حساب: «الكود — الاسم» · عقدة طبيعة: اسمها وعدد المعروض من حساباتها).
+    /// </summary>
     private void _UpdateStatus()
     {
         string text = "عدد الحسابات المعروضة: " + clsFormat.Number(_CountAccounts(tvAccounts.Nodes));
 
         if (_selectedAccount is not null)
+        {
             text += "   |   المحدد: " + _selectedAccount.AccountCode + NodeSeparator + _selectedAccount.NameAr;
+        }
+        else if (_selectedNature is byte nature)
+        {
+            var natureNode = _FindNatureNode(tvAccounts.Nodes, nature);
+            int shown = natureNode is null ? 0 : _CountAccounts(natureNode.Nodes);
 
-        lblStatus.Text = text;
+            text += "   |   المحدد: " + NatureDisplayName(nature) + " (" + nature + ") — " + DescribeAccountCount(shown);
+        }
+
+        lblSummary.Text = text;
+    }
+
+    /// <summary>عقدة الطبيعة المعروضة (المستوى الأول دائماً) — للعدّ والوصف في شريط الملخص.</summary>
+    private static TreeNode? _FindNatureNode(TreeNodeCollection nodes, byte nature)
+    {
+        foreach (TreeNode node in nodes)
+        {
+            if (node.Tag is NatureTag tag && tag.Nature == nature) return node;
+        }
+
+        return null;
     }
 
     /// <summary>يعد الحسابات المعروضة (لا يعدّ العقدة البديلة التي بلا معرّف).</summary>
@@ -570,11 +793,24 @@ public partial class ctrlTreeOfAccounts : UserControl
         _RebuildTree();
     }
 
+    /// <summary>مسح التصفية **فوراً** (بلا كبح المؤقّت) — يستخدمه <see cref="SelectAccount"/>.</summary>
+    private void _ResetSearch()
+    {
+        if (txtSearch.TextLength == 0) return;
+
+        txtSearch.Text = string.Empty;   // يُطلق TextChanged فيُشغّل المؤقّت
+        searchTimer.Stop();              // لا كبح: البناء الآن لا بعد 250 مللي
+        _RebuildTree();
+    }
+
     // ═════════════════════════════════════════════════════════════════
     //  الأوامر
     // ═════════════════════════════════════════════════════════════════
 
-    private void btnAddChild_Click(object? sender, EventArgs e)
+    // ── أوامر الشريط المشترك: كل حدث يصل إلى دالة واحدة هنا (لا منطق في العنصر) ──
+
+    /// <summary>«+ إضافة» ⇒ نطلب إضافة حساب فرعي تحت المحدد (المحرّر في frmAccounts — RULE-N100).</summary>
+    private void CtrlToolbar_AddRequested(object? sender, EventArgs e)
     {
         if (_selectedAccount is not AccountTreeNodeDto account)
         {
@@ -582,11 +818,18 @@ public partial class ctrlTreeOfAccounts : UserControl
             return;
         }
 
-        // لا محرّر هنا (RULE-N100): الحدث يفتح frmAccounts في الحاضن
+        // حارس حساب الحركة: الورقة لا تقبل أبناء (الترحيل على التفصيلي فقط) ⇒ لا نُطلق الحدث إطلاقاً
+        if (account.IsLeaf)
+        {
+            clsDialogs.Warning(AddUnderLeafMessage);
+            return;
+        }
+
         AddChildRequested?.Invoke(this, account.Id);
     }
 
-    private void btnEdit_Click(object? sender, EventArgs e)
+    /// <summary>«تعديل» ⇒ نطلب تعديل الحساب المحدد.</summary>
+    private void CtrlToolbar_EditRequested(object? sender, EventArgs e)
     {
         if (_selectedAccount is not AccountTreeNodeDto account)
         {
@@ -597,14 +840,8 @@ public partial class ctrlTreeOfAccounts : UserControl
         EditRequested?.Invoke(this, account.Id);
     }
 
-    /// <summary>«تحديث» — يُطلق التحميل بلا انتظار؛ و<see cref="RefreshAsync"/> لا يرمي (RULE-N205).</summary>
-    private void btnRefresh_Click(object? sender, EventArgs e) => _ = RefreshAsync();
-
-    private void btnExpandAll_Click(object? sender, EventArgs e) => ExpandAll();
-
-    private void btnCollapseAll_Click(object? sender, EventArgs e) => CollapseAll();
-
-    private async void btnDelete_Click(object? sender, EventArgs e)
+    /// <summary>«حذف» — يُطلق التحميل بلا انتظار؛ والتعطيل الفعلي في <see cref="_DeleteAsync"/>.</summary>
+    private async void CtrlToolbar_DeleteRequested(object? sender, EventArgs e)
     {
         try
         {
@@ -617,6 +854,16 @@ public partial class ctrlTreeOfAccounts : UserControl
             clsDialogs.Error("تعذر تعطيل الحساب. يرجى إعادة المحاولة.");
         }
     }
+
+    /// <summary>«تحديث بيانات» — يُطلق التحميل بلا انتظار؛ و<see cref="RefreshAsync"/> لا يرمي (RULE-N205).</summary>
+    private void CtrlToolbar_RefreshRequested(object? sender, EventArgs e) => _ = RefreshAsync();
+
+    /// <summary>«خروج» — يُغلق الشاشة الحاضنة (العنصر نفسه لا يملك نوافذ).</summary>
+    private void CtrlToolbar_CloseRequested(object? sender, EventArgs e) => FindForm()?.Close();
+
+    private void btnExpandAll_Click(object? sender, EventArgs e) => ExpandAll();
+
+    private void btnCollapseAll_Click(object? sender, EventArgs e) => CollapseAll();
 
     private async void btnDeletePermanent_Click(object? sender, EventArgs e)
     {
@@ -723,7 +970,7 @@ public partial class ctrlTreeOfAccounts : UserControl
 
     private void ApplyUiTheme()
     {
-        lblStatus.ForeColor = GreenThemeHelper.TextStrong;
+        lblSummary.ForeColor = GreenThemeHelper.TextStrong;
 
         GreenThemeHelper.Apply(this);   // آخر سطر دائماً (RULE-N50)
     }
@@ -757,4 +1004,7 @@ public partial class ctrlTreeOfAccounts : UserControl
         // احتياط عرض إن سقط DisplayMember لأي سبب — القرار يبقى من ByName لا من النص.
         public override string ToString() => Display;
     }
+
+    /// <summary>وسم عقدة الطبيعة (المستوى الأول الثابت) — رقم الطبيعة فقط، والاسم من الجدول الواحد.</summary>
+    private sealed record NatureTag(byte Nature);
 }
