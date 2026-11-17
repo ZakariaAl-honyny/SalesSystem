@@ -1213,6 +1213,22 @@
 
 ---
 
+### 11.23 تعميم الشاشة التجريبية — الموجات 11–18 (2026-11-16) · الملف الحيّ `docs/MangeSubaggentsAndTracProgress.md`
+
+> **اللوحة هي المصدر:** كل شاشة وموجة وأرقامها في `docs/MangeSubaggentsAndTracProgress.md` (`RULE-N174` — لا تُنسخ هنا). هذا الصف يثبت **بيوت الكود المشترك** التي مُسَّت في الموجات، لا الشاشات.
+
+| الملف (البيت) | التغيير | التفصيل |
+|---|---|---|
+| `Helpers\KeyboardHelper.cs` | `IsEnterNavigationInput` يستثني `TextBox { Multiline && AcceptsReturn }` | إصلاح **صنف** لا حالة (`§4` خطوة 9b): `Enter` في الملاحظات كان يُنقل تركيزاً بدل سطر جديد. القياس: **12** حقلاً عديد الأسطر في **12** مصمّماً، منها **8** شُحنت في الموجات 11–17 ⇒ كان عيباً حيّاً. **لم يُستثنَ `Multiline` وحده** لأن `TextBox.IsInputKey` لا يعدّ `Enter` مفتاح إدخال إلا مع `AcceptsReturn`، فاستثناء `Multiline` وحده كان سيجعل `AcceptButton` يبتلع `Enter` في **11** حقل ملاحظات آخر (**9** من شاشاتها تضبط `AcceptButton`) — أي عيب أسوأ من المُصلَح |
+| `Screens\**\frm*.cs` (33 شاشة) | ترحيل النمط فقط | الاستهلاك عبر الـHelpers: `KeyboardHelper.WireEnterAsTab(scope, _PrimaryActionButton)` + `RequiredFieldHelper.Attach/Validate/FirstMissing/Clear` + `KeyboardHelper.IsTextInputFocused(this)` — **صفر نسخة محلية** من حارس التركيز أو حكم «مطلوب» في الشاشات المرحَّلة |
+| `docs\MangeSubaggentsAndTracProgress.md` | اللوحة الحيّة | §0 أرقام مقيسة · §5 سجل الموجات · §5.1 الموجة التالية · §6 جرد 94 صفاً |
+
+**القياسات (بأمر في نفس التشغيل):** نماذج `frm*` **94** · ثنائي **33** · أحادي قديم **25** · معفى **36** · `RequiredFieldHelper` **26** شاشة · `_RequiredFieldsValid` **0** · `_FocusFirstMissingField` **0** · `_ValidateForm` **2** (`frmSalesReturn` · `frmSupplierPaymentDialog`) · نسخ محلية لحارس الحقل **0** · `NavigationOptions` في `Screens/**` **0** · `BlocksEnterNavigation` في `Screens/**` **0** · البناء `--no-incremental` = **0 Errors / 86 Warning** (خط الأساس) · **صفر ملف باك-إند** (`RULE-N177`).
+
+**عيب مسجَّل لم يُصلَح (قرار مالك مطلوب):** `PAL-6` — **86** زراً في **56** مصمّماً من 95 تحمل `BackColor` لا يملكه أي مفتاح أزرار في اللوحة (**35** منها على `16,150,96`، ومنها `btnRefresh` في التقارير الـ31) ⇒ لا تُعاد تلوينها عند تغيير اللوحة. التسجيل لا الاستبدال الأعمى.
+
+---
+
 ## 12. موجة 2026-11-17 — حقول دليل الحسابات الهرمية (`TASK-008`)
 
 > **الطلب (نصّه):** «update all project code 4.1 Accounts — دليل الحسابات الهرمي» + سلّم الأطوال الرسمي (1 · 2 · 4 · 8) + «remove cuurencey» + «I will do migrations you write code and stop».
@@ -1266,6 +1282,5 @@
 **القياسات بعد الرجوع (بأمر في هذه الموجة):** `git diff HEAD` للملفات الخمسة = **فارغ** · `git status --short` لها = **فارغ** · `PrimaryActionButton` = **0** · `SetActions` = **0** · `ctrlCrudToolbar1` في `frmAccounts*` = **12** · `btnSave|btnCancel|flpActions` في `ctrlAccountEditor.*` = **9 / 52** · تعديلات المالك الآخر سليمة (`cbAccountType` 13/15 · `chkAllowCostCenter` 5/15 · `cbNormalBalance` 13/14 · `colFinancialStatement`+`cbNatureFilter` = 22) · البناء `--no-incremental` = **0 Error / 118 Warning**.
 
 **درس مسجَّل:** نُقل الهيكل بلا شهادة الشاشة التجريبية ⇒ رُفض وأُعيد في اليوم نفسه. أي إعادة تخطيط لهذه الشاشة تُعرض أولاً على المالك **قبل** التنفيذ (`RULE-N184` منطقاً).
-
 
 

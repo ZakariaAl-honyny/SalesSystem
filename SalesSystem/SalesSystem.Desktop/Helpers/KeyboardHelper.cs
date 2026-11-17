@@ -874,8 +874,18 @@ public static class KeyboardHelper
         _ => false,
     };
 
-    private static bool IsEnterNavigationInput(Control ctrl)
-        => ctrl is TextBox or MaskedTextBox or ComboBox or NumericUpDown or DateTimePicker;
+    private static bool IsEnterNavigationInput(Control ctrl) => ctrl switch
+    {
+        // الحقل عديد الأسطر الذي يقبل Enter (Multiline + AcceptsReturn) يُستثنى فيبقى Enter سطراً جديداً
+        // داخل النص ولا ينقل التركيز ولا ينقر زر الوضع: TextBox.IsInputKey يعُدّ Enter مفتاحَ إدخال
+        // حينئذ (Multiline && AcceptsReturn) فيتجاوز ProcessDialogKey/AcceptButton من الأصل.
+        // وحدَه Multiline لا يكفي (TextBoxBase.IsInputKey لا يعُدّ Enter مفتاح إدخال، وTextBox يعيد
+        // AcceptsReturn وحده) — فلو استُثني بلا AcceptsReturn لابتلعه AcceptButton ونقر زر الوضع.
+        // حقول السطر الواحد تبقى على سلسلة التنقل بترتيب العرض (RULE-N191/N193/N194).
+        TextBox tb => !(tb.Multiline && tb.AcceptsReturn),
+        MaskedTextBox or ComboBox or NumericUpDown or DateTimePicker => true,
+        _ => false,
+    };
 
     private static bool IsSelectAllTarget(Control ctrl)
     {
