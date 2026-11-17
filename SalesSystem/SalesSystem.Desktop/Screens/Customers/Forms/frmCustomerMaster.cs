@@ -73,8 +73,9 @@ public partial class frmCustomerMaster : Form
         KeyboardHelper.WireArrowNavigation(this); // أسهم RTL: يمين=رجوع، يسار=تالي
 
         // أزرار الوضع (إضافة/تعديل/حذف/إعادة تنشيط/مسح التصفية) تتغير حالة تفعيلها،
-        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnReactivate, btnClearFilters); // RULE-N43
+        // لذا نحتاج مظهراً رمادياً واضحاً عند التعطيل — ومنها «بطاقة» و«بحث عن عميل» (F-002).
+        KeyboardHelper.WireButtonDisabledVisual(btnSave, btnEdit, btnDelete, btnReactivate, btnClearFilters,
+            btnShowCard, btnFindCustomer); // RULE-N43
 
         // الاختصارات الموحّدة (RULE-N47): F2 جديد · F5 تحديث · Delete تعطيل · Esc إلغاء/مسح التصفية.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -676,6 +677,12 @@ public partial class frmCustomerMaster : Form
         btnDelete.Enabled = _mode == EntryMode.Editing && hasSelection && isActive && !_actionButtonsBusy;
         btnReactivate.Enabled = _mode == EntryMode.Editing && hasSelection && !isActive && !_actionButtonsBusy;
 
+        // F-002: «بطاقة» تحتاج سجلاً محدداً — التفعيل هنا وحده (RULE-N150: لا يُضبط Enabled في معالج).
+        btnShowCard.Enabled = hasSelection;
+
+        // F-002: «بحث عن عميل» متاح دائماً ما لم يكن هناك إجراء غير متزامن جارٍ.
+        btnFindCustomer.Enabled = !_actionButtonsBusy;
+
         _UpdateModeHeader();   // RULE-N44
 
         // RULE-N147: Enter يُنفِّذ الزر الأساسي للوضع الحالي (ويُبرزه كزر افتراضي للشاشة).
@@ -784,6 +791,77 @@ public partial class frmCustomerMaster : Form
     // ── Buttons ───────────────────────────────────────────────────────────────
 
     private void btnNew_Click(object? sender, EventArgs e) => _StartNewEntry();
+
+    /// <summary>
+    /// «بطاقة» (F-002): يعرض بطاقة العميل المحدد في نافذة مستقلة.
+    /// النموذج يُحلّ من DI (RULE-N02) ويُفتح عبر البيت الواحد <see cref="clsGlobal._OpenForm"/>
+    /// (RULE-N132) بعد تحميل بيانات العميل — فلا منطق عرض داخل شاشة الدليل.
+    /// </summary>
+    private async void btnShowCard_Click(object? sender, EventArgs e)
+    {
+        if (_editId is not int id) return;
+
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            // RULE-N133: تُفحص النافذة المفتوحة **قبل** إنشاء نسخة جديدة — لأن _OpenForm يفعّل
+            // الموجود بالاسم ولا يعرض الجديدة، فكانت النقرة الثانية على عميل آخر تُظهر البطاقة القديمة.
+            var existing = Application.OpenForms.OfType<frmShowCustomerCard>().FirstOrDefault();
+            if (existing is { IsDisposed: false })
+            {
+                await existing.LoadCustomerAsync(id);
+                existing.Activate();
+                existing.BringToFront();
+                return;
+            }
+
+            var card = _serviceProvider.GetRequiredService<frmShowCustomerCard>();
+            await card.LoadCustomerAsync(id);
+            clsGlobal._OpenForm(card);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء فتح بطاقة العميل {CustomerId}", id);
+            clsDialogs.Error("تعذر فتح بطاقة العميل. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>
+    /// «بحث عن عميل» (F-002): منتقي <b>نمطي</b> — <c>ShowDialog(this)</c> هو نمط المنتقيات في المشروع
+    /// (<c>frmOpeningStock</c> · <c>frmCustomerSelection</c>) و<b>RULE-N09</b> لشاشات الإدخال النمطية،
+    /// لا <c>clsGlobal._OpenForm</c>. ثم يُحدَّد العميل المختار عبر المسار القائم نفسه:
+    /// <c>_FillFormAsync</c> (تعبئة المحرر + وضع التعديل) ثم <c>_SelectGridRow</c> (إبراز السطر).
+    /// </summary>
+    private async void btnFindCustomer_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            var dialog = _serviceProvider.GetRequiredService<frmFindCustomer>();
+
+            // المنتقي يملك مؤشره الخاص: لا يُترك WaitCursor على التطبيق كله أثناء نافذة نمطية.
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.SelectedCustomer is null)
+                return;
+
+            int customerId = dialog.SelectedCustomer.Id;
+
+            Cursor = Cursors.WaitCursor;
+            await _FillFormAsync(customerId);
+            _SelectGridRow(customerId);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء البحث عن عميل وتحديده في الشبكة");
+            clsDialogs.Error("تعذر تحديد العميل المختار. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
 
     /// <summary>زر الخروج: إغلاق شاشة دليل العملاء.</summary>
     private void btnClose_Click(object? sender, EventArgs e) => Close();

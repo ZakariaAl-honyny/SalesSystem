@@ -48,6 +48,8 @@ partial class frmCustomerMaster
         btnReactivate = new Button();
         btnRefresh = new Button();
         btnClose = new Button();
+        btnShowCard = new Button();
+        btnFindCustomer = new Button();
         pnlFilters = new Panel();
         gbFilter = new GroupBox();
         label2 = new Label();
@@ -331,6 +333,8 @@ partial class frmCustomerMaster
         pnlButtons.Controls.Add(btnReactivate);
         pnlButtons.Controls.Add(btnRefresh);
         pnlButtons.Controls.Add(btnClose);
+        pnlButtons.Controls.Add(btnShowCard);
+        pnlButtons.Controls.Add(btnFindCustomer);
         pnlButtons.Dock = DockStyle.Fill;
         pnlButtons.Location = new Point(3, 28);
         pnlButtons.Name = "pnlButtons";
@@ -437,6 +441,39 @@ partial class frmCustomerMaster
         btnClose.Text = "🚪 خروج";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
+        // 
+        // btnShowCard
+        // 
+        btnShowCard.BackColor = Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnShowCard.Cursor = Cursors.Hand;
+        btnShowCard.Enabled = false;
+        btnShowCard.FlatStyle = FlatStyle.Flat;
+        btnShowCard.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnShowCard.ForeColor = Color.White;
+        btnShowCard.Location = new Point(241, 13);
+        btnShowCard.Name = "btnShowCard";
+        btnShowCard.Size = new Size(130, 35);
+        btnShowCard.TabIndex = 7;
+        btnShowCard.Text = "بطاقة";
+        btnShowCard.UseVisualStyleBackColor = false;
+        liveTip.SetToolTip(btnShowCard, "عرض بطاقة العميل المحدد");
+        btnShowCard.Click += btnShowCard_Click;
+        // 
+        // btnFindCustomer
+        // 
+        btnFindCustomer.BackColor = Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+        btnFindCustomer.Cursor = Cursors.Hand;
+        btnFindCustomer.FlatStyle = FlatStyle.Flat;
+        btnFindCustomer.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnFindCustomer.ForeColor = Color.White;
+        btnFindCustomer.Location = new Point(105, 13);
+        btnFindCustomer.Name = "btnFindCustomer";
+        btnFindCustomer.Size = new Size(130, 35);
+        btnFindCustomer.TabIndex = 8;
+        btnFindCustomer.Text = "بحث عن عميل";
+        btnFindCustomer.UseVisualStyleBackColor = false;
+        liveTip.SetToolTip(btnFindCustomer, "البحث عن عميل وتحديده في الشبكة");
+        btnFindCustomer.Click += btnFindCustomer_Click;
         // 
         // pnlFilters
         // 
@@ -871,6 +908,8 @@ partial class frmCustomerMaster
     private System.Windows.Forms.Button btnReactivate;
     private System.Windows.Forms.Button btnRefresh;
     private System.Windows.Forms.Button btnClose;
+    private System.Windows.Forms.Button btnShowCard;
+    private System.Windows.Forms.Button btnFindCustomer;
     private System.Windows.Forms.Panel pnlFilters;
     private System.Windows.Forms.GroupBox gbFilter;
     private System.Windows.Forms.Label label2;
