@@ -8,7 +8,6 @@ namespace SalesSystem.Models.Accounting;
 /// <summary>
 /// Represents a journal entry (double-entry accounting record) with 3-state lifecycle:
 /// Draft (1) → Posted (2) → Cancelled (3).
-/// Supports multi-currency via CurrencyId + ExchangeRate.
 /// FK to FiscalYear for period-based reporting.
 /// Lines must be added via AddDebitLine / AddCreditLine methods.
 /// </summary>
@@ -33,11 +32,6 @@ public class JournalEntry : DocumentEntity
     public JournalEntryType EntryType { get; private set; }
     public JournalEntryStatus Status { get; private set; }
 
-    /// <summary>
-    /// Navigation property to the Branch this journal entry belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
-
     /// <summary>Optional attachment file path (nvarchar(500)).</summary>
     public string? AttachmentPath { get; private set; }
 
@@ -48,19 +42,14 @@ public class JournalEntry : DocumentEntity
     public int? ReversedByEntryId { get; private set; }
     public JournalEntry? ReversedByEntry { get; private set; }
 
-    /// <summary>User who reviewed this entry (nullable).</summary>
-    public int? ReviewedByUserId { get; private set; }
-
-    /// <summary>Navigation to the reviewing user.</summary>
-    public virtual User? ReviewedByUser { get; private set; }
+    /// <summary>
+    /// Historical snapshot of the name of the user who reviewed/posted this entry (nullable).
+    /// Captured from the session at post time — not a foreign key.
+    /// </summary>
+    public string? ReviewedByUserName { get; private set; }
 
     /// <summary>Timestamp when this entry was reviewed (nullable).</summary>
     public DateTime? ReviewedAt { get; private set; }
-
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
 
     private readonly List<JournalEntryLine> _lines = new();
     public IReadOnlyList<JournalEntryLine> Lines => _lines.AsReadOnly();
@@ -73,20 +62,17 @@ public class JournalEntry : DocumentEntity
     private JournalEntry() { } // EF Core
 
     public static JournalEntry Create(
-        short branchId,
         string entryNumber,
         int entryNo,
         DateTime entryDate,
         string description,
         JournalEntryType entryType,
-        int createdBy,
+        string? createdByUserName = null,
         string? referenceType = null,
         int? referenceId = null,
         string? referenceNumber = null,
         string? attachmentPath = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (string.IsNullOrWhiteSpace(entryNumber))
             throw new DomainException("رقم القيد المحاسبي مطلوب");
 
@@ -102,15 +88,11 @@ public class JournalEntry : DocumentEntity
         if (!Enum.IsDefined(typeof(JournalEntryType), entryType))
             throw new DomainException("نوع القيد المحاسبي غير صالح");
 
-        if (createdBy <= 0)
-            throw new DomainException("منشئ القيد المحاسبي مطلوب");
-
         if (attachmentPath?.Length > 500)
             throw new DomainException("مسار المرفق لا يمكن أن يتجاوز 500 حرف");
 
         var entry = new JournalEntry
         {
-            BranchId = branchId,
             EntryNumber = entryNumber.Trim(),
             EntryNo = entryNo,
             EntryDate = entryDate,
@@ -122,7 +104,7 @@ public class JournalEntry : DocumentEntity
             ReferenceNumber = referenceNumber?.Trim(),
             AttachmentPath = attachmentPath?.Trim()
         };
-        entry.SetCreatedBy(createdBy);
+        entry.SetCreatedBy(createdByUserName);
         return entry;
     }
 
@@ -166,8 +148,7 @@ public class JournalEntry : DocumentEntity
         JournalEntryType entryType,
         string? referenceType,
         int? referenceId,
-        string? referenceNumber,
-        int updatedByUserId)
+        string? referenceNumber)
     {
         if (Status != JournalEntryStatus.Draft)
             throw new DomainException("لا يمكن تعديل قيد محاسبي تم ترحيله أو إلغاؤه");
@@ -178,7 +159,6 @@ public class JournalEntry : DocumentEntity
         ReferenceType = referenceType;
         ReferenceId = referenceId;
         ReferenceNumber = referenceNumber;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 
@@ -191,12 +171,10 @@ public class JournalEntry : DocumentEntity
 
     /// <summary>
     /// Posts this journal entry. Validates Draft status, balanced, and has lines.
+    /// The posting user is passed as a name snapshot (nullable) — never as a numeric user id.
     /// </summary>
-    public void Post(int postedByUserId)
+    public void Post(string? reviewedByUserName = null)
     {
-        if (postedByUserId <= 0)
-            throw new DomainException("مرحل القيد المحاسبي مطلوب");
-
         if (Status != JournalEntryStatus.Draft)
             throw new DomainException("لا يمكن ترحيل إلا القيود المحاسبية في حالة مسودة");
 
@@ -209,7 +187,7 @@ public class JournalEntry : DocumentEntity
 
         PostedAt = DateTime.UtcNow;
         Status = JournalEntryStatus.Posted;
-        ReviewedByUserId = postedByUserId;
+        ReviewedByUserName = string.IsNullOrWhiteSpace(reviewedByUserName) ? null : reviewedByUserName.Trim();
         ReviewedAt = DateTime.UtcNow;
         UpdateTimestamp();
     }
@@ -217,11 +195,8 @@ public class JournalEntry : DocumentEntity
     /// <summary>
     /// Cancels this posted journal entry. Optionally links to a reversal entry.
     /// </summary>
-    public void Cancel(int cancelledByUserId, int? reversedByEntryId = null)
+    public void Cancel(int? reversedByEntryId = null)
     {
-        if (cancelledByUserId <= 0)
-            throw new DomainException("ملغي القيد المحاسبي مطلوب");
-
         if (Status != JournalEntryStatus.Posted)
             throw new DomainException("لا يمكن إلغاء إلا القيود المحاسبية المرحلة");
 

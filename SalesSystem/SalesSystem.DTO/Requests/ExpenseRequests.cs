@@ -5,8 +5,7 @@ public record CreateExpenseRequest(
     int ExpenseAccountId,
     int CashBoxId,
     decimal Amount,
-    string? Notes,
-    short? BranchId = null
+    string? Notes
 );
 
 public record UpdateExpenseRequest(

@@ -11,7 +11,6 @@ public record CreateCashBoxRequest(
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("accountId")] int? AccountId,
     [property: JsonPropertyName("description")] string? Description = null,
-    [property: JsonPropertyName("branchId")] short? BranchId = null,
     [property: JsonPropertyName("openingBalance")] decimal OpeningBalance = 0m,
     [property: JsonPropertyName("sourceCashBoxId")] int? SourceCashBoxId = null
 );

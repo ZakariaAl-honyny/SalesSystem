@@ -18,10 +18,6 @@ public class PurchaseInvoice : DocumentEntity
     public decimal TaxAmount { get; private set; }
     public decimal OtherCharges { get; private set; }
     public decimal NetTotal { get; private set; }
-    /// <summary>
-    /// القيمة المكافئة بالعملة الأساسية (NetTotal × ExchangeRate)
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
     public decimal PaidAmount { get; private set; }
     public decimal RemainingAmount { get; private set; }
     public int InvoiceNo { get; private set; }
@@ -30,28 +26,18 @@ public class PurchaseInvoice : DocumentEntity
     public string? SupplierInvoiceNo { get; private set; }
     public DiscountType DiscountType { get; private set; }
     public decimal? DiscountRate { get; private set; }
-    public decimal? CostInBaseCurrency { get; private set; }
     public string? AttachmentPath { get; private set; }
     public InvoiceStatus Status { get; private set; }
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
 
     // Navigation properties
     public virtual Supplier? Supplier { get; private set; }
     public virtual Warehouse? Warehouse { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
-    /// <summary>
-    /// Navigation property to the Branch this invoice belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     public virtual List<PurchaseInvoiceLine> Items { get; private set; } = new();
 
     private PurchaseInvoice() { }
 
     public static PurchaseInvoice Create(
-        short branchId,
         int supplierId,
         short warehouseId,
         int invoiceNo,
@@ -65,11 +51,8 @@ public class PurchaseInvoice : DocumentEntity
         DiscountType discountType = DiscountType.Amount,
         decimal? discountRate = null,
         string? attachmentPath = null,
-        decimal? baseNetTotal = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (supplierId <= 0)
             throw new DomainException("المورد مطلوب.");
         if (warehouseId <= 0)
@@ -87,7 +70,6 @@ public class PurchaseInvoice : DocumentEntity
 
         var invoice = new PurchaseInvoice
         {
-            BranchId = branchId,
             SupplierId = supplierId,
             WarehouseId = warehouseId,
             InvoiceNo = invoiceNo,
@@ -101,10 +83,9 @@ public class PurchaseInvoice : DocumentEntity
             CashBoxId = cashBoxId,
             Notes = notes,
             AttachmentPath = attachmentPath?.Trim(),
-            BaseNetTotal = baseNetTotal,
             Status = InvoiceStatus.Draft
         };
-        invoice.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) invoice.SetCreatedBy(createdByUserName.Trim());
         return invoice;
     }
 
@@ -219,28 +200,6 @@ public class PurchaseInvoice : DocumentEntity
     public void SetAttachment(string? path)
     {
         AttachmentPath = path?.Trim();
-        UpdateTimestamp();
-    }
-
-    /// <summary>
-    /// Sets the computed cost in base currency.
-    /// </summary>
-    public void SetCostInBaseCurrency(decimal cost)
-    {
-        if (cost < 0)
-            throw new DomainException("التكلفة بعملة الأساس لا يمكن أن تكون سالبة.");
-        CostInBaseCurrency = cost;
-        UpdateTimestamp();
-    }
-
-    /// <summary>
-    /// Sets the base-currency equivalent of NetTotal (NetTotal × ExchangeRate).
-    /// </summary>
-    public void SetBaseNetTotal(decimal baseNetTotal)
-    {
-        if (baseNetTotal < 0)
-            throw new DomainException("القيمة بالعملة الأساسية لا يمكن أن تكون سالبة.");
-        BaseNetTotal = baseNetTotal;
         UpdateTimestamp();
     }
 

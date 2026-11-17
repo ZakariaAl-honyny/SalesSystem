@@ -123,19 +123,15 @@ namespace SalesSystem.Desktop.Screens
             msbtnExit = new ToolStripMenuItem();
             // ── المبيعات — نقطة البيع وأدوات الفاتورة (جديد) ───────────────────────────────────────
             msbtnPOS = new ToolStripMenuItem();
-            msbtnCurrencySelection = new ToolStripMenuItem();
-            // ── الموظفون (جديد) ────────────────────────────────────────────────────────────────────
-            msbtnEmployees = new ToolStripMenuItem();
             // ── شاشات الوحدات الرئيسية (جديد) ────────────────────────────────────────────────
             msbtnInventory = new ToolStripMenuItem();
             // ── المحاسبة (جديد) ───────────────────────────────────────────────────────────────────
             msAccounting = new ToolStripMenuItem();
             msbtnChartOfAccounts = new ToolStripMenuItem();
+            msbtnAccountsTree = new ToolStripMenuItem();
             msbtnJournalEntries = new ToolStripMenuItem();
-            // ── شاشات أُضيفت إلى القائمة (استيراد الأصناف · تحويل مخزني · جرد · FIFO · باركود · حاسبة) ──
+            // ── شاشات أُضيفت إلى القائمة (استيراد الأصناف · FIFO · باركود · حاسبة) ──
             msbtnImportProducts = new ToolStripMenuItem();
-            msbtnInventoryTransfer = new ToolStripMenuItem();
-            msbtnInventoryCounts = new ToolStripMenuItem();
             msbtnInventoryFifo = new ToolStripMenuItem();
             msbtnInventoryBarcode = new ToolStripMenuItem();
             msTools = new ToolStripMenuItem();
@@ -254,7 +250,6 @@ namespace SalesSystem.Desktop.Screens
                 msbtnInventoryTransactions, msbtnInventoryBatches,
                 msbtnInventoryAdjustments, msbtnOpeningStock,
                 new ToolStripSeparator(),
-                msbtnInventoryTransfer, msbtnInventoryCounts,
                 msbtnInventoryFifo, msbtnInventoryBarcode
             });
             msStore.Name = "msStore";
@@ -351,8 +346,6 @@ namespace SalesSystem.Desktop.Screens
                 new ToolStripSeparator(),
                 msbtnSalesInvoice, msbtnManageSales, msbtnSalesReturn, msbtnReturnsList,
                 new ToolStripSeparator(),
-                msbtnCurrencySelection,
-                new ToolStripSeparator(),
                 msbtnManageCustomers,
                 new ToolStripSeparator(),
                 msbtnCustomerReceipts, msbtnManagePayments
@@ -395,13 +388,6 @@ namespace SalesSystem.Desktop.Screens
             msbtnPOS.Size = new Size(300, 38);
             msbtnPOS.Text = "نقطة البيع";
             msbtnPOS.Click += msbtnPOS_Click;
-            // 
-            // msbtnCurrencySelection
-            // 
-            msbtnCurrencySelection.Name = "msbtnCurrencySelection";
-            msbtnCurrencySelection.Size = new Size(300, 38);
-            msbtnCurrencySelection.Text = "العملة";
-            msbtnCurrencySelection.Click += msbtnCurrencySelection_Click;
             // 
             // msRevenue
             // 
@@ -457,7 +443,7 @@ namespace SalesSystem.Desktop.Screens
             // msData
             // 
             msData.DropDownItems.AddRange(new ToolStripItem[] {
-                msbtnManageUsers, msbtnEmployees
+                msbtnManageUsers
             });
             msData.Name = "msData";
             msData.Size = new Size(80, 33);
@@ -470,17 +456,11 @@ namespace SalesSystem.Desktop.Screens
             msbtnManageUsers.Text = "المستخدمين";
             msbtnManageUsers.Click += msbtnManageUsers_Click;
             // 
-            // msbtnEmployees
-            // 
-            msbtnEmployees.Name = "msbtnEmployees";
-            msbtnEmployees.Size = new Size(300, 38);
-            msbtnEmployees.Text = "الموظفون";
-            msbtnEmployees.Click += msbtnEmployees_Click;
-            // 
             // msAccounting
             // 
             msAccounting.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnChartOfAccounts,
+                msbtnAccountsTree,
                 msbtnJournalEntries
             });
             msAccounting.Name = "msAccounting";
@@ -493,6 +473,13 @@ namespace SalesSystem.Desktop.Screens
             msbtnChartOfAccounts.Size = new Size(300, 38);
             msbtnChartOfAccounts.Text = "دليل الحسابات";
             msbtnChartOfAccounts.Click += msbtnChartOfAccounts_Click;
+            // 
+            // msbtnAccountsTree
+            // 
+            msbtnAccountsTree.Name = "msbtnAccountsTree";
+            msbtnAccountsTree.Size = new Size(300, 38);
+            msbtnAccountsTree.Text = "شجرة دليل الحسابات";
+            msbtnAccountsTree.Click += msbtnAccountsTree_Click;
             // 
             // msbtnJournalEntries
             // 
@@ -507,20 +494,6 @@ namespace SalesSystem.Desktop.Screens
             msbtnImportProducts.Size = new Size(300, 38);
             msbtnImportProducts.Text = "استيراد الأصناف من Excel";
             msbtnImportProducts.Click += msbtnImportProducts_Click;
-            // 
-            // msbtnInventoryTransfer
-            // 
-            msbtnInventoryTransfer.Name = "msbtnInventoryTransfer";
-            msbtnInventoryTransfer.Size = new Size(300, 38);
-            msbtnInventoryTransfer.Text = "تحويل مخزني بين المستودعات";
-            msbtnInventoryTransfer.Click += msbtnInventoryTransfer_Click;
-            // 
-            // msbtnInventoryCounts
-            // 
-            msbtnInventoryCounts.Name = "msbtnInventoryCounts";
-            msbtnInventoryCounts.Size = new Size(300, 38);
-            msbtnInventoryCounts.Text = "جرد المخزون";
-            msbtnInventoryCounts.Click += msbtnInventoryCounts_Click;
             // 
             // msbtnInventoryFifo
             // 
@@ -971,8 +944,6 @@ namespace SalesSystem.Desktop.Screens
         private ToolStripMenuItem msbtnChangePassword;
         private ToolStripMenuItem msbtnExit;
         private ToolStripMenuItem msbtnPOS;
-        private ToolStripMenuItem msbtnCurrencySelection;
-        private ToolStripMenuItem msbtnEmployees;
         private ToolStripMenuItem msBasis;
         private ToolStripMenuItem msbtnManageProducts;
         private ToolStripMenuItem msbtnManageCustomers;
@@ -1051,11 +1022,10 @@ namespace SalesSystem.Desktop.Screens
         private ToolStripMenuItem msReportDailyClosure;
         private ToolStripMenuItem msAccounting;
         private ToolStripMenuItem msbtnChartOfAccounts;
+        private ToolStripMenuItem msbtnAccountsTree;
         private ToolStripMenuItem msbtnJournalEntries;
         // شاشات أُضيفت إلى القائمة (RULE-N71/N76)
         private ToolStripMenuItem msbtnImportProducts;
-        private ToolStripMenuItem msbtnInventoryTransfer;
-        private ToolStripMenuItem msbtnInventoryCounts;
         private ToolStripMenuItem msbtnInventoryFifo;
         private ToolStripMenuItem msbtnInventoryBarcode;
         private ToolStripMenuItem msTools;

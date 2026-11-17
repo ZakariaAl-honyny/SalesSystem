@@ -109,7 +109,7 @@ partial class frmProductMaster
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1432, 50);
         lblMode.TabIndex = 0;
-        lblMode.Text = "(( ╪»┘┘è┘ ╪د┘╪ث╪╡┘╪د┘ ))";
+        lblMode.Text = "(( دليل الأصناف ))";
         lblMode.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // pnlFields
@@ -148,7 +148,7 @@ partial class frmProductMaster
         lblCode.Name = "lblCode";
         lblCode.Size = new Size(96, 24);
         lblCode.TabIndex = 16;
-        lblCode.Text = "╪▒┘é┘à ╪د┘╪╡┘┘";
+        lblCode.Text = "رقم الصنف";
         // 
         // txtCode
         // 
@@ -167,7 +167,7 @@ partial class frmProductMaster
         lblName.Name = "lblName";
         lblName.Size = new Size(106, 24);
         lblName.TabIndex = 13;
-        lblName.Text = "╪د╪│┘à ╪د┘╪╡┘┘";
+        lblName.Text = "اسم الصنف";
         // 
         // lblNameReq
         // 
@@ -195,7 +195,7 @@ partial class frmProductMaster
         lblForeignName.Name = "lblForeignName";
         lblForeignName.Size = new Size(190, 24);
         lblForeignName.TabIndex = 15;
-        lblForeignName.Text = "╪د┘╪د╪│┘à ╪د┘╪ث╪ش┘╪ذ┘è ┘┘╪╡┘┘";
+        lblForeignName.Text = "الاسم الأجنبي للصنف";
         // 
         // txtForeignName
         // 
@@ -212,7 +212,7 @@ partial class frmProductMaster
         lblCategory.Name = "lblCategory";
         lblCategory.Size = new Size(135, 24);
         lblCategory.TabIndex = 11;
-        lblCategory.Text = "┘à╪ش┘à┘ê╪╣╪ر ╪د┘╪╡┘┘";
+        lblCategory.Text = "مجموعة الصنف";
         // 
         // lblCategoryReq
         // 
@@ -246,7 +246,7 @@ partial class frmProductMaster
         btnAddCategory.Size = new Size(36, 32);
         btnAddCategory.TabIndex = 10;
         btnAddCategory.TabStop = false;
-        btnAddCategory.Text = "ظئـ ┘à╪ش┘à┘ê╪╣╪ر";
+        btnAddCategory.Text = "➕ مجموعة";
         btnAddCategory.UseVisualStyleBackColor = false;
         btnAddCategory.Click += btnAddCategory_Click;
         // 
@@ -257,7 +257,7 @@ partial class frmProductMaster
         lblReorderLevel.Name = "lblReorderLevel";
         lblReorderLevel.Size = new Size(155, 24);
         lblReorderLevel.TabIndex = 17;
-        lblReorderLevel.Text = "┘┘é╪╖╪ر ╪د╪╣╪د╪»╪ر ╪د┘╪╖┘╪ذ";
+        lblReorderLevel.Text = "نقطة إعادة الطلب";
         // 
         // numReorderLevel
         // 
@@ -275,7 +275,7 @@ partial class frmProductMaster
         chkTrackExpiry.Name = "chkTrackExpiry";
         chkTrackExpiry.Size = new Size(153, 28);
         chkTrackExpiry.TabIndex = 6;
-        chkTrackExpiry.Text = "╪د┘╪╡┘┘ ┘è┘╪ز┘ç┘è╪ا";
+        chkTrackExpiry.Text = "الصنف ينتهي؟";
         // 
         // lblExpiryDays
         // 
@@ -284,7 +284,7 @@ partial class frmProductMaster
         lblExpiryDays.Name = "lblExpiryDays";
         lblExpiryDays.Size = new Size(175, 24);
         lblExpiryDays.TabIndex = 18;
-        lblExpiryDays.Text = "┘┘é╪╖╪ر ╪د┘╪ز┘╪ذ┘è┘ç ╪ذ╪د┘╪د┘╪ز┘ç╪د╪ة";
+        lblExpiryDays.Text = "نقطة التنبيه بالانتهاء";
         // 
         // numExpiryAlertDays
         // 
@@ -302,7 +302,7 @@ partial class frmProductMaster
         lblLocation.Name = "lblLocation";
         lblLocation.Size = new Size(163, 24);
         lblLocation.TabIndex = 19;
-        lblLocation.Text = "╪د┘╪╣┘┘ê╪د┘ ┘┘è ╪د┘┘à╪«╪▓┘";
+        lblLocation.Text = "العنوان في المخزن";
         // 
         // txtLocationInStore
         // 
@@ -319,7 +319,7 @@ partial class frmProductMaster
         lblNotes.Name = "lblNotes";
         lblNotes.Size = new Size(83, 24);
         lblNotes.TabIndex = 20;
-        lblNotes.Text = "┘à┘╪د╪ص╪╕╪د╪ز";
+        lblNotes.Text = "ملاحظات";
         // 
         // txtNotes
         // 
@@ -349,7 +349,7 @@ partial class frmProductMaster
         grpMainUnit.Size = new Size(470, 170);
         grpMainUnit.TabIndex = 4;
         grpMainUnit.TabStop = false;
-        grpMainUnit.Text = "╪د┘┘ê╪ص╪»╪ر ╪د┘╪▒╪خ┘è╪│┘è╪ر";
+        grpMainUnit.Text = "الوحدة الرئيسية";
         // 
         // lblMainUnit
         // 
@@ -358,7 +358,7 @@ partial class frmProductMaster
         lblMainUnit.Name = "lblMainUnit";
         lblMainUnit.Size = new Size(140, 24);
         lblMainUnit.TabIndex = 5;
-        lblMainUnit.Text = "╪د┘┘ê╪ص╪»╪ر ╪د┘╪▒╪خ┘è╪│┘è╪ر";
+        lblMainUnit.Text = "الوحدة الرئيسية";
         // 
         // lblMainUnitReq
         // 
@@ -389,7 +389,7 @@ partial class frmProductMaster
         lblMainUnitCostPrice.Name = "lblMainUnitCostPrice";
         lblMainUnitCostPrice.Size = new Size(111, 24);
         lblMainUnitCostPrice.TabIndex = 7;
-        lblMainUnitCostPrice.Text = "╪│╪╣╪▒ ╪د┘╪ز┘â┘┘╪ر";
+        lblMainUnitCostPrice.Text = "سعر التكلفة";
         // 
         // numMainUnitCostPrice
         // 
@@ -407,7 +407,7 @@ partial class frmProductMaster
         lblMainUnitSalePrice.Name = "lblMainUnitSalePrice";
         lblMainUnitSalePrice.Size = new Size(111, 24);
         lblMainUnitSalePrice.TabIndex = 8;
-        lblMainUnitSalePrice.Text = "╪│╪╣╪▒ ╪د┘╪ز╪ش╪▓╪خ╪ر";
+        lblMainUnitSalePrice.Text = "سعر التجزئة";
         // 
         // numMainUnitSalePrice
         // 
@@ -425,7 +425,7 @@ partial class frmProductMaster
         lblMainUnitBarcode.Name = "lblMainUnitBarcode";
         lblMainUnitBarcode.Size = new Size(104, 24);
         lblMainUnitBarcode.TabIndex = 9;
-        lblMainUnitBarcode.Text = "╪▒┘é┘à ╪د┘╪ذ╪د╪▒┘â┘ê╪»";
+        lblMainUnitBarcode.Text = "رقم الباركود";
         // 
         // txtMainUnitBarcode
         // 
@@ -443,7 +443,7 @@ partial class frmProductMaster
         lblMainUnitMaxDiscount.Name = "lblMainUnitMaxDiscount";
         lblMainUnitMaxDiscount.Size = new Size(170, 24);
         lblMainUnitMaxDiscount.TabIndex = 10;
-        lblMainUnitMaxDiscount.Text = "╪د┘╪«╪╡┘à ╪د┘┘à╪│┘à┘ê╪ص ╪ذ┘ç";
+        lblMainUnitMaxDiscount.Text = "الخصم المسموح به";
         // 
         // numMainUnitMaxDiscount
         // 
@@ -481,7 +481,7 @@ partial class frmProductMaster
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
         btnNew.TabIndex = 16;
-        btnNew.Text = "≡اـ ╪ش╪»┘è╪»";
+        btnNew.Text = "🆕 جديد";
         btnNew.UseVisualStyleBackColor = false;
         btnNew.Click += btnNew_Click;
         // 
@@ -495,7 +495,7 @@ partial class frmProductMaster
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 17;
-        btnSave.Text = "≡اْ╛ ╪ح╪╢╪د┘╪ر";
+        btnSave.Text = "💾 إضافة";
         btnSave.UseVisualStyleBackColor = false;
         btnSave.Click += btnSave_Click;
         // 
@@ -509,7 +509,7 @@ partial class frmProductMaster
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
         btnEdit.TabIndex = 19;
-        btnEdit.Text = "ظ£ي╕ ╪ز╪╣╪»┘è┘";
+        btnEdit.Text = "✏️ تعديل";
         btnEdit.UseVisualStyleBackColor = false;
         btnEdit.Click += btnEdit_Click;
         // 
@@ -523,7 +523,7 @@ partial class frmProductMaster
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
         btnDelete.TabIndex = 18;
-        btnDelete.Text = "≡اùّ ╪ص╪░┘";
+        btnDelete.Text = "🗑 حذف";
         btnDelete.UseVisualStyleBackColor = false;
         btnDelete.Click += btnDelete_Click;
         // 
@@ -538,8 +538,8 @@ partial class frmProductMaster
         btnReactivate.Name = "btnReactivate";
         btnReactivate.Size = new Size(160, 35);
         btnReactivate.TabIndex = 23;
-        btnReactivate.Text = "ظ║ ╪ح╪╣╪د╪»╪ر ╪ز┘╪┤┘è╪╖";
-        toolTip.SetToolTip(btnReactivate, "╪ح╪╣╪د╪»╪ر ╪ز┘╪┤┘è╪╖ ╪د┘╪│╪ش┘ ╪د┘┘à╪╣╪╖┘ّ┘");
+        btnReactivate.Text = "↺ إعادة تنشيط";
+        toolTip.SetToolTip(btnReactivate, "إعادة تنشيط السجل المعطّل");
         btnReactivate.UseVisualStyleBackColor = false;
         btnReactivate.Click += btnReactivate_Click;
         // 
@@ -553,7 +553,7 @@ partial class frmProductMaster
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
         btnRefresh.TabIndex = 21;
-        btnRefresh.Text = "≡ا¤ ╪ز╪ص╪»┘è╪س";
+        btnRefresh.Text = "🔄 تحديث";
         btnRefresh.UseVisualStyleBackColor = false;
         btnRefresh.Click += btnRefresh_Click;
         // 
@@ -567,7 +567,7 @@ partial class frmProductMaster
         btnManageUnits.Name = "btnManageUnits";
         btnManageUnits.Size = new Size(180, 35);
         btnManageUnits.TabIndex = 20;
-        btnManageUnits.Text = "≡اôخ ╪د┘┘ê╪ص╪»╪د╪ز ┘ê╪د┘╪ث╪│╪╣╪د╪▒";
+        btnManageUnits.Text = "📦 الوحدات والأسعار";
         btnManageUnits.UseVisualStyleBackColor = false;
         btnManageUnits.Click += btnManageUnits_Click;
         // 
@@ -582,7 +582,7 @@ partial class frmProductMaster
         btnClose.Size = new Size(130, 35);
         btnClose.TabIndex = 22;
         btnClose.TabStop = false;
-        btnClose.Text = "≡اأز ╪«╪▒┘ê╪ش";
+        btnClose.Text = "🚪 خروج";
         btnClose.UseVisualStyleBackColor = false;
         btnClose.Click += btnClose_Click;
         // 
@@ -668,7 +668,7 @@ partial class frmProductMaster
         gbFilter.Size = new Size(1280, 104);
         gbFilter.TabIndex = 22;
         gbFilter.TabStop = false;
-        gbFilter.Text = "┘à╪ص╪▒┘â ╪د┘╪ذ╪ص╪س";
+        gbFilter.Text = "محرك البحث";
         // 
         // lblSearch
         // 
@@ -677,7 +677,7 @@ partial class frmProductMaster
         lblSearch.Name = "lblSearch";
         lblSearch.Size = new Size(56, 24);
         lblSearch.TabIndex = 1;
-        lblSearch.Text = "╪ذ╪ص╪س:";
+        lblSearch.Text = "بحث:";
         // 
         // chkShowInactive
         // 
@@ -687,7 +687,7 @@ partial class frmProductMaster
         chkShowInactive.Name = "chkShowInactive";
         chkShowInactive.Size = new Size(166, 28);
         chkShowInactive.TabIndex = 21;
-        chkShowInactive.Text = "╪╣╪▒╪╢ ╪║┘è╪▒ ╪د┘┘╪┤╪╖";
+        chkShowInactive.Text = "عرض غير النشط";
         chkShowInactive.CheckedChanged += chkShowInactive_CheckedChanged;
         // 
         // btnClearFilters
@@ -703,8 +703,8 @@ partial class frmProductMaster
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(178, 32);
         btnClearFilters.TabIndex = 26;
-        btnClearFilters.Text = "\U0001f9f9 ┘à╪│╪ص ╪د┘╪ز╪╡┘┘è╪ر";
-        toolTip.SetToolTip(btnClearFilters, "┘à╪│╪ص ┘â┘ ╪ث╪»┘ê╪د╪ز ╪د┘╪ز╪╡┘┘è╪ر (Esc) ظ¤ ┘╪د ┘è╪╣┘è╪» ╪ز╪ص┘à┘è┘ ╪د┘╪ذ┘è╪د┘╪د╪ز");
+        btnClearFilters.Text = "\U0001f9f9 مسح التصفية";
+        toolTip.SetToolTip(btnClearFilters, "مسح كل أدوات التصفية (Esc) — لا يعيد تحميل البيانات");
         btnClearFilters.UseVisualStyleBackColor = false;
         btnClearFilters.Click += btnClearFilters_Click;
         // 
@@ -713,7 +713,7 @@ partial class frmProductMaster
         txtSearch.Location = new Point(870, 36);
         txtSearch.Name = "txtSearch";
         txtSearch.BackColor = System.Drawing.Color.White;
-        txtSearch.PlaceholderText = "╪د┘â╪ز╪ذ ┘é┘è┘à╪ر ╪د┘╪ز╪╡┘┘è╪ر...";
+        txtSearch.PlaceholderText = "اكتب قيمة التصفية...";
         txtSearch.Size = new Size(300, 32);
         txtSearch.TabIndex = 20;
         txtSearch.TextChanged += txtSearch_TextChanged;
@@ -728,7 +728,7 @@ partial class frmProductMaster
         chkOnlyOutOfStock.Name = "chkOnlyOutOfStock";
         chkOnlyOutOfStock.Size = new Size(112, 28);
         chkOnlyOutOfStock.TabIndex = 23;
-        chkOnlyOutOfStock.Text = "╪د┘┘╪د┘╪» ┘┘é╪╖";
+        chkOnlyOutOfStock.Text = "النافد فقط";
         chkOnlyOutOfStock.CheckedChanged += chkOnlyOutOfStock_CheckedChanged;
         // 
         // chkOnlyLowStock
@@ -739,7 +739,7 @@ partial class frmProductMaster
         chkOnlyLowStock.Name = "chkOnlyLowStock";
         chkOnlyLowStock.Size = new Size(157, 28);
         chkOnlyLowStock.TabIndex = 24;
-        chkOnlyLowStock.Text = "╪ز╪ص╪ز ╪ص╪» ╪د┘╪╖┘╪ذ";
+        chkOnlyLowStock.Text = "تحت حد الطلب";
         chkOnlyLowStock.CheckedChanged += chkOnlyLowStock_CheckedChanged;
         // 
         // btnToggleFilters
@@ -756,7 +756,7 @@ partial class frmProductMaster
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
         btnToggleFilters.TabIndex = 25;
-        btnToggleFilters.Text = "╪ح╪«┘╪د╪ة ╪د┘╪ز╪╡┘┘è╪ر";
+        btnToggleFilters.Text = "إخفاء التصفية";
         btnToggleFilters.UseVisualStyleBackColor = false;
         // 
         // pnlSummary
@@ -778,12 +778,12 @@ partial class frmProductMaster
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
         lblSummary.TabIndex = 0;
-        lblSummary.Text = "╪د┘┘à╪╣╪▒┘ê╪╢: 0 ┘à┘ 0";
+        lblSummary.Text = "المعروض: 0 من 0";
         lblSummary.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // cmsRows
         //
-        // RULE-N23: ┘é╪د╪خ┘à╪ر ╪│┘è╪د┘é ╪╣┘┘ë ╪د┘╪┤╪ذ┘â╪ر ظ¤ ┘â┘ ╪╣┘╪╡╪▒ ┘è╪│╪ز╪»╪╣┘è ┘┘╪│ ╪▓╪▒ ╪د┘╪┤╪د╪┤╪ر (╪ذ┘╪د ┘à┘╪╖┘é ┘à┘â╪▒╪▒).
+        // RULE-N23: قائمة سياق على الشبكة — كل عنصر يستدعي نفس زر الشاشة (بلا منطق مكرر).
         cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsDelete, cmsReactivate, cmsSeparator, cmsRefresh });
         cmsRows.Name = "cmsRows";
         cmsRows.Size = new Size(240, 134);
@@ -793,21 +793,21 @@ partial class frmProductMaster
         //
         cmsEdit.Name = "cmsEdit";
         cmsEdit.Size = new Size(239, 30);
-        cmsEdit.Text = "ظ£ي╕ ╪ز╪╣╪»┘è┘";
+        cmsEdit.Text = "✏️ تعديل";
         cmsEdit.Click += cmsEdit_Click;
         //
         // cmsDelete
         //
         cmsDelete.Name = "cmsDelete";
         cmsDelete.Size = new Size(239, 30);
-        cmsDelete.Text = "≡اùّ ╪ص╪░┘";
+        cmsDelete.Text = "🗑 حذف";
         cmsDelete.Click += cmsDelete_Click;
         //
         // cmsReactivate
         //
         cmsReactivate.Name = "cmsReactivate";
         cmsReactivate.Size = new Size(239, 30);
-        cmsReactivate.Text = "ظ║ ╪ح╪╣╪د╪»╪ر ╪ز┘╪┤┘è╪╖";
+        cmsReactivate.Text = "↺ إعادة تنشيط";
         cmsReactivate.Click += cmsReactivate_Click;
         //
         // cmsSeparator
@@ -819,7 +819,7 @@ partial class frmProductMaster
         //
         cmsRefresh.Name = "cmsRefresh";
         cmsRefresh.Size = new Size(239, 30);
-        cmsRefresh.Text = "≡ا¤ ╪ز╪ص╪»┘è╪س (F5)";
+        cmsRefresh.Text = "🔄 تحديث (F5)";
         cmsRefresh.Click += cmsRefresh_Click;
         // 
         // errorProvider
@@ -844,7 +844,7 @@ partial class frmProductMaster
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;
-        Text = "╪»┘┘è┘ ╪د┘╪ث╪╡┘╪د┘";
+        Text = "دليل الأصناف";
         Load += frmProductMaster_Load;
         pnlFields.ResumeLayout(false);
         pnlFields.PerformLayout();

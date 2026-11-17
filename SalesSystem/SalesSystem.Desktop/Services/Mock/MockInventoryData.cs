@@ -10,7 +10,7 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// <remarks>
 /// TODO: الحقول التالية أُزيلت من DTOs المخزون ولم تُعد موجودة:
 /// InventoryBatchDto → ProductCode, ProductBarcode, ProductCategoryName, ProductUnitName, PurchaseInvoiceNo, SupplierName
-/// InventoryAdjustmentDto → ApprovedBy, BranchId, BranchName
+/// InventoryAdjustmentDto → ApprovedBy
 /// InventoryAdjustmentLineDto → ProductName, ProductCode, ProductId, UnitName, BatchNo, Notes
 /// </remarks>
 internal static class MockInventoryData
@@ -134,7 +134,7 @@ internal static class MockInventoryData
             Status: 2,
             StatusName: "مرحّل",
             CreatedAt: new DateTime(2026, 8, 17, 10, 0, 0),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             PostedAt: new DateTime(2026, 8, 17, 14, 0, 0),
             CancelledAt: null,
             Lines: new List<InventoryAdjustmentLineDto>
@@ -157,7 +157,7 @@ internal static class MockInventoryData
             Status: 2,
             StatusName: "مرحّل",
             CreatedAt: new DateTime(2026, 8, 18, 11, 0, 0),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             PostedAt: new DateTime(2026, 8, 18, 15, 0, 0),
             CancelledAt: null,
             Lines: new List<InventoryAdjustmentLineDto>
@@ -184,7 +184,7 @@ internal static class MockInventoryData
             Status: 1,
             StatusName: "مسودة",
             CreatedAt: new DateTime(2026, 9, 21, 9, 0, 0),
-            CreatedByUserId: 2,
+            CreatedByUserName: "أحمد علي عبده",
             PostedAt: null,
             CancelledAt: null,
             Lines: new List<InventoryAdjustmentLineDto>
@@ -230,7 +230,7 @@ internal static class MockInventoryData
             ReferenceType: null,
             Notes: "رصيد افتتاحي — سكر أبيض 1 كغ",
             CreatedAt: DateTime.Today.AddDays(-12).AddHours(9),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 1, InventoryTransactionId: 1, ProductUnitId: 4,
@@ -250,7 +250,7 @@ internal static class MockInventoryData
             ReferenceType: 1, // PurchaseInvoice
             Notes: "فاتورة شراء 5001 — شاي ليبتون 250غ",
             CreatedAt: DateTime.Today.AddDays(-12).AddHours(11),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 2, InventoryTransactionId: 2, ProductUnitId: 1,
@@ -270,7 +270,7 @@ internal static class MockInventoryData
             ReferenceType: 1, // PurchaseInvoice
             Notes: "فاتورة شراء 5005 — مناديل ورقية 150 ورقة",
             CreatedAt: DateTime.Today.AddDays(-11).AddHours(10),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 3, InventoryTransactionId: 3, ProductUnitId: 9,
@@ -290,7 +290,7 @@ internal static class MockInventoryData
             ReferenceType: 1, // PurchaseInvoice
             Notes: "فاتورة شراء 5001 — حليب مجفف 900غ",
             CreatedAt: DateTime.Today.AddDays(-10).AddHours(9).AddMinutes(30),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 4, InventoryTransactionId: 4, ProductUnitId: 8,
@@ -310,7 +310,7 @@ internal static class MockInventoryData
             ReferenceType: 1, // PurchaseInvoice
             Notes: "فاتورة شراء 5002 — زيت نباتي 1 لتر",
             CreatedAt: DateTime.Today.AddDays(-9).AddHours(14),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 5, InventoryTransactionId: 5, ProductUnitId: 2,
@@ -330,7 +330,7 @@ internal static class MockInventoryData
             ReferenceType: 1, // PurchaseInvoice
             Notes: "فاتورة شراء 5003 — شاي ليبتون 250غ (دفعة جديدة)",
             CreatedAt: DateTime.Today.AddDays(-8).AddHours(10),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 6, InventoryTransactionId: 6, ProductUnitId: 1,
@@ -350,7 +350,7 @@ internal static class MockInventoryData
             ReferenceType: 1, // PurchaseInvoice
             Notes: "فاتورة شراء 5004 — أرز بسمتي 5 كغ (مخزن المعرض)",
             CreatedAt: DateTime.Today.AddDays(-7).AddHours(11),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 7, InventoryTransactionId: 7, ProductUnitId: 3,
@@ -370,7 +370,7 @@ internal static class MockInventoryData
             ReferenceType: 7, // Adjustment
             Notes: "تسوية فائض جرد ADJ-2026-001 — سكر أبيض 1 كغ",
             CreatedAt: DateTime.Today.AddDays(-6).AddHours(14).AddMinutes(30),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 8, InventoryTransactionId: 8, ProductUnitId: 4,
@@ -390,7 +390,7 @@ internal static class MockInventoryData
             ReferenceType: null,
             Notes: "صرف مبيعات — أرز بسمتي 5 كغ",
             CreatedAt: DateTime.Today.AddDays(-5).AddHours(16),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 9, InventoryTransactionId: 9, ProductUnitId: 3,
@@ -410,7 +410,7 @@ internal static class MockInventoryData
             ReferenceType: null,
             Notes: "صرف مبيعات — شاي ليبتون 250غ",
             CreatedAt: DateTime.Today.AddDays(-4).AddHours(11),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 10, InventoryTransactionId: 10, ProductUnitId: 1,
@@ -430,7 +430,7 @@ internal static class MockInventoryData
             ReferenceType: null,
             Notes: "صرف مبيعات — حليب مجفف 900غ",
             CreatedAt: DateTime.Today.AddDays(-3).AddHours(12).AddMinutes(30),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 11, InventoryTransactionId: 11, ProductUnitId: 8,
@@ -450,7 +450,7 @@ internal static class MockInventoryData
             ReferenceType: null,
             Notes: "صرف مبيعات — مناديل ورقية 150 ورقة",
             CreatedAt: DateTime.Today.AddDays(-2).AddHours(15),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 12, InventoryTransactionId: 12, ProductUnitId: 9,
@@ -470,7 +470,7 @@ internal static class MockInventoryData
             ReferenceType: null,
             Notes: "صرف مبيعات — شاي ليبتون 250غ",
             CreatedAt: DateTime.Today.AddDays(-1).AddHours(10),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 13, InventoryTransactionId: 13, ProductUnitId: 1,
@@ -490,7 +490,7 @@ internal static class MockInventoryData
             ReferenceType: 7, // Adjustment
             Notes: "تسوية عجز جرد ADJ-2026-002 — شاي ليبتون 250غ · حليب مجفف 900غ",
             CreatedAt: DateTime.Today.AddDays(-1).AddHours(16),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: new List<InventoryTransactionLineDto>
             {
                 new(Id: 14, InventoryTransactionId: 14, ProductUnitId: 1,

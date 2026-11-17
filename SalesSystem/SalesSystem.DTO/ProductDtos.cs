@@ -12,7 +12,6 @@ public record ProductDto(
     bool IsActive,
     string? Barcode = null,
     decimal CurrentStock = 0,
-    short BranchId = 0,
     string? ForeignName = null,
     string? LocationInStore = null,
     short? ExpiryAlertDays = null)

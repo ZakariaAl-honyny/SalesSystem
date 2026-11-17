@@ -40,10 +40,13 @@
 | BR-051 | If `AllowBelowCostSale` is OFF → reject sale if `UnitPrice < AvgCost`. |
 
 ## 6. Accounting Integration
+
+> 🔒 V2 (2026-11-17): قواعد القيد المزدوج والتوجيه المحاسبي لا تُطبَّق في V1 — الوحدة المحاسبية مؤجلة إلى V2، ونصّها الكامل في `docs/database-schema-v2-deferred.md` قسم المحاسبة.
+
 | Rule | Description |
 |------|-------------|
-| BR-080 | Every money-affecting operation creates balanced double-entry journal entries. |
-| BR-081 | Use `Customer.AccountId` / `Supplier.AccountId` — NOT fixed AR/AP from SystemAccountMappings. |
+| (V2) BR-080 | Every money-affecting operation creates balanced double-entry journal entries. |
+| (V2) BR-081 | Use `Customer.AccountId` / `Supplier.AccountId` — NOT fixed AR/AP from SystemAccountMappings. |
 | BR-084 | COGS uses `AverageCost` (weighted average) — NOT `PurchaseCost`. |
 
 ## 7. WinForms UI Rules

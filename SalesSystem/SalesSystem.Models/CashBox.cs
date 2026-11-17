@@ -9,7 +9,7 @@ namespace SalesSystem.Models;
 /// in the Chart of Accounts. This entity is a lightweight register identifier
 /// with metadata for operational use.
 /// Schema: §4.3 CashBoxes — Id, AccountId (int not null FK),
-/// Name, Description (nullable), IsActive, CreatedByUserId, UpdatedByUserId, CreatedAt, UpdatedAt.
+/// Name, Description (nullable), IsActive, CreatedByUserName, UpdatedByUserName, CreatedAt, UpdatedAt.
 /// </summary>
 public class CashBox : ActivatableEntity
 {
@@ -27,28 +27,17 @@ public class CashBox : ActivatableEntity
     /// </summary>
     public string? Description { get; private set; }
 
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK, nullable for company-wide cash boxes).
-    /// </summary>
-    public short? BranchId { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the Branch this cash box belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
-
     private CashBox() { } // EF Core
 
     /// <summary>
-    /// Creates a new cash box with the specified name, account, and currency.
+    /// Creates a new cash box with the specified name and account.
     /// AccountId is required — the service layer resolves auto-creation before calling this factory.
     /// </summary>
     public static CashBox Create(
         string name,
         int accountId,
         string? description = null,
-        short? branchId = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم الصندوق مطلوب");
@@ -60,10 +49,9 @@ public class CashBox : ActivatableEntity
         {
             Name = name.Trim(),
             AccountId = accountId,
-            Description = description?.Trim(),
-            BranchId = branchId
+            Description = description?.Trim()
         };
-        box.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) box.SetCreatedBy(createdByUserName.Trim());
         return box;
     }
 

@@ -147,7 +147,6 @@ public class PurchaseService : IPurchaseService
                     _logger.LogInformation("Auto-assigned DefaultCashSupplierId={SupplierId} for cash purchase", supplierId);
                 }
                 var invoice = PurchaseInvoice.Create(
-                    branchId: 1,
                     supplierId: supplierId,
                     warehouseId: (short)warehouseId,
                     invoiceNo: invoiceNo,
@@ -155,8 +154,7 @@ public class PurchaseService : IPurchaseService
                     paymentType: (PaymentType)request.PaymentType,
                     discountAmount: request.DiscountAmount,
                     otherCharges: request.OtherCharges,
-                    notes: request.Notes,
-                    createdByUserId: userId
+                    notes: request.Notes
                 );
 
                 foreach (var item in request.Items)
@@ -239,7 +237,6 @@ public class PurchaseService : IPurchaseService
             }
 
             var invoice = PurchaseInvoice.Create(
-                branchId: 1,
                 supplierId: supplierId,
                 warehouseId: (short)warehouseId,
                 invoiceNo: invoiceNo,
@@ -247,8 +244,7 @@ public class PurchaseService : IPurchaseService
                 paymentType: (PaymentType)request.PaymentType,
                 discountAmount: request.DiscountAmount,
                 otherCharges: request.OtherCharges,
-                notes: request.Notes,
-                createdByUserId: userId
+                notes: request.Notes
             );
 
             foreach (var item in request.Items)
@@ -425,8 +421,7 @@ public class PurchaseService : IPurchaseService
                         (short)invoice.WarehouseId,
                         InventoryReferenceType.PurchaseInvoice,
                         invoice.Id,
-                        $"شراء - فاتورة رقم {invoice.InvoiceNo}",
-                        userId);
+                        $"شراء - فاتورة رقم {invoice.InvoiceNo}");
                     for (int i = 0; i < itemsList.Count; i++)
                     {
                         var item = itemsList[i];
@@ -594,8 +589,7 @@ public class PurchaseService : IPurchaseService
                             (short)invoice.WarehouseId,
                             InventoryReferenceType.PurchaseInvoice,
                             invoice.Id,
-                            $"إلغاء شراء - فاتورة رقم {invoice.InvoiceNo}",
-                            userId);
+                            $"إلغاء شراء - فاتورة رقم {invoice.InvoiceNo}");
                         foreach (var item in invoice.Items)
                         {
                             invTx.AddLine(InventoryTransactionLine.Create(
@@ -670,7 +664,6 @@ public class PurchaseService : IPurchaseService
             i.DiscountAmount,
             (byte)i.DiscountType,
             i.DiscountRate,
-            i.CostInBaseCurrency,
             i.TaxAmount,
             i.OtherCharges,
             i.NetTotal,
@@ -697,10 +690,8 @@ public class PurchaseService : IPurchaseService
                 (byte)it.DiscountType,
                 it.DiscountRate,
                 it.DiscountAmount,
-                it.CostInBaseCurrency,
                 it.AdditionalFeesAmount
-            )).ToList(),
-            BranchId: i.BranchId
+            )).ToList()
         );
     }
 }

@@ -10,8 +10,7 @@ public record CreateProductRequest(
     string? Barcode = null,
     string? ForeignName = null,
     string? LocationInStore = null,
-    short? ExpiryAlertDays = null,
-    short? BranchId = null
+    short? ExpiryAlertDays = null
 );
 
 public record UpdateProductRequest(

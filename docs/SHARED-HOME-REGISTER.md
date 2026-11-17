@@ -1211,5 +1211,61 @@
 
 **ملاحظات تُبلَّغ للمالك:** أبيض الشريط على `(14,165,103)` = **3.18** (≥ 3.0 للنص الكبير؛ `frmPOS` و`frmFormatingSetting` بـ`12 Bold` على الحدّ الأدنى) · زر التحذير `(255,193,7)` بنص داكن **8.31** · التعطيل **2.24** · **والمصيدة القديمة:** في الوضع الحقيقي لوحة محفوظة في `SystemSettings` تتغلّب على الافتراضيات ⇒ «استعادة الافتراضيات» مرة واحدة.
 
+---
+
+## 12. موجة 2026-11-17 — حقول دليل الحسابات الهرمية (`TASK-008`)
+
+> **الطلب (نصّه):** «update all project code 4.1 Accounts — دليل الحسابات الهرمي» + سلّم الأطوال الرسمي (1 · 2 · 4 · 8) + «remove cuurencey» + «I will do migrations you write code and stop».
+
+**نُفِّذت على 7 وكلاء في ثلاث موجات، كل ملف بمالك واحد (`RULE-N158`).**
+
+| الملف | التغيير | التفصيل |
+|---|---|---|
+| `Models\Accounting\Account.cs` | +2 عمود +3 سمات مشتقة | `byte? NormalBalance` · `bool AllowCostCenter` · `IsSubAccount` · `EffectiveNormalBalance` · `FinancialStatement` (get-only ⇒ غير مُسقَّطة) + وسائط اختيارية في `Create`/`Update` بتحقق عربي |
+| `DataAccess\Configurations\AccountConfiguration.cs` | سطران | `tinyint` nullable · `bit` required + `HasDefaultValue(false)` — لم يُمسّ CHECK ولا الفهرس المفلتر ولا الـFK |
+| `DTO\AccountDtos.cs` + `Requests\AccountingRequests.cs` | إضافي فقط | الـDTO يحمل **المخزَّن** (`0` = مشتق) + `EffectiveNormalBalance` + `NormalBalanceDisplay` («(تلقائي)») + `AccountCodePreviewDto` + وسائط اختيارية في الطلبين |
+| `Business\Helpers\AccountCategoryHelper.cs` | **ملف جديد** | بيت واحد لتصنيف الدفاتر المساعدة — 5 بادئات على السلّم (`1103` عميل · `2101` مورّد · `1107` موظف · `1102` بنك · `1101` صندوق) + احتياط بالاسم |
+| `Business\Services\AccountService.cs` | جوهر الشريحة | `TreePath` · `Balance` بإشارة الطبيعة الفعّالة · `FinancialStatement` · `CategoryLabel` · `GetNextChildCodeAsync` · إزالة تقييدات المستوى · **القيود المرحَّلة فقط في الرصيد** · توقيع الافتتاحي بـ`EffectiveNormalBalance` · 3 رقابات تعديل · `includeInactive` يعمل |
+| `Business\Services\AccountCodeGeneratorService.cs` | حارس | السلّم الرسمي كما هو + زيادة عند التصادم + `SemaphoreSlim` |
+| `Desktop\Services\{Interfaces,Direct,Mock}` | عقد | `GetNextChildCodeAsync` في الـ3 + تكافؤ رفض (37 نداء) |
+| `Desktop\Services\Mock\MockAccountsData.cs` | إعادة بناء | **42** حساباً على السلّم (1=4 · 2=11 · 4=21 · 8=6) · `AddChildAccount`/`AddCashBoxAccount`/`NextId` |
+| `Screens\Accounting\Forms\frmAccounts*.cs` | الشاشة | `cmbNormalBalance` + `chkAllowCostCenter` + 4 أعمدة (المسار/الرصيد/القائمة المالية/التصنيف) + معاينة كود الابن الحيّة |
+| `Mock\*.cs` (4 ملفات) | إعادة ترقيم | أكواد السلّم القديمة (`1111/1121/1112`) ⇒ **0** بقايا · `AccountId` البذور أُعيد ربطه · كود الصندوق عبر `NextChildCode` |
+| `docs\**` + `AGENTS.md` | توثيق | `database-schema.md` §4.1 (19 قسماً منفَّذاً) · `TASK-008` جولة 3 · `MOCK-COVERAGE` 1.3 · `ACTIVE` · §9 |
+
+**أعطال وُجدت وأُصلحت في نفس الموجة (`RULE-N186`):**
+
+| # | العيب | البرهان المقيس | الإصلاح |
+|---|---|---|---|
+| `ACC-UI-1` | أعمدة شبكة `frmAccounts` كانت **معلنة بلا `Columns.Add`** ⇒ الشبكة تُولّد 15 عموداً تلقائياً و`Cells["colNameAr"]` يرمي داخل `catch` صامت | قراءة المصمّم: 9 حقول معلنة · 0 `Columns.AddRange` | كل الأعمدة معلنة ومضافة + `AutoGenerateColumns = false` |
+| `ACC-SEM-1` | الـDTO يُرجع **الفعّالي** لا **المخزَّن** ⇒ خيار «تلقائي» لا يعود كما اختاره المالك | `AccountService.cs:70` كان `EffectiveNormalBalance` | فاصل صريح: مخزَّن `0` = مشتق |
+| `ACC-FIN-1` | الرصيد يضم **المسودات والملغاة** | `LoadBalancesAsync` بلا تصفية حالة | `Status == Posted` في نفس الاستعلام الواحد |
+| `ACC-FIN-2` | الافتتاحي يُوقَّع بـ`Nature` لا بالطبيعة الفعّالة ⇒ حساب مضاد على الطرف الخاطئ | `account.IsDebitNormal()` | `EffectiveNormalBalance == 1` |
+| `ACC-SEED-1` | `AccountId` في بذور القيود يشير لحسابات أخرى بعد الترقيم | «رأس المال» ⇒ «أصول متداولة» | 9 بنود أُعيد ربطها بالكود الصحيح |
+
+**القياسات (بأمر في هذه الموجة):** `dotnet build .\SalesSystem.slnx` = **0 Errors / 118 Warning** · خصائص `Accounts` في اللقطة = **19** (كانت 17) · `CreatedByUserId` في اللقطة = **0** و`CreatedByUserName` = **27** · حسابـات الـMock = **42** صفاً بصفر مخالفة سلّم · نداءات الرفض في `MockAccountDesktopService` = **37** · مراجعة الكود = `0 Blocker · 4 Major · 5 Minor` (الأربعة أُصلحت) · شهادة `mock-qa` = `مؤهل جزئياً — تكافؤ الرفض ناقص` (`ف-AC-1…3` مغلقة · `ف-AC-5…9` مفتوحة، كلها S وفي طبقة الـMock وحدها).
+
+**حدود مقصودة:** `Balance` يُجمَّع في C# من تحميل واحد (لا `GROUP BY` في SQL) — كافٍ لـMVP · **الترحيل ملك المالك** («I will do migrations») فلم يُنشئ أي وكيل ترحيلاً ولا حذفه · انحراف دلالات بذور الـMock مقابل `AccountingSeeder` (`2201` مقابل `3101`) يحتاج توحيد أسماء عربية.
+
+---
+
+## 13. موجة 2026-11-17 — ⛔ **ملغاة**: نقل أزرار العمليات إلى داخل `ctrlAccountEditor` (`TASK-009`)
+
+> **طلب المالك:** «Convert buttons to ctrlAccountEditor.cs … and use ctrlAccountEditor.cs inside frmAccounts» — تطابقاً مع `docs/acounts.md` الذي يضع أزرار اللوحة اليمنى.
+>
+> **⛔ قرار المالك بعد المعاينة (2026-11-17):** «no I do not want ctrlAccountEditor convert to inside frmAccounts and removed ctrlAccountEditor» ثم اختار **«رجوع كامل للموجة»**. **الحالة الفعلية الآن = HEAD حرفياً:** الشريط في `gbCommands` برأس `frmAccounts`، و`ctrlAccountEditor` يحمل زرَّي «حفظ/إلغاء» الداخليَّين، وصفر `SetActions`/`PrimaryActionButton`. **الجدول أدناه سجلّ لما جرى ثم أُلغي — لا يصف الحالة الحالية.**
+
+| الملف | كان (ثم أُلغي) | الحالة بعد الرجوع |
+|---|---|---|
+| `Controls\Common\ctrlCrudToolbar.cs` | عضو عام `PrimaryActionButton => btnSave` | ⛔ محذوف — `git diff HEAD` فارغ |
+| `Screens\Accounting\Controls\ctrlAccountEditor.cs` | `SetActions` + خمسة أحداث مُمرَّرة + حذف `btnSave/btnCancel` | ⛔ عاد كما في HEAD (9 مواضع `btnSave/btnCancel`) |
+| `Screens\Accounting\Controls\ctrlAccountEditor.Designer.cs` | `ctrlCrudToolbar1` بدل `flpActions` | ⛔ عاد (52 موضعاً) · صيغة `Convert.ToInt32` سليمة |
+| `Screens\Accounting\Forms\frmAccounts.cs` | حذف خاصية `Toolbar` + `Editor.SetActions` | ⛔ عاد: `Toolbar` + 7 اشتراكات + `Editor.SetMode` |
+| `Screens\Accounting\Forms\frmAccounts.Designer.cs` | حذف `ctrlCrudToolbar1` · `gbCommands` 72 | ⛔ عاد: الشريط داخل `gbCommands` (118) · 12 موضعاً |
+
+**القياسات بعد الرجوع (بأمر في هذه الموجة):** `git diff HEAD` للملفات الخمسة = **فارغ** · `git status --short` لها = **فارغ** · `PrimaryActionButton` = **0** · `SetActions` = **0** · `ctrlCrudToolbar1` في `frmAccounts*` = **12** · `btnSave|btnCancel|flpActions` في `ctrlAccountEditor.*` = **9 / 52** · تعديلات المالك الآخر سليمة (`cbAccountType` 13/15 · `chkAllowCostCenter` 5/15 · `cbNormalBalance` 13/14 · `colFinancialStatement`+`cbNatureFilter` = 22) · البناء `--no-incremental` = **0 Error / 118 Warning**.
+
+**درس مسجَّل:** نُقل الهيكل بلا شهادة الشاشة التجريبية ⇒ رُفض وأُعيد في اليوم نفسه. أي إعادة تخطيط لهذه الشاشة تُعرض أولاً على المالك **قبل** التنفيذ (`RULE-N184` منطقاً).
+
 
 

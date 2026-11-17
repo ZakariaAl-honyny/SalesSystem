@@ -96,15 +96,13 @@ public class SalesReturnService : ISalesReturnService
                 if (!returnNoResult.IsSuccess) return Result<SalesReturnDto>.Failure(returnNoResult.Error!);
 
                 var salesReturn = SalesReturn.Create(
-                    branchId: 1,
                     returnNo: returnNoResult.Value,
                     salesInvoiceId: request.SalesInvoiceId ?? 0,
                     customerId: request.CustomerId ?? 0,
                     warehouseId: request.WarehouseId,
                     returnDate: request.ReturnDate,
                     notes: request.Notes,
-                    returnReason: request.ReturnReason,
-                    createdByUserId: userId
+                    returnReason: request.ReturnReason
                 );
 
                 foreach (var item in request.Items)
@@ -248,8 +246,7 @@ public class SalesReturnService : ISalesReturnService
                         sr.WarehouseId,
                         InventoryReferenceType.SalesReturn,
                         sr.Id,
-                        $"مرتجع مبيعات - رقم {sr.ReturnNo}",
-                        userId);
+                        $"مرتجع مبيعات - رقم {sr.ReturnNo}");
                     foreach (var item in sr.Lines)
                     {
                         var productId = item.SalesInvoiceLine?.ProductId ?? 0;
@@ -381,8 +378,7 @@ public class SalesReturnService : ISalesReturnService
                             sr.WarehouseId,
                             InventoryReferenceType.SalesReturn,
                             sr.Id,
-                            $"إلغاء مرتجع مبيعات - رقم {sr.ReturnNo}",
-                            userId);
+                            $"إلغاء مرتجع مبيعات - رقم {sr.ReturnNo}");
                         foreach (var item in sr.Lines)
                         {
                             var productId = item.SalesInvoiceLine?.ProductId ?? 0;
@@ -462,10 +458,8 @@ public class SalesReturnService : ISalesReturnService
                 it.Amount,
                 0,
                 it.Amount,
-                1,
-                it.CostInBaseCurrency
-            )).ToList(),
-            BranchId: r.BranchId
+                1
+            )).ToList()
         );
     }
 }

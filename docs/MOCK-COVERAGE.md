@@ -3,7 +3,7 @@
 > **المرجع الملزم:** `AGENTS.md` §2.16 (الوضع التجريبي) · §2.37 (`RULE-N165`…`RULE-N168` مرحلتا التسليم · **`RULE-N173`…`RULE-N178`** تغطية الوضع التجريبي وقفل الباك-إند).
 > **مالك التصديق:** وكيل `mock-qa` (سجل `.opencode/agents/mock-qa.md`) — **قراءة فقط**: يفحص ويُصدر الحكم، ولا يعدّل ملفاً ولا يبني ولا يُشغّل التطبيق.
 > **مالك التحديث:** الـOrchestrator مع الموجة التي تغيّر أي `Mock*DesktopService` أو أي تسجيل في فرع Mock داخل `Program.cs`.
-> **النسخة:** 1.2 — 2026-11-14 — موجة Auth/Backup: إغلاق ف-1 وف-2 (`MockAuthDesktopService` + `MockBackupDesktopService`) ⇒ **0 عقد غير مؤهل** · فتح ف-6 (`IUserDesktopService`) · تحديث العدّ والحكم (تدقيق `mock-qa`).
+> **النسخة:** 1.3 — 2026-11-17 — إعادة شهادة `IAccountDesktopService` بعد موجة إصلاح العيوب: الحكم `مؤهل جزئياً — تكافؤ الرفض ناقص` · `ف-AC-1`…`ف-AC-3` مغلقة · `ف-AC-4` مفتوحة · أُضيفت `ف-AC-5`…`ف-AC-9` · تصحيح عمود الرفض إلى (37) · انحراف سجل: عقدان مسجَّلان في فرع Mock بلا صف (`IStocktaking` · `IWarehouseTransfer`) وصفّان لعقدين محذوفين (`IBranch` · `IEmployee`) (تدقيق `mock-qa` 2026-11-17).
 
 ---
 
@@ -22,6 +22,18 @@
 **استثناء وحيد مسموح:** العقود التحتية والخِدمية التي لا تملك شاشة بيانات ولا تحفظ شيئاً — `IEventBus` · `ISessionService` · `INavigationService` · `INotificationService` · عقود الطباعة (`IInvoicePrinter` · `IReceiptPrinter`). وأي عقد بيانات آخر بلا Mock = **فجوة تغطية** تُغلق فجوته قبل تسليم الشاشة لمراجعة UI & UX.
 
 > **ملاحظة (2026-11-14):** `IDialogService`/`DialogService` حُذفا (لا مستهلكين — كل الحوارات عبر `clsDialogs`)، فلم يبقَ في قائمة العقود التحتية إلا ما هو حيّ فعلاً.
+
+---
+
+## ⚠️ تغيير V3 (2026-11-17): الوحدة المحاسبية مؤجلة
+
+> **قرار المالك (2026-11-17 — «V3»):** الوحدة المحاسبية تخرج من نطاق MVP V1 («Pure POS & Inventory») وتُؤجَّل إلى V2 — والجداول المحاسبية الستة المنقولة من V1 إلى V2 هي: `Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`. ويبقى `CashBoxes` و`Expenses` في V1 (تشغيليان).
+
+- **(أ)** الجداول/العقود المحاسبية الستة **مؤجلة إلى V2** ولم تعد وحدات V1.
+- **(ب)** تنفيذاتها الوهمية `Mock*DesktopService` وصفوفها في هذا السجل **تبقى كما هي بلا حذف ولا تعديل حكم** — لكنها **ليست وحدات V1 قابلة للمراجعة** بعد اليوم، وتُقرأ كسجل تاريخي فقط.
+- **(ج)** **لا يُبنى أي Mock ولا شاشة محاسبية جديدة في V1** — أي طلب محاسبي جديد يُوجَّه إلى الملف المؤجل.
+- **(د)** إزالة كودها (كيانات · خدمات · شاشات · بذور) تحتاج **موافقة `DROP` مكتوبة ومؤرَّخة** (`RULE-N198` / `AGENTS.md` §2.42) و**لم تُنفَّذ** — الكود ما زال قائماً.
+- **(هـ)** التفصيل الملزم وخطة الأثر: **`docs/database-schema.md` §8 و§8.1** — والتصميم الكامل في `docs/database-schema-v2-deferred.md` قسم «المجموعة AC — المحاسبة».
 
 ---
 
@@ -51,7 +63,7 @@ dotnet build .\SalesSystem.slnx
 
 | # | العقد | الوحدة | التنفيذ الوهمي | بيانات أولية (seeds) | التسجيل | الحكم | ما ينقص |
 |---|---|---|---|---|---|---|---|
-| 1 | `IAccountDesktopService` | Accounting | `MockAccountDesktopService` (8) | `MockAccountsData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 1 | `IAccountDesktopService` | Accounting | `MockAccountDesktopService` (37) | `MockAccountsData` (42 صفاً · سلّم 1/2/4/8 · 0 يتيم) | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` — **V2 (مؤجلة، V3 2026-11-17)** | لا رفض «مرتبط بتعيينات النظام» في الحذف النهائي (ف-AC-5) · لا رفض تكرار اسم على مستوى الجذر ويفلتر `IsActive` في التعديل (ف-AC-6) · التعطيل يقيس الرصيد لا القيود ويعدّ الأبناء النشطين فقط (ف-AC-7) · مراجع العملاء/الموردين في الـseeds خارج الدليل (ف-AC-8) · حدود الطول 500/300 غير مرفوضة (ف-AC-9) |
 | 2 | `IAuthDesktopService` | Login / Users | `MockAuthDesktopService` (16) | `MockSecurityData` (5 حسابات + كلمة المرور التجريبية `123456`) | فرع Mock | `مؤهل للمراجعة` | — |
 | 3 | `IBackupDesktopService` | Users (`frmBackup`) | `MockBackupDesktopService` (6) | `MockBackupData` (6 نسخ بالاصطلاح + اسم قديم) | فرع Mock | `مؤهل للمراجعة` | 3 رفض دفاعية لا تصلها الواجهة (لا خطوة رفض في `frmBackup`) |
 | 4 | `IBranchDesktopService` | Users | `MockBranchDesktopService` (0 — قراءة) | قائمة داخل الملف | فرع Mock | `مؤهل للمراجعة` | — |
@@ -68,7 +80,7 @@ dotnet build .\SalesSystem.slnx
 | 15 | `IInventoryAdjustmentDesktopService` | Inventory | `MockInventoryAdjustmentDesktopService` (8) | `MockInventoryData` + `MockData` | فرع Mock | `مؤهل للمراجعة` | — |
 | 16 | `IInventoryBatchDesktopService` | Inventory | `MockInventoryBatchDesktopService` (9) | `MockInventoryData` + `MockData` | فرع Mock | `مؤهل للمراجعة` | — (تدقيق `mock-qa` 2026-11-15: حقول إلزامية · كمية `0` · تكرار رقم الدفعة كلها مرفوضة) |
 | 17 | `IInventoryDesktopService` | Inventory | `MockInventoryDesktopService` (5) | `MockData` | فرع Mock | `مؤهل للمراجعة` | لا شاشة تكتب مخزوناً عبر هذا العقد (ف-3 مغلقة) |
-| 18 | `IJournalEntryDesktopService` | Accounting | `MockJournalEntryDesktopService` (19) | `MockJournalEntriesData` | فرع Mock | `مؤهل للمراجعة` | — |
+| 18 | `IJournalEntryDesktopService` | Accounting | `MockJournalEntryDesktopService` (19) | `MockJournalEntriesData` | فرع Mock | `مؤهل للمراجعة` — **V2 (مؤجلة، V3 2026-11-17)** | — |
 | 19 | `IProductDesktopService` | Products | `MockProductDesktopService` (12) | `MockData` + `MockLookupsData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | رفض تكرار الباركود/الاسم في `CreateAsync` |
 | 20 | `IPurchaseInvoiceDesktopService` | Purchases | `MockPurchaseInvoiceDesktopService` (9) | `MockPurchasesData` + `MockData` + `MockSuppliersData` | فرع Mock | `مؤهل جزئياً — تكافؤ الرفض ناقص` | كمية `0` · المدفوع > الإجمالي · مخزون سالب |
 | 21 | `IPurchaseReportDesktopService` | Reports / Purchases | `MockPurchaseReportDesktopService` (2 — قراءة) | `MockPurchasesData` + `MockData` + `MockSuppliersData` | فرع Mock | `مؤهل للمراجعة` | — |
@@ -97,7 +109,7 @@ dotnet build .\SalesSystem.slnx
 
 | الوحدة | عدد الشاشات | الشاشات | عقود البيانات | الحكم |
 |---|---|---|---|---|
-| Accounting | 2 | `frmAccounts` · `frmJournalEntries` | `IAccountDesktopService` · `IJournalEntryDesktopService` | ✅ مؤهل |
+| Accounting | 2 | `frmAccounts` · `frmJournalEntries` | `IAccountDesktopService` · `IJournalEntryDesktopService` | ⚠️ جزئي — تكافؤ الرفض (`IAccountDesktopService` — ف-AC-5…ف-AC-9) · `IJournalEntryDesktopService` مؤهل |
 | CashBoxes | 2 | `frmCashBoxMaster` · `frmCashBoxTransactions` | `ICashBoxDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Categories | 1 | `frmCategoryMaster` | `ICategoryDesktopService` | ✅ مؤهل |
 | CustomerReceipts | 2 | `frmListCustomerReceipts` · `frmAddUpdateCustomerReceipt` | `ICustomerReceiptDesktopService` | ✅ مؤهل |
@@ -156,6 +168,15 @@ dotnet build .\SalesSystem.slnx
 | ف-4 | `MockSupplierPaymentDesktopService`: لا رفض «المدفوع > المتبقي»، و`CancelAsync` **تحذف السند** بدل حالة إلغاء (`RULE-004`)، و`PostAsync`/`CancelAsync` خارج الواجهة | `Services/Mock/MockSupplierPaymentDesktopService.cs` | `ui-agent` | **مفتوح — تكافؤ (مجمِّد لباك-إند المدفوعات)** |
 | ف-5 | **تكافؤ الرفض ناقص في 13 عقداً** — التفصيل عمود «ما ينقص» في §3 (البيع/الشراء/المرتجعات: كمية `0` · مدفوع > الإجمالي · مخزون سالب · إفراط في الإرجاع؛ والماسترات: تكرار الباركود/الاسم/الهاتف) | ملفات `Services/Mock/Mock*DesktopService.cs` المعلَّمة `مؤهل جزئياً` | `ui-agent` (وكيل واحد لكل ملف) | **مفتوح — موجة تكافؤ** |
 | ف-6 | `MockUserDesktopService`: `CreateAsync` لا يرفض اسماً فارغاً، و`CreateAsync`/`UpdateAsync` **يتجاهلان `Password`** — فحقل كلمة المرور في `frmUserMaster` يُحفظ بلا أثر ويعمل الدخول بالافتراضية `123456`؛ ورسالة `ResetPasswordAsync` تذكر «(12345678)» وهي قيمة لا وجود لها | `Services/Mock/MockUserDesktopService.cs` · `Screens/Users/Forms/frmUserMaster.cs` | `ui-agent` | **مفتوح — تكافؤ (مجمِّد لحكم Users الكامل)** |
+| ف-AC-1 | ✅ **مغلقة (إعادة شهادة 2026-11-17):** `PermanentDeleteAsync` في الـMock صار يرفض الحساب **النشط** · المرتبط بحركات يومية · بعملاء · بموردين · بصناديق نقدية بنصوص `AccountService.PermanentDeleteAsync` حرفياً | `Services/Mock/MockAccountDesktopService.cs:266-280` مقابل `Business/Services/AccountService.cs:409-462` | — | ✅ **مغلقة** |
+| ف-AC-2 | ✅ **مغلقة:** `OpeningBalance` صار مقروءاً — سالبٌ مرفوض برسالة الـBLL، والموجب يُعكس في `Balance` الحساب الجديد بإشارة الطبيعة الفعلية (`EffectiveNormalBalance`) | `MockAccountDesktopService.cs:131-152` · `MockAccountsData.cs:255-277` · `AccountService.cs:178-179,546-550` | — | ✅ **مغلقة** |
+| ف-AC-3 | ✅ **مغلقة:** الأب غير النشط مرفوض في الإنشاء والتعديل ومعاينة الكود برسالة «الحساب الأب غير نشط» | `MockAccountDesktopService.cs:111-112,186-187,292-293` | — | ✅ **مغلقة** |
+| ف-AC-4 | عقدان مسجَّلان في فرع Mock بلا صف في §3 (`IStocktakingDesktopService` · `IWarehouseTransferDesktopService`) وصفّان لِعقدين محذوفين (`IBranchDesktopService` · `IEmployeeDesktopService`) + عمود رفض قديم (`(8)` والفعلي 37) وحكم صف لا يطابق الشهادة | `docs/MOCK-COVERAGE.md:54,57,64` · `Program.cs:117,128` | الـOrchestrator (السجل) + `mock-qa` لكل عقد | **مفتوح — انحراف سجل** |
+| ف-AC-5 | لا رفض «لا يمكن الحذف النهائي: الحساب مرتبط بتعيينات النظام» — لا مخزن تعيينات نظام في `Services/Mock/**` | `MockAccountDesktopService.cs:252-284` مقابل `AccountService.cs:464-473` · `AccountingSeeder.cs:515-601` | `ui-agent` | **مفتوح — تكافؤ (S)** |
+| ف-AC-6 | التعديل: لا رفض تكرار اسم على مستوى الجذر (قابل للوصول من «بلا أب»)، ويفلتر `IsActive` في تكرار الأب، ولا رفض «له أبناء ⇒ ورقة» | `MockAccountDesktopService.cs:176-204` مقابل `AccountService.cs:287-326` · `frmAccounts.cs:471,1039-1047` | `ui-agent` | **مفتوح — تكافؤ (S)** |
+| ف-AC-7 | التعطيل: يعدّ الأبناء النشطين فقط، ويقيس الحركات بـ`Balance != 0` لا بسطور القيود — والـMock لا يحدّث الأرصدة عند ترحيل/إلغاء قيد | `MockAccountDesktopService.cs:240,244` مقابل `AccountService.cs:370-381` · `MockJournalEntryDesktopService.cs:157,265` | `ui-agent` | **مفتوح — تكافؤ (S/M)** |
+| ف-AC-8 | مراجع الحسابات في الـseeds خارج الدليل: العملاء 101–107 والموردون 301–305 بينما الدليل 1–42 ⇒ رفضا «عملاء» و«موردون» في الحذف النهائي ميتان، و«صناديق» شبه ميت | `MockData.cs:30-48,68-75` · `MockSuppliersData.cs:18-50` · `MockAccountsData.cs:14-177` | `ui-agent` | **مفتوح — سلامة بذور (S)** |
+| ف-AC-9 | حدود طول الكيان غير مرفوضة في الـMock (الوصف 500 · الملاحظات 300) ولا `MaxLength` في المصمّم ⇒ لصق نص طويل يُحفظ في التجربة ويُرفض حقيقةً | `MockAccountDesktopService.cs:95-132,167-204` · `Models/Accounting/Account.cs:136,142` | `ui-agent` | **مفتوح — تكافؤ (S)** |
 
 > **قاعدة:** فجوة `RULE-N173` لا تُغلق بتعديل الشاشة — تُغلق بإضافة الـMock/seeds/التسجيل/التكافؤ، ولا يُعلن أي module «مؤهلاً» في هذا السجل قبل ذلك، و**لا يُلمس باك-إند الوحدة** أثناء إغلاق فجوته (`RULE-N177`/`RULE-N178`).
 

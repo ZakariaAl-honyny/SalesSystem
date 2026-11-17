@@ -18,46 +18,26 @@ public class Expense : DocumentEntity
 
     public decimal Amount { get; private set; }
 
-    /// <summary>
-    /// The expense amount converted to the base currency using the exchange rate.
-    /// Null when no exchange rate is specified (same as Amount).
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
-
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
-
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
 
     // Navigation properties
     public virtual Account? ExpenseAccount { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the Branch this expense belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     private Expense() { } // EF Core
 
     /// <summary>
     /// Creates a new expense in Draft status.
     /// </summary>
     public static Expense Create(
-        short branchId,
         int expenseNo,
         DateTime expenseDate,
         int expenseAccountId,
         int cashBoxId,
         decimal amount,
         string? notes = null,
-        decimal? baseNetTotal = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (expenseNo <= 0)
             throw new DomainException("رقم المصروف يجب أن يكون أكبر من الصفر.");
         if (expenseAccountId <= 0)
@@ -69,7 +49,6 @@ public class Expense : DocumentEntity
 
         var expense = new Expense
         {
-            BranchId = branchId,
             ExpenseNo = expenseNo,
             ExpenseDate = expenseDate.Kind == DateTimeKind.Utc
                 ? expenseDate
@@ -77,11 +56,10 @@ public class Expense : DocumentEntity
             ExpenseAccountId = expenseAccountId,
             CashBoxId = cashBoxId,
             Amount = amount,
-            BaseNetTotal = baseNetTotal,
             Notes = notes,
             Status = InvoiceStatus.Draft
         };
-        expense.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) expense.SetCreatedBy(createdByUserName.Trim());
         return expense;
     }
 
@@ -120,8 +98,7 @@ public class Expense : DocumentEntity
         int expenseAccountId,
         int cashBoxId,
         decimal amount,
-        string? notes,
-        decimal? baseNetTotal = null)
+        string? notes)
     {
         if (Status != InvoiceStatus.Draft)
             throw new DomainException("لا يمكن تعديل مصروف بعد ترحيله.");
@@ -139,7 +116,6 @@ public class Expense : DocumentEntity
         ExpenseAccountId = expenseAccountId;
         CashBoxId = cashBoxId;
         Amount = amount;
-        BaseNetTotal = baseNetTotal;
         Notes = notes;
 
         UpdateTimestamp();

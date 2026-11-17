@@ -254,25 +254,14 @@ public class SalesReportService : ISalesReportService
                 si => si.Status == InvoiceStatus.Posted && si.InvoiceDate >= from && si.InvoiceDate <= to,
                 ct: ct);
 
-            // Get users for name lookup
-            var userIds = invoices.Where(si => si.CreatedByUserId.HasValue).Select(si => si.CreatedByUserId!.Value).Distinct().ToList();
-            var users = userIds.Count > 0
-                ? await _uow.Users.ToListAsync(u => userIds.Contains(u.Id), ct: ct)
-                : new List<SalesSystem.Models.User>();
-            var userDict = users.ToDictionary(u => u.Id, u => u.UserName);
-
             var grouped = invoices
-                .GroupBy(si => si.CreatedByUserId)
-                .Select(g =>
-                {
-                    var userId = g.Key ?? 0;
-                    return new SalesByUserDto(
-                        userId,
-                        userDict.GetValueOrDefault(userId, $"مستخدم #{userId}"),
-                        g.Count(),
-                        g.Sum(si => si.NetTotal)
-                    );
-                })
+                .Where(si => !string.IsNullOrEmpty(si.CreatedByUserName))
+                .GroupBy(si => si.CreatedByUserName)
+                .Select(g => new SalesByUserDto(
+                    g.Key ?? "غير معروف",
+                    g.Count(),
+                    g.Sum(si => si.NetTotal)
+                ))
                 .OrderByDescending(dto => dto.TotalAmount)
                 .ToList();
 

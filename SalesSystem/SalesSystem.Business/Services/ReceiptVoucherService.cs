@@ -42,14 +42,12 @@ public class ReceiptVoucherService : IReceiptVoucherService
                 return Result<ReceiptVoucherDto>.Failure("فشل في توليد رقم سند القبض");
 
             var voucher = ReceiptVoucher.Create(
-                branchId: 1,
                 voucherNo,
                 request.VoucherDate,
                 request.CashBoxId,
                 request.AccountId,
                 request.TotalAmount,
-                request.Notes,
-                userId);
+                request.Notes);
 
             await _uow.ReceiptVouchers.AddAsync(voucher, ct);
             await _uow.SaveChangesAsync(ct);
@@ -139,8 +137,7 @@ public class ReceiptVoucherService : IReceiptVoucherService
 
             voucher.Update(
                 request.VoucherDate,
-                request.Notes,
-                userId);
+                request.Notes);
 
             await _uow.SaveChangesAsync(ct);
 
@@ -197,10 +194,10 @@ public class ReceiptVoucherService : IReceiptVoucherService
 
             return await _uow.ExecuteTransactionAsync<Result<ReceiptVoucherDto>>(async () =>
             {
-                voucher.Post(userId);
+                voucher.Post();
 
                 // Create journal entry: Dr Cash (default cash account) / Cr Account (credited account)
-                var cashResult = await _systemAccountService.GetMappingAsync(SystemAccountKey.DefaultCash, null, ct);
+                var cashResult = await _systemAccountService.GetMappingAsync(SystemAccountKey.DefaultCash, ct);
                 if (!cashResult.IsSuccess || cashResult.Value == null)
                     return Result<ReceiptVoucherDto>.Failure("الحساب النقدي النظامي غير مهيأ");
 
@@ -262,12 +259,12 @@ public class ReceiptVoucherService : IReceiptVoucherService
 
             return await _uow.ExecuteTransactionAsync<Result<ReceiptVoucherDto>>(async () =>
             {
-                voucher.Cancel(userId);
+                voucher.Cancel();
 
                 // If posted, reverse the journal entry
                 if (wasPosted)
                 {
-                    var cashResult = await _systemAccountService.GetMappingAsync(SystemAccountKey.DefaultCash, null, ct);
+                    var cashResult = await _systemAccountService.GetMappingAsync(SystemAccountKey.DefaultCash, ct);
                     if (!cashResult.IsSuccess || cashResult.Value == null)
                         return Result<ReceiptVoucherDto>.Failure("الحساب النقدي النظامي غير مهيأ");
 

@@ -110,10 +110,9 @@ public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
                 DiscountRate: r.DiscountRate, TaxAmount: r.TaxAmount,
                 OtherCharges: r.OtherCharges, NetTotal: netTotal,
                 PaidAmount: r.PaidAmount, RemainingAmount: remaining,
-                CostInBaseCurrency: null, Notes: r.Notes, Status: 1,
+                Notes: r.Notes, Status: 1,
                 TaxId: r.TaxId, TaxName: null, TaxRate: null,
-                CashBoxId: r.CashBoxId, CashBoxName: cashBoxName, Items: items,
-                BranchId: r.BranchId ?? 0);
+                CashBoxId: r.CashBoxId, CashBoxName: cashBoxName, Items: items);
 
             MockData.Invoices.Add(invoice);
 
@@ -179,8 +178,7 @@ public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
                 TaxId = r.TaxId,
                 CashBoxId = r.CashBoxId,
                 CashBoxName = cashBoxName,
-                Items = items,
-                BranchId = r.BranchId ?? existing.BranchId
+                Items = items
             };
 
             var index = MockData.Invoices.IndexOf(existing);

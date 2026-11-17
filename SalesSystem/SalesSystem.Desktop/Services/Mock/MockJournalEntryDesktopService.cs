@@ -131,7 +131,7 @@ public class MockJournalEntryDesktopService : IJournalEntryDesktopService
             Status: 1,
             StatusDisplay: statusDisplay,
             CreatedAt: DateTime.Now,
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             EntryTypeValue: request.EntryType
         );
         MockJournalEntriesData.Entries.Add(listDto);
@@ -150,7 +150,7 @@ public class MockJournalEntryDesktopService : IJournalEntryDesktopService
             StatusDisplay: statusDisplay,
             ReversedByEntryId: null,
             CreatedAt: DateTime.Now,
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: lineDtos,
             EntryTypeValue: request.EntryType
         );

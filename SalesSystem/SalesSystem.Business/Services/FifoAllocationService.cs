@@ -237,8 +237,7 @@ public class FifoAllocationService : IFifoAllocationService
                 purchaseInvoiceId: null,
                 purchaseInvoiceLineId: null,
                 supplierBatchNo: null,
-                expiryDate: batch.ExpiryDate,
-                createdByUserId: createdByUserId);
+                expiryDate: batch.ExpiryDate);
 
             await _uow.InventoryBatches.AddAsync(newBatch, ct);
 

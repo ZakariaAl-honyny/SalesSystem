@@ -17,7 +17,7 @@ You write production-quality C# code for the Sales Management System (classic Wi
 | File | What it gives you |
 |---|---|
 | `docs/GOVERNANCE/GENERAL-STANDARDS.md` | **G-01…G-15** — the laws that hold in **any** project; copyable as-is, zero product values |
-| `docs/GOVERNANCE/PROJECT-STANDARDS.md` | **P-01…P-18** — this project's values only; each row cites the `AGENTS.md` section that governs it |
+| `docs/GOVERNANCE/PROJECT-STANDARDS.md` | **P-01…P-19** — this project's values only; each row cites the `AGENTS.md` section that governs it |
 | `docs/GOVERNANCE/STANDARDS.md` | the crosswalk general ↔ this project ↔ gate, and the 3-line rule for adding a standard |
 | `docs/GOVERNANCE/ROLES.md` | the role definitions + each role's `May write` boundary |
 | `docs/prompts/ROLE-PROMPTS.md` §3 | the canonical text of the 11 roles — **this file is that role's project copy** (`S-01`…`S-11`; registry in `docs/prompts/README.md`) |

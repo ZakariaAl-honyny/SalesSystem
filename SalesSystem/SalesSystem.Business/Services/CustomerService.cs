@@ -60,7 +60,7 @@ public class CustomerService : ICustomerService
         {
             try
             {
-                // Step 1: Auto-create account under AR parent (1130 — العملاء)
+                // Step 1: Auto-create account under AR parent (1103 — العملاء)
                 var accountResult = await AutoCreateCustomerAccountAsync(request.Name, userId, ct);
                 if (!accountResult.IsSuccess)
                     return Result<CustomerDto>.Failure(accountResult.Error!, accountResult.ErrorCode);
@@ -68,7 +68,6 @@ public class CustomerService : ICustomerService
 
                 // Step 2: Create Customer record with direct contact fields
                 var customer = Customer.Create(
-                    branchId: 1, // V1: hardcoded to main branch
                     name: request.Name,
                     accountId: accountId,
                     phone: request.Phone,
@@ -76,8 +75,7 @@ public class CustomerService : ICustomerService
                     address: request.Address,
                     taxNumber: request.TaxNumber,
                     notes: request.Notes,
-                    creditLimit: request.CreditLimit,
-                    createdByUserId: userId);
+                    creditLimit: request.CreditLimit);
                 await _uow.Customers.AddAsync(customer, ct);
                 await _uow.SaveChangesAsync(ct);
 
@@ -120,8 +118,7 @@ public class CustomerService : ICustomerService
                     address: request.Address,
                     taxNumber: request.TaxNumber,
                     notes: request.Notes,
-                    creditLimit: request.CreditLimit,
-                    updatedByUserId: userId);
+                    creditLimit: request.CreditLimit);
 
                 if (request.IsActive != oldIsActive)
                 {
@@ -341,8 +338,7 @@ public class CustomerService : ICustomerService
             c.IsActive,
             AccountId: c.AccountId,
             CategoryId: c.CategoryId,
-            Notes: c.Notes,
-            BranchId: c.BranchId
+            Notes: c.Notes
         );
     }
 }

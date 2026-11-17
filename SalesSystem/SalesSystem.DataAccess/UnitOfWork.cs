@@ -47,7 +47,6 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<ProductPrice>? _productPrices;
 
     // New entity repositories (v4.7+)
-    private IGenericRepository<Branch>? _branches;
     private IGenericRepository<ProductCategory>? _productCategories;
     private IGenericRepository<InventoryAdjustment>? _inventoryAdjustments;
     private IGenericRepository<InventoryAdjustmentLine>? _inventoryAdjustmentLines;
@@ -95,7 +94,6 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<InventoryBatch> InventoryBatches => _inventoryBatches ??= new GenericRepository<InventoryBatch>(_context);
     public IGenericRepository<ProductPrice> ProductPrices => _productPrices ??= new GenericRepository<ProductPrice>(_context);
     // New entity repositories (v4.7+)
-    public IGenericRepository<Branch> Branches => _branches ??= new GenericRepository<Branch>(_context);
     public IGenericRepository<ProductCategory> ProductCategories => _productCategories ??= new GenericRepository<ProductCategory>(_context);
     public IGenericRepository<InventoryAdjustment> InventoryAdjustments => _inventoryAdjustments ??= new GenericRepository<InventoryAdjustment>(_context);
     public IGenericRepository<InventoryAdjustmentLine> InventoryAdjustmentLines => _inventoryAdjustmentLines ??= new GenericRepository<InventoryAdjustmentLine>(_context);

@@ -77,8 +77,6 @@ public class MockSupplierPaymentDesktopService : ISupplierPaymentDesktopService
                 .DefaultIfEmpty(0)
                 .Max() + 1;
 
-            // TODO: CashBoxId / CashBoxName / Status / Currency / CreatedAt / PostedAt / CancelledAt
-            //       removed from SupplierPaymentDto — السند لا يحمل صندوقاً أو حالة في هذا الإصدار.
             var payment = new SupplierPaymentDto(
                 Id: nextId,
                 PaymentNo: nextNo.ToString(),
@@ -90,8 +88,7 @@ public class MockSupplierPaymentDesktopService : ISupplierPaymentDesktopService
                     ? DateOnly.FromDateTime(r.PaymentDate.Value)
                     : DateOnly.FromDateTime(DateTime.UtcNow),
                 PurchaseInvoiceId: r.PurchaseInvoiceId,
-                Notes: r.Notes,
-                BranchId: r.BranchId ?? 1);
+                Notes: r.Notes);
 
             MockSupplierPaymentsData.Payments.Add(payment);
             return Task.FromResult(Result<SupplierPaymentDto>.Success(payment));

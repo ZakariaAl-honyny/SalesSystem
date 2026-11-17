@@ -9,8 +9,7 @@ public record CreateSalesReturnRequest(
     DateTime? ReturnDate,
     string? ReturnReason = null,
     string? Notes = null,
-    List<ReturnItemRequest>? Items = null,
-    short? BranchId = null
+    List<ReturnItemRequest>? Items = null
 );
 
 /// <summary>
@@ -24,8 +23,7 @@ public record CreatePurchaseReturnRequest(
     DiscountType? DiscountType,
     decimal? DiscountRate,
     string? Notes,
-    List<CreatePurchaseReturnItemRequest> Items,
-    short? BranchId = null);
+    List<CreatePurchaseReturnItemRequest> Items);
 
 /// <summary>
 /// طلب إنشاء بند في مرتجع الشراء.

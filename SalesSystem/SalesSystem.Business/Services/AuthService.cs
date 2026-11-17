@@ -97,7 +97,7 @@ public class AuthService : IAuthService
 
                 return Result<LoginResponse>.Success(new LoginResponse(
                     user.Id, user.UserName, IsAdmin: true,
-                    user.BranchId, token, expiresAt, MustChangePassword: true,
+                    token, expiresAt, MustChangePassword: true,
                     IsPasswordless: string.IsNullOrWhiteSpace(user.PasswordHash)));
             }
 
@@ -115,7 +115,7 @@ public class AuthService : IAuthService
             // 10. Return success
             return Result<LoginResponse>.Success(new LoginResponse(
                 user.Id, user.UserName, IsAdmin: true,
-                user.BranchId, sessionToken, sessionExpiresAt, MustChangePassword: false));
+                sessionToken, sessionExpiresAt, MustChangePassword: false));
         }
         catch (Exception ex)
         {

@@ -67,11 +67,10 @@ public class MockInventoryAdjustmentDesktopService : IInventoryAdjustmentDesktop
                 Status: 1,
                 StatusName: "مسودة",
                 CreatedAt: DateTime.Now,
-                CreatedByUserId: 1,
+                CreatedByUserName: "مدير النظام",
                 PostedAt: null,
                 CancelledAt: null,
                 Lines: new List<InventoryAdjustmentLineDto>());
-            // TODO: BranchId / BranchName removed from InventoryAdjustmentDto.
 
             // RULE-N167: رأس التسوية يُنشأ بلا بنود (البنود تُضاف بعد ذلك عبر AddLineAsync)،
             // لذلك لا يُرفض «الحفظ بلا أصناف» هنا — الرفض عند الترحيل في PostAsync.

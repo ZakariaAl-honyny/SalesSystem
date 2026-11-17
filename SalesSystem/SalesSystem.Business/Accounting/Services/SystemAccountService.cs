@@ -21,16 +21,11 @@ public class SystemAccountService : ISystemAccountService
         _logger = logger;
     }
 
-    public async Task<Result<SystemAccountMappingDto>> GetMappingAsync(SystemAccountKey key, short? branchId = null, CancellationToken ct = default)
+    public async Task<Result<SystemAccountMappingDto>> GetMappingAsync(SystemAccountKey key, CancellationToken ct = default)
     {
         try
         {
-            Expression<Func<SystemAccountMapping, bool>> predicate;
-
-            if (branchId.HasValue)
-                predicate = m => m.MappingKey == key.ToString() && m.BranchId == branchId.Value;
-            else
-                predicate = m => m.MappingKey == key.ToString() && m.BranchId == null;
+            Expression<Func<SystemAccountMapping, bool>> predicate = m => m.MappingKey == key.ToString();
 
             var mapping = await _uow.SystemAccountMappings.FirstOrDefaultAsync(predicate, ct, "Account");
 
@@ -46,15 +41,11 @@ public class SystemAccountService : ISystemAccountService
         }
     }
 
-    public async Task<Result<List<SystemAccountMappingDto>>> GetAllMappingsAsync(short? branchId = null, CancellationToken ct = default)
+    public async Task<Result<List<SystemAccountMappingDto>>> GetAllMappingsAsync(CancellationToken ct = default)
     {
         try
         {
-            Expression<Func<SystemAccountMapping, bool>> predicate;
-            if (branchId.HasValue)
-                predicate = m => m.BranchId == branchId.Value;
-            else
-                predicate = m => true;
+            Expression<Func<SystemAccountMapping, bool>> predicate = m => true;
 
             var mappings = await _uow.SystemAccountMappings.ToListAsync(predicate, ct: ct, includePaths: "Account");
 
@@ -63,7 +54,7 @@ public class SystemAccountService : ISystemAccountService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting all mappings for branch {BranchId}", branchId);
+            _logger.LogError(ex, "Error getting all mappings");
             return Result<List<SystemAccountMappingDto>>.Failure("حدث خطأ أثناء استرجاع حسابات النظام");
         }
     }
@@ -72,23 +63,22 @@ public class SystemAccountService : ISystemAccountService
     {
         try
         {
-            // Check for duplicate key + branch combination
+            // Check for duplicate key
             var existing = await _uow.SystemAccountMappings.FirstOrDefaultAsync(
-                m => m.MappingKey == request.MappingKey.ToString() && m.BranchId == request.BranchId, ct: ct);
+                m => m.MappingKey == request.MappingKey.ToString(), ct: ct);
 
             if (existing != null)
-                return Result<SystemAccountMappingDto>.Failure("يوجد تعيين نشط لنفس المفتاح والفرع");
+                return Result<SystemAccountMappingDto>.Failure("يوجد تعيين نشط لنفس المفتاح");
 
             var mapping = SystemAccountMapping.Create(
                 request.MappingKey.ToString(),
-                request.AccountId,
-                request.BranchId);
+                request.AccountId);
 
             await _uow.SystemAccountMappings.AddAsync(mapping, ct);
             await _uow.SaveChangesAsync(ct);
 
-            _logger.LogInformation("Created system account mapping: Key={Key}, AccountId={AccountId}, BranchId={BranchId}",
-                mapping.MappingKey, mapping.AccountId, mapping.BranchId);
+            _logger.LogInformation("Created system account mapping: Key={Key}, AccountId={AccountId}",
+                mapping.MappingKey, mapping.AccountId);
 
             return Result<SystemAccountMappingDto>.Success(MapToDto(mapping));
         }
@@ -152,7 +142,6 @@ public class SystemAccountService : ISystemAccountService
             MappingKeyName: mapping.MappingKey,
             AccountId: mapping.AccountId,
             AccountName: mapping.Account?.NameAr,
-            AccountCode: mapping.Account?.AccountCode,
-            BranchId: mapping.BranchId);
+            AccountCode: mapping.Account?.AccountCode);
     }
 }

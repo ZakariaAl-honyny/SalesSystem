@@ -146,7 +146,6 @@ public record SalesTrendDto(
 /// Sales grouped by user (who created the invoice).
 /// </summary>
 public record SalesByUserDto(
-    int UserId,
     string UserName,
     int InvoiceCount,
     decimal TotalAmount);

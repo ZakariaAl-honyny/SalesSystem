@@ -13,7 +13,6 @@ public record PurchaseInvoiceDto(
     decimal DiscountAmount,
     byte DiscountType,
     decimal? DiscountRate,
-    decimal? CostInBaseCurrency,
     decimal TaxAmount,
     decimal OtherCharges,
     decimal NetTotal,
@@ -27,8 +26,7 @@ public record PurchaseInvoiceDto(
     string? TaxName,
     decimal? TaxRate,
     int? CashBoxId,
-    IReadOnlyList<PurchaseInvoiceLineDto> Items,
-    short BranchId = 0)
+    IReadOnlyList<PurchaseInvoiceLineDto> Items)
 {
     public string PaymentTypeDisplay => PaymentType switch
     {
@@ -60,7 +58,6 @@ public record PurchaseInvoiceLineDto(int Id, int ProductId, string ProductName,
     byte DiscountType,
     decimal? DiscountRate,
     decimal DiscountAmount,
-    decimal? CostInBaseCurrency,
     decimal AdditionalFeesAmount)
 {
     // Backward-compatible properties

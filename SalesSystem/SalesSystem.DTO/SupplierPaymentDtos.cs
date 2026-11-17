@@ -9,8 +9,7 @@ public record SupplierPaymentDto(
     byte PaymentMethod,
     DateOnly PaymentDate,
     int? PurchaseInvoiceId,
-    string? Notes,
-    short BranchId = 0)
+    string? Notes)
 {
     public string PaymentTypeDisplay => PaymentMethod switch
     {

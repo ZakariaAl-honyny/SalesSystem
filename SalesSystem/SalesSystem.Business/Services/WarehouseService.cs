@@ -187,8 +187,7 @@ public class WarehouseService : IWarehouseService
             w.Phone,
             w.Address,
             w.Notes,
-            w.IsActive,
-            BranchId: w.BranchId
+            w.IsActive
         );
     }
 

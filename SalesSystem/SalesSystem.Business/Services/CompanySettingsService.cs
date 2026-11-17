@@ -55,8 +55,7 @@ public class CompanySettingsService : ICompanySettingsService
                 request.Email,
                 request.Address,
                 request.TaxNumber,
-                request.LogoPath,
-                userId);
+                request.LogoPath);
 
             await _uow.SaveChangesAsync(ct);
 

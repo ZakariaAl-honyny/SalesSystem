@@ -20,17 +20,6 @@ public class ProductCategory : ActivatableEntity
     /// </summary>
     public string? Description { get; private set; }
 
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// عمود أحادي الفرع للنسخة التجريبية (MVP) — يُثبّت على 1 في الوضع الراهن.
-    /// </summary>
-    public short BranchId { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the Branch this category belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
-
     private ProductCategory() { } // EF Core
 
     // ─── Factory ─────────────────────────────────────────
@@ -38,30 +27,24 @@ public class ProductCategory : ActivatableEntity
     /// <summary>
     /// Creates a new product category.
     /// </summary>
-    /// <param name="branchId">Branch identifier (required).</param>
     /// <param name="name">Category name (required).</param>
     /// <param name="description">Optional description.</param>
-    /// <param name="createdByUserId">User who created this record.</param>
     /// <returns>The newly created ProductCategory entity.</returns>
     public static ProductCategory Create(
-        short branchId,
         string name,
         string? description = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم التصنيف مطلوب.");
 
         var category = new ProductCategory
         {
-            BranchId = branchId,
             Name = name.Trim(),
             Description = description?.Trim(),
             IsActive = true
         };
-        category.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) category.SetCreatedBy(createdByUserName.Trim());
         return category;
     }
 
@@ -72,15 +55,13 @@ public class ProductCategory : ActivatableEntity
     /// </summary>
     public void Update(
         string name,
-        string? description = null,
-        int? updatedByUserId = null)
+        string? description = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم التصنيف مطلوب.");
 
         Name = name.Trim();
         Description = description?.Trim();
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 }

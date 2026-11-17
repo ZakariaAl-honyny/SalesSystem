@@ -5,7 +5,7 @@ using SalesSystem.DTO.Requests;
 namespace SalesSystem.Business.Interfaces.Services;
 
 /// <summary>
-/// Service for managing company-wide settings (name, contact, logo, default currency).
+/// Service for managing company-wide settings (name, contact, logo).
 /// CompanySettings is a singleton row (Id = 1) enforced at the database level.
 /// </summary>
 public interface ICompanySettingsService

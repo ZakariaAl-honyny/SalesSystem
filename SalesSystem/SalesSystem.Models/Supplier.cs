@@ -52,11 +52,6 @@ public class Supplier : ActivatableEntity
     public decimal CreditLimit { get; private set; }
 
     /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
-
-    /// <summary>
     /// FK to the Chart of Accounts Account that holds this supplier's balance.
     /// </summary>
     public int AccountId { get; private set; }
@@ -68,11 +63,6 @@ public class Supplier : ActivatableEntity
     public virtual Account? Account { get; private set; }
 
     /// <summary>
-    /// Navigation property to the Branch this supplier belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
-
-    /// <summary>
     /// تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10
     /// </summary>
     public int? CategoryId { get; private set; }
@@ -82,7 +72,6 @@ public class Supplier : ActivatableEntity
     /// <summary>
     /// Factory method to create a new supplier with direct contact information.
     /// </summary>
-    /// <param name="branchId">Branch identifier (required).</param>
     /// <param name="name">Supplier name (required).</param>
     /// <param name="accountId">FK to the Account record (must be &gt; 0).</param>
     /// <param name="phone">Optional phone number.</param>
@@ -91,11 +80,9 @@ public class Supplier : ActivatableEntity
     /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="categoryId">تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10</param>
-    /// <param name="createdByUserId">ID of the user creating this supplier.</param>
     /// <returns>A new Supplier instance.</returns>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public static Supplier Create(
-        short branchId,
         string name,
         int accountId,
         string? phone = null,
@@ -106,10 +93,8 @@ public class Supplier : ActivatableEntity
         string? notes = null,
         decimal creditLimit = 0,
         int? categoryId = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المورد مطلوب.");
         if (accountId <= 0)
@@ -119,7 +104,6 @@ public class Supplier : ActivatableEntity
 
         var supplier = new Supplier
         {
-            BranchId = branchId,
             Name = name.Trim(),
             AccountId = accountId,
             Phone = phone?.Trim(),
@@ -133,7 +117,7 @@ public class Supplier : ActivatableEntity
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
-        supplier.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) supplier.SetCreatedBy(createdByUserName.Trim());
         return supplier;
     }
 
@@ -148,7 +132,6 @@ public class Supplier : ActivatableEntity
     /// <param name="categoryId">New category id (null = keep current).</param>
     /// <param name="commercialRegisterNo">Optional commercial registration number.</param>
     /// <param name="notes">Optional free-text notes.</param>
-    /// <param name="updatedByUserId">ID of the user performing the update.</param>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public void Update(
         string name,
@@ -159,8 +142,7 @@ public class Supplier : ActivatableEntity
         string? commercialRegisterNo = null,
         string? notes = null,
         decimal creditLimit = 0,
-        int? categoryId = null,
-        int? updatedByUserId = null)
+        int? categoryId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المورد مطلوب.");
@@ -177,7 +159,6 @@ public class Supplier : ActivatableEntity
         CreditLimit = creditLimit;
         if (categoryId.HasValue)
             CategoryId = categoryId;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 

@@ -26,8 +26,7 @@ public class CustomerReceiptApplication : Entity
     public static CustomerReceiptApplication Create(
         int customerReceiptId,
         int salesInvoiceId,
-        decimal appliedAmount,
-        int? createdByUserId = null)
+        decimal appliedAmount)
     {
         if (customerReceiptId <= 0)
             throw new DomainException("معرف سند القبض مطلوب.");

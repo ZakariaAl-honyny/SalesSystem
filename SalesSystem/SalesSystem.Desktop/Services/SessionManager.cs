@@ -22,6 +22,4 @@ public static class SessionManager
 
     /// <summary>نسخة MVP: مستخدم واحد (مدير النظام).</summary>
     public static bool IsAdmin => _session?.IsAdmin ?? true;
-
-    public static short? BranchId => _session?.BranchId;
 }

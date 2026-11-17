@@ -4,8 +4,6 @@ namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
 /// بيانات تجريبية لسندات صرف الموردين — مستقلة للاختبار بدون API.
-/// TODO: CashBoxId / CashBoxName / Status / Currency / CreatedAt / PostedAt / CancelledAt
-///       لم تعد موجودة في SupplierPaymentDto — البيانات التجريبية لم تعد تحمل الصندوق أو الحالة.
 /// </summary>
 internal static class MockSupplierPaymentsData
 {
@@ -21,8 +19,7 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 3, // تحويل بنكي
             PaymentDate: new DateOnly(2026, 9, 1),
             PurchaseInvoiceId: null,
-            Notes: "سداد دفعة من مستحقات فواتير الزيوت والمواد التموينية",
-            BranchId: 1),
+            Notes: "سداد دفعة من مستحقات فواتير الزيوت والمواد التموينية"),
 
         // ── سند 2: نقداً لشركة مياه حدة ──
         new SupplierPaymentDto(
@@ -34,8 +31,7 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 1, // نقدي
             PaymentDate: new DateOnly(2026, 9, 5),
             PurchaseInvoiceId: null,
-            Notes: "سداد قيمة توريد مياه معدنية للشهر الحالي",
-            BranchId: 1),
+            Notes: "سداد قيمة توريد مياه معدنية للشهر الحالي"),
 
         // ── سند 3: شيك لمؤسسة التضامن ──
         new SupplierPaymentDto(
@@ -47,8 +43,7 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 2, // شيك
             PaymentDate: new DateOnly(2026, 9, 10),
             PurchaseInvoiceId: null,
-            Notes: "سداد دفعة من مستحقات مؤسسة التضامن بموجب شيك رقم 440915",
-            BranchId: 1),
+            Notes: "سداد دفعة من مستحقات مؤسسة التضامن بموجب شيك رقم 440915"),
 
         // ── سند 4: تحويل بنكي لشركة الكبوس ──
         new SupplierPaymentDto(
@@ -60,8 +55,7 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 3, // تحويل بنكي
             PaymentDate: new DateOnly(2026, 9, 15),
             PurchaseInvoiceId: null,
-            Notes: "سداد دفعة على الحساب عن توريد شاي وبهارات",
-            BranchId: 1),
+            Notes: "سداد دفعة على الحساب عن توريد شاي وبهارات"),
 
         // ── سند 5: نقداً لمجموعة هائل سعيد (دفعة ثانية) ──
         new SupplierPaymentDto(
@@ -73,7 +67,6 @@ internal static class MockSupplierPaymentsData
             PaymentMethod: 1, // نقدي
             PaymentDate: new DateOnly(2026, 9, 20),
             PurchaseInvoiceId: null,
-            Notes: "دفعة نقدية على الحساب الجاري — سداد جزئي",
-            BranchId: 1)
+            Notes: "دفعة نقدية على الحساب الجاري — سداد جزئي")
     };
 }

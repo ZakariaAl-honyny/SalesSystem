@@ -10,7 +10,7 @@ using SalesSystem.Common.Exceptions;
 namespace SalesSystem.Business.Services;
 
 /// <summary>
-/// Service to manage product prices — lookup, CRUD, and single-currency pricing.
+/// Service to manage product prices — lookup and CRUD.
 /// </summary>
 public interface IProductPriceService
 {
@@ -235,8 +235,7 @@ public class ProductPriceService : IProductPriceService
                 request.ProductUnitId,
                 request.Price,
                 request.EffectiveFrom,
-                request.EffectiveTo,
-                userId);
+                request.EffectiveTo);
 
             await _uow.ProductPrices.AddAsync(productPrice, ct);
             await _uow.SaveChangesAsync(ct);
@@ -268,7 +267,7 @@ public class ProductPriceService : IProductPriceService
                 return Result<ProductPriceDto>.Failure("السعر غير موجود", ErrorCodes.NotFound);
 
             // Update price, effective from, and effective to via domain method
-            price.UpdatePrice(request.Price, request.EffectiveFrom, request.EffectiveTo, userId);
+            price.UpdatePrice(request.Price, request.EffectiveFrom, request.EffectiveTo);
 
             await _uow.SaveChangesAsync(ct);
 
@@ -324,6 +323,6 @@ public class ProductPriceService : IProductPriceService
     private static EffectivePriceDto MapToEffectiveDto(ProductPrice price, string? fallbackDescription = null) => new(
         price.ProductUnitId,
         price.Price,
-        null, // OriginalPrice — single-currency, no conversion
+        null, // OriginalPrice — always null, prices carry no comparison value
         fallbackDescription);
 }

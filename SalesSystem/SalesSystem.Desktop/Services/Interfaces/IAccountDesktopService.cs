@@ -14,4 +14,9 @@ public interface IAccountDesktopService
     Task<Result> UpdateAsync(int id, UpdateAccountRequest request, CancellationToken ct = default);
     Task<Result> DeleteAsync(int id, CancellationToken ct = default);
     Task<Result> PermanentDeleteAsync(int id, CancellationToken ct = default);
+
+    /// <summary>
+    /// يعيد معاينة كود الحساب الفرعي التالي تحت حساب أب (الكود · كود الأب · المستوى · مسار الشجرة).
+    /// </summary>
+    Task<Result<AccountCodePreviewDto>> GetNextChildCodeAsync(int parentId, CancellationToken ct = default);
 }

@@ -15,7 +15,6 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
         builder.Property(e => e.ExpenseDate).IsRequired().HasColumnType("date");
         builder.Property(e => e.Amount).HasPrecision(18, 2).IsRequired();
         builder.Property(e => e.Status).HasColumnType("tinyint").HasConversion<byte>().IsRequired();
-        builder.Property(e => e.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
         builder.Property(e => e.Notes).HasMaxLength(500).IsRequired(false);
         builder.Property(e => e.PostedAt).IsRequired(false);
 
@@ -32,12 +31,6 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
             .HasForeignKey(e => e.CashBoxId)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
-
-        // FK to Branch
-        builder.HasOne(e => e.Branch)
-            .WithMany()
-            .HasForeignKey(e => e.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // Unique index on ExpenseNo
         builder.HasIndex(e => e.ExpenseNo)

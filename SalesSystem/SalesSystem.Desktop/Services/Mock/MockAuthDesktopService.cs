@@ -153,7 +153,6 @@ public sealed class MockAuthDesktopService : IAuthDesktopService
                 UserId: user.Id,
                 UserName: user.UserName,
                 IsAdmin: string.Equals(user.UserName, "admin", StringComparison.OrdinalIgnoreCase),
-                BranchId: user.BranchId,
                 Token: $"mock-token-{user.Id:D4}",
                 ExpiresAt: DateTime.UtcNow.AddHours(SessionHours),
                 MustChangePassword: user.MustChangePassword,

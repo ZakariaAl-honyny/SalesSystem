@@ -12,6 +12,7 @@ namespace SalesSystem.Models;
 public class AuditLog : LongEntity
 {
     public int? UserId { get; private set; }
+    public string? UserName { get; private set; }                       // snapshot of the acting user name — text, no FK
     public virtual User? User { get; private set; }
     public string Action { get; private set; } = string.Empty;         // e.g., "LoginSuccess", "CancelInvoice"
     public string? EntityType { get; private set; }                     // e.g., "SalesInvoice", "Product"
@@ -31,7 +32,8 @@ public class AuditLog : LongEntity
         string? oldValues = null,
         string? newValues = null,
         string? changedColumns = null,
-        string? ipAddress = null)
+        string? ipAddress = null,
+        string? userName = null)
     {
         if (string.IsNullOrWhiteSpace(action))
             throw new DomainException("نوع الحركة مطلوب.");
@@ -45,7 +47,8 @@ public class AuditLog : LongEntity
             OldValues = oldValues,
             NewValues = newValues,
             ChangedColumns = changedColumns,
-            IpAddress = ipAddress
+            IpAddress = ipAddress,
+            UserName = string.IsNullOrWhiteSpace(userName) ? null : userName.Trim()
         };
     }
 }

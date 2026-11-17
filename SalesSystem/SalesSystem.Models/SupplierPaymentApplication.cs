@@ -26,8 +26,7 @@ public class SupplierPaymentApplication : Entity
     public static SupplierPaymentApplication Create(
         int supplierPaymentId,
         int purchaseInvoiceId,
-        decimal appliedAmount,
-        int? createdByUserId = null)
+        decimal appliedAmount)
     {
         if (supplierPaymentId <= 0)
             throw new DomainException("معرف سند الدفع مطلوب.");

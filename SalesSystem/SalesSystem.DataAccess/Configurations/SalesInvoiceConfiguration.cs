@@ -38,15 +38,8 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
             .HasForeignKey(si => si.CashBoxId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(si => si.Branch)
-            .WithMany()
-            .HasForeignKey(si => si.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.Property(si => si.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);
         builder.Property(si => si.DiscountRate).HasPrecision(18, 2).IsRequired(false);
-        builder.Property(si => si.CostInBaseCurrency).HasPrecision(18, 2).IsRequired(false);
-        builder.Property(si => si.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
 
         builder.HasMany(si => si.Items)
             .WithOne(i => i.SalesInvoice)
@@ -72,7 +65,6 @@ public class SalesInvoiceLineConfiguration : IEntityTypeConfiguration<SalesInvoi
         // ⚠️ decimal(18,2) وليس (5,2): العمود يحمل مبلغ الخصم عند DiscountType=Amount (RULE-001) — لا تُضيّقه.
         builder.Property(sii => sii.DiscountRate).HasPrecision(18, 2).IsRequired(false);
         builder.Property(sii => sii.DiscountAmount).HasPrecision(18, 2);
-        builder.Property(sii => sii.CostInBaseCurrency).HasPrecision(18, 2).IsRequired(false);
         builder.Property(sii => sii.UnitCost).HasPrecision(18, 2);
         builder.Property(sii => sii.ProfitAmount).HasPrecision(18, 2);
         builder.Property(sii => sii.ProductUnitId).IsRequired();

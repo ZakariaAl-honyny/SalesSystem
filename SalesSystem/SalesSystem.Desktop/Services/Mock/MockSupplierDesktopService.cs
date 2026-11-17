@@ -61,9 +61,7 @@ public class MockSupplierDesktopService : ISupplierDesktopService
             Address: r.Address, TaxNumber: r.TaxNumber, Notes: r.Notes,
             CreditLimit: r.CreditLimit, IsActive: true,
             AccountId: nextAccountId, AccountName: $"موردون - {r.Name}",
-            CategoryId: r.CategoryId, BranchId: r.BranchId ?? 0);
-        // TODO: Code / Company / Currency / ContactPerson / CreditDays removed from
-        // SupplierDto and CreateSupplierRequest.
+            CategoryId: r.CategoryId);
 
         MockSuppliersData.Suppliers.Add(supplier);
         return Task.FromResult(Result<SupplierDto>.Success(supplier));
@@ -93,8 +91,6 @@ public class MockSupplierDesktopService : ISupplierDesktopService
             IsActive = r.IsActive,
             CategoryId = r.CategoryId
         };
-        // TODO: Company / Currency / ContactPerson / CreditDays removed from
-        // UpdateSupplierRequest and SupplierDto.
 
         var index = MockSuppliersData.Suppliers.IndexOf(existing);
         MockSuppliersData.Suppliers[index] = updated;

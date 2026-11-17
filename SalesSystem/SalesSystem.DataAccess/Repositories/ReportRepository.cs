@@ -394,16 +394,12 @@ public class ReportRepository : IReportRepository
                 tl.UnitCost,
                 TotalCost = tl.Quantity * tl.UnitCost,
                 WarehouseId = (short)tl.InventoryTransaction.WarehouseId,
-                tl.InventoryTransaction.CreatedByUserId
+                tl.InventoryTransaction.CreatedByUserName
             })
             .ToListAsync(ct);
 
         // Compute running balance per (ProductId, WarehouseId)
         var balances = new Dictionary<(int ProductId, short WarehouseId), decimal>();
-        var now = DateTime.UtcNow;
-        var users = await _context.Users
-            .Where(u => rawData.Select(r => r.CreatedByUserId).Distinct().Contains(u.Id))
-            .ToDictionaryAsync(u => u.Id, u => u.UserName, ct);
 
         return rawData.Select(r =>
         {
@@ -423,9 +419,7 @@ public class ReportRepository : IReportRepository
             var refNo = r.TransactionNo.ToString();
             var refType = r.ReferenceType?.ToString() ?? r.MovementType.ToString();
 
-            var createdByName = r.CreatedByUserId > 0 && users.TryGetValue(r.CreatedByUserId, out var name)
-                ? name
-                : null;
+            var createdByName = r.CreatedByUserName;
 
             return new DetailedStockLedgerDto(
                 r.CreatedAt,

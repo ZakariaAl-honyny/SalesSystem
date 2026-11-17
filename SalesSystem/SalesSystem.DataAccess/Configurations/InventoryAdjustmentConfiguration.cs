@@ -41,9 +41,8 @@ public class InventoryAdjustmentConfiguration : IEntityTypeConfiguration<Invento
             .IsRequired()
             .HasDefaultValueSql("GETUTCDATE()");
 
-        builder.Property(ia => ia.CreatedByUserId)
-            .IsRequired()
-            .HasDefaultValue(0);
+        builder.Property(ia => ia.CreatedByUserName)
+            .HasMaxLength(100);
 
         builder.Property(ia => ia.PostedAt)
             .IsRequired(false);
@@ -54,12 +53,6 @@ public class InventoryAdjustmentConfiguration : IEntityTypeConfiguration<Invento
         builder.HasOne(ia => ia.Warehouse)
             .WithMany()
             .HasForeignKey(ia => ia.WarehouseId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // FK to Branch
-        builder.HasOne(ia => ia.Branch)
-            .WithMany()
-            .HasForeignKey(ia => ia.BranchId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(ia => ia.Lines)

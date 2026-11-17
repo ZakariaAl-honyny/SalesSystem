@@ -23,14 +23,6 @@ public class SystemAccountMapping : Entity
     public int AccountId { get; private set; }
     public Account? Account { get; private set; }
 
-    /// <summary>
-    /// Branch identifier for multi-branch override (nullable, schema smallint).
-    /// </summary>
-    public short? BranchId { get; private set; }
-
-    /// <summary>Navigation property to the Branch (nullable override).</summary>
-    public virtual Branch? Branch { get; private set; }
-
     private SystemAccountMapping() { } // EF Core
 
     /// <summary>
@@ -38,8 +30,7 @@ public class SystemAccountMapping : Entity
     /// </summary>
     public static SystemAccountMapping Create(
         string mappingKey,
-        int accountId,
-        short? branchId = null)
+        int accountId)
     {
         if (string.IsNullOrWhiteSpace(mappingKey))
             throw new DomainException("مفتاح الربط مطلوب");
@@ -53,8 +44,7 @@ public class SystemAccountMapping : Entity
         return new SystemAccountMapping
         {
             MappingKey = mappingKey.Trim(),
-            AccountId = accountId,
-            BranchId = branchId
+            AccountId = accountId
         };
     }
 

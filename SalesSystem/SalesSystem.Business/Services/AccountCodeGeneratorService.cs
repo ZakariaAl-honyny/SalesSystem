@@ -7,12 +7,13 @@ namespace SalesSystem.Business.Services;
 
 /// <summary>
 /// Thread-safe service for generating hierarchical account codes.
-/// Uses SemaphoreSlim to ensure unique codes under concurrent requests.
-/// Code patterns:
-///   Level 1: single digit (e.g. "5")
-///   Level 2: parent code + 1 digit suffix (e.g. "101" from parent "10" + "1")
-///   Level 3: parent code + 2 digit suffix (e.g. "101001" from parent "1010" + "01")
-///   Level 4: parent code + 4 digit suffix (e.g. "1010010001" from parent "101001" + "0001")
+/// Official ladder (docs/database-schema.md §4.1.2.1 — owner decision 2026-11-17):
+///   Level 1 (1 digit)  → "1"
+///   Level 2 (2 digits) → "11"        (parent "1" + 1 digit)
+///   Level 3 (4 digits) → "1101"      (parent "11" + 2 digits)
+///   Level 4 (8 digits) → "11010001"  (parent "1101" + 4 digits)
+///   deeper levels      → plain increment (parent code + the next number)
+/// A candidate code that already exists among the same parent's children is skipped until free.
 /// </summary>
 public class AccountCodeGeneratorService : IAccountCodeGeneratorService
 {
@@ -40,12 +41,19 @@ public class AccountCodeGeneratorService : IAccountCodeGeneratorService
                 var existingCodes = await _uow.Accounts.ToListAsync(
                     a => a.Level == 1, ct: ct);
 
+                var usedRootCodes = new HashSet<string>(
+                    existingCodes.Select(a => a.AccountCode), StringComparer.Ordinal);
+
                 var maxNum = existingCodes
                     .Select(a => int.TryParse(a.AccountCode, out var n) ? n : 0)
                     .DefaultIfEmpty(0)
                     .Max();
 
-                code = (maxNum + 1).ToString();
+                var nextRoot = maxNum + 1;
+                while (usedRootCodes.Contains(nextRoot.ToString()))
+                    nextRoot++;
+
+                code = nextRoot.ToString();
             }
             else
             {
@@ -70,15 +78,17 @@ public class AccountCodeGeneratorService : IAccountCodeGeneratorService
                     }
                 }
 
-                var nextSuffix = maxSuffix + 1;
+                // Collision guard: skip every candidate that already exists under this parent
+                var usedChildCodes = new HashSet<string>(
+                    children.Select(c => c.AccountCode), StringComparer.Ordinal);
 
-                code = level switch
+                var nextSuffix = maxSuffix + 1;
+                code = FormatChildCode(parentCode, level, nextSuffix);
+                while (usedChildCodes.Contains(code))
                 {
-                    2 => parentCode + nextSuffix.ToString("0"),
-                    3 => parentCode + nextSuffix.ToString("00"),
-                    4 => parentCode + nextSuffix.ToString("0000"),
-                    _ => parentCode + nextSuffix.ToString()
-                };
+                    nextSuffix++;
+                    code = FormatChildCode(parentCode, level, nextSuffix);
+                }
             }
 
             _logger.LogDebug("Generated account code '{Code}' at level {Level} (parentId: {ParentId})",
@@ -91,4 +101,16 @@ public class AccountCodeGeneratorService : IAccountCodeGeneratorService
             _semaphore.Release();
         }
     }
+
+    /// <summary>
+    /// Applies the official suffix width: level 2 ⇒ 1 digit · level 3 ⇒ 2 digits · level 4 ⇒ 4 digits ·
+    /// deeper levels ⇒ plain increment.
+    /// </summary>
+    private static string FormatChildCode(string parentCode, byte level, int suffix) => level switch
+    {
+        2 => parentCode + suffix.ToString("0"),
+        3 => parentCode + suffix.ToString("00"),
+        4 => parentCode + suffix.ToString("0000"),
+        _ => parentCode + suffix.ToString()
+    };
 }

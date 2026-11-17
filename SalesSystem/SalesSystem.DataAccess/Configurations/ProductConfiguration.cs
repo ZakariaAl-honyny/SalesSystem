@@ -61,12 +61,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // FK to Branch
-        builder.HasOne(p => p.Branch)
-            .WithMany()
-            .HasForeignKey(p => p.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // ─── Global query filter ───────────────────────────────
         // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(p => p.IsActive);

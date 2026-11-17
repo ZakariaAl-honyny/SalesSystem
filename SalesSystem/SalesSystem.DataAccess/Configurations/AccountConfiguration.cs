@@ -39,6 +39,17 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
             .IsRequired()
             .HasDefaultValue((byte)1);
 
+        // NormalBalance: tinyint NULL — 1=مدين, 2=دائن, NULL = derived from Nature
+        builder.Property(x => x.NormalBalance)
+            .HasColumnType("tinyint")
+            .IsRequired(false);
+
+        // AllowCostCenter: bit NOT NULL, default 0
+        builder.Property(x => x.AllowCostCenter)
+            .HasColumnType("bit")
+            .IsRequired()
+            .HasDefaultValue(false);
+
         builder.Property(x => x.IsLeaf)
             .HasDefaultValue(true);
 

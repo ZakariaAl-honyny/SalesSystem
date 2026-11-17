@@ -353,7 +353,7 @@ partial class frmCashBoxMaster
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F);
         cbFilterBy.FormattingEnabled = true;
-        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الحساب", "الفرع", "الرقم" });
+        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الحساب", "الرقم" });
         cbFilterBy.Location = new Point(720, 17);
         cbFilterBy.Margin = new Padding(0);
         cbFilterBy.Name = "cbFilterBy";

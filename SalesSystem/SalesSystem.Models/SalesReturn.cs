@@ -7,7 +7,7 @@ namespace SalesSystem.Models;
 /// <summary>
 /// A single line in a sales return — links back to the original invoice line.
 /// Schema 6.4: SalesReturnLines. Columns: SalesReturnId FK, SalesInvoiceLineId FK (NOT null),
-/// Quantity decimal(18,3), Amount decimal(18,2), CostInBaseCurrency decimal(18,2) NULL.
+/// Quantity decimal(18,3), Amount decimal(18,2).
 /// </summary>
 public class SalesReturnLine : Entity
 {
@@ -15,7 +15,6 @@ public class SalesReturnLine : Entity
     public int SalesInvoiceLineId { get; private set; }
     public decimal Quantity { get; private set; }
     public decimal Amount { get; private set; }
-    public decimal? CostInBaseCurrency { get; private set; }
 
     // Navigation properties
     public virtual SalesReturn? SalesReturn { get; private set; }
@@ -23,7 +22,7 @@ public class SalesReturnLine : Entity
 
     private SalesReturnLine() { } // EF Core
 
-    public static SalesReturnLine Create(int salesInvoiceLineId, decimal quantity, decimal amount, decimal? costInBaseCurrency = null)
+    public static SalesReturnLine Create(int salesInvoiceLineId, decimal quantity, decimal amount)
     {
         if (salesInvoiceLineId <= 0)
             throw new DomainException("رقم بند الفاتورة الأصلي مطلوب.");
@@ -36,8 +35,7 @@ public class SalesReturnLine : Entity
         {
             SalesInvoiceLineId = salesInvoiceLineId,
             Quantity = quantity,
-            Amount = amount,
-            CostInBaseCurrency = costInBaseCurrency
+            Amount = amount
         };
     }
 }
@@ -58,34 +56,20 @@ public class SalesReturn : DocumentEntity
     public decimal ReturnedTaxAmount { get; private set; }
     public decimal ReturnedChargeAmount { get; private set; }
     public decimal RefundAmount { get; private set; }
-    /// <summary>
-    /// القيمة المكافئة بالعملة الأساسية (TotalAmount × ExchangeRate)
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
     public string? ReturnReason { get; private set; }
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
-
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
 
     // Navigation properties
     public virtual SalesInvoice? SalesInvoice { get; private set; }
     public virtual Customer? Customer { get; private set; }
     public virtual Warehouse? Warehouse { get; private set; }
-    /// <summary>
-    /// Navigation property to the Branch this return belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     private readonly List<SalesReturnLine> _lines = new();
     public IReadOnlyCollection<SalesReturnLine> Lines => _lines.AsReadOnly();
 
     private SalesReturn() { } // EF Core
 
     public static SalesReturn Create(
-        short branchId,
         int returnNo,
         int salesInvoiceId,
         int customerId,
@@ -93,11 +77,8 @@ public class SalesReturn : DocumentEntity
         DateTime? returnDate = null,
         string? notes = null,
         string? returnReason = null,
-        decimal? baseNetTotal = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (returnNo <= 0)
             throw new DomainException("رقم الإرجاع مطلوب.");
         if (salesInvoiceId <= 0)
@@ -109,7 +90,6 @@ public class SalesReturn : DocumentEntity
 
         var sr = new SalesReturn
         {
-            BranchId = branchId,
             ReturnNo = returnNo,
             SalesInvoiceId = salesInvoiceId,
             CustomerId = customerId,
@@ -117,10 +97,9 @@ public class SalesReturn : DocumentEntity
             ReturnDate = returnDate ?? DateTime.UtcNow,
             ReturnReason = returnReason?.Trim(),
             Notes = notes,
-            BaseNetTotal = baseNetTotal,
             Status = InvoiceStatus.Draft
         };
-        sr.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) sr.SetCreatedBy(createdByUserName.Trim());
         return sr;
     }
 
@@ -169,17 +148,6 @@ public class SalesReturn : DocumentEntity
     public void SetReturnReason(string? reason)
     {
         ReturnReason = reason?.Trim();
-        UpdateTimestamp();
-    }
-
-    /// <summary>
-    /// Sets the base-currency equivalent of TotalAmount (TotalAmount × ExchangeRate).
-    /// </summary>
-    public void SetBaseNetTotal(decimal baseNetTotal)
-    {
-        if (baseNetTotal < 0)
-            throw new DomainException("القيمة بالعملة الأساسية لا يمكن أن تكون سالبة.");
-        BaseNetTotal = baseNetTotal;
         UpdateTimestamp();
     }
 

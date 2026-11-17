@@ -4,10 +4,10 @@ namespace SalesSystem.Desktop.Helpers;
 /// البيت الواحد لحصر قيمة رقمية داخل مدى عنصر إدخال (<see cref="NumericUpDown"/>) قبل إسنادها
 /// إليه (<c>RULE-N169</c>…<c>RULE-N172</c>).
 /// <para>
-/// كان الحصر مكتوباً **خمس مرات** كدالة محلّية متطابقة
-/// (<c>frmCustomerMaster</c> · <c>frmEmployeeMaster</c> · <c>frmProductMaster</c> ·
+/// كان الحصر مكتوباً **أربع مرات** كدالة محلّية متطابقة
+/// (<c>frmCustomerMaster</c> · <c>frmProductMaster</c> ·
 /// <c>frmProductUnitMaster</c> · <c>frmSupplierMaster</c>)؛ فأي تعديل على سلوك الحصر كان يتطلّب
-/// لمس خمسة ملفات، وهو ما ينفيه معيار التعديل الواحد (<c>RULE-N171</c>) وسقف التكرار
+/// لمس أربعة ملفات، وهو ما ينفيه معيار التعديل الواحد (<c>RULE-N171</c>) وسقف التكرار
 /// (<c>RULE-N172</c>).
 /// </para>
 /// <para>
@@ -28,7 +28,7 @@ public static class NumericInputHelper
 {
     /// <summary>
     /// يحصر القيمة داخل مدى عنصر الإدخال الرقمي قبل إسنادها (<c>RULE-N172</c> — بيت واحد).
-    /// تُستهلك من شاشات الدليل الخمس التي كانت تكرّر الحصر محلّياً.
+    /// تُستهلك من شاشات الدليل الأربع التي كانت تكرّر الحصر محلّياً.
     /// </summary>
     /// <param name="control">عنصر الإدخال الرقمي — <c>null</c> ⇒ تُعاد القيمة بلا حصر.</param>
     /// <param name="value">القيمة المطلوب حصرها.</param>

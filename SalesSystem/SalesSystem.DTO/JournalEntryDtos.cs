@@ -18,7 +18,7 @@ public record JournalEntryListDto(
     int Status,
     string? StatusDisplay,
     DateTime CreatedAt,
-    int? CreatedByUserId,
+    string? CreatedByUserName,
     JournalEntryType EntryTypeValue = JournalEntryType.Manual
 );
 
@@ -35,7 +35,7 @@ public record JournalEntryDetailDto(
     string? StatusDisplay,
     int? ReversedByEntryId,
     DateTime CreatedAt,
-    int? CreatedByUserId,
+    string? CreatedByUserName,
     List<JournalEntryLineDetailDto> Lines,
     JournalEntryType EntryTypeValue = JournalEntryType.Manual
 );

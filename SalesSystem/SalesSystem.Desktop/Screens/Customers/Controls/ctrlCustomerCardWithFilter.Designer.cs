@@ -23,25 +23,42 @@ partial class ctrlCustomerCardWithFilter
     {
         components = new System.ComponentModel.Container();
         toolTip1 = new ToolTip(components);
+        btnReload = new Button();
         gbFilters = new GroupBox();
         label1 = new Label();
         cbCustomer = new ComboBox();
-        btnReload = new Button();
         btnAddNew = new Button();
         ctrlCustomerCard1 = new ctrlCustomerCard();
         gbFilters.SuspendLayout();
         SuspendLayout();
         // 
+        // btnReload
+        // 
+        btnReload.BackColor = Color.FromArgb(23, 162, 184);
+        btnReload.Cursor = Cursors.Hand;
+        btnReload.FlatAppearance.BorderSize = 0;
+        btnReload.FlatStyle = FlatStyle.Flat;
+        btnReload.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+        btnReload.ForeColor = Color.White;
+        btnReload.Location = new Point(634, 35);
+        btnReload.Name = "btnReload";
+        btnReload.Size = new Size(120, 32);
+        btnReload.TabIndex = 2;
+        btnReload.Text = "تحديث القائمة";
+        toolTip1.SetToolTip(btnReload, "إعادة تحميل قائمة العملاء");
+        btnReload.UseVisualStyleBackColor = false;
+        btnReload.Click += btnReload_Click;
+        // 
         // gbFilters
         // 
-        gbFilters.BackColor = Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbFilters.BackColor = Color.FromArgb(235, 245, 235);
         gbFilters.Controls.Add(label1);
         gbFilters.Controls.Add(cbCustomer);
         gbFilters.Controls.Add(btnReload);
         gbFilters.Controls.Add(btnAddNew);
         gbFilters.Dock = DockStyle.Top;
         gbFilters.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbFilters.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        gbFilters.ForeColor = Color.FromArgb(14, 82, 52);
         gbFilters.Location = new Point(0, 0);
         gbFilters.Name = "gbFilters";
         gbFilters.Padding = new Padding(8);
@@ -52,10 +69,9 @@ partial class ctrlCustomerCardWithFilter
         // 
         // label1
         // 
-        label1.AutoSize = false;
         label1.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        label1.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        label1.Location = new Point(8, 24);
+        label1.ForeColor = Color.FromArgb(14, 82, 52);
+        label1.Location = new Point(483, 38);
         label1.Name = "label1";
         label1.Size = new Size(120, 26);
         label1.TabIndex = 0;
@@ -67,12 +83,11 @@ partial class ctrlCustomerCardWithFilter
         cbCustomer.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
         cbCustomer.AutoCompleteSource = AutoCompleteSource.ListItems;
         cbCustomer.BackColor = Color.White;
-        cbCustomer.DropDownStyle = ComboBoxStyle.DropDown;
         cbCustomer.FlatStyle = FlatStyle.Flat;
         cbCustomer.Font = new Font("Tahoma", 10F);
-        cbCustomer.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        cbCustomer.ForeColor = Color.FromArgb(33, 37, 41);
         cbCustomer.FormattingEnabled = true;
-        cbCustomer.Location = new Point(138, 21);
+        cbCustomer.Location = new Point(157, 35);
         cbCustomer.MaxDropDownItems = 20;
         cbCustomer.Name = "cbCustomer";
         cbCustomer.RightToLeft = RightToLeft.Yes;
@@ -81,32 +96,15 @@ partial class ctrlCustomerCardWithFilter
         cbCustomer.SelectedIndexChanged += cbCustomer_SelectedIndexChanged;
         cbCustomer.KeyDown += cbCustomer_KeyDown;
         // 
-        // btnReload
-        // 
-        btnReload.BackColor = Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
-        btnReload.Cursor = Cursors.Hand;
-        btnReload.FlatAppearance.BorderSize = 0;
-        btnReload.FlatStyle = FlatStyle.Flat;
-        btnReload.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnReload.ForeColor = Color.White;
-        btnReload.Location = new Point(468, 20);
-        btnReload.Name = "btnReload";
-        btnReload.Size = new Size(120, 32);
-        btnReload.TabIndex = 2;
-        btnReload.Text = "تحديث القائمة";
-        btnReload.UseVisualStyleBackColor = false;
-        toolTip1.SetToolTip(btnReload, "إعادة تحميل قائمة العملاء");
-        btnReload.Click += btnReload_Click;
-        // 
         // btnAddNew
         // 
-        btnAddNew.BackColor = Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
+        btnAddNew.BackColor = Color.FromArgb(13, 110, 253);
         btnAddNew.Cursor = Cursors.Hand;
         btnAddNew.FlatAppearance.BorderSize = 0;
         btnAddNew.FlatStyle = FlatStyle.Flat;
         btnAddNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnAddNew.ForeColor = Color.White;
-        btnAddNew.Location = new Point(598, 20);
+        btnAddNew.Location = new Point(764, 35);
         btnAddNew.Name = "btnAddNew";
         btnAddNew.Size = new Size(110, 32);
         btnAddNew.TabIndex = 3;
@@ -116,16 +114,19 @@ partial class ctrlCustomerCardWithFilter
         // 
         // ctrlCustomerCard1
         // 
+        ctrlCustomerCard1.BackColor = Color.FromArgb(170, 220, 170);
         ctrlCustomerCard1.Dock = DockStyle.Fill;
+        ctrlCustomerCard1.Font = new Font("Tahoma", 10F);
         ctrlCustomerCard1.Location = new Point(0, 78);
         ctrlCustomerCard1.Name = "ctrlCustomerCard1";
+        ctrlCustomerCard1.RightToLeft = RightToLeft.Yes;
         ctrlCustomerCard1.Size = new Size(900, 482);
         ctrlCustomerCard1.TabIndex = 1;
         // 
         // ctrlCustomerCardWithFilter
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+        BackColor = Color.FromArgb(170, 220, 170);
         Controls.Add(ctrlCustomerCard1);
         Controls.Add(gbFilters);
         Font = new Font("Tahoma", 10F);

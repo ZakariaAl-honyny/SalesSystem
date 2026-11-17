@@ -122,8 +122,7 @@ public class MockPurchaseReturnDesktopService : IPurchaseReturnDesktopService
                     Quantity: line.Quantity,
                     UnitCost: line.UnitCost,
                     LineTotal: line.Amount,
-                    PurchaseInvoiceLineId: line.PurchaseInvoiceLineId > 0 ? line.PurchaseInvoiceLineId : null,
-                    CostInBaseCurrency: null);
+                    PurchaseInvoiceLineId: line.PurchaseInvoiceLineId > 0 ? line.PurchaseInvoiceLineId : null);
             }).ToList();
 
             decimal totalAmount = items.Sum(i => i.LineTotal);
@@ -151,10 +150,7 @@ public class MockPurchaseReturnDesktopService : IPurchaseReturnDesktopService
                 DiscountRate: r.DiscountRate,
                 Notes: r.Notes,
                 Status: 1,
-                Items: items.AsReadOnly(),
-                BranchId: r.BranchId ?? 0);
-
-            // TODO: Currency removed from PurchaseReturnDto — العملة تُحدد من إعدادات النظام.
+                Items: items.AsReadOnly());
 
             MockReturnsData.PurchaseReturns.Add(purchaseReturn);
             return Task.FromResult(Result<PurchaseReturnDto>.Success(purchaseReturn));

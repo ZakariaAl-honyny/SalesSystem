@@ -159,7 +159,6 @@ public class SalesService : ISalesService
                 }
 
                 var invoice = SalesInvoice.Create(
-                    branchId: 1,
                     warehouseId: (short)warehouseId,
                     invoiceNo: invoiceNo,
                     customerId: customerId,
@@ -170,8 +169,7 @@ public class SalesService : ISalesService
                     notes: request.Notes,
                     cashBoxId: request.CashBoxId,
                     discountType: (DiscountType)request.DiscountType,
-                    discountRate: request.DiscountRate,
-                    createdByUserId: userId
+                    discountRate: request.DiscountRate
                 );
                 foreach (var item in request.Items)
                 {
@@ -276,7 +274,6 @@ public class SalesService : ISalesService
             }
 
             var invoice = SalesInvoice.Create(
-                branchId: 1,
                 warehouseId: (short)warehouseId,
                 invoiceNo: invoiceNo,
                 customerId: customerId,
@@ -287,8 +284,7 @@ public class SalesService : ISalesService
                 notes: request.Notes,
                 cashBoxId: request.CashBoxId,
                 discountType: (DiscountType)request.DiscountType,
-                discountRate: request.DiscountRate,
-                createdByUserId: userId);
+                discountRate: request.DiscountRate);
 
             foreach (var item in request.Items)
             {
@@ -536,8 +532,7 @@ public class SalesService : ISalesService
                         (short)invoice.WarehouseId,
                         InventoryReferenceType.SalesInvoice,
                         invoice.Id,
-                        $"بيع - فاتورة رقم {invoice.InvoiceNo}",
-                        userId);
+                        $"بيع - فاتورة رقم {invoice.InvoiceNo}");
                     foreach (var item in invoice.Items)
                     {
                         // Encode FIFO batch allocations as "batchId:qty" pairs in BatchNo — enables restoration on cancel
@@ -783,8 +778,7 @@ public class SalesService : ISalesService
                             (short)invoice.WarehouseId,
                             InventoryReferenceType.SalesInvoice,
                             invoice.Id,
-                            $"إلغاء بيع - فاتورة رقم {invoice.InvoiceNo}",
-                            userId);
+                            $"إلغاء بيع - فاتورة رقم {invoice.InvoiceNo}");
                         foreach (var item in invoice.Items)
                         {
                             invTx.AddLine(InventoryTransactionLine.Create(
@@ -877,7 +871,6 @@ public class SalesService : ISalesService
             i.NetTotal,
             i.PaidAmount,
             i.RemainingAmount,
-            i.CostInBaseCurrency,
             i.Notes,
             (byte)i.Status,
             null,
@@ -896,14 +889,12 @@ public class SalesService : ISalesService
                 (byte)it.DiscountType,
                 it.DiscountRate,
                 it.DiscountAmount,
-                it.CostInBaseCurrency,
                 it.UnitCost,
                 it.ProfitAmount,
                 it.ExpiryDate,
                 it.ProductUnit?.Unit?.Name,
                 it.Product?.Barcode
-            )).ToList(),
-            BranchId: i.BranchId
+            )).ToList()
         );
     }
 }

@@ -68,7 +68,6 @@ public class SupplierService : ISupplierService
 
                 // Step 2: Create Supplier record with direct contact fields
                 var supplier = Supplier.Create(
-                    branchId: 1, // V1: hardcoded to main branch
                     name: request.Name,
                     accountId: accountId,
                     phone: request.Phone,
@@ -77,8 +76,7 @@ public class SupplierService : ISupplierService
                     taxNumber: request.TaxNumber,
                     notes: request.Notes,
                     creditLimit: request.CreditLimit,
-                    categoryId: request.CategoryId,
-                    createdByUserId: userId);
+                    categoryId: request.CategoryId);
                 await _uow.Suppliers.AddAsync(supplier, ct);
                 await _uow.SaveChangesAsync(ct);
 
@@ -124,8 +122,7 @@ public class SupplierService : ISupplierService
                         taxNumber: request.TaxNumber,
                         notes: request.Notes,
                         creditLimit: request.CreditLimit,
-                        categoryId: request.CategoryId,
-                        updatedByUserId: userId);
+                        categoryId: request.CategoryId);
 
                     if (request.IsActive != oldIsActive)
                     {
@@ -299,8 +296,7 @@ public class SupplierService : ISupplierService
             s.IsActive,
             AccountId: s.AccountId,
             AccountName: s.Account?.NameAr,
-            CategoryId: s.CategoryId,
-            BranchId: s.BranchId
+            CategoryId: s.CategoryId
         );
     }
 }

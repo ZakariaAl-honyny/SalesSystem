@@ -12,17 +12,9 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(SalesDbContext db, ILogger? logger = null)
     {
-        // 1. Seed default branch (must be first — other entities reference BranchId=1)
-        if (!await db.Branches.AnyAsync())
-        {
-            db.Branches.Add(Branch.Create("المركز الرئيسي", address: "المقر الرئيسي"));
-            await db.SaveChangesAsync();
-            logger?.LogInformation("Seeded default branch 'المركز الرئيسي'.");
-        }
-
         if (!await db.Set<ProductCategory>().AnyAsync())
         {
-            var generalCategory = ProductCategory.Create(branchId: 1, "عام", description: "التصنيف الافتراضي لجميع المنتجات", createdByUserId: 1);
+            var generalCategory = ProductCategory.Create("عام", description: "التصنيف الافتراضي لجميع المنتجات");
             db.Set<ProductCategory>().Add(generalCategory);
             logger?.LogInformation("Seeded default product category 'عام'.");
         }
@@ -34,10 +26,8 @@ public static class DbSeeder
             var cashCustomerAccount = await db.Set<Account>()
                 .FirstAsync(a => a.AccountCode == "11030001");
             db.Customers.Add(Customer.Create(
-                branchId: 1,
                 name: "عميل نقدي",
-                accountId: cashCustomerAccount.Id,
-                createdByUserId: null
+                accountId: cashCustomerAccount.Id
             ));
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded default customer.");
@@ -48,10 +38,8 @@ public static class DbSeeder
             var cashSupplierAccount = await db.Set<Account>()
                 .FirstAsync(a => a.AccountCode == "21010001");
             db.Suppliers.Add(Supplier.Create(
-                branchId: 1,
                 name: "المورد الافتراضي في النظام",
-                accountId: cashSupplierAccount.Id,
-                createdByUserId: null
+                accountId: cashSupplierAccount.Id
             ));
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded default supplier.");
@@ -145,53 +133,31 @@ public static class DbSeeder
             var defaultCashBox = CashBox.Create(
                 name: "الصندوق الرئيسي",
                 accountId: cashAccount.Id,
-                description: "الصندوق النقدي الافتراضي للمنشأة",
-                branchId: 1,
-                createdByUserId: null
+                description: "الصندوق النقدي الافتراضي للمنشأة"
             );
             db.CashBoxes.Add(defaultCashBox);
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded default CashBox 'الصندوق الرئيسي' linked to account '{Code}'.", cashAccount.AccountCode);
-        }
-        else
-        {
-            // Fix the DEFAULT CashBox only — set BranchId = 1
-            var fixedCount = await db.CashBoxes
-                .Where(cb => cb.Name == "الصندوق الرئيسي" && cb.BranchId == null)
-                .ExecuteUpdateAsync(s => s.SetProperty(cb => cb.BranchId, (short?)1));
-            if (fixedCount > 0)
-                logger?.LogInformation("Fixed default CashBox BranchId → set to 1.");
         }
 
         // ─── Default Warehouse (must be before early return) ────────
         if (!await db.Warehouses.AnyAsync())
         {
             var defaultWarehouse = Warehouse.Create(
-                name: "المخزن الرئيسي",
-                branchId: 1,
-                createdByUserId: null
+                name: "المخزن الرئيسي"
             );
             db.Warehouses.Add(defaultWarehouse);
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded default Warehouse 'المخزن الرئيسي'.");
-        }
-        else
-        {
-            // Fix the DEFAULT Warehouse only — set BranchId = 1
-            var fixedCount = await db.Warehouses
-                .Where(w => w.Name == "المخزن الرئيسي" && w.BranchId == null)
-                .ExecuteUpdateAsync(s => s.SetProperty(w => w.BranchId, (short?)1));
-            if (fixedCount > 0)
-                logger?.LogInformation("Fixed default Warehouse BranchId → set to 1.");
         }
 
         // ─── ProductCategories ──────────────────────────────────────
         if (!await db.ProductCategories.AnyAsync())
         {
             db.ProductCategories.AddRange(
-                ProductCategory.Create(branchId: 1, "مواد غذائية"),
-                ProductCategory.Create(branchId: 1, "مشروبات"),
-                ProductCategory.Create(branchId: 1, "منظفات")
+                ProductCategory.Create("مواد غذائية"),
+                ProductCategory.Create("مشروبات"),
+                ProductCategory.Create("منظفات")
             );
             await db.SaveChangesAsync();
             logger?.LogInformation("Seeded 3 product categories.");
@@ -207,22 +173,19 @@ public static class DbSeeder
         var adminUser = User.CreateWithPassword(
             userName: "admin",
             passwordHash: adminPasswordHash,
-            branchId: null,
-            employeeId: null,
-            createdByUserId: null,
             mustChangePassword: true
         );
         db.Users.Add(adminUser);
         await db.SaveChangesAsync();
         logger?.LogInformation("Created admin user 'admin'.");
 
-        var unitPiece = Unit.Create(name: "حبة", symbol: "pcs", isSystem: false, createdByUserId: null);
-        var unitKg = Unit.Create(name: "كيلو", symbol: "kg", isSystem: false, createdByUserId: null);
-        var unitLiter = Unit.Create(name: "لتر", symbol: "ltr", isSystem: false, createdByUserId: null);
-        var unitMeter = Unit.Create(name: "متر", symbol: "m", isSystem: false, createdByUserId: null);
-        var unitCarton = Unit.Create(name: "كرتون", symbol: "ctn", isSystem: false, createdByUserId: null);
-        var unitBox = Unit.Create(name: "علبة", symbol: "box", isSystem: false, createdByUserId: null);
-        var unitGram = Unit.Create(name: "جرام", symbol: "g", isSystem: false, createdByUserId: null);
+        var unitPiece = Unit.Create(name: "حبة", symbol: "pcs", isSystem: false);
+        var unitKg = Unit.Create(name: "كيلو", symbol: "kg", isSystem: false);
+        var unitLiter = Unit.Create(name: "لتر", symbol: "ltr", isSystem: false);
+        var unitMeter = Unit.Create(name: "متر", symbol: "m", isSystem: false);
+        var unitCarton = Unit.Create(name: "كرتون", symbol: "ctn", isSystem: false);
+        var unitBox = Unit.Create(name: "علبة", symbol: "box", isSystem: false);
+        var unitGram = Unit.Create(name: "جرام", symbol: "g", isSystem: false);
         db.Units.AddRange(unitPiece, unitKg, unitLiter, unitMeter, unitCarton, unitBox, unitGram);
         await db.SaveChangesAsync();
         logger?.LogInformation("Seeded {Count} base units of measure.", 7);
@@ -266,8 +229,7 @@ public static class DbSeeder
                     productPrices.Add(ProductPrice.Create(
                         productUnitId: pu.Id,
                         price: 100m,
-                        effectiveFrom: DateTime.UtcNow,
-                        createdByUserId: 1
+                        effectiveFrom: DateTime.UtcNow
                     ));
                 }
 

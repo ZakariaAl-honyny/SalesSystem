@@ -50,7 +50,7 @@ public class SystemSettingsRepository : ISystemSettingsRepository
 
         if (setting != null)
         {
-            setting.UpdateValue(value, userId);
+            setting.UpdateValue(value);
         }
         else
         {

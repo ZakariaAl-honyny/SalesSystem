@@ -17,7 +17,6 @@ public class PurchaseReturnLine : Entity
     public int ProductUnitId { get; private set; }
     public decimal Quantity { get; private set; }
     public decimal Amount { get; private set; }
-    public decimal? CostInBaseCurrency { get; private set; }
 
     // Navigation properties
     public virtual PurchaseReturn? PurchaseReturn { get; private set; }
@@ -53,19 +52,13 @@ public class PurchaseReturnLine : Entity
         };
     }
 
-    public void SetCostInBaseCurrency(decimal cost)
-    {
-        if (cost < 0)
-            throw new DomainException("التكلفة بالعملة الأساسية لا يمكن أن تكون سالبة.");
-        CostInBaseCurrency = cost;
-    }
 }
 
 /// <summary>
 /// Represents a purchase return (return of goods to a supplier).
 /// Schema 7.3: PurchaseReturns. Status: Draft=1, Posted=2, Cancelled=3.
 /// Columns: ReturnNo (int unique), PurchaseInvoiceId FK (nullable — standalone mode), SupplierId FK,
-/// WarehouseId FK, CurrencyId FK, TotalAmount, Notes, Status, audit fields.
+/// WarehouseId FK, TotalAmount, Notes, Status, audit fields.
 /// </summary>
 public class PurchaseReturn : DocumentEntity
 {
@@ -77,36 +70,22 @@ public class PurchaseReturn : DocumentEntity
     public DiscountType DiscountType { get; private set; } = DiscountType.Amount;
     public decimal? DiscountRate { get; private set; }
     public decimal TotalAmount { get; private set; }
-    /// <summary>
-    /// القيمة المكافئة بالعملة الأساسية (TotalAmount × ExchangeRate)
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
     public decimal ReturnedDiscountAmount { get; private set; }
     public decimal ReturnedTaxAmount { get; private set; }
     public decimal ReturnedChargeAmount { get; private set; }
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
 
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
-
     // Navigation properties
     public virtual PurchaseInvoice? PurchaseInvoice { get; private set; }
     public virtual Supplier? Supplier { get; private set; }
     public virtual Warehouse? Warehouse { get; private set; }
-    /// <summary>
-    /// Navigation property to the Branch this return belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     private readonly List<PurchaseReturnLine> _lines = new();
     public IReadOnlyCollection<PurchaseReturnLine> Lines => _lines.AsReadOnly();
 
     private PurchaseReturn() { } // EF Core
 
     public static PurchaseReturn Create(
-        short branchId,
         int returnNo,
         int supplierId,
         short warehouseId,
@@ -115,11 +94,8 @@ public class PurchaseReturn : DocumentEntity
         DiscountType discountType = DiscountType.Amount,
         decimal? discountRate = null,
         string? notes = null,
-        decimal? baseNetTotal = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (returnNo <= 0)
             throw new DomainException("رقم الإرجاع مطلوب.");
         if (supplierId <= 0)
@@ -131,7 +107,6 @@ public class PurchaseReturn : DocumentEntity
 
         var pr = new PurchaseReturn
         {
-            BranchId = branchId,
             ReturnNo = returnNo,
             PurchaseInvoiceId = purchaseInvoiceId,
             SupplierId = supplierId,
@@ -140,10 +115,9 @@ public class PurchaseReturn : DocumentEntity
             DiscountRate = discountRate,
             ReturnDate = returnDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Notes = notes,
-            BaseNetTotal = baseNetTotal,
             Status = InvoiceStatus.Draft
         };
-        pr.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) pr.SetCreatedBy(createdByUserName.Trim());
         return pr;
     }
 
@@ -173,17 +147,6 @@ public class PurchaseReturn : DocumentEntity
         ReturnedDiscountAmount = discountPortion;
         ReturnedTaxAmount = taxPortion;
         ReturnedChargeAmount = chargesPortion;
-    }
-
-    /// <summary>
-    /// Sets the base-currency equivalent of TotalAmount (TotalAmount × ExchangeRate).
-    /// </summary>
-    public void SetBaseNetTotal(decimal baseNetTotal)
-    {
-        if (baseNetTotal < 0)
-            throw new DomainException("القيمة بالعملة الأساسية لا يمكن أن تكون سالبة.");
-        BaseNetTotal = baseNetTotal;
-        UpdateTimestamp();
     }
 
     public void SetDiscount(DiscountType type, decimal? rate)

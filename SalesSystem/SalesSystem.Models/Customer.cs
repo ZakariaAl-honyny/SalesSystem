@@ -42,11 +42,6 @@ public class Customer : ActivatableEntity
     public string? Notes { get; private set; }
 
     /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
-
-    /// <summary>
     /// FK to the Chart of Accounts Account that holds this customer's balance.
     /// </summary>
     public int AccountId { get; private set; }
@@ -56,11 +51,6 @@ public class Customer : ActivatableEntity
     /// The balance of this customer lives on this Account.
     /// </summary>
     public virtual Account? Account { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the Branch this customer belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
 
     /// <summary>
     /// تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10
@@ -91,11 +81,9 @@ public class Customer : ActivatableEntity
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="creditLimit">Credit limit (default 0 = no limit).</param>
     /// <param name="categoryId">تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10</param>
-    /// <param name="createdByUserId">ID of the user creating this customer.</param>
     /// <returns>A new Customer instance.</returns>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public static Customer Create(
-        short branchId,
         string name,
         int accountId,
         string? phone = null,
@@ -106,9 +94,8 @@ public class Customer : ActivatableEntity
         decimal creditLimit = 0,
         int? paymentTermDays = null,
         int? categoryId = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0) throw new DomainException("الفرع مطلوب.");
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم العميل مطلوب.");
         if (accountId <= 0)
@@ -118,7 +105,6 @@ public class Customer : ActivatableEntity
 
         var customer = new Customer
         {
-            BranchId = branchId,
             Name = name.Trim(),
             AccountId = accountId,
             Phone = phone?.Trim(),
@@ -132,7 +118,7 @@ public class Customer : ActivatableEntity
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
-        customer.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) customer.SetCreatedBy(createdByUserName.Trim());
         return customer;
     }
 
@@ -162,7 +148,6 @@ public class Customer : ActivatableEntity
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="creditLimit">New credit limit (&gt;= 0).</param>
     /// <param name="categoryId">New category id (null = keep current).</param>
-    /// <param name="updatedByUserId">ID of the user performing the update.</param>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public void Update(
         string name,
@@ -173,8 +158,7 @@ public class Customer : ActivatableEntity
         string? notes = null,
         decimal creditLimit = 0,
         int? paymentTermDays = null,
-        int? categoryId = null,
-        int? updatedByUserId = null)
+        int? categoryId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم العميل مطلوب.");
@@ -191,7 +175,6 @@ public class Customer : ActivatableEntity
         PaymentTermDays = paymentTermDays;
         if (categoryId.HasValue)
             CategoryId = categoryId;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 }

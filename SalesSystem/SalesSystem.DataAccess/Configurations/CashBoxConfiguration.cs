@@ -31,13 +31,6 @@ public class CashBoxConfiguration : IEntityTypeConfiguration<CashBox>
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // FK to Branch (nullable)
-        builder.HasOne(x => x.Branch)
-            .WithMany()
-            .HasForeignKey(x => x.BranchId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // Global query filter for soft delete
         // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(x => x.IsActive);

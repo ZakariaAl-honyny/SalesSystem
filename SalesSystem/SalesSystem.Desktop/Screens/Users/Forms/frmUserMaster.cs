@@ -20,15 +20,11 @@ public partial class frmUserMaster : Form
     private readonly IServiceProvider _serviceProvider;
 
     private IUserDesktopService UserService => _serviceProvider.GetRequiredService<IUserDesktopService>();
-    private IBranchDesktopService BranchService => _serviceProvider.GetRequiredService<IBranchDesktopService>();
 
     // ── State ────────────────────────────────────────────────────────────────
     private readonly Dictionary<int, UserDto> _usersById = new();
     private DataTable _usersTable = new();
     private DataView _usersView = new();
-
-    /// <summary>قائمة الفروع المتاحة لاختيار فرع المستخدم.</summary>
-    private List<BranchDto> _branchLookup = new();
 
     /// <summary>null = إضافة مستخدم جديد، &gt; 0 = تعديل مستخدم قائم.</summary>
     private int? _editId;
@@ -130,13 +126,9 @@ public partial class frmUserMaster : Form
         _ResetForm();
     }
 
-    /// <summary>الفرع المحدد (0 = بدون فرع).</summary>
-    private short? _SelectedBranchId()
-        => cmbBranch.SelectedValue is short branchId && branchId > 0 ? branchId : null;
-
     /// <summary>
     /// «تحديث» (F5) — إعادة تحميل **كل** بيانات الشاشة وإرجاعها إلى إعداداتها الافتراضية (RULE-N148):
-    /// أدوات التصفية ← الدلائل (الفروع) ← المستخدمون ← المحرر ووضع العرض.
+    /// أدوات التصفية ← المستخدمون ← المحرر ووضع العرض.
     /// «مسح التصفية» وحده هو الذي يمسح التصفية دون إعادة تحميل.
     /// </summary>
     private async void btnRefresh_Click(object? sender, EventArgs e)
@@ -145,7 +137,6 @@ public partial class frmUserMaster : Form
         try
         {
             _ClearFilterInputs();          // التصفية تعود للافتراضي
-            await _LoadBranchesAsync();    // قد تتغيّر من شاشة الفروع
             await _LoadUsersAsync();       // إعادة قراءة المستخدمين (يعيد تطبيق التصفية والملخّص)
             _ResetForm();                  // تفريغ المحرر + وضع العرض + الحقول معطّلة
         }
@@ -170,7 +161,6 @@ public partial class frmUserMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            await _LoadBranchesAsync();
             await _LoadUsersAsync();
             _ResetForm();
             ApplyGreenTheme(); // RULE-N50 — آخر خطوة في مسار التحميل
@@ -203,47 +193,6 @@ public partial class frmUserMaster : Form
         dgvUsers.MultiSelect = false;
 
         GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
-    }
-
-    // ── Lookups ───────────────────────────────────────────────────────────────
-
-    private async Task _LoadBranchesAsync()
-    {
-        try
-        {
-            var result = await BranchService.GetAllAsync(includeInactive: false);
-
-            if (result.IsSuccess && result.Value != null)
-            {
-                _branchLookup = result.Value.ToList();
-            }
-            else
-            {
-                _branchLookup = new List<BranchDto>();
-                clsDialogs.Error(result.Error ?? "تعذر تحميل قائمة الفروع.");
-            }
-
-            // عنصر افتراضي: بدون فرع (BranchId = null).
-            _branchLookup.Insert(0, new BranchDto(0, "-- بدون فرع --"));
-
-            cmbBranch.DisplayMember = "Name";
-            cmbBranch.ValueMember = "Id";
-            cmbBranch.DataSource = _branchLookup;
-            cmbBranch.SelectedIndex = 0;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء تحميل قائمة الفروع");
-            clsDialogs.Error("تعذر تحميل قائمة الفروع. يرجى إعادة المحاولة.");
-        }
-    }
-
-    private void _SelectBranch(short? branchId)
-    {
-        cmbBranch.SelectedValue = (short)(branchId is > 0 ? branchId.Value : 0);
-
-        if (cmbBranch.SelectedValue is not short selected || selected != (branchId ?? 0))
-            cmbBranch.SelectedIndex = 0;
     }
 
     // ── Data Loading ──────────────────────────────────────────────────────────
@@ -544,8 +493,6 @@ public partial class frmUserMaster : Form
         // UpdateUserRequest لا يحتوي على اسم المستخدم → الاسم للقراءة فقط في وضع التعديل.
         txtUserName.Text = u.UserName;
 
-        _SelectBranch(u.BranchId);
-
         // كلمة المرور لا تُعرض أبداً — تُترك فارغة، ويُحدَّث بها فقط عند إدخال قيمة جديدة.
         txtPassword.Clear();
 
@@ -628,7 +575,7 @@ public partial class frmUserMaster : Form
     /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
     private Control[] _EditorInputs() => new Control[]
     {
-        txtUserName, txtPassword, cmbBranch, chkIsLocked, chkIsActive
+        txtUserName, txtPassword, chkIsLocked, chkIsActive
     };
 
     /// <summary>تفعيل أو تعطيل كل حقول المحرر دفعة واحدة (txtCode يبقى للقراءة دائماً).</summary>
@@ -671,9 +618,6 @@ public partial class frmUserMaster : Form
         chkIsLocked.Checked = false;
         chkIsActive.Checked = true;
         chkMustChangePassword.Checked = false;
-
-        if (cmbBranch.Items.Count > 0)
-            cmbBranch.SelectedIndex = 0;
 
         dgvUsers.ClearSelection();
 
@@ -742,7 +686,6 @@ public partial class frmUserMaster : Form
         try
         {
             string userName = txtUserName.Text.Trim();
-            short? branchId = _SelectedBranchId();
             string? password = string.IsNullOrWhiteSpace(txtPassword.Text)
                 ? null
                 : txtPassword.Text;
@@ -759,7 +702,6 @@ public partial class frmUserMaster : Form
                     : null;
 
                 var request = new UpdateUserRequest(
-                    branchId,
                     chkIsLocked.Checked,
                     chkIsActive.Checked,
                     password,
@@ -772,7 +714,6 @@ public partial class frmUserMaster : Form
                 // CreateUserRequest: كلمة المرور اختيارية — عند تركها فارغة يفرض النظام تغييرها عند أول دخول.
                 var request = new CreateUserRequest(
                     userName,
-                    branchId,
                     password,
                     DefaultCashBoxId: null);
 

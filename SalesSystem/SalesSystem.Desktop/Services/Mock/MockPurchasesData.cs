@@ -83,7 +83,7 @@ internal static class MockPurchasesData
                 DiscountType: 0,
                 DiscountRate: null,
                 DiscountAmount: 0m,
-                CostInBaseCurrency: null, AdditionalFeesAmount: 0m);
+                AdditionalFeesAmount: 0m);
         }).ToList();
 
         decimal subTotal = items.Sum(i => i.LineTotal);
@@ -97,7 +97,6 @@ internal static class MockPurchasesData
             InvoiceDate: date, PaymentType: payType,
             SubTotal: subTotal, DiscountAmount: disc,
             DiscountType: 0, DiscountRate: null,
-            CostInBaseCurrency: null,
             TaxAmount: tax, OtherCharges: other,
             NetTotal: netTotal, PaidAmount: paid, RemainingAmount: remaining,
             Notes: notes, SupplierInvoiceNo: supplierInvoiceNo,

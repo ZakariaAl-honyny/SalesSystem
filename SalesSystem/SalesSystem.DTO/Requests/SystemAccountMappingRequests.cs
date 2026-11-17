@@ -7,8 +7,7 @@ namespace SalesSystem.DTO.Requests;
 /// </summary>
 public record CreateSystemAccountMappingRequest(
     SystemAccountKey MappingKey,
-    int AccountId,
-    short? BranchId = null
+    int AccountId
 );
 
 /// <summary>

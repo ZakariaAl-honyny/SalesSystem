@@ -84,13 +84,10 @@ public class UserService : IUserService
             string passwordToHash = string.IsNullOrWhiteSpace(request.Password) ? DefaultPassword : request.Password;
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(passwordToHash, workFactor: 12);
 
-            // 3. Create user with BranchId directly
+            // 3. Create user
             var user = User.CreateWithPassword(
                 request.UserName,
                 passwordHash,
-                branchId: request.BranchId,
-                employeeId: null,
-                createdByUserId: null,
                 mustChangePassword: true
             );
 
@@ -121,12 +118,8 @@ public class UserService : IUserService
             if (user == null)
                 return Result<UserDto>.Failure("المستخدم غير موجود", ErrorCodes.NotFound);
 
-            // Update branch directly
-            user.Update(
-                branchId: request.BranchId,
-                employeeId: null,
-                updatedByUserId: null
-            );
+            // Update user
+            user.Update();
 
             // Update lock state
             if (request.IsLocked.HasValue)
@@ -257,8 +250,7 @@ public class UserService : IUserService
             // Single-admin system: full access across all modules.
             return Result<CurrentUserDto>.Success(new CurrentUserDto(
                 Id: user.Id,
-                UserName: user.UserName,
-                BranchId: user.BranchId
+                UserName: user.UserName
             ));
         }
         catch (Exception ex)
@@ -273,7 +265,6 @@ public class UserService : IUserService
         return new UserDto(
             Id: user.Id,
             UserName: user.UserName,
-            BranchId: user.BranchId,
             MustChangePassword: user.MustChangePassword,
             IsLocked: user.IsLocked,
             IsActive: user.IsActive,

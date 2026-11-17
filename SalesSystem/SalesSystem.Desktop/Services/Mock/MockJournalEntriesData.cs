@@ -19,29 +19,32 @@ internal static class MockJournalEntriesData
     // بنود القيود — Journal Entry Lines
     // ═══════════════════════════════════════════════
 
+    // ⚠️ قاعدة ربط البنود بالدليل: `AccountId` = معرّف الحساب في `MockAccountsData.Accounts`،
+    // و`AccountCode` = كود نفس الحساب حرفياً — والاثنان يجب أن يطابقا اسم البند العربي.
+    // لا يُقيَّد بند على حساب مجموعة (مثل `1101`) بل على **الورقة** التي يسمّيها البند (`11010001`).
     private static List<JournalEntryLineDetailDto> Lines1 => new()
     {
-        new JournalEntryLineDetailDto(1, 1, "الصندوق الرئيسي (الخزينة المركزية)", "1111", 500000m, 0m, "رصيد افتتاحي كاش"),
-        new JournalEntryLineDetailDto(2, 2, "رأس المال المدفوع", "221", 0m, 500000m, "إيداع من رأس المال"),
+        new JournalEntryLineDetailDto(1, 4, "الصندوق الرئيسي (الخزينة المركزية)", "11010001", 500000m, 0m, "رصيد افتتاحي كاش"),
+        new JournalEntryLineDetailDto(2, 22, "رأس المال المدفوع", "2201", 0m, 500000m, "إيداع من رأس المال"),
     };
 
     private static List<JournalEntryLineDetailDto> Lines2 => new()
     {
-        new JournalEntryLineDetailDto(3, 3, "حسابات الموردين والدائنون", "211", 200000m, 0m, "سداد دفعة من حساب هائل سعيد"),
-        new JournalEntryLineDetailDto(4, 4, "حساب بنك الكريمي للتمويل الأصغر (YER)", "1121", 0m, 200000m, "تحويل عبر تطبيق الكريمي المميز"),
+        new JournalEntryLineDetailDto(3, 18, "حسابات الموردين والدائنون", "2101", 200000m, 0m, "سداد دفعة من حساب هائل سعيد"),
+        new JournalEntryLineDetailDto(4, 8, "حساب بنك الكريمي للتمويل الأصغر (YER)", "11020001", 0m, 200000m, "تحويل عبر تطبيق الكريمي المميز"),
     };
 
     private static List<JournalEntryLineDetailDto> Lines3 => new()
     {
-        new JournalEntryLineDetailDto(5, 5, "مصروفات الإيجار والكهرباء والمياه", "421", 45000m, 0m, "إيجار فرع حدة لشهر سبتمبر"),
-        new JournalEntryLineDetailDto(6, 5, "مصروفات الإيجار والكهرباء والمياه", "421", 30000m, 0m, "إيجار فرع التحرير لشهر سبتمبر"),
-        new JournalEntryLineDetailDto(7, 1, "الصندوق الرئيسي (الخزينة المركزية)", "1111", 0m, 75000m, "صرف كاش بموجب سند صرف رقم 2002"),
+        new JournalEntryLineDetailDto(5, 33, "مصروفات الإيجار والكهرباء والمياه", "4201", 45000m, 0m, "إيجار فرع حدة لشهر سبتمبر"),
+        new JournalEntryLineDetailDto(6, 33, "مصروفات الإيجار والكهرباء والمياه", "4201", 30000m, 0m, "إيجار فرع التحرير لشهر سبتمبر"),
+        new JournalEntryLineDetailDto(7, 4, "الصندوق الرئيسي (الخزينة المركزية)", "11010001", 0m, 75000m, "صرف كاش بموجب سند صرف رقم 2002"),
     };
 
     private static List<JournalEntryLineDetailDto> Lines4 => new()
     {
-        new JournalEntryLineDetailDto(8, 6, "مصروفات الصيانة وضيافة المحل", "423", 8000m, 0m, "صيانة سيرفرات وشبكة POS الفرعية"),
-        new JournalEntryLineDetailDto(9, 1, "الصندوق الرئيسي (الخزينة المركزية)", "1111", 0m, 8000m, "سداد نقدي لمهندس الصيانة"),
+        new JournalEntryLineDetailDto(8, 35, "مصروفات الصيانة وضيافة المحل", "4203", 8000m, 0m, "صيانة سيرفرات وشبكة POS الفرعية"),
+        new JournalEntryLineDetailDto(9, 4, "الصندوق الرئيسي (الخزينة المركزية)", "11010001", 0m, 8000m, "سداد نقدي لمهندس الصيانة"),
     };
 
     // ═══════════════════════════════════════════════
@@ -64,7 +67,7 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 8, 30),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             EntryTypeValue: JournalEntryType.OpeningBalance
         ),
 
@@ -82,7 +85,7 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 8, 31),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             EntryTypeValue: JournalEntryType.SupplierPayment
         ),
 
@@ -100,7 +103,7 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 9, 1),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             EntryTypeValue: JournalEntryType.Expense
         ),
 
@@ -118,7 +121,7 @@ internal static class MockJournalEntriesData
             Status: 2,
             StatusDisplay: "مرحل",
             CreatedAt: new DateTime(2026, 9, 2),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             EntryTypeValue: JournalEntryType.Expense
         ),
     };
@@ -142,7 +145,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 8, 30),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: Lines1,
             EntryTypeValue: JournalEntryType.OpeningBalance
         ),
@@ -160,7 +163,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 8, 31),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: Lines2,
             EntryTypeValue: JournalEntryType.SupplierPayment
         ),
@@ -178,7 +181,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 9, 1),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: Lines3,
             EntryTypeValue: JournalEntryType.Expense
         ),
@@ -196,7 +199,7 @@ internal static class MockJournalEntriesData
             StatusDisplay: "مرحل",
             ReversedByEntryId: null,
             CreatedAt: new DateTime(2026, 9, 2),
-            CreatedByUserId: 1,
+            CreatedByUserName: "مدير النظام",
             Lines: Lines4,
             EntryTypeValue: JournalEntryType.Expense
         ),

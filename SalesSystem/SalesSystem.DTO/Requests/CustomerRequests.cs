@@ -7,8 +7,7 @@ public record CreateCustomerRequest(
     string? Address,
     string? TaxNumber,
     string? Notes = null,
-    decimal CreditLimit = 0,
-    short? BranchId = null
+    decimal CreditLimit = 0
 );
 
 public record UpdateCustomerRequest(

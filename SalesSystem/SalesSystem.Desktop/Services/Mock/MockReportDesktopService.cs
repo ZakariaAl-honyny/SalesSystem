@@ -746,7 +746,7 @@ public class MockReportDesktopService : IReportDesktopService
                     transaction.ReferenceId,
                     MockStockLedger.SignedChangeOf(line.Quantity, type),
                     Money(line.UnitCost),
-                    UserNameOf(transaction.CreatedByUserId)));
+                    UserNameOf(transaction.CreatedByUserName)));
             }
         }
 
@@ -900,11 +900,10 @@ public class MockReportDesktopService : IReportDesktopService
 
     private static decimal Qty(decimal value) => Math.Round(value, 3, MidpointRounding.AwayFromZero);
 
-    /// <summary>اسم مستخدم بيانات التجربة الذي تُنسب إليه الحركة — وإلا «النظام».</summary>
-    private static string? UserNameOf(int userId)
+    /// <summary>اسم منشئ الحركة المحفوظ في الحركة نفسها — وإلا «النظام».</summary>
+    private static string? UserNameOf(string? createdByUserName)
     {
-        var user = MockSecurityData.Users.FirstOrDefault(u => u.Id == userId);
-        return string.IsNullOrWhiteSpace(user?.UserName) ? SystemUser : user!.UserName;
+        return string.IsNullOrWhiteSpace(createdByUserName) ? SystemUser : createdByUserName;
     }
 
     private static string PostedLabel(int status) => status == Posted ? "مرحل" : status == 1 ? "مسودة" : "ملغي";

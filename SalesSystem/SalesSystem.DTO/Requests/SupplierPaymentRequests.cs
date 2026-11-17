@@ -9,6 +9,5 @@ public record CreateSupplierPaymentRequest(
     DateTime? PaymentDate,
     int? PurchaseInvoiceId,
     int? CashBoxId,
-    string? Notes = null,
-    short? BranchId = null
+    string? Notes = null
 );

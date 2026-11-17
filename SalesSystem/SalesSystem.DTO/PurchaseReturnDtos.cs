@@ -19,8 +19,7 @@ public record PurchaseReturnDto(
     byte DiscountType,
     decimal? DiscountRate,
     string? Notes,
-    byte Status, IReadOnlyList<PurchaseReturnItemDto> Items,
-    short BranchId = 0)
+    byte Status, IReadOnlyList<PurchaseReturnItemDto> Items)
 {
     public string StatusDisplay => Status switch
     {
@@ -37,5 +36,4 @@ public record PurchaseReturnItemDto(int Id, int ProductId, string ProductName,
     decimal Quantity,
     decimal UnitCost,
     decimal LineTotal,
-    int? PurchaseInvoiceLineId,
-    decimal? CostInBaseCurrency);
+    int? PurchaseInvoiceLineId);

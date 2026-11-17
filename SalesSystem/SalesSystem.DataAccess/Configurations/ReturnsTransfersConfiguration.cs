@@ -21,7 +21,6 @@ public class SalesReturnConfiguration : IEntityTypeConfiguration<SalesReturn>
         builder.Property(sr => sr.ReturnReason).HasMaxLength(500).IsRequired(false);
         builder.Property(sr => sr.Notes).HasMaxLength(500);
         builder.Property(sr => sr.Status).HasConversion<byte>();
-        builder.Property(sr => sr.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
 
         builder.HasOne(sr => sr.SalesInvoice)
             .WithMany()
@@ -36,11 +35,6 @@ public class SalesReturnConfiguration : IEntityTypeConfiguration<SalesReturn>
         builder.HasOne(sr => sr.Warehouse)
             .WithMany()
             .HasForeignKey(sr => sr.WarehouseId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(sr => sr.Branch)
-            .WithMany()
-            .HasForeignKey(sr => sr.BranchId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(sr => sr.Lines)
@@ -60,7 +54,6 @@ public class SalesReturnLineConfiguration : IEntityTypeConfiguration<SalesReturn
         builder.HasKey(l => l.Id);
         builder.Property(l => l.Quantity).HasPrecision(18, 3);
         builder.Property(l => l.Amount).HasPrecision(18, 2);
-        builder.Property(l => l.CostInBaseCurrency).HasPrecision(18, 2).IsRequired(false);
 
         builder.HasOne(l => l.SalesReturn)
             .WithMany(sr => sr.Lines)

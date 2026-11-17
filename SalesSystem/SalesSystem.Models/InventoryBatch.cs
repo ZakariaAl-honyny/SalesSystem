@@ -109,7 +109,7 @@ public class InventoryBatch : AuditableEntity
         int? purchaseInvoiceLineId = null,
         string? supplierBatchNo = null,
         DateOnly? expiryDate = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(batchNo))
             throw new DomainException("رقم الدفعة مطلوب.");
@@ -135,7 +135,7 @@ public class InventoryBatch : AuditableEntity
             QuantityRemaining = quantityReceived,
             UnitCost = unitCost
         };
-        batch.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) batch.SetCreatedBy(createdByUserName.Trim());
         return batch;
     }
 

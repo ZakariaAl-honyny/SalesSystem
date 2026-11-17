@@ -239,11 +239,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
                         return "نسبة ضريبة المشتريات يجب أن تكون بين 0 و 100";
                     break;
 
-                case "DefaultBranch":
-                    if (!int.TryParse(value, out var branchVal) || branchVal < 1)
-                        return "الفرع الافتراضي يجب أن يكون رقماً موجباً أكبر من 0";
-                    break;
-
                 case "DefaultWarehouse":
                     if (!int.TryParse(value, out var warehouseVal) || warehouseVal < 1)
                         return "المستودع الافتراضي يجب أن يكون رقماً موجباً أكبر من 0";

@@ -20,12 +20,6 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
         builder.Property(x => x.Description).HasMaxLength(500).IsRequired(false);
         builder.Property(x => x.EntryType).HasColumnType("tinyint").HasConversion<byte>().IsRequired();
 
-        // ─── FK to Branch ───────────────────────────────────────────────
-        builder.HasOne(x => x.Branch)
-            .WithMany()
-            .HasForeignKey(x => x.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // ─── AttachmentPath ─────────────────────────────────────────────
         builder.Property(x => x.AttachmentPath)
             .HasMaxLength(500);
@@ -44,11 +38,7 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
         builder.HasIndex(x => new { x.ReferenceType, x.ReferenceId })
             .HasFilter("[ReferenceType] IS NOT NULL AND [ReferenceId] IS NOT NULL");
 
-        builder.Property(x => x.ReviewedByUserId).IsRequired(false);
-        builder.HasOne(x => x.ReviewedByUser)
-            .WithMany()
-            .HasForeignKey(x => x.ReviewedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(x => x.ReviewedByUserName).HasMaxLength(100).IsRequired(false);
         builder.Property(x => x.ReviewedAt).IsRequired(false);
 
         builder.HasIndex(x => x.EntryDate);

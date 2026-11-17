@@ -5,7 +5,7 @@
 
 | الحقل | القيمة |
 |---|---|
-| `الحالة` | **أربع مهمات كبيرة مفتوحة** |
+| `الحالة` | **ست مهمات كبيرة مفتوحة** (كان النص «أربع» قبل إضافة `TASK-011`) |
 | `آخر تحديث` | `2026-11-17` |
 
 ## المهام المفتوحة
@@ -19,7 +19,10 @@
 | 4 | **بطاقات الكيانات وأدوات البحث** (`ctrl*Card` · `ctrl*CardWithFilter` · `frmShow*Card` · `frmFind*`) — وحدة واحدة في كل مرة، لا تُغادر وحدة قبل 100% | `docs/FEATURES/F-002-entity-cards/` (`README` · `PLAN` · `USAGE` · `DECISIONS` · `LOG`) | **مفتوحة** — تبدأ بـ`Customers` (أمر المالك 2026-11-17: «work on Customer folder after you finished 100% move to next») | `Screens/<Module>/{Controls,Forms}` + سطر تسجيل واحد في `Program.cs` لكل نموذج — **لا `Business` · لا `DataAccess` · لا `Models` · لا `DTO` · لا `Services/**`** |
 | 5 | **شجرة دليل الحسابات** (`ctrlTreeOfAccounts` + `frmAccountsTree`) — عرض هرمي · بحث بالكود/الاسم · اختيار أي حساب · CRUD من قائمة السياق | `docs/FEATURES/F-003-accounts-tree/README.md` | **مفتوحة** — العنصر والنافذة فقط؛ **الدمج في `frmAccounts` مؤجَّل** حتى إقفال المهمة 3 (مالك الشاشة) | `Screens/Accounting/{Controls,Forms}` + سطر DI — **لا `Screens/Accounting/Forms/frmAccounts*` ولا باك-إند** |
 
+| 6 | **إخراج الوحدة المحاسبية من V1 إلى V2 (Schema V3)** — نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) وبقاء `CashBoxes` و`Expenses`؛ V1 = 34 جدولاً والمقيس 40؛ **الوثائق ✅ · إزالة الكود ⏸ تحتاج موافقة DROP مكتوبة** | `docs/TASKS/TASK-011-schema-v3-accounting-deferred.md` | **مفتوحة** — الوثائق منفَّذة (2026-11-17)، وإزالة الكود/الجداول موجة لاحقة بموافقة `DROP` (`RULE-N198`) | `docs/database-schema.md` · `docs/database-schema-v2-deferred.md` (وثائق) — وعند الإزالة: `Models/Accounting` · `Business/{Accounting,Services}` · `DataAccess/{Configurations,Seeders}` · `Services/{Interfaces,Direct,Mock}` · `Screens/Accounting/**` · 8 أعمدة `NOT NULL` إلى `Accounts` |
+
 > **قاعدة التعايش:** أي وكيل يعمل على المهمة 2 **لا يلمس** `Screens/**` قبل الموجة 3، وأي وكيل يعمل على المهمة 1 لا يلمس `Models`/`DataAccess`/`Common`. ملف واحد = مالك واحد لكل موجة (`RULE-N158`). المهمة 4 تعمل في **مجلد وحدة واحدة** تحت `Screens/<Module>/` + ملف `Program.cs` بمالك واحد لكل موجة — فلا تتقاطع مع 1/2/3 ما دامت لا تخرج من مجلد وحدتها.
+> **تجميد المحاسبة (قرار V3 — 2026-11-17):** المهام المتعلقة بالحسابات — `F-003` (شجرة الحسابات) · `TASK-008` (حقول الهرمية) · `TASK-009`/`TASK-010` (محرر الحسابات) — **مجمَّدة** بقرار إخراج المحاسبة من V1 (`TASK-011`) حتى يقول المالك صراحةً هل تعود المحاسبة في V2 — **لا عمل حسابات جديد في V1**، وحالة هذه المهام تُؤكَّد من المالك قبل أي مساس بها.
 
 ## إن كانت الحالة «مفتوحة»
 

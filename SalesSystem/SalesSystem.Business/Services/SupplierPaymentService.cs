@@ -46,7 +46,6 @@ public class SupplierPaymentService : ISupplierPaymentService
                 return Result<SupplierPaymentDto>.Failure("المورد غير موجود", ErrorCodes.NotFound);
 
             var payment = SupplierPayment.Create(
-                branchId: 1,
                 paymentNo: paymentNo,
                 supplierId: request.SupplierId,
                 amount: request.Amount,
@@ -54,7 +53,6 @@ public class SupplierPaymentService : ISupplierPaymentService
                 referenceNo: null,
                 notes: request.Notes,
                 cashBoxId: request.CashBoxId,
-                createdByUserId: userId,
                 paymentDate: request.PaymentDate.HasValue
                     ? DateOnly.FromDateTime(request.PaymentDate.Value)
                     : DateOnly.FromDateTime(DateTime.UtcNow));
@@ -172,8 +170,7 @@ public class SupplierPaymentService : ISupplierPaymentService
                         paymentDate: request.PaymentDate.HasValue
                             ? DateOnly.FromDateTime(request.PaymentDate.Value)
                             : null,
-                        notes: request.Notes,
-                        updatedByUserId: userId);
+                        notes: request.Notes);
 
                     // 3. Create new journal entry for updated amount
                         var entryResult = await _accountingService.CreateSupplierPaymentEntryAsync(
@@ -198,8 +195,7 @@ public class SupplierPaymentService : ISupplierPaymentService
                         paymentDate: request.PaymentDate.HasValue
                             ? DateOnly.FromDateTime(request.PaymentDate.Value)
                             : null,
-                        notes: request.Notes,
-                        updatedByUserId: userId);
+                        notes: request.Notes);
                     await _uow.SaveChangesAsync(ct);
                 }
             }
@@ -217,8 +213,7 @@ public class SupplierPaymentService : ISupplierPaymentService
                     paymentDate: request.PaymentDate.HasValue
                         ? DateOnly.FromDateTime(request.PaymentDate.Value)
                         : null,
-                    notes: request.Notes,
-                    updatedByUserId: userId);
+                    notes: request.Notes);
                 await _uow.SaveChangesAsync(ct);
             }
 
@@ -249,7 +244,6 @@ public class SupplierPaymentService : ISupplierPaymentService
             return await _uow.ExecuteTransactionAsync<Result>(async () =>
             {
                 payment.Post();
-                payment.SetUpdatedBy(userId);
 
                 // Create journal entry: Dr AP / Cr Cash
                 var supplierName = payment.Supplier?.Name ?? "";
@@ -299,7 +293,6 @@ public class SupplierPaymentService : ISupplierPaymentService
                 }
 
                 payment.Cancel();
-                payment.SetUpdatedBy(userId);
                 await _uow.SaveChangesAsync(ct);
 
                 _logger.LogInformation("Supplier payment {Id} cancelled by User {UserId}", id, userId);
@@ -371,7 +364,6 @@ public class SupplierPaymentService : ISupplierPaymentService
             (byte)payment.PaymentMethod,
             payment.PaymentDate,
             null,  // PurchaseInvoiceId not on SupplierPayment entity
-            payment.Notes,
-            BranchId: payment.BranchId);
+            payment.Notes);
     }
 }

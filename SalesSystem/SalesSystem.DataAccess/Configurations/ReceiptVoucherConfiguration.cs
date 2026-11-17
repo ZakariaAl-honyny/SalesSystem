@@ -39,12 +39,6 @@ public class ReceiptVoucherConfiguration : IEntityTypeConfiguration<ReceiptVouch
             .HasForeignKey(x => x.AccountId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // FK to Branch
-        builder.HasOne(x => x.Branch)
-            .WithMany()
-            .HasForeignKey(x => x.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // DocumentEntity does not use IsActive — use Status for lifecycle filtering
     }
 }

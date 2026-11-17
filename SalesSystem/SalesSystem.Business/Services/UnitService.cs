@@ -52,7 +52,7 @@ public class UnitService : IUnitService
             if (await _uow.Units.AnyAsync(u => u.Name == request.Name, ct))
                 return Result<UnitDto>.Failure("اسم الوحدة مستخدم بالفعل", "DUPLICATE_UNIT_NAME");
 
-            // Unit.Create expects (name, nameEn?, symbol?, isSystem, createdByUserId)
+            // Unit.Create expects (name, nameEn?, symbol?, isSystem)
             var unit = Unit.Create(name: request.Name, symbol: request.Symbol);
 
             await _uow.Units.AddAsync(unit, ct);
@@ -84,7 +84,7 @@ public class UnitService : IUnitService
             if (await _uow.Units.AnyAsync(u => u.Name == request.Name && u.Id != id, ct))
                 return Result<UnitDto>.Failure("اسم الوحدة مستخدم بالفعل", "DUPLICATE_UNIT_NAME");
 
-            // Unit.Update expects (name, nameEn?, symbol?, updatedByUserId?)
+            // Unit.Update expects (name, nameEn?, symbol?)
             unit.Update(name: request.Name, symbol: request.Symbol);
 
             if (request.IsActive && !unit.IsActive) unit.Restore();

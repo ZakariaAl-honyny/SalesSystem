@@ -4,9 +4,9 @@ using SalesSystem.Common.Exceptions;
 namespace SalesSystem.Models;
 
 /// <summary>
-/// Represents a price entry for a specific product unit and currency.
-/// Supports multi-currency pricing with effective date ranges.
-/// Maps to "ProductPrices" table — ProductUnitId FK, CurrencyId (smallint FK), Price, EffectiveFrom/To.
+/// Represents a price entry for a specific product unit.
+/// Supports effective date ranges for each price.
+/// Maps to "ProductPrices" table — ProductUnitId FK, Price, EffectiveFrom/To.
 /// </summary>
 public class ProductPrice : AuditableEntity
 {
@@ -46,7 +46,7 @@ public class ProductPrice : AuditableEntity
         decimal price,
         DateTime effectiveFrom,
         DateTime? effectiveTo = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
         if (productUnitId <= 0)
             throw new DomainException("معرف وحدة المنتج مطلوب.");
@@ -64,7 +64,7 @@ public class ProductPrice : AuditableEntity
             EffectiveFrom = effectiveFrom,
             EffectiveTo = effectiveTo,
         };
-        productPrice.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) productPrice.SetCreatedBy(createdByUserName.Trim());
         return productPrice;
     }
 
@@ -73,8 +73,7 @@ public class ProductPrice : AuditableEntity
     public void UpdatePrice(
         decimal newPrice,
         DateTime? effectiveFrom = null,
-        DateTime? effectiveTo = null,
-        int? updatedByUserId = null)
+        DateTime? effectiveTo = null)
     {
         if (newPrice < 0)
             throw new DomainException("السعر لا يمكن أن يكون سالباً.");
@@ -91,7 +90,6 @@ public class ProductPrice : AuditableEntity
         if (effectiveTo.HasValue)
             EffectiveTo = effectiveTo.Value;
 
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 

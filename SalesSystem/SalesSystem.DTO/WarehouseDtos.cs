@@ -6,8 +6,7 @@ public record WarehouseDto(
     string? Phone,
     string? Address,
     string? Notes,
-    bool IsActive,
-    short? BranchId = null)
+    bool IsActive)
 {
     // Backward-compatible properties
     public bool IsDefault => false;

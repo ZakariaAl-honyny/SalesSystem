@@ -36,8 +36,8 @@ internal static class MockStockLedger
     /// <summary>نص رفض نقص المخزون — مصدر واحد لكل الخدمات التي تحرّك الرصيد (نفس نص رفض BLL في المرحلة ب).</summary>
     internal const string ShortageMessage = "الكمية المطلوبة أكبر من المتاح في المخزن";
 
-    /// <summary>مستخدم بيانات التجربة الذي تُنسب إليه الحركات المولَّدة (مطابق للمستخدم المزروع في الحركات الأولى).</summary>
-    private const int MockUserId = 1;
+    /// <summary>اسم مستخدم بيانات التجربة الذي تُنسب إليه الحركات المولَّدة (مطابق للمستخدم المزروع في الحركات الأولى).</summary>
+    private const string MockUserName = "مدير النظام";
 
     /// <summary>مجاميع الكميات لكل صنف من سطور مستند (يجمع السطور المتكررة لنفس الصنف).</summary>
     internal static Dictionary<int, decimal> QuantitiesByProduct(IEnumerable<(int ProductId, decimal Quantity)> lines)
@@ -208,7 +208,7 @@ internal static class MockStockLedger
             ReferenceType: ReferenceTypeOf(type),
             Notes: BuildNotes(product.Name, change, newBalance, reference),
             CreatedAt: movedAt,
-            CreatedByUserId: MockUserId,
+            CreatedByUserName: MockUserName,
             Lines: new List<InventoryTransactionLineDto> { line });
 
         MockInventoryData.Movements.Add(movement);

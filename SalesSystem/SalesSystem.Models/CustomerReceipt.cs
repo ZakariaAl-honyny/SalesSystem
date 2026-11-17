@@ -7,7 +7,7 @@ namespace SalesSystem.Models;
 /// <summary>
 /// Represents a receipt collected from a customer against one or more sales invoices.
 /// Schema 6.5: CustomerReceipts. Columns: ReceiptNo (int unique), ReceiptDate, CustomerId FK,
-/// CashBoxId FK, CurrencyId FK, Amount, Notes, Status (tinyint), audit fields.
+/// CashBoxId FK, Amount, Notes, Status (tinyint), audit fields.
 /// </summary>
 public class CustomerReceipt : DocumentEntity
 {
@@ -19,12 +19,6 @@ public class CustomerReceipt : DocumentEntity
     public decimal Amount { get; private set; }
 
     /// <summary>
-    /// The receipt amount converted to the base currency using the exchange rate.
-    /// Null when no exchange rate is specified (same as Amount).
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
-
-    /// <summary>
     /// Payment method: Cash, Cheque, BankTransfer, or CreditCard.
     /// </summary>
     public PaymentMethod PaymentMethod { get; private set; }
@@ -32,25 +26,15 @@ public class CustomerReceipt : DocumentEntity
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
 
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
-
     // Navigation properties
     public virtual Customer? Customer { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
-    /// <summary>
-    /// Navigation property to the Branch this receipt belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     private readonly List<CustomerReceiptApplication> _applications = new();
     public IReadOnlyCollection<CustomerReceiptApplication> Applications => _applications.AsReadOnly();
 
     private CustomerReceipt() { } // EF Core
 
     public static CustomerReceipt Create(
-        short branchId,
         int receiptNo,
         DateTime receiptDate,
         int customerId,
@@ -58,11 +42,8 @@ public class CustomerReceipt : DocumentEntity
         decimal amount,
         PaymentMethod paymentMethod = PaymentMethod.Cash,
         string? notes = null,
-        decimal? baseNetTotal = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (receiptNo <= 0)
             throw new DomainException("رقم السند يجب أن يكون أكبر من الصفر.");
         if (customerId <= 0)
@@ -74,7 +55,6 @@ public class CustomerReceipt : DocumentEntity
 
         var receipt = new CustomerReceipt
         {
-            BranchId = branchId,
             ReceiptNo = receiptNo,
             ReceiptDate = receiptDate.Kind == DateTimeKind.Utc
                 ? receiptDate
@@ -82,12 +62,11 @@ public class CustomerReceipt : DocumentEntity
             CustomerId = customerId,
             CashBoxId = cashBoxId,
             Amount = amount,
-            BaseNetTotal = baseNetTotal,
             PaymentMethod = paymentMethod,
             Notes = notes,
             Status = InvoiceStatus.Draft
         };
-        receipt.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) receipt.SetCreatedBy(createdByUserName.Trim());
         return receipt;
     }
 
@@ -133,9 +112,7 @@ public class CustomerReceipt : DocumentEntity
         int cashBoxId,
         decimal amount,
         string? notes,
-        PaymentMethod paymentMethod = PaymentMethod.Cash,
-        decimal? baseNetTotal = null,
-        int? updatedByUserId = null)
+        PaymentMethod paymentMethod = PaymentMethod.Cash)
     {
         if (Status != InvoiceStatus.Draft)
             throw new DomainException("فقط السندات المسودة يمكن تعديلها.");
@@ -146,10 +123,8 @@ public class CustomerReceipt : DocumentEntity
 
         CashBoxId = cashBoxId;
         Amount = amount;
-        BaseNetTotal = baseNetTotal;
         PaymentMethod = paymentMethod;
         if (notes != null) Notes = notes;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 

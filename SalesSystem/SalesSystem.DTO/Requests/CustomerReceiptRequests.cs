@@ -5,8 +5,7 @@ public record CreateCustomerReceiptRequest(
     int CashBoxId,
     decimal Amount,
     string? Notes = null,
-    byte PaymentMethod = 1,
-    short? BranchId = null
+    byte PaymentMethod = 1
 );
 
 public record UpdateCustomerReceiptRequest(

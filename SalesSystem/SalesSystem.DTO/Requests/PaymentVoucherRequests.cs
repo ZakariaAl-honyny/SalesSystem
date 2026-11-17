@@ -8,8 +8,7 @@ public record CreatePaymentVoucherRequest(
     int CashBoxId,
     int AccountId,
     decimal TotalAmount,
-    string? Notes = null,
-    short? BranchId = null
+    string? Notes = null
 );
 
 /// <summary>

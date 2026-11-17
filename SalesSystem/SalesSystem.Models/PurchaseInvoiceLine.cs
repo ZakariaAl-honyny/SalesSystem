@@ -16,7 +16,6 @@ public class PurchaseInvoiceLine : Entity
     public DiscountType DiscountType { get; private set; }
     public decimal? DiscountRate { get; private set; }
     public decimal DiscountAmount { get; private set; }
-    public decimal? CostInBaseCurrency { get; private set; }
     public decimal AdditionalFeesAmount { get; private set; }
 
     // Navigation properties
@@ -95,16 +94,6 @@ public class PurchaseInvoiceLine : Entity
         DiscountType = type;
         DiscountRate = type == DiscountType.Percentage ? rate : null;
         RecalculateLineTotal();
-    }
-
-    /// <summary>
-    /// Sets the cost in base currency for multi-currency support.
-    /// </summary>
-    public void SetCostInBaseCurrency(decimal cost)
-    {
-        if (cost < 0)
-            throw new DomainException("التكلفة بعملة الأساس لا يمكن أن تكون سالبة.");
-        CostInBaseCurrency = cost;
     }
 
     /// <summary>

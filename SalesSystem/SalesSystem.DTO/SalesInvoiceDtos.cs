@@ -18,7 +18,6 @@ public record SalesInvoiceDto(
     decimal NetTotal,
     decimal PaidAmount,
     decimal RemainingAmount,
-    decimal? CostInBaseCurrency,
     string? Notes,
     byte Status,
     int? TaxId,
@@ -26,8 +25,7 @@ public record SalesInvoiceDto(
     decimal? TaxRate,
     int? CashBoxId,
     string? CashBoxName,
-    IReadOnlyList<SalesInvoiceLineDto> Items,
-    short BranchId = 0)
+    IReadOnlyList<SalesInvoiceLineDto> Items)
 {
     public string PaymentTypeDisplay => PaymentType switch
     {
@@ -57,7 +55,6 @@ public record SalesInvoiceLineDto(int Id, int ProductId, string ProductName,
     byte DiscountType = 0,
     decimal? DiscountRate = null,
     decimal DiscountAmount = 0,
-    decimal? CostInBaseCurrency = null,
     decimal UnitCost = 0,
     decimal ProfitAmount = 0,
     DateTime? ExpiryDate = null,

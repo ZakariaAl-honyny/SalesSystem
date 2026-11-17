@@ -52,7 +52,7 @@ public class CashBoxService : ICashBoxService
     {
         try
         {
-            var boxes = await _uow.CashBoxes.ToListAsync(ct, "Account", "Branch");
+            var boxes = await _uow.CashBoxes.ToListAsync(ct, "Account");
             var dtos = boxes.Select(MapToDto).ToList();
             return Result<List<CashBoxDto>>.Success(dtos);
         }
@@ -68,7 +68,7 @@ public class CashBoxService : ICashBoxService
         try
         {
             var box = await _uow.CashBoxes.FirstOrDefaultIgnoreFiltersAsync(
-                b => b.Id == id, ct, "Account", "Branch");
+                b => b.Id == id, ct, "Account");
             if (box == null)
                 return Result<CashBoxDto>.Failure("الصندوق النقدي غير موجود", ErrorCodes.NotFound);
 
@@ -115,8 +115,7 @@ public class CashBoxService : ICashBoxService
                 var box = CashBox.Create(
                     request.Name,
                     accountId,
-                    description: request.Description,
-                    createdByUserId: userId);
+                    description: request.Description);
 
                 await _uow.CashBoxes.AddAsync(box, ct);
                 await _uow.SaveChangesAsync(ct);
@@ -422,7 +421,7 @@ public class CashBoxService : ICashBoxService
                 return Result<ReceiptVoucherDto>.Failure(
                     "سند القبض غير موجود", ErrorCodes.NotFound);
 
-            voucher.Post(userId);
+            voucher.Post();
 
             // Build journal entry: Dr CashBox Account / Cr Credited Account
             var box = await _uow.CashBoxes.FirstOrDefaultAsync(
@@ -494,7 +493,7 @@ public class CashBoxService : ICashBoxService
                     "سند القبض غير موجود", ErrorCodes.NotFound);
 
             var wasPosted = voucher.Status == VoucherStatus.Posted;
-            voucher.Cancel(userId);
+            voucher.Cancel();
 
             // Reverse journal entry if the voucher was previously posted
             if (wasPosted)
@@ -614,7 +613,7 @@ public class CashBoxService : ICashBoxService
                 return Result<PaymentVoucherDto>.Failure(
                     "سند الصرف غير موجود", ErrorCodes.NotFound);
 
-            voucher.Post(userId);
+            voucher.Post();
 
             // Build journal entry: Dr Debited Account / Cr CashBox Account
             var box = await _uow.CashBoxes.FirstOrDefaultAsync(
@@ -686,7 +685,7 @@ public class CashBoxService : ICashBoxService
                     "سند الصرف غير موجود", ErrorCodes.NotFound);
 
             var wasPosted = voucher.Status == VoucherStatus.Posted;
-            voucher.Cancel(userId);
+            voucher.Cancel();
 
             // Reverse journal entry if the voucher was previously posted
             if (wasPosted)
@@ -937,8 +936,7 @@ public class CashBoxService : ICashBoxService
                 isLeaf: true,
                 parentId: parent.Id,
                 isSystem: false,
-                level: 4,
-                createdByUserId: userId);
+                level: 4);
 
             await _uow.Accounts.AddAsync(account, ct);
             await _uow.SaveChangesAsync(ct);
@@ -971,14 +969,12 @@ public class CashBoxService : ICashBoxService
                     "فشل في توليد رقم سند القبض");
 
             var voucher = ReceiptVoucher.Create(
-                branchId: 1,
                 voucherNo,
                 DateTime.UtcNow,
                 cashBoxId,
                 accountId,
                 amount,
-                notes,
-                userId);
+                notes);
 
             await _uow.ReceiptVouchers.AddAsync(voucher, ct);
             await _uow.SaveChangesAsync(ct);
@@ -1043,14 +1039,12 @@ public class CashBoxService : ICashBoxService
                     "فشل في توليد رقم سند الصرف");
 
             var voucher = PaymentVoucher.Create(
-                branchId: 1,
                 voucherNo,
                 DateTime.UtcNow,
                 cashBoxId,
                 accountId,
                 amount,
-                notes,
-                userId);
+                notes);
 
             await _uow.PaymentVouchers.AddAsync(voucher, ct);
             await _uow.SaveChangesAsync(ct);
@@ -1105,9 +1099,7 @@ public class CashBoxService : ICashBoxService
             box.Account?.NameAr,
             box.Account?.AccountCode,
             box.Description,
-            box.IsActive,
-            box.BranchId,
-            box.Branch?.Name
+            box.IsActive
         );
     }
 

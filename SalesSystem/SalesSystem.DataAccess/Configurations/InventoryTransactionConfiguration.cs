@@ -57,10 +57,9 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
             .HasDefaultValueSql("GETUTCDATE()")
             .HasComment("تاريخ الإنشاء");
 
-        builder.Property(x => x.CreatedByUserId)
-            .IsRequired()
-            .HasDefaultValue(0)
-            .HasComment("معرف المستخدم المنشئ");
+        builder.Property(x => x.CreatedByUserName)
+            .HasMaxLength(100)
+            .HasComment("اسم المستخدم المنشئ — لقطة تاريخية");
 
         // Relationships
         builder.HasOne(x => x.Warehouse)

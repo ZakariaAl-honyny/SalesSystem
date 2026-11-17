@@ -38,6 +38,5 @@ public record PurchaseReturnResponse(
 public record PurchaseReturnItemResponse(
     int Id, int ProductId, string ProductName,
     int ProductUnitId,
-    decimal Quantity, decimal UnitCost, decimal LineTotal,
-    decimal? CostInBaseCurrency
+    decimal Quantity, decimal UnitCost, decimal LineTotal
 );

@@ -43,7 +43,7 @@ public class DirectCategoryService : ICategoryDesktopService
     {
         try
         {
-            // TODO: CreateCategoryRequest.Description / BranchId لا يدعمهما CreateProductCategoryRequest حالياً.
+            // TODO: CreateCategoryRequest.Description لا يدعمه CreateProductCategoryRequest حالياً.
             var bllRequest = new CreateProductCategoryRequest(r.Name);
             var result = await _bll.CreateAsync(bllRequest, ct);
             return result.IsSuccess

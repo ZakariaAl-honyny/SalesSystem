@@ -44,10 +44,9 @@ public class SystemSetting : AuditableEntity
         };
     }
 
-    public void UpdateValue(string newValue, int? updatedByUserId = null)
+    public void UpdateValue(string newValue)
     {
         SettingValue = newValue;
-        SetUpdatedBy(updatedByUserId);
         UpdatedAt = DateTime.UtcNow;
     }
 }

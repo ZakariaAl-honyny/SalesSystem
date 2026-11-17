@@ -72,15 +72,13 @@ public class CustomerReceiptService : ICustomerReceiptService
                 return Result<CustomerReceiptDto>.Failure(seqResult.Error ?? "فشل في توليد رقم السند");
 
             var receipt = CustomerReceipt.Create(
-                branchId: 1,
                 seqResult.Value,
                 DateTime.UtcNow,
                 request.CustomerId,
                 request.CashBoxId,
                 request.Amount,
                 paymentMethod: (PaymentMethod)request.PaymentMethod,
-                notes: request.Notes,
-                createdByUserId: userId);
+                notes: request.Notes);
 
             await _uow.CustomerReceipts.AddAsync(receipt, ct);
             await _uow.SaveChangesAsync(ct);
@@ -125,8 +123,7 @@ public class CustomerReceiptService : ICustomerReceiptService
                 request.CashBoxId,
                 request.Amount,
                 request.Notes,
-                (PaymentMethod)request.PaymentMethod,
-                userId);
+                (PaymentMethod)request.PaymentMethod);
 
             await _uow.SaveChangesAsync(ct);
 

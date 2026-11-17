@@ -135,10 +135,7 @@ public class MockSalesReturnDesktopService : ISalesReturnDesktopService
                 CashBoxId: null,
                 CashBoxName: null,
                 RefundAmount: 0m,
-                Items: items.AsReadOnly(),
-                BranchId: r.BranchId ?? 0);
-
-            // TODO: Currency removed from SalesReturnDto — العملة تُحدد من إعدادات النظام.
+                Items: items.AsReadOnly());
 
             MockReturnsData.SalesReturns.Add(salesReturn);
             return Task.FromResult(Result<SalesReturnDto>.Success(salesReturn));

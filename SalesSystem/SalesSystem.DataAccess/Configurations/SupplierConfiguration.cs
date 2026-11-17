@@ -52,12 +52,6 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         // CategoryId is a lookup — no FK constraint (type mismatch with smallint PK)
         builder.Property(s => s.CategoryId).IsRequired(false);
 
-        // FK to Branch
-        builder.HasOne(s => s.Branch)
-            .WithMany()
-            .HasForeignKey(s => s.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // Indexes
         builder.HasIndex(s => s.AccountId)
             .HasDatabaseName("IX_Suppliers_AccountId");

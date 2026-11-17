@@ -32,6 +32,9 @@ public class SystemLogConfiguration : IEntityTypeConfiguration<SystemLog>
         builder.Property(e => e.IpAddress)
             .HasMaxLength(50);
 
+        builder.Property(e => e.UserName)
+            .HasMaxLength(100);
+
         builder.Property(e => e.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()")
             .IsRequired();

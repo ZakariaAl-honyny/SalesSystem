@@ -1341,8 +1341,7 @@ public partial class frmPOS : Form
                 TaxId: null,
                 Items: items,
                 DiscountType: DtoDiscountType.Amount,
-                DiscountRate: null,
-                BranchId: null);
+                DiscountRate: null);
 
             var createResult = await SalesApi.CreateAsync(request);
             if (!createResult.IsSuccess || createResult.Value is null)

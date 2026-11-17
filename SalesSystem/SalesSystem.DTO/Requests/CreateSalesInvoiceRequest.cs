@@ -17,8 +17,7 @@ public record CreateSalesInvoiceRequest(
     int? TaxId,
     List<CreateSalesInvoiceLineRequest> Items,
     DiscountType DiscountType = DiscountType.Amount,
-    decimal? DiscountRate = null,
-    short? BranchId = null);
+    decimal? DiscountRate = null);
 
 public record CreateSalesInvoiceLineRequest(
     int ProductId,

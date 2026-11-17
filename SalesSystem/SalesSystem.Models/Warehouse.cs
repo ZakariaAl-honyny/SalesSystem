@@ -37,16 +37,6 @@ public class Warehouse : ActivatableEntity
     public string? Notes { get; private set; }
 
     /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK, nullable for shared warehouses).
-    /// </summary>
-    public short? BranchId { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the Branch this warehouse belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
-
-    /// <summary>
     /// Private constructor required by EF Core.
     /// </summary>
     protected Warehouse() { }
@@ -59,8 +49,7 @@ public class Warehouse : ActivatableEntity
         string? phone = null,
         string? address = null,
         string? notes = null,
-        short? branchId = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المستودع مطلوب.");
@@ -70,10 +59,9 @@ public class Warehouse : ActivatableEntity
             Name = name.Trim(),
             Phone = phone?.Trim(),
             Address = address?.Trim(),
-            Notes = notes?.Trim(),
-            BranchId = branchId
+            Notes = notes?.Trim()
         };
-        warehouse.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) warehouse.SetCreatedBy(createdByUserName.Trim());
         return warehouse;
     }
 
@@ -84,8 +72,7 @@ public class Warehouse : ActivatableEntity
         string name,
         string? phone = null,
         string? address = null,
-        string? notes = null,
-        int? updatedByUserId = null)
+        string? notes = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المستودع مطلوب.");
@@ -94,7 +81,6 @@ public class Warehouse : ActivatableEntity
         Phone = phone?.Trim();
         Address = address?.Trim();
         Notes = notes?.Trim();
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 }

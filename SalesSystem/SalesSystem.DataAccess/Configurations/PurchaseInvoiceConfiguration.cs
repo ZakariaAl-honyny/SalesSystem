@@ -25,7 +25,6 @@ public class PurchaseInvoiceConfiguration : IEntityTypeConfiguration<PurchaseInv
         builder.Property(pi => pi.Status).HasConversion<byte>();
         builder.Property(pi => pi.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);
         builder.Property(pi => pi.DiscountRate).HasPrecision(18, 2);
-        builder.Property(pi => pi.CostInBaseCurrency).HasPrecision(18, 2);
         builder.Property(pi => pi.AttachmentPath).HasMaxLength(255);
 
         builder.HasOne(pi => pi.Supplier)
@@ -37,13 +36,6 @@ public class PurchaseInvoiceConfiguration : IEntityTypeConfiguration<PurchaseInv
             .WithMany()
             .HasForeignKey(pi => pi.WarehouseId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(pi => pi.Branch)
-            .WithMany()
-            .HasForeignKey(pi => pi.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(pi => pi.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
 
         builder.HasOne(pi => pi.CashBox)
             .WithMany()
@@ -75,7 +67,6 @@ public class PurchaseInvoiceLineConfiguration : IEntityTypeConfiguration<Purchas
         builder.Property(pii => pii.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);
         builder.Property(pii => pii.DiscountRate).HasPrecision(18, 2);
         builder.Property(pii => pii.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0);
-        builder.Property(pii => pii.CostInBaseCurrency).HasPrecision(18, 2);
         builder.Property(pii => pii.AdditionalFeesAmount).HasPrecision(18, 2).HasDefaultValue(0);
 
         builder.HasOne(pii => pii.Product)

@@ -10,7 +10,7 @@ namespace SalesSystem.Models;
 /// Maps to "InventoryTransactions" table.
 /// Schema: nvarchar(50) TransactionNo (unique), tinyint MovementType,
 /// nvarchar(500) Notes, int? ReferenceId, nvarchar(50) ReferenceType,
-/// smallint WarehouseId FK, int CreatedByUserId, datetime2 CreatedAt.
+/// smallint WarehouseId FK, nvarchar CreatedByUserName, datetime2 CreatedAt.
 /// BaseEntity with CreatedAt only — written once, immutable, no Status lifecycle.
 /// </summary>
 public class InventoryTransaction : Entity
@@ -56,10 +56,7 @@ public class InventoryTransaction : Entity
     /// </summary>
     public DateTime CreatedAt { get; private set; }
 
-    /// <summary>
-    /// FK to the user who created this transaction.
-    /// </summary>
-    public int CreatedByUserId { get; private set; }
+    public string? CreatedByUserName { get; private set; }
 
     // Navigation properties
     public virtual Warehouse? Warehouse { get; private set; }
@@ -78,7 +75,7 @@ public class InventoryTransaction : Entity
         InventoryReferenceType? referenceType = null,
         int? referenceId = null,
         string? notes = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(transactionNo))
             throw new DomainException("رقم المعاملة مطلوب.");
@@ -94,7 +91,7 @@ public class InventoryTransaction : Entity
             ReferenceId = referenceId,
             Notes = notes,
             CreatedAt = DateTime.UtcNow,
-            CreatedByUserId = createdByUserId ?? 0
+            CreatedByUserName = string.IsNullOrWhiteSpace(createdByUserName) ? null : createdByUserName.Trim()
         };
         return tx;
     }

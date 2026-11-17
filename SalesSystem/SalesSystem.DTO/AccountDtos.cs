@@ -21,7 +21,17 @@ public record AccountDto(
     byte Level,
     string? Description,
     string? ColorCode,
-    string? Notes)
+    string? Notes,
+    string? ParentAccountCode = null,
+    string TreePath = "",
+    byte FinancialStatement = 0,
+    // STORED normal balance — mirrors the schema column (`tinyint NULL`):
+    // 0 = not stored (derive from `Nature`) · 1 = مدين · 2 = دائن.
+    // The effective side is `EffectiveNormalBalance`; the label is `NormalBalanceDisplay`.
+    byte NormalBalance = 0,
+    bool AllowCostCenter = false,
+    decimal Balance = 0m,
+    string? CategoryLabel = null)
 {
     public string NatureDisplay => Nature switch
     {
@@ -42,12 +52,50 @@ public record AccountDto(
         _ => $"المستوى {Level}"
     };
 
+    /// <summary>Derived: an account that has a parent is a sub-account (never stored).</summary>
+    public bool IsSubAccount => ParentId.HasValue;
+
+    /// <summary>
+    /// Derived: the effective normal balance — the stored override when present (1/2), otherwise the
+    /// natural side of <see cref="Nature"/> (Debit = 1 for Asset/Expense, Credit = 2 otherwise).
+    /// Mirrors <c>Account.EffectiveNormalBalance</c>.
+    /// </summary>
+    public byte EffectiveNormalBalance => NormalBalance is 1 or 2 ? NormalBalance : (Nature is 1 or 5 ? (byte)1 : (byte)2);
+
+    /// <summary>
+    /// Arabic label of the effective normal balance — مدين (1) / دائن (2) — suffixed with « (تلقائي) »
+    /// when the stored value is 0 (not stored: derived from <see cref="Nature"/>).
+    /// </summary>
+    public string NormalBalanceDisplay
+        => DescribeNormalBalance(EffectiveNormalBalance) + (NormalBalance == 0 ? " (تلقائي)" : string.Empty);
+
+    /// <summary>Arabic label of the financial statement: الميزانية العمومية (1) / قائمة الدخل (2).</summary>
+    public string FinancialStatementDisplay => DescribeFinancialStatement(FinancialStatement);
+
     // Backward-compatible properties
     public byte AccountType => Nature;
     public string AccountTypeDisplay => NatureDisplay;
     public bool AllowTransactions => IsLeaf;
     public int? ParentAccountId => ParentId;
     public bool IsSystemAccount => IsSystem;
+
+    // ─── Single home for the two Arabic labels (also consumed by AccountTreeNodeDto) ───
+
+    /// <summary>Arabic label of a normal balance value: 1 = مدين · 2 = دائن.</summary>
+    public static string DescribeNormalBalance(byte normalBalance) => normalBalance switch
+    {
+        1 => "مدين",
+        2 => "دائن",
+        _ => "—"
+    };
+
+    /// <summary>Arabic label of a financial statement value: 1 = الميزانية العمومية · 2 = قائمة الدخل.</summary>
+    public static string DescribeFinancialStatement(byte financialStatement) => financialStatement switch
+    {
+        1 => "الميزانية العمومية",
+        2 => "قائمة الدخل",
+        _ => "—"
+    };
 }
 
 public record AccountTreeNodeDto(
@@ -60,12 +108,49 @@ public record AccountTreeNodeDto(
     byte Level,
     string? ColorCode,
     string? Description,
-    List<AccountTreeNodeDto> Children)
+    List<AccountTreeNodeDto> Children,
+    string? ParentAccountCode = null,
+    string TreePath = "",
+    byte FinancialStatement = 0,
+    // STORED normal balance — mirrors the schema column (`tinyint NULL`):
+    // 0 = not stored (derive from `Nature`) · 1 = مدين · 2 = دائن.
+    // The effective side is `EffectiveNormalBalance`; the label is `NormalBalanceDisplay`.
+    byte NormalBalance = 0,
+    bool AllowCostCenter = false,
+    string? CategoryLabel = null)
 {
+    /// <summary>
+    /// Derived: the effective normal balance — the stored override when present (1/2), otherwise the
+    /// natural side of <see cref="Nature"/> (Debit = 1 for Asset/Expense, Credit = 2 otherwise).
+    /// Mirrors <c>Account.EffectiveNormalBalance</c>.
+    /// </summary>
+    public byte EffectiveNormalBalance => NormalBalance is 1 or 2 ? NormalBalance : (Nature is 1 or 5 ? (byte)1 : (byte)2);
+
+    /// <summary>
+    /// Arabic label of the effective normal balance — مدين (1) / دائن (2) — suffixed with « (تلقائي) »
+    /// when the stored value is 0 (not stored: derived from <see cref="Nature"/>).
+    /// </summary>
+    public string NormalBalanceDisplay
+        => AccountDto.DescribeNormalBalance(EffectiveNormalBalance) + (NormalBalance == 0 ? " (تلقائي)" : string.Empty);
+
+    /// <summary>Arabic label of the financial statement: الميزانية العمومية (1) / قائمة الدخل (2).</summary>
+    public string FinancialStatementDisplay => AccountDto.DescribeFinancialStatement(FinancialStatement);
+
     // Backward-compatible properties
     public byte AccountType => Nature;
     public bool AllowTransactions => IsLeaf;
 }
+
+/// <summary>
+/// Preview of the next account code that would be generated under a given parent — returned by
+/// <c>GetNextChildCodeAsync</c> so the screen can show the code, its level and its tree path before saving.
+/// </summary>
+public record AccountCodePreviewDto(
+    string Code,
+    string ParentAccountCode,
+    byte Level,
+    string TreePath);
+
 
 // ─── Accounting DTOs ─────────────────────────────────
 public record AccountBalanceDto(

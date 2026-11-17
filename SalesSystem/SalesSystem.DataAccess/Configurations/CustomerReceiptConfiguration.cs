@@ -17,7 +17,6 @@ public class CustomerReceiptConfiguration : IEntityTypeConfiguration<CustomerRec
         builder.Property(r => r.Amount).HasPrecision(18, 2).IsRequired();
         builder.Property(r => r.Status).HasConversion<byte>().IsRequired();
         builder.Property(r => r.PaymentMethod).HasConversion<byte>().HasColumnType("tinyint").HasDefaultValue(PaymentMethod.Cash).IsRequired();
-        builder.Property(r => r.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
         builder.Property(r => r.Notes).HasMaxLength(500).IsRequired(false);
 
         // FK to Customer
@@ -33,12 +32,6 @@ public class CustomerReceiptConfiguration : IEntityTypeConfiguration<CustomerRec
             .HasForeignKey(r => r.CashBoxId)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
-
-        // FK to Branch
-        builder.HasOne(r => r.Branch)
-            .WithMany()
-            .HasForeignKey(r => r.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // Applications (allocations to sales invoices)
         builder.HasMany(r => r.Applications)

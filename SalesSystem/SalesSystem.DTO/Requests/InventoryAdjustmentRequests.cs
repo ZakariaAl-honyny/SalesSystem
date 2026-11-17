@@ -3,8 +3,7 @@
 public record CreateInventoryAdjustmentRequest(
     short WarehouseId,
     byte AdjustmentType,
-    string? Reason = null,
-    short? BranchId = null
+    string? Reason = null
 );
 
 public record AddInventoryAdjustmentLineRequest(

@@ -44,7 +44,6 @@ public class MockUserDesktopService : IUserDesktopService
             var user = new UserDto(
                 Id: nextId,
                 UserName: userName,
-                BranchId: request.BranchId,
                 MustChangePassword: true,
                 IsLocked: false,
                 IsActive: true,
@@ -77,7 +76,6 @@ public class MockUserDesktopService : IUserDesktopService
 
             var updated = existing with
             {
-                BranchId = request.BranchId,
                 IsLocked = request.IsLocked ?? existing.IsLocked,
                 IsActive = request.IsActive ?? existing.IsActive
             };

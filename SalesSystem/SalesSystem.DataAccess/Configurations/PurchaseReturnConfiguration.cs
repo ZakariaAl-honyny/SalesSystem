@@ -19,7 +19,6 @@ public class PurchaseReturnConfiguration : IEntityTypeConfiguration<PurchaseRetu
         builder.Property(pr => pr.ReturnedTaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(pr => pr.ReturnedChargeAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(pr => pr.Notes).HasMaxLength(500);
-        builder.Property(pr => pr.BaseNetTotal).HasPrecision(18, 2).IsRequired(false);
         builder.Property(pr => pr.DiscountType).HasConversion<byte>().HasDefaultValue(SalesSystem.Common.Enums.DiscountType.Amount);
         builder.Property(pr => pr.DiscountRate).HasPrecision(18, 2);
         builder.Property(pr => pr.Status).HasConversion<byte>();
@@ -40,11 +39,6 @@ public class PurchaseReturnConfiguration : IEntityTypeConfiguration<PurchaseRetu
             .HasForeignKey(pr => pr.WarehouseId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(pr => pr.Branch)
-            .WithMany()
-            .HasForeignKey(pr => pr.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasMany(pr => pr.Lines)
             .WithOne(l => l.PurchaseReturn)
             .HasForeignKey(l => l.PurchaseReturnId)
@@ -63,7 +57,6 @@ public class PurchaseReturnLineConfiguration : IEntityTypeConfiguration<Purchase
 
         builder.Property(l => l.Quantity).HasPrecision(18, 3);
         builder.Property(l => l.Amount).HasPrecision(18, 2);
-        builder.Property(l => l.CostInBaseCurrency).HasPrecision(18, 2);
 
         builder.HasOne(l => l.PurchaseReturn)
             .WithMany(pr => pr.Lines)

@@ -9,7 +9,7 @@ namespace SalesSystem.Business.Services;
 
 /// <summary>
 /// Centralized Account linking service. All Account creation and sync for
-/// Customer, Supplier, Employee, CashBox, Bank goes through this service.
+/// Customer, Supplier, CashBox, Bank goes through this service.
 /// Per accounts summry.md: entity is Source of Truth; Account is a reflection synced in ONE transaction.
 /// </summary>
 public class AccountLinkService : IAccountLinkService
@@ -34,7 +34,7 @@ public class AccountLinkService : IAccountLinkService
         {
             // No transaction here — caller wraps in ExecuteTransactionAsync
             return await CreateDetailAccountAsync("1103", nameof(SystemAccountKey.AccountsReceivable),
-                customerName, "حساب العميل", createdByUserId, ct);
+                customerName, "حساب العميل", ct);
         }
         catch (Exception ex)
         {
@@ -49,27 +49,12 @@ public class AccountLinkService : IAccountLinkService
         {
             // No transaction here — caller wraps in ExecuteTransactionAsync
             return await CreateDetailAccountAsync("2101", nameof(SystemAccountKey.AccountsPayable),
-                supplierName, "حساب المورد", createdByUserId, ct);
+                supplierName, "حساب المورد", ct);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create supplier account for {Name}", supplierName);
             return Result<int>.Failure("فشل إنشاء الحساب المحاسبي للمورد");
-        }
-    }
-
-    public async Task<Result<int>> CreateEmployeeAccountAsync(string employeeName, int? createdByUserId, CancellationToken ct)
-    {
-        try
-        {
-            // No transaction here — caller wraps in ExecuteTransactionAsync
-            return await CreateDetailAccountAsync("1107", nameof(SystemAccountKey.EmployeeCustody),
-                employeeName, "حساب عهدة الموظف", createdByUserId, ct);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to create employee account for {Name}", employeeName);
-            return Result<int>.Failure("فشل إنشاء الحساب المحاسبي للموظف");
         }
     }
 
@@ -132,7 +117,7 @@ public class AccountLinkService : IAccountLinkService
     /// </summary>
     private async Task<Result<int>> CreateDetailAccountAsync(
         string parentCode, string mappingKey, string entityName,
-        string descriptionPrefix, int? createdByUserId, CancellationToken ct)
+        string descriptionPrefix, CancellationToken ct)
     {
         // 1. Find parent account
         var parentAccount = await _uow.Accounts.FirstOrDefaultAsync(
@@ -175,8 +160,7 @@ public class AccountLinkService : IAccountLinkService
             level: 4,
             description: $"{descriptionPrefix}: {entityName}",
             colorCode: colorCode,
-            notes: null,
-            createdByUserId: createdByUserId);
+            notes: null);
 
         await _uow.Accounts.AddAsync(account, ct);
         await _uow.SaveChangesAsync(ct);

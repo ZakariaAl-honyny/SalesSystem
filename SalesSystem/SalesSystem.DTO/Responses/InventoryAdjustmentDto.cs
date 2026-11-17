@@ -11,7 +11,7 @@ public record InventoryAdjustmentDto(
     byte Status,
     string? StatusName,
     DateTime CreatedAt,
-    int CreatedByUserId,
+    string? CreatedByUserName,
     DateTime? PostedAt,
     DateTime? CancelledAt,
     List<InventoryAdjustmentLineDto>? Lines

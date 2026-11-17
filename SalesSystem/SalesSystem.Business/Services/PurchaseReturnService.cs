@@ -110,7 +110,6 @@ public class PurchaseReturnService : IPurchaseReturnService
                     return Result<PurchaseReturnDto>.Failure(returnNoResult.Error!);
 
                 var purchaseReturn = PurchaseReturn.Create(
-                    branchId: 1,
                     returnNo: returnNoResult.Value,
                     supplierId: request.SupplierId,
                     warehouseId: (short)request.WarehouseId,
@@ -120,8 +119,7 @@ public class PurchaseReturnService : IPurchaseReturnService
                     purchaseInvoiceId: request.PurchaseInvoiceId,
                     discountType: DiscountType.Amount,
                     discountRate: null,
-                    notes: request.Notes,
-                    createdByUserId: userId);
+                    notes: request.Notes);
 
                 foreach (var item in request.Items)
                 {
@@ -241,8 +239,7 @@ public class PurchaseReturnService : IPurchaseReturnService
                         pr.WarehouseId,
                         InventoryReferenceType.PurchaseReturn,
                         pr.Id,
-                        $"مرتجع شراء - رقم {pr.ReturnNo}",
-                        userId);
+                        $"مرتجع شراء - رقم {pr.ReturnNo}");
                     foreach (var item in pr.Lines)
                     {
                         var productId = item.PurchaseInvoiceLine?.ProductId ?? 0;
@@ -343,8 +340,7 @@ public class PurchaseReturnService : IPurchaseReturnService
                             pr.WarehouseId,
                             InventoryReferenceType.PurchaseReturn,
                             pr.Id,
-                            $"إلغاء مرتجع شراء - رقم {pr.ReturnNo}",
-                            userId);
+                            $"إلغاء مرتجع شراء - رقم {pr.ReturnNo}");
                         foreach (var item in pr.Lines)
                         {
                             var productId = item.PurchaseInvoiceLine?.ProductId ?? 0;
@@ -449,10 +445,8 @@ public class PurchaseReturnService : IPurchaseReturnService
                 it.Quantity,
                 it.Amount,
                 it.Amount,
-                it.PurchaseInvoiceLineId,
-                it.CostInBaseCurrency
-            )).ToList(),
-            BranchId: r.BranchId
+                it.PurchaseInvoiceLineId
+            )).ToList()
         );
     }
 }

@@ -65,8 +65,7 @@ public class MockWarehouseDesktopService : IWarehouseDesktopService
         var nextId = (short)(MockData.Warehouses.Max(w => w.Id) + 1);
         var warehouse = new WarehouseDto(
             Id: nextId, Name: r.Name, Phone: r.Phone,
-            Address: r.Address, Notes: r.Notes, IsActive: true,
-            BranchId: r.BranchId);
+            Address: r.Address, Notes: r.Notes, IsActive: true);
         MockData.Warehouses.Add(warehouse);
         return Task.FromResult(Result<WarehouseDto>.Success(warehouse));
     }

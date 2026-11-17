@@ -40,12 +40,6 @@ public class Product : ActivatableEntity
     public bool TrackExpiry { get; private set; }
 
     /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// عمود أحادي الفرع للنسخة التجريبية (MVP) — يُثبّت على 1 في الوضع الراهن.
-    /// </summary>
-    public short BranchId { get; private set; }
-
-    /// <summary>
     /// File path or URL to the primary product image.
     /// Single image — no separate ProductImages table.
     /// </summary>
@@ -86,11 +80,6 @@ public class Product : ActivatableEntity
     /// The category this product belongs to.
     /// </summary>
     public virtual ProductCategory? ProductCategory { get; private set; }
-
-    /// <summary>
-    /// Navigation property to the Branch this product belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
 
     /// <summary>
     /// Stock records per warehouse.
@@ -200,7 +189,6 @@ public class Product : ActivatableEntity
     /// <summary>
     /// Creates a new product.
     /// </summary>
-    /// <param name="branchId">Branch identifier (required).</param>
     /// <param name="name">Product display name (required).</param>
     /// <param name="categoryId">FK to ProductCategory (required).</param>
     /// <param name="description">Optional product description.</param>
@@ -211,10 +199,8 @@ public class Product : ActivatableEntity
     /// <param name="foreignName">Optional foreign name (الاسم الأجنبي للصنف).</param>
     /// <param name="locationInStore">Optional location in store (العنوان في المخزن).</param>
     /// <param name="expiryAlertDays">Optional expiry alert threshold in days (نقطة التنبيه بالانتهاء).</param>
-    /// <param name="createdByUserId">User who created this record.</param>
     /// <returns>The newly created Product entity.</returns>
     public static Product Create(
-        short branchId,
         string name,
         int categoryId,
         string? description = null,
@@ -226,10 +212,8 @@ public class Product : ActivatableEntity
         string? locationInStore = null,
         short? expiryAlertDays = null,
         decimal minSalePrice = 0,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المنتج مطلوب.");
         if (categoryId <= 0)
@@ -241,7 +225,6 @@ public class Product : ActivatableEntity
 
         var product = new Product
         {
-            BranchId = branchId,
             Name = name,
             Description = description?.Trim(),
             CategoryId = categoryId,
@@ -255,7 +238,7 @@ public class Product : ActivatableEntity
             MinSalePrice = minSalePrice,
             IsActive = true
         };
-        product.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) product.SetCreatedBy(createdByUserName.Trim());
         return product;
     }
 
@@ -273,8 +256,7 @@ public class Product : ActivatableEntity
         string? foreignName = null,
         string? locationInStore = null,
         short? expiryAlertDays = null,
-        decimal minSalePrice = 0,
-        int? updatedByUserId = null)
+        decimal minSalePrice = 0)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("اسم المنتج مطلوب.");
@@ -297,7 +279,6 @@ public class Product : ActivatableEntity
         ExpiryAlertDays = expiryAlertDays;
         MinSalePrice = minSalePrice;
 
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 }

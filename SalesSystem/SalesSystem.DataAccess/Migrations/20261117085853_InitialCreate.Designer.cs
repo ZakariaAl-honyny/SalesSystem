@@ -12,8 +12,8 @@ using SalesSystem.DataAccess;
 namespace SalesSystem.DataAccess.Migrations
 {
     [DbContext(typeof(SalesDbContext))]
-    [Migration("20261105150115_RemoveRoles")]
-    partial class RemoveRoles
+    [Migration("20261117085853_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,11 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<bool>("AllowCostCenter")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("ColorCode")
                         .HasMaxLength(7)
                         .HasColumnType("nvarchar(7)");
@@ -45,8 +50,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -78,11 +84,13 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("NameEn")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<byte>("Nature")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte?>("NormalBalance")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("Notes")
@@ -95,8 +103,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -124,20 +133,17 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -156,7 +162,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<bool>("IsReversed")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int?>("PaymentVoucherId")
                         .HasColumnType("int");
@@ -184,8 +192,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ReviewedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("ReviewedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -193,12 +202,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("EntryDate");
 
@@ -278,9 +286,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -290,8 +295,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -312,8 +318,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("VoucherDate")
                         .HasColumnType("date");
@@ -324,8 +331,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -346,9 +351,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -358,8 +360,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -380,8 +383,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("VoucherDate")
                         .HasColumnType("date");
@@ -392,8 +396,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -413,9 +415,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
-
-                    b.Property<short?>("BranchId")
-                        .HasColumnType("smallint");
 
                     b.Property<string>("MappingKey")
                         .IsRequired()
@@ -475,6 +474,10 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt")
@@ -488,105 +491,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.ToTable("AuditLogs", (string)null);
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.BillOfMaterials", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ComponentProductId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FinishedProductId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar");
-
-                    b.Property<decimal>("QuantityRequired")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<short?>("UnitId")
-                        .HasColumnType("smallint");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ComponentProductId");
-
-                    b.HasIndex("UnitId");
-
-                    b.HasIndex("FinishedProductId", "ComponentProductId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_BillOfMaterials_FinishedProductId_ComponentProductId");
-
-                    b.ToTable("BillOfMaterials", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Branch", b =>
-                {
-                    b.Property<short>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Branches", (string)null);
-                });
-
             modelBuilder.Entity("SalesSystem.Models.CashBox", b =>
                 {
                     b.Property<int>("Id")
@@ -598,21 +502,21 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<short?>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -622,14 +526,13 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("BranchId");
 
                     b.ToTable("CashBoxes", (string)null);
                 });
@@ -692,28 +595,30 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("CreditLimit")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -738,15 +643,14 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId")
                         .HasDatabaseName("IX_Customers_AccountId");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("IX_Customers_CategoryId");
@@ -758,64 +662,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasDatabaseName("IX_Customers_Phone");
 
                     b.ToTable("Customers", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.CustomerContact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Position")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .HasDatabaseName("IX_CustomerContacts_CustomerId");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("IX_CustomerContacts_Name");
-
-                    b.ToTable("CustomerContacts", (string)null);
                 });
 
             modelBuilder.Entity("SalesSystem.Models.CustomerReceipt", b =>
@@ -830,13 +676,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -846,8 +685,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -876,12 +716,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -933,8 +772,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("DocumentType")
                         .IsRequired()
@@ -949,8 +789,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -973,13 +814,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -989,8 +823,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("ExpenseAccountId")
                         .HasColumnType("int");
@@ -1014,12 +849,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -1052,9 +886,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<byte>("AdjustmentType")
                         .HasColumnType("tinyint");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -1063,10 +894,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("CreatedByUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("PostedAt")
                         .HasColumnType("datetime2");
@@ -1088,8 +918,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.HasIndex("AdjustmentNo")
                         .IsUnique()
                         .HasDatabaseName("IX_InventoryAdjustments_AdjustmentNo");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("WarehouseId");
 
@@ -1157,8 +985,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateOnly?>("ExpiryDate")
                         .HasColumnType("date")
@@ -1202,8 +1031,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint")
@@ -1254,11 +1084,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasDefaultValueSql("GETUTCDATE()")
                         .HasComment("تاريخ الإنشاء");
 
-                    b.Property<int>("CreatedByUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasComment("معرف المستخدم المنشئ");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("اسم المستخدم المنشئ — لقطة تاريخية");
 
                     b.Property<byte>("MovementType")
                         .HasColumnType("tinyint")
@@ -1367,28 +1196,45 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("varchar")
                         .HasComment("Primary barcode for quick lookup — ASCII-only, not a unique identifier");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<short?>("ExpiryAlertDays")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("ForeignName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ImagePath")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("LocationInStore")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("MinSalePrice")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1396,8 +1242,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("ReorderLevel")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                        .HasColumnType("decimal(18,3)")
+                        .HasDefaultValue(0m);
 
                     b.Property<bool>("TrackExpiry")
                         .HasColumnType("bit");
@@ -1405,16 +1253,15 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Barcode")
                         .HasDatabaseName("IX_Products_Barcode")
                         .HasFilter("[Barcode] IS NOT NULL AND [IsActive] = 1");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CategoryId");
 
@@ -1429,14 +1276,12 @@ namespace SalesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -1453,12 +1298,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -1479,8 +1323,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("EffectiveFrom")
                         .HasColumnType("date")
@@ -1501,8 +1346,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -1537,8 +1383,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Factor")
                         .HasPrecision(18, 3)
@@ -1546,7 +1393,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnName("Factor");
 
                     b.Property<bool>("IsBaseUnit")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<decimal?>("MaxDiscountAmount")
                         .HasPrecision(18, 2)
@@ -1567,14 +1416,20 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("WholesalePrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Barcode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ProductUnits_Barcode")
+                        .HasFilter("[Barcode] IS NOT NULL");
 
                     b.HasIndex("UnitId");
 
@@ -1600,32 +1455,24 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("CashBoxId")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("CostInBaseCurrency")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal?>("DiscountRate")
                         .HasPrecision(18, 2)
@@ -1651,12 +1498,16 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("OtherCharges")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("PaidAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("PaymentType")
                         .HasColumnType("tinyint");
@@ -1665,8 +1516,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("RemainingAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -1683,21 +1536,22 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -1727,10 +1581,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
-
-                    b.Property<decimal?>("CostInBaseCurrency")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("DiscountAmount")
                         .ValueGeneratedOnAdd()
@@ -1791,21 +1641,15 @@ namespace SalesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("DiscountRate")
                         .HasPrecision(18, 2)
@@ -1863,15 +1707,14 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("PurchaseInvoiceId");
 
@@ -1894,10 +1737,6 @@ namespace SalesSystem.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("CostInBaseCurrency")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -1938,35 +1777,27 @@ namespace SalesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("CashBoxId")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("CostInBaseCurrency")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("DiscountAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal?>("DiscountRate")
                         .HasPrecision(18, 2)
@@ -1992,12 +1823,16 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("OtherCharges")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("PaidAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("PaymentType")
                         .HasColumnType("tinyint");
@@ -2006,8 +1841,10 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("RemainingAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -2017,21 +1854,22 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -2056,10 +1894,6 @@ namespace SalesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal?>("CostInBaseCurrency")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("DiscountAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -2072,6 +1906,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint")
                         .HasDefaultValue((byte)0);
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("date");
 
                     b.Property<decimal>("LineTotal")
                         .HasPrecision(18, 2)
@@ -2121,21 +1958,15 @@ namespace SalesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -2194,15 +2025,14 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CustomerId");
 
@@ -2225,10 +2055,6 @@ namespace SalesSystem.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("CostInBaseCurrency")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -2266,9 +2092,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
@@ -2278,8 +2101,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("CreditLimit")
                         .ValueGeneratedOnAdd()
@@ -2292,7 +2116,9 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2314,15 +2140,14 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId")
                         .HasDatabaseName("IX_Suppliers_AccountId");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("IX_Suppliers_CategoryId");
@@ -2334,64 +2159,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasDatabaseName("IX_Suppliers_Phone");
 
                     b.ToTable("Suppliers", (string)null);
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.SupplierContact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Position")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SupplierId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("IX_SupplierContacts_Name");
-
-                    b.HasIndex("SupplierId")
-                        .HasDatabaseName("IX_SupplierContacts_SupplierId");
-
-                    b.ToTable("SupplierContacts", (string)null);
                 });
 
             modelBuilder.Entity("SalesSystem.Models.SupplierPayment", b =>
@@ -2406,13 +2173,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("BaseNetTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<short>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
@@ -2422,8 +2182,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -2454,12 +2215,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("CashBoxId");
 
@@ -2537,6 +2297,10 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
@@ -2563,8 +2327,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -2593,8 +2358,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -2616,11 +2382,14 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsSystem")
                         .ValueGeneratedOnAdd()
@@ -2639,8 +2408,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -2659,17 +2429,12 @@ namespace SalesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<short?>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("EmployeeId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -2700,8 +2465,9 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -2728,14 +2494,12 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
-                    b.Property<short?>("BranchId")
-                        .HasColumnType("smallint");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -2759,12 +2523,11 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.ToTable("Warehouses", (string)null);
                 });
@@ -2780,21 +2543,25 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("CreatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Quantity")
+                        .ValueGeneratedOnAdd()
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                        .HasColumnType("decimal(18,3)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UpdatedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdatedByUserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<short>("WarehouseId")
                         .HasColumnType("smallint");
@@ -2825,12 +2592,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.Accounting.JournalEntry", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.Accounting.PaymentVoucher", null)
                         .WithMany("JournalEntries")
                         .HasForeignKey("PaymentVoucherId");
@@ -2843,8 +2604,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .WithMany()
                         .HasForeignKey("ReversedByEntryId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Branch");
 
                     b.Navigation("ReversedByEntry");
                 });
@@ -2876,12 +2635,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -2889,8 +2642,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
-
-                    b.Navigation("Branch");
 
                     b.Navigation("CashBox");
                 });
@@ -2903,12 +2654,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -2916,8 +2661,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
-
-                    b.Navigation("Branch");
 
                     b.Navigation("CashBox");
                 });
@@ -2943,32 +2686,6 @@ namespace SalesSystem.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SalesSystem.Models.BillOfMaterials", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Product", "ComponentProduct")
-                        .WithMany()
-                        .HasForeignKey("ComponentProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Product", "FinishedProduct")
-                        .WithMany()
-                        .HasForeignKey("FinishedProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SalesSystem.Models.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ComponentProduct");
-
-                    b.Navigation("FinishedProduct");
-
-                    b.Navigation("Unit");
-                });
-
             modelBuilder.Entity("SalesSystem.Models.CashBox", b =>
                 {
                     b.HasOne("SalesSystem.Models.Accounting.Account", "Account")
@@ -2977,14 +2694,7 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("Account");
-
-                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.Customer", b =>
@@ -2995,36 +2705,11 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.CustomerContact", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.CustomerReceipt", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -3036,8 +2721,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("CashBox");
 
@@ -3065,12 +2748,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.Expense", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -3083,8 +2760,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-
                     b.Navigation("CashBox");
 
                     b.Navigation("ExpenseAccount");
@@ -3092,19 +2767,11 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.InventoryAdjustment", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.Warehouse", "Warehouse")
                         .WithMany()
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("Warehouse");
                 });
@@ -3193,32 +2860,13 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.Product", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.ProductCategory", "ProductCategory")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-
                     b.Navigation("ProductCategory");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.ProductCategory", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.ProductPrice", b =>
@@ -3253,12 +2901,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.PurchaseInvoice", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -3275,8 +2917,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("CashBox");
 
@@ -3314,12 +2954,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.PurchaseReturn", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.PurchaseInvoice", "PurchaseInvoice")
                         .WithMany()
                         .HasForeignKey("PurchaseInvoiceId")
@@ -3336,8 +2970,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("PurchaseInvoice");
 
@@ -3382,12 +3014,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.SalesInvoice", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -3404,8 +3030,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("CashBox");
 
@@ -3443,12 +3067,6 @@ namespace SalesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("SalesSystem.Models.SalesReturn", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
@@ -3466,8 +3084,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("Customer");
 
@@ -3503,36 +3119,11 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.SupplierContact", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.SupplierPayment", b =>
                 {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("SalesSystem.Models.CashBox", "CashBox")
                         .WithMany()
                         .HasForeignKey("CashBoxId")
@@ -3543,8 +3134,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("CashBox");
 
@@ -3578,16 +3167,6 @@ namespace SalesSystem.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SalesSystem.Models.Warehouse", b =>
-                {
-                    b.HasOne("SalesSystem.Models.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("SalesSystem.Models.WarehouseStock", b =>

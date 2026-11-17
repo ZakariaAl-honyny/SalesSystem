@@ -11,5 +11,4 @@ public record SystemAccountMappingDto(
     string? MappingKeyName,
     int AccountId,
     string? AccountName,
-    string? AccountCode,
-    short? BranchId);
+    string? AccountCode);

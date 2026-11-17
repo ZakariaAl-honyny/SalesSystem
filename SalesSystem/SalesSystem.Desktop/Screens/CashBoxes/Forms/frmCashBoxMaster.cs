@@ -200,7 +200,6 @@ public partial class frmCashBoxMaster : Form
         table.Columns.Add("Description", typeof(string));
         table.Columns.Add("AccountId", typeof(int));
         table.Columns.Add("AccountName", typeof(string));
-        table.Columns.Add("BranchName", typeof(string));
         table.Columns.Add("IsActive", typeof(bool));
 
         try
@@ -221,7 +220,6 @@ public partial class frmCashBoxMaster : Form
                         c.Description ?? "",
                         c.AccountId,
                         c.AccountName ?? "",
-                        c.BranchName ?? "",
                         c.IsActive);
                 }
             }
@@ -410,8 +408,7 @@ public partial class frmCashBoxMaster : Form
     private string _FilterColumn() => cbFilterBy.SelectedIndex switch
     {
         1 => "AccountName",
-        2 => "BranchName",
-        3 => "CONVERT(Id, 'System.String')",
+        2 => "CONVERT(Id, 'System.String')",
         _ => "Name"
     };
 

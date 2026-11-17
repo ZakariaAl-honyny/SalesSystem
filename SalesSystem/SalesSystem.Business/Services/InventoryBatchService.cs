@@ -92,8 +92,7 @@ public class InventoryBatchService : IInventoryBatchService
                 purchaseInvoiceId: request.PurchaseInvoiceId,
                 purchaseInvoiceLineId: request.PurchaseInvoiceLineId,
                 supplierBatchNo: request.SupplierBatchNo,
-                expiryDate: request.ExpiryDate,
-                createdByUserId: userId);
+                expiryDate: request.ExpiryDate);
 
             await _uow.InventoryBatches.AddAsync(batch, ct);
             await _uow.SaveChangesAsync(ct);

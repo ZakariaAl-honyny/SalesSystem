@@ -64,15 +64,15 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     public static List<CashBoxDto> CashBoxes { get; } = new()
     {
-        // Id, Name, AccountId, AccountName, AccountCode, Description, IsActive, BranchId, BranchName
+        // Id, Name, AccountId, AccountName, AccountCode, Description, IsActive
         new CashBoxDto(
             1, "الصندوق الرئيسي", 4,
-            "الصندوق الرئيسي (الخزينة المركزية)", "1111",
-            "الصندوق النقدي الرئيسي للمحل", true, 1, null),
+            "الصندوق الرئيسي (الخزينة المركزية)", "11010001",
+            "الصندوق النقدي الرئيسي للمحل", true),
         new CashBoxDto(
             2, "صندوق المعرض", 5,
-            "صندوق نقطة بيع POS كاشير 1", "1112",
-            "صندوق نقطة البيع في المعرض", true, 1, null)
+            "صندوق نقطة بيع POS كاشير 1", "11010002",
+            "صندوق نقطة البيع في المعرض", true)
     };
 
     // ═══════════════════════════════════════════════
@@ -290,7 +290,7 @@ internal static class MockData
             PaymentType: payType, SubTotal: subTotal, DiscountAmount: disc,
             DiscountType: 0, DiscountRate: null, TaxAmount: tax, OtherCharges: other,
             NetTotal: netTotal, PaidAmount: paid, RemainingAmount: remaining,
-            CostInBaseCurrency: null, Notes: notes, Status: status,
+            Notes: notes, Status: status,
             TaxId: null, TaxName: null, TaxRate: null,
             CashBoxId: null, CashBoxName: null, Items: items);
     }

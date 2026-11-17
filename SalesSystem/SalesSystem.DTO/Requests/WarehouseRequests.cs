@@ -8,8 +8,7 @@ public record CreateWarehouseRequest(
     string Name,
     string? Phone = null,
     string? Address = null,
-    string? Notes = null,
-    short? BranchId = null);
+    string? Notes = null);
 
 /// <summary>
 /// Request to update an existing warehouse.

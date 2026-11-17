@@ -36,7 +36,6 @@ public interface IUnitOfWork
     IGenericRepository<ProductPrice> ProductPrices { get; }
     IAuditLogRepository AuditLogs { get; }
     // New entity repositories (v4.7+)
-    IGenericRepository<Branch> Branches { get; }
     IGenericRepository<ProductCategory> ProductCategories { get; }
     IGenericRepository<InventoryAdjustment> InventoryAdjustments { get; }
     IGenericRepository<InventoryAdjustmentLine> InventoryAdjustmentLines { get; }

@@ -4,12 +4,10 @@
 
 public record CreateUserRequest(
     string UserName,
-    short? BranchId = null,
     string? Password = null,
     int? DefaultCashBoxId = null);
 
 public record UpdateUserRequest(
-    short? BranchId = null,
     bool? IsLocked = null,
     bool? IsActive = null,
     string? Password = null,

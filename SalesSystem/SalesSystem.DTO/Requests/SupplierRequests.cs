@@ -8,8 +8,7 @@ public record CreateSupplierRequest(
     string? TaxNumber = null,
     string? Notes = null,
     decimal CreditLimit = 0,
-    int? CategoryId = null,
-    short? BranchId = null
+    int? CategoryId = null
 );
 
 public record UpdateSupplierRequest(

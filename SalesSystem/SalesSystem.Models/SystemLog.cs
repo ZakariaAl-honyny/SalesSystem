@@ -45,6 +45,7 @@ public class SystemLog : LongEntity
     /// User who triggered the log entry (nullable for system-level entries).
     /// </summary>
     public int? UserId { get; private set; }
+    public string? UserName { get; private set; }
     public virtual User? User { get; private set; }
 
     private SystemLog() { } // EF Core
@@ -56,7 +57,8 @@ public class SystemLog : LongEntity
         string? exception = null,
         string? actionName = null,
         string? ipAddress = null,
-        int? userId = null)
+        int? userId = null,
+        string? userName = null)
     {
         if (string.IsNullOrWhiteSpace(message))
             throw new DomainException("رسالة السجل مطلوبة.");
@@ -71,7 +73,8 @@ public class SystemLog : LongEntity
             Message = message,
             Exception = exception,
             IpAddress = ipAddress,
-            UserId = userId
+            UserId = userId,
+            UserName = string.IsNullOrWhiteSpace(userName) ? null : userName.Trim()
         };
     }
 }

@@ -10,7 +10,6 @@ using SalesSystem.Desktop.Screens.Users.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
 using SalesSystem.Desktop.Screens.POS.Forms;
-using SalesSystem.Desktop.Screens.Employees.Forms;
 using SalesSystem.Desktop.Screens.Products.Forms;
 using SalesSystem.Desktop.Screens.Purchases.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
@@ -92,9 +91,6 @@ public partial class frmMain : Form
     /// </summary>
     private void ApplyMvpMenuVisibility()
     {
-        // ── المبيعات ────────────────────────────────────────────────────────
-        msbtnCurrencySelection.Visible = false;     // MVP: محذوف (وحدة العملات الوهمية) — يبقى مخفياً
-
         // ── الإعدادات ───────────────────────────────────────────────────────
         // الإعدادات العامة وإعدادات الشركة أُزيلتا — تبقى شاشتا النسخ الاحتياطي والتحديث فقط
         // (شاشتا النسخ الاحتياطي والتحديث مخفيتان في MVP — انظر msbtnUpdateCheck أدناه)
@@ -113,7 +109,7 @@ public partial class frmMain : Form
     }
 
     /// <summary>
-    /// بوابة المرحلة أ (RULE-N165 / RULE-N168): ثلاث شاشات مخزنية تعتمد عقوداً مسجَّلة في
+    /// بوابة المرحلة أ (RULE-N165 / RULE-N168): شاشة إدارة المخزون تعتمد عقوداً مسجَّلة في
     /// فرع الـMock **فقط** (<c>IStocktakingDesktopService</c> · <c>IWarehouseTransferDesktopService</c>)،
     /// ففتحها في الوضع الحقيقي يُطلق استثناء حاوية DI ويُظهر «تعذر فتح الشاشة المطلوبة» بلا سبب.
     /// لذلك تُعطَّل هنا بصدق في الوضع الحقيقي مع سبب عربي في تلميحها، وتبقى مفعّلة في وضع التجربة.
@@ -125,12 +121,6 @@ public partial class frmMain : Form
 
         msbtnInventory.Enabled = mockMode;
         msbtnInventory.ToolTipText = hint;
-
-        msbtnInventoryTransfer.Enabled = mockMode;
-        msbtnInventoryTransfer.ToolTipText = hint;
-
-        msbtnInventoryCounts.Enabled = mockMode;
-        msbtnInventoryCounts.ToolTipText = hint;
     }
 
     /// <summary>
@@ -251,14 +241,6 @@ public partial class frmMain : Form
     private void msbtnOpeningStock_Click(object sender, EventArgs e)
         => OpenScreen<frmOpeningStock>();
 
-    /// <summary>جرد المخزون — كان معالجاً فارغاً في MVP، والشاشة <c>frmStocktakingNew</c> موجودة.</summary>
-    private void msbtnInventoryCounts_Click(object sender, EventArgs e)
-        => OpenScreen<frmStocktakingNew>();
-
-    /// <summary>تحويل مخزني بين المستودعات.</summary>
-    private void msbtnInventoryTransfer_Click(object sender, EventArgs e)
-        => OpenScreen<frmWarehouseTransferNew>();
-
     /// <summary>عرض توزيع الدفعات (FIFO / FEFO).</summary>
     private void msbtnInventoryFifo_Click(object sender, EventArgs e)
         => OpenScreen<frmInventoryFifo>();
@@ -300,10 +282,6 @@ public partial class frmMain : Form
     private void msbtnPOS_Click(object sender, EventArgs e)
         => OpenScreen<frmPOS>();
 
-    private void msbtnCurrencySelection_Click(object sender, EventArgs e)
-        => clsDialogs.Info("وحدة العملات غير متوفرة في نسخة MVP الحالية؛ العملة الافتراضية هي الريال اليمني.",
-            "العملات");
-
     // ── الخزينة (Treasury) ───────────────────────────────────────────────────
 
     private void msbtnManagePayments_Click(object sender, EventArgs e)
@@ -329,13 +307,13 @@ public partial class frmMain : Form
     private void msbtnManageUsers_Click(object sender, EventArgs e)
         => OpenScreen<frmUserMaster>();
 
-    private void msbtnEmployees_Click(object sender, EventArgs e)
-        => OpenScreen<frmEmployeeMaster>();
-
     // ── المحاسبة (Accounting) ────────────────────────────────────────────────
 
     private void msbtnChartOfAccounts_Click(object sender, EventArgs e)
         => OpenScreen<frmAccounts>();
+
+    private void msbtnAccountsTree_Click(object sender, EventArgs e)
+        => OpenScreen<frmAccountsTree>();
 
     private void msbtnJournalEntries_Click(object sender, EventArgs e)
         => OpenScreen<frmJournalEntries>();

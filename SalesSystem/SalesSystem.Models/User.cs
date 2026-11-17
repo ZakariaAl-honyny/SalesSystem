@@ -15,15 +15,12 @@ public class User : ActivatableEntity
 {
     public string UserName { get; private set; } = string.Empty;
     public string PasswordHash { get; private set; } = string.Empty;
-    public short? BranchId { get; private set; }
-    public int? EmployeeId { get; private set; }
     public bool IsLocked { get; private set; }
     public bool MustChangePassword { get; private set; } = true;
     public DateTime? LastLoginAt { get; private set; }
     public short LoginAttempts { get; private set; }
 
     // Navigation properties
-    public virtual Branch? Branch { get; private set; }
 
     protected User() { }
 
@@ -32,8 +29,8 @@ public class User : ActivatableEntity
     /// MustChangePassword is set to true — use <see cref="SetInitialPassword"/> or
     /// <see cref="ChangePassword"/> to set the password later.
     /// </summary>
-    public static User Create(string userName, short? branchId = null,
-        int? employeeId = null, int? createdByUserId = null)
+    public static User Create(string userName,
+        string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(userName))
             throw new DomainException("اسم المستخدم مطلوب.");
@@ -41,12 +38,10 @@ public class User : ActivatableEntity
         var user = new User
         {
             UserName = userName.Trim(),
-            BranchId = branchId,
-            EmployeeId = employeeId,
             MustChangePassword = true,
             LoginAttempts = 0
         };
-        user.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) user.SetCreatedBy(createdByUserName.Trim());
         return user;
     }
 
@@ -55,8 +50,8 @@ public class User : ActivatableEntity
     /// MustChangePassword is false by default for seeds.
     /// </summary>
     public static User CreateWithPassword(string userName, string passwordHash,
-        short? branchId = null, int? employeeId = null,
-        int? createdByUserId = null, bool mustChangePassword = false)
+        bool mustChangePassword = false,
+        string? createdByUserName = null)
     {
         if (string.IsNullOrWhiteSpace(userName))
             throw new DomainException("اسم المستخدم مطلوب.");
@@ -67,12 +62,10 @@ public class User : ActivatableEntity
         {
             UserName = userName.Trim(),
             PasswordHash = passwordHash,
-            BranchId = branchId,
-            EmployeeId = employeeId,
             MustChangePassword = mustChangePassword,
             LoginAttempts = 0
         };
-        user.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) user.SetCreatedBy(createdByUserName.Trim());
         return user;
     }
 
@@ -80,11 +73,8 @@ public class User : ActivatableEntity
     /// Updates the user's profile information.
     /// Does NOT change UserName or password — those have dedicated methods.
     /// </summary>
-    public void Update(short? branchId = null, int? employeeId = null, int? updatedByUserId = null)
+    public void Update()
     {
-        BranchId = branchId;
-        EmployeeId = employeeId;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 
@@ -106,14 +96,13 @@ public class User : ActivatableEntity
     /// <summary>
     /// Changes an existing password (requires a non-empty new hash).
     /// </summary>
-    public void ChangePassword(string newPasswordHash, int? updatedByUserId = null)
+    public void ChangePassword(string newPasswordHash)
     {
         if (string.IsNullOrWhiteSpace(newPasswordHash))
             throw new DomainException("كلمة المرور الجديدة مطلوبة.");
         PasswordHash = newPasswordHash;
         MustChangePassword = false;
         LoginAttempts = 0;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 
@@ -216,15 +205,6 @@ public class User : ActivatableEntity
         IsActive = true;
         IsLocked = false;
         base.Restore();
-    }
-
-    /// <summary>
-    /// Updates the user's branch assignment.
-    /// </summary>
-    public void SetBranchId(short? branchId)
-    {
-        BranchId = branchId;
-        UpdateTimestamp();
     }
 
 }

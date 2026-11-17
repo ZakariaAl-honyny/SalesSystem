@@ -14,7 +14,5 @@ public record CashBoxDto(
     [property: JsonPropertyName("accountName")] string? AccountName,
     [property: JsonPropertyName("accountCode")] string? AccountCode,
     [property: JsonPropertyName("description")] string? Description,
-    [property: JsonPropertyName("isActive")] bool IsActive,
-    [property: JsonPropertyName("branchId")] short? BranchId = null,
-    [property: JsonPropertyName("branchName")] string? BranchName = null
+    [property: JsonPropertyName("isActive")] bool IsActive
 );

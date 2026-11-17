@@ -100,7 +100,8 @@ Total `frm*` forms: **93**, of which **31** are reports. Screens calling all six
 **Group A — call all six (audit/review only, do not rebuild):**
 
 ```
-Accounting/frmAccounts · Accounting/frmJournalEntries · CashBoxes/frmCashBoxMaster ·
+Accounting/frmAccounts 🔒 V2 (V3, 2026-11-17) · Accounting/frmJournalEntries 🔒 V2 (V3, 2026-11-17) ·
+CashBoxes/frmCashBoxMaster ·
 Categories/frmCategoryMaster · CustomerReceipts/frmListCustomerReceipts · Customers/frmCustomerMaster ·
 Employees/frmEmployeeMaster · Expenses/frmListExpenses · Inventory/frmListInventoryAdjustments ·
 Inventory/frmListInventoryBatches · Inventory/frmListInventoryTransactions · Payments/frmListPayments ·
@@ -110,6 +111,8 @@ Units/frmUnitMaster · Users/frmUserMaster · Warehouses/frmWarehouseMaster
 ```
 
 > In this group verify: `ContextMenuStrip` (missing in most) · `btnToggleFilters` **declared in the designer** · `pnlSummary` · designer colour parity · `LiveTafqeetHelper` on money screens.
+>
+> 🔒 **The two accounting screens are excluded from the V1 wave (V3, 2026-11-17):** `Accounting/frmAccounts` and `Accounting/frmJournalEntries` are **V2** — do not audit, rebuild or open work on them, and do not target the accounts tree. The lines above stay only so the snapshot remains true (`AGENTS.md` §2.29 · `docs/database-schema.md` §8/§8.1).
 
 **Group B — partial navigation (4 of 6) — needs real completion:**
 
@@ -192,7 +195,7 @@ Zero errors. Any new warning must be listed.
 | 2 | `frmAddUpdateExpense` · `frmAddUpdateCustomerReceipt` · `frmCashBoxTransactions` · `frmSupplierPaymentDialog` | money documents + tafqeet |
 | 3 | `frmCustomerStatement` · `frmSupplierStatement` · `frmInventory*` · `frmOpeningStock` · `frmStocktakingNew` · `frmWarehouseTransferNew` | inventory |
 | 4 | `frmProductSelection` · `frmCustomerSelection` · `frmSupplierSelection` · `frmBackup` · `frmPasswordChange` · `frmImportProductsExcel` · `frmPurchaseItem*` · `frmPurchaseDiscount` · `frmPurchaseCurrency` · `frmPurchaseOtherDetails` | pickers/dialogs |
-| 5 | Audit of Group A (review only) | no rebuild |
+| 5 | Audit of Group A (review only) — **excluding `frmAccounts` · `frmJournalEntries`** | no rebuild · the two accounting screens are 🔒 V2 (V3, 2026-11-17) |
 
 ### 8) Sensitive designer details (WinForms pitfalls)
 

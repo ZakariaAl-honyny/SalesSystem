@@ -26,8 +26,7 @@ public class DirectAccountService : IAccountDesktopService
     {
         try
         {
-            // ملاحظة: خدمة الأعمال لا تدعم تصفية غير النشط — المعامل includeInactive مُهمَل.
-            var result = await _bll.GetAllAsync(ct);
+            var result = await _bll.GetAllAsync(includeInactive, ct);
             return result.IsSuccess
                 ? Result<IReadOnlyList<AccountDto>>.Success(result.Value!)
                 : Result<IReadOnlyList<AccountDto>>.Failure(result.Error!, result.ErrorCode);
@@ -118,6 +117,18 @@ public class DirectAccountService : IAccountDesktopService
         catch (Exception)
         {
             return Result.Failure("تعذر حذف الحساب نهائياً. حاول مرة أخرى.");
+        }
+    }
+
+    public async Task<Result<AccountCodePreviewDto>> GetNextChildCodeAsync(int parentId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _bll.GetNextChildCodeAsync(parentId, ct);
+        }
+        catch (Exception)
+        {
+            return Result<AccountCodePreviewDto>.Failure("تعذر توليد كود الحساب الفرعي. حاول مرة أخرى.");
         }
     }
 }

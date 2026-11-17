@@ -19,11 +19,11 @@ using SalesSystem.Desktop.Screens.Users.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
 using SalesSystem.Desktop.Screens.POS.Forms;
-using SalesSystem.Desktop.Screens.Employees.Forms;
 using SalesSystem.Desktop.Screens.Products.Forms;
 using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.Desktop.Screens.Purchases.Forms;
 using SalesSystem.Desktop.Screens.Customers.Forms;
+using SalesSystem.Desktop.Screens.Accounting.Forms;
 using SalesSystem.Desktop.Screens.Categories.Forms;
 using SalesSystem.Desktop.Screens.Payments.Forms;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
@@ -86,16 +86,12 @@ static class Program
                     services.AddSingleton(appSettings);
 
                     // --- I*DesktopService implementations (2-Tier) ---
-                    // Mock-only by design (no BLL backend yet) — Employee module is intentionally kept:
-                    services.AddTransient<IEmployeeDesktopService, MockEmployeeDesktopService>();
-
                     // Mock / Real service toggle (services that have both implementations)
                     if (appSettings.UseMockData)
                     {
                         services.AddTransient<IAccountDesktopService, MockAccountDesktopService>();
                         services.AddTransient<IAuthDesktopService, MockAuthDesktopService>();
                         services.AddTransient<IBackupDesktopService, MockBackupDesktopService>();
-                        services.AddTransient<IBranchDesktopService, MockBranchDesktopService>();
                         services.AddTransient<ICashBoxDesktopService, MockCashBoxDesktopService>();
                         services.AddTransient<ICashBoxReportDesktopService, MockCashBoxReportDesktopService>();
                         services.AddTransient<ICategoryDesktopService, MockCategoryDesktopService>();
@@ -138,7 +134,6 @@ static class Program
                         services.AddTransient<IAccountDesktopService, DirectAccountService>();
                         services.AddTransient<IAuthDesktopService, DirectAuthService>();
                         services.AddTransient<IBackupDesktopService, DirectBackupService>();
-                        services.AddTransient<IBranchDesktopService, DirectBranchService>();
                         services.AddTransient<ICashBoxDesktopService, DirectCashBoxService>();
                         services.AddTransient<ICashBoxReportDesktopService, DirectCashBoxReportService>();
                         services.AddTransient<ICategoryDesktopService, DirectCategoryService>();
@@ -214,7 +209,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IAccountService, BizServices.AccountService>();
                     services.AddScoped<BizInterfaces.IAuditLogService, BizServices.AuditLogService>();
                     services.AddScoped<BizInterfaces.IBarcodeLookupService, BizServices.BarcodeLookupService>();
-                    services.AddScoped<BizInterfaces.IBranchService, BizServices.BranchService>();
                     services.AddScoped<BizInterfaces.ICashBoxReportService, BizServices.CashBoxReportService>();
                     services.AddScoped<BizInterfaces.ICashBoxService, BizServices.CashBoxService>();
                     services.AddScoped<BizInterfaces.ICompanySettingsService, BizServices.CompanySettingsService>();
@@ -255,6 +249,8 @@ static class Program
                     // Core Infrastructure Services
                     services.AddSingleton<IEventBus, EventBus>();
                     services.AddSingleton<ISessionService, SessionService>();
+                    // TASK-007 — audit identity source (username text, no Users FK)
+                    services.AddSingleton<SalesSystem.Common.ICurrentUserProvider, DesktopCurrentUserProvider>();
                     services.AddSingleton<INavigationService, NavigationService>();
                     services.AddSingleton<INotificationService, NotificationService>();
                     
@@ -281,6 +277,8 @@ static class Program
                     services.AddTransient<frmCategoryMaster>();
                     services.AddTransient<frmUnitMaster>();
                     services.AddTransient<frmCustomerMaster>();
+                    services.AddTransient<frmShowCustomerCard>();
+                    services.AddTransient<frmFindCustomer>();
                     services.AddTransient<frmSupplierMaster>();
                     services.AddTransient<frmInventoryList>();
                     services.AddTransient<frmListPayments>();
@@ -326,6 +324,8 @@ static class Program
                     services.AddTransient<frmUserMaster>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmAccounts>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Forms.frmJournalEntries>();
+                    services.AddTransient<frmAccountsTree>();
+                    services.AddTransient<SalesSystem.Desktop.Screens.Accounting.Controls.ctrlTreeOfAccounts>();
 
                     // Inventory Module - New Forms
                     services.AddTransient<frmListInventoryAdjustments>();
@@ -366,7 +366,6 @@ static class Program
 
                     // Newly-built screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmPOS>();
-                    services.AddTransient<frmEmployeeMaster>();
 
                     // Newly-built module hub screens (wired into frmMain MenuStrip)
                     services.AddTransient<frmInventory>();
@@ -386,12 +385,11 @@ static class Program
                     services.AddTransient<frmStocktakingPrintCard>();
                     services.AddTransient<frmInventoryFifo>();
                     services.AddTransient<frmInventoryBarcode>();
-                    // المشتريات — حوارات سطور/خصم/عملة/تفاصيل وطباعة الفاتورة
+                    // المشتريات — حوارات سطور/خصم/تفاصيل وطباعة الفاتورة
                     services.AddTransient<frmPurchaseInvoicePrint>();
                     services.AddTransient<frmPurchaseItem>();
                     services.AddTransient<frmPurchaseItemInfo>();
                     services.AddTransient<frmPurchaseDiscount>();
-                    services.AddTransient<frmPurchaseCurrency>();
                     services.AddTransient<frmPurchaseOtherDetails>();
                     // العملاء والموردون — اختيار وكشف حساب
                     services.AddTransient<frmCustomerSelection>();

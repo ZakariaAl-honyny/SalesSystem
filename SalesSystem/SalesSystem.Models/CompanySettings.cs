@@ -4,9 +4,9 @@ using SalesSystem.Common.Exceptions;
 namespace SalesSystem.Models;
 
 /// <summary>
-/// Single-row table storing company-wide settings (name, contact, logo, default currency).
+/// Single-row table storing company-wide settings (name, contact, logo).
 /// Id is always 1 — enforced at the database level.
-/// Schema: No CreatedByUserId/UpdatedByUserId/IsActive — only CreatedAt/UpdatedAt for audit.
+/// Schema: No CreatedByUserName/UpdatedByUserName/IsActive — only CreatedAt/UpdatedAt for audit.
 /// </summary>
 public class CompanySettings : Entity
 {
@@ -46,7 +46,7 @@ public class CompanySettings : Entity
     public string? LogoPath { get; private set; }
 
     /// <summary>
-    /// Audit timestamps — schema has only CreatedAt/UpdatedAt, no CreatedByUserId/UpdatedByUserId.
+    /// Audit timestamps — schema has only CreatedAt/UpdatedAt, no CreatedByUserName/UpdatedByUserName.
     /// </summary>
     public DateTime CreatedAt { get; protected set; }
     public DateTime? UpdatedAt { get; protected set; }
@@ -62,7 +62,6 @@ public class CompanySettings : Entity
     /// <param name="address">Optional physical address.</param>
     /// <param name="taxNumber">Optional tax registration number.</param>
     /// <param name="logoPath">Optional logo file path.</param>
-    /// <param name="createdByUserId">Optional ID of the creating user.</param>
     /// <returns>A new CompanySettings instance with Id = 1 (enforced at DB level).</returns>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public static CompanySettings Create(
@@ -71,8 +70,7 @@ public class CompanySettings : Entity
         string? email = null,
         string? address = null,
         string? taxNumber = null,
-        string? logoPath = null,
-        int? createdByUserId = null)
+        string? logoPath = null)
     {
         if (string.IsNullOrWhiteSpace(companyName))
             throw new DomainException("اسم الشركة مطلوب.");
@@ -111,7 +109,6 @@ public class CompanySettings : Entity
     /// <param name="address">Optional physical address.</param>
     /// <param name="taxNumber">Optional tax registration number.</param>
     /// <param name="logoPath">Optional logo file path.</param>
-    /// <param name="updatedByUserId">Optional ID of the updating user.</param>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public void Update(
         string companyName,
@@ -119,8 +116,7 @@ public class CompanySettings : Entity
         string? email = null,
         string? address = null,
         string? taxNumber = null,
-        string? logoPath = null,
-        int? updatedByUserId = null)
+        string? logoPath = null)
     {
         if (string.IsNullOrWhiteSpace(companyName))
             throw new DomainException("اسم الشركة مطلوب.");

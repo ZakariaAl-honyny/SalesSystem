@@ -79,7 +79,7 @@ public class InventoryService : IInventoryService
 
         if (stock == null)
         {
-            stock = WarehouseStock.Create((short)warehouseId, productId, 0, userId);
+            stock = WarehouseStock.Create((short)warehouseId, productId, 0);
             await _uow.WarehouseStocks.AddAsync(stock, ct);
         }
         else
@@ -195,8 +195,7 @@ public class InventoryService : IInventoryService
             request.WarehouseId,
             request.ReferenceType.HasValue ? (InventoryReferenceType?)request.ReferenceType.Value : null,
             request.ReferenceId,
-            request.Notes,
-            userId);
+            request.Notes);
 
         // Process lines
         foreach (var lineReq in request.Lines)
@@ -311,7 +310,7 @@ public class InventoryService : IInventoryService
             tx.ReferenceType.HasValue ? (byte?)tx.ReferenceType.Value : null,
             tx.Notes,
             tx.CreatedAt,
-            tx.CreatedByUserId,
+            tx.CreatedByUserName,
             tx.Lines.Select(l => new InventoryTransactionLineDto(
                 l.Id,
                 l.InventoryTransactionId,

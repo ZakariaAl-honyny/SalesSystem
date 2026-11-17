@@ -7,7 +7,7 @@ namespace SalesSystem.Models;
 /// <summary>
 /// Represents a payment made to a supplier.
 /// Schema 7.5: SupplierPayments. Columns: PaymentNo (int unique), PaymentDate, SupplierId FK,
-/// CashBoxId FK (int NOT null), CurrencyId FK (smallint NOT null), Amount, Notes, Status, audit fields.
+/// CashBoxId FK, Amount, Notes, Status, audit fields.
 /// </summary>
 public class SupplierPayment : DocumentEntity
 {
@@ -23,12 +23,6 @@ public class SupplierPayment : DocumentEntity
     public decimal Amount { get; private set; }
 
     /// <summary>
-    /// The payment amount converted to the base currency using the exchange rate.
-    /// Null when no exchange rate is specified (same as Amount).
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
-
-    /// <summary>
     /// Payment method: Cash, BankTransfer, or CreditCard.
     /// </summary>
     public PaymentMethod PaymentMethod { get; private set; }
@@ -41,25 +35,15 @@ public class SupplierPayment : DocumentEntity
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
 
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
-
     // Navigation properties
     public virtual Supplier? Supplier { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
-    /// <summary>
-    /// Navigation property to the Branch this payment belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     private readonly List<SupplierPaymentApplication> _applications = new();
     public IReadOnlyCollection<SupplierPaymentApplication> Applications => _applications.AsReadOnly();
 
     private SupplierPayment() { } // EF Core
 
     public static SupplierPayment Create(
-        short branchId,
         int paymentNo,
         int supplierId,
         decimal amount,
@@ -67,12 +51,9 @@ public class SupplierPayment : DocumentEntity
         string? referenceNo = null,
         string? notes = null,
         int? cashBoxId = null,
-        int? createdByUserId = null,
         DateOnly? paymentDate = null,
-        decimal? baseNetTotal = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (paymentNo <= 0)
             throw new DomainException("رقم السداد مطلوب.");
         if (supplierId <= 0)
@@ -82,19 +63,17 @@ public class SupplierPayment : DocumentEntity
 
         var payment = new SupplierPayment
         {
-            BranchId = branchId,
             PaymentNo = paymentNo,
             SupplierId = supplierId,
             CashBoxId = cashBoxId,
             Amount = amount,
-            BaseNetTotal = baseNetTotal,
             PaymentMethod = paymentMethod,
             ReferenceNo = referenceNo,
             Notes = notes,
             PaymentDate = paymentDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             Status = InvoiceStatus.Draft
         };
-        payment.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) payment.SetCreatedBy(createdByUserName.Trim());
         return payment;
     }
 
@@ -120,9 +99,7 @@ public class SupplierPayment : DocumentEntity
         decimal amount,
         PaymentMethod paymentMethod,
         DateOnly? paymentDate,
-        string? notes,
-        decimal? baseNetTotal = null,
-        int? updatedByUserId = null)
+        string? notes)
     {
         if (Status != InvoiceStatus.Draft)
             throw new DomainException("لا يمكن تعديل سند صرف مرحل أو ملغي");
@@ -130,12 +107,10 @@ public class SupplierPayment : DocumentEntity
         if (amount <= 0)
             throw new DomainException("المبلغ يجب أن يكون أكبر من الصفر.");
         Amount = amount;
-        BaseNetTotal = baseNetTotal;
         PaymentMethod = paymentMethod;
         if (paymentDate.HasValue)
             PaymentDate = paymentDate.Value;
         if (notes != null) Notes = notes;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 

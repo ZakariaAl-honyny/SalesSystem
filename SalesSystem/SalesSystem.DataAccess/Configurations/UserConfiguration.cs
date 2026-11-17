@@ -15,13 +15,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.UserName).IsUnique();
         builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(256);
 
-        builder.Property(u => u.BranchId).IsRequired(false).HasColumnType("smallint");
-        builder.HasOne(u => u.Branch)
-            .WithMany()
-            .HasForeignKey(u => u.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(u => u.EmployeeId).IsRequired(false);
         builder.Property(u => u.IsLocked).IsRequired().HasDefaultValue(false);
         builder.Property(u => u.MustChangePassword).IsRequired().HasDefaultValue(true);
         builder.Property(u => u.LoginAttempts).IsRequired().HasDefaultValue((short)0);

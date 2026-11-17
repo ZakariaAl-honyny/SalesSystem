@@ -1,7 +1,7 @@
 ﻿namespace SalesSystem.DTO.Responses;
 
 /// <summary>
-/// Represents a price entry for a specific product unit and currency combination.
+/// Represents a price entry for a specific product unit.
 /// </summary>
 public record ProductPriceDto(
     int Id,

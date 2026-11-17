@@ -21,18 +21,9 @@ public class SalesInvoice : DocumentEntity
     /// </summary>
     public decimal OtherCharges { get; private set; }
     public decimal NetTotal { get; private set; }
-    /// <summary>
-    /// القيمة المكافئة بالعملة الأساسية (NetTotal × ExchangeRate)
-    /// </summary>
-    public decimal? BaseNetTotal { get; private set; }
     public decimal PaidAmount { get; private set; }
     public decimal RemainingAmount { get; private set; }
-    public decimal? CostInBaseCurrency { get; private set; }
     public int InvoiceNo { get; private set; }
-    /// <summary>
-    /// Branch identifier for multi-branch support (smallint FK).
-    /// </summary>
-    public short BranchId { get; private set; }
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
 
@@ -41,16 +32,11 @@ public class SalesInvoice : DocumentEntity
     public virtual Customer? Customer { get; private set; }
     public virtual Warehouse? Warehouse { get; private set; }
     public virtual CashBox? CashBox { get; private set; }
-    /// <summary>
-    /// Navigation property to the Branch this invoice belongs to.
-    /// </summary>
-    public virtual Branch? Branch { get; private set; }
     public virtual List<SalesInvoiceLine> Items { get; private set; } = new();
 
     private SalesInvoice() { }
 
     public static SalesInvoice Create(
-        short branchId,
         short warehouseId,
         int invoiceNo,
         int customerId,
@@ -62,11 +48,8 @@ public class SalesInvoice : DocumentEntity
         int? cashBoxId = null,
         DiscountType discountType = DiscountType.Amount,
         decimal? discountRate = null,
-        decimal? baseNetTotal = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
-        if (branchId <= 0)
-            throw new DomainException("الفرع مطلوب.");
         if (warehouseId <= 0)
             throw new DomainException("المستودع مطلوب.");
         if (invoiceNo <= 0)
@@ -84,7 +67,6 @@ public class SalesInvoice : DocumentEntity
 
         var invoice = new SalesInvoice
         {
-            BranchId = branchId,
             WarehouseId = warehouseId,
             InvoiceNo = invoiceNo,
             CashBoxId = cashBoxId,
@@ -96,10 +78,9 @@ public class SalesInvoice : DocumentEntity
             DiscountAmount = discountType == DiscountType.Percentage ? 0 : discountAmount,
             OtherCharges = otherCharges,
             Notes = notes,
-            BaseNetTotal = baseNetTotal,
             Status = InvoiceStatus.Draft
         };
-        invoice.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) invoice.SetCreatedBy(createdByUserName.Trim());
         return invoice;
     }
 
@@ -227,28 +208,6 @@ public class SalesInvoice : DocumentEntity
             DiscountAmount = 0;
         }
         RecalculateTotals();
-        UpdateTimestamp();
-    }
-
-    /// <summary>
-    /// Sets the computed cost in base currency.
-    /// </summary>
-    public void SetCostInBaseCurrency(decimal cost)
-    {
-        if (cost < 0)
-            throw new DomainException("التكلفة بعملة الأساس لا يمكن أن تكون سالبة.");
-        CostInBaseCurrency = cost;
-        UpdateTimestamp();
-    }
-
-    /// <summary>
-    /// Sets the base-currency equivalent of NetTotal (NetTotal × ExchangeRate).
-    /// </summary>
-    public void SetBaseNetTotal(decimal baseNetTotal)
-    {
-        if (baseNetTotal < 0)
-            throw new DomainException("القيمة بالعملة الأساسية لا يمكن أن تكون سالبة.");
-        BaseNetTotal = baseNetTotal;
         UpdateTimestamp();
     }
 

@@ -26,8 +26,6 @@ partial class frmUserMaster
         lblUserName = new Label();
         lblUserNameReq = new Label();
         txtUserName = new TextBox();
-        lblBranch = new Label();
-        cmbBranch = new ComboBox();
         lblPassword = new Label();
         txtPassword = new TextBox();
         chkMustChangePassword = new CheckBox();
@@ -97,8 +95,6 @@ partial class frmUserMaster
         pnlFields.Controls.Add(lblUserName);
         pnlFields.Controls.Add(lblUserNameReq);
         pnlFields.Controls.Add(txtUserName);
-        pnlFields.Controls.Add(lblBranch);
-        pnlFields.Controls.Add(cmbBranch);
         pnlFields.Controls.Add(lblPassword);
         pnlFields.Controls.Add(txtPassword);
         pnlFields.Controls.Add(chkMustChangePassword);
@@ -156,25 +152,6 @@ partial class frmUserMaster
         txtUserName.Name = "txtUserName";
         txtUserName.Size = new Size(300, 32);
         txtUserName.TabIndex = 1;
-        // 
-        // lblBranch
-        // 
-        lblBranch.AutoSize = true;
-        lblBranch.Location = new Point(877, 83);
-        lblBranch.Name = "lblBranch";
-        lblBranch.Size = new Size(51, 24);
-        lblBranch.TabIndex = 6;
-        lblBranch.Text = "الفرع";
-        // 
-        // cmbBranch
-        // 
-        cmbBranch.BackColor = Color.White;
-        cmbBranch.DropDownStyle = ComboBoxStyle.DropDownList;
-        cmbBranch.FlatStyle = FlatStyle.Flat;
-        cmbBranch.Location = new Point(767, 110);
-        cmbBranch.Name = "cmbBranch";
-        cmbBranch.Size = new Size(220, 32);
-        cmbBranch.TabIndex = 3;
         // 
         // lblPassword
         // 
@@ -692,8 +669,6 @@ partial class frmUserMaster
     private System.Windows.Forms.Label lblUserName;
     private System.Windows.Forms.Label lblUserNameReq;
     private System.Windows.Forms.TextBox txtUserName;
-    private System.Windows.Forms.Label lblBranch;
-    private System.Windows.Forms.ComboBox cmbBranch;
     private System.Windows.Forms.Label lblPassword;
     private System.Windows.Forms.TextBox txtPassword;
     private System.Windows.Forms.CheckBox chkMustChangePassword;

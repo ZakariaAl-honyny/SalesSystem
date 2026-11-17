@@ -14,7 +14,7 @@ namespace SalesSystem.Business.Services;
 
 /// <summary>
 /// Product service aligned to the new 65-table schema.
-/// - Prices via ProductPrices (multi-currency, effective dates)
+/// - Prices via ProductPrices (effective dates)
 /// - Cost via InventoryBatches (FIFO/FEFO, weighted average)
 /// - ImagePath on Product (single image, no separate ProductImages table)
 /// - Expiry tracked via InventoryBatches, not Product
@@ -83,7 +83,6 @@ public class ProductService : IProductService
 
             // ─── Create product entity ────────────────────────────────────
             var product = Product.Create(
-                branchId: 1, // V1: hardcoded to main branch
                 name: request.Name,
                 categoryId: request.CategoryId,
                 description: request.Description,
@@ -283,7 +282,6 @@ public class ProductService : IProductService
             p.ImagePath,
             p.IsActive,
             Barcode: p.Barcode,
-            BranchId: p.BranchId,
             ForeignName: p.ForeignName,
             LocationInStore: p.LocationInStore,
             ExpiryAlertDays: p.ExpiryAlertDays

@@ -29,7 +29,7 @@ public class WarehouseStock : AuditableEntity
         short warehouseId,
         int productId,
         decimal quantity = 0,
-        int? createdByUserId = null)
+        string? createdByUserName = null)
     {
         if (warehouseId <= 0)
             throw new DomainException("المستودع مطلوب.");
@@ -44,7 +44,7 @@ public class WarehouseStock : AuditableEntity
             ProductId = productId,
             Quantity = quantity
         };
-        stock.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) stock.SetCreatedBy(createdByUserName.Trim());
         return stock;
     }
 

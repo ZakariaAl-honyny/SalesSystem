@@ -17,7 +17,6 @@ public class MockAuthService : IAuthService
             UserId: 1,
             UserName: request.UserName,
             IsAdmin: true,
-            BranchId: null,
             Token: "mock-token-0000000000000000",
             ExpiresAt: DateTime.UtcNow.AddHours(8),
             MustChangePassword: false,

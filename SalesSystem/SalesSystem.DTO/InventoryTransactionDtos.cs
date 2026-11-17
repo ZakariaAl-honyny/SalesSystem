@@ -14,7 +14,7 @@ public record InventoryTransactionDto(
     byte? ReferenceType,
     string? Notes,
     DateTime CreatedAt,
-    int CreatedByUserId,
+    string? CreatedByUserName,
     IReadOnlyList<InventoryTransactionLineDto> Lines)
 {
     public string MovementTypeDisplay => MovementType switch

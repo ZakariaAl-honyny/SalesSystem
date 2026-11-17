@@ -78,13 +78,11 @@ public class JournalEntryService : IJournalEntryService
 
             // 6. Create the journal entry via domain factory (Draft status)
             var entry = SalesSystem.Models.Accounting.JournalEntry.Create(
-                branchId: 1,
                 numberResult.Value.EntryNumber,
                 entryNo,
                 request.EntryDate,
                 request.Description ?? string.Empty,
                 request.EntryType,
-                userId,
                 referenceType: request.ReferenceType,
                 referenceId: request.ReferenceId,
                 referenceNumber: request.ReferenceNumber);
@@ -185,8 +183,7 @@ public class JournalEntryService : IJournalEntryService
                     request.EntryType,
                     request.ReferenceType,
                     request.ReferenceId,
-                    request.ReferenceNumber,
-                    userId);
+                    request.ReferenceNumber);
 
                 // Remove old lines
                 foreach (var oldLine in entry.Lines.ToList())
@@ -319,7 +316,7 @@ public class JournalEntryService : IJournalEntryService
             if (entry == null)
                 return Result<JournalEntryDetailDto>.Failure("القيد المحاسبي غير موجود", ErrorCodes.NotFound);
 
-            entry.Post(userId);
+            entry.Post();
             await _uow.SaveChangesAsync(ct);
 
             _logger.LogInformation(
@@ -359,7 +356,7 @@ public class JournalEntryService : IJournalEntryService
             // Wrap cancel + audit log in transaction for atomicity
             await _uow.ExecuteTransactionAsync(async () =>
             {
-                entry.Cancel(userId);
+                entry.Cancel();
 
                 // Record audit row so cancellation is traceable even though the entry leaves the balances
                 var auditLog = AuditLog.Create(
@@ -484,7 +481,7 @@ public class JournalEntryService : IJournalEntryService
             (int)entry.Status,
             GetStatusDisplay(entry.Status),
             entry.CreatedAt,
-            entry.CreatedByUserId,
+            entry.CreatedByUserName,
             entry.EntryType
         );
     }
@@ -514,7 +511,7 @@ public class JournalEntryService : IJournalEntryService
             GetStatusDisplay(entry.Status),
             entry.ReversedByEntryId,
             entry.CreatedAt,
-            entry.CreatedByUserId,
+            entry.CreatedByUserName,
             lineDtos,
             entry.EntryType
         );

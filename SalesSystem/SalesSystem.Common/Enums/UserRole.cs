@@ -9,6 +9,5 @@ public enum UserRole : byte
     Cashier = 5,
     WarehouseSupervisor = 6,
     SalesEmployee = 7,
-    Observer = 8,
-    BranchManager = 9
+    Observer = 8
 }

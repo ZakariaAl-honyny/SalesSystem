@@ -57,7 +57,7 @@ partial class ctrlCustomerCard
         // 
         // gbIdentity
         // 
-        gbIdentity.BackColor = Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbIdentity.BackColor = Color.FromArgb(235, 245, 235);
         gbIdentity.Controls.Add(lblIdCaption);
         gbIdentity.Controls.Add(lblIdValue);
         gbIdentity.Controls.Add(lblNameCaption);
@@ -80,10 +80,11 @@ partial class ctrlCustomerCard
         gbIdentity.Controls.Add(lblNotesValue);
         gbIdentity.Dock = DockStyle.Fill;
         gbIdentity.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbIdentity.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        gbIdentity.Location = new Point(0, 0);
+        gbIdentity.ForeColor = Color.FromArgb(14, 82, 52);
+        gbIdentity.Location = new Point(0, 78);
         gbIdentity.Name = "gbIdentity";
         gbIdentity.Padding = new Padding(8);
+        gbIdentity.RightToLeft = RightToLeft.Yes;
         gbIdentity.Size = new Size(900, 392);
         gbIdentity.TabIndex = 0;
         gbIdentity.TabStop = false;
@@ -91,22 +92,21 @@ partial class ctrlCustomerCard
         // 
         // lblIdCaption
         // 
-        lblIdCaption.AutoSize = false;
+        lblIdCaption.AutoSize = true;
         lblIdCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblIdCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblIdCaption.Location = new Point(8, 30);
+        lblIdCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblIdCaption.Location = new Point(717, 33);
         lblIdCaption.Name = "lblIdCaption";
-        lblIdCaption.Size = new Size(160, 26);
+        lblIdCaption.Size = new Size(113, 24);
         lblIdCaption.TabIndex = 0;
         lblIdCaption.Text = "رقم العميل";
         lblIdCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblIdValue
         // 
-        lblIdValue.AutoSize = false;
         lblIdValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblIdValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblIdValue.Location = new Point(176, 30);
+        lblIdValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblIdValue.Location = new Point(471, 33);
         lblIdValue.Name = "lblIdValue";
         lblIdValue.Size = new Size(240, 26);
         lblIdValue.TabIndex = 1;
@@ -115,22 +115,21 @@ partial class ctrlCustomerCard
         // 
         // lblNameCaption
         // 
-        lblNameCaption.AutoSize = false;
+        lblNameCaption.AutoSize = true;
         lblNameCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblNameCaption.Location = new Point(8, 68);
+        lblNameCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNameCaption.Location = new Point(717, 71);
         lblNameCaption.Name = "lblNameCaption";
-        lblNameCaption.Size = new Size(160, 26);
+        lblNameCaption.Size = new Size(67, 24);
         lblNameCaption.TabIndex = 2;
         lblNameCaption.Text = "الاسم";
         lblNameCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblNameValue
         // 
-        lblNameValue.AutoSize = false;
         lblNameValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblNameValue.Location = new Point(176, 68);
+        lblNameValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNameValue.Location = new Point(471, 71);
         lblNameValue.Name = "lblNameValue";
         lblNameValue.Size = new Size(240, 26);
         lblNameValue.TabIndex = 3;
@@ -139,22 +138,21 @@ partial class ctrlCustomerCard
         // 
         // lblPhoneCaption
         // 
-        lblPhoneCaption.AutoSize = false;
+        lblPhoneCaption.AutoSize = true;
         lblPhoneCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPhoneCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblPhoneCaption.Location = new Point(8, 106);
+        lblPhoneCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblPhoneCaption.Location = new Point(717, 109);
         lblPhoneCaption.Name = "lblPhoneCaption";
-        lblPhoneCaption.Size = new Size(160, 26);
+        lblPhoneCaption.Size = new Size(70, 24);
         lblPhoneCaption.TabIndex = 4;
         lblPhoneCaption.Text = "الهاتف";
         lblPhoneCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblPhoneValue
         // 
-        lblPhoneValue.AutoSize = false;
         lblPhoneValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPhoneValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblPhoneValue.Location = new Point(176, 106);
+        lblPhoneValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblPhoneValue.Location = new Point(471, 109);
         lblPhoneValue.Name = "lblPhoneValue";
         lblPhoneValue.Size = new Size(240, 26);
         lblPhoneValue.TabIndex = 5;
@@ -163,22 +161,21 @@ partial class ctrlCustomerCard
         // 
         // lblEmailCaption
         // 
-        lblEmailCaption.AutoSize = false;
+        lblEmailCaption.AutoSize = true;
         lblEmailCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblEmailCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblEmailCaption.Location = new Point(8, 144);
+        lblEmailCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblEmailCaption.Location = new Point(717, 147);
         lblEmailCaption.Name = "lblEmailCaption";
-        lblEmailCaption.Size = new Size(160, 26);
+        lblEmailCaption.Size = new Size(164, 24);
         lblEmailCaption.TabIndex = 6;
         lblEmailCaption.Text = "البريد الإلكتروني";
         lblEmailCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblEmailValue
         // 
-        lblEmailValue.AutoSize = false;
         lblEmailValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblEmailValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblEmailValue.Location = new Point(176, 144);
+        lblEmailValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblEmailValue.Location = new Point(471, 147);
         lblEmailValue.Name = "lblEmailValue";
         lblEmailValue.Size = new Size(240, 26);
         lblEmailValue.TabIndex = 7;
@@ -187,22 +184,21 @@ partial class ctrlCustomerCard
         // 
         // lblAddressCaption
         // 
-        lblAddressCaption.AutoSize = false;
+        lblAddressCaption.AutoSize = true;
         lblAddressCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAddressCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblAddressCaption.Location = new Point(8, 182);
+        lblAddressCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblAddressCaption.Location = new Point(717, 185);
         lblAddressCaption.Name = "lblAddressCaption";
-        lblAddressCaption.Size = new Size(160, 26);
+        lblAddressCaption.Size = new Size(76, 24);
         lblAddressCaption.TabIndex = 8;
         lblAddressCaption.Text = "العنوان";
         lblAddressCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblAddressValue
         // 
-        lblAddressValue.AutoSize = false;
         lblAddressValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAddressValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblAddressValue.Location = new Point(176, 182);
+        lblAddressValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblAddressValue.Location = new Point(471, 185);
         lblAddressValue.Name = "lblAddressValue";
         lblAddressValue.Size = new Size(240, 26);
         lblAddressValue.TabIndex = 9;
@@ -211,22 +207,21 @@ partial class ctrlCustomerCard
         // 
         // lblTaxNumberCaption
         // 
-        lblTaxNumberCaption.AutoSize = false;
+        lblTaxNumberCaption.AutoSize = true;
         lblTaxNumberCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTaxNumberCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblTaxNumberCaption.Location = new Point(440, 30);
+        lblTaxNumberCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblTaxNumberCaption.Location = new Point(272, 52);
         lblTaxNumberCaption.Name = "lblTaxNumberCaption";
-        lblTaxNumberCaption.Size = new Size(160, 26);
+        lblTaxNumberCaption.Size = new Size(146, 24);
         lblTaxNumberCaption.TabIndex = 10;
         lblTaxNumberCaption.Text = "الرقم الضريبي";
         lblTaxNumberCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblTaxNumberValue
         // 
-        lblTaxNumberValue.AutoSize = false;
         lblTaxNumberValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTaxNumberValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTaxNumberValue.Location = new Point(608, 30);
+        lblTaxNumberValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTaxNumberValue.Location = new Point(26, 52);
         lblTaxNumberValue.Name = "lblTaxNumberValue";
         lblTaxNumberValue.Size = new Size(240, 26);
         lblTaxNumberValue.TabIndex = 11;
@@ -235,22 +230,21 @@ partial class ctrlCustomerCard
         // 
         // lblCreditLimitCaption
         // 
-        lblCreditLimitCaption.AutoSize = false;
+        lblCreditLimitCaption.AutoSize = true;
         lblCreditLimitCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditLimitCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblCreditLimitCaption.Location = new Point(440, 68);
+        lblCreditLimitCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCreditLimitCaption.Location = new Point(272, 90);
         lblCreditLimitCaption.Name = "lblCreditLimitCaption";
-        lblCreditLimitCaption.Size = new Size(160, 26);
+        lblCreditLimitCaption.Size = new Size(114, 24);
         lblCreditLimitCaption.TabIndex = 12;
         lblCreditLimitCaption.Text = "حد الائتمان";
         lblCreditLimitCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblCreditLimitValue
         // 
-        lblCreditLimitValue.AutoSize = false;
         lblCreditLimitValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditLimitValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblCreditLimitValue.Location = new Point(608, 68);
+        lblCreditLimitValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblCreditLimitValue.Location = new Point(26, 90);
         lblCreditLimitValue.Name = "lblCreditLimitValue";
         lblCreditLimitValue.Size = new Size(240, 26);
         lblCreditLimitValue.TabIndex = 13;
@@ -259,22 +253,21 @@ partial class ctrlCustomerCard
         // 
         // lblBalanceCaption
         // 
-        lblBalanceCaption.AutoSize = false;
+        lblBalanceCaption.AutoSize = true;
         lblBalanceCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblBalanceCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblBalanceCaption.Location = new Point(440, 106);
+        lblBalanceCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblBalanceCaption.Location = new Point(272, 128);
         lblBalanceCaption.Name = "lblBalanceCaption";
-        lblBalanceCaption.Size = new Size(160, 26);
+        lblBalanceCaption.Size = new Size(143, 24);
         lblBalanceCaption.TabIndex = 14;
         lblBalanceCaption.Text = "الرصيد الحالي";
         lblBalanceCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblBalanceValue
         // 
-        lblBalanceValue.AutoSize = false;
         lblBalanceValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblBalanceValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblBalanceValue.Location = new Point(608, 106);
+        lblBalanceValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblBalanceValue.Location = new Point(26, 128);
         lblBalanceValue.Name = "lblBalanceValue";
         lblBalanceValue.Size = new Size(240, 26);
         lblBalanceValue.TabIndex = 15;
@@ -283,22 +276,21 @@ partial class ctrlCustomerCard
         // 
         // lblAccountCaption
         // 
-        lblAccountCaption.AutoSize = false;
+        lblAccountCaption.AutoSize = true;
         lblAccountCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAccountCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblAccountCaption.Location = new Point(440, 144);
+        lblAccountCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblAccountCaption.Location = new Point(272, 166);
         lblAccountCaption.Name = "lblAccountCaption";
-        lblAccountCaption.Size = new Size(160, 26);
+        lblAccountCaption.Size = new Size(194, 24);
         lblAccountCaption.TabIndex = 16;
         lblAccountCaption.Text = "الحساب المحاسبي";
         lblAccountCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblAccountValue
         // 
-        lblAccountValue.AutoSize = false;
         lblAccountValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAccountValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblAccountValue.Location = new Point(608, 144);
+        lblAccountValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblAccountValue.Location = new Point(26, 166);
         lblAccountValue.Name = "lblAccountValue";
         lblAccountValue.Size = new Size(240, 26);
         lblAccountValue.TabIndex = 17;
@@ -307,12 +299,12 @@ partial class ctrlCustomerCard
         // 
         // lblNotesCaption
         // 
-        lblNotesCaption.AutoSize = false;
+        lblNotesCaption.AutoSize = true;
         lblNotesCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNotesCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblNotesCaption.Location = new Point(8, 228);
+        lblNotesCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNotesCaption.Location = new Point(717, 231);
         lblNotesCaption.Name = "lblNotesCaption";
-        lblNotesCaption.Size = new Size(160, 26);
+        lblNotesCaption.Size = new Size(95, 24);
         lblNotesCaption.TabIndex = 18;
         lblNotesCaption.Text = "ملاحظات";
         lblNotesCaption.TextAlign = ContentAlignment.MiddleLeft;
@@ -320,26 +312,25 @@ partial class ctrlCustomerCard
         // lblNotesValue
         // 
         lblNotesValue.AutoEllipsis = true;
-        lblNotesValue.AutoSize = false;
         lblNotesValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNotesValue.ForeColor = Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblNotesValue.Location = new Point(176, 228);
+        lblNotesValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNotesValue.Location = new Point(36, 228);
         lblNotesValue.Name = "lblNotesValue";
-        lblNotesValue.Size = new Size(672, 26);
+        lblNotesValue.Size = new Size(675, 26);
         lblNotesValue.TabIndex = 19;
         lblNotesValue.Text = "غير مُدخل";
         lblNotesValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // gbStatus
         // 
-        gbStatus.BackColor = Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbStatus.BackColor = Color.FromArgb(235, 245, 235);
         gbStatus.Controls.Add(lblStatusCaption);
         gbStatus.Controls.Add(lblStatusValue);
         gbStatus.Controls.Add(lblCreditFlagCaption);
         gbStatus.Controls.Add(lblCreditFlagValue);
         gbStatus.Dock = DockStyle.Top;
         gbStatus.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbStatus.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        gbStatus.ForeColor = Color.FromArgb(14, 82, 52);
         gbStatus.Location = new Point(0, 0);
         gbStatus.Name = "gbStatus";
         gbStatus.Padding = new Padding(8);
@@ -350,21 +341,20 @@ partial class ctrlCustomerCard
         // 
         // lblStatusCaption
         // 
-        lblStatusCaption.AutoSize = false;
+        lblStatusCaption.AutoSize = true;
         lblStatusCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblStatusCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblStatusCaption.Location = new Point(8, 26);
+        lblStatusCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblStatusCaption.Location = new Point(674, 31);
         lblStatusCaption.Name = "lblStatusCaption";
-        lblStatusCaption.Size = new Size(110, 26);
+        lblStatusCaption.Size = new Size(72, 24);
         lblStatusCaption.TabIndex = 0;
         lblStatusCaption.Text = "الحالة:";
         lblStatusCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblStatusValue
         // 
-        lblStatusValue.AutoSize = false;
         lblStatusValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblStatusValue.Location = new Point(126, 26);
+        lblStatusValue.Location = new Point(528, 30);
         lblStatusValue.Name = "lblStatusValue";
         lblStatusValue.Size = new Size(140, 26);
         lblStatusValue.TabIndex = 1;
@@ -373,21 +363,20 @@ partial class ctrlCustomerCard
         // 
         // lblCreditFlagCaption
         // 
-        lblCreditFlagCaption.AutoSize = false;
+        lblCreditFlagCaption.AutoSize = true;
         lblCreditFlagCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditFlagCaption.ForeColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblCreditFlagCaption.Location = new Point(300, 26);
+        lblCreditFlagCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCreditFlagCaption.Location = new Point(377, 31);
         lblCreditFlagCaption.Name = "lblCreditFlagCaption";
-        lblCreditFlagCaption.Size = new Size(160, 26);
+        lblCreditFlagCaption.Size = new Size(133, 24);
         lblCreditFlagCaption.TabIndex = 2;
         lblCreditFlagCaption.Text = "له حد ائتمان:";
         lblCreditFlagCaption.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblCreditFlagValue
         // 
-        lblCreditFlagValue.AutoSize = false;
         lblCreditFlagValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditFlagValue.Location = new Point(468, 26);
+        lblCreditFlagValue.Location = new Point(271, 30);
         lblCreditFlagValue.Name = "lblCreditFlagValue";
         lblCreditFlagValue.Size = new Size(100, 26);
         lblCreditFlagValue.TabIndex = 3;
@@ -396,11 +385,10 @@ partial class ctrlCustomerCard
         // 
         // lnkEdit
         // 
-        lnkEdit.ActiveLinkColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
-        lnkEdit.AutoSize = false;
+        lnkEdit.ActiveLinkColor = Color.FromArgb(14, 165, 103);
         lnkEdit.Dock = DockStyle.Bottom;
         lnkEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lnkEdit.LinkColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lnkEdit.LinkColor = Color.FromArgb(14, 82, 52);
         lnkEdit.Location = new Point(0, 470);
         lnkEdit.Name = "lnkEdit";
         lnkEdit.Size = new Size(900, 40);
@@ -408,13 +396,13 @@ partial class ctrlCustomerCard
         lnkEdit.TabStop = true;
         lnkEdit.Text = "تعديل بيانات العميل";
         lnkEdit.TextAlign = ContentAlignment.MiddleCenter;
-        lnkEdit.VisitedLinkColor = Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        lnkEdit.VisitedLinkColor = Color.FromArgb(14, 82, 52);
         lnkEdit.LinkClicked += lnkEdit_LinkClicked;
         // 
         // ctrlCustomerCard
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+        BackColor = Color.FromArgb(170, 220, 170);
         Controls.Add(gbIdentity);
         Controls.Add(gbStatus);
         Controls.Add(lnkEdit);
@@ -423,7 +411,9 @@ partial class ctrlCustomerCard
         RightToLeft = RightToLeft.Yes;
         Size = new Size(900, 510);
         gbIdentity.ResumeLayout(false);
+        gbIdentity.PerformLayout();
         gbStatus.ResumeLayout(false);
+        gbStatus.PerformLayout();
         ResumeLayout(false);
     }
 

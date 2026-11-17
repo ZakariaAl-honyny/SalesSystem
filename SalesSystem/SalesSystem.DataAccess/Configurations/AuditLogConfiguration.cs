@@ -19,6 +19,7 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(a => a.NewValues).HasColumnType("nvarchar(max)");
         builder.Property(a => a.ChangedColumns).HasMaxLength(500);
         builder.Property(a => a.IpAddress).HasMaxLength(50);
+        builder.Property(a => a.UserName).HasMaxLength(100);
         builder.Property(a => a.CreatedAt)
             .HasDefaultValueSql("GETUTCDATE()")
             .IsRequired();

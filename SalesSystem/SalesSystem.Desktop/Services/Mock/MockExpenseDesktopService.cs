@@ -98,7 +98,6 @@ public class MockExpenseDesktopService : IExpenseDesktopService
                 Status: 1,
                 StatusName: "مسودة",
                 IsActive: true
-                // TODO: Currency / ExpenseAccountCode / BranchName removed from ExpenseDto.
             );
 
             MockExpensesData.Expenses.Add(expense);

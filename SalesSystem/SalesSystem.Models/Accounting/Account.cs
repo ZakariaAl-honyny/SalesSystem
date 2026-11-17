@@ -57,6 +57,30 @@ public class Account : ActivatableEntity
     /// <summary>Additional notes (nvarchar(300)).</summary>
     public string? Notes { get; private set; }
 
+    /// <summary>
+    /// Stored normal balance override (tinyint NULL): 1 = مدين (debit), 2 = دائن (credit).
+    /// NULL means the natural side is derived from <see cref="Nature"/> — used for contra accounts
+    /// (e.g. owner drawings inside equity) that do not follow their nature's natural side.
+    /// </summary>
+    public byte? NormalBalance { get; private set; }
+
+    /// <summary>True when journal entry lines may be linked to a cost center (bit NOT NULL, default 0).</summary>
+    public bool AllowCostCenter { get; private set; }
+
+    // ─── Derived (read-only, NOT mapped) ─────────────────
+
+    /// <summary>Derived: a sub-account is any account that has a parent. Never stored.</summary>
+    public bool IsSubAccount => ParentId.HasValue;
+
+    /// <summary>
+    /// Derived: the effective normal balance — the stored override when present, otherwise the
+    /// natural side of <see cref="Nature"/> (Debit = 1 for Asset/Expense, Credit = 2 otherwise).
+    /// </summary>
+    public byte EffectiveNormalBalance => NormalBalance ?? (IsDebitNormal() ? (byte)1 : (byte)2);
+
+    /// <summary>Derived: 1 = الميزانية العمومية (Nature 1-3) · 2 = قائمة الدخل (Nature 4-5). Never stored.</summary>
+    public byte FinancialStatement => Nature <= 3 ? (byte)1 : (byte)2;
+
     // ─── Navigation Properties ──────────────────────────
     public Account? ParentAccount { get; private set; }
     private readonly List<Account> _subAccounts = new();
@@ -83,13 +107,18 @@ public class Account : ActivatableEntity
         string? description = null,
         string? colorCode = null,
         string? notes = null,
-        int? createdByUserId = null)
+        string? createdByUserName = null,
+        byte? normalBalance = null,
+        bool allowCostCenter = false)
     {
         if (string.IsNullOrWhiteSpace(accountCode))
             throw new DomainException("رمز الحساب مطلوب");
 
         if (string.IsNullOrWhiteSpace(nameAr))
             throw new DomainException("اسم الحساب بالعربية مطلوب");
+
+        if (normalBalance.HasValue && normalBalance.Value != 1 && normalBalance.Value != 2)
+            throw new DomainException("الطبيعة المدينة/الدائنة غير صالحة — القيم المسموحة: 1 (مدين) أو 2 (دائن)");
 
         if (nature < 1 || nature > 5)
             throw new DomainException("نوع الحساب غير صالح — القيم المسموحة: 1-5");
@@ -125,8 +154,10 @@ public class Account : ActivatableEntity
             Description = description?.Trim(),
             ColorCode = colorCode?.Trim(),
             Notes = notes?.Trim(),
+            NormalBalance = normalBalance,
+            AllowCostCenter = allowCostCenter,
         };
-        account.SetCreatedBy(createdByUserId);
+        if (!string.IsNullOrWhiteSpace(createdByUserName)) account.SetCreatedBy(createdByUserName.Trim());
         return account;
     }
 
@@ -143,13 +174,17 @@ public class Account : ActivatableEntity
         string? description = null,
         string? colorCode = null,
         string? notes = null,
-        int? updatedByUserId = null)
+        byte? normalBalance = null,
+        bool allowCostCenter = false)
     {
         if (IsSystem)
             throw new DomainException("لا يمكن تعديل حساب نظامي");
 
         if (string.IsNullOrWhiteSpace(nameAr))
             throw new DomainException("اسم الحساب بالعربية مطلوب");
+
+        if (normalBalance.HasValue && normalBalance.Value != 1 && normalBalance.Value != 2)
+            throw new DomainException("الطبيعة المدينة/الدائنة غير صالحة — القيم المسموحة: 1 (مدين) أو 2 (دائن)");
 
         if (nature < 1 || nature > 5)
             throw new DomainException("نوع الحساب غير صالح — القيم المسموحة: 1-5");
@@ -175,7 +210,8 @@ public class Account : ActivatableEntity
         Description = description?.Trim();
         ColorCode = colorCode?.Trim();
         Notes = notes?.Trim();
-        SetUpdatedBy(updatedByUserId);
+        NormalBalance = normalBalance;
+        AllowCostCenter = allowCostCenter;
         UpdateTimestamp();
     }
 
@@ -194,26 +230,24 @@ public class Account : ActivatableEntity
     /// <summary>
     /// Activates this account. System accounts are protected.
     /// </summary>
-    public void Activate(int? updatedByUserId = null)
+    public void Activate()
     {
         if (IsSystem)
             throw new DomainException("لا يمكن تعديل حساب نظامي");
 
         IsActive = true;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 
     /// <summary>
     /// Deactivates this account. System accounts are protected.
     /// </summary>
-    public void Deactivate(int? updatedByUserId = null)
+    public void Deactivate()
     {
         if (IsSystem)
             throw new DomainException("لا يمكن تعديل حساب نظامي");
 
         IsActive = false;
-        SetUpdatedBy(updatedByUserId);
         UpdateTimestamp();
     }
 

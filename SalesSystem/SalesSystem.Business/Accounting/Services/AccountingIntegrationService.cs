@@ -42,11 +42,11 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
     // ??? Helper: Fetch multiple system accounts in parallel ?????????
     private async Task<Result<Dictionary<SystemAccountKey, int>>> GetAccountIdDictionaryAsync(
-        short? branchId, IEnumerable<SystemAccountKey> keys, CancellationToken ct)
+        IEnumerable<SystemAccountKey> keys, CancellationToken ct)
     {
         var tasks = keys.Select(async key =>
         {
-            var result = await _systemAccountService.GetMappingAsync(key, branchId, ct);
+            var result = await _systemAccountService.GetMappingAsync(key, ct);
             return (Key: key, Result: result);
         });
 
@@ -92,9 +92,9 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
     // ??? Helper: Fetch a single system account ??????????????????????
     private async Task<Result<int>> GetAccountIdAsync(SystemAccountKey key,
-        short? branchId, CancellationToken ct)
+        CancellationToken ct)
     {
-        var result = await _systemAccountService.GetMappingAsync(key, branchId, ct);
+        var result = await _systemAccountService.GetMappingAsync(key, ct);
         if (!result.IsSuccess || result.Value == null)
             return Result<int>.Failure($"تعذر العثور على الحساب المطلوب: {GetAccountName(key)}");
         if (result.Value.AccountId <= 0)
@@ -142,7 +142,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         try
         {
             var openingEquityResult = await GetAccountIdAsync(
-                SystemAccountKey.OpeningBalanceEquity, null, ct);
+                SystemAccountKey.OpeningBalanceEquity, ct);
             if (!openingEquityResult.IsSuccess)
                 return Result<int>.Failure(openingEquityResult.Error!);
 
@@ -202,7 +202,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
         try
         {
             var openingEquityResult = await GetAccountIdAsync(
-                SystemAccountKey.OpeningBalanceEquity, null, ct);
+                SystemAccountKey.OpeningBalanceEquity, ct);
             if (!openingEquityResult.IsSuccess)
                 return Result<int>.Failure(openingEquityResult.Error!);
 
@@ -266,7 +266,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.OpeningBalanceEquity
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -332,7 +332,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.Inventory
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -345,12 +345,12 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             // Net revenue after header discount
             var netRevenue = invoice.SubTotal - invoice.DiscountAmount;
 
-            // Get exchange rate: document amounts are in document currency, convert to base currency
+            // No conversion: amounts are recorded as-is in the system's single currency
             var rate = 1m; // exchange rate removed in v4.10 currency cleanup
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // ?? Revenue Side (multiplied by rate to convert to base currency) ??????
+            // ?? Revenue Side (multiplied by rate) ??????
             // Debit side (Cash / AR) depends on PaymentType
             if (invoice.PaymentType == PaymentType.Cash)
             {
@@ -411,7 +411,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     "ضريبة القيمة المضافة"));
             }
 
-            // ?? COGS Side (ALWAYS in base currency — do NOT multiply by rate) ??
+            // ?? COGS Side (never multiplied by rate) ??
             if (totalCost > 0)
             {
                 lines.Add(new JournalEntryLineRequest(
@@ -479,7 +479,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.Inventory
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -489,7 +489,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             if (netRevenue < 0)
                 return Result<int>.Failure("لا يمكن أن يتجاوز الخصم قيمة الإجمالي الفرعي");
 
-            // Use the SAME exchange rate as the original entry
+            // Mirror the same amounts as the original entry — no conversion
             var rate = 1m; // exchange rate removed in v4.10 currency cleanup
 
             var lines = new List<JournalEntryLineRequest>();
@@ -560,7 +560,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             // Original: Dr COGS, Cr Inventory
             // Reverse:  Cr COGS, Dr Inventory
             // We don't have totalCost here, so we need to query the original entry.
-            // COGS amounts retrieved from original entry are ALREADY in base currency.
+            // COGS amounts retrieved from the original entry need no conversion.
             var originalEntry = await _uow.JournalEntries.FirstOrDefaultAsync(
                 je => je.ReferenceType == "SalesInvoice"
                     && je.ReferenceId == invoice.Id
@@ -596,7 +596,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             }
             else
             {
-                // Fallback: cannot compute COGS estimate without CostInBaseCurrency on SalesInvoiceLine
+                // Fallback: cannot compute COGS estimate for this line
                 // The revenue-side reversal is still applied above.
                 _logger.LogWarning(
                     "Original journal entry not found for SalesInvoice {Id} ({InvoiceNo}), COGS reversal skipped (no per-item cost data available)",
@@ -653,7 +653,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.AccountsPayable
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -666,19 +666,19 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             // Net inventory cost = SubTotal - DiscountAmount + OtherCharges (landed cost)
             var netInventoryCost = invoice.SubTotal - invoice.DiscountAmount + invoice.OtherCharges;
 
-            // Get exchange rate: document amounts are in document currency, convert to base currency
+            // No conversion: amounts are recorded as-is in the system's single currency
             var rate = 1m; // exchange rate removed in v4.10 currency cleanup
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // Dr Inventory Asset (net cost after discount) — converted to base currency
+            // Dr Inventory Asset (net cost after discount)
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.Inventory],
                 netInventoryCost * rate,
                 0,
                 "قيمة المشتريات (صافي بعد الخصم)"));
 
-            // Dr VAT Input — converted to base currency
+            // Dr VAT Input
             if (invoice.TaxAmount > 0)
             {
                 lines.Add(new JournalEntryLineRequest(
@@ -688,7 +688,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                     "ضريبة القيمة المضافة"));
             }
 
-            // Credit side (Cash / AP) depends on PaymentType — converted to base currency
+            // Credit side (Cash / AP) depends on PaymentType
             if (invoice.PaymentType == PaymentType.Cash)
             {
                 lines.Add(new JournalEntryLineRequest(
@@ -773,7 +773,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.PurchaseReturns
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -783,7 +783,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             if (netInventoryCost < 0)
                 return Result<int>.Failure("لا يمكن أن يتجاوز الخصم قيمة الإجمالي الفرعي");
 
-            // Use the SAME exchange rate as the original entry
+            // Mirror the same amounts as the original entry — no conversion
             var rate = 1m; // exchange rate removed in v4.10 currency cleanup
 
             var lines = new List<JournalEntryLineRequest>();
@@ -891,7 +891,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.CostOfGoodsSold
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -902,12 +902,12 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 ? salesReturn.Customer.AccountId
                 : m[SystemAccountKey.AccountsReceivable];
 
-            // Get exchange rate: return amounts are in document currency, convert to base currency
+            // No conversion: return amounts are recorded as-is in the system's single currency
             var rate = 1m;
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // ?? Revenue reversal (converted to base currency) ????????
+            // ?? Revenue reversal ????????
             // Dr: SalesReturnsAccount (contra revenue) = return amount — rate
             // Cr: CustomerAccount (reduces AR) = return amount — rate
             lines.Add(new JournalEntryLineRequest(
@@ -922,7 +922,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 salesReturn.TotalAmount * rate,
                 "مردودات المبيعات وائتمان العميل"));
 
-            // ?? COGS reversal (ALWAYS in base currency — do NOT multiply by rate) ??
+            // ?? COGS reversal (never multiplied by rate) ??
             if (totalCost > 0)
             {
                 // Dr: InventoryAccount (add stock back)
@@ -995,7 +995,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.CostOfGoodsSold
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -1006,12 +1006,12 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 ? salesReturn.Customer.AccountId
                 : m[SystemAccountKey.AccountsReceivable];
 
-            // Use the SAME exchange rate as the original entry
+            // Mirror the same amounts as the original entry — no conversion
             var rate = 1m;
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // ?? Reverse revenue reversal (converted to base currency) ?
+            // ?? Reverse revenue reversal ?
             // Reverse of create: swap Dr ? Cr
             // Dr: CustomerAccount (re-instate AR) = return amount — rate
             // Cr: SalesReturnsAccount (reduce contra-revenue) = return amount — rate
@@ -1027,7 +1027,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 salesReturn.TotalAmount * rate,
                 "عكس مردودات المبيعات وذمم العملاء"));
 
-            // ?? Reverse COGS reversal (ALWAYS in base currency — do NOT multiply) ??
+            // ?? Reverse COGS reversal (never multiplied by rate) ??
             if (totalCost > 0)
             {
                 // Dr: COGSAccount (re-instate COGS)
@@ -1093,7 +1093,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.AccountsPayable
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -1108,14 +1108,14 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var lines = new List<JournalEntryLineRequest>();
 
-            // Dr: AccountsPayable (supplier) — decreases the liability (converted to base currency)
+            // Dr: AccountsPayable (supplier) — decreases the liability
             lines.Add(new JournalEntryLineRequest(
                 supplierAccountId,
                 purchaseReturn.TotalAmount * rate,
                 0,
                 "ذمم مورد - مردودات المشتريات"));
 
-            // Cr: PurchaseReturnAccount — records the return (converted to base currency)
+            // Cr: PurchaseReturnAccount — records the return
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.PurchaseReturns],
                 0,
@@ -1173,7 +1173,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.AccountsPayable
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -1189,14 +1189,14 @@ public class AccountingIntegrationService : IAccountingIntegrationService
             var lines = new List<JournalEntryLineRequest>();
 
             // Reverse of create: swap Dr ? Cr
-            // Dr: PurchaseReturnAccount (converted to base currency)
+            // Dr: PurchaseReturnAccount
             lines.Add(new JournalEntryLineRequest(
                 m[SystemAccountKey.PurchaseReturns],
                 purchaseReturn.TotalAmount * rate,
                 0,
                 "عكس مردودات المشتريات"));
 
-            // Cr: AccountsPayable (supplier) — re-instates the liability (converted to base currency)
+            // Cr: AccountsPayable (supplier) — re-instates the liability
             lines.Add(new JournalEntryLineRequest(
                 supplierAccountId,
                 0,
@@ -1252,7 +1252,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.AccountsReceivable
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -1309,7 +1309,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
         try
         {
-            var cashResult = await GetAccountIdAsync(SystemAccountKey.DefaultCash, null, ct);
+            var cashResult = await GetAccountIdAsync(SystemAccountKey.DefaultCash, ct);
             if (!cashResult.IsSuccess)
                 return Result<int>.Failure(cashResult.Error!);
 
@@ -1369,7 +1369,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
                 SystemAccountKey.AccountsPayable
             };
 
-            var dictResult = await GetAccountIdDictionaryAsync(null, requiredKeys, ct);
+            var dictResult = await GetAccountIdDictionaryAsync(requiredKeys, ct);
             if (!dictResult.IsSuccess)
                 return Result<int>.Failure(dictResult.Error!);
 
@@ -1426,7 +1426,7 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
         try
         {
-            var cashResult = await GetAccountIdAsync(SystemAccountKey.DefaultCash, null, ct);
+            var cashResult = await GetAccountIdAsync(SystemAccountKey.DefaultCash, ct);
             if (!cashResult.IsSuccess)
                 return Result<int>.Failure(cashResult.Error!);
 
@@ -1487,10 +1487,10 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var cashAccountId = cashBox.AccountId;
 
-            // Get exchange rate (expense has ExchangeRate nullable — use 1m as fallback)
+            // No conversion: amounts are recorded as-is in the system's single currency
             var rate = 1m;
 
-            // Dr ExpenseAccount / Cr CashBox.Account (cash outflow) — converted to base currency
+            // Dr ExpenseAccount / Cr CashBox.Account (cash outflow)
             var request = new CreateJournalEntryRequest(
                 EntryDate: expense.ExpenseDate,
                 Description: $"مصروف: {expense.Notes ?? $"رقم {expense.ExpenseNo}"}",
@@ -1546,10 +1546,10 @@ public class AccountingIntegrationService : IAccountingIntegrationService
 
             var cashAccountId = cashBox.AccountId;
 
-            // Use the SAME exchange rate as the original entry
+            // Mirror the same amounts as the original entry — no conversion
             var rate = 1m;
 
-            // Reverse: Dr CashBox.Account / Cr ExpenseAccount (cash returned) — converted to base currency
+            // Reverse: Dr CashBox.Account / Cr ExpenseAccount (cash returned)
             var request = new CreateJournalEntryRequest(
                 EntryDate: DateTime.UtcNow,
                 Description: $"عكس المصروف: {expense.Notes ?? $"رقم {expense.ExpenseNo}"}",

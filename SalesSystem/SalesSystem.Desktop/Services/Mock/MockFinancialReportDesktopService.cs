@@ -23,11 +23,11 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     private const byte Posted = 2;
 
     // ─── أكواد الحسابات المستخدمة في الترحيل (من دليل الحسابات التجريبي) ───
-    private const string CashCode = "1111";          // الصندوق الرئيسي
-    private const string ReceivableCode = "113";     // حسابات العملاء والمدينون
-    private const string InventoryCode = "114";      // بضاعة آخر المدة
-    private const string PayableCode = "211";        // حسابات الموردين والدائنون
-    private const string VatCode = "213";            // ضرائب مستحقة
+    private const string CashCode = "1101";          // الصناديق والخزائن النقدية
+    private const string ReceivableCode = "1103";    // حسابات العملاء والمدينون
+    private const string InventoryCode = "1104";     // بضاعة آخر المدة
+    private const string PayableCode = "2101";       // حسابات الموردين والدائنون
+    private const string VatCode = "2103";           // ضرائب مستحقة
     private const string SalesRevenueCode = "31";    // إيراد مبيعات البضاعة
     private const string CogsCode = "41";            // تكلفة البضاعة المباعة
 
@@ -124,7 +124,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     }
 
     // ═══════════════════════════════════════════════
-    // 2) التدفق النقدي (حركة حسابات الصناديق 111*)
+    // 2) التدفق النقدي (حركة حسابات الصناديق 1101*)
     // ═══════════════════════════════════════════════
     public Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(
         DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default)
@@ -744,7 +744,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
         // ─── 4) المصروفات المرحّلة ───
         foreach (var expense in MockExpensesData.Expenses.Where(e => e.Status == Posted))
         {
-            var code = AccountCodeById(expense.ExpenseAccountId) ?? "429";
+            var code = AccountCodeById(expense.ExpenseAccountId) ?? "4207";
             var cashAccount = CashAccountOf(expense.CashBoxId);
 
             Add(postings, expense.ExpenseDate.Date, code, expense.Amount, 0m,
@@ -949,7 +949,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
 
     private static bool IsDebitNormal(int nature) => nature is 1 or 5;
 
-    private static bool IsCashCode(string code) => code.StartsWith("111");
+    private static bool IsCashCode(string code) => code.StartsWith("1101");
 
     private static string? AccountCodeById(int accountId)
         => MockAccountsData.Accounts.FirstOrDefault(a => a.Id == accountId)?.AccountCode;

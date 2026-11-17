@@ -23,8 +23,7 @@ public record SalesReturnDto(
     int? CashBoxId,
     string? CashBoxName,
     decimal RefundAmount,
-    IReadOnlyList<SalesReturnItemDto> Items,
-    short BranchId = 0)
+    IReadOnlyList<SalesReturnItemDto> Items)
 {
     public string StatusDisplay => Status switch
     {
@@ -40,5 +39,4 @@ public record SalesReturnItemDto(int Id, int ProductId, int ProductUnitId, strin
     decimal UnitPrice,
     decimal DiscountAmount,
     decimal LineTotal,
-    byte Mode,
-    decimal? CostInBaseCurrency = null);
+    byte Mode);

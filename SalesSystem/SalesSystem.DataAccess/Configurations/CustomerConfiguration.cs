@@ -53,12 +53,6 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         // CategoryId is a lookup — no FK constraint (type mismatch with smallint PK)
         builder.Property(c => c.CategoryId).IsRequired(false);
 
-        // FK to Branch
-        builder.HasOne(c => c.Branch)
-            .WithMany()
-            .HasForeignKey(c => c.BranchId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // Indexes
         builder.HasIndex(c => c.AccountId)
             .HasDatabaseName("IX_Customers_AccountId");

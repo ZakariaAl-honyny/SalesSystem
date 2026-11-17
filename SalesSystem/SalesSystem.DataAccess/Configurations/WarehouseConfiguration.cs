@@ -41,13 +41,6 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
         builder.Property(w => w.IsActive)
             .HasDefaultValue(true);
 
-        // === FK to Branch (nullable) ===
-        builder.HasOne(w => w.Branch)
-            .WithMany()
-            .HasForeignKey(w => w.BranchId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // فلتر الاستعلام العام — الحذف الناعم. يجب على شاشات الإدارة استخدام IgnoreQueryFilters() لعرض السجلات المحذوفة
         builder.HasQueryFilter(w => w.IsActive);
     }

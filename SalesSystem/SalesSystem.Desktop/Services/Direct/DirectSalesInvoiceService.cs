@@ -83,7 +83,7 @@ public class DirectSalesInvoiceService : ISalesInvoiceDesktopService
     {
         try
         {
-            // Create → Update: الحقول غير الموجودة في UpdateSalesInvoiceRequest (InvoiceNo, BranchId) لا تُحدَّث.
+            // Create → Update: الحقل غير الموجود في UpdateSalesInvoiceRequest (InvoiceNo) لا يُحدَّث.
             var request = new UpdateSalesInvoiceRequest(
                 WarehouseId: r.WarehouseId,
                 CustomerId: r.CustomerId,

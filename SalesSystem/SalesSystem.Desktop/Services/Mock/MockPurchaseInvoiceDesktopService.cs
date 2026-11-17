@@ -112,7 +112,6 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
                 PaymentType: (byte)r.PaymentType,
                 SubTotal: subTotal, DiscountAmount: r.DiscountAmount,
                 DiscountType: (byte)(r.DiscountType ?? 0), DiscountRate: r.DiscountRate,
-                CostInBaseCurrency: null,
                 TaxAmount: r.TaxAmount, OtherCharges: r.OtherCharges,
                 NetTotal: netTotal, PaidAmount: r.PaidAmount, RemainingAmount: remaining,
                 Notes: r.Notes, SupplierInvoiceNo: null,
@@ -292,7 +291,7 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
                 LandedUnitCost: line.UnitPrice,
                 DiscountType: (byte)(line.DiscountType ?? 0), DiscountRate: line.DiscountRate,
                 DiscountAmount: lineDiscount,
-                CostInBaseCurrency: null, AdditionalFeesAmount: 0m);
+                AdditionalFeesAmount: 0m);
         }).ToList();
     }
 

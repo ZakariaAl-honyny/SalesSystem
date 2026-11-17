@@ -46,8 +46,7 @@ internal static class MockReturnsData
                     new SalesReturnItemDto(Id: 1, ProductId: 1, ProductUnitId: 1,
                         ProductName: "شاي ليبتون 250غ", Quantity: 5m, UnitPrice: 500m,
                         DiscountAmount: 0m, LineTotal: 2500m, Mode: 1)
-                }.AsReadOnly(),
-                BranchId: 1),
+                }.AsReadOnly()),
 
             // ── 2: مرحل — شركة النور للتجارة — بضاعة غير مطابقة ──
             new SalesReturnDto(
@@ -81,8 +80,7 @@ internal static class MockReturnsData
                     new SalesReturnItemDto(Id: 3, ProductId: 7, ProductUnitId: 7,
                         ProductName: "تونا معلبة 185غ", Quantity: 20m, UnitPrice: 1000m,
                         DiscountAmount: 0m, LineTotal: 20000m, Mode: 1)
-                }.AsReadOnly(),
-                BranchId: 1),
+                }.AsReadOnly()),
 
             // ── 3: ملغي — محمد عبدالرحمن السالمي — خطأ في الطلب ──
             new SalesReturnDto(
@@ -113,8 +111,7 @@ internal static class MockReturnsData
                     new SalesReturnItemDto(Id: 4, ProductId: 2, ProductUnitId: 2,
                         ProductName: "زيت نباتي 1 لتر", Quantity: 10m, UnitPrice: 1500m,
                         DiscountAmount: 0m, LineTotal: 15000m, Mode: 1)
-                }.AsReadOnly(),
-                BranchId: 1)
+                }.AsReadOnly())
         };
     }
 
@@ -153,9 +150,8 @@ internal static class MockReturnsData
                     new PurchaseReturnItemDto(Id: 1, ProductId: 2, ProductName: "زيت نباتي 1 لتر",
                         ProductUnitId: 2, ProductUnitName: "زجاجة",
                         Quantity: 30m, UnitCost: 1500m, LineTotal: 45000m,
-                        PurchaseInvoiceLineId: 1, CostInBaseCurrency: null)
-                }.AsReadOnly(),
-                BranchId: 1),
+                        PurchaseInvoiceLineId: 1)
+                }.AsReadOnly()),
 
             // ── 2: مسودة — مؤسسة التضامن لتجارة المواد الغذائية — بضاعة متضررة ──
             new PurchaseReturnDto(
@@ -182,9 +178,8 @@ internal static class MockReturnsData
                     new PurchaseReturnItemDto(Id: 2, ProductId: 3, ProductName: "أرز بسمتي 5 كغ",
                         ProductUnitId: 3, ProductUnitName: "كيس",
                         Quantity: 10m, UnitCost: 3500m, LineTotal: 35000m,
-                        PurchaseInvoiceLineId: null, CostInBaseCurrency: null)
-                }.AsReadOnly(),
-                BranchId: 1)
+                        PurchaseInvoiceLineId: null)
+                }.AsReadOnly())
         };
     }
 }

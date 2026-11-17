@@ -124,7 +124,7 @@ public class ProductImportService : IProductImportService
                             c => c.Name == categoryName, ct);
                         if (category == null)
                         {
-                            category = ProductCategory.Create(branchId: 1, categoryName, createdByUserId: userId);
+                            category = ProductCategory.Create(categoryName);
                             await _uow.ProductCategories.AddAsync(category, ct);
                             await _uow.SaveChangesAsync(ct);
                             categoryId = category.Id;
@@ -137,14 +137,12 @@ public class ProductImportService : IProductImportService
 
                     // Create the product entity
                     var product = Product.Create(
-                        branchId: 1, // V1: hardcoded to main branch
                         name: row.ProductName!.Trim(),
                         categoryId: categoryId ?? 0,
                         description: row.Description?.Trim(),
                         reorderLevel: row.MinStockLevel ?? 0,
                         trackExpiry: false,
-                        barcode: row.Barcode?.Trim(),
-                        createdByUserId: userId
+                        barcode: row.Barcode?.Trim()
                     );
                     await _uow.Products.AddAsync(product, ct);
                     await _uow.SaveChangesAsync(ct);

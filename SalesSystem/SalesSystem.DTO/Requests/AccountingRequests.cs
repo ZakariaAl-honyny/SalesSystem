@@ -35,7 +35,9 @@ public record CreateAccountRequest(
     short? CategoryId,
     string? Description,
     string? Notes,
-    decimal? OpeningBalance);
+    decimal? OpeningBalance,
+    byte? NormalBalance = null,
+    bool AllowCostCenter = false);
 
 /// <summary>
 /// Request to update an existing account.
@@ -49,4 +51,6 @@ public record UpdateAccountRequest(
     int? ParentId,
     short? CategoryId,
     string? Description,
-    string? Notes);
+    string? Notes,
+    byte? NormalBalance = null,
+    bool AllowCostCenter = false);

@@ -40,20 +40,22 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
             return Task.FromResult(Result<CashBoxDto>.Failure("اسم الصندوق مستخدم بالفعل"));
 
         var nextId = MockData.CashBoxes.Count > 0 ? MockData.CashBoxes.Max(c => c.Id) + 1 : 1;
-        var nextAccountId = MockData.CashBoxes.Count > 0 ? MockData.CashBoxes.Max(c => c.AccountId) + 1 : 200;
+
+        // الحساب المقابل للصندوق: يُضاف فعلاً إلى دليل الـMock بكود غير مستخدم من السلّم الرسمي
+        // (`MockAccountsData.AddCashBoxAccount` ← `NextChildCode`) — لا صياغة كود يدوية هنا (RULE-N169/N172).
+        var account = MockAccountsData.AddCashBoxAccount(r.Name);
+        if (account is null)
+            return Task.FromResult(Result<CashBoxDto>.Failure("الحساب الأب غير موجود"));
+
         var box = new CashBoxDto(
             Id: nextId,
             Name: r.Name,
-            AccountId: nextAccountId,
-            AccountName: r.Name,
-            AccountCode: $"1111{nextId:D2}",
+            AccountId: account.Id,
+            AccountName: account.NameAr,
+            AccountCode: account.AccountCode,
             Description: r.Description,
-            IsActive: true,
-            BranchId: r.BranchId,
-            BranchName: null
+            IsActive: true
         );
-        // TODO: Code / Currency / CashierId / MaxCashLimit / OpeningBalance / CurrentBalance /
-        // LastMovementDate removed from CashBoxDto — the balance lives on the linked Account.
         MockData.CashBoxes.Add(box);
         return Task.FromResult(Result<CashBoxDto>.Success(box));
     }
@@ -75,8 +77,6 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
             Name = r.Name,
             Description = r.Description
         };
-        // TODO: Code / Currency / CashierId / MaxCashLimit removed from
-        // UpdateCashBoxRequest and CashBoxDto.
 
         var index = MockData.CashBoxes.IndexOf(existing);
         MockData.CashBoxes[index] = updated;

@@ -73,12 +73,10 @@ public class InventoryAdjustmentService : IInventoryAdjustmentService
             var adjustmentNo = seqResult.Value.ToString("D6");
 
             var adjustment = InventoryAdjustment.Create(
-                branchId: 1,
                 adjustmentNo,
                 request.WarehouseId,
                 (InventoryAdjustmentType)request.AdjustmentType,
-                reason: request.Reason,
-                createdByUserId: userId);
+                reason: request.Reason);
 
             await _uow.InventoryAdjustments.AddAsync(adjustment, ct);
             await _uow.SaveChangesAsync(ct);
@@ -195,8 +193,7 @@ public class InventoryAdjustmentService : IInventoryAdjustmentService
                         adjustment.WarehouseId,
                         InventoryReferenceType.Adjustment,
                         adjustment.Id,
-                        $"تسوية مخزون - رقم {adjustment.AdjustmentNo}",
-                        userId);
+                        $"تسوية مخزون - رقم {adjustment.AdjustmentNo}");
                     foreach (var line in adjustment.Lines)
                     {
                         var productUnit = await _uow.ProductUnits.GetByIdAsync(line.ProductUnitId, ct);
@@ -360,7 +357,7 @@ public class InventoryAdjustmentService : IInventoryAdjustmentService
             (byte)adjustment.Status,
             GetStatusName(adjustment.Status),
             adjustment.CreatedAt,
-            adjustment.CreatedByUserId,
+            adjustment.CreatedByUserName,
             adjustment.PostedAt,
             adjustment.CancelledAt,
             adjustment.Lines?.Select(l => new InventoryAdjustmentLineDto(

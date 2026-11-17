@@ -41,14 +41,12 @@ public class ExpenseService : IExpenseService
                 var expenseNo = seqResult.Value;
 
                 var expense = Expense.Create(
-                    branchId: 1,
                     expenseNo,
                     request.ExpenseDate,
                     request.ExpenseAccountId,
                     request.CashBoxId,
                     request.Amount,
-                    request.Notes,
-                    userId);
+                    request.Notes);
 
                 await _uow.Expenses.AddAsync(expense, ct);
                 await _uow.SaveChangesAsync(ct);
@@ -144,7 +142,6 @@ public class ExpenseService : IExpenseService
                 request.Amount,
                 request.Notes);
 
-            expense.SetUpdatedBy(userId);
             await _uow.SaveChangesAsync(ct);
 
             _logger.LogInformation("Expense {Id} updated by User {UserId}", id, userId);
@@ -202,7 +199,6 @@ public class ExpenseService : IExpenseService
 
                 // Post the expense entity
                 expense.Post();
-                expense.SetUpdatedBy(userId);
                 await _uow.SaveChangesAsync(ct);
 
                 // Create journal entry: Dr ExpenseAccount / Cr CashBox.Account
