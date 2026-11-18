@@ -17,7 +17,7 @@
 
 ## 2. الفهرس الأساسي (السجل ← ماذا يجيب)
 
-> **حالة `مؤرشف` = نُقل بـ`git mv` إلى `docs/TASKS/ARCHIVE/`.** لا يوجد ملف تتبع مؤرشف بعد؛ الصفوف أدناه هي **الذاكرة القائمة اليوم** بنفس البروتوكول (تُقرأ لا تُحذف) — وأول صف مؤرشف يُضاف عند أول إغلاق.
+> **حالة `مؤرشف` = نُقل بـ`git mv` إلى `docs/TASKS/ARCHIVE/`.** الصفوف أدناه هي **الذاكرة القائمة اليوم** بنفس البروتوكول (تُقرأ لا تُحذف) — والصفوف 13–16 هي أول سجلات مؤرشفة فعلياً (2026-11-18).
 
 | # | السجل | النوع/الحالة | النطاق | التاريخ | اقرأه عندما… |
 |---|---|---|---|---|---|
@@ -33,6 +33,10 @@
 | 10 | `docs/SHARED-HOME-REGISTER.md` | سجل دائم (لا يُؤرشف) | `Helpers/**` · `Global Classes/**` · `Common/Helpers/**` | مستمر | تعدّل سلوكاً مشتركاً — حالة كل ملف مشترك ومستهلكوه |
 | 11 | `docs/FORMAT-COVERAGE.md` · `docs/FORMAT-PROGRESS.md` | سجل دائم | `Global Classes/clsFormat.cs` · `Settings/Forms/frmFormatingSetting*` | مستمر | تلمس تنسيق رقم/تاريخ أو إعداداته |
 | 12 | `docs/CHANGELOG.md` | سجل دائم | الحل كله | مستمر | تسأل «متى تغيّر هذا؟» بجملة واحدة قبل الغوص في `git log` |
+| 13 | `docs/TASKS/ARCHIVE/TASK-008-accounts-hierarchy-fields.md` | سجل مهمة · **مؤرشف** | — (لا كود في V1) | 2026-11-18 | تعيد بناء دليل الحسابات في V2: `NormalBalance` · `AllowCostCenter` · السمات المشتقة · قواعد الشجرة |
+| 14 | `docs/TASKS/ARCHIVE/TASK-009-accounts-editor-toolbar.md` | سجل مهمة · **مؤرشف** | — (لا كود في V1) | 2026-11-18 | تعيد بناء شريط محرر الحسابات في V2 |
+| 15 | `docs/TASKS/ARCHIVE/TASK-010-accounts-editor-inline.md` | سجل مهمة · **مؤرشف** | — (لا كود في V1) | 2026-11-18 | تعيد بناء المحرر المضمَّن في V2 |
+| 16 | `docs/TASKS/ARCHIVE/F-003-accounts-tree/` | ميزة · **مؤرشفة** | — (لا كود في V1) | 2026-11-18 | تعيد بناء شجرة الحسابات (`ctrlTreeOfAccounts` + `frmAccountsTree`) في V2 |
 
 ## 3. الفهرس العكسي — بالملف/المنطقة (هذا هو «المراجعة بالاسم»)
 
@@ -55,6 +59,7 @@
 | `Global Classes/clsDialogs.cs` · `clsFormat.cs` · `clsGlobal.cs` | `AGENTS.md` §2.30 + `FORMAT-COVERAGE.md` | البيت الواحد لكل حوار/تنسيق/فتح نموذج (`RULE-N169`) |
 | `Global Classes/clsFormat.cs` · `Settings/Forms/frmFormatingSetting*` | `docs/FORMAT-COVERAGE.md` · `FORMAT-PROGRESS.md` | الإعدادات العشرة · `Definitions`/`ValidateAll`/`TryApplyAll` |
 | `Screens/Reports/Forms/**` (31 تقريراً) | `AGENTS.md` §2.24 (`RULE-N121`) | استثناء التقارير من لوحة المفاتيح و`gbFilter` · `ReportUiStandardizer` |
+| أي ملف/جدول/شاشة محاسبية | `ARCHIVE/TASK-008`…`TASK-010` + `ARCHIVE/F-003-accounts-tree/` + `docs/database-schema-v2-deferred.md` | **لا شيء محاسبي في V1** — الكود محذوف (قياس 2026-11-18: صفر مرجع) · التصميم لإعادة البناء في V2 فقط |
 
 ## 4. كيف يُضاف صف (بروتوكول — جزء من خطوات الإغلاق)
 

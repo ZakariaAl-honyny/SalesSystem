@@ -95,7 +95,7 @@
 | Business (18+ ملفاً) | حُذفت وسائط المعرّف من كل نداء مصنع ومن `SetCreatedBy/SetUpdatedBy(int)` |
 | `ICurrentUserProvider` + `DesktopCurrentUserProvider` | العقد + تنفيذه من `ISessionService` + تسجيله Singleton في `Program.cs` |
 | `SalesDbContext` | ختم مركزي في `SaveChanges`/`SaveChangesAsync` (كيانـات `AuditableEntity` + الأربعة اليدوية) |
-| `JournalEntry` | `ReviewedByUserId` + تنقّل `ReviewedByUser` ⇒ `ReviewedByUserName` · `Post(string?)` · `Cancel()` |
+| `JournalEntry` | ~~`ReviewedByUserId` + تنقّل `ReviewedByUser` ⇒ `ReviewedByUserName` · `Post(string?)` · `Cancel()`~~ — **ملغى: الكيان لم يعد موجوداً** (أُخرج مع الوحدة المحاسبية 2026-11-17 — `TASK-011` §13؛ صفر مرجع 2026-11-18) |
 | DTOs | `InventoryAdjustmentDto` · `InventoryTransactionDto` · `JournalEntryListDto` · `JournalEntryDetailDto` · `SalesByUserDto` ⇒ أسماء نصية |
 | الهجرات | **حُذفت 37 ملفاً** وأُعيد التوليد: `20261117085853_InitialCreate` — **40 جدولاً** · `CreatedByUserName` 27 · `UpdatedByUserName` 25 · `ReviewedByUserName` 1 · **صفر** عمود رقمي |
 

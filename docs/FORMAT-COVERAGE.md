@@ -85,7 +85,6 @@
 | `Printing/Core/PrintHelper.cs` | 33-34 | `amount.ToString("N2")` · `qty.ToString("N3")` |
 | `Printing/Core/InvoicePrinter.cs` | 261 | `itemCount.ToString("N0")` |
 | `Services/Mock/MockFinancialReportDesktopService.cs` | 964 | `Money(value).ToString("N2")` — تنسيق مزدوج: يُنسّق بـ`clsFormat` ثم يُعيد تنسيقه حرفياً فيلغي الإعداد |
-| `Services/Mock/MockJournalEntryDesktopService.cs` | 77 · 183 | `{totalDebit:N2}` داخل رسالة رفض عربية |
 | `Controls/Common/MoneyTextBox.cs` | 47 | `Text = "0.00"` |
 
 **المجموع الكلي للنقاط المخالفة: 240** = 186 (كود الشاشات) + 38 (مصمّمات الشبكات) + 16 (طباعة/تصدير/خدمات).
@@ -254,7 +253,7 @@
 | **F2 — الشاشات غير المطبَّقة (48)** | L | وكيل واحد لكل شاشة · موجات ≤ 4 وكلاء | `ui-agent` × 12 موجة | F1 |
 | **F3 — الشاشات الجزئية (15) + شبكات المصمّم (10)** | L | وكيل واحد لكل شاشة | `ui-agent` × 4 موجات | F1 |
 | **F4 — التصدير والطباعة** | M | `ExportHelper` · `PrintHelper` · `InvoicePrinter` · `MoneyTextBox` | `ui-agent` + `printing` | F1 |
-| **F5 — الخدمات الوهمية** | S | `MockFinancialReport` (تنسيق مزدوج) · `MockJournalEntry` (رسائل الرفض) | `fast-agent` | F1 |
+| **F5 — الخدمات الوهمية** | S | `MockFinancialReport` (تنسيق مزدوج) | `fast-agent` | F1 |
 | **F6 — إعادة التصديق** | — | `mock-qa` يتحقق ويعيد الحكم · تحديث هذا السجل | `mock-qa` | F1–F5 |
 
 > **قاعدة الموجة:** لا تبدأ F2 قبل خروج F1 ببناء أخضر — لأن الشاشات ستستهلك عقداً جديداً (`GridFormatHelper` + `IFormatAware`)؛ إصلاح شاشة قبل وجود البيت الواحد يُنتج نسخة ثانية من الصيغة (`RULE-N171`).

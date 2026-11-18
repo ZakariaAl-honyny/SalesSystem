@@ -11,7 +11,7 @@
 | `TASK-004` | توصيل حزمة المعايير بكل وكيل: قسم `Standards pack` في 11 برومبتاً + `AGENTS.md` §10/§2.41 | S | تكوين الوكلاء | ✅ مغلقة | 2026-11-16 | `TASK-004-standards-pack-wiring.md` |
 | `TASK-005` | بروتوكول أرشفة ملفات تتبع المهام الكبيرة عند الإغلاق (`ARCHIVE/` — أرشفة لا حذف) | S | وثائق | ✅ مغلقة | 2026-11-16 | `TASK-005-archive-protocol.md` |
 | `TASK-006` | فهرس ذاكرة المهام: صف لكل سجل + **فهرس عكسي بالملف/المنطقة** — «الفهرس قبل الكود» | S | وثائق/تكوين وكلاء | ✅ مغلقة | 2026-11-16 | `TASK-006-archive-index.md` |
-| `TASK-008` | حقول دليل الحسابات الهرمية: `NormalBalance` + `AllowCostCenter` (زيادة آمنة) + السمات المشتقة + قواعد الشجرة — **بلا عمود عملة** | L | وثائق/هيكل | ⛔ **سقطت بسقوط الوحدة** — كودها (`AccountService`/`AccountCategoryHelper`/`frmAccounts`) حُذف مع إزالة المحاسبة (`TASK-011` §13) | 2026-11-17 | `TASK-008-accounts-hierarchy-fields.md` |
+| `TASK-008` | حقول دليل الحسابات الهرمية: `NormalBalance` + `AllowCostCenter` (زيادة آمنة) + السمات المشتقة + قواعد الشجرة — **بلا عمود عملة** | L | وثائق/هيكل | ⛔ **سقطت بسقوط الوحدة** — كودها (`AccountService`/`AccountCategoryHelper`/`frmAccounts`) حُذف مع إزالة المحاسبة (`TASK-011` §13) · **مؤرشفة 2026-11-18** | 2026-11-17 | `ARCHIVE/TASK-008-accounts-hierarchy-fields.md` |
 | `TASK-011` | إخراج الوحدة المحاسبية من V1 إلى V2 (**Schema V3**): نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) وبقاء `CashBoxes` و`Expenses` (تشغيليان) | L | وثائق + إزالة كود | ✅ **إزالة الكود منفَّذة 2026-11-17** — 84 حذفاً · 72 تعديلاً · بناء 0 أخطاء · 34 جدولاً · صفر ملف ترحيل. ⏸ إسقاط الأعمدة/الجداول على القاعدة الحيّة **للمالك** | 2026-11-17 | `TASK-011-schema-v3-accounting-deferred.md` |
 | `TASK-012` | تطبيق شكل `frmProductMaster` على المنتقيات الثلاث (`frmProductSelection` · `frmCustomerSelection` · `frmSupplierSelection`): `lblMode` + `pnlButtons` + `gbFilter` + `pnlSummary` + `pnlGrid` بإرساء `Dock` · ألوان الجيل الرابع · صيغة `RULE-N204` | L | `—` (واجهة فقط) | 🔄 مفتوحة — ثلاثة وكلاء متوازين، وكيل واحد لكل شاشة | 2026-11-18 | `TASK-012-selection-screens-restyle.md` |
 | `TASK-013` | إعادة بناء `frmOpeningStock` بنمط `frmAddUpdateSalesInvoice`: لوحة إدخال باركود + إدخال سريع (Enter يعود للباركود) + شبكة قراءة فقط تُعدَّل من اللوحة + إجماليات وتفقيط + تحقق `RequiredFieldHelper`/`clsValidation` + ترحيل ثم مستند جديد | L | `—` (واجهة فقط — بلا باك-إند) | ✅ مكتملة — بناء 0 Errors · مراجعة واحدة (0 Blocker) بعد إغلاق 1 Major · `mock-qa`: جزئي | 2026-11-18 | `TASK-013-opening-stock-invoice-ux.md` |
@@ -29,7 +29,7 @@
 | المهمة | ملف التتبع | الحالة | الأعداد (مُنجَز/داخل) |
 |---|---|---|---|
 | فصل وحدة `Users` (لا FK · هوية نصية) | `TASK-007-users-module-decoupling.md` | 🔄 | — |
-| حقول دليل الحسابات الهرمية (`TASK-008`) | `TASK-008-accounts-hierarchy-fields.md` | ⛔ سقطت مع إزالة الوحدة | — |
+| حقول دليل الحسابات الهرمية (`TASK-008`) | `ARCHIVE/TASK-008-accounts-hierarchy-fields.md` | ⛔ سقطت مع إزالة الوحدة · مؤرشفة | — |
 | <اسم المهمة> | `<path>` | ⬜ / 🔄 / ✅ | <0/0> |
 
 ### مؤرشفة (`docs/TASKS/ARCHIVE/` — تُقرأ ولا تُحذف)
@@ -38,6 +38,10 @@
 
 | المهمة | الملف المؤرشف | تاريخ الإغلاق | ما يبقى فيها |
 |---|---|---|---|
+| `TASK-008` حقول دليل الحسابات الهرمية | `ARCHIVE/TASK-008-accounts-hierarchy-fields.md` | 2026-11-18 | التعريف الكامل لإعادة البناء في V2 |
+| `TASK-009` شريط محرر الحسابات | `ARCHIVE/TASK-009-accounts-editor-toolbar.md` | 2026-11-18 | تعريف واجهة سقطت مع الوحدة |
+| `TASK-010` محرر الحسابات المضمَّن | `ARCHIVE/TASK-010-accounts-editor-inline.md` | 2026-11-18 | تعريف واجهة سقطت مع الوحدة |
+| `F-003` شجرة دليل الحسابات | `ARCHIVE/F-003-accounts-tree/` | 2026-11-18 | تصميم الشجرة لإعادة البناء في V2 |
 | <اسم المهمة> | `ARCHIVE/<name>.md` | <YYYY-MM-DD> | الموافقات · الجرد · الأدلة · الجولات |
 
 ## منتظرة (مسجَّلة كي لا تُنسى)

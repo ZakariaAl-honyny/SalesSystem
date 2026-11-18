@@ -106,7 +106,7 @@
 | **GAP-08b** | 20 شاشة لديها `errorProvider` بلا `clsInputFeedback` (تغذية رفض بصرية) — التفصيل §4.5. **حاملة استهلاك `clsValidation` (GAP-01)** | `RULE-N169` | 20 | — | `ui-agent` | M | W8 | ⬜ |
 | **GAP-09** | ألوان حرفية **داخل البيوت** تناقض «المكان الواحد» — التفصيل §4.1 (15 في `ThemeHelper` · 2 لون مكرّر · 1 في `clsInputFeedback`) | `RULE-N54a` · `RULE-N171` | 4 | 18 | `ui-agent` | M | W0 | ✅ مكتمل |
 | **GAP-10** | صيغة حرفية في طبقة الطباعة: `PrintHelper.cs:33-34` (`"N2"` · `"N3"`) · `InvoicePrinter.cs:261` (`"N0"`) | `RULE-N179` | 2 | 3 | `printing` | S | W8 | ⬜ |
-| **GAP-11** | تنسيق مزدوج في الـMock: `MockFinancialReportDesktopService.cs:964` · `MockJournalEntryDesktopService.cs:77,183` | `RULE-N179` | 2 | 3 | `implement-agent` | S | W8 | ⬜ |
+| **GAP-11** | تنسيق مزدوج في الـMock: `MockFinancialReportDesktopService.cs:964` | `RULE-N179` | 1 | 1 | `implement-agent` | S | W8 | ⬜ |
 | **GAP-12** | `MoneyTextBox.cs:47` `Text = "0.00"` — قيمة أولية حرفية | `RULE-N179` | 1 | 1 | `ui-agent` | S | W8 | ⬜ |
 | **GAP-13** | ~~`frmDashboard.Designer.cs:11` `UseVisualStyleBackColor = true`~~ — **إيجابية كاذبة**: السطر تعليق يشرح القاعدة، والكود الوحيد `btnClose.UseVisualStyleBackColor = false` وهو صحيح، و`BackColor` معلن `(170,220,170)`. **مغلقة بلا إصلاح** | `RULE-N141` | 0 | 0 | — | — | W0 | ❌ مغلقة (كاذبة) |
 | **GAP-14** | 13 شبكة غير تقريرية بلا `ContextMenuStrip` — التفصيل §4.6 | `RULE-N23` | 13 | — | `ui-agent` | S | W8 | ⬜ |
@@ -1485,3 +1485,32 @@
 **عقيدة المكان الواحد:** حكم مرتجع الشراء (التحقق · الإنشاء مرة واحدة · الترحيل · الإلغاء) في الشاشة الموحّدة وحدها؛ و`_FirstLineError` **دالة واحدة** تخدم وضعي الفاتورة والمرتجع (`D-6`).
 
 **دَين وثائقي مُبلَّغ (لم يُغلق):** `docs/MangeSubaggentsAndTracProgress.md` (178/186/250) و`TASK-014`/`TASK-016` تذكر الشاشات المحذوفة؛ و`T-02` في هذا السجل (تكلفة سطر مرتجع الشراء = صفر) كان على الملف المحذوف ⇒ **يُعاد قياسه على `SaveReturnAsync` قبل إغلاقه**.
+
+---
+
+## موجة `TASK-020` §5 — إغلاق بقايا المحاسبة في الكود والتوثيق (2026-11-18)
+
+> **أمر المالك:** «remove each and everything about Accounting code from MVP v1» (الجولة الثانية — بعد إزالة الضريبة).
+
+**القياس قبل الموجة (`RULE-N195`/`RULE-N196`):** `ToTable` في `Configurations/*.cs` = **33** جدولاً · **صفر** كيان/تهيئة/خدمة/عقد/شاشة محاسبية · لا `Migrations/` ولا snapshot · المرجع الوحيد المطابق `frmAccountStatementReport` (كشف حساب تشغيلي من الفواتير).
+
+| # | الملف | الحالة | ملاحظة |
+|---|---|---|---|
+| 1 | `DataAccess/Services/ReportExportService.cs` | ✅ | حُذف **38 سطراً**: `case "balancesheet"` · `case "trialbalance"` + `BuildBalanceSheetTable` · `BuildTrialBalanceTable` + `"accountbalances"` · `"generalledger"` · `"workingcapital"` (قائمة النوع + الأسماء العربية) — صفر مرجع بعدها |
+| 2 | `Business/Services/{SalesService,SupplierPaymentService,PurchaseService}.cs` | ✅ | تعليقات فقط — صفر تغيير سلوك |
+| 3 | `Common/DocumentEntity.cs` · `DataAccess/Repositories/ReportRepository.cs` · `DTO/Requests/CashTransferRequest.cs` | ✅ | تعليقات/XML-doc فقط |
+| 4 | `Desktop/Services/{Interfaces,Direct,Mock}/**` (6 ملفات) | ✅ | تعليقات/XML-doc فقط · **صفر** نص عربي مرئي للمستخدم تغيّر |
+| 5 | `docs/database-schema.md` | ✅ | حُذف كل محتوى المحاسبة (جداول §3 · تعدادات §5 · القيد المزدوج §6 · §8/§8.1 القديم · صفوف §9 · صف السجل) · الأعداد أُعيد قياسها |
+| 6 | `docs/MOCK-COVERAGE.md` → **v2.0** | ✅ | صفّا العقدين المحاسبيين + قسم V3 + صف وحدة Accounting + فجوات `ف-AC-*` أُزيلت · `ف-AC-4` → `ف-7` (انحراف سجل) · **31** عقداً · **31** Mock · **29** Direct · **44** ملفاً · الحكم **18/13/0** |
+| 7 | `docs/BUSINESS-RULES.md` | ✅ | حُذف §2 «Account Auto-Creation» (BR-010…015) وBR-080/081 — قواعد كانت ستولّد كوداً محاسبياً |
+| 8 | `AGENTS.md` | ✅ | إزالة إشارات محاسبية من §2.20/§2.24/§2.25/§2.26/§2.28/§2.29/§9 · دمج صفوف حالة المحاسبة في صف واحد |
+| 9 | `docs/TASKS/{TASK-008,TASK-009,TASK-010}` + `docs/FEATURES/F-003` | ✅ **مؤرشفة** (`git mv` — لا حذف) | مع صفوف `ARCHIVE/INDEX.md` |
+| 10 | `docs/acounts.md` | ✅ | نُقل إلى `docs/archive/acounts.md` |
+
+**الأعداد الثلاثة (`RULE-N201`):** المكتشَف **15** ملف كود · داخل **15** · معفى **0** (التحليل غير المتعقَّب داخل `docs/all new Anylysis…` خارج النطاق — غير مُدار بـgit). المُنجَز **15** · المتبقي **0** · فحص البقايا (المعرّفات المحاسبية في `SalesSystem/**`) = **0** عدا `frmAccountStatementReport`.
+
+**البوابة:** `dotnet build` = **0 Errors / 94 Warnings** (تزايدي) · مراجعة واحدة `code-reviewer` = **Pass (0 Blocker · 0 Major · 1 Minor توثيقي)**.
+
+**الالتزامات:** الكود والـ`MOCK-COVERAGE` في `2a8bcfe` + `bc19340` (التقطتهما جلسة متوازية أثناء العمل — نفس المحتوى، رسالة باسم `TASK-020`) · بقية التوثيق في التزام هذه الموجة.
+
+**خارج النطاق (بسبب):** إسقاط بقايا الهيكل على القاعدة الحيّة **للمالك** بموافقة `DROP` مكتوبة (`RULE-N198`) · تطبيق التحليل غير المتعقَّب لم يُمسّ (حذفه غير قابل للاسترجاع) · `docs/CHANGELOG.md` سجل تاريخي لا يُعاد كتابته.
