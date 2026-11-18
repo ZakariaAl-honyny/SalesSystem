@@ -203,7 +203,30 @@
 | قيم الجيل الثاني/الثالث المتقاعدة | 0 | 0 | 0 |
 | `pnlFilters` · `gbFilter` · `btnToggleFilters` · `pnlSummary` · `lblRecordsCount` · `pnlGrid` · `lblMode` | كلها معلنة | كلها معلنة | كلها معلنة |
 
-## 11. سجل التغييرات
+## 12. تعديل قرار المالك (2026-11-18) — الهيكل الهدف صار `frmListSales` لا `frm*Master`
+
+**نص المالك:** «Returns UI & UX the same like `frmAddUpdateSalesInvoice` & `frmListSales` not like `frm*Master` … so now rewrite code the same like …».
+
+**الأثر على هذه المهمة:** §5 أعلاه (هيكل الماستر: `lblMode` + `pnlButtons` + `pnlFilters` + `pnlSummary` + `pnlGrid`) **متجاوَز** للمنتقيات الثلاث. الهيكل المعتمد صار هيكل القائمة المقيس من `frmListSales.Designer.cs`:
+
+| العنصر | الإرساء | الارتفاع | الأبناء |
+|---|---|---|---|
+| `pnlHeader` | Top | 56 | `lblMode` (Fill) |
+| `pnlToolbar` | Top | 64 | `flpToolbar` → `btnSelect` + `btnCancel` |
+| `pnlFilters` | Top | 110 | `gbFilter` (Fill، 102) + `btnToggleFilters` (Left، 140×102) |
+| `pnlSummary` | Bottom | 46 | `flpSummary` → `lblRecordsCount` |
+| `pnlFooter` | Bottom | 58 | `lblHint` (تلميح لوحة المفاتيح) |
+| `pnlGrid` | Fill | — | الشبكات + حالات الفراغ |
+
+`Controls.Add`: `pnlGrid` ← `pnlSummary` ← `pnlFooter` ← `pnlFilters` ← `pnlToolbar` ← `pnlHeader` (نفس ترتيب المرجع) · `pnlButtons` **حُذف نهائياً**.
+
+**ما نُفِّذ في هذه الموجة:** المصمّمات الثلاثة أُعيد بناؤها على الهيكل أعلاه **بلا أي تغيير في الكود الخلفي** (`git diff --numstat` للـ`.cs` = لا سطر) — لأن إعادة التسمية لم تمسّ أي عضو يستدعيه الكود؛ وبقيت `WireSearchToGrid` وتركيز `txtSearch` عند الفتح (`TASK-015`) و`FilterPanelHelper.Attach` آخر سطر و`ApplyGreenTheme` بهيئتها.
+
+**البناء:** **0 Errors / 72 Warning(s)** · **المراجعة:** لم تُعَد بعد على هذا الهيكل (**بند مفتوح**).
+
+**أثر خارج هذه المهمة:** الوحدات التي حوّلتها `F-004` إلى `frm*Master` (`frmSalesReturnMaster` · `frmPurchaseReturnMaster` · `frmCustomerReceiptsMaster` · `frmExpensesMaster`) صارت **مخالفة لقرار المالك هذا** — تحتاج قراراً وإعادة بناء على نمط `frmList*` + `frmAddUpdate*`. تُسجَّل ولا تُنفَّذ هنا.
+
+## 13. سجل التغييرات
 
 | التاريخ | التغيير |
 |---|---|

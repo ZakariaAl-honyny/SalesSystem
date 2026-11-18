@@ -15,14 +15,17 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             components = new System.ComponentModel.Container();
             // RULE-N134: ألوان المصمّم = افتراضيات ThemePalette حرفياً (المصمّم = وقت التشغيل).
             // RULE-N204: كل لون بصيغة Convert.ToInt32، والألوان المسمّاة مؤهّلة System.Drawing.Color.*
-            // RULE-N79: هيكل (أ) للقوائم — العنوان · الأوامر · التصفية · الشبكة · الملخّص، بإرساء Dock فقط.
+            // RULE-N79 + §2.34: هيكل (أ) للقوائم — العنوان · الأوامر · التصفية · الشبكة · الملخّص · الأسفل،
+            // بإرساء Dock فقط وبالبنية الحرفية لـ frmListSales (RULE-N125: ترتيب Controls.Add ملزم).
             tooltip = new ToolTip(components);
             cmsRows = new ContextMenuStrip(components);
             cmsSelect = new ToolStripMenuItem();
             cmsSeparator = new ToolStripSeparator();
             cmsRefresh = new ToolStripMenuItem();
+            pnlHeader = new Panel();
             lblMode = new Label();
-            pnlButtons = new FlowLayoutPanel();
+            pnlToolbar = new Panel();
+            flpToolbar = new FlowLayoutPanel();
             btnSelect = new Button();
             btnCancel = new Button();
             pnlFilters = new Panel();
@@ -31,6 +34,11 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             txtSearch = new TextBox();
             btnClearFilters = new Button();
             btnToggleFilters = new Button();
+            pnlSummary = new Panel();
+            flpSummary = new FlowLayoutPanel();
+            lblRecordsCount = new Label();
+            pnlFooter = new Panel();
+            lblHint = new Label();
             pnlGrid = new Panel();
             dgvCustomers = new DataGridView();
             dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
@@ -38,39 +46,68 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn4 = new DataGridViewTextBoxColumn();
             lblNoData = new Label();
-            pnlSummary = new Panel();
-            lblRecordsCount = new Label();
-            ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
-            pnlButtons.SuspendLayout();
+            pnlHeader.SuspendLayout();
+            pnlToolbar.SuspendLayout();
+            flpToolbar.SuspendLayout();
             pnlFilters.SuspendLayout();
             gbFilter.SuspendLayout();
-            pnlGrid.SuspendLayout();
             pnlSummary.SuspendLayout();
+            flpSummary.SuspendLayout();
+            pnlFooter.SuspendLayout();
+            pnlGrid.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
+            cmsRows.SuspendLayout();
             SuspendLayout();
+            // 
+            // pnlHeader
+            // 
+            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+            pnlHeader.Controls.Add(lblMode);
+            pnlHeader.Dock = DockStyle.Top;
+            pnlHeader.Location = new Point(0, 0);
+            pnlHeader.Margin = new Padding(0);
+            pnlHeader.Name = "pnlHeader";
+            pnlHeader.Size = new Size(940, 56);
+            pnlHeader.TabIndex = 0;
             // 
             // lblMode
             // 
             lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
-            lblMode.Dock = DockStyle.Top;
+            lblMode.Dock = DockStyle.Fill;
             lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
             lblMode.ForeColor = System.Drawing.Color.White;
-            lblMode.Height = 44;
+            lblMode.Location = new Point(0, 0);
+            lblMode.Margin = new Padding(0);
             lblMode.Name = "lblMode";
-            lblMode.TabIndex = 30;
+            lblMode.Size = new Size(940, 56);
+            lblMode.TabIndex = 0;
             lblMode.Text = "اختيار عميل";
             lblMode.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // pnlButtons
+            // pnlToolbar
             // 
-            pnlButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
-            pnlButtons.Controls.Add(btnSelect);
-            pnlButtons.Controls.Add(btnCancel);
-            pnlButtons.Dock = DockStyle.Top;
-            pnlButtons.Height = 60;
-            pnlButtons.Margin = new Padding(0);
-            pnlButtons.Name = "pnlButtons";
-            pnlButtons.Padding = new Padding(10);
-            pnlButtons.TabIndex = 2;
+            pnlToolbar.BackColor = System.Drawing.Color.White;
+            pnlToolbar.Controls.Add(flpToolbar);
+            pnlToolbar.Dock = DockStyle.Top;
+            pnlToolbar.Location = new Point(0, 56);
+            pnlToolbar.Margin = new Padding(0);
+            pnlToolbar.Name = "pnlToolbar";
+            pnlToolbar.Size = new Size(940, 64);
+            pnlToolbar.TabIndex = 1;
+            // 
+            // flpToolbar
+            // 
+            flpToolbar.BackColor = System.Drawing.Color.White;
+            flpToolbar.Controls.Add(btnSelect);
+            flpToolbar.Controls.Add(btnCancel);
+            flpToolbar.Dock = DockStyle.Fill;
+            flpToolbar.Location = new Point(0, 0);
+            flpToolbar.Margin = new Padding(0);
+            flpToolbar.Name = "flpToolbar";
+            flpToolbar.Padding = new Padding(10);
+            flpToolbar.Size = new Size(940, 64);
+            flpToolbar.TabIndex = 0;
+            flpToolbar.WrapContents = false;
             // 
             // btnSelect
             // 
@@ -80,10 +117,11 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             btnSelect.FlatStyle = FlatStyle.Flat;
             btnSelect.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             btnSelect.ForeColor = System.Drawing.Color.White;
+            btnSelect.Location = new Point(812, 13);
             btnSelect.MinimumSize = new Size(100, 35);
             btnSelect.Name = "btnSelect";
             btnSelect.Size = new Size(118, 40);
-            btnSelect.TabIndex = 4;
+            btnSelect.TabIndex = 0;
             btnSelect.Text = "تحديد";
             tooltip.SetToolTip(btnSelect, "تحديد العميل المحدد (Enter)");
             btnSelect.UseVisualStyleBackColor = false;
@@ -98,10 +136,11 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             btnCancel.ForeColor = System.Drawing.Color.White;
+            btnCancel.Location = new Point(688, 13);
             btnCancel.MinimumSize = new Size(100, 35);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(118, 40);
-            btnCancel.TabIndex = 5;
+            btnCancel.TabIndex = 1;
             btnCancel.Text = "إلغاء";
             tooltip.SetToolTip(btnCancel, "إلغاء و إغلاق النافذة (Esc)");
             btnCancel.UseVisualStyleBackColor = false;
@@ -110,27 +149,32 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             // pnlFilters
             // 
             // RULE-N125/RULE-N63: gbFilter يُضاف أولاً فيملأ الباقي، وbtnToggleFilters بعده فيُقتطع على الحافة.
+            pnlFilters.BackColor = System.Drawing.Color.White;
             pnlFilters.Controls.Add(gbFilter);
             pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
-            pnlFilters.Height = 112;
+            pnlFilters.Location = new Point(0, 120);
             pnlFilters.Margin = new Padding(0);
             pnlFilters.Name = "pnlFilters";
             pnlFilters.Padding = new Padding(6, 4, 6, 4);
-            pnlFilters.TabIndex = 3;
+            pnlFilters.Size = new Size(940, 110);
+            pnlFilters.TabIndex = 2;
             // 
             // gbFilter
             // 
+            gbFilter.BackColor = System.Drawing.Color.White;
             gbFilter.Controls.Add(lblSearch);
             gbFilter.Controls.Add(txtSearch);
             gbFilter.Controls.Add(btnClearFilters);
             gbFilter.Dock = DockStyle.Fill;
-            gbFilter.Font = new Font("Tahoma", 10F);
+            gbFilter.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            gbFilter.Location = new Point(146, 4);
             gbFilter.Margin = new Padding(0);
             gbFilter.Name = "gbFilter";
             gbFilter.Padding = new Padding(8);
             gbFilter.RightToLeft = RightToLeft.Yes;
-            gbFilter.TabIndex = 22;
+            gbFilter.Size = new Size(788, 102);
+            gbFilter.TabIndex = 0;
             gbFilter.TabStop = false;
             gbFilter.Text = "بحث وتصفية";
             // 
@@ -140,7 +184,10 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             lblSearch.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             lblSearch.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
             lblSearch.Location = new Point(678, 40);
+            lblSearch.Margin = new Padding(0);
             lblSearch.Name = "lblSearch";
+            lblSearch.Size = new Size(48, 24);
+            lblSearch.TabIndex = 0;
             lblSearch.Text = "بحث:";
             // 
             // txtSearch
@@ -149,9 +196,10 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             txtSearch.BorderStyle = BorderStyle.FixedSingle;
             txtSearch.Font = new Font("Tahoma", 10F);
             txtSearch.Location = new Point(272, 36);
+            txtSearch.Margin = new Padding(0);
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(400, 32);
-            txtSearch.TabIndex = 0;
+            txtSearch.TabIndex = 1;
             tooltip.SetToolTip(txtSearch, "بحث فوري بالاسم أو رقم الهاتف — F5 لتحديث القائمة");
             txtSearch.TextChanged += txtSearch_TextChanged;
             txtSearch.KeyDown += txtSearch_KeyDown;
@@ -166,9 +214,10 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
             btnClearFilters.ForeColor = System.Drawing.Color.White;
             btnClearFilters.Location = new Point(64, 36);
+            btnClearFilters.Margin = new Padding(0);
             btnClearFilters.Name = "btnClearFilters";
             btnClearFilters.Size = new Size(178, 32);
-            btnClearFilters.TabIndex = 1;
+            btnClearFilters.TabIndex = 2;
             btnClearFilters.Text = "مسح التصفية";
             tooltip.SetToolTip(btnClearFilters, "مسح التصفية فقط — لا يعيد تحميل البيانات ولا يغيّر السطر المحدد");
             btnClearFilters.UseVisualStyleBackColor = false;
@@ -185,20 +234,87 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             btnToggleFilters.FlatStyle = FlatStyle.Popup;
             btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
             btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+            btnToggleFilters.Location = new Point(6, 4);
             btnToggleFilters.Name = "btnToggleFilters";
-            btnToggleFilters.TabIndex = 2;
+            btnToggleFilters.Size = new Size(140, 102);
+            btnToggleFilters.TabIndex = 1;
             btnToggleFilters.Text = "إخفاء التصفية";
             btnToggleFilters.UseVisualStyleBackColor = false;
-            btnToggleFilters.Width = 140;
+            // 
+            // pnlSummary
+            // 
+            pnlSummary.BackColor = System.Drawing.Color.White;
+            pnlSummary.Controls.Add(flpSummary);
+            pnlSummary.Dock = DockStyle.Bottom;
+            pnlSummary.Location = new Point(0, 576);
+            pnlSummary.Margin = new Padding(0);
+            pnlSummary.Name = "pnlSummary";
+            pnlSummary.Size = new Size(940, 46);
+            pnlSummary.TabIndex = 3;
+            // 
+            // flpSummary
+            // 
+            flpSummary.BackColor = System.Drawing.Color.White;
+            flpSummary.Controls.Add(lblRecordsCount);
+            flpSummary.Dock = DockStyle.Fill;
+            flpSummary.Location = new Point(0, 0);
+            flpSummary.Margin = new Padding(0);
+            flpSummary.Name = "flpSummary";
+            flpSummary.Padding = new Padding(10, 8, 10, 8);
+            flpSummary.Size = new Size(940, 46);
+            flpSummary.TabIndex = 0;
+            flpSummary.WrapContents = false;
+            // 
+            // lblRecordsCount
+            // 
+            lblRecordsCount.AutoSize = true;
+            lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+            lblRecordsCount.Location = new Point(872, 8);
+            lblRecordsCount.Margin = new Padding(4, 0, 4, 0);
+            lblRecordsCount.Name = "lblRecordsCount";
+            lblRecordsCount.Size = new Size(178, 24);
+            lblRecordsCount.TabIndex = 0;
+            lblRecordsCount.Text = "النتائج: 0";
+            // 
+            // pnlFooter
+            // 
+            pnlFooter.BackColor = System.Drawing.Color.White;
+            pnlFooter.Controls.Add(lblHint);
+            pnlFooter.Dock = DockStyle.Bottom;
+            pnlFooter.Location = new Point(0, 622);
+            pnlFooter.Margin = new Padding(0);
+            pnlFooter.Name = "pnlFooter";
+            pnlFooter.Padding = new Padding(10, 0, 10, 0);
+            pnlFooter.Size = new Size(940, 58);
+            pnlFooter.TabIndex = 5;
+            // 
+            // lblHint
+            // 
+            lblHint.Dock = DockStyle.Fill;
+            lblHint.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+            lblHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            lblHint.Location = new Point(10, 0);
+            lblHint.Margin = new Padding(0);
+            lblHint.Name = "lblHint";
+            lblHint.Size = new Size(920, 58);
+            lblHint.TabIndex = 0;
+            lblHint.Text = "↓ انتقال إلى القائمة · Enter اختيار · Esc إلغاء · F5 تحديث";
+            lblHint.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // pnlGrid
             // 
-            // RULE-N125: يُضاف عنصر Fill الوحيد أولاً ليُرسى آخراً ويأخذ الباقي، ثم تُضاف العناصر المراسية بعده.
+            // RULE-N125: يُضاف عنصر Fill الأساسي أولاً ثم رسالة «لا بيانات» (Fill أيضاً) فتُرسى الأخيرة أولاً
+            // وتغطي مساحة الشبكة عند ظهورها، وتُترك الشبكة تملأ كامل المساحة فور إخفائها.
+            pnlGrid.BackColor = System.Drawing.Color.White;
             pnlGrid.Controls.Add(dgvCustomers);
             pnlGrid.Controls.Add(lblNoData);
             pnlGrid.Dock = DockStyle.Fill;
+            pnlGrid.Location = new Point(0, 230);
+            pnlGrid.Margin = new Padding(0);
             pnlGrid.Name = "pnlGrid";
             pnlGrid.Padding = new Padding(0, 10, 0, 0);
+            pnlGrid.Size = new Size(940, 346);
             pnlGrid.TabIndex = 4;
             // 
             // dgvCustomers
@@ -213,7 +329,7 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             dgvCustomers.BorderStyle = BorderStyle.None;
             dgvCustomers.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvCustomers.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dgvCustomers.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvCustomers.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             dgvCustomers.ColumnHeadersDefaultCellStyle.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             dgvCustomers.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
@@ -233,6 +349,8 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             dgvCustomers.Dock = DockStyle.Fill;
             dgvCustomers.EnableHeadersVisualStyles = false;
             dgvCustomers.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
+            dgvCustomers.Location = new Point(0, 10);
+            dgvCustomers.Margin = new Padding(0);
             dgvCustomers.MultiSelect = false;
             dgvCustomers.Name = "dgvCustomers";
             dgvCustomers.ReadOnly = true;
@@ -240,7 +358,8 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             dgvCustomers.RowHeadersWidth = 62;
             dgvCustomers.RowTemplate.Height = 32;
             dgvCustomers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvCustomers.TabIndex = 3;
+            dgvCustomers.Size = new Size(940, 336);
+            dgvCustomers.TabIndex = 0;
             dgvCustomers.TabStop = false;
             tooltip.SetToolTip(dgvCustomers, "انقر مرتين (أو Enter) لتحديد العميل");
             dgvCustomers.SelectionChanged += dgvCustomers_SelectionChanged;
@@ -282,36 +401,18 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             // lblNoData
             // 
             lblNoData.AutoSize = false;
-            lblNoData.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
-            lblNoData.Dock = DockStyle.Bottom;
-            lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-            lblNoData.Height = 24;
+            lblNoData.BackColor = System.Drawing.Color.White;
+            lblNoData.Dock = DockStyle.Fill;
+            lblNoData.Font = new Font("Tahoma", 12F, FontStyle.Bold);
+            lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            lblNoData.Location = new Point(0, 10);
+            lblNoData.Margin = new Padding(0);
             lblNoData.Name = "lblNoData";
-            lblNoData.TabIndex = 9;
-            lblNoData.Text = "لا توجد بيانات";
+            lblNoData.Size = new Size(940, 336);
+            lblNoData.TabIndex = 1;
+            lblNoData.Text = "لا يوجد عملاء مطابقون للبحث الحالي";
             lblNoData.TextAlign = ContentAlignment.MiddleCenter;
             lblNoData.Visible = false;
-            // 
-            // pnlSummary
-            // 
-            pnlSummary.Controls.Add(lblRecordsCount);
-            pnlSummary.Dock = DockStyle.Bottom;
-            pnlSummary.Height = 32;
-            pnlSummary.Margin = new Padding(0);
-            pnlSummary.Name = "pnlSummary";
-            pnlSummary.TabIndex = 5;
-            // 
-            // lblRecordsCount
-            // 
-            lblRecordsCount.AutoSize = false;
-            lblRecordsCount.Dock = DockStyle.Fill;
-            lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-            lblRecordsCount.Name = "lblRecordsCount";
-            lblRecordsCount.TabIndex = 5;
-            lblRecordsCount.Text = "النتائج: 0";
-            lblRecordsCount.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // cmsRows
             // 
@@ -319,6 +420,7 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             cmsRows.ImageScalingSize = new Size(24, 24);
             cmsRows.Items.AddRange(new ToolStripItem[] { cmsSelect, cmsSeparator, cmsRefresh });
             cmsRows.Name = "cmsRows";
+            cmsRows.RightToLeft = RightToLeft.Yes;
             cmsRows.Size = new Size(198, 74);
             cmsRows.Opening += cmsRows_Opening;
             // 
@@ -347,12 +449,13 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             AutoScaleMode = AutoScaleMode.None;
             BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             CancelButton = btnCancel;
-            ClientSize = new Size(900, 640);
+            ClientSize = new Size(940, 680);
             Controls.Add(pnlGrid);
             Controls.Add(pnlSummary);
+            Controls.Add(pnlFooter);
             Controls.Add(pnlFilters);
-            Controls.Add(pnlButtons);
-            Controls.Add(lblMode);
+            Controls.Add(pnlToolbar);
+            Controls.Add(pnlHeader);
             Font = new Font("Tahoma", 10F);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -363,12 +466,17 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
             StartPosition = FormStartPosition.CenterScreen;
             Text = "اختيار عميل";
             Load += frmCustomerSelection_Load;
-            pnlButtons.ResumeLayout(false);
+            pnlHeader.ResumeLayout(false);
+            pnlToolbar.ResumeLayout(false);
+            flpToolbar.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
             gbFilter.ResumeLayout(false);
             gbFilter.PerformLayout();
-            pnlGrid.ResumeLayout(false);
             pnlSummary.ResumeLayout(false);
+            flpSummary.ResumeLayout(false);
+            flpSummary.PerformLayout();
+            pnlFooter.ResumeLayout(false);
+            pnlGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
             cmsRows.ResumeLayout(false);
             ResumeLayout(false);
@@ -392,12 +500,17 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms
         private Label lblSearch;
         private Label lblRecordsCount;
         private ToolTip tooltip;
-        private System.Windows.Forms.FlowLayoutPanel pnlButtons;
-        private System.Windows.Forms.Panel pnlFilters;
-        private System.Windows.Forms.GroupBox gbFilter;
-        private System.Windows.Forms.Button btnClearFilters;
-        private System.Windows.Forms.Button btnToggleFilters;
-        private System.Windows.Forms.Panel pnlGrid;
-        private System.Windows.Forms.Panel pnlSummary;
+        private Panel pnlHeader;
+        private Panel pnlToolbar;
+        private FlowLayoutPanel flpToolbar;
+        private Panel pnlFilters;
+        private GroupBox gbFilter;
+        private Button btnClearFilters;
+        private Button btnToggleFilters;
+        private Panel pnlSummary;
+        private FlowLayoutPanel flpSummary;
+        private Panel pnlFooter;
+        private Label lblHint;
+        private Panel pnlGrid;
     }
 }
