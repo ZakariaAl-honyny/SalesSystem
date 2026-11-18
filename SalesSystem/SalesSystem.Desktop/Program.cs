@@ -253,15 +253,21 @@ static class Program
                     services.AddTransient<frmWarehouseMaster>();
                     services.AddTransient<frmListSales>();
                     services.AddTransient<frmListPurchases>();
+
+                    // TASK-016 — منتقيا الفواتير: قائمة الفواتير + بياناتها الكاملة (رأس + سطور) لبناء مرتجع.
+                    // الفاتورة الكاملة تأتي من GetByIdAsync في العقد القائم — لا مسار بيانات جديد.
+                    services.AddTransient<frmSalesInvoiceSelection>();
+                    // Fully-qualified: الشاشتان في مجلدين مختلفين — والاسم صريح لا يعتمد على using.
+                    services.AddTransient<SalesSystem.Desktop.Screens.Purchases.Forms.frmPurchaseInvoiceSelection>();
                     
                     // Module Controls — NEW Forms
                     services.AddTransient<frmDashboard>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Dashboard.Controls.ctrlDashboard>(); // RULE-N67
                     services.AddTransient<frmProductMaster>();
                     // Master forms (navigation targets from frmMain)
-                    services.AddTransient<frmCategoryMaster>();
+                    services.AddTransient<frmCRUDCategoryMaster>();
                     services.AddTransient<frmUnitMaster>();
-                    services.AddTransient<frmCustomerMaster>();
+                    services.AddTransient<frmCRUDCustomerMaster>();
                     services.AddTransient<frmShowCustomerCard>();
                     services.AddTransient<frmFindCustomer>();
                     services.AddTransient<frmSupplierMaster>();
@@ -312,14 +318,14 @@ static class Program
                     services.AddTransient<frmOpeningStock>();
 
                     // CashBoxes Module
-                    services.AddTransient<frmCashBoxMaster>();
+                    services.AddTransient<frmCRUDCashBoxMaster>();
                     services.AddTransient<frmCashBoxTransactions>();
 
                     // Expenses Module — F-004 (D-01/D-03): شاشة Master مدمجة بدل frmList* + frmAddUpdate*
                     services.AddTransient<frmExpensesMaster>();
 
                     // CustomerReceipts Module — F-004 (D-01/D-03): شاشة Master مدمجة بدل frmList* + frmAddUpdate*
-                    services.AddTransient<frmCustomerReceiptsMaster>();
+                    services.AddTransient<frmCRUDCustomerReceiptsMaster>();
 
                     // Supplier Payments Module
                     services.AddTransient<frmListSupplierPayments>();
