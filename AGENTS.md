@@ -600,7 +600,7 @@ private void ApplyUiTheme()
 | `label3` «من:» + `dtpFrom` · `label4` «إلى:» + `dtpTo` | DateTimePicker | الصف الأول |
 | `btnRangeToday` «اليوم» · `btnRangeMonth` «هذا الشهر» · `btnRange30` «آخر 30 يوماً» | Button (Tahoma 9 Bold) | الصف الثاني — يمين |
 | `chkShowInactive` · `chkOnlyDue` · `chkOnlyCancelled` · `chkOnlyOutOfStock` | CheckBox | الصف الثاني — يسار |
-| `btnClearFilters` «مسح التصفية» | Button (Tahoma 9 Bold · `ActionNeutralBackground`) | بجانب مربعات الاختيار — معطّل ما لم توجد تصفية نشطة (`RULE-N148`) |
+| `btnClearFilters` «مسح التصفية» | Button (Tahoma 9 Bold · `ActionNeutralBackground`) | بجانب مربعات الاختيار — معطّل ما لم توجد تصفية نشطة (`RULE-N148`) — ✅ **2026-11-18 (`TASK-012` · الالتزام `fe6f9b8`):** المنتقيات الثلاث (`frmProductSelection` · `frmCustomerSelection` · `frmSupplierSelection`) أُعيد تنسيقها على شكل `frmProductMaster` وصارت تُعلن `gbFilter` + `pnlSummary` + `btnToggleFilters` + `lblMode` + `ContextMenuStrip` بتخطيط `Dock` وألوان الجيل الرابع. **العدّ المقيس بعد الموجة (95 مصمّماً):** `gbFilter` **57** · `btnToggleFilters` **32** · `pnlSummary` **61** · `lblMode` **78** · `ContextMenuStrip` **41** — الأعداد هنا **خام مقيسة** ولا تعني تعادلاً بين `gbFilter` و`btnToggleFilters` (تقارير كثيرة تُعلن الأول بلا الثاني) |
 | `btnToggleFilters` | Button | الصف الثاني — أقصى اليسار |
 
 > **تعميم:** يُطبّق المعيار على المراحل P1 → P2 → P3 المذكورة في §2.20، وتُعدّ الشاشة غير مكتملة إن كانت أدوات تصفيتها خارج `gbFilter`.

@@ -1317,4 +1317,49 @@
 
 **مفتوح:** إسقاط 8 أعمدة + 6 جداول على القاعدة الحيّة + توليد ترحيل = **ملك المالك** (`RULE-N198`) — تفصيل في `TASK-011` §13.4.
 
+---
 
+## 15. موجة 2026-11-18 — ✅ **`frmOpeningStock` بنمط `frmAddUpdateSalesInvoice`** (`TASK-013`)
+
+> **طلب المالك:** «frmOpeningStock Convert or Make like frmAddUpdateSalesInvoice» · «for enter Products» · «an return for enter product easly» · «and returns scrrens for enter product easly» · «and use validation of reqired faild like frmProductsMaster and also edit validation for frmAddUpdateSalesInvoice». **وكيل واحد للشاشة** (`RULE-N156`) — ملفان فقط + مصمّمهما.
+
+| الملف (البيت/الطبقة) | التغيير | التفصيل |
+|---|---|---|
+| `Screens\Inventory\Forms\frmOpeningStock.cs` | ✅ **576 → 1,048** سطراً | لوحة إدخال باركود + إدخال سريع (`Enter` بباركود ← منتج ← كمية ← تكلفة ← سطر ← **عودة للباركود**) + تعديل السطر من الشبكة + تحقق مزدوج (`RequiredFieldHelper` + `clsValidation`) + ترحيل ثم إعادة تهيئة مستند جديد |
+| `Screens\Inventory\Forms\frmOpeningStock.Designer.cs` | ✅ **469 → 916** سطراً | ست كتل معنونة بالترتيب المرجعي · `FromArgb(Convert.ToInt32(…))` 52/52 (`RULE-N204`) · صفر مرجع `Helpers` داخل المصمّم · `_scope?.Dispose()` محفوظ |
+| `Services\**` · `Business\**` · `Models\**` | **0** | الشاشة تستهلك عقوداً قائمة فقط (`IProductDesktopService` · `IWarehouseDesktopService` · `IInventoryAdjustmentDesktopService`) — الباك-إند مجمّد (`RULE-N177`) |
+| `docs\MOCK-COVERAGE.md` | صف 15 | `مؤهل جزئياً — تكافؤ الرفض ناقص` بعدّ مقيس **17** رفضاً + الفجوات `ف-OPS-1…3` (S، مالكها `ui-agent`) |
+
+**القياسات (بأمر في نفس التشغيل):** `dotnet build .\SalesSystem.slnx` = **0 Errors** · `MessageBox` في الشاشة = **0** · `ex.Message` = **0** · `Cells["<حقل منطقي>"]` = **0** · `if (_isSaving) return;` = **17** · `dialog.WarehouseId` = **0**.
+
+**عيوب وُجدت وأُصلحت في الموجة نفسها (`RULE-N186`):**
+
+| # | العيب | الإصلاح |
+|---|---|---|
+| `OPS-1` | إعادة دخول أثناء حلقة الحفظ (`F2` تفرّغ الأسطر · `Esc` تُغلق وتُتلف النطاق · `Enter` يضيف سطراً) | حارس `_isSaving` على 17 نقطة دخول + قفل الأزرار والقائمة + الحلقة على لقطة |
+| `OPS-2` | حكم «المخزن فارغ» في مكانين | أُسقط إلى `RequiredFieldHelper` وحده (`RULE-N172`) |
+| `OPS-3` | كتابة باركود نص الحقل فوق باركود السطر عند التحديث | لا يُكتب إلا بعد بحث/اختيار ناجح |
+| `OPS-4` | منتقي الأصناف يرفض الصنف صفري الرصيد عند تمرير مخزن — وهو بالضبط صنف بضاعة أول المدة | لا يُمرَّر `WarehouseId` للمنتقي من هذه الشاشة |
+
+
+
+---
+
+## موجة `TASK-012` — إعادة تنسيق المنتقيات الثلاث على شكل `frmProductMaster` (2026-11-18)
+
+**الالتزام:** `fe6f9b8` · **البناء:** `dotnet build --no-incremental` = **0 أخطاء / 90 تحذيراً** · **المراجعة:** `code-reviewer` = `0 Blocker / 0 Major / 4 Minor` (أُغلقت الأربعة قبل الالتزام).
+
+| # | الملف | الحالة | ملاحظة |
+|---|---|---|---|
+| 1 | `Screens/Products/Forms/frmProductSelection.Designer.cs` | ✅ | ست مناطق بإرساء `Dock` · ألوان الجيل الرابع · `RULE-N204` (100 `Convert.ToInt32` · صفر مختصر) |
+| 2 | `Screens/Products/Forms/frmProductSelection.cs` | ✅ | `ApplyGreenTheme` على الشبكتين · `FilterPanelHelper.Attach` آخر سطر · `btnClearFilters` (`RULE-N148`) |
+| 3 | `Screens/Customers/Forms/frmCustomerSelection.Designer.cs` | ✅ | كان **الوحيد** المخالف لصيغة `RULE-N204` (11 مختصراً + 7 مسمّاة غير مؤهَّلة) ⇒ صفر الآن |
+| 4 | `Screens/Customers/Forms/frmCustomerSelection.cs` | ✅ | `lblMode` + `pnlSummary` + عدّ النتائج + `btnClearFilters` |
+| 5 | `Screens/Suppliers/Forms/frmSupplierSelection.Designer.cs` | ✅ | أُعيد ترميزه من **UTF-16LE** إلى UTF-8 بلا BOM · أُعلن `tooltip` و6 تلميحات |
+| 6 | `Screens/Suppliers/Forms/frmSupplierSelection.cs` | ✅ | كما العميل · زر «اختيار» على `BtnSaveButtonColor` |
+
+**قياسات هذه الموجة (بالأمر):** مصمّمات `Screens/**` = **95** · تُعلن `gbFilter` = **57** · `btnToggleFilters` = **32** · `pnlSummary` = **61** · `lblMode` = **78** · `ContextMenuStrip` = **41** · الصيغة المختصرة `Color.FromArgb(a, b, c)` في الستة = **0** · قيم الجيلين الثاني/الثالث المتقاعدة في الستة = **0** · `Location` مطلق خارج `gbFilter` = **0**.
+
+**بند مفتوح مُسجَّل ولم يُصلح (بقرار `RULE-N184`):** `AcceptButton = btnSelect` يبتلع `Enter` قبل رفع `KeyDown` (`RULE-N193`) ⇒ `txtSearch_KeyDown`/`KeyPress` غير قابلين للتنفيذ في الشاشات الثلاث، ويُغلقان مع موجة تعميم `WireEnterAsTab(scope, primaryButton)` بعد شهادة `F-001`.
+
+**ملاحظتان خارج النطاق أُبلغتا ولم تُمسّا:** (1) `frmProductMaster.Designer.cs` يحمل فواصل CR مزدوجة فتتضاعف قراءة أسطره من 936 إلى 1,873 · (2) افتراضي `rejectBackgroundColor` في `ThemePalette.cs` = `255,220,220` بينما جدول §2.19 يقول `#F8D7DA` = `248,215,218`.
