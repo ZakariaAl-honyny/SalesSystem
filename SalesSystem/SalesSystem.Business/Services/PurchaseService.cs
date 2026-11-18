@@ -487,9 +487,7 @@ public class PurchaseService : IPurchaseService
                 // ─── Record cash transaction for supplier payment ───────────────
                 if (invoice.PaidAmount > 0)
                 {
-                    // Nothing is written here: no cash/accounting entry accompanies a paid purchase invoice
-                    // since the accounting module was deferred to V2 — the paid amount is persisted with the
-                    // invoice by the SaveChangesAsync call below.
+                    // Nothing is written here: the paid amount is persisted with the invoice (V1 has no ledger).
                 }
 
                 await _uow.SaveChangesAsync(ct);

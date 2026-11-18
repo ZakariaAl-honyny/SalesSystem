@@ -692,9 +692,7 @@ public class ReportRepository : IReportRepository
         var totalProductsCount = await _context.Products
             .CountAsync(p => p.IsActive, ct);
 
-        // Receivables/payables are not computed: there is no accounting engine in V1
-        // (chart of accounts, journal entries and account mappings are deferred to V2),
-        // and customers/suppliers carry no account link — balances come from their invoices.
+        // Receivables/payables are not computed: customers/suppliers carry no account link in V1 — balances come from their invoices.
         var totalReceivables = 0m;
         var totalPayables = 0m;
 

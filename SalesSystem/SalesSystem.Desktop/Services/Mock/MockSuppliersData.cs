@@ -4,7 +4,7 @@ namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
 /// بيانات تجريبية للموردين — مستقلة عن MockData الرئيسي.
-/// لا حساب محاسبي مرتبط بالمورد (أُخرجت المحاسبة من V1 — قرار المالك 2026-11-17):
+/// حقول المورّد كما في النموذج (بلا حساب مرتبط):
 /// رصيد المورد يُشتق من مستنداته.
 /// </summary>
 internal static class MockSuppliersData

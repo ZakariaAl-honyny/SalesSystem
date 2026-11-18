@@ -244,12 +244,6 @@ public class ReportExportService : IReportExportService
                 case "incomestatement":
                     dataTable = BuildProfitAndLossTable(filters);
                     break;
-                case "balancesheet":
-                    dataTable = BuildBalanceSheetTable(filters);
-                    break;
-                case "trialbalance":
-                    dataTable = BuildTrialBalanceTable(filters);
-                    break;
                 case "customerbalances":
                 case "customeraging":
                     dataTable = BuildCustomerBalancesTable(filters);
@@ -267,10 +261,7 @@ public class ReportExportService : IReportExportService
                 case "cashboxsummary":
                 case "useractivity":
                 case "loginhistory":
-                case "accountbalances":
                 case "accountstatement":
-                case "generalledger":
-                case "workingcapital":
                 case "profitbycustomer":
                 case "returns":
                 case "productprofitability":
@@ -412,30 +403,6 @@ public class ReportExportService : IReportExportService
         return dt;
     }
 
-    private static DataTable BuildBalanceSheetTable(Dictionary<string, string>? filters)
-    {
-        var dt = new DataTable("BalanceSheet");
-        dt.Columns.Add("البيان", typeof(string));
-        dt.Columns.Add("القيمة", typeof(decimal));
-        dt.Rows.Add("الأصول", 0m);
-        dt.Rows.Add("الخصوم", 0m);
-        dt.Rows.Add("حقوق الملكية", 0m);
-        return dt;
-    }
-
-    private static DataTable BuildTrialBalanceTable(Dictionary<string, string>? filters)
-    {
-        var dt = new DataTable("TrialBalance");
-        dt.Columns.Add("رقم الحساب", typeof(string));
-        dt.Columns.Add("اسم الحساب", typeof(string));
-        dt.Columns.Add("مدين", typeof(decimal));
-        dt.Columns.Add("دائن", typeof(decimal));
-        dt.Columns.Add("الرصيد", typeof(decimal));
-        TryAddFilterRow(dt, filters, "بداية الفترة", "من");
-        TryAddFilterRow(dt, filters, "نهاية الفترة", "إلى");
-        return dt;
-    }
-
     private static DataTable BuildCustomerBalancesTable(Dictionary<string, string>? filters)
     {
         var dt = new DataTable("CustomerBalances");
@@ -514,8 +481,6 @@ public class ReportExportService : IReportExportService
             "inventory" or "stockbalance" => "تقرير المخزون",
             "lowstock" => "تقرير المخزون المنخفض",
             "profitandloss" or "incomestatement" => "تقرير الأرباح والخسائر",
-            "balancesheet" => "تقرير الميزانية العمومية",
-            "trialbalance" => "تقرير ميزان المراجعة",
             "customerbalances" => "تقرير أرصدة العملاء",
             "customeraging" => "تقرير أعمار العملاء",
             "supplierbalances" => "تقرير أرصدة الموردين",
@@ -527,10 +492,7 @@ public class ReportExportService : IReportExportService
             "cashboxsummary" => "تقرير ملخص الصندوق",
             "useractivity" => "تقرير نشاط المستخدمين",
             "loginhistory" => "سجل تسجيل الدخول",
-            "accountbalances" => "أرصدة الحسابات",
             "accountstatement" => "كشف حساب",
-            "generalledger" => "الأستاذ العام",
-            "workingcapital" => "رأس المال العامل",
             "profitbycustomer" => "الربح حسب العميل",
             "returns" => "تقرير المرتجعات",
             "productprofitability" => "ربحية المنتجات",

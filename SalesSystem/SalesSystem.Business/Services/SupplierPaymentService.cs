@@ -141,7 +141,7 @@ public class SupplierPaymentService : ISupplierPaymentService
                 return Result<SupplierPaymentDto>.Failure("سند الصرف غير موجود", ErrorCodes.NotFound);
 
             // If the payment is posted and the amount changed, the new amount must be written to the payment record.
-            // No journal-entry reversal is written with it — the accounting module is deferred to V2.
+            // No compensating entry is written with it — V1 has no ledger.
             if (payment.Status == InvoiceStatus.Posted)
             {
                 var amountChanged = Math.Abs(payment.Amount - request.Amount) > 0.0001m;
@@ -185,7 +185,7 @@ public class SupplierPaymentService : ISupplierPaymentService
             }
             else
             {
-                // Draft payment: simple update without journal entry changes
+                // Draft payment: simple field update.
                 payment.Update(
                     amount: request.Amount,
                     paymentMethod: (PaymentMethod)request.PaymentMethod,

@@ -1,7 +1,7 @@
 ﻿namespace SalesSystem.Common;
 
 /// <summary>
-/// Auditable entity for transactional documents (invoices, receipts, journal entries, etc.).
+/// Auditable entity for transactional documents (invoices, receipts, returns, payments, adjustments, etc.).
 /// Documents use a Status property (Draft/Posted/Cancelled) for their life cycle.
 /// They do NOT have IsActive (soft-delete) — documents transition through a fixed life cycle instead.
 /// Posting and cancellation timestamps are tracked for audit purposes.

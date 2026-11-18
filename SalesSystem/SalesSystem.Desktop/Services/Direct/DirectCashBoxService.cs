@@ -93,7 +93,7 @@ public class DirectCashBoxService : ICashBoxDesktopService
         }
     }
 
-    // التحويل بين الصناديق غير مدعوم — أُخرجت آلية السندات/القيود مع الوحدة المحاسبية من V1 (قرار المالك 2026-11-17).
+    // التحويل بين الصناديق غير مدعوم في V1 — الطلب يُرفض دائماً.
     public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
         return Task.FromResult(Result.Failure(

@@ -41,7 +41,6 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
 
         var nextId = MockData.CashBoxes.Count > 0 ? MockData.CashBoxes.Max(c => c.Id) + 1 : 1;
 
-        // لا حساب محاسبي مرتبط بالصندوق — أُخرجت المحاسبة من V1 (قرار المالك 2026-11-17).
         var box = new CashBoxDto(
             Id: nextId,
             Name: r.Name,
@@ -97,7 +96,7 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
         return Task.FromResult(Result.Success());
     }
 
-    // التحويل بين الصناديق غير مدعوم — أُخرجت آلية السندات/القيود مع الوحدة المحاسبية من V1 (قرار المالك 2026-11-17).
+    // التحويل بين الصناديق غير مدعوم في V1 — يُرفض بنفس نص الوضع الحقيقي.
     public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
         return Task.FromResult(Result.Failure(
