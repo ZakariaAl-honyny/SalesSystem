@@ -23,7 +23,6 @@ public class SalesService : ISalesService
     private readonly IDocumentSequenceService _documentSequenceService;
     private readonly ISystemSettingsRepository _systemSettingsRepo;
     private readonly IProductCostService _productCostService;
-    private readonly IProductPriceService _productPriceService;
     private readonly IFifoAllocationService _fifoAllocationService;
     private readonly ILogger<SalesService> _logger;
 
@@ -35,7 +34,6 @@ public class SalesService : ISalesService
         IDocumentSequenceService documentSequenceService,
         ISystemSettingsRepository systemSettingsRepo,
         IProductCostService productCostService,
-        IProductPriceService productPriceService,
         IFifoAllocationService fifoAllocationService,
         ILogger<SalesService> logger)
     {
@@ -46,7 +44,6 @@ public class SalesService : ISalesService
         _documentSequenceService = documentSequenceService;
         _systemSettingsRepo = systemSettingsRepo;
         _productCostService = productCostService;
-        _productPriceService = productPriceService;
         _fifoAllocationService = fifoAllocationService;
         _logger = logger;
     }
@@ -187,13 +184,12 @@ public class SalesService : ISalesService
                     foreach (var item in request.Items)
                     {
                         if (item.ProductUnitId <= 0) continue;
-                        var priceResult = await _productPriceService.GetEffectivePriceForInvoiceAsync(
-                            item.ProductUnitId, ct);
-                        if (priceResult.IsSuccess && priceResult.Value != null && item.UnitPrice < priceResult.Value.Price)
+                        var unit = await _uow.ProductUnits.FirstOrDefaultAsync(pu => pu.Id == item.ProductUnitId, ct);
+                        if (unit != null && item.UnitPrice < unit.SalePrice)
                         {
                             _logger.LogWarning(
                                 "Price enforcement: Item ProductId={ProductId}, unit price {UnitPrice} < registered price {RegisteredPrice}",
-                                item.ProductId, item.UnitPrice, priceResult.Value.Price);
+                                item.ProductId, item.UnitPrice, unit.SalePrice);
                             return Result<SalesInvoiceDto>.Failure(
                                 $"سعر البيع أقل من السعر الرسمي للمنتج (معرف المنتج: {item.ProductId})");
                         }
@@ -295,8 +291,8 @@ public class SalesService : ISalesService
                 foreach (var item in request.Items)
                 {
                     if (item.ProductUnitId <= 0) continue;
-                    var priceResult = await _productPriceService.GetEffectivePriceForInvoiceAsync(item.ProductUnitId, ct);
-                    if (priceResult.IsSuccess && priceResult.Value != null && item.UnitPrice < priceResult.Value.Price)
+                    var unit = await _uow.ProductUnits.FirstOrDefaultAsync(pu => pu.Id == item.ProductUnitId, ct);
+                    if (unit != null && item.UnitPrice < unit.SalePrice)
                         return Result<SalesInvoiceDto>.Failure($"سعر البيع أقل من السعر الرسمي للمنتج (معرف المنتج: {item.ProductId})");
                 }
             }
@@ -418,14 +414,13 @@ public class SalesService : ISalesService
                 {
                     foreach (var item in invoice.Items)
                     {
-                        var priceResult = await _productPriceService.GetEffectivePriceForInvoiceAsync(
-                            item.ProductUnitId, ct);
-                if (priceResult.IsSuccess && priceResult.Value != null && item.UnitPrice < priceResult.Value.Price)
+                        var unit = await _uow.ProductUnits.FirstOrDefaultAsync(pu => pu.Id == item.ProductUnitId, ct);
+                if (unit != null && item.UnitPrice < unit.SalePrice)
                 {
                     var productName = item.Product?.Name ?? $"معرف {item.ProductId}";
                     _logger.LogWarning(
                         "Price enforcement on post: Product '{Product}' unit price {UnitPrice} < registered price {RegisteredPrice}",
-                        productName, item.UnitPrice, priceResult.Value.Price);
+                        productName, item.UnitPrice, unit.SalePrice);
                     return Result<SalesInvoiceDto>.Failure(
                         $"سعر البيع أقل من السعر الرسمي للمنتج: {productName}");
                 }
@@ -553,7 +548,7 @@ public class SalesService : ISalesService
                     var creditLimitAlert = await _systemSettingsRepo.GetBoolAsync("CreditLimitAlert", true, ct);
                     if (creditLimitAlert)
                     {
-                        // Credit limit enforcement — soft check only (balance tracked on linked Account via journal entries)
+                        // Credit limit enforcement — soft check against the invoice remaining amount (no account link in V1).
                         if (customer.CreditLimit > 0 && invoice.RemainingAmount > 0)
                         {
                             if (!customer.CheckCreditLimit(invoice.RemainingAmount))
@@ -565,9 +560,6 @@ public class SalesService : ISalesService
                             }
                         }
                     }
-
-                    // Balance is tracked on the linked Account via journal entries.
-                    // Direct In-memory balance tracking on Customer entity is removed.
                 }
 
                 await _uow.SaveChangesAsync(ct);

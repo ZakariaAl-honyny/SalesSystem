@@ -14,7 +14,7 @@ namespace SalesSystem.Business.Services;
 
 /// <summary>
 /// Product service aligned to the new 65-table schema.
-/// - Prices via ProductPrices (effective dates)
+/// - Prices via ProductUnits (SalePrice / WholesalePrice / CostPrice / MaxDiscountAmount)
 /// - Cost via InventoryBatches (FIFO/FEFO, weighted average)
 /// - ImagePath on Product (single image, no separate ProductImages table)
 /// - Expiry tracked via InventoryBatches, not Product

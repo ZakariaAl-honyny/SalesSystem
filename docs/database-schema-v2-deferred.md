@@ -435,7 +435,7 @@
 | `CreatedAt` | datetime2 not null | |
 | `UpdatedAt` | datetime2 null | |
 
-**ما يجب أن يعود معها (مؤجل معها):** `SalesInvoices.CurrencyId` + `ExchangeRate` · `PurchaseInvoices.CurrencyId` + `ExchangeRate` · `CustomerReceipts.CurrencyId` · `SupplierPayments.CurrencyId` · `ProductPrices.CurrencyId` · وأعمدة `BaseNetTotal` (7) و`CostInBaseCurrency` (6) التي حُذفت من V1 — عودتها = ترحيل إضافي بموافقة هيكل **جديدة**.
+**ما يجب أن يعود معها (مؤجل معها):** `SalesInvoices.CurrencyId` + `ExchangeRate` · `PurchaseInvoices.CurrencyId` + `ExchangeRate` · `CustomerReceipts.CurrencyId` · `SupplierPayments.CurrencyId` · وأعمدة `BaseNetTotal` (7) و`CostInBaseCurrency` (6) التي حُذفت من V1 — عودتها = ترحيل إضافي بموافقة هيكل **جديدة**. (عمود `ProductPrices.CurrencyId` سقط من القائمة لأن الجدول نفسه أُزيل من V1 في 2026-11-18 — `TASK-021`.)
 
 ---
 

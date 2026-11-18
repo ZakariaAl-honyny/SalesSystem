@@ -29,7 +29,7 @@
 | # | الخطورة | الموضع | النقص | الأثر |
 |---|---|---|---|---|
 | **P-01** ✅ | حرج | `frmWarehouseTransferNew.cs` · `frmStocktakingNew.cs` | **أُغلق 2026-11-15:** الحفظ صار يمرّ بالعقد الحقيقي (`IWarehouseTransferDesktopService.CreateAsync` · `IStocktakingDesktopService.CreateAsync/PostAsync/CancelAsync`) عبر بوابة `_isMockMode` | الوضع الحقيقي ينفّذ الحركة فعلاً؛ وضع التجربة يبقى محاكاة معلنة |
-| **P-02** | عالٍ | `frmProductMaster.cs:741` (TODO) | أسعار الصنف لا تُسند إلى ProductPriceDto | سعر/مستوى سعر يُدخل ولا يُحفظ |
+| **P-02** | ✅ مغلق | `frmProductMaster.cs` | **أُغلق 2026-11-18 (`TASK-021`):** كان TODO لربط السعر بـ`ProductPriceDto`؛ صار يقرأ `ProductUnitDto` وحدها (SalePrice · CostPrice · MaxDiscountAmount) والجدول أُزيل من النظام | — |
 | **P-03** | عالٍ | `frmUserMaster.cs:810,832` (TODO) | DefaultCashBoxId يُترك null · ResetPasswordAsync غير موصولة بالواجهة | صندوق المستخدم وإعادة تعيين كلمة المرور غير قابلين للتنفيذ من الشاشة |
 | **P-04** | عالٍ | `Services/Direct/DirectReportService.cs:84-87` | الهاتف/المجموعة/CreditLimit تُرجع null أو 0 | تقارير العملاء تعرض فراغات في الوضع الحقيقي |
 | **P-05** | عالٍ | `Services/Direct/DirectFinancialReportService.cs:114,121,179` | حقول ناقصة + ReferenceNumber: null | كشف/تقرير مالي بلا مرجع القيد |
@@ -98,7 +98,7 @@ StocktakingPrintAdjustment · StocktakingPrintCard · SupplierSelection · Suppl
 | T-01 | تسجيل `IReportRepository` · `IPrintService` · `IPrintDataService` + استدعاء `PrintingBootstrapper.Initialize()` | P-13 | S | `implement-agent` | W1 | 🔄 قيد التنفيذ |
 | T-02 | إغلاق حقول `DirectReportService` + `DirectFinancialReportService` | P-04 · P-05 | M | `backend-architect` | W1 | 🔄 قيد التنفيذ |
 | T-03 | إغلاق حقول `DirectSalesReportService` + `DirectCategoryService` | P-06 · P-07 | M | `backend-architect` | W1 | 🔄 قيد التنفيذ |
-| T-04 | أسعار الصنف إلى `ProductPriceDto` + صندوق المستخدم وإعادة تعيين كلمة المرور | P-02 · P-03 | M | `ui-agent` | W1 | 🔄 قيد التنفيذ |
+| T-04 | أسعار الصنف إلى `ProductUnitDto` + صندوق المستخدم وإعادة تعيين كلمة المرور | P-02 ✅ · P-03 | M | `ui-agent` | W1 | 🔄 قيد التنفيذ — شِقّ الأسعار **مغلق** (`TASK-021`)، المتبقي صندوق المستخدم وكلمة المرور |
 | T-05 | `DirectSettingsService:82` (مفتاح إعداد لا يُقرأ) | P-08 | S | `fast-agent` | W2 | ⬜ |
 | T-06 | `N2`/`N3` حرفية → `GridFormatHelper` في 5 شاشات مخزون | P-10 | S | `ui-agent` | W2 | ⬜ |
 | T-07 | ألوان الحالة الحرفية → ثوابت الثيم في 4 شاشات | P-15 · W-01 | S | `ui-agent` | W2 | ⬜ |

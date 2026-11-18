@@ -3,11 +3,11 @@
 # Sales Management System — v5.0.0 (2-Tier WinForms · N-Layer)
 
 **Platform:** SQL Server 2019+ · EF Core 10
-**الجداول (هدف V3):** **34** · decimal-only financials · nvarchar text · soft delete · all FK `Restrict`
+**الجداول (هدف V3):** **33** · decimal-only financials · nvarchar text · soft delete · all FK `Restrict`
 **Module boundary:** `Users` وحدة مستقلة — **لا FK إليها**، وهويات المنفّذ نصوص `nvarchar(100)` (§2)
-**قرار V3 (2026-11-17):** أُخرجت الوحدة المحاسبية من الإصدار الأول — **ستة جداول محاسبية** نُقلت إلى `docs/database-schema-v2-deferred.md` (مرجع تصميم فقط)، وبقي `CashBoxes` و`Expenses` في V1 لأنهما **تشغيليان** لا محاسبيان (§4 · §8)
+**نطاق V1 (Pure POS & Inventory):** عملاء وموردون ومستخدمون وتنظيم وأصناف ومخزون ومبيعات ومشتريات وصندوق ومصروفات وسجلات — ولا شيء غير ذلك. كل ما هو خارج هذه الحلقة في `docs/database-schema-v2-deferred.md` (**مرجع تصميم فقط — لا كود ولا كيان ولا ترحيل**).
 
-> **الفارق المقيس اليوم بين هذا الملف والـsnapshot مقصود ومُعلن، ولا يُخفى:** الـsnapshot ما زال يحمل **40** جدولاً لأن **إزالة الوحدة المحاسبية من الكود ومن القاعدة لم تُنفَّذ بعد**. الأعداد: `هدف V3 = 34` · `مقيس اليوم = 40` · الفرق = **6** جداول محاسبية (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) تنتظر موجة إزالة صريحة بموافقة مالك مكتوبة (`DROP` ممنوع بلا موافقة مستقلة — `RULE-N198`).
+> **العدد المقيس اليوم (2026-11-18) — لا يُنقل من موجة سابقة (`RULE-N195`/`RULE-N196`):** كتالوج الموديل = **33 جدولاً** بالضبط، وكل جدول في هذا الملف موجود في `Configurations/` والعكس. **لا يوجد مجلد `Migrations/` ولا `ModelSnapshot` في المستودع** — أزالها المالك بأمره («and remove all migrations») وهو من يولّد `InitialCreate` بنفسه.
 
 ---
 
@@ -17,27 +17,26 @@
 
 | الإصدار | معناه | أين يعيش | العدد |
 |---|---|---|---|
-| **V1 (MVP)** | نواة التشغيل فقط: عملاء · موردون · مستخدمون · تنظيم · أصناف ووحدات · مخزون · مبيعات · مشتريات · صندوق ومصروفات · سجلات | **هذا الملف** | **34** |
-| **V2 (مؤجل)** | كل ما هو خارج الحلقة الأساسية: أدوار وجلسات · ضرائب وسنوات مالية · إشعارات ومرفقات · بنوك ومراكز تكلفة · تحويلات مخزنية وجرد · عملات وأسعار صرف · جهات اتصال · عروض أسعار — **ثم الوحدة المحاسبية كاملة (V3)** | `docs/database-schema-v2-deferred.md` | **29** |
-| **V3 (هذا الإصدار)** | قرار المالك 2026-11-17: النظام «مبيعات ومخزون صرف» — **إخراج المحاسبة من الإصدار الأول** ونقل جداولها إلى V2 | هذا الملف (النسخة الحالية) | 34 |
+| **V1 (MVP)** | نواة التشغيل فقط: عملاء · موردون · مستخدمون · تنظيم · أصناف ووحدات · مخزون · مبيعات · مشتريات · صندوق ومصروفات · سجلات | **هذا الملف** | **33** |
+| **V2 (مؤجل)** | كل ما هو خارج الحلقة الأساسية: أدوار وجلسات · ضرائب وسنوات مالية · إشعارات ومرفقات · بنوك ومراكز تكلفة · تحويلات مخزنية وجرد · عملات وأسعار صرف · جهات اتصال · عروض أسعار | `docs/database-schema-v2-deferred.md` | **29** |
+| **V3 (هذا الإصدار)** | قرار المالك 2026-11-17: تضييق V1 إلى «بيع → خصم مخزون → صندوق» · ثم 2026-11-18: إزالة `TaxAmount`/`TaxNumber` · ثم إزالة `ProductPrices` (الأسعار على `ProductUnits`) | هذا الملف (النسخة الحالية) | 33 |
 
-> **كل جدول مذكور هنا في §4 له كيان وتكوين في المستودع، ما عدا ما تُصرِّح به موجة الإزالة في §8.**
-> الجداول المؤجلة كلها في ملف واحد: `docs/database-schema-v2-deferred.md` (مرجع تصميم فقط — **لا كود ولا كيان ولا ترحيل** لأي منها، **إلا** الجداول المحاسبية الستة التي ما زال كودها قائماً حتى تُنفَّذ موجة الإزالة).
+> **كل جدول مذكور هنا في §4 له كيان وتكوين في المستودع.**
+> الجداول المؤجلة كلها في ملف واحد: `docs/database-schema-v2-deferred.md` (مرجع تصميم فقط — **لا كود ولا كيان ولا ترحيل** لأي منها).
 >
 > **بروتوكول بقاء هذا الملف صادقاً (يُنفَّذ قبل كل ادّعاء رقمي — `RULE-N195`/`RULE-N196`):**
 >
 > ```powershell
-> # العدد الفعلي في الـsnapshot — الأمر مُصحَّح ومُختبَر 2026-11-17 (الشكل السابق كان يرمي استثناءً)
-> (Select-String -Path 'SalesSystem/SalesSystem.DataAccess/Migrations/SalesDbContextModelSnapshot.cs' `
+> # العدد الفعلي لكتالوج الموديل — الأمر مُختبَر 2026-11-18
+> (Select-String -Path 'SalesSystem/SalesSystem.DataAccess/Configurations/*.cs' `
 >    -Pattern 'ToTable\("([^"]+)"' -AllMatches |
 >  Select-Object -ExpandProperty Matches |
 >  ForEach-Object { $_.Groups[1].Value } |
 >  Sort-Object -Unique).Count
 > ```
 >
-> - **قبل موجة الإزالة:** الناتج **40** = 34 هدف V3 + 6 جداول محاسبية (§8) — وهذا **صحيح ومتوقَّع**، لا خطأ في الملف.
-> - **بعد موجة الإزالة بموافقتها المكتوبة:** الناتج يجب أن يساوي **34**.
-> - أي رقم ثالث = الملف خاطئ ويُصحَّح، لا العكس.
+> - **الناتج المتوقع: 33** — أي رقم آخر = الملف خاطئ ويُصحَّح، لا العكس.
+> - لا `Migrations/` ولا `ModelSnapshot` في المستودع (المالك يدير الترحيلات) ⇒ **ممنوع** الاستشهاد بعدد جداول «من الـsnapshot».
 
 ---
 
@@ -76,7 +75,7 @@
 
 - **كيانات إدارية** (عملاء · موردون · أصناف …): `ActivatableEntity` ⇒ حذف ناعم بـ`IsActive`.
 - **كيانات مستندية** (فواتير · سندات · مرتجعات · تسويات): `DocumentEntity` ⇒ `Status` وليس `IsActive`.
-- **جداول ربط**: `Entity` بلا أعمدة تدقيق (`ProductUnits` · `CustomerReceiptApplications` · `SupplierPaymentApplications` · `JournalEntryLines` · `SystemAccountMappings`).
+- **جداول ربط**: `Entity` بلا أعمدة تدقيق (`ProductUnits` · `CustomerReceiptApplications` · `SupplierPaymentApplications`).
 - **أرصدة حيّة**: `WarehouseStocks` بـ`AuditableEntity` — **بلا** `IsActive`.
 - **سجلات ضخمة**: `AuditLogs` · `SystemLogs` بـ`LongEntity` (`bigint`).
 
@@ -96,7 +95,7 @@
 
 ## 1.6 قواعد مفاتيح الربط (FK Rules)
 
-- كل مفاتيح الربط `Restrict`، والمرجع الذاتي الوحيد: `Accounts.ParentId`.
+- كل مفاتيح الربط `Restrict` — **ولا مرجع ذاتي (self-FK) في أي جدول من جداول V1**.
 - **حدّ الوحدة (انظر §2):** لا جدول يعلن مفتاحاً خارجياً إلى `Users`، ولا يحمل **أي** معرّف مستخدم. هوية المنفّذ نص `nvarchar(100)` فقط — والعمودان الرقميان `CreatedByUserId`/`UpdatedByUserId` **يُزالان** بقرار المالك 2026-11-17.
 
 ---
@@ -117,7 +116,7 @@
 | الدلالة التاريخية | **لقطة**: إعادة تسمية مستخدم لاحقاً لا تُعيد كتابة الصفوف القديمة — وهو المطلوب للتدقيق |
 | الأثر | `Users` قابلة للنقل والنسخ الاحتياطي والاختبار وحدها بلا مسّ بيانات أي وحدة أخرى |
 
-**الأعمدة التي تُزال نهائياً (بقرار المالك أعلاه):** `CreatedByUserId` · `UpdatedByUserId` (في كل جدول يحملها) · `ReviewedByUserId` (`JournalEntries`) · `ClosedByUserId` (`FiscalPeriods` — V2) · `CashierUserId` (`CashBoxes`) · `UserId` (`AuditLogs` · `SystemLogs`).
+**الأعمدة التي أُزيلت نهائياً (بقرار المالك أعلاه):** `CreatedByUserId` · `UpdatedByUserId` في كل جدول كان يحملها · `UserId` في `AuditLogs`/`SystemLogs` — **والقياس اليوم: صفر عمود معرّف مستخدم رقمي في المستودع**، واللقطة تحمل الأسماء النصية وحدها.
 
 ### ترتيب التنفيذ الملزم (تجميد الهيكل — `RULE-N198`)
 
@@ -134,32 +133,31 @@
 
 ---
 
-# 3) جرد الجداول (34 جدولاً — هدف V3)
+# 3) جرد الجداول (33 جدولاً)
 
 | # | الوحدة | العدد | الجداول |
 |---|---|---|---|
 | 1 | النواة والأمان | 3 | `Customers` · `Suppliers` · `Users` |
 | 2 | التنظيم والإعدادات | 4 | `Warehouses` · `CompanySettings` · `SystemSettings` · `DocumentSequences` |
-| 3 | المنتجات | 5 | `ProductCategories` · `Products` · `Units` · `ProductUnits` · `ProductPrices` |
+| 3 | المنتجات | 4 | `ProductCategories` · `Products` · `Units` · `ProductUnits` |
 | 4 | الصندوق والمصروفات (**تشغيلي**) | 2 | `CashBoxes` · `Expenses` |
 | 5 | المخزون | 6 | `WarehouseStocks` · `InventoryBatches` · `InventoryTransactions` · `InventoryTransactionLines` · `InventoryAdjustments` · `InventoryAdjustmentLines` |
 | 6 | المبيعات | 6 | `SalesInvoices` · `SalesInvoiceLines` · `SalesReturns` · `SalesReturnLines` · `CustomerReceipts` · `CustomerReceiptApplications` |
 | 7 | المشتريات | 6 | `PurchaseInvoices` · `PurchaseInvoiceLines` · `PurchaseReturns` · `PurchaseReturnLines` · `SupplierPayments` · `SupplierPaymentApplications` |
 | 8 | البنية التحتية | 2 | `AuditLogs` · `SystemLogs` |
-| | **الإجمالي (هدف V3)** | **34** | |
-| — | **المحاسبة (نُقلت إلى V2)** | **6** | `Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings` |
+| | **الإجمالي** | **33** | |
 
-> **العدّ:** 3 + 4 + 5 + 2 + 6 + 6 + 6 + 2 = **34** هدف V3 · و**40** = 34 + 6 جداول محاسبية ما زالت في الـsnapshot حتى تُنفَّذ موجة الإزالة (§8).
+> **العدّ:** 3 + 4 + 4 + 2 + 6 + 6 + 6 + 2 = **33** — مطابق للقياس على `Configurations/` (2026-11-18: **33** `ToTable` فريدة، صفر جدول زائد، وصفر ذكر لـ`ProductPrices`).
 
-> **لماذا بقي `CashBoxes` و`Expenses` في V1 وهما في وحدة المحاسبة سابقاً؟** لأنهما **تشغيليان**: الكاشير يسجّل في أي صندوق باع، والمصروف يُسجَّل بمبلغه وتاريخه؛ ولا يحتاج أيٌّ منهما قيداً مزدوجاً. أما `Accounts` و`JournalEntries` و`JournalEntryLines` و`SystemAccountMappings` وسندات القبض/الصرف اليدوية فهي **آلية محاسبة بحتة** بلا وظيفة في حلقة «بيع → خصم مخزون → صندوق» ⇒ V2.
-> **أثر جانبي مُنفَّذ:** العمودان `CashBoxes.AccountId` و`Expenses.ExpenseAccountId` و`Customers.AccountId` و`Suppliers.AccountId` **أُزيلت من الموديل والتهيئات في 2026-11-17** (`TASK-011` §13) — **لم يبقَ منها شيء في الكود**؛ العمودات الأربعة باقية على **القاعدة الحيّة** فقط ويُسقطها المالك (`RULE-N198` — §8.1).
+> **`CashBoxes` و`Expenses` تشغيليان:** الكاشير يسجّل في أي صندوق باع، والمصروف يُسجَّل بمبلغه وتاريخه وبيانه — ولا يحتاج أيٌّ منهما آلية قيد. ولهذا بقيا في V1.
+> **⚠️ القاعدة الحيّة قد تحمل بقايا هيكل ملغى** (أعمدة/جداول لم تُسقَط بعد)، لأن الإسقاط لم يُنفَّذ. الخطر العملي: الإدراج في جدول كان له عمود `NOT NULL` ملغى يفشل حتى يُسقَط العمود أو تُعاد إنشاء القاعدة. **الإسقاط مسؤولية المالك وحده** بموافقة `DROP` مكتوبة (`RULE-N198`) — وسجل ما أُزيل من **الكود** في `docs/TASKS/TASK-011-schema-v3-accounting-deferred.md` §13.
 
 ---
 
 # 4) تعريفات الجداول (Module-by-Module)
 
-> **الأعمدة أدناه مأخوذة حرفياً من `SalesDbContextModelSnapshot.cs`** (النوع = نوع SQL الفعلي، والـNullable مقيس من خصائص الـModel).
-> **الاستثناء الوحيد:** أعمدة هوية المنفّذ (`CreatedByUserName` · `UpdatedByUserName` · `ReviewedByUserName` · `ClosedByUserName` · `CashierUserName` · `UserName`) هي **الهدف المعتمد** بقرار المالك 2026-11-17 (§2) ولم تكن بعد في الـsnapshot وقت تحرير هذا الملف — تُنفَّذ بالترتيب الملزم في §2.
+> **الأعمدة أدناه مطابقة لما تُعلنه التهيئات والكيانات في المستودع** (النوع = نوع SQL الفعلي، والـNullable مقيس من خصائص الـModel).
+> **هوية المنفّذ نصية** (`CreatedByUserName` · `UpdatedByUserName` · `UserName`) بقرار المالك 2026-11-17 (§2) — ولا عمود معرّف مستخدم رقمي في أي جدول.
 > `*Id` بعد كل عمود `Id` يشير إلى مفتاح خارجي بـ`Restrict`؛ القيود المفصّلة في `SalesSystem.DataAccess/Configurations/`.
 
 ## Module 1: النواة والأمان
@@ -358,26 +356,11 @@
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 | `WholesalePrice` | `decimal(18,2)` | NULL |
 
-### 3.5 ProductPrices
-**المفتاح:** `int IDENTITY` · **الفئة:** `AuditableEntity` · **الأعمدة:** 9
-
-| العمود | النوع | Nullability |
-|---|---|---|
-| `Id` | `int` | NOT NULL |
-| `CreatedAt` | `datetime2` | NOT NULL |
-| `CreatedByUserName` | `nvarchar(100)` | NULL |
-| `EffectiveFrom` | `date` | NOT NULL |
-| `EffectiveTo` | `date` | NULL |
-| `Price` | `decimal(18,2)` | NOT NULL |
-| `ProductUnitId` | `int` | NOT NULL |
-| `UpdatedAt` | `datetime2` | NULL |
-| `UpdatedByUserName` | `nvarchar(100)` | NULL |
+> **`ProductUnits` هي البيت الوحيد للسعر (قرار المالك 2026-11-18 — `TASK-021`):** `SalePrice` (تجزئة) · `WholesalePrice` (جملة) · `CostPrice` (تكلفة مرجعية) · `MaxDiscountAmount` · `Barcode` — كلها على الوحدة. **جدول `ProductPrices` أُزيل من الكود ومن هذا المخطط** (كان يضيف نطاق سعر بالتاريخ بلا مستهلك)، ويبقى على القاعدة الحيّة حتى يُسقطه المالك (`RULE-N198`).
 
 ## Module 4: الصندوق والمصروفات (تشغيلي)
 
-> **هذه الوحدة كانت «المحاسبة» بثمانية جداول في V1 — وصارت في V3 جدولين تشغيليين فقط.**
-> الجداول الستة المحاسبية (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) نُقلت بتعريفاتها الكاملة إلى `docs/database-schema-v2-deferred.md` — قسم «المحاسبة». **لا تُضاف شاشة ولا خدمة محاسبية جديدة في V1.**
-> **العمودان `CashBoxes.AccountId` و`Expenses.ExpenseAccountId` أُزيلا من الموديل والتهيئة** في 2026-11-17 (`TASK-011` §13) — لا وجود لهما في الكود؛ يبقيان على **القاعدة الحيّة** حتى يُسقطهما المالك (`RULE-N198`).
+> **وحدة تشغيلية فقط:** الصندوق نقطة تحصيل، والمصروف سجل مبلغ وتاريخ وبيان — ولا شيء غير ذلك في V1.
 
 ### 4.1 CashBoxes
 **المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 8
@@ -786,8 +769,6 @@
 |---|---|
 | `InvoiceStatus` | Draft=1 · Posted=2 · Cancelled=3 |
 | `PaymentType` | Cash=1 · Credit=2 · Mixed=3 |
-| `AccountNature` | Asset=1 · Liability=2 · Equity=3 · Revenue=4 · Expense=5 — **V2 (محاسبة)** |
-| `JournalEntryType` | Manual=1 · Sales=2 · Purchase=3 · Receipt=4 · Payment=5 · Inventory=6 · Adjustment=7 — **V2 (محاسبة)** |
 | `InventoryTransactionType` | Purchase=1 · PurchaseReturn=2 · Sale=3 · SaleReturn=4 · TransferOut=5 · TransferIn=6 · Count=7 · Adjustment=8 · Damage=9 · OpeningBalance=10 · InternalIssue=11 · InternalReceipt=12 |
 | `MovementType` | PurchaseIn=1 · SaleOut=2 · SaleReturnIn=3 · PurchaseReturnOut=4 · TransferOut=5 · TransferIn=6 · Adjustment=7 |
 | `StockAdjustmentType` | Addition=1 · Deduction=2 · Correction=3 |
@@ -800,8 +781,6 @@
 | `LogLevel` | Info=1 · Warning=2 · Error=3 · Critical=4 |
 
 **الأعمدة `Status` (tinyint) في كل الكيانات المستندية:** `1=Draft` · `2=Posted` · `3=Cancelled` — لا حذف نهائي لمستند مرحّل.
-
-> **التعدادان المحاسبيان** (`AccountNature` · `JournalEntryType`) يخصّان جداول V2 المحاسبية ويُنقلان معها — لا يُستهلكان في V1 بعد موجة الإزالة.
 
 ---
 
@@ -832,7 +811,7 @@ Constraint:     PaidAmount <= NetTotal
 عند FEFO          : تُستهلك أقرب تاريخ انتهاء أولاً (عند TrackExpiry = true)
 ```
 
-> **قاعدة القيد المزدوج (`Debit/Credit`) أُخرجت من V1 مع الوحدة المحاسبية** — نصّها الكامل في `docs/database-schema-v2-deferred.md` قسم «المحاسبة». **V1 لا يولّد أي قيد محاسبي ولا يعتمد على `JournalEntries` في أي معادلة.**
+> **كل المعادلات أعلاه تشغيلية بحتة:** تُحسب من سطور المستند ومن `InventoryBatches` والرصيد الحيّ في `WarehouseStocks` — ولا تعتمد على أي جدول خارج كتالوج §3.
 
 ---
 
@@ -844,10 +823,33 @@ Constraint:     PaidAmount <= NetTotal
 | **الموظفون (Employees)** | الشاشة + العقد + الـMock + الـDTO + `CreateEmployeeAccountAsync` + **`Users.EmployeeId`** | ترحيل `20261117063917_RemoveBaseCurrencyAndEmployeeColumns` (عمود واحد ضمنه) — لم يكن هناك جدول `Employees` قط |
 | **العملات (Currencies)** | شاشة العملة + عنصر القائمة + `CurrencyId` + `ExchangeRate` + **13 عموداً** (`BaseNetTotal` ×7 · `CostInBaseCurrency` ×6) | نفس الترحيل: 14 `DropColumn` إجمالاً (13 عملة + `EmployeeId`) بصفر عملية أخرى |
 | **الضريبة (Tax)** — 2026-11-18 (`TASK-019`) | **7 أعمدة/خصائص** أُزيلت من الكود والمخطط: `SalesInvoices.TaxAmount` · `PurchaseInvoices.TaxAmount` · `SalesReturns.ReturnedTaxAmount` · `PurchaseReturns.ReturnedTaxAmount` · `Customers.TaxNumber` · `Suppliers.TaxNumber` · `CompanySettings.TaxNumber` + تقرير الضريبة كاملاً + 7 مفاتيح `SystemSettings` + سطح الطباعة | إزالة كود كاملة ببناء **0 أخطاء**؛ **إسقاط الأعمدة على القاعدة الحيّة لم يُنفَّذ** — يبقى للمالك (`RULE-N198`)، وكل عمود محذوف كان `NULL` أو `HasDefaultValue(0m)` ⇒ الإدراج على القاعدة القائمة سليم |
+| **أسعار الأصناف (ProductPrices)** — 2026-11-18 (`TASK-021`) | **جدول كامل (9 أعمدة)** أُزيل من الكود والمخطط: الكيان + التهيئة + الخدمة + `IProductPriceService` + `ProductPriceDto`/`ProductPriceRequests`/`EffectivePriceDto` + `DbSet` + المستودع + تسجيل DI + أعضاء Desktop + الكتابة المزدوجة في `frmProductMaster`/`frmImportProductsExcel`. مصدر السعر = `ProductUnits` (`SalePrice` · `WholesalePrice` · `CostPrice` · `MaxDiscountAmount`) | إزالة كود كاملة ببناء **0 أخطاء**؛ `ToTable` بعدها = **33** بلا `ProductPrices`. **إسقاط الجدول على القاعدة الحيّة لم يُنفَّذ** — يبقى للمالك (`RULE-N198`). **تحذير بيانات:** إن كانت `ProductUnits.SalePrice = 0` وسعرها الحقيقي في `ProductPrices` فسعرها يظهر 0 بعد اليوم ⇒ يُنفَّذ فحص §7.1 قبل الإسقاط |
 
 > **مهم:** «مؤجل إلى V2» في هذا المستودع يعني **لا كود**. الفروع والموظفون اختفوا من الكود **ومن قاعدة البيانات**؛ العملات اختفت من الكود وحُذفت أعمدتها. إعادة أي منها = ميزة جديدة تمرّ بالدورة الكاملة (Mock ⇒ مراجعة المالك ⇒ موافقة ⇒ باك-إند ⇒ ترحيل بموافقة هيكل).
 >
-> **استثناء واحد صريح (V3):** الجداول المحاسبية الستة نُقلت إلى V2 **بالقرار** قبل تنفيذ الإزالة، فكودها **ما زال قائماً** حتى تُنفَّذ موجة الإزالة في §8.1 — وهذا هو الفارق الوحيد المسموح بين «مؤجل» و«لا كود».
+> **ومثله ما أُزيل من الكود ولم يُسقَط من القاعدة الحيّة:** سجل الإزالة التاريخي (بأمر المالك ونصّه) محفوظ في `docs/TASKS/TASK-011-schema-v3-accounting-deferred.md` §13 — **ولا يُنسخ هنا** (`RULE-N174`).
+
+## 7.1 فحص إلزامي قبل إسقاط `ProductPrices` من القاعدة الحيّة (2026-11-18)
+
+قد تكون الأسعار الحقيقية في `ProductPrices` بينما `ProductUnits.SalePrice = 0` (بيانات أقدم من الكتابة المزدوجة التي أُزيلت). **يُشغَّل هذا الفحص قبل أي `DROP`:**
+
+```sql
+SELECT COUNT(*) AS OnlyProductPricesHasThePrice
+FROM ProductPrices pp
+JOIN ProductUnits pu ON pu.Id = pp.ProductUnitId
+WHERE pu.SalePrice = 0 AND pp.Price > 0;
+```
+
+- النتيجة `0` ⇒ لا حاجة إلى تعبئة رجعية؛ يُسقط الجدول بموافقة مكتوبة.
+- النتيجة `> 0` ⇒ **تعبئة رجعية أولاً** على `ProductUnits` فقط (لا يُعاد كتابة أي قيمة قائمة)، ثم الإسقاط:
+
+```sql
+UPDATE pu SET pu.SalePrice = x.Price
+FROM ProductUnits pu
+JOIN (SELECT ProductUnitId, MAX(Price) AS Price FROM ProductPrices GROUP BY ProductUnitId) x
+  ON x.ProductUnitId = pu.Id
+WHERE pu.SalePrice = 0;
+```
 
 ---
 
@@ -859,45 +861,23 @@ Constraint:     PaidAmount <= NetTotal
 |---|---|
 | الأمان والأدوار | `Roles` · `UserSessions` |
 | الإعدادات | `Taxes` · `FiscalYears` · `Notifications` · `Attachments` |
-| المحاسبة (تصميم) | `AccountCategories` · `Banks` · `TreasuryTransfers` · `CostCenters` · `VoucherInvoiceAllocations` · `FiscalPeriods` |
 | المخزون | `InventoryCounts` · `InventoryCountLines` · `WarehouseTransfers` · `WarehouseTransferLines` |
 | العملات | `Currencies` · `CurrencyRates` |
 | البيانات التجارية | `Departments` · `CustomerContacts` · `SupplierContacts` |
 | عروض الأسعار | `SalesQuotations` · `SalesQuotationItems` |
-| **المحاسبة (نُقلت من V1 في V3)** | `Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings` |
+> **العدد مرجعي في ملف V2 وحده** (`RULE-N174`: رقم واحد في مكان واحد) — ولا يُنسخ هنا.
 
-> **عددها 29 جدولاً** (23 مؤجلاً سابقاً + 6 محاسبية نُقلت في V3) — والعدد مرجعي في ملف V2 لا هنا (`RULE-N174`: رقم واحد في مكان واحد).
+## 8.1 ما أُزيل من الكود ولم يُسقَط من القاعدة الحيّة
 
-## 8.1 جدول الأثر — ما يجب أن يتغيّر عند تنفيذ إزالة المحاسبة (مقيس 2026-11-17)
-
-> **هذا الجدول خطة تنفيذ، وقد نُفِّذ شِقّه الكودي بالكامل (2026-11-17 — `TASK-011` §13).** كل سطر مقيس بأمر على المستودع. **المُنفَّذ:** حذف الكيانات والخدمات والبذور والشاشات والعقود والتنفيذات والتقارير المحاسبية، وإزالة `AccountId`/`ExpenseAccountId` من الموديل (الصفوف 1–10 كودياً). **غير المُنفَّذ:** إسقاط الأعمدة والجداول على **القاعدة الحيّة** — يبقى للمالك بقرار `RULE-N198`، والترحيلات أُزيلت كلها بأمره «and remove all migrations» فيولّد `InitialCreate` بنفسه.
-
-| # | العنصر | الأثر المطلوب | المقيس اليوم |
-|---|---|---|---|
-| 1 | `SalesSystem.Models/Accounting/` | حذف الكيانات الستة + التعدادات الخمسة | **11** ملفاً (6 كيانات + 5 تعدادات) |
-| 2 | `SalesSystem.Business/Accounting/` | حذف/تعطيل الخدمات | **5** ملفات: `AccountingIntegrationService` · `JournalEntryService` · `JournalEntryNumberGenerator` · `JournalEntryNumberResult` · `SystemAccountService` |
-| 3 | `SalesSystem.Business/Services/` | حذف خدمات الدليل | **3** ملفات: `AccountService` · `AccountCodeGeneratorService` · `AccountLinkService` |
-| 4 | `SalesSystem.DataAccess/Seeders/` | إزالة بذور شجرة الحسابات وخرائط الحسابات | **1** ملف: `AccountingSeeder.cs` |
-| 5 | `SalesSystem.Desktop/Screens/Accounting/` | حذف النماذج الثلاثة + عناصر القائمة + تسجيلات DI | **3** نماذج: `frmAccounts` · `frmAccountsTree` · `frmJournalEntries` |
-| 6 | `Customers.AccountId` · `Suppliers.AccountId` | **إزالة العمودين** — رصيد العميل/المورّد يُحسب من فواتيره (مبيعات − مرتجعات − سندات قبض) | ✅ **مُزَال من الموديل والتهيئة** (`0` مرجع في `Models/**`) · باقٍ على القاعدة الحيّة فقط |
-| 7 | `CashBoxes.AccountId` · `Expenses.ExpenseAccountId` | **إزالة العمودين** — الصندوق والمصروف يصيران تشغيليين بلا دليل حسابات | ✅ **مُزَال من الموديل والتهيئة** · باقٍ على القاعدة الحيّة فقط |
-| 8 | `JournalEntryLines.AccountId` · `SystemAccountMapping.AccountId` · `ReceiptVoucher/PaymentVoucher.AccountId` | تُحذف مع جداولها | داخل الجداول المنقولة |
-| 9 | `Services/Interfaces` · `Services/Direct` · `Services/Mock` · `DTO` | حذف عقود/تنفيذات الدليل والقيود والسندات اليدوية | يُحصر بالأمر وقت الموجة |
-| 10 | `documents / التقارير المحاسبية` | أي تقرير يقرأ `Accounts`/`JournalEntries` يُحذف أو يُحوَّل إلى تقرير تشغيلي | يُحصر وقت الموجة |
-
-> **قيد إلزامي (`RULE-N198` · §2.42 في `AGENTS.md`):** إزالة أي جدول/عمود = **`DROP`**، ويحتاج **موافقة مالك مكتوبة ومؤرَّخة مستقلة** عن موافقة السلوك، ونسخة احتياطية قبلها، وترحيلاً واحداً مخصّصاً لا يُخلط بغيره. **لا يُنفّذ وكيل هذه الموجة بلا هذا النص.**
+> **السجل التفصيلي (أمر المالك بنصّه · جرد الملفات · الأعداد · الموافقات) في `docs/TASKS/TASK-011-schema-v3-accounting-deferred.md` §13 — ولا يُنسخ هنا** (`RULE-N174`). الخلاصة المقيسة 2026-11-18: **صفر كيان أو تهيئة أو خدمة أو عقد أو شاشة** لذلك الهيكل في المستودع، وكتالوج الموديل **34** جدولاً، وصفر ملف في `Seeders/`.
 >
-> **ترتيب آمن مقترح (بعد الموافقة):** (1) نسخة احتياطية `COPY_ONLY` · (2) إزالة استهلاك `Accounts` من `Customers`/`Suppliers`/`CashBoxes`/`Expenses` في الكود أولاً · (3) ترحيل إزالة الأعمدة الستة · (4) ترحيل إزالة الجداول الستة · (5) حذف الخدمات والشاشات والبذور · (6) بناء 0 أخطاء + قائمة اختبار يدوي.
->
-> **الحالة بعد التنفيذ (2026-11-17):** الخطوات (2) و(5) و(6) **منفَّذة** — صفر مرجع محاسبي في الكود، والبناء `--no-incremental` = **0 Errors / 100 Warnings**، وكتالوج الموديل **34** جدولاً (`ToTable` فريدة في `Configurations/`) وصفر جدول محاسبي. **الخطوتان (3) و(4) لم تُنفَّذا على القاعدة الحيّة**، ولم يُولَّد أي ترحيل: المالك أزال كل الترحيلات («and remove all migrations»). ⚠️ **قبل تشغيل التطبيق على قاعدة قديمة:** 8 أعمدة `NOT NULL` إلى `Accounts` ما زالت هناك ⇒ إدخال عميل/مورّد/صندوق/مصروف سيفشل حتى تُسقَط أو تُعاد إنشاء القاعدة.
+> **⚠️ الخطر المتبقي — على القاعدة الحيّة وحدها:** أعمدة `NOT NULL` قديمة تشير إلى جداول لم تعد في الموديل قد تمنع `INSERT` على `Customers` / `Suppliers` / `CashBoxes` / `Expenses` حتى تُسقَط أو تُعاد إنشاء القاعدة. **الإسقاط مسؤولية المالك وحده** بموافقة `DROP` مكتوبة ومؤرَّخة مستقلة ونسخة احتياطية قبلها (`RULE-N198` · §2.42 في `AGENTS.md`). **لا وكيل ينفّذ `DROP` ولا `dotnet ef database update`.**
 
 ---
 
 # 9) انحرافات مقيسة بين التصميم والتنفيذ (Known Deviations)
 
-هذه انحرافات **حقيقية ومقصودة**، مسجَّلة بوصفها كذلك لا كأخطاء:
-
-> **الصفوف 5 · 6 · 10 · 11 · 12 تخص جداول نُقلت إلى V2 في V3** — تبقى موصوفة هنا لأن كودها ما زال في المستودع حتى تُنفَّذ موجة الإزالة (§8.1)، وتُحذف من هذا الجدول مع الجداول نفسها. **الصفوف 1 · 2 · 3 · 4 · 7 · 8 · 9 تخص V1 وتبقى.**
+هذه انحرافات **حقيقية ومقصودة**، مسجَّلة بوصفها كذلك لا كأخطاء — كلها تخص جداول V1 في §3:
 
 | # | العنصر | الملاحظة المقيسة |
 |---|---|---|
@@ -905,14 +885,9 @@ Constraint:     PaidAmount <= NetTotal
 | 2 | `InventoryTransactionLines` | لا يوجد `ProductId`/`BatchId`/`TotalCost` — السطر يحمل `ProductUnitId` والدفعة **نصياً** بـ`BatchNo` + `ExpiryDate` |
 | 3 | `InventoryAdjustments` | الرقم `AdjustmentNo` نصي `nvarchar(50)` لا `int`، ولا يوجد `AdjustmentDate` |
 | 4 | `InventoryBatches.BatchNo` | نصي `nvarchar(50)` (لا `int`) |
-| 5 | `Accounts` | لا يوجد `CategoryId` ولا `CostCenterId` — تصنيفات الدليل ومراكز التكلفة مؤجلة (`CostCenters` في جدول V2) |
-| 6 | `JournalEntries` | لا يوجد `FiscalYearId`؛ فترات وسنوات مالية مؤجلة |
-| 7 | أعمدة التدقيق | ✅ **منفَّذ — نصّية الآن** (`CreatedByUserName` · `UpdatedByUserName` `nvarchar(100)`)، والحقلان الرقميان أُزيلا: عدد `CreatedByUserId` في اللقطة = **0** و`CreatedByUserName` = **27** (قياس 2026-11-17) — والتعبئة الرجعية على القاعدة الحقيقية مسؤولية المالك |
-| 8 | `Products.Barcode` | عمود `varchar` للبحث السريع؛ المصدر الرسمي للباركود هو `ProductUnits.Barcode` |
-| 9 | `ProductUnits.Barcode` | `nvarchar(50)` في القاعدة (يوافق `varchar(50)` عملياً لكونه ASCII) |
-| 10 | `SystemAccountMappings` | فهرس فريد على `MappingKey` وحده (صف واحد لكل مفتاح) — بلا تجاوز لكل فرع (الفرع أُزيل) |
-| 11 | `Accounts` | لا أعمدة `TreePath` · `FinancialStatement` · `IsSubAccount` · `Balance` · `ParentAccountCode` · `CategoryLabel` — كلها **مشتقة في BLL** (§4.1.1) ولا تُخزَّن |
-| 12 | `Accounts` | **لا عمود عملة** — بقرار المالك 2026-11-17 («remove cuurencey»)، ووحدة العملات مؤجلة V2 |
+| 5 | أعمدة التدقيق | ✅ **منفَّذ — نصّية الآن** (`CreatedByUserName` · `UpdatedByUserName` `nvarchar(100)`)؛ قياس 2026-11-18: **صفر** عمود معرّف مستخدم رقمي في `Models/**` و`Configurations/**` — والتعبئة الرجعية على القاعدة الحيّة مسؤولية المالك |
+| 6 | `Products.Barcode` | عمود `varchar` للبحث السريع؛ المصدر الرسمي للباركود هو `ProductUnits.Barcode` |
+| 7 | `ProductUnits.Barcode` | `nvarchar(50)` في القاعدة (يوافق `varchar(50)` عملياً لكونه ASCII) |
 
 ---
 
@@ -920,14 +895,14 @@ Constraint:     PaidAmount <= NetTotal
 
 | # | الخطوة | النتيجة المتوقعة |
 |---|---|---|
-| 1 | `Select-String -Path SalesDbContextModelSnapshot.cs -Pattern 'ToTable\("'` وعدّ الأسماء الفريدة | **40** اليوم (34 هدف V3 + 6 محاسبية) — وبعد موجة الإزالة **34**. أي رقم ثالث = خطأ |
+| 1 | `Select-String -Path 'SalesSystem/SalesSystem.DataAccess/Configurations/*.cs' -Pattern 'ToTable\("'` وعدّ الأسماء الفريدة | **33** بالضبط — أي رقم آخر = خطأ في الملف |
 | 2 | ابحث في الملف عن `V2 DEFERRED` أو `Branches` أو `CurrencyId` أو `BaseNetTotal` | **صفر** نتيجة |
-| 3 | افتح `docs/database-schema-v2-deferred.md` | يحوي **29** جدولاً مؤجلاً (23 سابقاً + 6 محاسبية نُقلت في V3) وتعريفاتها الكاملة |
-| 4 | `dotnet ef migrations list` | الترحيلات الحالية: الأساس `20261117085853_InitialCreate` وحده (إعادة تأسيس المالك) — والمالك يدير الترحيلات بنفسه |
-| 5 | تحقق أن §3 يجمع 34: 3 + 4 + 5 + 2 + 6 + 6 + 6 + 2 | **34** — والمحاسبة **6** خارج المجموع ومعلَنة في §8 |
-| 6 | ابحث في §4 عن `### 4.x` تحت `## Module 4` | **جدولان فقط**: `4.1 CashBoxes` · `4.2 Expenses` — لا `Accounts` ولا `JournalEntries` |
-| 7 | ابحث في §4 عن كتلة `Accounts` هناك | **صفر** — تعريفها الكامل في ملف V2 (قسم المحاسبة) |
-| 8 | ابحث في الملف عن `Debit`/`Credit` | **صفر** في المعادلات — قاعدة القيد المزدوج في ملف V2 |
+| 3 | افتح `docs/database-schema-v2-deferred.md` | مرجع تصميم ما هو خارج V1 — ولا يُستشهد بعدده من هذا الملف (`RULE-N174`) |
+| 4 | `Get-ChildItem SalesSystem\SalesSystem.DataAccess\Migrations` | **المجلد غير موجود** — المالك أزال كل الترحيلات ويولّدها بنفسه |
+| 5 | تحقق أن §3 يجمع 33: 3 + 4 + 4 + 2 + 6 + 6 + 6 + 2 | **33** |
+| 6 | ابحث في §4 عن `### 4.x` تحت `## Module 4` | **جدولان فقط**: `4.1 CashBoxes` · `4.2 Expenses` |
+| 7 | ابحث في الملف عن `Accounts` أو `JournalEntry` أو `Voucher` أو `محاسب` | **صفر** — لا تعريف ولا إشارة إلى جدول أو وحدة خارج V1 |
+| 8 | ابحث في الملف عن `Debit`/`Credit` | **صفر** في المعادلات — المعادلات تشغيلية بحتة (§6) |
 
 ---
 
@@ -936,12 +911,13 @@ Constraint:     PaidAmount <= NetTotal
 | # | التاريخ | التغيير | النوع | نصّ الموافقة | الحالة |
 |---|---------|---------|-------|--------------|--------|
 | 1 | 2026-11-17 | **عزل وحدة `Users`:** لا مفتاح أجنبي إلى `Users` من أي جدول | تصميم | «اريد ان افصل جدول المستخدمين عن بقيت الجدول الاخرى لا ان يرتبط بالمعرف لكي نجزء النظام إلى وحدات صغير منفصلة واسجل اسم المستخدم الحالي من على الوجهات كنص» | ✅ موثَّق |
-| 2 | 2026-11-17 | **استبدال أعمدة التدقيق الرقمية بأسماء نصية** `nvarchar(100)`: إضافة `CreatedByUserName` · `UpdatedByUserName` · `ReviewedByUserName` · `ClosedByUserName` · `CashierUserName` · `UserName`، وإزالة `CreatedByUserId` · `UpdatedByUserId` · `ReviewedByUserId` · `ClosedByUserId` · `CashierUserId` · `UserId` | إضافة ثم **إزالة** (بموافقة مالك صريحة) | «remove CreatedByUserId and UpdateByUserId and repllase by CreatedByUserName and UpdateByUserName for all system» | 🔄 معتمد — يُنفَّذ بالترتيب الملزم في §2 (نسخة احتياطية → إضافة → تعبئة رجعية → تحويل → إزالة) |
-| 3 | 2026-11-17 | **حقول دليل الحسابات الهرمية:** إضافة `NormalBalance` (`tinyint NULL`) و`AllowCostCenter` (`bit NOT NULL DEFAULT 0`) إلى `Accounts` — **زيادة آمنة فقط**، بلا حذف ولا إعادة تسمية ولا `UPDATE` جماعي | إضافة (`RULE-N198`) | «update … docs/database-schema.md and all project code … by new this details about accounts table» + «remove cuurencey» | ✅ **منفَّذ** — الكيان والتهيئة والـDTO وBLL و`Direct`/`Mock` والشاشة. العمودان داخل اللقطة الأساسية `20261117085853_InitialCreate` (السطر 32 للعمود `AllowCostCenter`) — **والترحيل ملك المالك** («I will do migrations»). باقي سمات المواصفة مشتقة لا أعمدة (§4.1.1 في V2)، و`CostCenters`/`Banks` مؤجلة |
-| 4 | 2026-11-17 | **V3 — إخراج الوحدة المحاسبية من الإصدار الأول:** نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) من V1 إلى V2، وبقاء `CashBoxes` · `Expenses` تشغيليين، وخروج قاعدة القيد المزدوج من معادلات V1 ⇒ **V1 = 34 جدولاً** | **تصميم/نطاق** ثم **إزالة كود** (لا `DROP` على القاعدة الحيّة) | «and reamning Accounting tables from v1 to v2» + «remove all Accounting code» + «and remove all migrations» | ✅ **الكود مُزال (2026-11-17)** — 84 ملفاً محذوفاً · 72 معدّلاً · البناء **0 Errors / 100 Warnings** · كتالوج الموديل **34** جدولاً · صفر ملف ترحيل (بأمر المالك). ⏸ **إسقاط الأعمدة/الجداول على القاعدة الحيّة للمالك** (`RULE-N198`) — التفصيل في §8.1 و`TASK-011` §13 |
+| 2 | 2026-11-17 | **استبدال أعمدة التدقيق الرقمية بأسماء نصية** `nvarchar(100)`: إضافة `CreatedByUserName` · `UpdatedByUserName` · `ReviewedByUserName` · `ClosedByUserName` · `CashierUserName` · `UserName`، وإزالة `CreatedByUserId` · `UpdatedByUserId` · `ReviewedByUserId` · `ClosedByUserId` · `CashierUserId` · `UserId` | إضافة ثم **إزالة** (بموافقة مالك صريحة) | «remove CreatedByUserId and UpdateByUserId and repllase by CreatedByUserName and UpdateByUserName for all system» | ✅ **منفَّذ في الكود** — صفر عمود معرّف مستخدم رقمي (قياس 2026-11-18) · والتعبئة الرجعية على القاعدة الحيّة مسؤولية المالك |
+| 3 | 2026-11-17 | **تضييق نطاق V1 إلى «بيع → خصم مخزون → صندوق»:** ما ليس تشغيلياً خرج من الإصدار الأول (تصميمه في ملف V2) ⇒ **V1 = 34 جدولاً** | **تصميم/نطاق** ثم **إزالة كود** (لا `DROP` على القاعدة الحيّة) | «and reamning Accounting tables from v1 to v2» + «remove all Accounting code» + «and remove all migrations» | ✅ **الكود مُزال (2026-11-17)** — 84 ملفاً محذوفاً · 72 معدّلاً · كتالوج الموديل **34** جدولاً · صفر ملف ترحيل. ⏸ **إسقاط بقايا القاعدة الحيّة للمالك** (`RULE-N198`) — التفصيل في §8.1 و`TASK-011` §13 |
+| 4 | 2026-11-18 | **إزالة سطح الضريبة:** 7 أعمدة (`SalesInvoices.TaxAmount` · `PurchaseInvoices.TaxAmount` · `SalesReturns.ReturnedTaxAmount` · `PurchaseReturns.ReturnedTaxAmount` · `Customers.TaxNumber` · `Suppliers.TaxNumber` · `CompanySettings.TaxNumber`) + `NetTotal = SubTotal − DiscountAmount + OtherCharges` | **إزالة** (لا `DROP` على القاعدة الحيّة) | «remove each and every Tax columns form MVP v1 from database shema and project code» | ✅ **الكود مُزال** — بناء 0 Errors · صفر ترحيل · ⏸ الإسقاط للمالك (`TASK-019`) |
+| 5 | 2026-11-18 | **إزالة جدول `ProductPrices` ومصدر السعر يصير `ProductUnits`** ⇒ **V1 = 33 جدولاً** | **إزالة** (لا `DROP` على القاعدة الحيّة — فحص §7.1 أولاً) | «remove each and everything about ProductPrices table code from all system because we have ProductUnits is enugh» | ✅ **الكود مُزال** — 6 ملفات محذوفة · 16 معدّلة · بناء `--no-incremental` = 0 Errors · `ToTable` = **33** · ⏸ الإسقاط للمالك (`TASK-021`) |
 
-> **ملاحظة إلزامية على أي مراجعة:** حتى إتمام خطوة «التحويل» في §2، **الـsnapshot هو المصدر الواقعي** وهذا الجدول هو الهدف. المراجعة التي تفترض وجود الأعمدة النصية اليوم مراجعة على أساس خاطئ.
+> **ملاحظة إلزامية على أي مراجعة:** المصدر الواقعي هو **الكيانات والتهيئات في المستودع** (`Models/**` + `Configurations/**`) — **لا يوجد snapshot**. أي مراجعة تفترض عموداً غير معلن هناك مراجعة على أساس خاطئ.
 
 ---
 
-**الإصدار:** **V3** (MVP — Pure POS & Inventory · المحاسبة مؤجلة) · **التاريخ:** 2026-11-17 · **الملف المرجعي المؤجل:** `docs/database-schema-v2-deferred.md`
+**الإصدار:** **MVP V1 — Pure POS & Inventory** · **التاريخ:** 2026-11-18 · **الملف المرجعي المؤجل:** `docs/database-schema-v2-deferred.md`

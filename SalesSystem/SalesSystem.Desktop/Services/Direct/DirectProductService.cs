@@ -1,4 +1,3 @@
-using SalesSystem.Business.Services;
 using SalesSystem.Common.Enums;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
@@ -10,28 +9,20 @@ using BizInterfaces = SalesSystem.Business.Interfaces.Services;
 namespace SalesSystem.Desktop.Services.Direct;
 
 /// <summary>
-/// غلاف مباشر لخدمة المنتجات (منتجات + وحدات + أسعار) — يستدعي طبقة الأعمال داخل نفس العملية (بدون HTTP).
+/// غلاف مباشر لخدمة المنتجات (منتجات + وحدات) — يستدعي طبقة الأعمال داخل نفس العملية (بدون HTTP).
 /// </summary>
 public class DirectProductService : IProductDesktopService
 {
     private readonly BizInterfaces.IProductService _products;
     private readonly BizInterfaces.IProductUnitService _productUnits;
-    private readonly IProductPriceService _productPrices;
-    private readonly ISessionService _session;
 
     public DirectProductService(
         BizInterfaces.IProductService products,
-        BizInterfaces.IProductUnitService productUnits,
-        IProductPriceService productPrices,
-        ISessionService session)
+        BizInterfaces.IProductUnitService productUnits)
     {
         _products = products;
         _productUnits = productUnits;
-        _productPrices = productPrices;
-        _session = session;
     }
-
-    private int UserId => _session.Current?.UserId ?? 0;
 
     public async Task<Result<IReadOnlyList<ProductDto>>> GetAllAsync(
         string? search = null, int? categoryId = null, bool includeInactive = false, CancellationToken ct = default)
@@ -172,47 +163,6 @@ public class DirectProductService : IProductDesktopService
         catch (Exception)
         {
             return Result.Failure("تعذر حذف وحدة المنتج", ErrorCodes.InvalidOperation);
-        }
-    }
-
-    // ─── أسعار المنتج ────────────────────────────────────────────────────────
-
-    public async Task<Result<IReadOnlyList<ProductPriceDto>>> GetProductPricesByUnitAsync(int productUnitId, CancellationToken ct = default)
-    {
-        try
-        {
-            var r = await _productPrices.GetByProductUnitAsync(productUnitId, ct);
-            return r.IsSuccess
-                ? Result<IReadOnlyList<ProductPriceDto>>.Success(r.Value!.ToList())
-                : Result<IReadOnlyList<ProductPriceDto>>.Failure(r.Error ?? "تعذر تحميل أسعار المنتج", r.ErrorCode);
-        }
-        catch (Exception)
-        {
-            return Result<IReadOnlyList<ProductPriceDto>>.Failure("تعذر تحميل أسعار المنتج", ErrorCodes.InvalidOperation);
-        }
-    }
-
-    public async Task<Result<ProductPriceDto>> CreateProductPriceAsync(CreateProductPriceRequest r, CancellationToken ct = default)
-    {
-        try
-        {
-            return await _productPrices.CreateAsync(r, UserId, ct);
-        }
-        catch (Exception)
-        {
-            return Result<ProductPriceDto>.Failure("تعذر إضافة سعر المنتج", ErrorCodes.InvalidOperation);
-        }
-    }
-
-    public async Task<Result> DeleteProductPriceAsync(int priceId, CancellationToken ct = default)
-    {
-        try
-        {
-            return await _productPrices.DeactivateAsync(priceId, ct);
-        }
-        catch (Exception)
-        {
-            return Result.Failure("تعذر حذف سعر المنتج", ErrorCodes.InvalidOperation);
         }
     }
 }

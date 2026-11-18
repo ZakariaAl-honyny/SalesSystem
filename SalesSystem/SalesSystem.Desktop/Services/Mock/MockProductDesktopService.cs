@@ -235,36 +235,4 @@ public class MockProductDesktopService : IProductDesktopService
         MockData.ProductUnits.Remove(existing);
         return Task.FromResult(Result.Success());
     }
-
-    // ── Product Prices ───────────────────────────────────────────────────
-    public Task<Result<IReadOnlyList<ProductPriceDto>>> GetProductPricesByUnitAsync(int productUnitId, CancellationToken ct = default)
-    {
-        var prices = MockData.ProductPrices
-            .Where(p => p.ProductUnitId == productUnitId)
-            .ToList()
-            .AsReadOnly();
-        return Task.FromResult(Result<IReadOnlyList<ProductPriceDto>>.Success(prices));
-    }
-
-    public Task<Result<ProductPriceDto>> CreateProductPriceAsync(CreateProductPriceRequest r, CancellationToken ct = default)
-    {
-        var nextId = MockData.ProductPrices.Count == 0 ? 1 : MockData.ProductPrices.Max(p => p.Id) + 1;
-        var unitName = MockData.ProductUnits.FirstOrDefault(u => u.Id == r.ProductUnitId)?.UnitName;
-        var price = new ProductPriceDto(
-            Id: nextId, ProductUnitId: r.ProductUnitId,
-            ProductUnitName: unitName, Price: r.Price,
-            EffectiveFrom: r.EffectiveFrom, EffectiveTo: r.EffectiveTo);
-        MockData.ProductPrices.Add(price);
-        return Task.FromResult(Result<ProductPriceDto>.Success(price));
-    }
-
-    public Task<Result> DeleteProductPriceAsync(int priceId, CancellationToken ct = default)
-    {
-        var existing = MockData.ProductPrices.FirstOrDefault(p => p.Id == priceId);
-        if (existing is null)
-            return Task.FromResult(Result.Failure("السعر غير موجود"));
-
-        MockData.ProductPrices.Remove(existing);
-        return Task.FromResult(Result.Success());
-    }
 }

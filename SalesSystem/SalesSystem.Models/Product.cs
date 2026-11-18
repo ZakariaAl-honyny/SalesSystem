@@ -6,7 +6,7 @@ namespace SalesSystem.Models;
 /// <summary>
 /// Represents a product item in the inventory.
 /// Maps to the "Products" table in the new 65-table schema.
-/// - No prices stored directly (use ProductUnits → ProductPrices)
+/// - No prices stored directly (prices live on ProductUnits)
 /// - Cost tracked via InventoryBatches (weighted average)
 /// - Barcode is a varchar(50) primary barcode for quick lookup
 /// - Images managed as a single ImagePath (ProductImages table removed)

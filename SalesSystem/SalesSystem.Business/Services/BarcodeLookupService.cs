@@ -48,7 +48,7 @@ public class BarcodeLookupService : IBarcodeLookupService
             UnitName: baseUnit?.Unit?.Name ?? "",
             ConversionFactor: baseUnit?.Factor ?? 1m,
             IsBaseUnit: true,
-            SalesPrice: 0m,
+            SalesPrice: baseUnit?.SalePrice ?? 0m,
             CurrentStockInBaseUnits: 0m));
     }
 }

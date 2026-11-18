@@ -26,7 +26,6 @@ public interface IUnitOfWork
     IGenericRepository<CashBox> CashBoxes { get; }
     IGenericRepository<SystemSetting> SystemSettings { get; }
     IGenericRepository<InventoryBatch> InventoryBatches { get; }
-    IGenericRepository<ProductPrice> ProductPrices { get; }
     IAuditLogRepository AuditLogs { get; }
     // New entity repositories (v4.7+)
     IGenericRepository<ProductCategory> ProductCategories { get; }

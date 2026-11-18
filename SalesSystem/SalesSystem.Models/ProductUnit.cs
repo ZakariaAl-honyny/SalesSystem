@@ -8,7 +8,9 @@ namespace SalesSystem.Models;
 /// Each product has one base unit (factor = 1) and optionally multiple derived units.
 /// Unit names come from the referenced <see cref="Unit"/> entity (not embedded as a string).
 /// Maps to "ProductUnits" table in the new schema — pure junction table (ProductId, UnitId, Factor, IsBaseUnit).
-/// No prices or barcodes stored here — pricing via ProductPrices table, barcode via Product.Barcode.
+/// This entity carries all pricing (SalePrice / WholesalePrice / CostPrice / MaxDiscountAmount)
+/// and its own optional Barcode per unit. The product-level Barcode on <see cref="Product"/>
+/// remains the primary quick-lookup barcode at the product level.
 /// </summary>
 public class ProductUnit : AuditableEntity
 {

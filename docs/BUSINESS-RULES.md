@@ -36,7 +36,7 @@
 ## 5. Sales Price Enforcement
 | Rule | Description |
 |------|-------------|
-| BR-050 | If `PreventBelowRetailPrice` is ON → reject sale if `UnitPrice < registered price` in `ProductPrices`. |
+| BR-050 | If `PreventBelowRetailPrice` is ON → reject sale if `UnitPrice < ProductUnit.SalePrice` (the registered retail price on `ProductUnits`; `ProductPrices` no longer exists in V1 — `TASK-021`). |
 | BR-051 | If `AllowBelowCostSale` is OFF → reject sale if `UnitPrice < AvgCost`. |
 
 ## 6. Accounting Integration

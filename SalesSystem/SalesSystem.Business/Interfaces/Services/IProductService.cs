@@ -6,7 +6,7 @@ namespace SalesSystem.Business.Interfaces.Services;
 
 /// <summary>
 /// Product service aligned to new 65-table schema.
-/// - Prices via ProductPrices
+/// - Prices via ProductUnits
 /// - Cost via InventoryBatches (FIFO/weighted average)
 /// - ImagePath on Product (single field, no separate table)
 /// - Expiry via InventoryBatches

@@ -19,7 +19,6 @@ public record BarcodeSearchResult(
     decimal CurrentStockInBaseUnits
 )
 {
-    // Phase 25: SalesPrice and PurchaseCost are placeholders (pricing moved to ProductPrices).
-    // These fields are kept for backward compatibility with Desktop and will be
-    // sourced from ProductPrices in a future update.
+    // Phase 25: SalesPrice is now sourced from ProductUnit.SalePrice.
+    // SalesPrice comes from ProductUnit.SalePrice (per-unit pricing on ProductUnits).
 }

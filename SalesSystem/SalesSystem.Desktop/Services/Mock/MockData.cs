@@ -57,7 +57,7 @@ internal static class MockData
     // ═══════════════════════════════════════════════
     public static List<CashBoxDto> CashBoxes { get; } = new()
     {
-        // Id, Name, Description, IsActive — لا حساب محاسبي مرتبط (أُخرجت المحاسبة من V1)
+        // Id, Name, Description, IsActive
         new CashBoxDto(
             1, "الصندوق الرئيسي",
             "الصندوق النقدي الرئيسي للمحل", true),
@@ -136,28 +136,6 @@ internal static class MockData
             "6200000012018",  25m, null,  18m, null),
         new ProductUnitDto(16, 13, 1, "حبة",  1m, true,
             "6200000013015",  60m, null,  45m, null)
-    };
-
-    // ═══════════════════════════════════════════════
-    // أسعار المنتجات — Product Prices
-    // ═══════════════════════════════════════════════
-    public static List<ProductPriceDto> ProductPrices { get; } = new()
-    {
-        new ProductPriceDto(1,  1,  "قطعة",  500m,  DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(2,  2,  "زجاجة", 1500m, DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(3,  3,  "كيس",   3500m, DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(4,  4,  "كيس",   800m,  DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(5,  5,  "كيس",   1200m, DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(6,  6,  "علبة",  600m,  DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(7,  7,  "علبة",  1000m, DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(8,  8,  "علبة",  4500m, DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(9,  9,  "علبة",  500m,  DateTime.UtcNow.AddMonths(-3), null),
-        new ProductPriceDto(10, 10, "كيس",   700m,  DateTime.UtcNow.AddMonths(-3), null),
-
-        // ── أسعار الأصناف المضافة للاختبار ──
-        new ProductPriceDto(11, 14, "علبة",   50m,  DateTime.UtcNow.AddMonths(-1), null),
-        new ProductPriceDto(12, 15, "حبة",    25m,  DateTime.UtcNow.AddMonths(-1), null),
-        new ProductPriceDto(13, 16, "حبة",    60m,  DateTime.UtcNow.AddMonths(-1), null)
     };
 
     // ═══════════════════════════════════════════════

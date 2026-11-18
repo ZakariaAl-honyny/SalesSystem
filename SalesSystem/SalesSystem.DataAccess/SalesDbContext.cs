@@ -37,7 +37,6 @@ public class SalesDbContext : DbContext
     public DbSet<ProductUnit> ProductUnits => Set<ProductUnit>();
     public DbSet<CashBox> CashBoxes => Set<CashBox>();
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
-    public DbSet<ProductPrice> ProductPrices => Set<ProductPrice>();
     public DbSet<InventoryBatch> InventoryBatches => Set<InventoryBatch>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<InventoryAdjustment> InventoryAdjustments => Set<InventoryAdjustment>();

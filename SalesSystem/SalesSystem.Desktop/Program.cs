@@ -209,7 +209,6 @@ static class Program
                     services.AddScoped<BizInterfaces.IProductCategoryService, BizServices.ProductCategoryService>();
                     services.AddScoped<BizInterfaces.IProductCostService, BizServices.ProductCostService>();
                     services.AddScoped<BizInterfaces.IProductImportService, BizServices.ProductImportService>();
-                    services.AddScoped<BizServices.IProductPriceService, BizServices.ProductPriceService>();
                     services.AddScoped<BizInterfaces.IProductService, BizServices.ProductService>();
                     services.AddScoped<BizInterfaces.IProductUnitService, BizServices.ProductUnitService>();
                     services.AddScoped<BizInterfaces.IPurchaseReportService, BizServices.PurchaseReportService>();

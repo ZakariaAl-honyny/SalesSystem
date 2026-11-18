@@ -559,7 +559,7 @@ public partial class frmImportProductsExcel : Form
                     WholesalePrice: null,
                     CostPrice: cost));
 
-                if (!unitRes.IsSuccess || unitRes.Value is not { } productUnit)
+                if (!unitRes.IsSuccess || unitRes.Value is null)
                 {
                     string reason = unitRes.Error ?? "تعذر تسجيل الوحدة والسعر";
                     incompleteCount++;
@@ -568,15 +568,6 @@ public partial class frmImportProductsExcel : Form
                     incompleteReasons.Add($"الصنف «{name}» أُنشئ بلا وحدة/سعر: {reason}");
                     Log.Error("تعذر إضافة وحدة الصنف المستورد {ProductId}: {Error}", product.Id, unitRes.Error);
                     continue;
-                }
-
-                // (5) سعر بيع الوحدة الأساسية في قائمة الأسعار (كما في شاشة الصنف) — فشله لا يُسقط الصنف.
-                if (price > 0m)
-                {
-                    var priceRes = await productService.CreateProductPriceAsync(
-                        new CreateProductPriceRequest(productUnit.Id, price, DateTime.Today));
-                    if (!priceRes.IsSuccess)
-                        Log.Warning("تعذر حفظ سعر بيع الصنف المستورد {ProductId}: {Error}", product.Id, priceRes.Error);
                 }
 
                 successCount++;

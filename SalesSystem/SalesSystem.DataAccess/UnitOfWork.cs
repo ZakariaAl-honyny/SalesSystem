@@ -37,7 +37,6 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<SystemSetting>? _systemSettings;
     private IAuditLogRepository? _auditLogs;
     private IGenericRepository<InventoryBatch>? _inventoryBatches;
-    private IGenericRepository<ProductPrice>? _productPrices;
 
     // New entity repositories (v4.7+)
     private IGenericRepository<ProductCategory>? _productCategories;
@@ -79,7 +78,6 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<SystemSetting> SystemSettings => _systemSettings ??= new GenericRepository<SystemSetting>(_context);
     public IAuditLogRepository AuditLogs => _auditLogs ??= new AuditLogRepository(_context);
     public IGenericRepository<InventoryBatch> InventoryBatches => _inventoryBatches ??= new GenericRepository<InventoryBatch>(_context);
-    public IGenericRepository<ProductPrice> ProductPrices => _productPrices ??= new GenericRepository<ProductPrice>(_context);
     // New entity repositories (v4.7+)
     public IGenericRepository<ProductCategory> ProductCategories => _productCategories ??= new GenericRepository<ProductCategory>(_context);
     public IGenericRepository<InventoryAdjustment> InventoryAdjustments => _inventoryAdjustments ??= new GenericRepository<InventoryAdjustment>(_context);

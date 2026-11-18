@@ -184,41 +184,15 @@ public static class DbSeeder
 
         foreach (var product in productsWithoutUnits)
         {
-            db.ProductUnits.Add(ProductUnit.CreateBaseUnit(
-                product.Id,
-                unitPiece.Id
-            ));
+            var baseUnit = ProductUnit.CreateBaseUnit(product.Id, unitPiece.Id);
+            baseUnit.UpdatePricing(barcode: null, salePrice: 100m, wholesalePrice: null, costPrice: 0m, maxDiscountAmount: null);
+            db.ProductUnits.Add(baseUnit);
         }
 
         if (productsWithoutUnits.Any())
             logger?.LogInformation("Seeded base ProductUnits for {Count} products", productsWithoutUnits.Count);
 
         await db.SaveChangesAsync();
-
-        if (!await db.Set<ProductPrice>().AnyAsync())
-        {
-            var baseProductUnits = await db.ProductUnits
-                .Where(pu => pu.IsBaseUnit)
-                .ToListAsync();
-
-            if (baseProductUnits.Any())
-            {
-                var productPrices = new List<ProductPrice>();
-                foreach (var pu in baseProductUnits)
-                {
-                    productPrices.Add(ProductPrice.Create(
-                        productUnitId: pu.Id,
-                        price: 100m,
-                        effectiveFrom: DateTime.UtcNow
-                    ));
-                }
-
-                db.Set<ProductPrice>().AddRange(productPrices);
-                await db.SaveChangesAsync();
-                logger?.LogInformation("Seeded {Count} ProductPrices for {ProductUnitCount} base units (PriceLevel removed).",
-                    productPrices.Count, baseProductUnits.Count);
-            }
-        }
 
         logger?.LogInformation("Seed data completed successfully.");
     }
