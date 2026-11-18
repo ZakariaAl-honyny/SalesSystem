@@ -2532,8 +2532,8 @@ public partial class frmAddUpdateSalesInvoice : Form
     {
         try
         {
-            var form = _serviceProvider.GetRequiredService<frmSalesReturn>();
-            form.ShowDialog(this);
+            var form = _serviceProvider.GetRequiredService<frmSalesReturnMaster>();
+            clsGlobal._OpenForm(form);
         }
         catch (Exception ex)
         {

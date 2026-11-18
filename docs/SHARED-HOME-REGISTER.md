@@ -1363,3 +1363,24 @@
 **بند مفتوح مُسجَّل ولم يُصلح (بقرار `RULE-N184`):** `AcceptButton = btnSelect` يبتلع `Enter` قبل رفع `KeyDown` (`RULE-N193`) ⇒ `txtSearch_KeyDown`/`KeyPress` غير قابلين للتنفيذ في الشاشات الثلاث، ويُغلقان مع موجة تعميم `WireEnterAsTab(scope, primaryButton)` بعد شهادة `F-001`.
 
 **ملاحظتان خارج النطاق أُبلغتا ولم تُمسّا:** (1) `frmProductMaster.Designer.cs` يحمل فواصل CR مزدوجة فتتضاعف قراءة أسطره من 936 إلى 1,873 · (2) افتراضي `rejectBackgroundColor` في `ThemePalette.cs` = `255,220,220` بينما جدول §2.19 يقول `#F8D7DA` = `248,215,218`.
+---
+
+## الموجة `F-004` — تحويل المرتجعات والمصروفات وسندات القبض إلى `frm*Master` (2026-11-18)
+
+**الالتزام:** `<hash>` · **الدليل:** `dotnet build .\SalesSystem.slnx` = **0 Errors / 71 Warning(s)** (تشغيل تزايدي — الأعداد غير قابلة للمقارنة مع تشغيل كامل، §12) · **المراجعة:** `code-reviewer` = `0 Blocker / 1 Major / 6 Minor` (Major أُغلق في نفس الموجة، 2 Minor أُغلقا، 4 مسجَّلة).
+
+| # | الملف | الحالة | الملاحظة |
+|---|---|---|---|
+| 1 | `Screens/Expenses/Forms/frmExpensesMaster.{cs,Designer.cs,resx}` | ✅ | 974 + 1,031 سطراً · `EntryMode` + `gbFilter` + `pnlSummary` + `ApplyGrid` · كامل الألوان بصيغة `Convert.ToInt32` |
+| 2 | `Screens/CustomerReceipts/Forms/frmCustomerReceiptsMaster.{cs,Designer.cs,resx}` | ✅ | 886 + 971 سطراً · بلا زر حذف (العقد لا يحمل `DeleteAsync`) · `SelectRecord(id)` للفتح من شاشة أخرى |
+| 3 | `Screens/Returns/Forms/frmSalesReturnMaster.{cs,Designer.cs,resx}` | ✅ | 1,173 + 1,126 سطراً · شبكة سطور إدخال (`RULE-N22a` المُوسَّعة) · `Editing` = قراءة فقط (`D-05`) |
+| 4 | `Screens/Returns/Forms/frmPurchaseReturnMaster.{cs,Designer.cs,resx}` | ✅ | 993 + 1,147 سطراً · الأزرار تُعطَّل لا تُخفى (`RULE-N43`) |
+| 5 | `Program.cs` | ✅ | 4 تسجيلات مضافة · 7 محذوفة · مجال `CustomerReceipts` المصحَّح |
+| 6 | `Screens/frmMain.cs` + `frmMain.Designer.cs` | ✅ | 4 معالجات أُعيد توجيهها · `msbtnReturnsList` أُزيل بالكامل (`RULE-N130`) |
+| 7 | `Global Classes/clsGlobal.cs` | ✅ | `_OpenForm` يُعيد `Form?` — النافذة الحيّة بعد فحص `Application.OpenForms` قبل الحل (`RULE-N133`) |
+| 8 | `Screens/CashBoxes/Forms/frmCashBoxTransactions.cs` | ✅ | موضعان: حوار نمطي ← فتح داخل النافذة + `SelectRecord` (`D-08`) |
+| 9 | `Screens/Payments/Forms/frmListPayments.cs` | ✅ | موضعان: إضافة/تعديل ← الشاشة المدمجة (`D-08`) · **بند مفتوح:** لا تحديث تلقائي بعد الإنشاء (يحتاج `F5`) |
+| 10 | `Screens/Sales/Forms/frmAddUpdateSalesInvoice.cs` | ✅ | زر «مردود بيع» ← `frmSalesReturnMaster` (سطران — `D-08`) |
+| 11 | الشاشات السبع المحذوفة (21 ملفاً) | ✅ | `RULE-N102` — صفر مرجع كود باقٍ (9 مطابقات كلها تعليقات) |
+
+**قياسات الموجة (بالأمر):** الشاشات الأربع = **4** · ملفات منشأة = **12** · معدَّلة = **7** · محذوفة = **21** · `MessageBox.Show` في الشاشات الأربع = **0** · `_ValidateForm` محلية = **0** · `SystemColors.Control` = **0** · `row.Cells["` = **0** · صيغة لون مختصرة = **0** · `WireEnterAsTab(this)` أحادي الوسيط = **0**.

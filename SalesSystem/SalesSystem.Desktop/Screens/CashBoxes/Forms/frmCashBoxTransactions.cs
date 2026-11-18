@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Data;
 using Microsoft.Extensions.DependencyInjection;
-using SalesSystem.Desktop.CustomerReceipts.Forms;
+using SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Screens.Expenses.Forms;
@@ -811,7 +811,11 @@ public partial class frmCashBoxTransactions : Form
         e.SuppressKeyPress = true;
     }
 
-    /// <summary>يفتح مستند الحركة المحددة (سند قبض أو مصروف) في شاشته النمطية (RULE-N09).</summary>
+    /// <summary>
+    /// يفتح مستند الحركة المحددة (سند قبض أو مصروف) في شاشته المدمجة **داخل النافذة**
+    /// (<c>RULE-N132</c> — شاشة Master تُفتح بـ<c>clsGlobal._OpenForm</c> لا كحوار نمطي)،
+    /// ثم يطلب تحديد السجل نفسه فيها على النمط الذي يفعله نقر المستخدم.
+    /// </summary>
     private void _OpenSelectedDocument()
     {
         DataRowView? selected = _GetSelectedRow();
@@ -827,15 +831,15 @@ public partial class frmCashBoxTransactions : Form
         {
             if (string.Equals(docKind, DocKindReceipt, StringComparison.Ordinal))
             {
-                var form = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
-                form._SetUpdateMode(docId);
-                form.ShowDialog(this);
+                var form = _serviceProvider.GetRequiredService<frmCustomerReceiptsMaster>();
+                // يُحدَّد السجل على النسخة الحيّة التي يُعيدها الفتح (المفتوحة أو المعروضة للتوّ — RULE-N133).
+                (clsGlobal._OpenForm(form) as frmCustomerReceiptsMaster)?.SelectRecord(docId);
             }
             else if (string.Equals(docKind, DocKindExpense, StringComparison.Ordinal))
             {
-                var form = _serviceProvider.GetRequiredService<frmAddUpdateExpense>();
-                form._SetUpdateMode(docId);
-                form.ShowDialog(this);
+                var form = _serviceProvider.GetRequiredService<frmExpensesMaster>();
+                // يُحدَّد السجل على النسخة الحيّة التي يُعيدها الفتح (المفتوحة أو المعروضة للتوّ — RULE-N133).
+                (clsGlobal._OpenForm(form) as frmExpensesMaster)?.SelectRecord(docId);
             }
             else
             {

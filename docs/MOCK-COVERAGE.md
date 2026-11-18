@@ -112,18 +112,18 @@ dotnet build .\SalesSystem.slnx
 | Accounting | 2 | `frmAccounts` · `frmJournalEntries` | `IAccountDesktopService` · `IJournalEntryDesktopService` | ⚠️ جزئي — تكافؤ الرفض (`IAccountDesktopService` — ف-AC-5…ف-AC-9) · `IJournalEntryDesktopService` مؤهل |
 | CashBoxes | 2 | `frmCashBoxMaster` · `frmCashBoxTransactions` | `ICashBoxDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Categories | 1 | `frmCategoryMaster` | `ICategoryDesktopService` | ✅ مؤهل |
-| CustomerReceipts | 2 | `frmListCustomerReceipts` · `frmAddUpdateCustomerReceipt` | `ICustomerReceiptDesktopService` | ✅ مؤهل |
+| CustomerReceipts | 1 | `frmCustomerReceiptsMaster` (مدمجة — `F-004` 2026-11-18) | `ICustomerReceiptDesktopService` | ✅ مؤهل |
 | Customers | 3 | `frmCustomerMaster` · `frmCustomerSelection` · `frmCustomerStatement` | `ICustomerDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Dashboard | 1 | `frmDashboard` (+ `ctrlDashboard`) | `IDashboardDesktopService` | ✅ مؤهل |
 | Employees | 1 | `frmEmployeeMaster` | `IEmployeeDesktopService` | ⚠️ جزئي — تكافؤ الرفض (Mock-only) |
-| Expenses | 2 | `frmListExpenses` · `frmAddUpdateExpense` | `IExpenseDesktopService` | ✅ مؤهل |
+| Expenses | 1 | `frmExpensesMaster` (مدمجة — `F-004` 2026-11-18) | `IExpenseDesktopService` | ✅ مؤهل |
 | Inventory | 16 | `frmInventory` · `frmInventoryList` · `frmInventoryAddProduct` · `frmInventoryBarcode` · `frmInventoryFifo` · `frmListInventoryTransactions` · `frmListInventoryBatches` · `frmListInventoryAdjustments` · `frmAddUpdateInventoryAdjustment` · `frmOpeningStock` · `frmWarehouseTransferNew` · `frmStocktakingNew` + 4 نوافذ طباعة | `IInventoryDesktopService` · `IInventoryBatchDesktopService` · `IInventoryAdjustmentDesktopService` · `IWarehouseDesktopService` | ⚠️ جزئي — `IInventoryBatch` و`IWarehouse` بلا رفض تكرار |
 | Payments | 3 | `frmListPayments` · `frmListSupplierPayments` · `frmSupplierPaymentDialog` | `ISupplierPaymentDesktopService` | ⚠️ جزئي — تكافؤ الرفض (ف-4) |
 | POS | 1 | `frmPOS` | `IProductDesktopService` · `ISalesInvoiceDesktopService` · `ICustomerDesktopService` · `IWarehouseDesktopService` · `ICashBoxDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Products | 4 | `frmProductMaster` · `frmProductUnitMaster` · `frmProductSelection` · `frmImportProductsExcel` | `IProductDesktopService` | ⚠️ جزئي — تكرار الباركود |
 | Purchases | 9 — **الحيّة منها 2** | `frmListPurchases` · `frmPurchaseInvoice` · **+ 7 نماذج ميتة** (`frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmSupplierStatement` — تدقيق `D-03`: صفر مستدعٍ، مرجع `Program.cs` فقط) | `IPurchaseInvoiceDesktopService` · `ISupplierDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Reports | 31 | 31 تقريراً في ستة مجلدات تصنيفية (`Sales/` · `Purchases/` · `Inventory/` · `Accounting/` · `CustomersSuppliers/` · `CashBox/`) | خمسة عقود تقارير | ✅ مؤهل (قراءة فقط) |
-| Returns | 3 | `frmListReturns` · `frmSalesReturn` · `frmPurchaseReturn` | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — إفراط في الإرجاع |
+| Returns | 2 | `frmSalesReturnMaster` · `frmPurchaseReturnMaster` (مدمجتان — `F-004` 2026-11-18) | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Sales | 2 | `frmListSales` · `frmAddUpdateSalesInvoice` | `ISalesInvoiceDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Settings | 2 | `frmChangeSystemColorsSettings` · `frmFormatingSetting` | `IThemeColorDesktopService` · `IFormatSettingsDesktopService` | ✅ مؤهل (المرحلة أ) |
 | Suppliers | 2 | `frmSupplierMaster` · `frmSupplierSelection` | `ISupplierDesktopService` | ⚠️ جزئي — تكافؤ الرفض |

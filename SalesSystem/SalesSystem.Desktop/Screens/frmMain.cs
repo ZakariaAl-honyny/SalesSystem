@@ -3,7 +3,7 @@ using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Products.Forms;
-using SalesSystem.Desktop.CustomerReceipts.Forms;
+using SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Screens.Users.Forms;
@@ -260,7 +260,7 @@ public partial class frmMain : Form
         => OpenScreen<frmPurchaseInvoice>();
 
     private void msbtnPurchaseReturn_Click(object sender, EventArgs e)
-        => OpenScreen<frmPurchaseReturn>();
+        => OpenScreen<frmPurchaseReturnMaster>();
 
     // ── المبيعات (Sales) ─────────────────────────────────────────────────────
 
@@ -271,10 +271,9 @@ public partial class frmMain : Form
         => OpenScreen<frmAddUpdateSalesInvoice>();
 
     private void msbtnSalesReturn_Click(object sender, EventArgs e)
-        => OpenScreen<frmSalesReturn>();
+        => OpenScreen<frmSalesReturnMaster>();
 
-    private void msbtnReturnsList_Click(object sender, EventArgs e)
-        => OpenScreen<frmListReturns>();
+    // F-004 / D-06: عنصر «قائمة المرتجعات» أُزيل — العرض المدمج متاح عبر frmReturnsReport.
 
     // ── المبيعات — نقطة البيع وأدوات الفاتورة (جديد) ────────────────
 
@@ -293,10 +292,10 @@ public partial class frmMain : Form
         => OpenScreen<frmCashBoxTransactions>();
 
     private void msbtnExpenses_Click(object sender, EventArgs e)
-        => OpenScreen<frmListExpenses>();
+        => OpenScreen<frmExpensesMaster>();
 
     private void msbtnCustomerReceipts_Click(object sender, EventArgs e)
-        => OpenScreen<frmListCustomerReceipts>();
+        => OpenScreen<frmCustomerReceiptsMaster>();
 
     private void msbtnSupplierPayments_Click(object sender, EventArgs e)
         => OpenScreen<frmListSupplierPayments>();

@@ -17,9 +17,15 @@ namespace SalesSystem.Desktop.GlobalClasses
         /// لا يرمي استثناءً أبداً: أي فشل يُسجَّل ويُترك للمستخدم بلا رسالة إزعاج.
         /// </summary>
         /// <param name="form">النموذج المطلوب فتحه (يُحلّ من حاوية DI عبر <c>GetRequiredService</c>).</param>
-        public static void _OpenForm(Form form)
+        /// <returns>
+        /// النسخة الحيّة فعلاً — النافذة المفتوحة التي نُشّطت، أو النموذج الذي عُرض للتوّ؛
+        /// فإن كان النموذج المُمرَّر معطّلاً أو فشل الفتح يُعيد <c>null</c>.
+        /// فلا يستدعي المستدعي عضواً على كائن لم يُعرض قطّ إن كانت الشاشة مفتوحة مسبقاً
+        /// (<c>RULE-N133</c>: الفحص بالاسم يسبق الإنشاء/العرض).
+        /// </returns>
+        public static Form? _OpenForm(Form form)
         {
-            if (form is null || form.IsDisposed) return;
+            if (form is null || form.IsDisposed) return null;
 
             try
             {
@@ -27,16 +33,18 @@ namespace SalesSystem.Desktop.GlobalClasses
                 if (existing is not null && !ReferenceEquals(existing, form))
                 {
                     ActivateExisting(existing);
-                    return;
+                    return existing;
                 }
 
                 AttachToMdiHost(form);
                 form.Show();
+                return form;
             }
             catch (Exception ex)
             {
                 // الفتح لا يُفشل الشاشة المستدعية — تسجيل صامت بلا رسالة للمستخدم.
                 Serilog.Log.Error(ex, "تعذر فتح النموذج {Form}", form.Name);
+                return null;
             }
         }
 

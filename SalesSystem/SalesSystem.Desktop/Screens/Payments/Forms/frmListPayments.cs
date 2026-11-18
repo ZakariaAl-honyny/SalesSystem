@@ -6,7 +6,7 @@ using SalesSystem.DTO.Common;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Screens.Payments;
-using SalesSystem.Desktop.CustomerReceipts.Forms;
+using SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 using SalesSystem.Desktop.Helpers;
 
 namespace SalesSystem.Desktop.Screens.Payments.Forms
@@ -800,8 +800,9 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
 
         private void btnAddCustomerPayment_Click(object sender, EventArgs e)
         {
-            using var dialog = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
-            dialog.ShowDialog(this);
+            // شاشة Master تُفتح داخل النافذة لا كحوار نمطي (RULE-N132) — بلا سند محدد: وضع الإضافة فيها.
+            var master = _serviceProvider.GetRequiredService<frmCustomerReceiptsMaster>();
+            clsGlobal._OpenForm(master);
             _RefreshCustomerPayments();
         }
 
@@ -853,10 +854,11 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
                 return;
             }
 
-            // «تعديل» = فتح السند المحدد في وضع التعديل (لا سند جديد فارغ).
-            using var dialog = _serviceProvider.GetRequiredService<frmAddUpdateCustomerReceipt>();
-            dialog._SetUpdateMode(id);
-            dialog.ShowDialog(this);   // RULE-N09: نمطي بمالك
+            // «تعديل» = فتح السند المحدد في وضع التعديل (لا سند جديد فارغ) داخل النافذة لا كحوار نمطي (RULE-N132).
+            var master = _serviceProvider.GetRequiredService<frmCustomerReceiptsMaster>();
+            // تحديد السند نفسه على النسخة الحيّة التي يُعيدها الفتح (المفتوحة أو المعروضة للتوّ — RULE-N133)،
+            // كما يفعل نقر المستخدم في الشبكة.
+            (clsGlobal._OpenForm(master) as frmCustomerReceiptsMaster)?.SelectRecord(id);
             _RefreshCustomerPayments();
         }
 

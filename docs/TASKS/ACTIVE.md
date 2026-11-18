@@ -5,8 +5,8 @@
 
 | الحقل | القيمة |
 |---|---|
-| `الحالة` | **ثلاث مهمات كبيرة مفتوحة** — `1` (تعميم التنقل) · `2` (فصل `Users`) · `4` (بطاقات الكيانات). **أُغلقت 2026-11-17:** `3` و`5` (سقطتا مع إزالة المحاسبة) و`6` (إزالة المحاسبة — الكود مُزال) |
-| `آخر تحديث` | `2026-11-17` |
+| `الحالة` | **أربع مهمات كبيرة مفتوحة** — `1` (تعميم التنقل) · `2` (فصل `Users`) · `4` (بطاقات الكيانات) · `7` (تحويل المستندات إلى `frm*Master`). **أُغلقت 2026-11-17:** `3` و`5` (سقطتا مع إزالة المحاسبة) و`6` (إزالة المحاسبة — الكود مُزال) |
+| `آخر تحديث` | `2026-11-18` |
 
 ## المهام المفتوحة
 
@@ -20,6 +20,8 @@
 | 5 | **شجرة دليل الحسابات** (`ctrlTreeOfAccounts` + `frmAccountsTree`) — عرض هرمي · بحث بالكود/الاسم · اختيار أي حساب · CRUD من قائمة السياق | `docs/FEATURES/F-003-accounts-tree/README.md` | ⛔ **سقطت (2026-11-17)** — `ctrlTreeOfAccounts` و`frmAccountsTree` حُذفا مع إزالة الوحدة المحاسبية (`TASK-011` §13) | — (مُغلقة: لا ملف باقٍ) |
 
 | 6 | **إخراج الوحدة المحاسبية من V1 إلى V2 (Schema V3)** — نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) وبقاء `CashBoxes` و`Expenses` | `docs/TASKS/TASK-011-schema-v3-accounting-deferred.md` | **✅ إزالة الكود منفَّذة (2026-11-17)** — 84 ملفاً محذوفاً · 72 معدّلاً · البناء **0 أخطاء / 100 تحذير** · كتالوج الموديل **34** جدولاً · صفر مرجع محاسبي. ⏸ **المتبقي على المالك وحده:** إسقاط 8 أعمدة + 6 جداول على القاعدة الحيّة، وتوليد `InitialCreate` (كل الترحيلات أُزيلت بأمره «and remove all migrations» — `RULE-N198`: لا وكيل ينفّذ `DROP` ولا `dotnet ef database update`) | `Models/Accounting` · `Business/{Accounting,Services}` · `DataAccess/{Configurations,Seeders,Migrations}` · `Services/{Interfaces,Direct,Mock}` · `Screens/Accounting/**` · `DTO/**` · `Program.cs` · `frmMain` — **كلها نُفِّذت** |
+
+| 7 | **تحويل شاشات المستندات إلى `frm*Master`** — `Returns` (مستران: مبيعات + مشتريات) · `Expenses` · `CustomerReceipts` بنمط `frmProductMaster`، وحذف الشاشات السبع القديمة | `docs/FEATURES/F-004-document-master-screens/` (`README` · `BRIEF` · `PLAN` · `DECISIONS` · `LOG` · `MANIFEST`) | **مفتوحة** — ✅ منفَّذ ومُسلَّم 2026-11-18 (`0 Errors` · مراجعة `0 Blocker`) · ⏳ بانتظار اختبار المالك اليدوي | `Screens/{Returns,Expenses,CustomerReceipts}/**` + `Program.cs` (كتلة DI) + `frmMain` + `clsGlobal` + 3 شاشات مستدعية (`D-08`) — **لا `Business` · لا `DataAccess` · لا `Models` · لا `DTO` · لا `Services/**`** |
 
 > **قاعدة التعايش:** أي وكيل يعمل على المهمة 2 **لا يلمس** `Screens/**` قبل الموجة 3، وأي وكيل يعمل على المهمة 1 لا يلمس `Models`/`DataAccess`/`Common`. ملف واحد = مالك واحد لكل موجة (`RULE-N158`). المهمة 4 تعمل في **مجلد وحدة واحدة** تحت `Screens/<Module>/` + ملف `Program.cs` بمالك واحد لكل موجة — فلا تتقاطع مع 1/2/3 ما دامت لا تخرج من مجلد وحدتها.
 > **تجميد المحاسبة (قرار V3 — 2026-11-17):** المهام المتعلقة بالحسابات — `F-003` (شجرة الحسابات) · `TASK-008` (حقول الهرمية) · `TASK-009`/`TASK-010` (محرر الحسابات) — **سقطت لا مجرد مجمَّدة**: كودها حُذف من المستودع مع إزالة الوحدة المحاسبية (`TASK-011` §13، أمر المالك «remove all Accounting code»). التعريفات محفوظة في `docs/database-schema-v2-deferred.md` لإعادة البناء في V2، ولا عمل محاسبي جديد في V1.

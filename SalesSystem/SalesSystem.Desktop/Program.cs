@@ -14,7 +14,7 @@ using SalesSystem.Desktop.Products.Forms;
 using SalesSystem.Desktop.Suppliers;
 using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Printing.Core;
-using SalesSystem.Desktop.CustomerReceipts.Forms;
+using SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 using SalesSystem.Desktop.Screens.Users.Forms;
 using SalesSystem.Desktop.Screens.Units.Forms;
 using SalesSystem.Desktop.Screens.Sales.Forms;
@@ -246,8 +246,9 @@ static class Program
                     services.AddTransient<frmMain>();
                     services.AddTransient<frmAddUpdateSalesInvoice>();
                     services.AddTransient<frmPurchaseInvoice>();
-                    services.AddTransient<frmSalesReturn>();
-                    services.AddTransient<frmPurchaseReturn>();
+                    // F-004 (D-02/D-03): المرتجعات صارت مسترين — واحد للمبيعات وواحد للمشتريات.
+                    services.AddTransient<frmSalesReturnMaster>();
+                    services.AddTransient<frmPurchaseReturnMaster>();
                     services.AddTransient<frmWarehouseMaster>();
                     services.AddTransient<frmListSales>();
                     services.AddTransient<frmListPurchases>();
@@ -313,19 +314,14 @@ static class Program
                     services.AddTransient<frmCashBoxMaster>();
                     services.AddTransient<frmCashBoxTransactions>();
 
-                    // Expenses Module
-                    services.AddTransient<frmListExpenses>();
-                    services.AddTransient<frmAddUpdateExpense>();
+                    // Expenses Module — F-004 (D-01/D-03): شاشة Master مدمجة بدل frmList* + frmAddUpdate*
+                    services.AddTransient<frmExpensesMaster>();
 
-                    // CustomerReceipts Module
-                    services.AddTransient<frmListCustomerReceipts>();
-                    services.AddTransient<frmAddUpdateCustomerReceipt>();
+                    // CustomerReceipts Module — F-004 (D-01/D-03): شاشة Master مدمجة بدل frmList* + frmAddUpdate*
+                    services.AddTransient<frmCustomerReceiptsMaster>();
 
                     // Supplier Payments Module
                     services.AddTransient<frmListSupplierPayments>();
-
-                    // Returns Module — document list (RULE-N101: keep frmList* + frmAddUpdate*)
-                    services.AddTransient<frmListReturns>();
 
                     // Payment Dialogs
                     services.AddTransient<frmSupplierPaymentDialog>();
