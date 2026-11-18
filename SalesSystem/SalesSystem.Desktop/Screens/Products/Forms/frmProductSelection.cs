@@ -52,8 +52,9 @@ public partial class frmProductSelection : Form
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
 
-        // RULE-N43: زر «اختيار» معطّل بلا سجل محدد، ورمادي باهت عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSelect);
+        // RULE-N43: زر «اختيار» معطّل بلا سجل محدد، و«مسح التصفية» معطّل ما لم توجد تصفية نشطة
+        // (RULE-N148) — رماديان باهتان عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSelect, btnClearFilters);
 
         // RULE-N47: F5 تحديث القائمة. Enter/Esc يُديرهما AcceptButton/CancelButton
         // ومعالجات الشبكة الموجودة — لا تُكرَّر هنا لتجنّب التنفيذ المزدوج.
@@ -64,6 +65,7 @@ public partial class frmProductSelection : Form
         dgvUnits.AutoGenerateColumns = false;
 
         _UpdateButtonsState();
+        _UpdateClearFiltersState();
     }
 
     /// <summary>آلة حالة الأزرار (RULE-N43): «اختيار» متاح فقط عند وجود صنف محدد.</summary>
@@ -75,6 +77,10 @@ public partial class frmProductSelection : Form
     public frmProductSelection(IServiceScopeFactory scopeFactory) : this()
     {
         _scope = scopeFactory.CreateScope();
+
+        // RULE-N63/RULE-N145: يتبنّى btnToggleFilters المُعلَن في المصمّم ويوصِّل طيّ التصفية + F9
+        // وحفظ الحالة. آخر سطر في المُنشئ العام — الأداة null-safe.
+        FilterPanelHelper.Attach(this, ServiceProvider);
     }
 
     private void frmProductSelection_Load(object sender, EventArgs e)
@@ -89,6 +95,8 @@ public partial class frmProductSelection : Form
     {
         GreenThemeHelper.ApplyHeader(lblMode);
         GreenThemeHelper.ApplyGrid(dgvProducts);
+        GreenThemeHelper.ApplyGrid(dgvUnits);
+        lblRecordsCount.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53
         GridFormatHelper.ApplyColumn(dgvUnits, "colSalePrice", GridFormatKind.Money);   // RULE-N179 — تنسيق العمود يتبع إعدادات التنسيق الحيّة
 
         // RULE-N22/RULE-N52: سلوك الشبكتين تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
@@ -102,7 +110,7 @@ public partial class frmProductSelection : Form
         dgvUnits.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvUnits.MultiSelect = false;
 
-        GreenThemeHelper.Apply(this);   // ← الأخير (RULE-N50)؛ يطبّق ثيم الشبكة على dgvUnits أيضاً
+        GreenThemeHelper.Apply(this);   // ← الأخير (RULE-N50)
     }
 
     // ── تحميل المنتجات + أرصدة المخزن ──────────────────────────────────────
@@ -146,7 +154,8 @@ public partial class frmProductSelection : Form
 
             _productsView = new DataView(_productsTable);
             dgvProducts.DataSource = _productsView;
-            lblRecordsCount.Text = clsFormat.Number(_productsView.Count);
+            lblRecordsCount.Text = $"النتائج: {clsFormat.Number(_productsView.Count)}";
+            _UpdateClearFiltersState();
 
             // RULE-N22: إشعار «لا توجد بيانات» داخل الشاشة بدل نافذة منبثقة.
             lblNoData.Visible = _productsView.Count == 0;
@@ -326,8 +335,16 @@ public partial class frmProductSelection : Form
             : 0m;
 
     // ── البحث ────────────────────────────────────────────────────────────────
-    private void txtSearch_TextChanged(object sender, EventArgs e)
+    private void txtSearch_TextChanged(object sender, EventArgs e) => _ApplyFilter();
+
+    /// <summary>
+    /// التصفية الفورية (RULE-N59) + عدّ النتائج (RULE-N61) + آلة حالة «مسح التصفية» (RULE-N148).
+    /// لا تُعيد التحميل ولا تلمس التحديد — تعمل على <see cref="_productsView"/> القائم.
+    /// </summary>
+    private void _ApplyFilter()
     {
+        _UpdateClearFiltersState();
+
         if (_productsView == null) return;
 
         string search = txtSearch.Text.Trim();
@@ -344,8 +361,26 @@ public partial class frmProductSelection : Form
                 + " OR " + RowFilterHelper.Like("CategoryName", search);
         }
 
-        lblRecordsCount.Text = clsFormat.Number(_productsView.Count);
+        lblRecordsCount.Text = $"النتائج: {clsFormat.Number(_productsView.Count)}";
         lblNoData.Visible = _productsView.Count == 0;
+    }
+
+    /// <summary>آلة حالة «مسح التصفية» الواحدة (RULE-N148): مفعّل فقط عند وجود تصفية نشطة.</summary>
+    private void _UpdateClearFiltersState()
+    {
+        btnClearFilters.Enabled = !string.IsNullOrWhiteSpace(txtSearch.Text);
+    }
+
+    /// <summary>
+    /// «مسح التصفية» يمسح أداة التصفية وحدها ثم يُعيد التصفية فوراً (RULE-N148):
+    /// بلا إعادة تحميل للبيانات وبلا تغيير للسطر المحدد — الاحترام الكامل لباقي حالة الشاشة.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
+    {
+        if (txtSearch.TextLength == 0) return;
+
+        txtSearch.Clear();   // TextChanged ⇒ _ApplyFilter (تصفية فورية بلا تحميل)
+        txtSearch.Focus();
     }
 
     private async void txtSearch_KeyPress(object sender, KeyPressEventArgs e)

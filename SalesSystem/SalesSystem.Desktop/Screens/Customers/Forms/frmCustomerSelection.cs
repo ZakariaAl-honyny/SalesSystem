@@ -38,8 +38,9 @@ public partial class frmCustomerSelection : Form
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
 
-        // RULE-N43: «تحديد» معطّل بلا سطر محدد + مظهر رمادي باهت عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSelect);
+        // RULE-N43: «تحديد» معطّل بلا سطر محدد، و«مسح التصفية» معطّل ما لم توجد تصفية نشطة
+        // (RULE-N148) — رماديان باهتان عند التعطيل.
+        KeyboardHelper.WireButtonDisabledVisual(btnSelect, btnClearFilters);
 
         // RULE-N47: F5 تحديث. Enter/Esc يُديرهما AcceptButton/CancelButton ومعالج الشبكة — بلا تكرار.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -51,6 +52,10 @@ public partial class frmCustomerSelection : Form
     public frmCustomerSelection(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
+
+        // RULE-N63/RULE-N145: يتبنّى btnToggleFilters المُعلَن في المصمّم ويوصِّل طيّ التصفية + F9
+        // وحفظ الحالة. آخر سطر في المُنشئ العام — الأداة null-safe (بلا حاوية يُلغى الحفظ فقط).
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     private void frmCustomerSelection_Load(object sender, EventArgs e)
@@ -62,7 +67,9 @@ public partial class frmCustomerSelection : Form
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — ينتهي بـ Apply(this) دائماً.</summary>
     private void ApplyGreenTheme()
     {
+        GreenThemeHelper.ApplyHeader(lblMode);                        // RULE-N53 — شريط العنوان
         GreenThemeHelper.ApplyGrid(dgvCustomers);
+        lblRecordsCount.ForeColor = GreenThemeHelper.TextStrong;      // RULE-N53 — شريط الملخّص
 
         // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
         dgvCustomers.ReadOnly = true;
@@ -133,9 +140,20 @@ public partial class frmCustomerSelection : Form
         _SelectCurrent();
     }
 
+    /// <summary>
+    /// التصفية الفورية (RULE-N59) + عدّ النتائج (RULE-N61) + آلة حالة «مسح التصفية» (RULE-N148).
+    /// لا تُعيد التحميل ولا تلمس التحديد — تعمل على <see cref="_customersView"/> القائم.
+    /// </summary>
     private void _ApplyFilter()
     {
-        if (_customersView is null) return;
+        // RULE-N148: مفعّل فقط عند وجود تصفية نشطة — يُحدَّث في كل تغيير وقبل أي خروج مبكر.
+        btnClearFilters.Enabled = !string.IsNullOrWhiteSpace(txtSearch.Text);
+
+        if (_customersView is null)
+        {
+            lblRecordsCount.Text = $"النتائج: {clsFormat.Number(0)}";
+            return;
+        }
 
         string search = txtSearch.Text.Trim();
 
@@ -145,7 +163,20 @@ public partial class frmCustomerSelection : Form
             : RowFilterHelper.Like("Name", search) + " OR " + RowFilterHelper.Like("Phone", search);
 
         lblNoData.Visible = _customersView.Count == 0;
+        lblRecordsCount.Text = $"النتائج: {clsFormat.Number(_customersView.Count)}";
         _UpdateButtonsState();
+    }
+
+    /// <summary>
+    /// «مسح التصفية» يمسح أداة التصفية وحدها ثم يُعيد التصفية فوراً (RULE-N148):
+    /// بلا إعادة تحميل للبيانات وبلا تغيير للسطر المحدد — الاحترام الكامل لباقي حالة الشاشة.
+    /// </summary>
+    private void btnClearFilters_Click(object sender, EventArgs e)
+    {
+        if (txtSearch.TextLength == 0) return;
+
+        txtSearch.Clear();   // TextChanged ⇒ _ApplyFilter (تصفية فورية بلا تحميل)
+        txtSearch.Focus();
     }
 
     // ── الاختيار ─────────────────────────────────────────────────────────────

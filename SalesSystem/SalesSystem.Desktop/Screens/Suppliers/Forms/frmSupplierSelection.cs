@@ -38,8 +38,8 @@ public partial class frmSupplierSelection : Form
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
 
-        // RULE-N43: «تحديد» معطّل بلا سطر محدد + مظهر رمادي باهت عند التعطيل.
-        KeyboardHelper.WireButtonDisabledVisual(btnSelect);
+        // RULE-N43: «تحديد» معطّل بلا سطر محدد + «مسح التصفية» معطّل بلا تصفية نشطة — بمظهر رمادي باهت.
+        KeyboardHelper.WireButtonDisabledVisual(btnSelect, btnClearFilters);
 
         // RULE-N47: F5 تحديث. Enter/Esc يُديرهما AcceptButton/CancelButton ومعالج الشبكة — بلا تكرار.
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -51,6 +51,10 @@ public partial class frmSupplierSelection : Form
     public frmSupplierSelection(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
+
+        // RULE-N63: طيّ/إظهار صندوق التصفية — يتبنّى btnToggleFilters المُعلَن في المصمّم (RULE-N145).
+        // آخر سطر في المُنشئ (الأداة آمنة مع null).
+        FilterPanelHelper.Attach(this, _serviceProvider);
     }
 
     private void frmSupplierSelection_Load(object sender, EventArgs e)
@@ -62,13 +66,16 @@ public partial class frmSupplierSelection : Form
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — ينتهي بـ Apply(this) دائماً.</summary>
     private void ApplyGreenTheme()
     {
-        GreenThemeHelper.ApplyGrid(dgvSuppliers);
+        GreenThemeHelper.ApplyHeader(lblMode);        // RULE-N53 — شريط عنوان أخضر بنص أبيض
+        GreenThemeHelper.ApplyGrid(dgvSuppliers);     // RULE-N51
 
         // RULE-N22/RULE-N52: سلوك شبكة العرض تعلنه الشاشة نفسها — ApplyGrid لا يلمسه.
         dgvSuppliers.ReadOnly = true;
         dgvSuppliers.AllowUserToAddRows = false;
         dgvSuppliers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         dgvSuppliers.MultiSelect = false;
+
+        lblRecordsCount.ForeColor = GreenThemeHelper.TextStrong;   // RULE-N53 — نص شريط الملخص
 
         GreenThemeHelper.Apply(this);   // ← الأخير دائماً (RULE-N50)
     }
@@ -123,6 +130,18 @@ public partial class frmSupplierSelection : Form
 
     private void txtSearch_TextChanged(object sender, EventArgs e) => _ApplyFilter();
 
+    /// <summary>
+    /// «مسح التصفية» — يمسح أداة التصفية وحدها ويعيد الشبكة إلى وضعها الافتراضي،
+    /// بلا إعادة تحميل ولا لمس للسطر المحدد (RULE-N148). «تحديث» (F5) هو المسؤول عن إعادة التحميل.
+    /// </summary>
+    private void btnClearFilters_Click(object? sender, EventArgs e)
+    {
+        if (txtSearch.TextLength == 0) return;
+
+        txtSearch.Clear();   // TextChanged ⇒ _ApplyFilter (تصفية فورية بلا تحميل)
+        txtSearch.Focus();
+    }
+
     /// <summary>Enter في حقل البحث = اختيار أفضل نتيجة فوراً (RULE-N42/RULE-N47).</summary>
     private void txtSearch_KeyDown(object sender, KeyEventArgs e)
     {
@@ -135,7 +154,14 @@ public partial class frmSupplierSelection : Form
 
     private void _ApplyFilter()
     {
-        if (_suppliersView is null) return;
+        // RULE-N148: «مسح التصفية» مفعّل فقط عند وجود تصفية نشطة — يُعاد حسابه مع كل تغيير.
+        btnClearFilters.Enabled = !string.IsNullOrWhiteSpace(txtSearch.Text);
+
+        if (_suppliersView is null)
+        {
+            lblRecordsCount.Text = $"النتائج: {clsFormat.Number(0)}";
+            return;
+        }
 
         string search = txtSearch.Text.Trim();
 
@@ -145,6 +171,7 @@ public partial class frmSupplierSelection : Form
             : RowFilterHelper.Like("Name", search) + " OR " + RowFilterHelper.Like("Phone", search);
 
         lblNoData.Visible = _suppliersView.Count == 0;
+        lblRecordsCount.Text = $"النتائج: {clsFormat.Number(_suppliersView.Count)}";   // RULE-N61 — شريط الملخص
         _UpdateButtonsState();
     }
 

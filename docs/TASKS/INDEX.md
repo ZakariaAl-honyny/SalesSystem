@@ -13,6 +13,7 @@
 | `TASK-006` | فهرس ذاكرة المهام: صف لكل سجل + **فهرس عكسي بالملف/المنطقة** — «الفهرس قبل الكود» | S | وثائق/تكوين وكلاء | ✅ مغلقة | 2026-11-16 | `TASK-006-archive-index.md` |
 | `TASK-008` | حقول دليل الحسابات الهرمية: `NormalBalance` + `AllowCostCenter` (زيادة آمنة) + السمات المشتقة + قواعد الشجرة — **بلا عمود عملة** | L | وثائق/هيكل | ⛔ **سقطت بسقوط الوحدة** — كودها (`AccountService`/`AccountCategoryHelper`/`frmAccounts`) حُذف مع إزالة المحاسبة (`TASK-011` §13) | 2026-11-17 | `TASK-008-accounts-hierarchy-fields.md` |
 | `TASK-011` | إخراج الوحدة المحاسبية من V1 إلى V2 (**Schema V3**): نقل 6 جداول (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) وبقاء `CashBoxes` و`Expenses` (تشغيليان) | L | وثائق + إزالة كود | ✅ **إزالة الكود منفَّذة 2026-11-17** — 84 حذفاً · 72 تعديلاً · بناء 0 أخطاء · 34 جدولاً · صفر ملف ترحيل. ⏸ إسقاط الأعمدة/الجداول على القاعدة الحيّة **للمالك** | 2026-11-17 | `TASK-011-schema-v3-accounting-deferred.md` |
+| `TASK-012` | تطبيق شكل `frmProductMaster` على المنتقيات الثلاث (`frmProductSelection` · `frmCustomerSelection` · `frmSupplierSelection`): `lblMode` + `pnlButtons` + `gbFilter` + `pnlSummary` + `pnlGrid` بإرساء `Dock` · ألوان الجيل الرابع · صيغة `RULE-N204` | L | `—` (واجهة فقط) | 🔄 مفتوحة — ثلاثة وكلاء متوازين، وكيل واحد لكل شاشة | 2026-11-18 | `TASK-012-selection-screens-restyle.md` |
 
 ## ملفات تتبع المهام الكبيرة (`RULE-N202`)
 
