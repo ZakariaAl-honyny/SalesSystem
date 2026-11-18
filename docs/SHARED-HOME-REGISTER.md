@@ -1402,3 +1402,29 @@
 | 8 | `Services/Mock/MockReturnsData.cs` | ✅ | تاريخا مرتجعات المشتريات صارا نسبيين (`Today-2`/`Today-5`) — كان التبويب يفتح فارغاً |
 
 **قياسات:** شاشات المرتجعات = **3** (نمط المبيعات) · مستران محذوفان = **2** · مراجع `ReturnMaster` = **0** · `MessageBox`/`_ValidateForm`/`ActiveControl` في المرتجعات = **0** · صيغة لون مختصرة في مصمّمَي المحررين = **0** · `WireEnterAsTab(this)` = **1** (مطابق `frmListSales:58`) · `Cells[` = **1** وهوفهرس رقمي.
+
+---
+
+## الموجة `TASK-014` — صندوق «إضافة صنف» كمكوّن واحد يستهلكه محررو المستندات (2026-11-18)
+
+> **أوامر المالك:** «all Purchases and Sales and Returns I want to be like frmAddUpdateSalesInvoice at UX for enter Products data row using keyboard» · **«I mean group box of add product above DGV like it»** · **«when Enter the same product again increase the quantity + one»** · **«as UserControl like `Screens/Customers/Controls/`»** · **«write code at one Place»**.
+
+| # | الملف | الحالة | الملاحظة |
+|---|---|---|---|
+| 1 | `Controls/Common/ctrlLineEntryPanel.cs` | ✅ **جديد — البيت الواحد (769 سطراً)** | باركود/كود/اسم/وحدة/كمية/سعر/خصم/(انتهاء اختياري)/إجمالي السطر + «إضافة السطر»/«إلغاء»؛ سلسلة `Enter` كاملة، `F4` منتقي، `Esc` إلغاء، دمج كمية، قصّ خصم برسالة، `BeforeCommit` لفحص الشاشة، `ShowExpiry`، `CommittedLine`، حارس إعادة دخول |
+| 2 | `Controls/Common/ctrlLineEntryPanel.Designer.cs` + `.resx` | ✅ (442 / 120) | 14 لوناً بصيغة `FromArgb(Convert.ToInt32(…))` · **0** مرجع `Helpers` · **0** عنصر يُبنى وقت التشغيل (`RULE-N145`) |
+| 3 | `Helpers/LineEntryPanelHelper.cs` | ✅ **محذوف** | كُتب ثم أُلغي بعد أمر «write code at one Place» — صفر مرجع باقٍ |
+| 4 | `Screens/Purchases/Forms/frmPurchaseInvoice.{cs,Designer.cs}` | ✅ (751 / 723) | المكوّن بدل `gbEntry`+`pnlEntry`؛ «حذف السطر» إلى شريط الأوامر؛ عمود «الوحدة» أُضيف للشبكة؛ `F4` أُزيل من الاختصارات (منتقي) |
+| 5 | `Screens/Returns/Forms/frmSalesReturn.{cs,Designer.cs}` | ✅ (749 / 595) | نفس الاستهلاك + `using SalesSystem.DTO.Responses` (خطأ بناء `CS0246` أُغلق) |
+| 6 | `Screens/Returns/Forms/frmPurchaseReturn.{cs,Designer.cs}` | ✅ (728 / 580) | نفس الاستهلاك + حقل المصمّم `ctrlLineEntry` معلن مرة واحدة (كان `CS0103`) |
+| 7 | `docs/TASKS/TASK-014…md` · `ACTIVE.md` §8 · `INDEX.md` | ✅ | سجل المهمة + الجولات + الأدلة |
+
+**عقيدة المكان الواحد:** حكم اللوحة (حلّ الباركود · اختيار الوحدة · السعر الافتراضي · دمج الكمية · قصّ الخصم · رسائل الرفض · سلسلة `Enter`) موجود **مرة واحدة** في المكوّن؛ والشاشات الثلاث انخفضت سطورها الإجمالية رغم إضافة ميزات (‏`frmPurchaseInvoice` 781→751 · `frmSalesReturn` 618→749 بعد إضافة عمود وحدة وحقول حالة · `frmPurchaseReturn` 618→728) وصفر نسخة ثانية من الحكم في أي منها.
+
+**عيوب مقيسة وُجدت وأُغلقت:**
+
+| # | العيب | القياس | الإصلاح |
+|---|---|---|---|
+| `LEP-1` | `ProductUnitId > 0 ? x : 1` تُرحّل الوحدة 1 لصنف آخر صامتة | **4 مواضع / 3 ملفات** | `l.ProductUnitId` + رفض عربي مسمّى بالصف ⇒ **0** |
+| `LEP-2` | `ProductDto.SalePrice`/`PurchasePrice` = `=> 0m` (سِمتان للتوافق) تُملأ بها الأسعار | مستهلكان: `frmPurchaseInvoice:414` (**أُغلق**) · `frmAddUpdateSalesInvoice:1704` (**باقٍ**) | السعر من `ProductUnitDto` (`CostPrice`/`SalePrice`) في المكوّن |
+| `LEP-3` | `KeyboardHelper.WireGlobalShortcuts` يعمل على `Form.KeyDown` + `KeyPreview` ويضبط `Handled` ⇒ يبتلع `F4`/`Esc` قبل الحقل المركَّز | `KeyboardHelper.cs` L1077–1096 | الشاشات أزالت `F4` (صار منتقي الأصناف) وأضافت حارس `Esc` للوحة — **والإصلاح النظامي في البيت الواحد مسجَّل بنداً مفتوحاً** |

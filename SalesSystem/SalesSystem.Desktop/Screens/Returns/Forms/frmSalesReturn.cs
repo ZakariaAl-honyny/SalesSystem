@@ -370,8 +370,12 @@ public partial class frmSalesReturn : Form
         dgvItems.AutoGenerateColumns = false;
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColCode", HeaderText = "الكود/الباركود", DataPropertyName = "ProductCode", Width = 150 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColName", HeaderText = "اسم المنتج", DataPropertyName = "ProductName", Width = 250, ReadOnly = true });
-        // عمود الوحدة: اللوحة تتيح اختيار وحدة الصنف، وبدون هذا العمود يبقى الاختيار غير مرئي في الشبكة.
-        dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColUnit", HeaderText = "الوحدة", DataPropertyName = "UnitName", Width = 90, ReadOnly = true });
+        // عمود الوحدة: يُعرَّف ليبقى ربطه سطراً واحداً حين تُضاف الوحدة إلى الـDTO، لكنه **مخفي الآن**
+        // لأن SalesReturnItemDto بلا UnitName (ولا ProductCode) — والباك-إند مجمّد (RULE-N177)، فكان
+        // يُعرض عمود فارغ في كل مرتجع محمَّل (كذب مرئي). يُكشف بحذف سطر الإخفاء بعد إضافة الاسم للـDTO.
+        var colUnit = new DataGridViewTextBoxColumn { Name = "ColUnit", HeaderText = "الوحدة", DataPropertyName = "UnitName", Width = 90, ReadOnly = true };
+        dgvItems.Columns.Add(colUnit);
+        colUnit.Visible = false;
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColQty", HeaderText = "الكمية", DataPropertyName = "Quantity", Width = 80 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColPrice", HeaderText = "السعر", DataPropertyName = "UnitPrice", Width = 100 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 100, ReadOnly = true });
@@ -673,7 +677,8 @@ public partial class frmSalesReturn : Form
                 var result = await _returnApi.CreateAsync(request);
                 if (!result.IsSuccess || result.Value is not { } created)
                 {
-                    clsDialogs.Error(result.Error);
+                    // رسالة عربية غير فارغة دائماً (CS8604): لا يُعرض فراغ عند خطأ بلا نص.
+                    clsDialogs.Error(result.Error ?? "تعذر حفظ مرتجع البيع.");
                     return;
                 }
 

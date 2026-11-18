@@ -283,6 +283,21 @@ public partial class ctrlLineEntryPanel : UserControl
             return;
         }
 
+        // ── تكامل البيانات (بلاغ المراجعة 2026-11-18) ──
+        // لا يُكتب نص باركود بجانب `ProductId` لصنف آخر: باركود مكتوب لم يمرّ على Enter يُحلّ الآن
+        // كما لو ضغط المستخدم Enter في حقل الباركود (وفي التعديل: أي نص يخالف هوية السطر المحمَّل).
+        string typedBarcode = txtBarcode.Text.Trim();
+        string identityBarcode = (_product?.Barcode
+                                  ?? editingLine?.Barcode
+                                  ?? editingLine?.ProductCode
+                                  ?? string.Empty).Trim();
+
+        bool barcodeChanged = typedBarcode.Length > 0
+                              && !string.Equals(typedBarcode, identityBarcode, StringComparison.OrdinalIgnoreCase)
+                              && (editingLine is not null || identityBarcode.Length > 0);
+
+        if (barcodeChanged && !await ResolveTypedBarcodeAsync(typedBarcode)) return;
+
         if (!EnsureUnitSelected()) return;
         if (!EnsureQuantity()) return;
         if (!EnsurePrice()) return;
@@ -372,6 +387,38 @@ public partial class ctrlLineEntryPanel : UserControl
         }
 
         NotifyCommitted(committedLine);
+    }
+
+    /// <summary>
+    /// يحلّ باركوداً مكتوباً في اللوحة **وقت الحفظ** (لم يمرّ على <c>Enter</c>) ويطبّق صنفه على اللوحة:
+    /// الصنف والوحدة والاسم والكود والسعر من الصنف المحلول، والكمية/الخصم كما كتبهما المستخدم.
+    /// <c>false</c> = الباركود غير مسجّل ⇒ لا يُغيَّر شيء ويبقى التركيز في حقل الباركود
+    /// (فلا يُكتب نص باركود بجانب <c>ProductId</c> لصنف آخر).
+    /// </summary>
+    private async Task<bool> ResolveTypedBarcodeAsync(string typedBarcode)
+    {
+        var product = await ResolveBarcodeAsync!(typedBarcode);
+        if (product is null)
+        {
+            clsDialogs.Warning("الباركود المكتوب غير مسجّل — امسح الباركود ثم اضغط Enter لتأكيد الصنف.");
+            txtBarcode.Focus();
+            txtBarcode.SelectAll();
+            return false;
+        }
+
+        var units = await LoadUnitsCoreAsync(product.Id);
+        if (txtBarcode.IsDisposed) return false;
+
+        var unit = PickUnit(units, null);
+
+        _product = product;
+        FillUnitCombo(units, unit);
+        lblProductName.Text = product.Name;
+        txtItemCode.Text = product.Barcode ?? string.Empty;
+        txtBarcode.Text = product.Barcode ?? typedBarcode;
+        if (unit is not null) txtPrice.Text = PriceSelector!(unit).ToString("0.###");
+
+        return true;
     }
 
     /// <summary>

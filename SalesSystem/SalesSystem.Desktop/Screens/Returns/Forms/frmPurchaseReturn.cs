@@ -657,7 +657,9 @@ public partial class frmPurchaseReturn : Form
                 var result = await _returnApi.CreateAsync(request);
                 if (!result.IsSuccess || result.Value is not { } created)
                 {
-                    clsDialogs.Error(result.Error);
+                    // رسالة الخدمة أولاً، وبديل عربي عند غيابها — لا استدعاء بـnullable (CS8604)،
+                    // وبنفس شكل الشاشة الشقيقة frmSalesReturn (RULE-N171).
+                    clsDialogs.Error(result.Error ?? "تعذر حفظ مرتجع الشراء.");
                     return;
                 }
 

@@ -3,6 +3,7 @@ using SalesSystem.Common;
 using SalesSystem.DTO;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO.Requests;
+using SalesSystem.DTO.Responses;
 using SalesSystem.Common.Enums;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Controls.Common;
@@ -14,6 +15,7 @@ using SalesSystem.Desktop.Printing;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Screens.Purchases;
+using SalesSystem.Desktop.Products.Forms;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
@@ -48,10 +50,39 @@ public partial class frmPurchaseInvoice : Form
     private bool _isUpdating = false;
     private bool _tafqeetAttached = false;
 
+    /// <summary>حارس إعادة الدخول على الحفظ: يمنع نقراً مزدوجاً أو تحرير سطر أثناء الإرسال.</summary>
+    private bool _isSaving = false;
+
     public frmPurchaseInvoice(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
+
+        // ── لوحة «إضافة صنف» أعلى الشبكة (TASK-014 · بيت واحد ctrlLineEntryPanel) ──────────────
+        // الشاشة **تُسند مُفوَّداتها فقط** ولا تكتب سطراً من منطق الإدخال: الباركود والوحدات والدمج
+        // وحدّ الخصم وإعادة التركيز كلها في المكوّن (RULE-N169…RULE-N172). المكوّن يعرف «كيف يُدخل
+        // سطر»، والشاشة تعرف «من أين يأتي الصنف وكيف يُحسب المال».
+        ctrlLineEntry.Lines = _lines;
+        ctrlLineEntry.PriceCaption = "سعر التكلفة:";
+        // سعر الشراء = ProductUnitDto.CostPrice. ‏ProductDto نفسه يحمل سعري بيع/شراء مرميّين على 0m
+        // (مقيس) — فالسعر يُقرأ من الوحدة حصراً وإلا مُلئ كل سطر بسعر صفر.
+        ctrlLineEntry.PriceSelector = u => u.CostPrice;
+        ctrlLineEntry.IsEditable = () => _invoice is null || _invoice.Status == (byte)InvoiceStatus.Draft;
+        ctrlLineEntry.ResolveBarcodeAsync = FindProductByBarcodeAsync;
+        ctrlLineEntry.LoadUnitsAsync = async id =>
+            (await _productApi.GetProductUnitsAsync(id)).Value ?? Array.Empty<ProductUnitDto>();
+        ctrlLineEntry.PickProductAsync = PickProductAsync;
+        ctrlLineEntry.TotalsChanged = CalculateTotals;
+
+        // في فاتورة الشراء سعر اللوحة هو التكلفة نفسها: تُزامن دائماً وإلا رفض الحفظ (UnitCost <= 0)
+        // أو رُحّل السعر القديم صامتاً بعد تعديل سطر مسودة (مراجعة TASK-014 — الحاجز #1/#2).
+        // المكوّن يُطلق LineCommitted على المسارات الثلاثة كلها — الإضافة · تعديل/تحديث سطر محمَّل ·
+        // دمج الكمية · والمسح السريع (+1) — و`CommittedLine` يحمل السطر المقصود، فالاشتراك الواحد يكفي.
+        ctrlLineEntry.LineCommitted += (_, _) =>
+        {
+            if (ctrlLineEntry.CommittedLine is { } line)
+                line.UnitCost = line.UnitPrice;
+        };
 
         // RULE-N40…N46 — تنقل وتحديد وتظليل الحقل النشط (4 من 6).
         // RULE-N191 — Enter داخل رأس الفاتورة (gbInvoiceInfo) يمشي بترتيب العرض حقلاً بحقل ثم «يُركِّز»
@@ -72,13 +103,15 @@ public partial class frmPurchaseInvoice : Form
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
         KeyboardHelper.WireButtonDisabledVisual(
-            btnAddItem, btnRemoveItem, btnSaveDraft, btnPost, btnCancelInvoice, btnPrintA4, btnClose);
+            btnRemoveItem, btnSaveDraft, btnPost, btnCancelInvoice, btnPrintA4, btnClose);
 
         // RULE-N47 — الاختصارات الموحّدة على الأزرار الموجودة فعلاً في الشاشة.
+        // F2 = «سطر صنف جديد» ⇒ إعادة المؤشر إلى باركود لوحة الإضافة (لا زر «إضافة صنف» بعد اليوم).
+        // **F4 أُزيل من هنا عمداً:**WireGlobalShortcuts يعمل على Form.KeyDown مع KeyPreview فيبتلع
+        // المفتاح قبل حقل الباركود، فيُقتل F4 = منتقي الأصناف في المكوّن. الترحيل يبقى على زرّه.
         KeyboardHelper.WireGlobalShortcuts(this,
-            (Keys.F2, () => btnAddItem.PerformClick()),        // جديد = سطر صنف جديد
+            (Keys.F2, ctrlLineEntry.FocusBarcode),             // جديد = سطر صنف جديد
             (Keys.F3, () => btnSaveDraft.PerformClick()),      // حفظ/عرض المسودة
-            (Keys.F4, () => btnPost.PerformClick()),           // ترحيل
             (Keys.F5, _RefreshAsync),                          // تحديث
             (Keys.Delete, _GlobalDelete),                      // حذف السطر المحدد
             (Keys.Escape, _GlobalEscape));                     // خروج
@@ -112,12 +145,26 @@ public partial class frmPurchaseInvoice : Form
         if (dgvItems.ContainsFocus && btnRemoveItem.Enabled) btnRemoveItem.PerformClick();
     }
 
-    /// <summary>Esc: يُلغي تحرير الخلية أولاً، وإلا يُغلق النموذج (RULE-N47).</summary>
+    /// <summary>
+    /// Esc: يُلغي أولاً ما هو جارٍ (تحرير خلية · سطر في لوحة الإضافة)، وإلا يُغلق النموذج (RULE-N47).
+    /// <para>
+    /// <b>لماذا يُعالَج Esc هنا؟</b> ‏<see cref="KeyboardHelper.WireGlobalShortcuts"/> يعمل على
+    /// <c>Form.KeyDown</c> مع <c>KeyPreview</c> فيسبق حقلَ الباركود — ولو لم يُعالَج هنا لأغلق Esc
+    /// الفاتورة بدل إلغاء السطر (نفس سبب إزالة F4 من قائمة الاختصارات).
+    /// </para>
+    /// </summary>
     private void _GlobalEscape()
     {
         if (dgvItems.IsCurrentCellInEditMode)
         {
             dgvItems.CancelEdit();
+            return;
+        }
+
+        // Esc داخل لوحة الإضافة = إلغاء السطر الجاري وتفريغها (نمط الشاشة المرجعية) — لا إغلاق.
+        if (ctrlLineEntry.ContainsFocus)
+        {
+            ctrlLineEntry.CancelEdit();
             return;
         }
 
@@ -180,6 +227,9 @@ public partial class frmPurchaseInvoice : Form
     {
         // RULE-N153 — الشبكة تملك Enter: إدخال سطر لا حفظ/ترحيل، ولا نقر لزر الوضع من داخلها.
         if (dgvItems.ContainsFocus || dgvItems.IsCurrentCellInEditMode) return null;
+
+        // لوحة الإضافة تحمّل سطراً للتعديل: Enter هناك يُثبّت السطر ولا يُنفّذ زر الوضع.
+        if (ctrlLineEntry.IsEditing) return null;
 
         // مرحّلة أو ملغاة (مقفلة) ⇒ لا إجراء لـEnter: لا حفظ ولا ترحيل ولا إلغاء بالخطأ.
         bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
@@ -245,9 +295,8 @@ public partial class frmPurchaseInvoice : Form
             CalculateTotals();
             ApplyUiTheme();
 
-            // RULE-N22a — الشبكة شبكة إدخال: صف الإدخال الجديد يُتاح في وضع التحرير فقط
-            // (UpdateUIState يضبطه حسب الحالة) والتحرير داخل الخلية مملوك للشاشة (RULE-N52).
-            dgvItems.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
+            // RULE-N22a — الشبكة عرض/اختيار فقط: الإدخال كله في لوحة الإضافة أعلاه، فصفوفها لا تُضاف
+            // من الشبكة (AllowUserToAddRows/ReadOnly مضبوطان في SetupGrid) ولا تحرير خلية فيها.
         }
         catch (Exception ex)
         {
@@ -335,6 +384,8 @@ public partial class frmPurchaseInvoice : Form
                     ProductName = item.ProductName,
                     // الوحدة المحفوظة على السطر تُحمَل لتعود كما هي عند إعادة الحفظ (لا تُستبدل بالوحدة الأساسية).
                     ProductUnitId = item.ProductUnitId,
+                    // اسم الوحدة يُعرض في عمود «الوحدة» — لا يبقى اختيار الوحدة في اللوحة غير مرئي في الشبكة.
+                    UnitName = item.ProductUnitName,
                     Quantity = item.Quantity,
                     UnitCost = item.UnitPrice,
                     UnitPrice = item.UnitPrice,    // ما يُرسل عند الحفظ هو سعر الوحدة — فيُعرض هو لا التكلفة المستقرّة
@@ -361,16 +412,39 @@ public partial class frmPurchaseInvoice : Form
         txtPaid.Text = "0";
         txtNotes.Clear();
 
+        // فاتورة جديدة ⇒ لوحة الإضافة تبدأ من باركود فارغ — فلا يبقى سطر نصف مُدخل من مستند سابق.
+        ctrlLineEntry.ResetPanel();
+        ctrlLineEntry.FocusBarcode();
+
         _UpdateModeHeader();
     }
 
+    /// <summary>
+    /// عند الظهور: المؤشر على باركود لوحة الإضافة — أول ما يفعله المستخدم. (<c>OnLoad</c> يسبق الظهور
+    /// فلا ينجح <c>Focus</c> فيه، ولذلك يقع الطلب هنا.)
+    /// </summary>
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        ctrlLineEntry.FocusBarcode();
+    }
+
+    /// <summary>
+    /// إعداد الشبكة: <b>عرض واختيار فقط</b> — الإدخال كله في لوحة «إضافة صنف» أعلى الشاشة
+    /// (TASK-014)، فلا تحرير داخل الخلية ولا صف إدخال جديد هنا. أعمدة الشبكة تُقرأ من
+    /// <see cref="InvoiceLineItem"/> فقط، ولا تحمل الشاشة أي منطق بحث/دمج للأصناف.
+    /// </summary>
     private void SetupGrid()
     {
         dgvItems.AutoGenerateColumns = false;
         dgvItems.Columns.Clear();
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColCode", HeaderText = "الكود/الباركود", DataPropertyName = "ProductCode", Width = 150 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColName", HeaderText = "اسم المنتج", DataPropertyName = "ProductName", Width = 250, ReadOnly = true });
+        // عمود الوحدة: اللوحة تتيح اختيار وحدة الصنف، وبدون هذا العمود يبقى الاختيار غير مرئي في الشبكة.
+        dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColUnit", HeaderText = "الوحدة", DataPropertyName = "UnitName", Width = 90, ReadOnly = true });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColQty", HeaderText = "الكمية", DataPropertyName = "Quantity", Width = 80 });
+        // عمود التكلفة: يُعرض من UnitCost، والاشتراك في المُنشئ يُزامن UnitCost = UnitPrice عند كل
+        // تأكيد سطر — فما تراه في الشبكة هو نفسه ما يُرسل في الطلب (لا صفر ولا سعر قديم).
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColCost", HeaderText = "التكلفة", DataPropertyName = "UnitCost", Width = 100 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColDisc", HeaderText = "خصم", DataPropertyName = "DiscountAmount", Width = 80 });
         dgvItems.Columns.Add(new DataGridViewTextBoxColumn { Name = "ColTotal", HeaderText = "الإجمالي", DataPropertyName = "LineTotal", Width = 120, ReadOnly = true, DefaultCellStyle = new DataGridViewCellStyle { ForeColor = GreenThemeHelper.TextStrong, Font = new Font(dgvItems.Font, FontStyle.Bold) } });
@@ -378,53 +452,75 @@ public partial class frmPurchaseInvoice : Form
         // RULE-N169: الدلالة تُعلَن (مبلغ مالي) والنمط يأتي من clsFormat الحيّ عبر البيت الواحد — لا "N2" مكتوبة هنا.
         GridFormatHelper.ApplyColumns(dgvItems, GridFormatKind.Money, "ColTotal");
 
-        dgvItems.DataSource = _lines;
-        dgvItems.CellEndEdit += DgvItems_CellEndEdit;
+        // RULE-N22 — شبكة عرض: لا صف إدخال، ولا تحرير، واختيار بمستوى الخلية/الصف المفرد.
+        dgvItems.AllowUserToAddRows = false;
+        dgvItems.ReadOnly = true;
+        dgvItems.SelectionMode = DataGridViewSelectionMode.CellSelect;
+        dgvItems.EditMode = DataGridViewEditMode.EditOnEnter;
 
-        // RULE-N153 — Enter داخل شبكة السطور تنقّل/تحرير ولا ينفّذ الزر الأساسي أبداً:
-        // AcceptButton يُفرَّغ عند دخول الشبكة أو بدء تحرير خلية ويُعاد عند مغادرتها.
+        dgvItems.DataSource = _lines;
+
+        // النقر المزدوج يحمّل السطر في اللوحة (نمط frmAddUpdateSalesInvoice) — لا تحرير داخل الخلية.
+        dgvItems.CellDoubleClick += DgvItems_CellDoubleClick;
+
+        // RULE-N153 — Enter داخل شبكة السطور تنقّل ولا ينفّذ الزر الأساسي أبداً:
+        // AcceptButton يُفرَّغ عند دخول الشبكة ويُعاد عند مغادرتها.
         dgvItems.Enter += (_, _) => _SyncAcceptButton();
         dgvItems.Leave += (_, _) => _SyncAcceptButton();
-        dgvItems.CellBeginEdit += (_, _) => _SyncAcceptButton();
+    }
+
+    /// <summary>
+    /// نقر مزدوج على سطر ⇒ تحميله في لوحة «إضافة صنف» لتعديله، بـ«تحديث السطر» و<c>Esc</c> للإلغاء.
+    /// الحكم على «هل التعديل مسموح» يأتي من <c>ctrlLineEntry.Enabled</c> نفسه الذي يضبطه
+    /// <see cref="UpdateUIState"/> — فلا نسخة ثانية من شرط «مسودة» هنا (RULE-N172).
+    /// </summary>
+    private void DgvItems_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+    {
+        if (e.RowIndex < 0 || e.RowIndex >= _lines.Count) return;
+        if (_isSaving || !ctrlLineEntry.Enabled) return;
+
+        ctrlLineEntry.BeginEdit(_lines[e.RowIndex]);
+    }
+
+    // ── الربط مع لوحة «إضافة صنف» (المكوّن المشترك) ─────────────────────────
+
+    /// <summary>
+    /// بحث الباركود للوحة الإضافة: <b>الخدمة أولاً</b> (تُرجع الصنف وأي تعديل حديث)، ثم قائمة
+    /// الأصناف المحمَّلة كاحتياط عند فشل النداء أو لصنف معطّل. السعر لا يأتي من هنا — <c>ProductDto</c>
+    /// يحمل سعري بيع/شراء مرميّين على <c>0m</c> (مقيس)، والسعر من <see cref="ProductUnitDto.CostPrice"/>.
+    /// </summary>
+    private async Task<ProductDto?> FindProductByBarcodeAsync(string barcode)
+    {
+        if (string.IsNullOrWhiteSpace(barcode)) return null;
+
+        var result = await _productApi.GetByBarcodeAsync(barcode.Trim());
+        if (result.IsSuccess && result.Value is { IsActive: true }) return result.Value;
+
+        // احتياط: باركود غير موجود في الخدمة (أو صنف معطّل) ⇒ من القائمة المحمَّلة، بلا حساسية لحالة الأحرف.
+        return _allProducts.FirstOrDefault(
+            p => string.Equals(p.Barcode?.Trim(), barcode.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// منتقي الأصناف (F4 أو باركود غير مسجّل) — <see cref="frmProductSelection"/> القائم (RULE-N169)،
+    /// ويُمرَّر المستودع المختار فيُظهر أرصدة ذلك المخزن. الإلغاء يعود <c>null</c> بلا أي تغيير.
+    /// </summary>
+    private Task<PickedProduct?> PickProductAsync()
+    {
+        var dialog = _serviceProvider.GetRequiredService<frmProductSelection>();
+        if (_SelectedWarehouseId > 0) dialog.WarehouseId = Convert.ToInt16(_SelectedWarehouseId);
+
+        if (dialog.ShowDialog(this) != DialogResult.OK || dialog.SelectedProduct is null)
+            return Task.FromResult<PickedProduct?>(null);
+
+        return Task.FromResult<PickedProduct?>(
+            new PickedProduct(dialog.SelectedProduct, dialog.SelectedUnit));
     }
 
     // ── أحداث الحقول (كما كانت مربوطة في المصمّم) ────────────────────────────
 
     private void numInvoiceDiscount_ValueChanged(object? sender, EventArgs e) => CalculateTotals();
     private void txtPaid_TextChanged(object? sender, EventArgs e) => CalculateTotals();
-
-    private void DgvItems_CellEndEdit(object? sender, DataGridViewCellEventArgs e)
-    {
-        // RULE-N153: بعد نهاية التحرير يعود Enter لمتابعة تنقّل الشبكة لا لتنفيذ الزر الأساسي.
-        _SyncAcceptButton();
-
-        if (_isUpdating || e.RowIndex < 0 || e.ColumnIndex < 0) return;
-        if (e.RowIndex >= _lines.Count) return;   // صف الإدخال الجديد قبل إضافته للقائمة المربوطة
-
-        var row = _lines[e.RowIndex];
-        var colName = dgvItems.Columns[e.ColumnIndex].Name;
-
-        if (colName == "ColCode")
-        {
-            var product = _allProducts.FirstOrDefault(p => p.Barcode == row.ProductCode);
-            if (product != null)
-            {
-                row.ProductId = product.Id;
-                row.ProductName = product.Name;
-                row.UnitCost = product.PurchasePrice;
-                row.UnitPrice = row.UnitCost;   // عرض فقط: LineTotal محسوبة من UnitPrice (لا تغيير في الطلب المحفوظ)
-                if (row.Quantity == 0) row.Quantity = 1;
-            }
-        }
-        else if (colName == "ColCost")
-        {
-            // تحرير عمود التكلفة: مزامنة حقل السعر لعرض LineTotal صحيحة (عرض فقط).
-            row.UnitPrice = row.UnitCost;
-        }
-
-        CalculateTotals();
-        dgvItems.Refresh();
-    }
 
     private void CalculateTotals()
     {
@@ -447,13 +543,16 @@ public partial class frmPurchaseInvoice : Form
     {
         bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
         pnlHeader.Enabled = editable;
-        dgvItems.ReadOnly = !editable;
-        // RULE-N22a: صف الإدخال الجديد يظهر في وضع التحرير فقط، فلا يُعرض صف فارغ على مستند مرحّل/ملغى.
-        dgvItems.AllowUserToAddRows = editable;
+        // شبكة السطور عرض/اختيار دائماً (SetupGrid): لا تُفتح للتحرير في أي وضع — الإدخال في اللوحة وحدها.
         pnlFooter.Enabled = editable;
-        btnAddItem.Enabled = editable;
+
+        // لوحة «إضافة صنف» هي مسار الإدخال الوحيد: تعطيلها يقفل الإدخال كله على مستند مرحّل/ملغى،
+        // وResetPanel يُلغي أي سطر نصف مُدخل فلا يبقى على الشاشة سطر لا يمكن حفظه.
+        ctrlLineEntry.Enabled = editable;
+        if (!editable) ctrlLineEntry.ResetPanel();
+
         btnRemoveItem.Enabled = editable;
-        // الإخفاء وحده لا يمنع الاختصارات (F3/F4) — التعطيل إلزامي (RULE-N43/N152)، ويُفعَّل فقط في وضع التحرير.
+        // الإخفاء وحده لا يمنع اختصار F3 — التعطيل إلزامي (RULE-N43/N152)، ويُفعَّل فقط في وضع التحرير.
         btnSaveDraft.Visible = btnSaveDraft.Enabled = editable;
         btnPost.Visible = btnPost.Enabled = editable;
         btnCancelInvoice.Visible = btnCancelInvoice.Enabled = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
@@ -475,13 +574,6 @@ public partial class frmPurchaseInvoice : Form
 
         // RULE-N147 — الزر الذي يستقبله Enter يتبع الوضع الحالي (بلا حفظ/ترحيل من شبكة السطور).
         _SyncAcceptButton();
-    }
-
-    private void btnAddItem_Click(object? sender, EventArgs e)
-    {
-        _lines.Add(new InvoiceLineItem());
-        dgvItems.Focus();
-        dgvItems.CurrentCell = dgvItems.Rows[_lines.Count - 1].Cells[0];
     }
 
     private void btnRemoveItem_Click(object? sender, EventArgs e)
@@ -513,10 +605,6 @@ public partial class frmPurchaseInvoice : Form
     /// </summary>
     private bool _ValidateRangeRules()
     {
-        // RULE-N22a: قيمة الخلية الجاري تحريرها تُثبَّت أولاً، فلا تبقى كمية/تكلفة مكتوبة خارج ما يُرسل.
-        dgvItems.EndEdit();
-        dgvItems.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
         bool isValid = true;
 
         // (1) الحقول المطلوبة — التقييم والوسم والنقل إلى أول ناقص من البيت الواحد (لا نسخة ثانية هنا).
@@ -579,7 +667,7 @@ public partial class frmPurchaseInvoice : Form
 
     /// <summary>
     /// أول خطأ في سطور الأصناف أو <c>null</c> — رسالة واحدة محددة لكل حالة
-    /// (تكافؤ الرفض: لا صنف مجهول · لا كمية صفر · لا تكلفة صفر — <c>RULE-N167</c>).
+    /// (تكافؤ الرفض: لا صنف مجهول · لا وحدة · لا كمية صفر · لا تكلفة صفر — <c>RULE-N167</c>).
     /// </summary>
     private string? _FirstLineError()
     {
@@ -602,6 +690,11 @@ public partial class frmPurchaseInvoice : Form
             if (line.ProductId <= 0)
                 return $"السطر {rowNo}: الصنف غير محدد — ابحث عن الصنف بالكود أو احذف السطر.";
 
+            // LEP-1 (مقيس: 4 مواضع في 3 شاشات): كان الحفظ يسقط بصمت إلى الوحدة رقم 1 عند غياب
+            // ProductUnitId — أي وحدة صنف آخر. الآن الوحدة تُختار في لوحة الإضافة فعلياً، والمتبقي رفض.
+            if (line.ProductUnitId <= 0)
+                return $"السطر {rowNo}: لم تُحدَّد وحدة الصنف — أعد اختياره من لوحة الإضافة.";
+
             if (line.Quantity <= 0m)
                 return $"السطر {rowNo}: الكمية يجب أن تكون أكبر من صفر.";
 
@@ -615,7 +708,7 @@ public partial class frmPurchaseInvoice : Form
     private async Task SaveInvoiceAsync(bool post)
     {
         // حارس المسودة: فاتورة غير مسودة (مرحّلة/ملغاة) لا تُحفظ ولا تُرحّل من أي مسار — زر مخفي
-        // لا يمنع اختصار F3/F4، وهذا الحارس يقطعه قبل أي تحقق أو طلب للخدمة.
+        // لا يمنع اختصار F3، وهذا الحارس يقطعه قبل أي تحقق أو طلب للخدمة.
         if (_invoice is not null && _invoice.Status != (byte)InvoiceStatus.Draft)
         {
             clsDialogs.Warning("لا يمكن تعديل أو إعادة حفظ فاتورة غير مسودة.");
@@ -629,20 +722,22 @@ public partial class frmPurchaseInvoice : Form
         if (post && !clsDialogs.Confirm("هل أنت متأكد من ترحيل فاتورة المشتريات؟ سيتم زيادة المخزون.")) return;
 
         btnSaveDraft.Enabled = btnPost.Enabled = false;
+        _isSaving = true;
         Cursor = Cursors.WaitCursor;
         try
         {
             // خصم السطر مبلغٌ ثابت: DiscountType.Amount + DiscountRate = المبلغ نفسه (بلا أي حساب)،
             // فيتساوى المحفوظ مع ما يعرضه اللصق والشبكة. الأسطر بلا خصم تبقى على الافتراضيات (null/null).
-            // والوحدة المحفوظة على السطر تُعاد كما هي؛ السطر الجديد بلا وحدة يأخذ الوحدة الأساسية (1).
+            // الوحدة تُرسل من السطر كما اختارها المستخدم في لوحة الإضافة — **لا سقوط صامت إلى الوحدة 1**
+            // (LEP-1): غيابها رُفض قبل الوصول إلى هنا في _FirstLineError.
             var items = _lines
                 .Where(l => l.ProductId > 0)
                 .Select(l => l.DiscountAmount > 0m
                     ? new CreatePurchaseInvoiceLineRequest(
-                        l.ProductId, l.ProductUnitId > 0 ? l.ProductUnitId : 1, l.Quantity, l.UnitCost,
+                        l.ProductId, l.ProductUnitId, l.Quantity, l.UnitCost,
                         SalesSystem.DTO.Enums.DiscountType.Amount, l.DiscountAmount)
                     : new CreatePurchaseInvoiceLineRequest(
-                        l.ProductId, l.ProductUnitId > 0 ? l.ProductUnitId : 1, l.Quantity, l.UnitCost))
+                        l.ProductId, l.ProductUnitId, l.Quantity, l.UnitCost))
                 .ToList();
             var request = new CreatePurchaseInvoiceRequest(
                 _SelectedWarehouseId,
@@ -704,6 +799,7 @@ public partial class frmPurchaseInvoice : Form
         }
         finally
         {
+            _isSaving = false;
             // استعادة الحالة حسب الوضع: المسودة/الجديدة فقط تُعيد تفعيل أزرار الحفظ والترحيل.
             bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
             btnSaveDraft.Enabled = btnPost.Enabled = editable;
