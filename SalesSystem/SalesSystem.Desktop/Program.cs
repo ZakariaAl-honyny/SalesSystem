@@ -246,9 +246,10 @@ static class Program
                     services.AddTransient<frmMain>();
                     services.AddTransient<frmAddUpdateSalesInvoice>();
                     services.AddTransient<frmPurchaseInvoice>();
-                    // F-004 (D-02/D-03): المرتجعات صارت مسترين — واحد للمبيعات وواحد للمشتريات.
-                    services.AddTransient<frmSalesReturnMaster>();
-                    services.AddTransient<frmPurchaseReturnMaster>();
+                    // المرتجعات: النمط المنفصل كالمبيعات (RULE-N101) — قائمة + محرر لكل نوع
+                    services.AddTransient<frmSalesReturn>();
+                    services.AddTransient<frmPurchaseReturn>();
+                    services.AddTransient<frmListReturns>();
                     services.AddTransient<frmWarehouseMaster>();
                     services.AddTransient<frmListSales>();
                     services.AddTransient<frmListPurchases>();

@@ -53,6 +53,7 @@ namespace SalesSystem.Desktop.Screens
             msbtnManageSales = new ToolStripMenuItem();
             msbtnSalesInvoice = new ToolStripMenuItem();
             msbtnSalesReturn = new ToolStripMenuItem();
+            msbtnReturnsList = new ToolStripMenuItem();
             // ── الخزينة ──────────────────────────────────────────────────────────────────────────────
             msRevenue = new ToolStripMenuItem();
             msbtnManagePayments = new ToolStripMenuItem();
@@ -334,7 +335,7 @@ namespace SalesSystem.Desktop.Screens
             msSale.DropDownItems.AddRange(new ToolStripItem[] {
                 msbtnPOS,
                 new ToolStripSeparator(),
-                msbtnSalesInvoice, msbtnManageSales, msbtnSalesReturn,
+                msbtnSalesInvoice, msbtnManageSales, msbtnSalesReturn, msbtnReturnsList,
                 new ToolStripSeparator(),
                 msbtnManageCustomers,
                 new ToolStripSeparator(),
@@ -364,6 +365,13 @@ namespace SalesSystem.Desktop.Screens
             msbtnSalesReturn.Size = new Size(300, 38);
             msbtnSalesReturn.Text = "مرتجع بيع";
             msbtnSalesReturn.Click += msbtnSalesReturn_Click;
+            // 
+            // msbtnReturnsList
+            // 
+            msbtnReturnsList.Name = "msbtnReturnsList";
+            msbtnReturnsList.Size = new Size(300, 38);
+            msbtnReturnsList.Text = "قائمة المرتجعات";
+            msbtnReturnsList.Click += msbtnReturnsList_Click;
             // 
             // msbtnPOS
             // 
@@ -884,6 +892,7 @@ namespace SalesSystem.Desktop.Screens
         private ToolStripMenuItem msbtnManageSales;
         private ToolStripMenuItem msbtnSalesInvoice;
         private ToolStripMenuItem msbtnSalesReturn;
+        private ToolStripMenuItem msbtnReturnsList;
         private ToolStripMenuItem msRevenue;
         private ToolStripMenuItem msbtnManagePayments;
         private ToolStripMenuItem msbtnCashBoxes;

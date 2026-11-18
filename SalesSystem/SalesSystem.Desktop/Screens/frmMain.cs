@@ -260,7 +260,7 @@ public partial class frmMain : Form
         => OpenScreen<frmPurchaseInvoice>();
 
     private void msbtnPurchaseReturn_Click(object sender, EventArgs e)
-        => OpenScreen<frmPurchaseReturnMaster>();
+        => OpenScreen<frmPurchaseReturn>();
 
     // ── المبيعات (Sales) ─────────────────────────────────────────────────────
 
@@ -271,9 +271,10 @@ public partial class frmMain : Form
         => OpenScreen<frmAddUpdateSalesInvoice>();
 
     private void msbtnSalesReturn_Click(object sender, EventArgs e)
-        => OpenScreen<frmSalesReturnMaster>();
+        => OpenScreen<frmSalesReturn>();
 
-    // F-004 / D-06: عنصر «قائمة المرتجعات» أُزيل — العرض المدمج متاح عبر frmReturnsReport.
+    private void msbtnReturnsList_Click(object sender, EventArgs e)
+        => OpenScreen<frmListReturns>();
 
     // ── المبيعات — نقطة البيع وأدوات الفاتورة (جديد) ────────────────
 

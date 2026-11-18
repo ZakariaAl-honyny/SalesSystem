@@ -1384,3 +1384,21 @@
 | 11 | الشاشات السبع المحذوفة (21 ملفاً) | ✅ | `RULE-N102` — صفر مرجع كود باقٍ (9 مطابقات كلها تعليقات) |
 
 **قياسات الموجة (بالأمر):** الشاشات الأربع = **4** · ملفات منشأة = **12** · معدَّلة = **7** · محذوفة = **21** · `MessageBox.Show` في الشاشات الأربع = **0** · `_ValidateForm` محلية = **0** · `SystemColors.Control` = **0** · `row.Cells["` = **0** · صيغة لون مختصرة = **0** · `WireEnterAsTab(this)` أحادي الوسيط = **0**.
+---
+
+## الموجة `F-004/D-10` — رجوع المرتجعات إلى نمط المبيعات (2026-11-18)
+
+**الدليل:** `dotnet build .\SalesSystem.slnx` = **0 Errors / 72 Warning(s)** (تزايدي) · **المراجعة:** `0 Blocker / 1 Major (سجل — أُغلق) / 3 Minor (2 أُغلقا · 1 دَين `PAL-5`)**.
+
+| # | الملف | الحالة | الملاحظة |
+|---|---|---|---|
+| 1 | `Screens/Returns/Forms/frmSalesReturn.cs` | ✅ | مُستعاد من `906e0c0` + مواءمة: `WireEnterAsTab(gbInvoiceInfo, _PrimaryActionButton)` ثنائي · `RequiredFieldHelper.Attach` بشرط «عميل نقدي = 0» · حُذفت `_ValidateForm` ← `_ValidateRangeRules` · `IsTextInputFocused` |
+| 2 | `Screens/Returns/Forms/frmPurchaseReturn.cs` | ✅ | مُستعاد + `RequiredFieldHelper.Clear` في إعادة الضبط/الوضع · `DataError` مكتوم · **`lblSubTotalVal` صار يُحدَّث** (كان `0.00`) |
+| 3 | `Screens/Returns/Forms/frmPurchaseReturn.Designer.cs` | ✅ | 20 لوناً من الصيغة المختصرة إلى `Convert.ToInt32` (`RULE-N204`) |
+| 4 | `Screens/Returns/Forms/frmListReturns.{cs,Designer.cs,resx}` | ✅ | أعيد بناؤه على `frmListSales`: أعمدة في المصمّم · ربط بالمعرّف لا بالفهرس · `pnlSummary` بأزواج · `btnClearFilters` منفصل · فتح المحرر + إعادة القراءة عند الإغلاق |
+| 5 | `Screens/Returns/Forms/frmSalesReturnMaster.*` · `frmPurchaseReturnMaster.*` | ✅ محذوفة | 6 ملفات — رجوع المالك (`D-10`) |
+| 6 | `Program.cs` · `frmMain.cs` · `frmMain.Designer.cs` | ✅ | 3 تسجيلات · 3 معالجات · `msbtnReturnsList` مُعاد حرفياً (`RULE-N130`) |
+| 7 | `Screens/Sales/Forms/frmAddUpdateSalesInvoice.cs` | ✅ | زر «مردود بيع» ← `frmSalesReturn` نمطياً (`ShowDialog`) — كما كان |
+| 8 | `Services/Mock/MockReturnsData.cs` | ✅ | تاريخا مرتجعات المشتريات صارا نسبيين (`Today-2`/`Today-5`) — كان التبويب يفتح فارغاً |
+
+**قياسات:** شاشات المرتجعات = **3** (نمط المبيعات) · مستران محذوفان = **2** · مراجع `ReturnMaster` = **0** · `MessageBox`/`_ValidateForm`/`ActiveControl` في المرتجعات = **0** · صيغة لون مختصرة في مصمّمَي المحررين = **0** · `WireEnterAsTab(this)` = **1** (مطابق `frmListSales:58`) · `Cells[` = **1** وهوفهرس رقمي.

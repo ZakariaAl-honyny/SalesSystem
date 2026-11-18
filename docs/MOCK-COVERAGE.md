@@ -123,7 +123,7 @@ dotnet build .\SalesSystem.slnx
 | Products | 4 | `frmProductMaster` · `frmProductUnitMaster` · `frmProductSelection` · `frmImportProductsExcel` | `IProductDesktopService` | ⚠️ جزئي — تكرار الباركود |
 | Purchases | 9 — **الحيّة منها 2** | `frmListPurchases` · `frmPurchaseInvoice` · **+ 7 نماذج ميتة** (`frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmSupplierStatement` — تدقيق `D-03`: صفر مستدعٍ، مرجع `Program.cs` فقط) | `IPurchaseInvoiceDesktopService` · `ISupplierDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Reports | 31 | 31 تقريراً في ستة مجلدات تصنيفية (`Sales/` · `Purchases/` · `Inventory/` · `Accounting/` · `CustomersSuppliers/` · `CashBox/`) | خمسة عقود تقارير | ✅ مؤهل (قراءة فقط) |
-| Returns | 2 | `frmSalesReturnMaster` · `frmPurchaseReturnMaster` (مدمجتان — `F-004` 2026-11-18) | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
+| Returns | 3 | `frmListReturns` · `frmSalesReturn` · `frmPurchaseReturn` (نمط المبيعات — أُعيدا بـ`F-004/D-10` 2026-11-18) | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Sales | 2 | `frmListSales` · `frmAddUpdateSalesInvoice` | `ISalesInvoiceDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Settings | 2 | `frmChangeSystemColorsSettings` · `frmFormatingSetting` | `IThemeColorDesktopService` · `IFormatSettingsDesktopService` | ✅ مؤهل (المرحلة أ) |
 | Suppliers | 2 | `frmSupplierMaster` · `frmSupplierSelection` | `ISupplierDesktopService` | ⚠️ جزئي — تكافؤ الرفض |

@@ -72,3 +72,41 @@ W1: `frmExpensesMaster` + `frmCustomerReceiptsMaster` (وكيلان) → بنا�
 ### الحالة
 
 ✅ **منفَّذ ومُسلَّم** — `0 Errors` · مراجعة واحدة · كل الأعداد في `MANIFEST.md` مقيسة في هذه الجولة. ⏳ **بانتظار اختبار المالك اليدوي** (القائمة في تقرير التسليم) — لا يُعدّ مغلقاً قبل توقيعه.
+
+---
+
+## جولة 2 — 2026-11-18 — رجوع المالك عن دمج المرتجعات (`D-10`)
+
+**نصّ المالك:** «Returns UI & UX the same like …\Screens\Sales\Forms\ frmAddUpdateSalesInvoice & frmListSales not like frm*Master. so now rewrite code the same like … for Returns & Sales Purchases» · وقبله: «and also Expenses» (المصروفات تبقى مدمجة).
+
+**ما تم:** استرجاع الشاشات الثلاث من `906e0c0` (**لا إعادة كتابة من الصفر** — `RULE-N195`) ثم مواءمتها على نمط المبيعات · حذف المسترين · إعادة توصيل القائمة وDI · إصلاح عيبَي بذور/المجموع الفرعي · مراجعة ثانية.
+
+### الأدلة
+
+| ما قيس | الأمر | المخرج |
+|---|---|---|
+| البناء | `dotnet build .\SalesSystem.slnx` | **Build succeeded · 0 Errors · 72 Warning(s)** (تزايدي) |
+| المستران المحذوفان | `Select-String "ReturnMaster"` عبر الحل | **0** |
+| الشاشات التسع | `Screens/Returns/Forms/*` | 3 شاشات × 3 ملفات (الأحجام تعود لأصلها + المواءمة) |
+| `MessageBox` / `_ValidateForm` / `_RequiredFieldsValid` / `_FocusFirstMissingField` / `ActiveControl` | على شاشات المرتجعات | **0 · 0 · 0 · 0 · 0** |
+| `WireEnterAsTab(this)` | على شاشات المرتجعات | **1** وهو **مطابق حرفياً** لـ`frmListSales.cs:58` (شاشة قائمة — القاعدة تُطابق المرجع) |
+| `Cells[` | على شاشات المرتجعات | **1** وهو `Cells[0]` فهرس رقمي مشروع |
+| صيغة اللون المختصرة في المصمّمين | `Color\.FromArgb\(\s*\d` | **0** بعد التحويل في `frmPurchaseReturn.Designer.cs` (20 موضعاً) |
+
+### المواءمة المنفَّذة (مقابل الشاشة المرجعية)
+
+- `frmSalesReturn`: `WireEnterAsTab(gbInvoiceInfo, _PrimaryActionButton)` ثنائي الوسيط · `RequiredFieldHelper.Attach` بعد `WireFocusHighlight` مع شرط «عميل نقدي = معرّف 0» (`When`) حتى لا يُرفض البيع النقدي · حُذفت `_ValidateForm` (2) وحلّت محلها `_ValidateRangeRules` · `IsTextInputFocused` في `Delete` · `Clear` في مسار إعادة الضبط.
+- `frmPurchaseReturn`: `Clear` في إعادة الضبط/الوضع · `DataError` مكتوم (لا صندوق إنجليزي) · تركيز الشبكة عند رفض السطور · **«المجموع الفرعي» صار يُحدَّث** (كان `0.00` دائماً).
+- `frmListReturns`: أعيد بناؤه على `frmListSales` — أعمدة معلنة في المصمّم (حُذف بناء الأعمدة وقت التشغيل) · ربط السطر بالمعرّف لا بالفهرس (كان عيباً كامناً بعد التصفية) · تصفية فورية + `btnClearFilters` منفصل ومعطَّل بلا تصفية · `pnlSummary` بأزواج عنوان/قيمة · فتح المحرر + إعادة القراءة عند الإغلاق · قراءة فقط.
+
+### المراجعة (الثانية)
+
+`code-reviewer`: **0 Blocker · 1 Major · 3 Minor**. الـMajor **سجل توثيقي** (غياب صفّ إلغاء القرار وتحديث `ACTIVE`/`INDEX`) — أُغلق في هذه الجولة بـ`D-10` وصفّي 7/8. الـMinors: (1) صيغة اللون في مصمّمَي المحررين — **أُغلقت** · (2) مسح جزئي خارج `IsSuccess` في `frmListReturns` — **أُغلق** · (3) قيم لوحة متقاعدة (`PAL-5`) — باقية كدَين معلن.
+
+### فروق مقصودة عن `frmListSales` (لا عيب)
+
+تبويبان (مبيعات/مشتريات) وشبكتان ومحرّران — تصميم الشاشة الأصلي ونوعا المستند في العقدين؛ والمدى الافتراضي «هذا الشهر» (عرف شاشات المستندات)؛ و`StatusOption` محلي (نقل إلى `Helpers/` ممنوع في هذه الموجة — `RULE-N172`).
+
+### الحالة
+
+✅ **منفَّذ** — الشاشات الثلاث بنمط المبيعات · المصروفات والسندات تبقى مدمجة · `0 Errors` · ⏳ بانتظار اختبار المالك.
