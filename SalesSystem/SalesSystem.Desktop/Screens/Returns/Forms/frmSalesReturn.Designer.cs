@@ -38,6 +38,7 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
             btnPost = new Button();
             btnClose = new Button();
             btnRemoveItem = new Button();
+            btnPickInvoice = new Button();
             lblMode = new Label();
             gbToolbar = new GroupBox();
             pnlToolbar = new FlowLayoutPanel();
@@ -149,6 +150,22 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
             btnRemoveItem.UseVisualStyleBackColor = false;
             btnRemoveItem.Click += btnRemoveItem_Click;
             // 
+            // btnPickInvoice
+            // 
+            btnPickInvoice.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+            btnPickInvoice.FlatStyle = FlatStyle.Flat;
+            btnPickInvoice.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnPickInvoice.ForeColor = System.Drawing.Color.White;
+            btnPickInvoice.Location = new Point(345, 0);
+            btnPickInvoice.Margin = new Padding(0, 0, 8, 0);
+            btnPickInvoice.Name = "btnPickInvoice";
+            btnPickInvoice.Size = new Size(160, 36);
+            btnPickInvoice.TabIndex = 4;
+            btnPickInvoice.Text = "اختيار فاتورة";
+            toolTip.SetToolTip(btnPickInvoice, "تعبئة المرتجع ببيانات فاتورة بيع مختارة (العميل والمستودع والسطور)");
+            btnPickInvoice.UseVisualStyleBackColor = false;
+            btnPickInvoice.Click += btnPickInvoice_Click;
+            // 
             // lblMode
             // 
             lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
@@ -182,6 +199,7 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
             pnlToolbar.Controls.Add(btnPost);
             pnlToolbar.Controls.Add(btnClose);
             pnlToolbar.Controls.Add(btnRemoveItem);
+            pnlToolbar.Controls.Add(btnPickInvoice);
             pnlToolbar.Dock = DockStyle.Fill;
             pnlToolbar.Location = new Point(8, 31);
             pnlToolbar.Name = "pnlToolbar";
@@ -588,7 +606,7 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
         private System.Windows.Forms.ComboBox cmbCustomer, cmbWarehouse;
         private System.Windows.Forms.TextBox txtReference, txtNotes;
         private System.Windows.Forms.DataGridView dgvItems;
-        private System.Windows.Forms.Button btnRemoveItem, btnSaveDraft, btnPost, btnClose;
+        private System.Windows.Forms.Button btnPickInvoice, btnRemoveItem, btnSaveDraft, btnPost, btnClose;
         private System.Windows.Forms.ErrorProvider errorProvider;
         private System.Windows.Forms.ToolTip toolTip;
     }

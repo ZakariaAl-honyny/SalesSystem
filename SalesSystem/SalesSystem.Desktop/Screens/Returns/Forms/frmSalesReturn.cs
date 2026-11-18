@@ -15,6 +15,7 @@ using SalesSystem.Desktop.Screens.Returns;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Products.Forms;
+using SalesSystem.Desktop.Screens.Sales.Forms;
 
 namespace SalesSystem.Desktop.Screens.Returns.Forms;
 
@@ -89,7 +90,7 @@ public partial class frmSalesReturn : Form
             new RequiredField(cmbWarehouse, "يرجى اختيار المستودع"));
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
-        KeyboardHelper.WireButtonDisabledVisual(btnRemoveItem, btnSaveDraft, btnPost, btnClose);
+        KeyboardHelper.WireButtonDisabledVisual(btnPickInvoice, btnRemoveItem, btnSaveDraft, btnPost, btnClose);
 
         // RULE-N47 — الاختصارات الموحّدة على الأزرار الموجودة فعلاً في الشاشة.
         // F2 = «سطر صنف جديد» ⇒ إعادة المؤشر إلى باركود لوحة الإضافة (لا زر «إضافة صنف» بعد اليوم).
@@ -308,6 +309,42 @@ public partial class frmSalesReturn : Form
         }
     }
 
+    /// <summary>
+    /// يبني سطر مرتجع واحداً من بند مستند آخر — <b>البيت الواحد</b> لتحويل بند إلى
+    /// <see cref="InvoiceLineItem"/> (<c>RULE-N172</c>): يُستهلك من تحميل مرتجع قائم
+    /// (<see cref="BindInvoice"/>) ومن تعبئة الشاشة من فاتورة بيع مختارة
+    /// (<see cref="btnPickInvoice_Click"/>) — فلا نسخة ثانية من إسناد الملكيات في الشاشة.
+    /// <para>
+    /// <b>لا مال هنا:</b> <see cref="InvoiceLineItem.LineTotal"/> يُعيد حساب إجمالي السطر من
+    /// (الكمية × السعر − الخصم)، فالقيم تُنقل كما وردت في المستند الأصلي ولا تُعاد حسابها.
+    /// </para>
+    /// <para>
+    /// الوحدة تُحمَل كما هي: بها يُعاد الترحيل، وبها يُرفض سطر بلا وحدة (LEP-1) — ولا سقوط
+    /// صامت إلى وحدة افتراضية. والكود/اسم الوحدة يُملآن حين يُرسلهما البند المصدر (بند فاتورة
+    /// البيع يحملهما، وبند المرتجع المحفوظ لا يحملهما فيبقيا فارغين كما كانا).
+    /// </para>
+    /// </summary>
+    private static InvoiceLineItem _NewLine(
+        int productId,
+        string? productName,
+        int productUnitId,
+        decimal quantity,
+        decimal unitPrice,
+        decimal discountAmount,
+        string? productCode = null,
+        string? unitName = null)
+        => new()
+        {
+            ProductId = productId,
+            ProductName = productName,
+            ProductUnitId = productUnitId,
+            Quantity = quantity,
+            UnitPrice = unitPrice,
+            DiscountAmount = discountAmount,
+            ProductCode = productCode,
+            UnitName = unitName
+        };
+
     private void BindInvoice()
     {
         // المرتجع المحمَّل مستند قائم فعلاً: معرّفه يمنع إنشاء نسخة ثانية عند «حفظ/ترحيل»،
@@ -325,15 +362,9 @@ public partial class frmSalesReturn : Form
         _lines.Clear();
         foreach (var item in _invoice.Items)
         {
-            _lines.Add(new InvoiceLineItem {
-                ProductId = item.ProductId,
-                ProductName = item.ProductName,
-                // الوحدة المحفوظة تُحمَل كما هي: بها يُعاد الترحيل، وبها يُرفض سطر بلا وحدة (LEP-1).
-                ProductUnitId = item.ProductUnitId,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice,
-                DiscountAmount = item.DiscountAmount
-            });
+            // الوحدة المحفوظة تُحمَل كما هي: بها يُعاد الترحيل، وبها يُرفض سطر بلا وحدة (LEP-1).
+            _lines.Add(_NewLine(item.ProductId, item.ProductName, item.ProductUnitId,
+                item.Quantity, item.UnitPrice, item.DiscountAmount));
         }
         CalculateTotals();
 
@@ -462,6 +493,9 @@ public partial class frmSalesReturn : Form
         if (!editable) ctrlLineEntry.ResetPanel();
 
         btnRemoveItem.Enabled = editable;
+        // «اختيار فاتورة» مسار إدخال مثل لوحة «إضافة صنف»: لا يُستبدل رأس/سطور مستند محفوظ
+        // (RULE-N150 — الحالة تُقرأ من الحكم الواحد _IsEditable لا من شرط ثانٍ).
+        btnPickInvoice.Enabled = editable;
         btnSaveDraft.Visible = editable;
         btnSaveDraft.Enabled = editable;
 
@@ -542,6 +576,75 @@ public partial class frmSalesReturn : Form
         {
             _lines.Remove(line);
             CalculateTotals();
+        }
+    }
+
+    // ── اختيار فاتورة بيع لتعبئة المرتجع ─────────────────────────────────────
+
+    /// <summary>
+    /// «اختيار فاتورة»: يفتح منتقي فواتير البيع <see cref="frmSalesInvoiceSelection"/> (RULE-N02 —
+    /// من الحاوية لا <c>new</c>) ويبني المرتجع من الفاتورة المختارة: الرأس (العميل · المستودع)
+    /// والسطور من بنود الفاتورة — ليراجع المستخدم الكميات ثم يحفظ أو يُرحّل.
+    /// <para>
+    /// <b>متزامن لا <c>async void</c>:</b> المسار كله متزامن (المنتقي يفتح بـ<c>ShowDialog</c> حاجب
+    /// ويُعيد فاتورته كاملة في <c>SelectedInvoice</c>) — ولا نداء خدمة هنا. و<c>async void</c> بلا
+    /// <c>await</c> يُنتج تحذير <c>CS1998</c> بلا مكسب؛ والحدّ الواحد لمعالجة الأخطاء
+    /// (<c>RULE-N205</c>) باقٍ كما هو: <c>try/catch</c> + رسالة عربية + استعادة المؤشر في <c>finally</c>.
+    /// </para>
+    /// <para>
+    /// <b>لا حساب مال هنا:</b> الكميات والأسعار تُنقل من الفاتورة، وإجمالي السطر يُحسب في
+    /// <see cref="InvoiceLineItem.LineTotal"/> والمجاميع في <see cref="CalculateTotals"/>.
+    /// </para>
+    /// <para>
+    /// <b>التاريخ لا يُغيَّر:</b> تاريخ المرتجع يبقى كما ضبطه المستخدم — التواريخ المالية لا تُنسخ
+    /// صامتة من مستند آخر.
+    /// </para>
+    /// </summary>
+    private void btnPickInvoice_Click(object sender, EventArgs e)
+    {
+        // نفس حكم بقية مسارات الإدخال: لا بناء على مستند محفوظ ولا أثناء إرسال جارٍ — والحكم من
+        // المصدر الواحد (_IsEditable + _isSaving) لا من شرط ثانٍ (RULE-N150/RULE-N172).
+        if (_isSaving || !_IsEditable()) return;
+
+        try
+        {
+            // استبدال سطور قائمة لا يقع صامتاً (RULE-N167): تأكيد صريح افتراضه «لا» — clsDialogs.Confirm.
+            if (_lines.Count > 0
+                && !clsDialogs.Confirm("لديك سطور في المرتجع — سيتم استبدالها ببيانات الفاتورة. هل تريد المتابعة؟"))
+                return;
+
+            var dialog = _serviceProvider.GetRequiredService<frmSalesInvoiceSelection>();
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.SelectedInvoice is not { } invoice)
+                return;   // الإلغاء يعود بلا أي تغيير
+
+            Cursor = Cursors.WaitCursor;
+
+            // الرأس: العميل بمعرّفه، والمستودع بـ short لأن WarehouseDto.Id من نوع short — وإلا لم
+            // يُطابق أي عنصر فيبقى بلا اختيار (نفس نمط BindInvoice حرفياً).
+            cmbCustomer.SelectedValue = invoice.CustomerId;
+            cmbWarehouse.SelectedValue = (short)invoice.WarehouseId;
+
+            // السطور: تُعاد بناؤها من بنود الفاتورة عبر البيت الواحد _NewLine (RULE-N172)، ويُلغى أي
+            // سطر نصف مُدخل في لوحة الإضافة فلا يبقى تعديل معلّق على سطر لم يعد موجوداً.
+            ctrlLineEntry.ResetPanel();
+            _lines.Clear();
+            foreach (var item in invoice.Items)
+            {
+                _lines.Add(_NewLine(item.ProductId, item.ProductName, item.ProductUnitId,
+                    item.Quantity, item.UnitPrice, item.DiscountAmount, item.ProductCode, item.UnitName));
+            }
+
+            CalculateTotals();
+            dgvItems.Focus();   // موضع تعديل الكميات بعد التعبئة
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تعبئة مرتجع المبيعات من الفاتورة المختارة");
+            clsDialogs.Error("تعذر جلب بيانات الفاتورة المختارة. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
         }
     }
 

@@ -25,6 +25,7 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
             btnPost = new Button();
             btnClose = new Button();
             btnRemoveItem = new Button();
+            btnPickInvoice = new Button();
             lblMode = new Label();
             gbToolbar = new GroupBox();
             pnlToolbar = new FlowLayoutPanel();
@@ -136,6 +137,22 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
             btnRemoveItem.UseVisualStyleBackColor = false;
             btnRemoveItem.Click += btnRemoveItem_Click;
             // 
+            // btnPickInvoice
+            // 
+            btnPickInvoice.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
+            btnPickInvoice.FlatStyle = FlatStyle.Flat;
+            btnPickInvoice.Font = new Font("Tahoma", 10F, FontStyle.Bold);
+            btnPickInvoice.ForeColor = Color.White;
+            btnPickInvoice.Location = new Point(736, 0);
+            btnPickInvoice.Margin = new Padding(0, 0, 8, 0);
+            btnPickInvoice.Name = "btnPickInvoice";
+            btnPickInvoice.Size = new Size(170, 36);
+            btnPickInvoice.TabIndex = 4;
+            btnPickInvoice.Text = "اختيار فاتورة";
+            toolTip.SetToolTip(btnPickInvoice, "تعبئة المرتجع بسطور فاتورة شراء مختارة — تستبدل السطور الحالية");
+            btnPickInvoice.UseVisualStyleBackColor = false;
+            btnPickInvoice.Click += btnPickInvoice_Click;
+            // 
             // lblMode
             // 
             lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
@@ -166,6 +183,7 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
             // pnlToolbar
             // 
             pnlToolbar.Controls.Add(btnSaveDraft);
+            pnlToolbar.Controls.Add(btnPickInvoice);
             pnlToolbar.Controls.Add(btnPost);
             pnlToolbar.Controls.Add(btnClose);
             pnlToolbar.Controls.Add(btnRemoveItem);
@@ -573,7 +591,7 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms
         private System.Windows.Forms.ComboBox cmbSupplier, cmbWarehouse;
         private System.Windows.Forms.TextBox txtReference, txtNotes;
         private System.Windows.Forms.DataGridView dgvItems;
-        private System.Windows.Forms.Button btnRemoveItem, btnSaveDraft, btnPost, btnClose;
+        private System.Windows.Forms.Button btnRemoveItem, btnSaveDraft, btnPost, btnClose, btnPickInvoice;
         private System.Windows.Forms.ErrorProvider errorProvider;
         private System.Windows.Forms.ToolTip toolTip;
     }
