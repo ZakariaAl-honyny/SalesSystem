@@ -13,7 +13,6 @@ public static class PrintDtoExtensions
             StoreName = settings.StoreName,
             Address = settings.Address ?? string.Empty,
             Phone = settings.Phone ?? string.Empty,
-            TaxNumber = string.Empty,
             LogoPath = settings.LogoPath
         };
     }
@@ -70,7 +69,6 @@ public static class PrintDtoExtensions
         return new InvoiceTotalsPrintDto
         {
             SubTotal = invoice.SubTotal,
-            TaxAmount = invoice.TaxAmount,
             Discount = invoice.DiscountAmount,
             TotalAmount = invoice.TotalAmount,
             PaidAmount = invoice.PaidAmount,
@@ -136,7 +134,6 @@ public static class PrintDtoExtensions
         return new InvoiceTotalsPrintDto
         {
             SubTotal = invoice.SubTotal,
-            TaxAmount = invoice.TaxAmount,
             Discount = invoice.DiscountAmount,
             TotalAmount = invoice.TotalAmount,
             PaidAmount = invoice.PaidAmount,

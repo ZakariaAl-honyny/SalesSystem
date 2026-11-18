@@ -30,11 +30,6 @@ public class Supplier : ActivatableEntity
     public string? Address { get; private set; }
 
     /// <summary>
-    /// Supplier tax number / VAT registration (optional).
-    /// </summary>
-    public string? TaxNumber { get; private set; }
-
-    /// <summary>
     /// Commercial registration number (optional).
     /// </summary>
     public string? CommercialRegisterNo { get; private set; }
@@ -63,7 +58,6 @@ public class Supplier : ActivatableEntity
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
-    /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="categoryId">تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10</param>
     /// <returns>A new Supplier instance.</returns>
@@ -73,7 +67,6 @@ public class Supplier : ActivatableEntity
         string? phone = null,
         string? email = null,
         string? address = null,
-        string? taxNumber = null,
         string? commercialRegisterNo = null,
         string? notes = null,
         decimal creditLimit = 0,
@@ -91,7 +84,6 @@ public class Supplier : ActivatableEntity
             Phone = phone?.Trim(),
             Email = email?.Trim(),
             Address = address?.Trim(),
-            TaxNumber = taxNumber?.Trim(),
             CommercialRegisterNo = commercialRegisterNo?.Trim(),
             Notes = notes?.Trim(),
             CreditLimit = creditLimit,
@@ -110,7 +102,6 @@ public class Supplier : ActivatableEntity
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
-    /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="categoryId">New category id (null = keep current).</param>
     /// <param name="commercialRegisterNo">Optional commercial registration number.</param>
     /// <param name="notes">Optional free-text notes.</param>
@@ -120,7 +111,6 @@ public class Supplier : ActivatableEntity
         string? phone = null,
         string? email = null,
         string? address = null,
-        string? taxNumber = null,
         string? commercialRegisterNo = null,
         string? notes = null,
         decimal creditLimit = 0,
@@ -135,7 +125,6 @@ public class Supplier : ActivatableEntity
         Phone = phone?.Trim();
         Email = email?.Trim();
         Address = address?.Trim();
-        TaxNumber = taxNumber?.Trim();
         CommercialRegisterNo = commercialRegisterNo?.Trim();
         Notes = notes?.Trim();
         CreditLimit = creditLimit;

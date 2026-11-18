@@ -16,7 +16,7 @@ namespace SalesSystem.Desktop.Screens.CashBoxes.Forms;
 /// تجمع: بحث مباشر + شبكة + نموذج إدخال/تعديل في شاشة واحدة،
 /// وتعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
 /// </summary>
-public partial class frmCashBoxMaster : Form
+public partial class frmCRUDCashBoxMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -64,12 +64,12 @@ public partial class frmCashBoxMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmCashBoxMaster()
+    private frmCRUDCashBoxMaster()
     {
         InitializeComponent();
     }
 
-    public frmCashBoxMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCashBoxMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
         // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
@@ -153,7 +153,7 @@ public partial class frmCashBoxMaster : Form
 
     // ── Form Load ─────────────────────────────────────────────────────────────
 
-    private async void frmCashBoxMaster_Load(object? sender, EventArgs e)
+    private async void frmCRUDCashBoxMaster_Load(object? sender, EventArgs e)
     {
         Cursor = Cursors.WaitCursor;
         try

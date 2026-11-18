@@ -36,11 +36,6 @@ public class CompanySettings : Entity
     public string? Address { get; private set; }
 
     /// <summary>
-    /// Tax registration number.
-    /// </summary>
-    public string? TaxNumber { get; private set; }
-
-    /// <summary>
     /// File path to the company logo image (used in print documents).
     /// </summary>
     public string? LogoPath { get; private set; }
@@ -60,7 +55,6 @@ public class CompanySettings : Entity
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
-    /// <param name="taxNumber">Optional tax registration number.</param>
     /// <param name="logoPath">Optional logo file path.</param>
     /// <returns>A new CompanySettings instance with Id = 1 (enforced at DB level).</returns>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
@@ -69,7 +63,6 @@ public class CompanySettings : Entity
         string? phone = null,
         string? email = null,
         string? address = null,
-        string? taxNumber = null,
         string? logoPath = null)
     {
         if (string.IsNullOrWhiteSpace(companyName))
@@ -82,8 +75,6 @@ public class CompanySettings : Entity
             throw new DomainException("البريد الإلكتروني لا يمكن أن يتجاوز 100 حرف.");
         if (address != null && address.Trim().Length > 300)
             throw new DomainException("العنوان لا يمكن أن يتجاوز 300 حرف.");
-        if (taxNumber != null && taxNumber.Trim().Length > 50)
-            throw new DomainException("الرقم الضريبي لا يمكن أن يتجاوز 50 حرفاً.");
         if (logoPath != null && logoPath.Trim().Length > 500)
             throw new DomainException("مسار الشعار لا يمكن أن يتجاوز 500 حرف.");
 
@@ -93,7 +84,6 @@ public class CompanySettings : Entity
             Phone = phone?.Trim(),
             Email = email?.Trim(),
             Address = address?.Trim(),
-            TaxNumber = taxNumber?.Trim(),
             LogoPath = logoPath?.Trim(),
             CreatedAt = DateTime.UtcNow
         };
@@ -107,7 +97,6 @@ public class CompanySettings : Entity
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
-    /// <param name="taxNumber">Optional tax registration number.</param>
     /// <param name="logoPath">Optional logo file path.</param>
     /// <exception cref="DomainException">If any guard clause fails.</exception>
     public void Update(
@@ -115,7 +104,6 @@ public class CompanySettings : Entity
         string? phone = null,
         string? email = null,
         string? address = null,
-        string? taxNumber = null,
         string? logoPath = null)
     {
         if (string.IsNullOrWhiteSpace(companyName))
@@ -128,8 +116,6 @@ public class CompanySettings : Entity
             throw new DomainException("البريد الإلكتروني لا يمكن أن يتجاوز 100 حرف.");
         if (address != null && address.Trim().Length > 300)
             throw new DomainException("العنوان لا يمكن أن يتجاوز 300 حرف.");
-        if (taxNumber != null && taxNumber.Trim().Length > 50)
-            throw new DomainException("الرقم الضريبي لا يمكن أن يتجاوز 50 حرفاً.");
         if (logoPath != null && logoPath.Trim().Length > 500)
             throw new DomainException("مسار الشعار لا يمكن أن يتجاوز 500 حرف.");
 
@@ -137,7 +123,6 @@ public class CompanySettings : Entity
         Phone = phone?.Trim();
         Email = email?.Trim();
         Address = address?.Trim();
-        TaxNumber = taxNumber?.Trim();
         LogoPath = logoPath?.Trim();
         UpdatedAt = DateTime.UtcNow;
     }

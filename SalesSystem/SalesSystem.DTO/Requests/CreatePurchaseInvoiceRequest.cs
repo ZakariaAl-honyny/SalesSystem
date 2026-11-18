@@ -14,11 +14,9 @@ public record CreatePurchaseInvoiceRequest(
     decimal DiscountAmount,
     DiscountType? DiscountType,
     decimal? DiscountRate,
-    decimal TaxAmount,
     decimal OtherCharges,
     decimal PaidAmount,
     string? Notes,
-    int? TaxId,
     string? AttachmentPath,
     List<CreatePurchaseInvoiceLineRequest> Items);
 

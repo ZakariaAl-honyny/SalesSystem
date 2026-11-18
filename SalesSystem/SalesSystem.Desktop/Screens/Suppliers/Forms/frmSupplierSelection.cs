@@ -207,7 +207,7 @@ public partial class frmSupplierSelection : Form
 
     /// <summary>
     /// يُرجع <c>SupplierDto</c> الحقيقي القادم من الخدمة — لا نسخة مبنيّة من نص الشبكة،
-    /// فيبقى حدّ الدين والرقم الضريبي كما هي في قاعدة البيانات.
+    /// فيبقى حدّ الدين كما هو في قاعدة البيانات.
     /// </summary>
     private void _SelectCurrent()
     {

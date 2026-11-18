@@ -57,9 +57,7 @@ public static class DbSeeder
                 SystemSetting.Create("PrintCopies", "1", settingType: 2, category: "Print", displayName: "عدد النسخ", description: "عدد نسخ الطباعة الافتراضية"),
                 SystemSetting.Create("ShowBalanceOnPrint", "true", settingType: 4, category: "Print", displayName: "إظهار الرصيد", description: "إظهار رصيد الحساب في الفاتورة المطبوعة"),
                 SystemSetting.Create("PrintSignature", "false", settingType: 4, category: "Print", displayName: "طباعة التوقيع", description: "طباعة التوقيع في أسفل الفاتورة"),
-                SystemSetting.Create("HideTaxInSales", "false", settingType: 4, category: "Sales", displayName: "إخفاء الضريبة في المبيعات", description: "إخفاء حقل الضريبة في شاشة فاتورة البيع"),
                 SystemSetting.Create("ShowExpiryInInvoices", "false", settingType: 4, category: "Sales", displayName: "إظهار تاريخ الانتهاء", description: "إظهار تاريخ انتهاء الصلاحية في الفاتورة"),
-                SystemSetting.Create("HideTaxInPurchases", "false", settingType: 4, category: "Purchases", displayName: "إخفاء الضريبة في المشتريات", description: "إخفاء حقل الضريبة في شاشة فاتورة الشراء"),
                 SystemSetting.Create("ShowLogo", "true", settingType: 4, category: "Print", displayName: "إظهار الشعار", description: "إظهار شعار المتجر في الفواتير المطبوعة"),
                 SystemSetting.Create("FooterNote", "", settingType: 1, category: "Print", displayName: "ملاحظة في التذييل", description: "نص يظهر في تذييل جميع الفواتير المطبوعة"),
                 SystemSetting.Create("LowStockAlert", "true", settingType: 4, category: "Notifications", displayName: "تنبيه المخزون المنخفض", description: "تفعيل التنبيه عند انخفاض المخزون عن الحد الأدنى"),
@@ -71,9 +69,7 @@ public static class DbSeeder
                 SystemSetting.Create("DefaultWarehouse", "1", settingType: 2, category: "Inventory", displayName: "المخزن الافتراضي", description: "معرف المخزن الافتراضي للمعاملات"),
                 // Sales
                 SystemSetting.Create("AutoPrintAfterPosting", "false", settingType: 4, category: "Sales", displayName: "طباعة تلقائية بعد الترحيل", description: "طباعة الفاتورة تلقائياً بعد الترحيل"),
-                SystemSetting.Create("DefaultSalesTax", "0", settingType: 1, category: "Sales", displayName: "الضريبة الافتراضية للمبيعات", description: "نسبة الضريبة الافتراضية لفواتير البيع"),
                 // Purchases
-                SystemSetting.Create("DefaultPurchaseTax", "0", settingType: 1, category: "Purchases", displayName: "الضريبة الافتراضية للمشتريات", description: "نسبة الضريبة الافتراضية لفواتير الشراء"),
                 SystemSetting.Create("RequireBatchOnPurchase", "false", settingType: 4, category: "Purchases", displayName: "إلزام رقم التشغيلة عند الشراء", description: "إجبار إدخال رقم التشغيلة عند إنشاء فاتورة شراء"),
                 SystemSetting.Create("RequireExpiryOnPurchase", "false", settingType: 4, category: "Purchases", displayName: "إلزام تاريخ الانتهاء عند الشراء", description: "إجبار إدخال تاريخ انتهاء الصلاحية عند إنشاء فاتورة شراء"),
                 // Barcode
@@ -104,7 +100,6 @@ public static class DbSeeder
                 SystemSetting.Create("Store.Address", "", settingType: 1, category: "Store"),
                 SystemSetting.Create("Store.LogoPath", "", settingType: 1, category: "Store"),
                 SystemSetting.Create("Store.Email", "", settingType: 1, category: "Store"),
-                SystemSetting.Create("Store.TaxNumber", "", settingType: 1, category: "Store"),
                 SystemSetting.Create("Store.EnableStockAlerts", "true", settingType: 4, category: "Store"),
                 SystemSetting.Create("Store.AllowNegativeStock", "false", settingType: 4, category: "Store"),
                 SystemSetting.Create("Store.SignaturePath", "", settingType: 1, category: "Store"),

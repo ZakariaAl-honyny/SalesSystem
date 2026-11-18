@@ -12,8 +12,6 @@ public record PurchaseInvoiceResponse(
     int WarehouseId, string WarehouseName,
     InvoiceStatus Status, PaymentType PaymentType,
     decimal SubTotal, decimal InvoiceDiscount,
-    decimal TaxRate, decimal TaxAmount,
-    bool IsTaxInclusive,
     decimal NetTotal, decimal PaidAmount, decimal RemainingAmount,
     DateTime InvoiceDate,
     string? AttachmentPath,

@@ -353,7 +353,7 @@ public partial class frmPOS : Form
         // BLL يستبدل CustomerId <= 0 في البيع النقدي بـ DefaultCashCustomerId تلقائياً،
         // أما البيع الآجل فيتطلب عميلاً حقيقياً (تحقق صريح في ValidateBeforeSave).
         var customersResult = await CustomerApi.GetAllAsync();
-        var customers = new List<CustomerDto> { new(0, "عميل نقدي", null, null, null, null, 0m, true, 0) };
+        var customers = new List<CustomerDto> { new(0, "عميل نقدي", null, null, null, 0m, true, 0) };
         if (customersResult.IsSuccess && customersResult.Value is not null)
             customers.AddRange(customersResult.Value.Where(c => c.IsActive));
 
@@ -1334,11 +1334,9 @@ public partial class frmPOS : Form
                 InvoiceDate: DateTime.Today,
                 PaymentType: paymentType,
                 DiscountAmount: ComputeInvoiceDiscount(),
-                TaxAmount: 0m,
                 OtherCharges: 0m,
                 PaidAmount: numPaid.Value,
                 Notes: null,
-                TaxId: null,
                 Items: items,
                 DiscountType: DtoDiscountType.Amount,
                 DiscountRate: null);

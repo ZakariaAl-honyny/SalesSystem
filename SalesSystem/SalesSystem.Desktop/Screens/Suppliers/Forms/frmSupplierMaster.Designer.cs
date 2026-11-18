@@ -29,8 +29,6 @@ partial class frmSupplierMaster
         txtName = new TextBox();
         lblPhone = new Label();
         txtPhone = new TextBox();
-        lblTaxNumber = new Label();
-        txtTaxNumber = new TextBox();
         lblEmail = new Label();
         txtEmail = new TextBox();
         lblCreditLimit = new Label();
@@ -126,8 +124,6 @@ partial class frmSupplierMaster
         gbEditor.Controls.Add(txtName);
         gbEditor.Controls.Add(lblPhone);
         gbEditor.Controls.Add(txtPhone);
-        gbEditor.Controls.Add(lblTaxNumber);
-        gbEditor.Controls.Add(txtTaxNumber);
         gbEditor.Controls.Add(lblEmail);
         gbEditor.Controls.Add(txtEmail);
         gbEditor.Controls.Add(lblCreditLimit);
@@ -212,24 +208,6 @@ partial class frmSupplierMaster
         txtPhone.Name = "txtPhone";
         txtPhone.Size = new Size(250, 32);
         txtPhone.TabIndex = 2;
-        // 
-        // lblTaxNumber
-        // 
-        lblTaxNumber.AutoSize = true;
-        lblTaxNumber.Location = new Point(242, 30);
-        lblTaxNumber.Name = "lblTaxNumber";
-        lblTaxNumber.Size = new Size(146, 24);
-        lblTaxNumber.TabIndex = 6;
-        lblTaxNumber.Text = "الرقم الضريبي";
-        // 
-        // txtTaxNumber
-        // 
-        txtTaxNumber.BackColor = Color.White;
-        txtTaxNumber.Font = new Font("Tahoma", 10F);
-        txtTaxNumber.Location = new Point(190, 56);
-        txtTaxNumber.Name = "txtTaxNumber";
-        txtTaxNumber.Size = new Size(250, 32);
-        txtTaxNumber.TabIndex = 3;
         // 
         // lblEmail
         // 
@@ -496,7 +474,7 @@ partial class frmSupplierMaster
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F);
         cbFilterBy.FormattingEnabled = true;
-        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الهاتف", "البريد", "الرقم الضريبي" });
+        cbFilterBy.Items.AddRange(new object[] { "الاسم", "الهاتف", "البريد" });
         cbFilterBy.Location = new Point(596, 26);
         cbFilterBy.Margin = new Padding(0);
         cbFilterBy.Name = "cbFilterBy";
@@ -852,8 +830,6 @@ partial class frmSupplierMaster
     private System.Windows.Forms.TextBox txtName;
     private System.Windows.Forms.Label lblPhone;
     private System.Windows.Forms.TextBox txtPhone;
-    private System.Windows.Forms.Label lblTaxNumber;
-    private System.Windows.Forms.TextBox txtTaxNumber;
     private System.Windows.Forms.Label lblEmail;
     private System.Windows.Forms.TextBox txtEmail;
     private System.Windows.Forms.Label lblCreditLimit;

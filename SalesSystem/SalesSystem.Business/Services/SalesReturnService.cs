@@ -158,7 +158,6 @@ public class SalesReturnService : ISalesReturnService
                         : 0;
                     sr.SetProportionalAmounts(
                         invoice.DiscountAmount * ratio,
-                        invoice.TaxAmount * ratio,
                         invoice.OtherCharges * ratio);
                 }
 
@@ -413,13 +412,10 @@ public class SalesReturnService : ISalesReturnService
             r.SalesInvoiceId,
             r.ReturnDate,
             r.Lines?.Sum(l => l.Amount) ?? 0m,
-            r.ReturnedTaxAmount,
             r.ReturnedDiscountAmount,
             r.TotalAmount,
             r.ReturnedDiscountAmount,
-            r.ReturnedTaxAmount,
             r.ReturnedChargeAmount,
-            null,
             r.Notes,
             r.ReturnReason,
             (byte)r.Status,

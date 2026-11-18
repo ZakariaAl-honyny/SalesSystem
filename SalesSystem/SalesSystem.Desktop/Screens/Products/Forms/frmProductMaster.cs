@@ -1265,7 +1265,7 @@ public partial class frmProductMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var dialog = _serviceProvider.GetRequiredService<frmCategoryMaster>();
+            var dialog = _serviceProvider.GetRequiredService<frmCRUDCategoryMaster>();
 
             if (dialog.ShowDialog(this) == DialogResult.OK)
                 await _LoadCategoriesAsync();

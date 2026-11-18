@@ -36,6 +36,7 @@
     <Folder Include="Screens\Customers\Controls\" />
     <Folder Include="Screens\Expenses\Controls\" />
     <Folder Include="Screens\Inventory\Controls\" />
+    <Folder Include="Screens\All Invoices Screens\" />
     <Folder Include="Screens\Payments\NewFolder\" />
     <Folder Include="Screens\Purchases\Controls\" />
     <Folder Include="Screens\Reports\Controls\" />
@@ -46,6 +47,12 @@
     <Folder Include="Screens\Units\NewFolder\" />
     <Folder Include="Screens\Users\Controls\" />
     <Folder Include="Screens\Warehouses\NewFolder\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="Screens\Sales\Forms\frmAddUpdateSalesInvoice_Backup.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
   <PropertyGroup>

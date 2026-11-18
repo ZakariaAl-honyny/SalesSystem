@@ -15,7 +15,6 @@ public class PurchaseInvoice : DocumentEntity
     public PaymentType PaymentType { get; private set; }
     public decimal SubTotal { get; private set; }
     public decimal DiscountAmount { get; private set; }
-    public decimal TaxAmount { get; private set; }
     public decimal OtherCharges { get; private set; }
     public decimal NetTotal { get; private set; }
     public decimal PaidAmount { get; private set; }
@@ -121,7 +120,7 @@ public class PurchaseInvoice : DocumentEntity
             DiscountAmount = SubTotal * DiscountRate.Value / 100m;
         }
 
-        NetTotal = SubTotal - DiscountAmount + TaxAmount + OtherCharges;
+        NetTotal = SubTotal - DiscountAmount + OtherCharges;
         RemainingAmount = NetTotal - PaidAmount;
     }
 
@@ -133,15 +132,6 @@ public class PurchaseInvoice : DocumentEntity
             throw new DomainException("المبلغ المدفوع أكبر من الإجمالي.");
 
         PaidAmount = amount;
-        RecalculateTotals();
-        UpdateTimestamp();
-    }
-
-    public void SetTaxAmount(decimal taxAmount)
-    {
-        if (taxAmount < 0)
-            throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
-        TaxAmount = taxAmount;
         RecalculateTotals();
         UpdateTimestamp();
     }
@@ -228,13 +218,11 @@ public class PurchaseInvoice : DocumentEntity
         Status = InvoiceStatus.Cancelled;
     }
 
-    public void UpdateTotals(decimal discountAmount, decimal taxAmount, decimal otherCharges = 0,
+    public void UpdateTotals(decimal discountAmount, decimal otherCharges = 0,
         DiscountType? discountType = null, decimal? discountRate = null)
     {
         if (discountAmount < 0)
             throw new DomainException("الخصم لا يمكن أن يكون سالباً.");
-        if (taxAmount < 0)
-            throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
         if (otherCharges < 0)
             throw new DomainException("مصاريف إضافية لا يمكن أن تكون سالبة.");
 
@@ -248,7 +236,6 @@ public class PurchaseInvoice : DocumentEntity
         }
 
         DiscountAmount = DiscountType == DiscountType.Percentage ? 0 : discountAmount;
-        TaxAmount = taxAmount;
         OtherCharges = otherCharges;
         RecalculateTotals();
         UpdateTimestamp();

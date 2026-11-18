@@ -186,7 +186,6 @@ public class InvoicePrinter : IInvoicePrinter
         // 5. Totals
         DrawTotalRow(g, margin, ref y, "إجمالي فرعي:", PrintHelper.FormatCurrency(_totals.SubTotal), boldFont, bodyFont);
         DrawTotalRow(g, margin, ref y, "الخصم:", PrintHelper.FormatCurrency(_totals.Discount), boldFont, bodyFont);
-        DrawTotalRow(g, margin, ref y, "الضريبة:", PrintHelper.FormatCurrency(_totals.TaxAmount), boldFont, bodyFont);
         y += 5;
         PrintHelper.DrawLine(g, Pens.Black, margin.Left, y, margin.Left + 300);
         y += 5;

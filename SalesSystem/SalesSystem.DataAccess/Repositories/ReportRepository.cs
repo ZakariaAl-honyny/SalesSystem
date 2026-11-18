@@ -36,7 +36,6 @@ public class ReportRepository : IReportRepository
                 i.Customer != null ? i.Customer.Name : "عميل نقدي",
                 i.SubTotal,
                 i.DiscountAmount,
-                i.TaxAmount,
                 i.NetTotal,
                 i.PaidAmount,
                 i.RemainingAmount
@@ -65,7 +64,6 @@ public class ReportRepository : IReportRepository
                 i.Supplier != null ? i.Supplier.Name : "غير معروف",
                 i.SubTotal,
                 i.DiscountAmount,
-                i.TaxAmount,
                 i.NetTotal,
                 i.PaidAmount,
                 i.RemainingAmount

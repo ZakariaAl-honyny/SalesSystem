@@ -54,7 +54,6 @@ public class CompanySettingsService : ICompanySettingsService
                 request.Phone,
                 request.Email,
                 request.Address,
-                request.TaxNumber,
                 request.LogoPath);
 
             await _uow.SaveChangesAsync(ct);
@@ -83,7 +82,6 @@ public class CompanySettingsService : ICompanySettingsService
             settings.Phone,
             settings.Email,
             settings.Address,
-            settings.TaxNumber,
             settings.LogoPath
         );
     }

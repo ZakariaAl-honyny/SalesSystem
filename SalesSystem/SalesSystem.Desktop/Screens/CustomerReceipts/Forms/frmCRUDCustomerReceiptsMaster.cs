@@ -31,7 +31,7 @@ namespace SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 /// تُطلق الاستثناء إلى ذلك الحدّ ولا تكرّر حارساً. رسائل <c>Result</c> تُعرض عربية في مكانها.
 /// </para>
 /// </summary>
-public partial class frmCustomerReceiptsMaster : Form
+public partial class frmCRUDCustomerReceiptsMaster : Form
 {
     private readonly IServiceProvider _serviceProvider = null!;
 
@@ -98,12 +98,12 @@ public partial class frmCustomerReceiptsMaster : Form
     }
 
     /// <summary>منشئ التصميم — لمصمّم Visual Studio فقط (بلا خدمات DI).</summary>
-    private frmCustomerReceiptsMaster()
+    private frmCRUDCustomerReceiptsMaster()
     {
         InitializeComponent();
     }
 
-    public frmCustomerReceiptsMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCustomerReceiptsMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
 

@@ -5,8 +5,9 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
 /// <summary>
 /// حوار «خصم المشتريات» — واجهة أولية ببيانات وهمية في الذاكرة (وضع التجربة / UI-First).
-/// يُعرض عبر <c>ShowDialog</c> ويُعيد قيمة الخصم ونوعه (مبلغ / نسبة) ونسبة الضريبة والصافي النهائي.
+/// يُعرض عبر <c>ShowDialog</c> ويُعيد قيمة الخصم ونوعه (مبلغ / نسبة) والصافي النهائي.
 /// <para>RULE-N40…RULE-N47 / RULE-N50…RULE-N54 / RULE-N97 — التنقل والثيم والتفقيط الحيّ.</para>
+/// <para>MVP V1 بلا ضريبة (أمر المالك 2026-11-18 — «remove each and every Tax columns»): لا نسبة ضريبة ولا مبلغ ضريبة، والصافي = الفرعي − الخصم.</para>
 /// </summary>
 public partial class frmPurchaseDiscount : Form
 {
@@ -36,11 +37,6 @@ public partial class frmPurchaseDiscount : Form
 
         // RULE-N147 — الزر الافتراضي للحوار يُقرأ من نفس دالة الزر الأساسي التي يستدعيها WireEnterAsTab.
         AcceptButton = _PrimaryActionButton();
-
-        // RULE-N180…N183 — تغذية الحقول المطلوبة حيّاً، **بعد** WireFocusHighlight إلزاماً (RULE-N183):
-        // الشاشة تُعلن قواعدها فقط؛ الأيقونة ✗ والرسالة والومضة/الصوت ملك البيت الواحد RequiredFieldHelper.
-        RequiredFieldHelper.Attach(this, errorProvider,
-            new RequiredField(cmbTax, "يرجى اختيار نسبة الضريبة"));
 
         // RULE-N97 — التفقيط الحيّ على قيمة الخصم.
         LiveTafqeetHelper.Attach(tipTafqeet,
@@ -81,7 +77,6 @@ public partial class frmPurchaseDiscount : Form
         toolTip.SetToolTip(btnOk, "موافق — اعتماد الخصم وإغلاق الحوار (Enter)");
         toolTip.SetToolTip(btnCancel, "إلغاء وإغلاق الحوار بلا حفظ (Esc)");
         toolTip.SetToolTip(numDiscount, "قيمة الخصم — مبلغ ثابت أو نسبة مئوية حسب النوع المحدد");
-        toolTip.SetToolTip(cmbTax, "نسبة الضريبة المطبَّقة على المجموع بعد الخصم");
 
         GreenThemeHelper.ApplyHeader(lblTitle);
         GreenThemeHelper.Apply(this); // ← الأخير دائماً (RULE-N50)
@@ -98,24 +93,16 @@ public partial class frmPurchaseDiscount : Form
     /// <summary>القيمة المدخلة (مبلغ أو نسبة).</summary>
     public decimal DiscountValue => numDiscount.Value;
 
-    /// <summary>نسبة الضريبة المختارة (0 / 5 / 15).</summary>
-    public decimal TaxRate =>
-        cmbTax.SelectedItem?.ToString() is { } s
-        && decimal.TryParse(s.TrimEnd('%'), out var rate) ? rate : 0m;
-
     /// <summary>قيمة الخصم المحسوبة بالريال اليمني (مبلغ أو نسبة × المجموع الفرعي) — منطق محفوظ كما هو.</summary>
     public decimal DiscountAmount => IsPercentageDiscount
         ? Subtotal * (DiscountValue / 100m)
         : DiscountValue;
 
-    /// <summary>مبلغ الضريبة المحسوبة على المجموع بعد الخصم — منطق محفوظ كما هو.</summary>
-    public decimal TaxAmount => (Subtotal - DiscountAmount) * (TaxRate / 100m);
-
     /// <summary>
-    /// الصافي النهائي = المجموع الفرعي − الخصم + الضريبة
-    /// (نفس معادلة الفاتورة: NetTotal = SubTotal - InvoiceDiscount + TaxAmount + OtherCharges)
+    /// الصافي النهائي = المجموع الفرعي − الخصم
+    /// (نفس معادلة V1 بعد إزالة الضريبة: NetTotal = SubTotal - InvoiceDiscount + OtherCharges)
     /// </summary>
-    public decimal NetTotal => Subtotal - DiscountAmount + TaxAmount;
+    public decimal NetTotal => Subtotal - DiscountAmount;
 
     // ═══════════════════════════════════════════════════════════
     // تحميل البيانات التجريبية (Mock)
@@ -124,15 +111,10 @@ public partial class frmPurchaseDiscount : Form
     {
         rbAmount.Checked = true;       // الخصم الافتراضي: مبلغ ثابت
         numDiscount.Value = 10000.00m; // خصم مبلغ 10,000 ريال يمني
-        cmbTax.Items.Clear();
-        cmbTax.Items.Add("0%");
-        cmbTax.Items.Add("5%");
-        cmbTax.Items.Add("15%");
-        cmbTax.SelectedIndex = 0;      // ضريبة 0% افتراضياً
     }
 
     // ═══════════════════════════════════════════════════════════
-    // حساب فوري — المجموع الفرعي / الخصم / الضريبة / الصافي النهائي
+    // حساب فوري — المجموع الفرعي / الخصم / الصافي النهائي
     // ═══════════════════════════════════════════════════════════
     private void rbDiscountType_CheckedChanged(object? sender, EventArgs e)
     {
@@ -144,13 +126,11 @@ public partial class frmPurchaseDiscount : Form
     }
 
     private void numDiscount_ValueChanged(object? sender, EventArgs e) => Recalculate();
-    private void cmbTax_SelectedIndexChanged(object? sender, EventArgs e) => Recalculate();
 
     private void Recalculate()
     {
         lblSubtotalValue.Text = clsFormat.Money(Subtotal);
         lblDiscountValue.Text = clsFormat.Money(DiscountAmount);
-        lblTaxValue.Text = clsFormat.Money(TaxAmount);
         lblNetValue.Text = clsFormat.Money(NetTotal);
 
         // إظهار الوحدة بجانب حقل القيمة: نسبة % أو مبلغ بالريال
@@ -171,13 +151,8 @@ public partial class frmPurchaseDiscount : Form
     {
         try
         {
-            // الحقول المطلوبة: الحكم والحفظ في البيت الواحد RequiredFieldHelper — لا حكم «فارغ» هنا
-            // (RULE-N172 / RULE-N180…N183): تُوسَم كل الحقول الناقصة ثم ينتقل المؤشر إلى أولها.
-            if (!RequiredFieldHelper.Validate(this))
-            {
-                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
-                return;
-            }
+            // MVP V1 بلا ضريبة ⇒ لا حقل مطلوب في الحوار بعد إزالة نسبة الضريبة،
+            // فأُزيلت تغذية RequiredFieldHelper الميتة مع الحقل (RULE-N205: لا حارس بلا حقل يحرسه).
 
             // قواعد المدى (سالب / أكبر من المجموع الفرعي / أكبر من 100%) — منطق محفوظ كما هو.
             if (!_ValidateRangeRules()) return;

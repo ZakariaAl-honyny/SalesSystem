@@ -235,7 +235,6 @@ public record SalesReportDto(
     string CustomerName,
     decimal SubTotal,
     decimal DiscountAmount,
-    decimal TaxAmount,
     decimal TotalAmount,
     decimal PaidAmount,
     decimal DueAmount
@@ -251,7 +250,6 @@ public record PurchaseReportDto(
     string SupplierName,
     decimal SubTotal,
     decimal DiscountAmount,
-    decimal TaxAmount,
     decimal TotalAmount,
     decimal PaidAmount,
     decimal DueAmount
@@ -390,14 +388,6 @@ public record CashFlowReportDto(
     decimal ClosingBalance,
     List<CashFlowItemDto> IncomeItems,
     List<CashFlowItemDto> ExpenseItems);
-
-public record VatReportDto(
-    string InvoiceNumber,
-    DateTime InvoiceDate,
-    string? PartyName,
-    decimal TaxableAmount,
-    decimal TaxRate,
-    decimal TaxAmount);
 
 // ═══════════════════════════════════════════════════════
 // Phase 23 — Customer Reports DTOs

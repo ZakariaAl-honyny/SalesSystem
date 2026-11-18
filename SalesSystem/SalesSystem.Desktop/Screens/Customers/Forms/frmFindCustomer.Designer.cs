@@ -19,7 +19,6 @@ partial class frmFindCustomer
     //   • ‏RULE-N125: ctrlCustomerCardWithFilter1 هو المراسي Fill ويُضاف أولاً، ثم pnlFooter (Bottom).
     private void InitializeComponent()
     {
-        components = new System.ComponentModel.Container();
         pnlFooter = new Panel();
         btnSelect = new Button();
         btnClose = new Button();
@@ -29,7 +28,7 @@ partial class frmFindCustomer
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlFooter.BackColor = Color.FromArgb(235, 240, 235);
         pnlFooter.Controls.Add(btnSelect);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -40,7 +39,7 @@ partial class frmFindCustomer
         // 
         // btnSelect
         // 
-        btnSelect.BackColor = Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnSelect.BackColor = Color.FromArgb(25, 135, 84);
         btnSelect.Cursor = Cursors.Hand;
         btnSelect.DialogResult = DialogResult.OK;
         btnSelect.Enabled = false;
@@ -48,7 +47,7 @@ partial class frmFindCustomer
         btnSelect.FlatStyle = FlatStyle.Flat;
         btnSelect.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSelect.ForeColor = Color.White;
-        btnSelect.Location = new Point(60, 12);
+        btnSelect.Location = new Point(653, 12);
         btnSelect.Name = "btnSelect";
         btnSelect.Size = new Size(130, 36);
         btnSelect.TabIndex = 0;
@@ -58,14 +57,14 @@ partial class frmFindCustomer
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnClose.BackColor = Color.FromArgb(108, 117, 125);
         btnClose.Cursor = Cursors.Hand;
         btnClose.DialogResult = DialogResult.Cancel;
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = Color.White;
-        btnClose.Location = new Point(205, 12);
+        btnClose.Location = new Point(798, 12);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 36);
         btnClose.TabIndex = 1;
@@ -75,9 +74,12 @@ partial class frmFindCustomer
         // 
         // ctrlCustomerCardWithFilter1
         // 
+        ctrlCustomerCardWithFilter1.BackColor = Color.FromArgb(170, 220, 170);
         ctrlCustomerCardWithFilter1.Dock = DockStyle.Fill;
+        ctrlCustomerCardWithFilter1.Font = new Font("Tahoma", 10F);
         ctrlCustomerCardWithFilter1.Location = new Point(0, 0);
         ctrlCustomerCardWithFilter1.Name = "ctrlCustomerCardWithFilter1";
+        ctrlCustomerCardWithFilter1.RightToLeft = RightToLeft.Yes;
         ctrlCustomerCardWithFilter1.Size = new Size(940, 600);
         ctrlCustomerCardWithFilter1.TabIndex = 0;
         // 
@@ -85,7 +87,7 @@ partial class frmFindCustomer
         // 
         AcceptButton = btnSelect;
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+        BackColor = Color.FromArgb(170, 220, 170);
         CancelButton = btnClose;
         ClientSize = new Size(940, 660);
         Controls.Add(ctrlCustomerCardWithFilter1);

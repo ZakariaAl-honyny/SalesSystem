@@ -50,9 +50,6 @@ public class ThermalReceiptGenerator
                 commands.Add(PrintLine(line));
         }
 
-        if (!string.IsNullOrWhiteSpace(data.StoreTaxNumber))
-            commands.Add(PrintLine($"ض: {data.StoreTaxNumber}"));
-
         commands.Add(PrintLine(new string(DoubleSeparator, LineWidth)));
 
         // ─── Invoice info ──────────────────────
@@ -109,9 +106,6 @@ public class ThermalReceiptGenerator
         if (data.OtherCharges > 0)
             commands.Add(PrintLine(
                 FormatTwoColumns("مصاريف إضافية:", $"+{data.OtherCharges:N2}")));
-
-        commands.Add(PrintLine(
-            FormatTwoColumns($"ض.ق.م ({data.TaxRate:N0}%):", $"{data.TaxAmount:N2}")));
 
         commands.Add(EscPos.SetBold(true));
         commands.Add(EscPos.SetFontSize(2));

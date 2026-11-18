@@ -63,7 +63,7 @@ public class MockCustomerDesktopService : ICustomerDesktopService
         var nextId = MockData.Customers.Max(c => c.Id) + 1;
         var customer = new CustomerDto(
             Id: nextId, Name: r.Name, Phone: r.Phone, Email: r.Email,
-            Address: r.Address, TaxNumber: r.TaxNumber, CreditLimit: r.CreditLimit,
+            Address: r.Address, CreditLimit: r.CreditLimit,
             IsActive: true, Notes: r.Notes);
         MockData.Customers.Add(customer);
         return Task.FromResult(Result<CustomerDto>.Success(customer));
@@ -90,7 +90,6 @@ public class MockCustomerDesktopService : ICustomerDesktopService
             Phone = r.Phone,
             Email = r.Email,
             Address = r.Address,
-            TaxNumber = r.TaxNumber,
             Notes = r.Notes,
             CreditLimit = r.CreditLimit,
             IsActive = r.IsActive

@@ -6,7 +6,6 @@ public class InvoicePrintDto
     public string StoreName { get; init; } = string.Empty;
     public string StorePhone { get; init; } = string.Empty;
     public string StoreAddress { get; init; } = string.Empty;
-    public string StoreTaxNumber { get; init; } = string.Empty;
     public byte[]? LogoBytes { get; init; }
 
     // ─── Invoice Header ───────────────────────────
@@ -27,10 +26,7 @@ public class InvoicePrintDto
     public decimal SubTotal { get; init; }
     public decimal DiscountAmount { get; init; }
     public decimal OtherCharges { get; init; }
-    public decimal TaxRate { get; init; }
-    public decimal TaxAmount { get; init; }
     public decimal GrandTotal { get; init; }
-    public bool IsTaxInclusive { get; init; }
 
     // ─── Payment ──────────────────────────────────
     public string PaymentMethod { get; init; } = string.Empty;

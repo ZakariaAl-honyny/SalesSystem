@@ -5,8 +5,8 @@ using SalesSystem.DTO.Common;
 namespace SalesSystem.Desktop.Services.Mock;
 
 /// <summary>
-/// محاكاة التقارير المالية الباقية في V1 — خمسة تقارير فقط:
-/// <b>قائمة الدخل</b> · <b>ضريبة القيمة المضافة</b> · <b>التدفق النقدي</b> ·
+/// محاكاة التقارير المالية الباقية في V1 — أربعة تقارير فقط:
+/// <b>قائمة الدخل</b> · <b>التدفق النقدي</b> ·
 /// <b>كشف حساب العميل</b> · <b>كشف حساب المورد</b>.
 /// </summary>
 /// <remarks>
@@ -32,7 +32,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     private const string RevenueCategory = "إيرادات";
     private const string CogsCategory = "تكلفة المبيعات";
     private const string ExpenseCategory = "مصروفات";
-    private const string SalesRevenueLine = "مبيعات الفواتير المرحّلة (قبل الضريبة)";
+    private const string SalesRevenueLine = "مبيعات الفواتير المرحّلة";
     private const string SalesReturnsLine = "مردودات المبيعات";
     private const string CogsLine = "تكلفة البضاعة المباعة";
     private const string OperatingExpensesLine = "المصروفات التشغيلية المرحّلة";
@@ -52,7 +52,6 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     private const string SupplierNotFound = "المورد غير موجود";
     private const string IncomeStatementError = "تعذر تحميل قائمة الدخل. حاول مرة أخرى.";
     private const string CashFlowError = "تعذر تحميل تقرير التدفق النقدي. حاول مرة أخرى.";
-    private const string VatError = "تعذر تحميل تقرير الضريبة. حاول مرة أخرى.";
     private const string CustomerStatementError = "تعذر تحميل كشف حساب العميل. حاول مرة أخرى.";
     private const string SupplierStatementError = "تعذر تحميل كشف حساب المورد. حاول مرة أخرى.";
 
@@ -75,7 +74,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
 
         try
         {
-            // ─── الإيرادات: صافي مبيعات الفواتير المرحّلة قبل الضريبة، ناقص مردودات البيع ───
+            // بند الإيراد: صافي مبيعات الفواتير المرحّلة (SubTotal − الخصم)
             var sales = MockData.Invoices
                 .Where(i => i.Status == Posted)
                 .Where(i => i.InvoiceDate.Date >= from.Date && i.InvoiceDate.Date <= to.Date)
@@ -130,66 +129,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     }
 
     // ═══════════════════════════════════════════════
-    // 2) تقرير ضريبة القيمة المضافة
-    // ═══════════════════════════════════════════════
-    public Task<Result<IReadOnlyList<VatReportDto>>> GetVatReportAsync(
-        DateTime from, DateTime to, CancellationToken ct = default)
-    {
-        if (from.Date > to.Date)
-            return Task.FromResult(Result<IReadOnlyList<VatReportDto>>.Failure(DateRangeError));
-
-        try
-        {
-            var rows = new List<VatReportDto>();
-
-            var sales = MockData.Invoices
-                .Where(i => i.Status == Posted && i.TaxAmount > 0m)
-                .Where(i => i.InvoiceDate.Date >= from.Date && i.InvoiceDate.Date <= to.Date)
-                .OrderBy(i => i.InvoiceDate)
-                .ToList();
-
-            foreach (var invoice in sales)
-            {
-                var taxable = invoice.SubTotal - invoice.DiscountAmount;
-                rows.Add(new VatReportDto(
-                    invoice.InvoiceNo.ToString(),
-                    invoice.InvoiceDate.Date,
-                    invoice.CustomerName,
-                    Money(taxable),
-                    taxable > 0m ? Math.Round(invoice.TaxAmount / taxable * 100m, 2) : 0m,
-                    Money(invoice.TaxAmount)));
-            }
-
-            var purchases = MockPurchasesData.Purchases
-                .Where(p => p.Status == Posted && p.TaxAmount > 0m)
-                .Where(p => p.InvoiceDate.ToDateTime(TimeOnly.MinValue).Date >= from.Date
-                         && p.InvoiceDate.ToDateTime(TimeOnly.MinValue).Date <= to.Date)
-                .OrderBy(p => p.InvoiceDate)
-                .ToList();
-
-            foreach (var invoice in purchases)
-            {
-                var taxable = invoice.SubTotal - invoice.DiscountAmount;
-                rows.Add(new VatReportDto(
-                    invoice.InvoiceNo.ToString(),
-                    invoice.InvoiceDate.ToDateTime(TimeOnly.MinValue),
-                    invoice.SupplierName,
-                    Money(taxable),
-                    taxable > 0m ? Math.Round(invoice.TaxAmount / taxable * 100m, 2) : 0m,
-                    Money(invoice.TaxAmount)));
-            }
-
-            return Task.FromResult(Result<IReadOnlyList<VatReportDto>>.Success(
-                rows.OrderBy(r => r.InvoiceDate).ToList()));
-        }
-        catch
-        {
-            return Task.FromResult(Result<IReadOnlyList<VatReportDto>>.Failure(VatError));
-        }
-    }
-
-    // ═══════════════════════════════════════════════
-    // 3) التدفق النقدي (حركة الصندوق التشغيلي)
+    // 2) التدفق النقدي (حركة الصندوق التشغيلي)
     // ═══════════════════════════════════════════════
     public Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(
         DateTime from, DateTime to, int? cashBoxId = null, CancellationToken ct = default)
@@ -246,7 +186,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     }
 
     // ═══════════════════════════════════════════════
-    // 4) كشف حساب العميل — من مستنداته فقط
+    // 3) كشف حساب العميل — من مستنداته فقط
     // ═══════════════════════════════════════════════
     public Task<Result<IReadOnlyList<AccountStatementDto>>> GetAccountStatementAsync(
         int customerId, DateTime from, DateTime to, CancellationToken ct = default)
@@ -316,7 +256,7 @@ public class MockFinancialReportDesktopService : IFinancialReportDesktopService
     }
 
     // ═══════════════════════════════════════════════
-    // 5) كشف حساب المورد — من مستنداته فقط
+    // 4) كشف حساب المورد — من مستنداته فقط
     // ═══════════════════════════════════════════════
     public Task<Result<IReadOnlyList<AccountStatementDto>>> GetSupplierStatementAsync(
         int supplierId, DateTime from, DateTime to, CancellationToken ct = default)

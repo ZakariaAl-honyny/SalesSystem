@@ -17,7 +17,7 @@ namespace SalesSystem.Desktop.Screens.Customers.Forms;
 /// يجمع: بحث فوري + شبكة + نموذج إدخال/تعديل في شاشة واحدة،
 /// ويعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
 /// </summary>
-public partial class frmCustomerMaster : Form
+public partial class frmCRUDCustomerMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -58,12 +58,12 @@ public partial class frmCustomerMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmCustomerMaster()
+    private frmCRUDCustomerMaster()
     {
         InitializeComponent();
     }
 
-    public frmCustomerMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCustomerMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
         // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
@@ -200,7 +200,6 @@ public partial class frmCustomerMaster : Form
         table.Columns.Add("Name", typeof(string));
         table.Columns.Add("Phone", typeof(string));
         table.Columns.Add("Email", typeof(string));
-        table.Columns.Add("TaxNumber", typeof(string));
         table.Columns.Add("CreditLimit", typeof(decimal));
         table.Columns.Add("CurrentBalance", typeof(decimal));
         table.Columns.Add("IsActive", typeof(bool));
@@ -224,7 +223,6 @@ public partial class frmCustomerMaster : Form
                         c.Name,
                         c.Phone ?? "",
                         c.Email ?? "",
-                        c.TaxNumber ?? "",
                         c.CreditLimit,
                         c.CurrentBalance,
                         c.IsActive);
@@ -266,7 +264,6 @@ public partial class frmCustomerMaster : Form
                 "Name" => "اسم العميل",
                 "Phone" => "الهاتف",
                 "Email" => "البريد",
-                "TaxNumber" => "الرقم الضريبي",
                 "CreditLimit" => "حد الائتمان",
                 "IsActive" => "نشط",
                 _ => column.HeaderText
@@ -438,7 +435,6 @@ public partial class frmCustomerMaster : Form
     {
         1 => "Phone",
         2 => "Email",
-        3 => "TaxNumber",
         _ => "Name"
     };
 
@@ -649,7 +645,6 @@ public partial class frmCustomerMaster : Form
         txtPhone.Text = c.Phone ?? "";
         txtEmail.Text = c.Email ?? "";
         txtAddress.Text = c.Address ?? "";
-        txtTaxNumber.Text = c.TaxNumber ?? "";
         numCreditLimit.Value = NumericInputHelper.Clamp(numCreditLimit, c.CreditLimit);
         txtNotes.Text = c.Notes ?? "";
 
@@ -714,7 +709,7 @@ public partial class frmCustomerMaster : Form
     /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
     private Control[] _EditorInputs() => new Control[]
     {
-        txtName, txtPhone, txtEmail, txtTaxNumber, txtAddress, txtNotes, numCreditLimit
+        txtName, txtPhone, txtEmail, txtAddress, txtNotes, numCreditLimit
     };
 
     /// <summary>تفعيل أو تعطيل كل حقول المحرر دفعة واحدة (txtId يبقى للقراءة دائماً).</summary>
@@ -756,7 +751,6 @@ public partial class frmCustomerMaster : Form
         txtPhone.Clear();
         txtEmail.Clear();
         txtAddress.Clear();
-        txtTaxNumber.Clear();
         txtNotes.Clear();
         numCreditLimit.Value = 0;
 
@@ -922,7 +916,6 @@ public partial class frmCustomerMaster : Form
             string? phone = txtPhone.Text?.Trim().ToNullIfEmpty();
             string? email = txtEmail.Text?.Trim().ToNullIfEmpty();
             string? address = txtAddress.Text?.Trim().ToNullIfEmpty();
-            string? taxNumber = txtTaxNumber.Text?.Trim().ToNullIfEmpty();
             string? notes = txtNotes.Text?.Trim().ToNullIfEmpty();
             decimal creditLimit = numCreditLimit.Value;
 
@@ -941,10 +934,9 @@ public partial class frmCustomerMaster : Form
                     phone,
                     email,
                     address,
-                    taxNumber,
-                    notes,
-                    creditLimit,
-                    isActive);
+                    Notes: notes,
+                    CreditLimit: creditLimit,
+                    IsActive: isActive);
 
                 result = await CustomerService.UpdateAsync(id, request);
             }
@@ -955,9 +947,8 @@ public partial class frmCustomerMaster : Form
                     phone,
                     email,
                     address,
-                    taxNumber,
-                    notes,
-                    creditLimit);
+                    Notes: notes,
+                    CreditLimit: creditLimit);
 
                 result = await CustomerService.CreateAsync(request);
             }

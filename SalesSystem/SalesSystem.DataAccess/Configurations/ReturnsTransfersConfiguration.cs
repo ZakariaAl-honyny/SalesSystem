@@ -15,7 +15,6 @@ public class SalesReturnConfiguration : IEntityTypeConfiguration<SalesReturn>
         builder.Property(sr => sr.ReturnDate).IsRequired().HasColumnType("date");
         builder.Property(sr => sr.TotalAmount).HasPrecision(18, 2);
         builder.Property(sr => sr.ReturnedDiscountAmount).HasPrecision(18, 2).HasDefaultValue(0m);
-        builder.Property(sr => sr.ReturnedTaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(sr => sr.ReturnedChargeAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(sr => sr.RefundAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(sr => sr.ReturnReason).HasMaxLength(500).IsRequired(false);

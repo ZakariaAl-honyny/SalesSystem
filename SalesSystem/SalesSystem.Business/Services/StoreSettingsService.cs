@@ -26,7 +26,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
     private const string KeyAddress = Prefix + "Address";
     private const string KeyLogoPath = Prefix + "LogoPath";
     private const string KeyEmail = Prefix + "Email";
-    private const string KeyTaxNumber = Prefix + "TaxNumber";
     private const string KeyEnableStockAlerts = Prefix + "EnableStockAlerts";
     private const string KeyAllowNegativeStock = Prefix + "AllowNegativeStock";
     private const string KeySignaturePath = Prefix + "SignaturePath";
@@ -64,7 +63,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
                 await _systemSettingsRepo.SetStringAsync(KeyAddress, request.Address ?? "", category: "Store", userId: userId, ct: ct);
                 await _systemSettingsRepo.SetStringAsync(KeyLogoPath, request.LogoUrl ?? "", category: "Store", userId: userId, ct: ct);
                 await _systemSettingsRepo.SetStringAsync(KeyEmail, request.Email ?? "", category: "Store", userId: userId, ct: ct);
-                await _systemSettingsRepo.SetStringAsync(KeyTaxNumber, request.TaxNumber ?? "", category: "Store", userId: userId, ct: ct);
                 await _systemSettingsRepo.SetStringAsync(KeyEnableStockAlerts, request.EnableStockAlerts.ToString().ToLower(), category: "Store", userId: userId, ct: ct);
                 await _systemSettingsRepo.SetStringAsync(KeyAllowNegativeStock, request.AllowNegativeStock.ToString().ToLower(), category: "Store", userId: userId, ct: ct);
                 await _systemSettingsRepo.SetStringAsync(KeySignaturePath, request.SignatureUrl ?? "", category: "Store", userId: userId, ct: ct);
@@ -140,7 +138,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
         var address = await _systemSettingsRepo.GetStringAsync(KeyAddress, "", ct);
         var logoPath = await _systemSettingsRepo.GetStringAsync(KeyLogoPath, "", ct);
         var email = await _systemSettingsRepo.GetStringAsync(KeyEmail, "", ct);
-        var taxNumber = await _systemSettingsRepo.GetStringAsync(KeyTaxNumber, "", ct);
         var signaturePath = await _systemSettingsRepo.GetStringAsync(KeySignaturePath, "", ct);
 
         _ = bool.TryParse(await _systemSettingsRepo.GetStringAsync(KeyEnableStockAlerts, "false", ct), out var enableStockAlerts);
@@ -153,9 +150,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
             address,
             logoPath,
             email,
-            0m,                         // DEPRECATED: DefaultTaxRate — Tax entity is source of truth
-            true,                       // DEPRECATED: IsTaxEnabled — Tax entity is source of truth
-            taxNumber,
             enableStockAlerts,
             allowNegativeStock,
             "",                         // DEPRECATED: InvoicePrefix — use InvoiceNo (int) instead
@@ -202,10 +196,8 @@ public sealed class StoreSettingsService : IStoreSettingsService
                 case "ShowProfitInInvoice":
                 case "PreventBelowRetailPrice":
                 case "AllowBelowCostSale":
-                case "HideTaxInSales":
                 case "ShowExpiryInInvoices":
                 case "PurchaseAutoPost":
-                case "HideTaxInPurchases":
                 case "AutoGenerateBarcode":
                 case "ShowLogo":
                 case "LowStockAlert":
@@ -225,17 +217,6 @@ public sealed class StoreSettingsService : IStoreSettingsService
                 case "PrintCompanyAddress":
                     if (!bool.TryParse(value, out _))
                         return $"قيمة '{kvp.Key}' يجب أن تكون true أو false";
-                    break;
-
-                // Integer-only settings (additional)
-                case "DefaultSalesTax":
-                    if (!int.TryParse(value, out var salesTaxVal) || salesTaxVal < 0 || salesTaxVal > 100)
-                        return "نسبة ضريبة المبيعات يجب أن تكون بين 0 و 100";
-                    break;
-
-                case "DefaultPurchaseTax":
-                    if (!int.TryParse(value, out var purchaseTaxVal) || purchaseTaxVal < 0 || purchaseTaxVal > 100)
-                        return "نسبة ضريبة المشتريات يجب أن تكون بين 0 و 100";
                     break;
 
                 case "DefaultWarehouse":

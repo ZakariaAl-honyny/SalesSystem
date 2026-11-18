@@ -14,35 +14,30 @@ internal static class MockSuppliersData
         new SupplierDto(
             Id: 1, Name: "مجموعة هائل سعيد أنعم وشركاه", Phone: "01-200300",
             Email: "info@hsagroup.com", Address: "تعز / صنعاء - شارع الزبيري",
-            TaxNumber: "TAX-YE-900188",
             Notes: "المورد الرئيسي للزيوت والمواد التموينية والألبان",
             CreditLimit: 2500000m, IsActive: true),
 
         new SupplierDto(
             Id: 2, Name: "شركة مياه ومشروبات حدة المحدودة", Phone: "01-443322",
             Email: "sales@hadawater.ye", Address: "صنعاء - منطقة حدة القديمة",
-            TaxNumber: "TAX-YE-774011",
             Notes: "مورد المياه الصحية والعصائر",
             CreditLimit: 500000m, IsActive: true),
 
         new SupplierDto(
             Id: 3, Name: "مؤسسة التضامن لتجارة المواد الغذائية", Phone: "778998877",
             Email: "tadamon.trade@gmail.com", Address: "صنعاء - سوق الملح / شارع خولان",
-            TaxNumber: "TAX-YE-332190",
             Notes: "مورد الأرز والحبوب والبقوليات المستوردة",
             CreditLimit: 1200000m, IsActive: true),
 
         new SupplierDto(
             Id: 4, Name: "شركة الكبوس للتجارة والصناعة", Phone: "01-505050",
             Email: "info@alkabous.com", Address: "صنعاء - الروضة / شارع المطار",
-            TaxNumber: "TAX-YE-454120",
             Notes: "مورد الشاي والبن والبهارات",
             CreditLimit: 800000m, IsActive: true),
 
         new SupplierDto(
             Id: 5, Name: "مؤسسة الحمادي للتوريدات الغذائية", Phone: "777555666",
             Email: null, Address: "عدن - كريتر - شارع العباس",
-            TaxNumber: null,
             Notes: "مورد السكر والزيوت والمعكرونة للسوق الجنوبي",
             CreditLimit: 600000m, IsActive: false)
     };

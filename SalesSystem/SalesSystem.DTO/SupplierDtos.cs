@@ -1,7 +1,7 @@
 namespace SalesSystem.DTO;
 
 public record SupplierDto(int Id, string Name, string? Phone, string? Email, string? Address,
-    string? TaxNumber, string? Notes, decimal CreditLimit, bool IsActive,
+    string? Notes, decimal CreditLimit, bool IsActive,
     int? CategoryId = null)
 {
     public bool HasCreditLimit => CreditLimit > 0;

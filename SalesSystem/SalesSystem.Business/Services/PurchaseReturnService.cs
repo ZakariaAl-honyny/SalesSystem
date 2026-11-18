@@ -176,7 +176,6 @@ public class PurchaseReturnService : IPurchaseReturnService
                 : 0;
             pr.SetProportionalAmounts(
                 invoice.DiscountAmount * ratio,
-                invoice.TaxAmount * ratio,
                 invoice.OtherCharges * ratio);
         }
 
@@ -410,9 +409,7 @@ public class PurchaseReturnService : IPurchaseReturnService
             0, // SubTotal removed
             r.TotalAmount,
             r.ReturnedDiscountAmount,
-            r.ReturnedTaxAmount,
             r.ReturnedChargeAmount,
-            null,
             (byte)r.DiscountType,
             r.DiscountRate,
             r.Notes,

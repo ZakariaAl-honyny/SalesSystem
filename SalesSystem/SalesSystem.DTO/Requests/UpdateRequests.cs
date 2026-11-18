@@ -21,11 +21,9 @@ public record UpdatePurchaseInvoiceRequest(
     decimal DiscountAmount,
     DiscountType? DiscountType,
     decimal? DiscountRate,
-    decimal TaxAmount,
     decimal OtherCharges,
     decimal PaidAmount,
     string? Notes,
-    int? TaxId,
     string? AttachmentPath,
     List<CreatePurchaseInvoiceLineRequest> Items);
 
@@ -35,12 +33,10 @@ public record UpdateSalesInvoiceRequest(
     DateTime? InvoiceDate,
     PaymentType PaymentType,
     decimal DiscountAmount,
-    decimal TaxAmount,
     decimal OtherCharges,
     decimal PaidAmount,
     int? CashBoxId,
     string? Notes,
-    int? TaxId,
     List<CreateSalesInvoiceLineRequest> Items,
     DiscountType DiscountType = DiscountType.Amount,
     decimal? DiscountRate = null);

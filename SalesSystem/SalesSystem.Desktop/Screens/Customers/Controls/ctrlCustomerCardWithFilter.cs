@@ -410,7 +410,7 @@ public partial class ctrlCustomerCardWithFilter : UserControl
 
         try
         {
-            var master = _serviceProvider!.GetRequiredService<frmCustomerMaster>();
+            var master = _serviceProvider!.GetRequiredService<frmCRUDCustomerMaster>();
             clsGlobal._OpenForm(master);
         }
         catch (Exception ex)

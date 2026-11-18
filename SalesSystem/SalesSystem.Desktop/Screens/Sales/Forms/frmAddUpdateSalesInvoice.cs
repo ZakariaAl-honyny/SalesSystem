@@ -15,7 +15,6 @@ using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Messaging.Messages;
 using SalesSystem.Desktop.Products.Forms;
-using SalesSystem.Desktop.Screens.Returns.Forms;
 using SalesSystem.DTO.Responses;
 
 namespace SalesSystem.Desktop.Screens.Sales.Forms;
@@ -44,11 +43,34 @@ public partial class frmAddUpdateSalesInvoice : Form
     private decimal _discountBeforeEdit;          // قيمة الخصم قبل التحرير (لاسترجاعها عند إدخال غير صالح)
     private int _stockLookupToken;                // حارس التسابق (race guard) لاستعلام المخزون
 
-    /// <summary>الفاتورة المرحّلة أو الملغاة مقفلة تلقائياً — لا تعديل ولا إضافة سطور.</summary>
-    private bool IsLocked => _invoice != null && _invoice.Status is 2 or 3;
+    // ── وضع المستند (TASK-017) — الشاشة نفسها لفاتورة البيع ومرتجع البيع ──
+    private SalesDocumentMode _documentMode = SalesDocumentMode.Sale;
+    private SalesReturnDto? _returnDoc;           // المرتجع المحمَّل/المُنشأ في وضع المرتجع
+    private int? _createdReturnId;                // يمنع إنشاء مرتجع ثانٍ عند إعادة محاولة الترحيل
+    private bool _isApplyingMode;                 // حارس إعادة الدخول على معالجات زرّي الوضع
+
+    /// <summary>وضع المستند الحالي — يقرأه المستدعي عند الحاجة (TASK-017).</summary>
+    public SalesDocumentMode DocumentMode => _documentMode;
+
+    /// <summary>
+    /// المستند مقفل للتحرير:
+    /// فاتورة بيع ⇒ مرتّحلة/ملغاة (السلوك القائم حرفياً)،
+    /// مرتجع بيع ⇒ أي مرتجع محفوظ (العقد بلا <c>UpdateAsync</c> فلا تحرير بعد الإنشاء).
+    /// </summary>
+    private bool IsLocked => _documentMode == SalesDocumentMode.SaleReturn
+        ? _returnDoc != null
+        : _invoice != null && _invoice.Status is 2 or 3;
+
+    /// <summary>
+    /// هل بيانات المستند قابلة للتحرير؟ فاتورة البيع: جديدة أو مسودة. المرتجع: جديد فقط.
+    /// </summary>
+    private bool IsEditable => _documentMode == SalesDocumentMode.SaleReturn
+        ? _returnDoc == null
+        : _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
 
     // ── Lazy Service Accessors ──────────────────────────────────────
     private ISalesInvoiceDesktopService _salesApi => _serviceProvider.GetRequiredService<ISalesInvoiceDesktopService>();
+    private ISalesReturnDesktopService _returnApi => _serviceProvider.GetRequiredService<ISalesReturnDesktopService>();
     private ICustomerDesktopService _customerApi => _serviceProvider.GetRequiredService<ICustomerDesktopService>();
     private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
     private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
@@ -98,7 +120,8 @@ public partial class frmAddUpdateSalesInvoice : Form
         // RULE-N43 — آلة حالة الأزرار (بعد تثبيت ألوان المصمّم ليسجّل اللون السليم للاستعادة).
         KeyboardHelper.WireButtonDisabledVisual(
             btnSaveDraft, btnPost, btnCancelInvoice, btnCancelLine,
-            btnAddLine, btnEditRow, btnDeleteRow, btnRefreshCatalog, btnPrintA4, btnPrintReceipt);
+            btnAddLine, btnEditRow, btnDeleteRow, btnRefreshCatalog, btnPrintA4, btnPrintReceipt,
+            btnPickInvoice);
 
         // RULE-N47 — اختصارات الشاشة (F4 داخل حقول الأصناف يبقى «بحث عن صنف» — RULE-N42).
         KeyboardHelper.WireGlobalShortcuts(this,
@@ -170,7 +193,6 @@ public partial class frmAddUpdateSalesInvoice : Form
         cmbDiscountType.KeyDown += FieldEnter_KeyDown;
         //cmbPaymentType.KeyDown += FieldEnter_KeyDown;
         //cmbBank.KeyDown += FieldEnter_KeyDown;
-        //cmbTax.KeyDown += FieldEnter_KeyDown;
         //cmbDiscountType.KeyDown += FieldEnter_KeyDown;
         numInvoiceDiscount.KeyDown += FieldEnter_KeyDown;
 
@@ -201,9 +223,6 @@ public partial class frmAddUpdateSalesInvoice : Form
         // Discount type changed — مبلغ / نسبة
         cmbDiscountType.SelectedIndexChanged += cmbDiscountType_SelectedIndexChanged;
         if (cmbDiscountType.SelectedIndex < 0) cmbDiscountType.SelectedIndex = 0; // "مبلغ" (default)
-
-        // Tax checkbox — when checked (شاملة/inclusive), disable cmbTax since values don't change
-        //chkApplyTax.CheckedChanged += chkApplyTax_CheckedChanged;
 
         // Expenses numeric validation
         txtExpenses.KeyPress += NumericTextBox_KeyPress;
@@ -250,7 +269,20 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             await LoadLookups();
 
-            if (_invoice != null)
+            if (_documentMode == SalesDocumentMode.SaleReturn)
+            {
+                // وضع المرتجع: الربط يحدث هنا مثل مسار الفاتورة — المستدعي يمرّر المستند قبل ShowDialog.
+                if (_returnDoc != null)
+                {
+                    BindReturn();
+                    await LoadAllUnitsForLinesAsync();
+                }
+                else
+                {
+                    ResetForm();
+                }
+            }
+            else if (_invoice != null)
             {
                 BindInvoice();
                 // انتظار حلّ الوحدات ومعاملات التحويل قبل تمكين التحرير (يمنع حفظ كمية بمعامل 1 خطأً)
@@ -264,8 +296,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             UpdateUIState();
             CalculateTotals();
 
-            bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
-            if (editable)
+            if (IsEditable)
             {
                 txtBarcode.Focus();
             }
@@ -287,9 +318,227 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     public void LoadData(SalesInvoiceDto? invoice)
     {
+        // TASK-017 — نسخة معاد استخدامها من الحاوية لا يجوز أن تبقى في وضع المرتجع.
+        _documentMode = SalesDocumentMode.Sale;
+        _returnDoc = null;
+        _createdReturnId = null;
+
         _invoice = invoice;
         ApplyUiTheme();
+        _ApplyDocumentMode();  // الراديو + رؤية الحقول + العنوان + الحالة + الإجماليات
         _SyncAcceptButton();   // RULE-N147 — الزر الافتراضي يتبع وضع الفاتورة المحمَّلة
+    }
+
+    /// <summary>
+    /// يفتح الشاشة في وضع «مرتجع بيع» على المستند المطلوب (أو على مرتجع جديد حين يكون <c>null</c>).
+    /// يُستدعى من <c>frmListReturns</c> و<c>frmMain</c> **قبل** إظهار النموذج — والربط يحدث في <see cref="OnLoad"/>.
+    /// </summary>
+    public void LoadAsReturn(SalesReturnDto? salesReturn)
+    {
+        _documentMode = SalesDocumentMode.SaleReturn;
+        _returnDoc = salesReturn;
+        _invoice = null;
+        _createdReturnId = salesReturn?.Id;
+
+        ApplyUiTheme();
+        _ApplyDocumentMode();
+        _SyncAcceptButton();
+    }
+
+    /// <summary>
+    /// يبدأ مستنداً جديداً بالوضع المطلوب — يُستدعى من القائمة (مرتجع مبيعات) قبل العرض أو على نموذج مفتوح.
+    /// لا تأكيد هنا: الطلب صريح من المستخدم، والتحرير غير المحفوظ يخصّ مستنداً آخر يبدأ من جديد.
+    /// </summary>
+    public void StartNewDocument(SalesDocumentMode mode)
+    {
+        _invoice = null;
+        _returnDoc = null;
+        _createdReturnId = null;
+        _documentMode = mode;
+
+        ResetForm();
+        _ApplyDocumentMode();   // الراديو + رؤية الحقول + العنوان + الحالة + الإجماليات
+        UpdateUIState();
+        CalculateTotals();
+
+        if (IsHandleCreated)
+            txtBarcode.Focus();
+    }
+
+    /// <summary>
+    /// يبدأ مستنداً جديداً بالوضع المطلوب **بتأكيد** عند وجود مستند محمَّل أو سطور غير محفوظة.
+    /// يُرجع false إذا رفض المستخدم، فلا يستدعي المستدعي <see cref="StartNewDocument"/> ولا يمسّ شيئاً.
+    /// </summary>
+    public bool TryStartNewDocument(SalesDocumentMode mode)
+    {
+        bool hasDocument = _invoice is not null || _returnDoc is not null;
+        bool hasLines = _lines.Any(l => l.ProductId > 0);
+        if ((hasDocument || hasLines) &&
+            !clsDialogs.Confirm("سيبدأ مستند جديد وسيتم فقدان غير المحفوظ. هل تريد المتابعة؟"))
+            return false;
+
+        StartNewDocument(mode);
+        return true;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  DOCUMENT MODE (TASK-017) — زرّا اختيار: فاتورة بيع / مرتجع بيع
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// حقول البيع التي لا معنى لها في المرتجع (لا صندوق ولا نوع دفع ولا مدفوعاً ولا خصم ترويسة ولا نفقات
+    /// ولا طباعة فاتورة) — تُخفى في وضع المرتجع وتظهر في وضع الفاتورة (RULE-N167: الواجهة لا تكذب).
+    /// </summary>
+    private Control[] SaleOnlyControls => new Control[]
+    {
+        lblCashBox, cmbCashBox, lblPaymentType, rbtnPaymentTypeCash, rbtnPaymentTypeCredit,
+        lblPaid, txtPaid, lblExpensesLabel, txtExpenses, label1, numInvoiceDiscount, cmbDiscountType,
+        btnPrintA4, btnPrintReceipt, chkPrintSummary
+    };
+
+    /// <summary>
+    /// يطبّق الوضع الحالي كاملاً: زرّا الاختيار ← إظهار/إخفاء الحقول ← العنوان ← الحالة ← الإجماليات.
+    /// كل انتقال يمرّ من هنا وحده (RULE-N150) فلا تتنازع الحالة بين المعالجات.
+    /// </summary>
+    private void _ApplyDocumentMode()
+    {
+        _isApplyingMode = true;
+        try
+        {
+            rbtnModeSale.Checked = _documentMode == SalesDocumentMode.Sale;
+            rbtnModeReturn.Checked = _documentMode == SalesDocumentMode.SaleReturn;
+        }
+        finally
+        {
+            _isApplyingMode = false;
+        }
+
+        bool isReturn = _documentMode == SalesDocumentMode.SaleReturn;
+        foreach (var control in SaleOnlyControls)
+            control.Visible = !isReturn;
+
+        UpdateModeHeader();
+        UpdateUIState();
+        CalculateTotals();
+    }
+
+    /// <summary>عنوان الشاشة وشريط الوضع يتبعان المستند النشط في الوضع الحالي.</summary>
+    private void UpdateModeHeader()
+    {
+        if (_documentMode == SalesDocumentMode.SaleReturn)
+        {
+            lblMode.Text = _returnDoc == null ? "مرتجع بيع جديد" : $"مرتجع بيع - {_returnDoc.ReturnNo}";
+            Text = _returnDoc == null ? "مرتجع بيع جديد" : $"مرتجع بيع - {_returnDoc.ReturnNo}";
+            return;
+        }
+
+        lblMode.Text = _invoice == null ? "فاتورة بيع جديدة" : $"فاتورة بيع - {_invoice.InvoiceNo}";
+        Text = "فاتورة بيع";
+    }
+
+    /// <summary>
+    /// تبديل نوع المستند من زرّي الاختيار. مستند قائم أو سطور غير محفوظة ⇒ تأكيد عربي،
+    /// والإلغاء يُعيد الاختيار السابق ولا يفقد سطراً.
+    /// </summary>
+    private void DocumentMode_CheckedChanged(object? sender, EventArgs e)
+    {
+        if (_isApplyingMode) return;
+
+        var requested = rbtnModeReturn.Checked ? SalesDocumentMode.SaleReturn : SalesDocumentMode.Sale;
+        if (requested == _documentMode) return;
+
+        bool holdsDocument = _invoice != null || _returnDoc != null;
+        bool holdsLines = _lines.Any(l => l.ProductId > 0);
+        if ((holdsDocument || holdsLines) &&
+            !clsDialogs.Confirm("تغيير نوع المستند سيبدأ مستنداً جديداً ويفقد غير المحفوظ. هل تريد المتابعة؟"))
+        {
+            _ApplyDocumentMode();   // إعادة الاختيار إلى الوضع القائم
+            return;
+        }
+
+        _invoice = null;
+        _returnDoc = null;
+        _createdReturnId = null;
+        _documentMode = requested;
+
+        if (dgvItems.IsCurrentCellInEditMode) dgvItems.CancelEdit();   // لا تبقى خلية قيد التحرير على سطور ستُمسح
+        ResetEntryState();   // يُصفّر _editingLineKey ولوحة الإدخال — حالة التعديل لا تُورَّث للوضع الجديد
+        ResetForm();
+        _ApplyDocumentMode();   // إظهار/إخفاء حقول الوضع + العنوان + الحالة + الإجماليات
+        txtBarcode.Focus();
+    }
+
+    /// <summary>
+    /// «اختيار فاتورة» (وضع المرتجع وحده): يفتح منتقي فواتير البيع المحفوظة ويعبّئ رأس المرتجع
+    /// وسطوره من الفاتورة المختارة. السطور الحالية تُستبدل بعد تأكيد عربي، ثم تُحلّ وحدات الأصناف
+    /// ومعاملات التحويل قبل التمكين — فلا يُحفظ سطر بمعامل ١ خطأً (نفس شرط <see cref="BindInvoice"/>).
+    /// </summary>
+    private async void btnPickInvoice_Click(object? sender, EventArgs e)
+    {
+        try
+        {
+            // الزر يظهر في المرتجع القابل للتحرير وحده (UpdateUIState) — والحارس هنا للسطور المحفوظة.
+            if (!IsEditable) return;
+
+            if (_lines.Any(l => l.ProductId > 0) &&
+                !clsDialogs.Confirm("لديك سطور في المرتجع — سيتم استبدالها ببيانات الفاتورة. هل تريد المتابعة؟"))
+                return;
+
+            Cursor = Cursors.WaitCursor;
+
+            var dialog = _serviceProvider.GetRequiredService<frmSalesInvoiceSelection>();
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.SelectedInvoice is not { } invoice) return;
+
+            _isUpdating = true;
+            try
+            {
+                // الرأس من الفاتورة المختارة (0 = عميل نقدي ⇒ لا تغيير)
+                if (invoice.CustomerId > 0 && cmbCustomer.Items.Count > 0)
+                    cmbCustomer.SelectedValue = invoice.CustomerId;
+                if (cmbWarehouse.Items.Count > 0)
+                    cmbWarehouse.SelectedValue = Convert.ToInt16(invoice.WarehouseId);   // WarehouseDto.Id = short
+
+                _lines.Clear();
+                foreach (var item in invoice.Items)
+                {
+                    _lines.Add(new InvoiceLineItem
+                    {
+                        ProductId = item.ProductId,
+                        ProductCode = item.ProductCode ?? string.Empty,
+                        ProductName = item.ProductName,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        UnitName = item.UnitName ?? string.Empty,   // يُحلّ من كاش الوحدات أدناه
+                        ProductUnitId = item.ProductUnitId,
+                        ConversionFactor = 1m,                      // يُصحَّح عند تحميل الوحدات
+                        Barcode = item.ProductCode ?? string.Empty,
+                        DiscountAmount = item.DiscountAmount,
+                        ExpiryDate = item.ExpiryDate
+                    });
+                }
+            }
+            finally
+            {
+                _isUpdating = false;
+            }
+
+            // حلّ وحدات الأصناف ومعاملات التحويل قبل أي حفظ (LEP-1: لا سقوط إلى الوحدة ١)
+            await LoadAllUnitsForLinesAsync();
+
+            errorProvider.SetError(dgvItems, string.Empty);
+            UpdateUIState();
+            CalculateTotals();
+            if (txtBarcode.Enabled) txtBarcode.Focus();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تعبئة مرتجع البيع من الفاتورة المختارة");
+            clsDialogs.Error("تعذر تعبئة المرتجع من الفاتورة المختارة. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -310,7 +559,7 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         // (2) ThemeHelper — أبيض/Segoe UI، ويُستدعى قبل الثيم الأخضر دائماً.
         ThemeHelper.ApplyMainFormStyle(this);
-        lblMode.Text = _invoice == null ? "فاتورة بيع جديدة" : $"فاتورة بيع - {_invoice.InvoiceNo}";
+        UpdateModeHeader();
 
         ThemeHelper.ApplyButtonStyle(btnSaveDraft, ThemeHelper.ButtonType.Primary);
         ThemeHelper.ApplyButtonStyle(btnPost, ThemeHelper.ButtonType.Success);
@@ -339,7 +588,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// <summary>أزرار الشاشة (شريطا الأوامر) — مصدر واحد لتوحيد الشكل وحفظ ألوان المصمّم.</summary>
     private Button[] ActionButtons => new[]
     {
-        btnNew, btnSaveDraft, btnPost, btnPrintA4, btnPrintReceipt, btnSalesReturn,
+        btnNew, btnPickInvoice, btnSaveDraft, btnPost, btnPrintA4, btnPrintReceipt,
         btnCancelInvoice, btnClose,
         btnAddLine, btnEditRow, btnDeleteRow, btnRefreshCatalog, btnCancelLine
     };
@@ -368,7 +617,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             if (!customersRes.IsSuccess || customersRes.Value == null)
                 throw new InvalidOperationException(customersRes.Error ?? "فشل تحميل قائمة العملاء");
             var list = customersRes.Value.ToList();
-            list.Insert(0, new CustomerDto(0, "--- اختر عميل ---", null, null, null, null, 0, true, 0));
+            list.Insert(0, new CustomerDto(0, "--- اختر عميل ---", null, null, null, 0, true, 0));
             cmbCustomer.DataSource = list;
             cmbCustomer.DisplayMember = "Name";
             cmbCustomer.ValueMember = "Id";
@@ -412,10 +661,6 @@ public partial class frmAddUpdateSalesInvoice : Form
             {
                 _allProducts = productRes.Value.ToList();
             }
-
-            // الضرائب: أُزيلت وحدة الضرائب (V2) — لا قائمة ضرائب مرجعية، فالنسبة = 0
-            // (يبقى الحقل معطلاً؛ قيمة TaxAmount في الطلب = 0 و TaxId = null).
-            //cmbTax.Enabled = false;
 
             // تغيير المستودع ⇒ إعادة قراءة أرصدة المستودع الجديد
             // (إلغاء الاشتراك أولاً حتى لا يتكرر عند إعادة تحميل القوائم من زر "تحديث بيانات الأصناف")
@@ -531,6 +776,9 @@ public partial class frmAddUpdateSalesInvoice : Form
     private async Task<bool> IsStockSufficientAsync(
         int productId, decimal newQty, decimal newConversionFactor, Guid? excludeLineKey = null)
     {
+        // وضع المرتجع: المرتجع **يزيد** المخزون، ففحص كفاية البيع كان سيمنع إرجاع صنف رصيده صفر.
+        if (_documentMode == SalesDocumentMode.SaleReturn) return true;
+
         if (newQty <= 0) return true;
         if (newConversionFactor <= 0m) newConversionFactor = 1m;
         if (cmbWarehouse.SelectedValue is not short wid || wid <= 0) return true;
@@ -625,6 +873,46 @@ public partial class frmAddUpdateSalesInvoice : Form
         _isUpdating = false;
     }
 
+    /// <summary>
+    /// ربط مرتجع بيع محمَّل بالشاشة (نظير <see cref="BindInvoice"/>). الـDTO لا يحمل كود الصنف ولا اسم
+    /// الوحدة، فيبقيان فارغين ويُحلّان من كاش الوحدات في <see cref="LoadAllUnitsForLinesAsync"/>.
+    /// </summary>
+    private void BindReturn()
+    {
+        _isUpdating = true;
+
+        UpdateModeHeader();
+        lblInvoiceNo.Text = _returnDoc!.ReturnNo.ToString();
+        dtpDate.Value = _returnDoc.ReturnDate;
+        if (_returnDoc.CustomerId > 0 && cmbCustomer.Items.Count > 0)
+            cmbCustomer.SelectedValue = _returnDoc.CustomerId;
+        if (cmbWarehouse.Items.Count > 0)
+            cmbWarehouse.SelectedValue = Convert.ToInt16(_returnDoc.WarehouseId);
+        txtNotes.Text = _returnDoc.Notes ?? string.Empty;
+
+        _lines.Clear();
+        foreach (var item in _returnDoc.Items)
+        {
+            _lines.Add(new InvoiceLineItem
+            {
+                ProductId = item.ProductId,
+                ProductCode = string.Empty,   // غير موجود في SalesReturnItemDto
+                ProductName = item.ProductName,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                UnitName = string.Empty,      // غير موجود في SalesReturnItemDto — يُحلّ من كاش الوحدات
+                ProductUnitId = item.ProductUnitId,
+                ConversionFactor = 1m,
+                Barcode = string.Empty,
+                DiscountAmount = item.DiscountAmount,
+                ExpiryDate = null
+            });
+        }
+
+        _isUpdating = false;
+        CalculateTotals();
+    }
+
     private async Task LoadAllUnitsForLinesAsync()
     {
         foreach (var line in _lines.Where(l => l.ProductId > 0))
@@ -649,27 +937,41 @@ public partial class frmAddUpdateSalesInvoice : Form
         _warehouseStockForWarehouseId = -1;
         _warehouseStockBase.Clear();
 
-        lblMode.Text = "فاتورة بيع جديدة";
+        bool isReturn = _documentMode == SalesDocumentMode.SaleReturn;
+
+        // مرتجع جديد: لا مستند مُنشأ ولا معرّف محفوظ (يبدأ من الصفر)
+        if (isReturn)
+        {
+            _returnDoc = null;
+            _createdReturnId = null;
+        }
+
+        UpdateModeHeader();
         lblInvoiceNo.Text = "جديد";
         dtpDate.Value = DateTime.Now;
         SelectDefaultCashCustomer(); // "عميل نقدي" إن وُجد، وإلا "--- اختر عميل ---"
 
-        // نوع الدفع يعود إلى «نقدي» في الفاتورة الجديدة — لا يورّث نوع الفاتورة السابقة المحمَّلة.
-        rbtnPaymentTypeCash.Checked = true;
-        rbtnPaymentTypeCredit.Checked = false;
+        // حقول البيع (نوع الدفع · الصندوق · الخصم · المدفوع · المصاريف) مخفية في وضع المرتجع — لا تُعاد تهيئتها.
+        if (!isReturn)
+        {
+            // نوع الدفع يعود إلى «نقدي» في الفاتورة الجديدة — لا يورّث نوع الفاتورة السابقة المحمَّلة.
+            rbtnPaymentTypeCash.Checked = true;
+            rbtnPaymentTypeCredit.Checked = false;
 
-        // الصندوق الافتراضي = أول صندوق نشط
-        if (cmbCashBox.Items.Count > 0) cmbCashBox.SelectedIndex = 0;
+            // الصندوق الافتراضي = أول صندوق نشط
+            if (cmbCashBox.Items.Count > 0) cmbCashBox.SelectedIndex = 0;
+
+            // الخصم: النوع الافتراضي "مبلغ" ثم تصفير القيمة
+            cmbDiscountType.SelectedIndex = 0;
+            numInvoiceDiscount.Value = 0;
+
+            txtPaid.Text = "0";
+            txtExpenses.Text = "0";
+        }
 
         _lines.Clear();
 
-        // الخصم: النوع الافتراضي "مبلغ" ثم تصفير القيمة
-        cmbDiscountType.SelectedIndex = 0;
-        numInvoiceDiscount.Value = 0;
-
-        txtPaid.Text = "0";
         txtNotes.Clear();
-        txtExpenses.Text = "0";
         lblLineTotal.Text = clsFormat.Money(0m);
         lblTafqitValue.Text = string.Empty;
         ClearEntryPanel();
@@ -2285,6 +2587,12 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private async void btnCancelInvoice_Click(object? sender, EventArgs e)
     {
+        if (_documentMode == SalesDocumentMode.SaleReturn)
+        {
+            await CancelReturnAsync();
+            return;
+        }
+
         if (_invoice == null) return;
         if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء هذه الفاتورة؟"))
             return;
@@ -2382,7 +2690,6 @@ public partial class frmAddUpdateSalesInvoice : Form
             object? Raw(string key) => map.TryGetValue(key, out var v) ? v : null;
             string? Text(string key) => Raw(key) as string;
             bool Flag(string key) => Raw(key) is bool b && b;
-            decimal Number(string key) => Raw(key) is decimal d ? d : 0m;
             int Count(string key, int fallback) => Raw(key) is int i ? i : fallback;
 
             return new StoreSettingsDto(
@@ -2392,9 +2699,6 @@ public partial class frmAddUpdateSalesInvoice : Form
                 Address: Text("address"),
                 LogoPath: Text("logoPath"),
                 Email: Text("email"),
-                DefaultTaxRate: Number("defaultTaxRate"),
-                IsTaxEnabled: Flag("isTaxEnabled"),
-                TaxNumber: Text("taxNumber"),
                 EnableStockAlerts: Flag("enableStockAlerts"),
                 AllowNegativeStock: Flag("allowNegativeStock"),
                 InvoicePrefix: Text("invoicePrefix") ?? string.Empty,
@@ -2405,7 +2709,7 @@ public partial class frmAddUpdateSalesInvoice : Form
                 SignaturePath: Text("signaturePath"));
         }
 
-        return new StoreSettingsDto(0, string.Empty, null, null, null, null, 0m, false, null,
+        return new StoreSettingsDto(0, string.Empty, null, null, null, null,
             false, false, string.Empty);
     }
 
@@ -2416,7 +2720,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     // ═════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// "فاتورة جديدة" — يتأكد من عدم فقدان سطور غير محفوظة ثم يبدأ فاتورة فارغة.
+    /// "فاتورة جديدة" — يتأكد من عدم فقدان سطور غير محفوظة ثم يبدأ فاتورة/مرتجعاً فارغاً في الوضع الحالي.
     /// </summary>
     private void btnNew_Click(object? sender, EventArgs e)
     {
@@ -2425,6 +2729,8 @@ public partial class frmAddUpdateSalesInvoice : Form
             if (!ConfirmDiscardUnsavedLines()) return;
 
             _invoice = null;
+            _returnDoc = null;
+            _createdReturnId = null;
             ResetForm();
             UpdateUIState();
             CalculateTotals();
@@ -2434,19 +2740,23 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "خطأ أثناء بدء فاتورة بيع جديدة");
-            clsDialogs.Error("حدث خطأ أثناء بدء فاتورة جديدة. يرجى المحاولة مرة أخرى.");
+            Log.Error(ex, "خطأ أثناء بدء مستند بيع جديد");
+            clsDialogs.Error(_documentMode == SalesDocumentMode.SaleReturn
+                ? "حدث خطأ أثناء بدء مرتجع جديد. يرجى المحاولة مرة أخرى."
+                : "حدث خطأ أثناء بدء فاتورة جديدة. يرجى المحاولة مرة أخرى.");
         }
     }
 
     /// <summary>
-    /// تأكيد بدء فاتورة جديدة عند وجود سطور غير محفوظة.
+    /// تأكيد بدء مستند جديد عند وجود سطور غير محفوظة.
     /// </summary>
     private bool ConfirmDiscardUnsavedLines()
     {
         if (!_lines.Any(l => l.ProductId > 0)) return true;
 
-        return clsDialogs.Confirm("هل تريد بدء فاتورة جديدة؟ سيتم فقدان البيانات غير المحفوظة.");
+        return clsDialogs.Confirm(_documentMode == SalesDocumentMode.SaleReturn
+            ? "هل تريد بدء مرتجع جديد؟ سيتم فقدان البيانات غير المحفوظة."
+            : "هل تريد بدء فاتورة جديدة؟ سيتم فقدان البيانات غير المحفوظة.");
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -2525,26 +2835,53 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    /// <summary>
-    /// "مردود بيع" — يفتح شاشة مردود المبيعات من الحاوية (DI).
-    /// </summary>
-    private void btnSalesReturn_Click(object? sender, EventArgs e)
-    {
-        try
-        {
-            var form = _serviceProvider.GetRequiredService<frmSalesReturn>();
-            form.ShowDialog(this);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "خطأ أثناء فتح شاشة مردود المبيعات");
-            clsDialogs.Error("حدث خطأ أثناء فتح شاشة مردود المبيعات.");
-        }
-    }
-
     // ═════════════════════════════════════════════════════════════════
     //  SAVE LOGIC (PRESERVED)
     // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// يحلّ وحدة السطر فعلياً: المخزّنة في السطر، ثم من كاش وحدات الصنف بالاسم، ثم أول وحدة.
+    /// يعيد <c>0</c> عند تعذّر الحل.
+    /// </summary>
+    /// <remarks>
+    /// <b>LEP-1 (TASK-017 D-8):</b> هذا هو البيت الواحد لحلّ الوحدة في الشاشة — وكان مسار الحفظ
+    /// يسقط صامتاً إلى الوحدة رقم ١ عند غياب وحدة السطر، فيُسجَّل السطر بوحدة صنف آخر. الآن لا يوجد
+    /// سقوط إلى الوحدة ١ إطلاقاً: تعذّر الحل ⇒ رفض عربي يُسمّي السطر في <see cref="_ValidateLineUnits"/>.
+    /// </remarks>
+    private int ResolveLineProductUnitId(InvoiceLineItem line)
+    {
+        if (line.ProductUnitId > 0) return line.ProductUnitId;
+
+        if (_productUnitsCache.TryGetValue(line.ProductId, out var units))
+        {
+            var match = units.FirstOrDefault(u => u.UnitName == line.UnitName) ?? units.FirstOrDefault();
+            if (match != null) return match.Id;
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// بوابة الوحدة قبل أي حفظ (فاتورة أو مرتجع): كل سطر مُسنَد لصنف يجب أن تُحلّ وحدته،
+    /// وإلا يُرفض برسالة عربية تُسمّي رقم السطر — ولا يُرسَل الطلب بوحدة مخترعة.
+    /// </summary>
+    private bool _ValidateLineUnits()
+    {
+        for (int i = 0; i < _lines.Count; i++)
+        {
+            var line = _lines[i];
+            if (line.ProductId <= 0 || ResolveLineProductUnitId(line) > 0) continue;
+
+            string unitMessage = $"السطر {i + 1}: لم تُحدَّد وحدة الصنف — أعد اختياره من لوحة الإضافة.";
+            errorProvider.SetError(dgvItems, unitMessage);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, unitMessage, tooltip);
+            dgvItems.Focus();
+            clsDialogs.Warning(unitMessage);
+            return false;
+        }
+
+        return true;
+    }
 
     /// <summary>
     /// قواعد **النطاق** فقط — المال · المخزون · القفل: لا حكم «حقل مطلوب فارغ» هنا إطلاقاً
@@ -2552,8 +2889,9 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// <c>RequiredFieldHelper.Attach</c> بالمُنشئ ويُقيَّمان قبل هذه الدالة في <see cref="SaveInvoiceAsync"/>.
     /// <para>
     /// <b>كل قاعدة في هذا الملف باقية حرفياً كما كانت</b> (رسالةً وترتيباً وشرطاً): وجود سطر واحد على الأقل ·
-    /// كمية &gt; 0 للسطر · سعر غير سالب · وحدة مختارة · خصم الفاتورة ≤ الإجمالي · الدفع النقدي كامل ·
-    /// الآجل يتطلب عميلاً ولا يقبل مدفوعاً &gt; الإجمالي · تأكيد الدفع الزائد. والترحيل يحرسه
+    /// كمية &gt; 0 للسطر · سعر غير سالب · خصم الفاتورة ≤ الإجمالي · الدفع النقدي كامل ·
+    /// الآجل يتطلب عميلاً ولا يقبل مدفوعاً &gt; الإجمالي · تأكيد الدفع الزائد. وحكم «الوحدة» صار في
+    /// <see cref="_ValidateLineUnits"/> (LEP-1) ويُقيَّم قبلها. والترحيل يحرسه
     /// <see cref="IsLocked"/> قبلها في <see cref="SaveInvoiceAsync"/> (فاتورة مرحّلة/ملغاة لا تُحفظ).
     /// </para>
     /// </summary>
@@ -2578,8 +2916,8 @@ public partial class frmAddUpdateSalesInvoice : Form
                 errors.Add($"الكمية يجب أن تكون أكبر من صفر ({line.ProductName})");
             if (line.UnitPrice < 0)
                 errors.Add($"السعر لا يمكن أن يكون سالباً ({line.ProductName})");
-            if (string.IsNullOrEmpty(line.UnitName))
-                errors.Add($"لم يتم اختيار وحدة ({line.ProductName})");
+            // الوحدة لم تعد تُفحص هنا: حكمها الواحد في _ValidateLineUnits (LEP-1) — يُسمّي رقم السطر
+            // ويسبق هذه الدالة، فلا تتكرّر رسالتان لحالة واحدة (RULE-N172).
         }
 
         // Discount validation — يُحوَّل الخصم إلى مبلغ قبل المقارنة (يحترم مبلغ/نسبة)
@@ -2595,7 +2933,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal paidCash = txtPaid.DecimalValue;
         decimal totalPaid = paidCash;
 
-        // Real invoice total (tax + expenses) — shared threshold with server guard
+        // Real invoice total (expenses) — shared threshold with server guard
         decimal totalAmount = ComputeTotalAmount();
 
         // Negative amounts
@@ -2659,6 +2997,13 @@ public partial class frmAddUpdateSalesInvoice : Form
 
     private async Task SaveInvoiceAsync(bool post)
     {
+        // TASK-017 — الشاشة نفسها لمستندين: وضع المرتجع يذهب إلى مساره الخاص ولا يلمس مسار الفاتورة.
+        if (_documentMode == SalesDocumentMode.SaleReturn)
+        {
+            await SaveReturnAsync(post);
+            return;
+        }
+
         // ── ما قبل الحفظ (تحقق + تأكيد) داخل حارس: المستدعي async void فلا يجوز تسريب استثناء ──
         try
         {
@@ -2678,6 +3023,9 @@ public partial class frmAddUpdateSalesInvoice : Form
                 if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
                 return;
             }
+
+            // (1ب) وحدة كل سطر — لا سقوط صامت إلى الوحدة 1 (LEP-1 / TASK-017 D-8).
+            if (!_ValidateLineUnits()) return;
 
             // (2) قواعد النطاق (المال · المخزون · القفل) — باقية حرفياً في _ValidateRangeRules.
             if (!_ValidateRangeRules()) return;
@@ -2699,17 +3047,9 @@ public partial class frmAddUpdateSalesInvoice : Form
 
             var items = _lines.Where(l => l.ProductId > 0).Select(l =>
             {
-                // Use stored ProductUnitId if known; otherwise resolve from cache by name
-                int productUnitId = 1;
-                if (l.ProductUnitId > 0)
-                {
-                    productUnitId = l.ProductUnitId;
-                }
-                else if (_productUnitsCache.TryGetValue(l.ProductId, out var units))
-                {
-                    var match = units.FirstOrDefault(u => u.UnitName == l.UnitName) ?? units.FirstOrDefault();
-                    if (match != null) productUnitId = match.Id;
-                }
+                // الوحدة تُحلّ من البيت الواحد ResolveLineProductUnitId — ووجودها محقَّق مسبقاً في
+                // _ValidateLineUnits، فلا سقوط صامت إلى الوحدة 1 (LEP-1 / TASK-017 D-8).
+                int productUnitId = ResolveLineProductUnitId(l);
 
                 // خصم السطر: النوع مبلغ ⇒ DiscountRate يحمل قيمة الخصم (كما في SalesInvoiceLine)
                 return new CreateSalesInvoiceLineRequest(
@@ -2736,9 +3076,6 @@ public partial class frmAddUpdateSalesInvoice : Form
             decimal discountValue = discount.Rate;
             decimal calculatedDiscountAmt = discount.Amount;
 
-            decimal taxableAmount = subTotal - calculatedDiscountAmt;
-            decimal reqTaxAmount = CalculateTaxAmount(taxableAmount);
-
             // ── Shared header values (used by both create & update) ──
             int warehouseId = Convert.ToInt32(cmbWarehouse.SelectedValue ?? 0);
             int customerId = Convert.ToInt32(cmbCustomer.SelectedValue ?? 0);
@@ -2751,7 +3088,6 @@ public partial class frmAddUpdateSalesInvoice : Form
             decimal paidAmount = txtPaid.DecimalValue;
             decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp2) ? exp2 : 0m;
             string notes = txtNotes.Text;
-            int? taxId = null; // أُزيلت وحدة الضرائب (V2)
 
             // ── Create or Update? ──
             int invoiceId;
@@ -2766,11 +3102,9 @@ public partial class frmAddUpdateSalesInvoice : Form
                 InvoiceDate: dtpDate.Value,
                 PaymentType: paymentType,
                 DiscountAmount: calculatedDiscountAmt,
-                TaxAmount: reqTaxAmount,
                 OtherCharges: expenses,
                 PaidAmount: paidAmount,
                 Notes: notes,
-                TaxId: taxId,
                 Items: items,
                 DiscountType: discountType,
                 DiscountRate: discountValue);
@@ -2864,6 +3198,231 @@ public partial class frmAddUpdateSalesInvoice : Form
     }
 
     // ═════════════════════════════════════════════════════════════════
+    //  RETURN MODE — حفظ/ترحيل/إلغاء مرتجع البيع (TASK-017)
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// قواعد النطاق في وضع المرتجع: سطر مُسنَد لصنف واحد على الأقل · وحدة محدَّدة لكل سطر (LEP-1) ·
+    /// كمية &gt; 0 · سعر غير سالب. لا خصم ترويسة ولا ضرائب ولا نفقات ولا مدفوعاً — لا وجود لها في عقد المرتجع.
+    /// </summary>
+    private bool _ValidateReturnRules()
+    {
+        if (!_lines.Any(l => l.ProductId > 0))
+        {
+            const string itemsMessage = "لم يتم إضافة أي صنف إلى المرتجع";
+            errorProvider.SetError(dgvItems, itemsMessage);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, itemsMessage, tooltip);
+            dgvItems.Focus();
+            clsDialogs.Warning("أضف صنفاً واحداً على الأقل للمرتجع");
+            return false;
+        }
+
+        errorProvider.SetError(dgvItems, string.Empty);
+
+        if (!_ValidateLineUnits()) return false;
+
+        foreach (var line in _lines.Where(l => l.ProductId > 0))
+        {
+            string? message = line.Quantity <= 0
+                ? $"الكمية يجب أن تكون أكبر من صفر ({line.ProductName})"
+                : line.UnitPrice < 0
+                    ? $"سعر الوحدة لا يمكن أن يكون سالباً ({line.ProductName})"
+                    : null;
+
+            if (message == null) continue;
+
+            errorProvider.SetError(dgvItems, message);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, message, tooltip);
+            dgvItems.Focus();
+            clsDialogs.Warning(message);
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// حفظ/ترحيل مرتجع البيع. لا <c>UpdateAsync</c> في العقد ⇒ المرتجع يُنشأ مرة واحدة ويُرحَّل بمعرّفه
+    /// (<see cref="_createdReturnId"/> يمنع مستنداً ثانياً عند إعادة محاولة الترحيل)، ثم تُغلق الشاشة
+    /// بـ<see cref="DialogResult.OK"/> كما كانت شاشة المرتجع تفعل.
+    /// </summary>
+    private async Task SaveReturnAsync(bool post)
+    {
+        // ── (0) حالة المستند: مرحَّل/ملغي ⇒ لا شيء؛ مسودة محفوظة ⇒ «ترحيل» فقط ──
+        if (_returnDoc != null && _returnDoc.Status != (byte)InvoiceStatus.Draft)
+        {
+            clsDialogs.Info("المرتجع مرحّل أو ملغي — لا يمكن تعديله أو ترحيله مرة أخرى.");
+            return;
+        }
+
+        if (!post && _returnDoc != null)
+        {
+            clsDialogs.Info("المرتجع محفوظ كمسودة ولا يقبل التعديل — استخدم «ترحيل» لترحيله.");
+            return;
+        }
+
+        // ── (1)-(3) تحقق + تأكيد الترحيل — داخل حارس واحد عند حدّ الخطأ (RULE-N205) ──
+        try
+        {
+            errorProvider.Clear();
+
+            if (!RequiredFieldHelper.Validate(this))
+            {
+                if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+                return;
+            }
+
+            if (!_ValidateReturnRules()) return;
+
+            if (post && !clsDialogs.Confirm("ترحيل المرتجع؟ سيتم زيادة المخزون وتقليل رصيد العميل."))
+                return;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء التحقق من مرتجع البيع قبل الحفظ");
+            clsDialogs.Error("تعذر التحقق من بيانات المرتجع. يرجى إعادة المحاولة.");
+            return;
+        }
+
+        btnSaveDraft.Enabled = btnPost.Enabled = false;
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+
+            // (4) لا مستند مكرر: إن نجح الإنشاء سابقاً وفشل الترحيل، تُرحَّل المسودة نفسها.
+            int documentId;
+            if (_createdReturnId is int existingReturnId)
+            {
+                documentId = existingReturnId;
+            }
+            else
+            {
+                var items = _lines.Where(l => l.ProductId > 0).Select(l => new ReturnItemRequest(
+                    SalesInvoiceLineId: 0,
+                    ProductId: l.ProductId,
+                    ProductUnitId: ResolveLineProductUnitId(l),   // لا سقوط إلى الوحدة 1 (LEP-1)
+                    Quantity: l.Quantity,
+                    UnitPrice: l.UnitPrice,
+                    Amount: l.LineTotal,
+                    DiscountAmount: l.DiscountAmount,
+                    Mode: 1,
+                    Notes: null)).ToList();
+
+                int customerId = Convert.ToInt32(cmbCustomer.SelectedValue ?? 0);
+                short warehouseId = Convert.ToInt16(cmbWarehouse.SelectedValue ?? 0);
+
+                var request = new CreateSalesReturnRequest(
+                    SalesInvoiceId: null,
+                    CustomerId: customerId > 0 ? customerId : null,
+                    WarehouseId: warehouseId,
+                    ReturnDate: dtpDate.Value,
+                    ReturnReason: null,
+                    Notes: txtNotes.Text,
+                    Items: items);
+
+                var result = await _returnApi.CreateAsync(request);
+                if (!result.IsSuccess || result.Value is not { } created)
+                {
+                    clsDialogs.Error(result.Error ?? "تعذر حفظ مرتجع البيع.");
+                    return;
+                }
+
+                _createdReturnId = created.Id;
+                _returnDoc = created;
+                lblInvoiceNo.Text = created.ReturnNo.ToString();
+                UpdateUIState();
+                documentId = created.Id;
+            }
+
+            // (5) الترحيل — فشله لا يُلغي المسودة ولا يُنشئ مستنداً ثانياً.
+            if (post)
+            {
+                var postResult = await _returnApi.PostAsync(documentId);
+                if (!postResult.IsSuccess)
+                {
+                    clsDialogs.Warning(
+                        $"أُنشئ المرتجع كمسودة برقم {_createdReturnId} وتعذر ترحيله. " +
+                        "أعد الضغط على «ترحيل» لترحيل نفس المسودة.",
+                        "لم يُرحَّل المرتجع");
+                    return;
+                }
+
+                clsDialogs.Success("تم الترحيل");
+                try
+                {
+                    foreach (var line in _lines.Where(l => l.ProductId > 0))
+                        EventBus.Publish(new StockChangedMessage(line.ProductId));
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "تعذر نشر حدث تغيير المخزون لمرتجع البيع {ReturnId}", documentId);
+                }
+            }
+            else
+            {
+                clsDialogs.Success("تم الحفظ");
+            }
+
+            // (7) إعلام بقية الشاشات ثم الإغلاق — كما تفعل شاشة المرتجع القائمة.
+            try { EventBus.Publish(new SalesReturnChangedMessage(documentId)); }
+            catch (Exception ex) { Log.Warning(ex, "تعذر نشر حدث تغيير مرتجع البيع {ReturnId}", documentId); }
+
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "خطأ أثناء حفظ مرتجع البيع");
+            clsDialogs.Error("خطأ في حفظ المرتجع. تم تسجيل التفاصيل للدعم الفني.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+
+            // الحفظ الناجح يغلق النموذج ويُدمّره — لا تُلمس عناصره بعد الإغلاق.
+            if (!IsDisposed)
+            {
+                btnSaveDraft.Enabled = btnPost.Enabled = true;
+                UpdateUIState();
+                if (IsEditable) txtBarcode.Focus();
+            }
+        }
+    }
+
+    /// <summary>إلغاء مرتجع بيع مرحَّل — بالعقد الخاص بالمرتجعات (<c>_returnApi.CancelAsync</c>).</summary>
+    private async Task CancelReturnAsync()
+    {
+        if (_returnDoc == null) return;
+        if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء هذا المرتجع؟"))
+            return;
+
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+            var cancelResult = await _returnApi.CancelAsync(_returnDoc.Id, default);
+            if (!cancelResult.IsSuccess)
+            {
+                // لا نجاح وهمي — المرتجع لم يُلغَ فعلاً، تبقى الشاشة مفتوحة برسالة الخدمة العربية
+                clsDialogs.Error(cancelResult.Error ?? "تعذر إلغاء المرتجع.");
+                return;
+            }
+
+            clsDialogs.Success("تم إلغاء المرتجع");
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "حدث خطأ أثناء إلغاء المرتجع");
+            clsDialogs.Error("حدث خطأ أثناء إلغاء المرتجع. تم تسجيل التفاصيل.");
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════
     //  TOTALS (PRESERVED) — Designer wires to OnCalculateTotals
     // ═════════════════════════════════════════════════════════════════
 
@@ -2913,7 +3472,7 @@ public partial class frmAddUpdateSalesInvoice : Form
     /// <summary>
     /// إجمالي الفاتورة الصافي المستخدم في التحقق من السداد (بوابة الدفع النقدي الكامل).
     /// يتبع دستور الحسابات نفسه المستخدم في <see cref="CalculateTotals"/>:
-    ///   NetTotal = SubTotal - InvoiceDiscount + TaxAmount + OtherCharges
+    ///   NetTotal = SubTotal - InvoiceDiscount + OtherCharges
     /// والخصم يُحسب عبر <see cref="ResolveInvoiceDiscount"/> ليحترم النوع (مبلغ / نسبة).
     /// </summary>
     private decimal ComputeTotalAmount()
@@ -2923,12 +3482,9 @@ public partial class frmAddUpdateSalesInvoice : Form
         // الخصم: مبلغ ثابت أو نسبة من الإجمالي — لا يُستخدم numInvoiceDiscount.Value مباشرة
         decimal invoiceDiscount = ResolveInvoiceDiscount(subTotal).Amount;
 
-        decimal taxableAmount = subTotal - invoiceDiscount;
-        decimal taxAmount = CalculateTaxAmount(taxableAmount);
-
         decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp) ? exp : 0m;
 
-        return taxableAmount + taxAmount + expenses;
+        return subTotal - invoiceDiscount + expenses;
     }
 
     private void CalculateTotals()
@@ -2937,19 +3493,31 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(x => x.LineTotal);
 
-        // الخصم: مبلغ ثابت أو نسبة — يُحوَّل دائماً إلى مبلغ قبل الحساب
-        var discount = ResolveInvoiceDiscount(subTotal);
-        decimal invoiceDiscount = discount.Amount;
+        decimal netTotal;
+        decimal totalPaid;
+        decimal dueAmount;
 
-        decimal taxableAmount = subTotal - invoiceDiscount;
-        decimal taxAmount = CalculateTaxAmount(taxableAmount);
-        decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp) ? exp : 0m;
+        if (_documentMode == SalesDocumentMode.SaleReturn)
+        {
+            // وضع المرتجع: لا خصم ترويسة ولا ضرائب ولا نفقات ولا مدفوعاً في العقد (D-5) — تُتجاهَل
+            // حقولها المخفية تماماً حتى لا تدخل في الحساب وهي غير مرئية.
+            netTotal = subTotal;
+            totalPaid = 0m;
+            dueAmount = netTotal - totalPaid;
+        }
+        else
+        {
+            // الخصم: مبلغ ثابت أو نسبة — يُحوَّل دائماً إلى مبلغ قبل الحساب
+            var discount = ResolveInvoiceDiscount(subTotal);
+            decimal invoiceDiscount = discount.Amount;
 
-        // دستور الحسابات: NetTotal = SubTotal - InvoiceDiscount + Tax + OtherCharges
-        decimal netTotal = subTotal - invoiceDiscount + taxAmount + expenses;
+            decimal expenses = clsValidation.TryParseDecimal(txtExpenses.Text, out decimal exp) ? exp : 0m;
 
-        decimal totalPaid = txtPaid.DecimalValue;
-        decimal dueAmount = netTotal - totalPaid;
+            netTotal = subTotal - invoiceDiscount + expenses;
+
+            totalPaid = txtPaid.DecimalValue;
+            dueAmount = netTotal - totalPaid;
+        }
 
         // Update quick info bar (إجمالي الكمية يعرض بثلاث خانات عشرية كحد أقصى)
         int itemCount = _lines.Count(l => l.ProductId > 0);
@@ -2970,20 +3538,11 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    private decimal CalculateTaxAmount(decimal subTotal)
-    {
-        // أُزيلت وحدة الضرائب (V2) — لا توجد ضرائب معرّفة في النظام، لذا قيمة الضريبة = 0.
-        // صيغة القانون المالي (إن أُعيد تفعيل الضرائب):
-        //   شاملة  : TaxAmount = SubTotal - (SubTotal / (1 + rate))
-        //   مضافة  : TaxAmount = SubTotal * rate
-        _ = subTotal;
-        return 0m;
-    }
-
     private void UpdateUIState()
     {
-        bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
-        bool locked = IsLocked; // Posted / Cancelled → قفل تلقائي كامل
+        bool isReturn = _documentMode == SalesDocumentMode.SaleReturn;
+        bool editable = IsEditable;
+        bool locked = IsLocked; // Posted / Cancelled → قفل تلقائي كامل (والمرتجع المحفوظ مقفل دائماً)
 
         gbInvoiceInfo.Enabled = editable;
         pnlEntry.Enabled = editable;
@@ -3005,16 +3564,33 @@ public partial class frmAddUpdateSalesInvoice : Form
         lblLockIndicator.BackColor = locked ? GreenThemeHelper.StatusDangerBack : GreenThemeHelper.StatusSuccessBack;
         lblLockIndicator.ForeColor = locked ? GreenThemeHelper.StatusDangerStrong : GreenThemeHelper.StatusPositiveDeep;
 
-        btnSaveDraft.Visible = editable;
-        btnPost.Visible = editable;
-        btnCancelInvoice.Visible = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
+        if (isReturn)
+        {
+            // المرتجع: «حفظ» للجديد فقط، و«ترحيل» للجديد وللمسودة المحفوظة، و«إلغاء» للمرحّل فقط.
+            btnSaveDraft.Visible = editable;
+            btnPost.Visible = _returnDoc == null || _returnDoc.Status == (byte)InvoiceStatus.Draft;
+            btnCancelInvoice.Visible = _returnDoc?.Status == (byte)InvoiceStatus.Posted;
+        }
+        else
+        {
+            btnSaveDraft.Visible = editable;
+            btnPost.Visible = editable;
+            btnCancelInvoice.Visible = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
+        }
+
+        // زر «اختيار فاتورة» يخصّ المرتجع وحده (TASK-017): يظهر في وضع المرتجع
+        // ويُفعّل ما دام المرتجع قابلاً للتحرير — فلا يُعبَّأ مرتجع محفوظ/مقفل.
+        btnPickInvoice.Visible = isReturn;
+        btnPickInvoice.Enabled = isReturn && editable;
 
         // ── قائمة السياق: تعطيل التعديل/الحذف عند القفل ──
         tsmiEditRow.Enabled = !locked;
         tsmiDeleteRow.Enabled = !locked;
         tsmiCancelEdit.Enabled = !locked && _editingLineKey.HasValue;
 
-        lblStatus.Text = _invoice?.Status switch
+        byte? activeStatus = isReturn ? _returnDoc?.Status : _invoice?.Status;
+
+        lblStatus.Text = activeStatus switch
         {
             // نص الحالة من البيت الواحد (RULE-N169) + دلالة القفل الخاصة بشاشة التحرير.
             (byte)InvoiceStatus.Draft => DocumentTextHelper.StatusText((byte)InvoiceStatus.Draft),
@@ -3023,7 +3599,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             _ => "جديد"
         };
 
-        lblStatus.BackColor = _invoice?.Status switch
+        lblStatus.BackColor = activeStatus switch
         {
             (byte)InvoiceStatus.Draft => GreenThemeHelper.StatusMutedSoft,
             (byte)InvoiceStatus.Posted => GreenThemeHelper.StatusPositive,
@@ -3031,9 +3607,13 @@ public partial class frmAddUpdateSalesInvoice : Form
             _ => ThemeHelper.Primary   // «جديد» — نفس لون المصمّم (RULE-N134)
         };
 
-        if (btnPrintA4 != null) btnPrintA4.Visible = _invoice != null;
-        if (btnPrintReceipt != null) btnPrintReceipt.Visible = _invoice != null;
-        if (chkPrintSummary != null) chkPrintSummary.Visible = _invoice != null;
+        // الطباعة تخصّ فاتورة البيع وحدها — تبقى مخفية في وضع المرتجع (D-5).
+        if (!isReturn)
+        {
+            if (btnPrintA4 != null) btnPrintA4.Visible = _invoice != null;
+            if (btnPrintReceipt != null) btnPrintReceipt.Visible = _invoice != null;
+            if (chkPrintSummary != null) chkPrintSummary.Visible = _invoice != null;
+        }
 
         // RULE-N147 — الزر الافتراضي (Enter) يتبع الوضع الحالي بعد كل انتقال حالة
         // (تحميل · جديد · حفظ/ترحيل · قفل) — بلا آلة حالة إضافية.
@@ -3095,8 +3675,12 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         if (IsInputFocused()) return;
 
-        // حماية من الفقدان: فاتورة جديدة فيها أصناف غير محفوظة ⇒ تأكيد قبل الإغلاق.
-        if (_invoice == null && _lines.Any(l => l.ProductId > 0)
+        // حماية من الفقدان: مستند جديد فيه أصناف غير محفوظة ⇒ تأكيد قبل الإغلاق.
+        bool unsavedNewDocument = _documentMode == SalesDocumentMode.SaleReturn
+            ? _createdReturnId == null
+            : _invoice == null;
+
+        if (unsavedNewDocument && _lines.Any(l => l.ProductId > 0)
             && !clsDialogs.Confirm("سيتم إغلاق الشاشة وفقدان الأصناف غير المحفوظة. هل تريد المتابعة؟"))
             return;
 
@@ -3149,6 +3733,10 @@ public partial class frmAddUpdateSalesInvoice : Form
 
         // مرحّلة أو ملغاة (مقفلة) ⇒ لا إجراء لـEnter: لا حفظ ولا ترحيل ولا بدء فاتورة جديدة بالخطأ.
         if (IsLocked) return null;
+
+        // وضع المرتجع: «حفظ كمسودة» فقط ما دام المرتجع جديداً (القابل للتحرير) — وبعد الحفظ لا إجراء.
+        if (_documentMode == SalesDocumentMode.SaleReturn)
+            return btnSaveDraft is { Visible: true, Enabled: true } ? btnSaveDraft : null;
 
         // أثناء الحفظ الجاري الزر معطّل ⇒ لا Enter مزدوج.
         return btnSaveDraft.Enabled ? btnSaveDraft : null;

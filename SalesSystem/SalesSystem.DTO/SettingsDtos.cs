@@ -4,8 +4,6 @@ public record PrintSettingsDto(
     string ThermalPrinterName,
     string A4PrinterName,
     string LogoPath,
-    string StoreTaxNumber,
-    decimal TaxRate,
     bool AutoPrintOnPost,
     string ReceiptHeader,
     string ReceiptFooter,
@@ -27,9 +25,6 @@ public record StoreSettingsDto(
     string? Address,
     string? LogoPath,
     string? Email,
-    decimal DefaultTaxRate, // DEPRECATED
-    bool IsTaxEnabled,      // DEPRECATED
-    string? TaxNumber,
     bool EnableStockAlerts,
     bool AllowNegativeStock,
     string InvoicePrefix,    // DEPRECATED
@@ -49,6 +44,5 @@ public record CompanySettingsDto(
     string? Phone,
     string? Email,
     string? Address,
-    string? TaxNumber,
     string? LogoPath
 );

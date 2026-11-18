@@ -34,8 +34,6 @@ partial class frmPurchaseInvoicePrint
         lblSubTotalLabel = new Label();
         lblDiscountValue = new Label();
         lblDiscountLabel = new Label();
-        lblTaxValue = new Label();
-        lblTaxLabel = new Label();
         lblTotalValue = new Label();
         lblTotalLabel = new Label();
         lblPaidValue = new Label();
@@ -115,7 +113,7 @@ partial class frmPurchaseInvoicePrint
         pnlPreviewCard.Location = new Point(20, 56);
         pnlPreviewCard.Name = "pnlPreviewCard";
         pnlPreviewCard.RightToLeft = RightToLeft.Yes;
-        pnlPreviewCard.Size = new Size(400, 432);
+        pnlPreviewCard.Size = new Size(400, 408);
         pnlPreviewCard.TabIndex = 1;
         // 
         // pnlCardHeader
@@ -170,23 +168,20 @@ partial class frmPurchaseInvoicePrint
         tblFields.Controls.Add(lblSubTotalLabel, 0, 4);
         tblFields.Controls.Add(lblDiscountValue, 1, 5);
         tblFields.Controls.Add(lblDiscountLabel, 0, 5);
-        tblFields.Controls.Add(lblTaxValue, 1, 6);
-        tblFields.Controls.Add(lblTaxLabel, 0, 6);
-        tblFields.Controls.Add(lblTotalValue, 1, 7);
-        tblFields.Controls.Add(lblTotalLabel, 0, 7);
-        tblFields.Controls.Add(lblPaidValue, 1, 8);
-        tblFields.Controls.Add(lblPaidLabel, 0, 8);
-        tblFields.Controls.Add(lblRemainingValue, 1, 9);
-        tblFields.Controls.Add(lblRemainingLabel, 0, 9);
-        tblFields.Controls.Add(lblTafqitValue, 1, 10);
-        tblFields.Controls.Add(lblTafqitLabel, 0, 10);
+        tblFields.Controls.Add(lblTotalValue, 1, 6);
+        tblFields.Controls.Add(lblTotalLabel, 0, 6);
+        tblFields.Controls.Add(lblPaidValue, 1, 7);
+        tblFields.Controls.Add(lblPaidLabel, 0, 7);
+        tblFields.Controls.Add(lblRemainingValue, 1, 8);
+        tblFields.Controls.Add(lblRemainingLabel, 0, 8);
+        tblFields.Controls.Add(lblTafqitValue, 1, 9);
+        tblFields.Controls.Add(lblTafqitLabel, 0, 9);
         tblFields.Dock = DockStyle.Top;
         tblFields.Location = new Point(0, 74);
         tblFields.Name = "tblFields";
         tblFields.Padding = new Padding(12, 4, 12, 4);
         tblFields.RightToLeft = RightToLeft.Yes;
-        tblFields.RowCount = 11;
-        tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+        tblFields.RowCount = 10;
         tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
         tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
         tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
@@ -197,7 +192,7 @@ partial class frmPurchaseInvoicePrint
         tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
         tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
         tblFields.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-        tblFields.Size = new Size(398, 308);
+        tblFields.Size = new Size(398, 284);
         tblFields.TabIndex = 1;
         // 
         // lblInvoiceNoLabel
@@ -356,39 +351,13 @@ partial class frmPurchaseInvoicePrint
         lblDiscountValue.Text = "- 8,000.00 ريال يمني";
         lblDiscountValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // lblTaxLabel
-        // 
-        lblTaxLabel.AutoSize = true;
-        lblTaxLabel.Dock = DockStyle.Fill;
-        lblTaxLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblTaxLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblTaxLabel.Location = new Point(15, 151);
-        lblTaxLabel.Name = "lblTaxLabel";
-        lblTaxLabel.Size = new Size(104, 18);
-        lblTaxLabel.TabIndex = 12;
-        lblTaxLabel.Text = "الضريبة";
-        lblTaxLabel.TextAlign = ContentAlignment.MiddleRight;
-        // 
-        // lblTaxValue
-        // 
-        lblTaxValue.AutoSize = true;
-        lblTaxValue.Dock = DockStyle.Fill;
-        lblTaxValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-        lblTaxValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTaxValue.Location = new Point(125, 151);
-        lblTaxValue.Name = "lblTaxValue";
-        lblTaxValue.Size = new Size(258, 18);
-        lblTaxValue.TabIndex = 13;
-        lblTaxValue.Text = "72,415.00 ريال يمني";
-        lblTaxValue.TextAlign = ContentAlignment.MiddleLeft;
-        // 
         // lblTotalLabel
         // 
         lblTotalLabel.AutoSize = true;
         lblTotalLabel.Dock = DockStyle.Fill;
         lblTotalLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTotalLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblTotalLabel.Location = new Point(15, 175);
+        lblTotalLabel.Location = new Point(15, 151);
         lblTotalLabel.Name = "lblTotalLabel";
         lblTotalLabel.Size = new Size(104, 38);
         lblTotalLabel.TabIndex = 14;
@@ -402,11 +371,11 @@ partial class frmPurchaseInvoicePrint
         lblTotalValue.Dock = DockStyle.Fill;
         lblTotalValue.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTotalValue.Location = new Point(125, 175);
+        lblTotalValue.Location = new Point(125, 151);
         lblTotalValue.Name = "lblTotalValue";
         lblTotalValue.Size = new Size(258, 38);
         lblTotalValue.TabIndex = 15;
-        lblTotalValue.Text = "714,415 ريال يمني";
+        lblTotalValue.Text = "642,000 ريال يمني";
         lblTotalValue.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // lblPaidLabel
@@ -415,7 +384,7 @@ partial class frmPurchaseInvoicePrint
         lblPaidLabel.Dock = DockStyle.Fill;
         lblPaidLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblPaidLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblPaidLabel.Location = new Point(15, 219);
+        lblPaidLabel.Location = new Point(15, 195);
         lblPaidLabel.Name = "lblPaidLabel";
         lblPaidLabel.Size = new Size(104, 18);
         lblPaidLabel.TabIndex = 16;
@@ -428,7 +397,7 @@ partial class frmPurchaseInvoicePrint
         lblPaidValue.Dock = DockStyle.Fill;
         lblPaidValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblPaidValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblPaidValue.Location = new Point(125, 219);
+        lblPaidValue.Location = new Point(125, 195);
         lblPaidValue.Name = "lblPaidValue";
         lblPaidValue.Size = new Size(258, 18);
         lblPaidValue.TabIndex = 17;
@@ -441,7 +410,7 @@ partial class frmPurchaseInvoicePrint
         lblRemainingLabel.Dock = DockStyle.Fill;
         lblRemainingLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblRemainingLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblRemainingLabel.Location = new Point(15, 243);
+        lblRemainingLabel.Location = new Point(15, 219);
         lblRemainingLabel.Name = "lblRemainingLabel";
         lblRemainingLabel.Size = new Size(104, 18);
         lblRemainingLabel.TabIndex = 18;
@@ -454,11 +423,11 @@ partial class frmPurchaseInvoicePrint
         lblRemainingValue.Dock = DockStyle.Fill;
         lblRemainingValue.Font = new Font("Tahoma", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
         lblRemainingValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblRemainingValue.Location = new Point(125, 243);
+        lblRemainingValue.Location = new Point(125, 219);
         lblRemainingValue.Name = "lblRemainingValue";
         lblRemainingValue.Size = new Size(258, 18);
         lblRemainingValue.TabIndex = 19;
-        lblRemainingValue.Text = "214,415.00 ريال يمني";
+        lblRemainingValue.Text = "142,000.00 ريال يمني";
         lblRemainingValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblTafqitLabel
@@ -467,7 +436,7 @@ partial class frmPurchaseInvoicePrint
         lblTafqitLabel.Dock = DockStyle.Fill;
         lblTafqitLabel.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTafqitLabel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(52), Convert.ToInt32(73), Convert.ToInt32(94));
-        lblTafqitLabel.Location = new Point(15, 267);
+        lblTafqitLabel.Location = new Point(15, 243);
         lblTafqitLabel.Name = "lblTafqitLabel";
         lblTafqitLabel.Size = new Size(104, 34);
         lblTafqitLabel.TabIndex = 20;
@@ -480,18 +449,18 @@ partial class frmPurchaseInvoicePrint
         lblTafqitValue.Dock = DockStyle.Fill;
         lblTafqitValue.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblTafqitValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblTafqitValue.Location = new Point(125, 267);
+        lblTafqitValue.Location = new Point(125, 243);
         lblTafqitValue.Name = "lblTafqitValue";
         lblTafqitValue.Size = new Size(258, 34);
         lblTafqitValue.TabIndex = 21;
-        lblTafqitValue.Text = "سبعمائة وأربعة عشر ألفاً وأربعمائة وخمسة عشر ريالاً يمنياً فقط";
+        lblTafqitValue.Text = "ستمائة واثنان وأربعون ألفاً ريالاً يمنياً فقط";
         lblTafqitValue.TextAlign = ContentAlignment.MiddleRight;
         // 
         // pnlDashedSeparator
         // 
         pnlDashedSeparator.BackColor = System.Drawing.Color.White;
         pnlDashedSeparator.Dock = DockStyle.Top;
-        pnlDashedSeparator.Location = new Point(0, 382);
+        pnlDashedSeparator.Location = new Point(0, 358);
         pnlDashedSeparator.Name = "pnlDashedSeparator";
         pnlDashedSeparator.Size = new Size(398, 14);
         pnlDashedSeparator.TabIndex = 2;
@@ -503,7 +472,7 @@ partial class frmPurchaseInvoicePrint
         lblThanks.Dock = DockStyle.Bottom;
         lblThanks.Font = new Font("Tahoma", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblThanks.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
-        lblThanks.Location = new Point(0, 396);
+        lblThanks.Location = new Point(0, 372);
         lblThanks.Name = "lblThanks";
         lblThanks.Size = new Size(398, 34);
         lblThanks.TabIndex = 3;
@@ -567,7 +536,7 @@ partial class frmPurchaseInvoicePrint
         AutoScaleMode = AutoScaleMode.None;
         BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
         CancelButton = btnClose;
-        ClientSize = new Size(440, 580);
+        ClientSize = new Size(440, 556);
         Controls.Add(pnlFooter);
         Controls.Add(pnlPreviewCard);
         Controls.Add(pnlHeader);
@@ -614,8 +583,6 @@ partial class frmPurchaseInvoicePrint
     private Label lblSubTotalValue;
     private Label lblDiscountLabel;
     private Label lblDiscountValue;
-    private Label lblTaxLabel;
-    private Label lblTaxValue;
     private Label lblTotalLabel;
     private Label lblTotalValue;
     private Label lblPaidLabel;

@@ -9,9 +9,10 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 /// وهمية في الذاكرة دون أي اتصال بالخادم (وضع التجربة / UI-First).
 /// تعرض معاينة ورقية للفاتورة داخل بطاقة تشبه الفاتورة المطبوعة: اسم المتجر، عنوان
 /// «فاتورة مشتريات»، رقم الفاتورة، التاريخ، المورد، المستودع، المجموع الفرعي، الخصم،
-/// الضريبة، الإجمالي بارزاً، المدفوع، الباقي، التفقيط، ثم فاصل متقطع وتذييل
+/// الإجمالي بارزاً، المدفوع، الباقي، التفقيط، ثم فاصل متقطع وتذييل
 /// «شكراً لتعاملكم معنا».
 /// زر الطباعة يعرض رسالة نجاح فقط (محاكاة). تُعرض النافذة عبر ShowDialog().
+/// <para>MVP V1 بلا ضريبة (أمر المالك 2026-11-18 — «remove each and every Tax columns»): لا سطر ضريبة في المعاينة.</para>
 /// </summary>
 public partial class frmPurchaseInvoicePrint : Form
 {
@@ -27,14 +28,13 @@ public partial class frmPurchaseInvoicePrint : Form
         public required string Warehouse { get; init; }     // المستودع
         public required decimal SubTotal { get; init; }     // المجموع الفرعي
         public required decimal Discount { get; init; }     // الخصم
-        public required decimal Tax { get; init; }          // الضريبة
         public required decimal Total { get; init; }        // الإجمالي
         public required decimal Paid { get; init; }         // المدفوع
         public required decimal Remaining { get; init; }    // الباقي
         public required string Tafqit { get; init; }        // التفقيط بالحروف
     }
 
-    // فاتورة مشتريات رقم 5003 — شركة النور للتجارة — الإجمالي 714,415 ريال يمني
+    // فاتورة مشتريات رقم 5003 — شركة النور للتجارة — الإجمالي 642,000 ريال يمني (بلا ضريبة — V1)
     private readonly PurchaseInvoice _invoice = new()
     {
         InvoiceNo = "5003",
@@ -43,11 +43,10 @@ public partial class frmPurchaseInvoicePrint : Form
         Warehouse = "المستودع الرئيسي (1)",
         SubTotal = 650000m,
         Discount = 8000m,
-        Tax = 72415m,
-        Total = 714415m,
+        Total = 642000m,
         Paid = 500000m,
-        Remaining = 214415m,
-        Tafqit = "سبعمائة وأربعة عشر ألفاً وأربعمائة وخمسة عشر ريالاً يمنياً فقط",
+        Remaining = 142000m,
+        Tafqit = "ستمائة واثنان وأربعون ألفاً ريالاً يمنياً فقط",
     };
 
     public frmPurchaseInvoicePrint(IServiceProvider serviceProvider)
@@ -107,7 +106,6 @@ public partial class frmPurchaseInvoicePrint : Form
 
         lblSubTotalValue.Text = clsFormat.Money(_invoice.SubTotal) + " ريال يمني";
         lblDiscountValue.Text = "- " + clsFormat.Money(_invoice.Discount) + " ريال يمني";
-        lblTaxValue.Text = clsFormat.Money(_invoice.Tax) + " ريال يمني";
         lblTotalValue.Text = clsFormat.Number(_invoice.Total) + " ريال يمني";
         lblPaidValue.Text = clsFormat.Money(_invoice.Paid) + " ريال يمني";
         lblRemainingValue.Text = clsFormat.Money(_invoice.Remaining) + " ريال يمني";

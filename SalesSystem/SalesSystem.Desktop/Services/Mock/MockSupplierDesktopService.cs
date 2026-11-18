@@ -57,7 +57,7 @@ public class MockSupplierDesktopService : ISupplierDesktopService
 
         var supplier = new SupplierDto(
             Id: nextId, Name: r.Name, Phone: r.Phone, Email: r.Email,
-            Address: r.Address, TaxNumber: r.TaxNumber, Notes: r.Notes,
+            Address: r.Address, Notes: r.Notes,
             CreditLimit: r.CreditLimit, IsActive: true,
             CategoryId: r.CategoryId);
 
@@ -83,7 +83,6 @@ public class MockSupplierDesktopService : ISupplierDesktopService
             Phone = r.Phone,
             Email = r.Email,
             Address = r.Address,
-            TaxNumber = r.TaxNumber,
             Notes = r.Notes,
             CreditLimit = r.CreditLimit,
             IsActive = r.IsActive,

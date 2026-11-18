@@ -29,9 +29,6 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.Property(s => s.Address)
             .HasMaxLength(500);
 
-        builder.Property(s => s.TaxNumber)
-            .HasMaxLength(30);
-
         builder.Property(s => s.Notes)
             .HasMaxLength(1000);
 

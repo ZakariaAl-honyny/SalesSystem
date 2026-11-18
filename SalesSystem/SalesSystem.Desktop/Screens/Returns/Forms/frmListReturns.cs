@@ -3,6 +3,8 @@ using SalesSystem.Desktop.GlobalClasses;
 using Microsoft.Extensions.DependencyInjection;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.Desktop.Helpers;
+using SalesSystem.Desktop.Screens.Sales.Forms;
+using SalesSystem.Desktop.Screens.Purchases.Forms;
 
 namespace SalesSystem.Desktop.Screens.Returns.Forms;
 
@@ -12,8 +14,8 @@ namespace SalesSystem.Desktop.Screens.Returns.Forms;
 /// شبكتان وملخّصان يتبعان تصفيةً واحدة مشتركة داخل <c>gbFilter</c> (§2.22).
 /// <para>
 /// القراءة فقط: لا حفظ ولا ترحيل من هذه الشاشة — المحرّران
-/// (<see cref="frmSalesReturn"/> / <see cref="frmPurchaseReturn"/>) يملكان الكتابة،
-/// ويُفتحان من DI فقط ثم تُعاد قراءة الشبكة عند إغلاقهما (<c>RULE-N02</c>/<c>RULE-N132</c>).
+/// (<see cref="frmAddUpdateSalesInvoice"/> بوضع «مرتجع بيع» / <see cref="frmAddUpdatePurchaseInvoice"/> بوضع «مرتجع شراء»)
+/// يملكان الكتابة، ويُفتحان من DI فقط ثم تُعاد قراءة الشبكة عند إغلاقهما (<c>RULE-N02</c>/<c>RULE-N132</c>).
 /// </para>
 /// </summary>
 public partial class frmListReturns : Form
@@ -635,18 +637,25 @@ public partial class frmListReturns : Form
             _ReloadForm();
     }
 
-    /// <summary>فتح محرر المرتجع المحدد (أو فارغاً عند «جديد») حسب التبويب النشط.</summary>
+    /// <summary>
+    /// فتح محرّر المرتجع المحدد (أو فارغاً عند «جديد») حسب التبويب النشط.
+    /// TASK-017: محرّر المبيعات الموحّد <c>frmAddUpdateSalesInvoice</c> يُفتح في وضع «مرتجع بيع».
+    /// </summary>
     private void _OpenSalesEditor(SalesReturnDto? dto)
     {
-        var editor = _serviceProvider.GetRequiredService<frmSalesReturn>();
-        editor.LoadData(dto);
+        var editor = _serviceProvider.GetRequiredService<frmAddUpdateSalesInvoice>();
+        editor.LoadAsReturn(dto);          // يفتح الوضع الصحيح ويحمّل المرتجع
         _OpenEditor(editor);
     }
 
+    /// <summary>
+    /// فتح محرّر مرتجع الشراء المحدد (أو فارغاً عند «جديد») — TASK-018:
+    /// المحرّر الموحّد <c>frmAddUpdatePurchaseInvoice</c> يُفتح في وضع «مرتجع شراء».
+    /// </summary>
     private void _OpenPurchaseEditor(PurchaseReturnDto? dto)
     {
-        var editor = _serviceProvider.GetRequiredService<frmPurchaseReturn>();
-        editor.LoadData(dto);
+        var editor = _serviceProvider.GetRequiredService<frmAddUpdatePurchaseInvoice>();
+        editor.LoadAsReturn(dto);          // يفتح وضع «مرتجع شراء» ويحمّل المرتجع
         _OpenEditor(editor);
     }
 

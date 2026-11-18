@@ -50,8 +50,8 @@ public class PrintDataService : IPrintDataService
         if (invoice == null)
             return Result<InvoicePrintDto>.Failure("الفاتورة غير موجودة");
 
-        var (storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
-        var dto = await _builder.BuildFromSalesAsync(invoice, storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, ct);
+        var (storeName, storePhone, storeAddress, logoBytes, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
+        var dto = await _builder.BuildFromSalesAsync(invoice, storeName, storePhone, storeAddress, logoBytes, ct);
         if (!string.IsNullOrWhiteSpace(footerNote))
             dto.FooterNote = footerNote;
         dto.ShowBalanceOnPrint = showBalanceOnPrint;
@@ -76,8 +76,8 @@ public class PrintDataService : IPrintDataService
         if (invoice == null)
             return Result<InvoicePrintDto>.Failure("الفاتورة غير موجودة");
 
-        var (storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
-        var dto = await _builder.BuildFromPurchaseAsync(invoice, storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, ct);
+        var (storeName, storePhone, storeAddress, logoBytes, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
+        var dto = await _builder.BuildFromPurchaseAsync(invoice, storeName, storePhone, storeAddress, logoBytes, ct);
         if (!string.IsNullOrWhiteSpace(footerNote))
             dto.FooterNote = footerNote;
         dto.ShowBalanceOnPrint = showBalanceOnPrint;
@@ -101,8 +101,8 @@ public class PrintDataService : IPrintDataService
         if (returnEntity == null)
             return Result<InvoicePrintDto>.Failure("مرتجع المبيعات غير موجود");
 
-        var (storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
-        var dto = await _builder.BuildFromSalesReturnAsync(returnEntity, storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, ct);
+        var (storeName, storePhone, storeAddress, logoBytes, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
+        var dto = await _builder.BuildFromSalesReturnAsync(returnEntity, storeName, storePhone, storeAddress, logoBytes, ct);
         if (!string.IsNullOrWhiteSpace(footerNote))
             dto.FooterNote = footerNote;
         dto.ShowBalanceOnPrint = showBalanceOnPrint;
@@ -126,8 +126,8 @@ public class PrintDataService : IPrintDataService
         if (returnEntity == null)
             return Result<InvoicePrintDto>.Failure("مرتجع المشتريات غير موجود");
 
-        var (storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
-        var dto = await _builder.BuildFromPurchaseReturnAsync(returnEntity, storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate, ct);
+        var (storeName, storePhone, storeAddress, logoBytes, footerNote, showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress) = await LoadAllStoreInfoAsync(ct);
+        var dto = await _builder.BuildFromPurchaseReturnAsync(returnEntity, storeName, storePhone, storeAddress, logoBytes, ct);
         if (!string.IsNullOrWhiteSpace(footerNote))
             dto.FooterNote = footerNote;
         dto.ShowBalanceOnPrint = showBalanceOnPrint;
@@ -143,16 +143,16 @@ public class PrintDataService : IPrintDataService
 
     /// <summary>
     /// Loads store info PLUS FooterNote from print settings.
-    /// Returns 15-tuple: name, phone, address, taxNumber, logoBytes, taxRate, footerNote,
+    /// Returns 13-tuple: name, phone, address, logoBytes, footerNote,
     /// showBalanceOnPrint, printSignature, showExpiryInInvoices, paperSize, signaturePath,
     /// printBarcode, printQRCode, printCompanyAddress.
     /// </summary>
-    private async Task<(string name, string phone, string address, string taxNumber,
-        byte[]? logoBytes, decimal taxRate, string? footerNote, bool showBalanceOnPrint, bool printSignature,
+    private async Task<(string name, string phone, string address,
+        byte[]? logoBytes, string? footerNote, bool showBalanceOnPrint, bool printSignature,
         bool showExpiryInInvoices, string paperSize, string? signaturePath,
         bool printBarcode, bool printQRCode, bool printCompanyAddress)> LoadAllStoreInfoAsync(CancellationToken ct)
     {
-        var (name, phone, address, taxNumber, logoBytes, taxRate) = await LoadStoreInfoAsync(ct);
+        var (name, phone, address, logoBytes) = await LoadStoreInfoAsync(ct);
         var footerNote = string.Empty;
         bool showBalanceOnPrint = true;
         bool printSignature = false;
@@ -194,12 +194,12 @@ public class PrintDataService : IPrintDataService
         if (storeSettingsResult.IsSuccess && storeSettingsResult.Value != null)
             signaturePath = storeSettingsResult.Value.SignaturePath;
 
-        return (name, phone, address, taxNumber, logoBytes, taxRate, footerNote, showBalanceOnPrint, printSignature,
+        return (name, phone, address, logoBytes, footerNote, showBalanceOnPrint, printSignature,
             showExpiryInInvoices, paperSize, signaturePath, printBarcode, printQRCode, printCompanyAddress);
     }
 
-    private async Task<(string name, string phone, string address, string taxNumber,
-        byte[]? logoBytes, decimal taxRate)> LoadStoreInfoAsync(CancellationToken ct)
+    private async Task<(string name, string phone, string address,
+        byte[]? logoBytes)> LoadStoreInfoAsync(CancellationToken ct)
     {
         var settingsResult = await GetStoreSettingsAsync(ct);
         var sysSettingsResult = await GetPrintSystemSettingsAsync(ct);
@@ -212,12 +212,8 @@ public class PrintDataService : IPrintDataService
         var storeName = settings?.StoreName ?? "متجري";
         var storePhone = settings?.Phone ?? string.Empty;
         var storeAddress = settings?.Address ?? string.Empty;
-        var storeTaxNumber = sysSettings
-            .FirstOrDefault(s => s.SettingKey == "StoreTaxNumber")?.SettingValue ?? string.Empty;
         var logoPath = sysSettings
             .FirstOrDefault(s => s.SettingKey == "LogoPath")?.SettingValue;
-        var taxRateStr = sysSettings
-            .FirstOrDefault(s => s.SettingKey == "TaxRate")?.SettingValue ?? "15";
 
         byte[]? logoBytes = null;
         if (!string.IsNullOrWhiteSpace(logoPath) && File.Exists(logoPath))
@@ -233,8 +229,7 @@ public class PrintDataService : IPrintDataService
             _logger.LogDebug("Logo hidden via ShowLogo setting");
         }
 
-        decimal.TryParse(taxRateStr, out var taxRate);
-        return (storeName, storePhone, storeAddress, storeTaxNumber, logoBytes, taxRate);
+        return (storeName, storePhone, storeAddress, logoBytes);
     }
 
     public async Task<Result<StoreSettingsDto>> GetStoreSettingsAsync(CancellationToken ct = default)
@@ -246,7 +241,6 @@ public class PrintDataService : IPrintDataService
             var address = await _systemSettingsRepo.GetStringAsync("Store.Address", "", ct);
             var logoPath = await _systemSettingsRepo.GetStringAsync("Store.LogoPath", "", ct);
             var email = await _systemSettingsRepo.GetStringAsync("Store.Email", "", ct);
-            var taxNumber = await _systemSettingsRepo.GetStringAsync("Store.TaxNumber", "", ct);
             _ = bool.TryParse(await _systemSettingsRepo.GetStringAsync("Store.EnableStockAlerts", "false", ct), out var enableStockAlerts);
             _ = bool.TryParse(await _systemSettingsRepo.GetStringAsync("Store.AllowNegativeStock", "false", ct), out var allowNegativeStock);
             var signaturePath = await _systemSettingsRepo.GetStringAsync("Store.SignaturePath", "", ct);
@@ -258,9 +252,6 @@ public class PrintDataService : IPrintDataService
                 address,
                 logoPath,
                 email,
-                0m,         // DEPRECATED: DefaultTaxRate
-                true,       // DEPRECATED: IsTaxEnabled
-                taxNumber,
                 enableStockAlerts,
                 allowNegativeStock,
                 "",         // DEPRECATED: InvoicePrefix
@@ -306,8 +297,6 @@ public class PrintDataService : IPrintDataService
             var thermalPrinterName = GetSettingValue(sysSettings, "ThermalPrinterName", "");
             var a4PrinterName = GetSettingValue(sysSettings, "A4PrinterName", "");
             var logoPath = GetSettingValue(sysSettings, "LogoPath", "");
-            var storeTaxNumber = GetSettingValue(sysSettings, "StoreTaxNumber", "");
-            var taxRateStr = GetSettingValue(sysSettings, "TaxRate", "15");
             var autoPrintStr = GetSettingValue(sysSettings, "AutoPrintOnPost", "false");
             var receiptHeader = GetSettingValue(sysSettings, "ReceiptHeader", "");
             var receiptFooter = GetSettingValue(sysSettings, "ReceiptFooter", "");
@@ -323,7 +312,6 @@ public class PrintDataService : IPrintDataService
             var printQRCodeStr = GetSettingValue(sysSettings, "PrintQRCode", "false");
             var printCompanyAddressStr = GetSettingValue(sysSettings, "PrintCompanyAddress", "true");
 
-            decimal.TryParse(taxRateStr, out var taxRate);
             bool.TryParse(autoPrintStr, out var autoPrintOnPost);
             int.TryParse(escPosCodePageStr, out var escPosCodePage);
             int.TryParse(printCopiesStr, out var printCopies);
@@ -338,8 +326,6 @@ public class PrintDataService : IPrintDataService
                 thermalPrinterName,
                 a4PrinterName,
                 logoPath,
-                storeTaxNumber,
-                taxRate,
                 autoPrintOnPost,
                 receiptHeader,
                 receiptFooter,
@@ -370,8 +356,6 @@ public class PrintDataService : IPrintDataService
             await _systemSettingsRepo.SetStringAsync("ThermalPrinterName", request.ThermalPrinterName ?? "", ct: ct);
             await _systemSettingsRepo.SetStringAsync("A4PrinterName", request.A4PrinterName ?? "", ct: ct);
             await _systemSettingsRepo.SetStringAsync("LogoPath", request.LogoPath ?? "", ct: ct);
-            await _systemSettingsRepo.SetStringAsync("StoreTaxNumber", request.StoreTaxNumber ?? "", ct: ct);
-            await _systemSettingsRepo.SetStringAsync("TaxRate", request.TaxRate.ToString("F2"), ct: ct);
             await _systemSettingsRepo.SetStringAsync("AutoPrintOnPost", request.AutoPrintOnPost.ToString().ToLower(), ct: ct);
             await _systemSettingsRepo.SetStringAsync("ReceiptHeader", request.ReceiptHeader ?? "", ct: ct);
             await _systemSettingsRepo.SetStringAsync("ReceiptFooter", request.ReceiptFooter ?? "", ct: ct);

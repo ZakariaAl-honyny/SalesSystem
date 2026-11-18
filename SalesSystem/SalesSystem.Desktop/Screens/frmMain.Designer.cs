@@ -93,7 +93,6 @@ namespace SalesSystem.Desktop.Screens
             msReportFinance = new ToolStripMenuItem();
             msReportIncomeStatement = new ToolStripMenuItem();
             msReportCashFlow = new ToolStripMenuItem();
-            msReportVat = new ToolStripMenuItem();
             msReportAccountStatement = new ToolStripMenuItem();
             msReportParties = new ToolStripMenuItem();
             msReportCustomerBalance = new ToolStripMenuItem();
@@ -671,7 +670,6 @@ namespace SalesSystem.Desktop.Screens
             msReportFinance.DropDownItems.AddRange(new ToolStripItem[] {
                 msReportIncomeStatement,
                 msReportCashFlow,
-                msReportVat,
                 msReportAccountStatement
             });
             msReportFinance.Name = "msReportFinance";
@@ -691,13 +689,6 @@ namespace SalesSystem.Desktop.Screens
             msReportCashFlow.Size = new Size(280, 34);
             msReportCashFlow.Text = "التدفقات النقدية";
             msReportCashFlow.Click += msReportCashFlow_Click;
-            // 
-            // msReportVat
-            // 
-            msReportVat.Name = "msReportVat";
-            msReportVat.Size = new Size(280, 34);
-            msReportVat.Text = "ضريبة القيمة المضافة";
-            msReportVat.Click += msReportVat_Click;
             // 
             // msReportAccountStatement
             // 
@@ -931,10 +922,9 @@ namespace SalesSystem.Desktop.Screens
         private ToolStripMenuItem msReportProductMovement;
         private ToolStripMenuItem msReportLowStock;
         private ToolStripMenuItem msReportExpiredProducts;
-        // التقارير المالية (4)
+        // التقارير المالية (3)
         private ToolStripMenuItem msReportIncomeStatement;
         private ToolStripMenuItem msReportCashFlow;
-        private ToolStripMenuItem msReportVat;
         private ToolStripMenuItem msReportAccountStatement;
         // تقارير العملاء والموردين (3)
         private ToolStripMenuItem msReportCustomerBalance;

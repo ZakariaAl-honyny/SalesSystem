@@ -23,9 +23,7 @@ public class InvoicePrintDtoBuilder
         string storeName,
         string storePhone,
         string storeAddress,
-        string storeTaxNumber,
         byte[]? logoBytes,
-        decimal taxRate,
         CancellationToken ct = default)
     {
         var dto = new InvoicePrintDto
@@ -33,7 +31,6 @@ public class InvoicePrintDtoBuilder
             StoreName = storeName,
             StorePhone = storePhone,
             StoreAddress = storeAddress,
-            StoreTaxNumber = storeTaxNumber,
             LogoBytes = logoBytes,
             InvoiceId = invoice.Id,
             InvoiceNumber = invoice.InvoiceNo.ToString(),
@@ -56,10 +53,7 @@ public class InvoicePrintDtoBuilder
             SubTotal = invoice.SubTotal,
             DiscountAmount = invoice.DiscountAmount,
             OtherCharges = invoice.OtherCharges,
-            TaxRate = taxRate,
-            TaxAmount = invoice.TaxAmount,
             GrandTotal = invoice.NetTotal,
-            IsTaxInclusive = false,
             PaymentMethod = invoice.PaymentType switch
             {
                 PaymentType.Cash => "نقدي",
@@ -79,9 +73,7 @@ public class InvoicePrintDtoBuilder
         string storeName,
         string storePhone,
         string storeAddress,
-        string storeTaxNumber,
         byte[]? logoBytes,
-        decimal taxRate,
         CancellationToken ct = default)
     {
         var dto = new InvoicePrintDto
@@ -89,7 +81,6 @@ public class InvoicePrintDtoBuilder
             StoreName = storeName,
             StorePhone = storePhone,
             StoreAddress = storeAddress,
-            StoreTaxNumber = storeTaxNumber,
             LogoBytes = logoBytes,
             InvoiceId = invoice.Id,
             InvoiceNumber = invoice.InvoiceNo.ToString(),
@@ -112,10 +103,7 @@ public class InvoicePrintDtoBuilder
             SubTotal = invoice.SubTotal,
             DiscountAmount = invoice.DiscountAmount,
             OtherCharges = invoice.OtherCharges,
-            TaxRate = taxRate,
-            TaxAmount = invoice.TaxAmount,
             GrandTotal = invoice.NetTotal,
-            IsTaxInclusive = false,
             PaymentMethod = invoice.PaymentType switch
             {
                 PaymentType.Cash => "نقدي",
@@ -135,9 +123,7 @@ public class InvoicePrintDtoBuilder
         string storeName,
         string storePhone,
         string storeAddress,
-        string storeTaxNumber,
         byte[]? logoBytes,
-        decimal taxRate,
         CancellationToken ct = default)
     {
         var dto = new InvoicePrintDto
@@ -145,7 +131,6 @@ public class InvoicePrintDtoBuilder
             StoreName = storeName,
             StorePhone = storePhone,
             StoreAddress = storeAddress,
-            StoreTaxNumber = storeTaxNumber,
             LogoBytes = logoBytes,
             InvoiceId = returnEntity.Id,
             InvoiceNumber = returnEntity.ReturnNo.ToString(),
@@ -166,10 +151,7 @@ public class InvoicePrintDtoBuilder
             SubTotal = returnEntity.TotalAmount,
             DiscountAmount = 0,
             OtherCharges = 0,
-            TaxRate = taxRate,
-            TaxAmount = 0,
             GrandTotal = returnEntity.TotalAmount,
-            IsTaxInclusive = false,
             PaymentMethod = "نقدي",
             AmountPaid = returnEntity.TotalAmount,
             ChangeAmount = 0,
@@ -183,9 +165,7 @@ public class InvoicePrintDtoBuilder
         string storeName,
         string storePhone,
         string storeAddress,
-        string storeTaxNumber,
         byte[]? logoBytes,
-        decimal taxRate,
         CancellationToken ct = default)
     {
         var dto = new InvoicePrintDto
@@ -193,7 +173,6 @@ public class InvoicePrintDtoBuilder
             StoreName = storeName,
             StorePhone = storePhone,
             StoreAddress = storeAddress,
-            StoreTaxNumber = storeTaxNumber,
             LogoBytes = logoBytes,
             InvoiceId = returnEntity.Id,
             InvoiceNumber = returnEntity.ReturnNo.ToString(),
@@ -213,10 +192,7 @@ public class InvoicePrintDtoBuilder
             SubTotal = returnEntity.TotalAmount,
             DiscountAmount = 0,
             OtherCharges = 0,
-            TaxRate = taxRate,
-            TaxAmount = 0,
             GrandTotal = returnEntity.TotalAmount,
-            IsTaxInclusive = false,
             PaymentMethod = "نقدي",
             AmountPaid = returnEntity.TotalAmount,
             ChangeAmount = 0,

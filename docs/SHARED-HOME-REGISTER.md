@@ -1428,3 +1428,60 @@
 | `LEP-1` | `ProductUnitId > 0 ? x : 1` تُرحّل الوحدة 1 لصنف آخر صامتة | **4 مواضع / 3 ملفات** | `l.ProductUnitId` + رفض عربي مسمّى بالصف ⇒ **0** |
 | `LEP-2` | `ProductDto.SalePrice`/`PurchasePrice` = `=> 0m` (سِمتان للتوافق) تُملأ بها الأسعار | مستهلكان: `frmPurchaseInvoice:414` (**أُغلق**) · `frmAddUpdateSalesInvoice:1704` (**باقٍ**) | السعر من `ProductUnitDto` (`CostPrice`/`SalePrice`) في المكوّن |
 | `LEP-3` | `KeyboardHelper.WireGlobalShortcuts` يعمل على `Form.KeyDown` + `KeyPreview` ويضبط `Handled` ⇒ يبتلع `F4`/`Esc` قبل الحقل المركَّز | `KeyboardHelper.cs` L1077–1096 | الشاشات أزالت `F4` (صار منتقي الأصناف) وأضافت حارس `Esc` للوحة — **والإصلاح النظامي في البيت الواحد مسجَّل بنداً مفتوحاً** |
+
+---
+
+## الموجة `TASK-017` — شاشة مستند بيع واحدة بوضعين، وحذف `frmSalesReturn` (2026-11-18)
+
+> **أمر المالك:** «the return scrren the same Invoive Scrren we must choice one of them `...\Screens\Sales\Forms\frmAddUpdateSalesInvoice.cs` and set tow Modes by using two raio button for change the mode. so you now the frmAddUpdateSalesInvoice for the same form for Sales & Returns the same Invoise.» — ثم: «do it in frmAddUpdateSalesInvoice screen».
+
+| # | الملف | الحالة | الملاحظة |
+|---|---|---|---|
+| 1 | `Models/SalesDocumentMode.cs` | ✅ **جديد (11 سطراً)** | `Sale = 1` · `SaleReturn = 2` — الوضع في بيت واحد يقرأه المصمّم والمستدعون |
+| 2 | `Screens/Sales/Forms/frmAddUpdateSalesInvoice.Designer.cs` | ✅ (1,465 → 1,499) | `lblDocMode` + `rbtnModeSale` (محدَّد) + `rbtnModeReturn` أول أبناء `flpToolbar`؛ صيغة `Convert.ToInt32`؛ صفر مرجع `Helpers`؛ **حُذف `btnSalesReturn`** |
+| 3 | `Screens/Sales/Forms/frmAddUpdateSalesInvoice.cs` | ✅ (3,207 → 3,734) | `_documentMode`/`_returnDoc`/`_createdReturnId` · `_ApplyDocumentMode` · `DocumentMode_CheckedChanged` (تأكيد + استعادة عند الإلغاء) · `LoadAsReturn` · `StartNewDocument` · `BindReturn` · `SaveReturnAsync` · `CancelReturnAsync` · `SaleOnlyControls` (15 حقلاً تُخفى) · `IsLocked`/`IsEditable` واعيان بالوضع |
+| 4 | `Screens/Returns/Forms/frmSalesReturn.cs` + `.Designer.cs` + `.resx` | ✅ **محذوفة** | `RULE-N102` — لا محرّر ثانٍ للمرتجع؛ صفر مرجع في الحل كله |
+| 5 | `Screens/Returns/Forms/frmListReturns.cs` | ✅ | `_OpenSalesEditor` → `frmAddUpdateSalesInvoice.LoadAsReturn(dto)` |
+| 6 | `Screens/frmMain.cs` | ✅ | `OpenSalesDocument(mode)` — تُنشّط المفتوحة وتبدأ مستنداً جديداً (`RULE-N133`) بدل نافذة ثانية؛ «فاتورة بيع» بقي `OpenScreen<T>` حرفياً |
+| 7 | `Program.cs` | ✅ | حُذف تسجيل `frmSalesReturn` — تسجيل واحد للشاشة الموحّدة |
+| 8 | `docs/TASKS/TASK-017-sales-document-two-modes.md` · `ACTIVE.md` §9 · `INDEX.md` · `AGENTS.md` §9 | ✅ | السجل + المؤشر + صفّا Sales/Sales Returns |
+
+**عقيدة المكان الواحد:** حكم المرتجع (التحقق · الإنشاء مرة واحدة · الترحيل · الإلغاء · الرسائل) موجود **مرة واحدة** داخل الشاشة الموحّدة؛ والشاشتان القديمتان (البيع والمرتجع) صارتا شاشة واحدة ببيت واحد للوضع (`SalesDocumentMode`).
+
+**عيوب مقيسة وُجدت وأُغلقت:**
+
+| # | العيب | القياس | الإصلاح |
+|---|---|---|---|
+| `LEP-1` (إغلاق نهائي) | `int productUnitId = 1` تُرحّل الوحدة 1 لصنف آخر صامتة | كان **4 مواضع / 3 ملفات**؛ هذه الشاشة آخر موضع باقٍ | `ResolveLineProductUnitId` + `_ValidateLineUnits` + رفض عربي مسمّى بالصف ⇒ **0** في الحل كله |
+| `T17-1` | زر «مردود بيع» داخل الفاتورة كان يفتح شاشة منفصلة = نسخة ثانية من الحكم | `btnSalesReturn` = 1 | الزر ومعالجه أُزيلا — الوضع يُختار بالزرّين |
+
+**قيود مقيسة تُبلَّغ للمالك:** (1) فتح مرتجع من `frmListReturns` وشاشة المستند مفتوحة مسبقاً يُنشّط النسخة القائمة (نمط `clsOpenForm` القائم) — مسار القائمة الرئيسية آمن؛ (2) `flpToolbar` هامشه ضيق بعد الزرّين الجديدين — يحتاج فحصاً بصرياً عند DPI أعلى.
+
+### إغلاق مراجعة `TASK-017` (الجولة 3)
+
+| # | الملف | الحالة | الملاحظة |
+|---|---|---|---|
+| 1 | `Screens/Sales/Forms/frmAddUpdateSalesInvoice.cs` + `.Designer.cs` | ✅ (3,829 / 1,507) | **`TryStartNewDocument`** (تأكيد قبل فقدان غير المحفوظ) · **`btnPickInvoice`** معلن في المصمّم وظاهر في وضع المرتجع فقط (ميزة `frmSalesInvoiceSelection` التي كانت في الشاشة المحذوفة) + `LoadAllUnitsForLinesAsync` قبل الحفظ |
+| 2 | `Screens/frmMain.cs` | ✅ | `OpenSalesDocument` يستدعي `TryStartNewDocument` ولا يمسّ شيئاً عند الرفض |
+
+**الحكم:** `0 Blocker · 2 Major (أُصلحا) · 2 Minor (أحدهما سقط بحذف ملفه · والآخر بانتظار قرار المالك: «المتبقي» في شريط إجماليات المرتجع)`.
+
+---
+
+## الموجة `TASK-018` — شاشة مستند شراء واحدة بوضعين، وحذف `frmPurchaseReturn` (2026-11-18)
+
+> **أمر المالك:** «do the same for Purchase in `frmAddUpdatePurchaseInvoice`» — أي نفس `TASK-017` للشراء.
+
+| # | الملف | الحالة | الملاحظة |
+|---|---|---|---|
+| 1 | `Models/PurchaseDocumentMode.cs` | ✅ **جديد (10 أسطر)** | `Purchase = 1` · `PurchaseReturn = 2` |
+| 2 | `Screens/Purchases/Forms/frmAddUpdatePurchaseInvoice.Designer.cs` | ✅ (728 → 800) | `lblModeDoc` + `rbtnModePurchase` (محدَّد) + `rbtnModeReturn` + `btnPickInvoice` كأوّل أبناء **`pnlToolbar`** · `Convert.ToInt32` · صفر مرجع `Helpers` |
+| 3 | `Screens/Purchases/Forms/frmAddUpdatePurchaseInvoice.cs` | ✅ (877 → 1,428) | `_documentMode`/`_returnDoc`/`_createdReturnId` · `_ApplyDocumentMode` · `DocumentMode_CheckedChanged` · `LoadAsReturn` · `StartNewDocument` · `TryStartNewDocument` · `BindReturn` · `SaveReturnAsync` · `CancelReturnAsync` · `PurchaseOnlyControls` (5 مجموعات تُخفى) |
+| 4 | `Screens/Returns/Forms/frmPurchaseReturn.cs` + `.Designer.cs` + `.resx` | ✅ **محذوفة** | صفر مرجع في الحل كله |
+| 5 | `Screens/Returns/Forms/frmListReturns.cs` | ✅ | `_OpenPurchaseEditor` → `frmAddUpdatePurchaseInvoice.LoadAsReturn(dto)` |
+| 6 | `Screens/frmMain.cs` | ✅ | `OpenPurchaseDocument(mode)` بنمط `OpenSalesDocument` (تأكيد + `TryStartNewDocument`) |
+| 7 | `Program.cs` | ✅ | حُذف تسجيل `frmPurchaseReturn` |
+
+**عقيدة المكان الواحد:** حكم مرتجع الشراء (التحقق · الإنشاء مرة واحدة · الترحيل · الإلغاء) في الشاشة الموحّدة وحدها؛ و`_FirstLineError` **دالة واحدة** تخدم وضعي الفاتورة والمرتجع (`D-6`).
+
+**دَين وثائقي مُبلَّغ (لم يُغلق):** `docs/MangeSubaggentsAndTracProgress.md` (178/186/250) و`TASK-014`/`TASK-016` تذكر الشاشات المحذوفة؛ و`T-02` في هذا السجل (تكلفة سطر مرتجع الشراء = صفر) كان على الملف المحذوف ⇒ **يُعاد قياسه على `SaveReturnAsync` قبل إغلاقه**.

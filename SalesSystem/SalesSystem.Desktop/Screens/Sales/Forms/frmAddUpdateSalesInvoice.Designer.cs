@@ -39,7 +39,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             chkPrintSummary = new CheckBox();
             btnClose = new Button();
             btnNew = new Button();
-            btnSalesReturn = new Button();
+            btnPickInvoice = new Button();
+            lblDocMode = new Label();
+            rbtnModeSale = new RadioButton();
+            rbtnModeReturn = new RadioButton();
             btnEditRow = new Button();
             btnDeleteRow = new Button();
             btnRefreshCatalog = new Button();
@@ -298,21 +301,66 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnNew.UseVisualStyleBackColor = false;
             btnNew.Click += btnNew_Click;
             // 
-            // btnSalesReturn
+            // btnPickInvoice
             // 
-            btnSalesReturn.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(111), Convert.ToInt32(66), Convert.ToInt32(193));
-            btnSalesReturn.FlatAppearance.BorderSize = 0;
-            btnSalesReturn.FlatStyle = FlatStyle.Flat;
-            btnSalesReturn.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnSalesReturn.ForeColor = System.Drawing.Color.White;
-            btnSalesReturn.Location = new Point(422, 3);
-            btnSalesReturn.Name = "btnSalesReturn";
-            btnSalesReturn.Size = new Size(212, 36);
-            btnSalesReturn.TabIndex = 5;
-            btnSalesReturn.Text = "↩ فاتورة مردود بيع";
-            toolTip1.SetToolTip(btnSalesReturn, "فتح شاشة مردود بيع مباشر");
-            btnSalesReturn.UseVisualStyleBackColor = false;
-            btnSalesReturn.Click += btnSalesReturn_Click;
+            btnPickInvoice.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
+            btnPickInvoice.FlatAppearance.BorderSize = 0;
+            btnPickInvoice.FlatStyle = FlatStyle.Flat;
+            btnPickInvoice.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnPickInvoice.ForeColor = System.Drawing.Color.White;
+            btnPickInvoice.Location = new Point(1195, 3);
+            btnPickInvoice.Name = "btnPickInvoice";
+            btnPickInvoice.Size = new Size(170, 36);
+            btnPickInvoice.TabIndex = 23;
+            btnPickInvoice.Text = "اختيار فاتورة";
+            toolTip1.SetToolTip(btnPickInvoice, "تعبئة المرتجع بسطور فاتورة بيع محفوظة");
+            btnPickInvoice.UseVisualStyleBackColor = false;
+            btnPickInvoice.Visible = false;
+            btnPickInvoice.Click += btnPickInvoice_Click;
+            // 
+            // lblDocMode
+            // 
+            lblDocMode.AutoSize = true;
+            lblDocMode.BackColor = System.Drawing.Color.Transparent;
+            lblDocMode.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblDocMode.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+            lblDocMode.Margin = new Padding(8, 10, 2, 0);
+            lblDocMode.Name = "lblDocMode";
+            lblDocMode.TabIndex = 20;
+            lblDocMode.Text = "نوع المستند:";
+            lblDocMode.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // rbtnModeSale
+            // 
+            rbtnModeSale.AutoSize = true;
+            rbtnModeSale.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            rbtnModeSale.Checked = true;
+            rbtnModeSale.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rbtnModeSale.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            rbtnModeSale.Margin = new Padding(2, 9, 2, 0);
+            rbtnModeSale.Name = "rbtnModeSale";
+            rbtnModeSale.Size = new Size(100, 24);
+            rbtnModeSale.TabIndex = 21;
+            rbtnModeSale.TabStop = true;
+            rbtnModeSale.Text = "فاتورة بيع";
+            toolTip1.SetToolTip(rbtnModeSale, "وضع المستند الحالي: فاتورة بيع");
+            rbtnModeSale.UseVisualStyleBackColor = false;
+            rbtnModeSale.CheckedChanged += DocumentMode_CheckedChanged;
+            // 
+            // rbtnModeReturn
+            // 
+            rbtnModeReturn.AutoSize = true;
+            rbtnModeReturn.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            rbtnModeReturn.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            rbtnModeReturn.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            rbtnModeReturn.Margin = new Padding(2, 9, 2, 0);
+            rbtnModeReturn.Name = "rbtnModeReturn";
+            rbtnModeReturn.Size = new Size(100, 24);
+            rbtnModeReturn.TabIndex = 22;
+            rbtnModeReturn.Text = "مرتجع بيع";
+            toolTip1.SetToolTip(rbtnModeReturn, "وضع المستند: مرتجع بيع — يبدأ مستنداً جديداً");
+            rbtnModeReturn.UseVisualStyleBackColor = false;
+            rbtnModeReturn.CheckedChanged += DocumentMode_CheckedChanged;
             // 
             // btnEditRow
             // 
@@ -1280,13 +1328,16 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // flpToolbar
             // 
             flpToolbar.BackColor = System.Drawing.Color.White;
+            flpToolbar.Controls.Add(lblDocMode);
+            flpToolbar.Controls.Add(rbtnModeSale);
+            flpToolbar.Controls.Add(rbtnModeReturn);
             flpToolbar.Controls.Add(btnNew);
+            flpToolbar.Controls.Add(btnPickInvoice);
             flpToolbar.Controls.Add(btnSaveDraft);
             flpToolbar.Controls.Add(btnPost);
             flpToolbar.Controls.Add(btnPrintA4);
             flpToolbar.Controls.Add(btnPrintReceipt);
             flpToolbar.Controls.Add(chkPrintSummary);
-            flpToolbar.Controls.Add(btnSalesReturn);
             flpToolbar.Controls.Add(btnCancelInvoice);
             flpToolbar.Controls.Add(btnClose);
             flpToolbar.Dock = DockStyle.Fill;
@@ -1447,8 +1498,11 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
         // Invoice-level toolbar GroupBox (wraps flpToolbar)
         private System.Windows.Forms.GroupBox gbToolbar;
         private System.Windows.Forms.FlowLayoutPanel flpToolbar;
+        private System.Windows.Forms.Label lblDocMode;
+        private System.Windows.Forms.RadioButton rbtnModeSale;
+        private System.Windows.Forms.RadioButton rbtnModeReturn;
         private System.Windows.Forms.Button btnNew;
-        private System.Windows.Forms.Button btnSalesReturn;
+        private System.Windows.Forms.Button btnPickInvoice;
         private System.Windows.Forms.Button btnSaveDraft;
         private System.Windows.Forms.Button btnPost;
         private System.Windows.Forms.Button btnCancelInvoice;

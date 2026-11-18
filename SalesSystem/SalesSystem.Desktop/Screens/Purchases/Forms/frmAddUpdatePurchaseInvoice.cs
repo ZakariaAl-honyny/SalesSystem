@@ -19,10 +19,11 @@ using SalesSystem.Desktop.Products.Forms;
 
 namespace SalesSystem.Desktop.Screens.Purchases.Forms;
 
-public partial class frmPurchaseInvoice : Form
+public partial class frmAddUpdatePurchaseInvoice : Form
 {
     private readonly IServiceProvider _serviceProvider;
     private IPurchaseInvoiceDesktopService _purchaseApi => _serviceProvider.GetRequiredService<IPurchaseInvoiceDesktopService>();
+    private IPurchaseReturnDesktopService _returnApi => _serviceProvider.GetRequiredService<IPurchaseReturnDesktopService>();
     private ISupplierDesktopService _supplierApi => _serviceProvider.GetRequiredService<ISupplierDesktopService>();
     private IProductDesktopService _productApi => _serviceProvider.GetRequiredService<IProductDesktopService>();
     private IWarehouseDesktopService _warehouseApi => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
@@ -50,10 +51,28 @@ public partial class frmPurchaseInvoice : Form
     private bool _isUpdating = false;
     private bool _tafqeetAttached = false;
 
+    // ── وضع المستند (TASK-018) — الشاشة نفسها لفاتورة الشراء ومرتجع الشراء ──────────────────
+    private PurchaseDocumentMode _documentMode = PurchaseDocumentMode.Purchase;
+    private PurchaseReturnDto? _returnDoc;        // المرتجع المحمَّل/المُنشأ في وضع المرتجع
+    private int? _createdReturnId;                // يمنع إنشاء مرتجع ثانٍ عند إعادة محاولة الترحيل
+    private bool _isApplyingMode;                 // حارس إعادة الدخول على معالجات زرّي الوضع
+
+    /// <summary>وضع المستند الحالي — يقرأه المستدعي عند الحاجة (TASK-018).</summary>
+    public PurchaseDocumentMode DocumentMode => _documentMode;
+
+    /// <summary>
+    /// هل بيانات المستند قابلة للتحرير؟ فاتورة الشراء: جديدة أو مسودة (السلوك القائم حرفياً).
+    /// مرتجع الشراء: جديد فقط — العقد <see cref="IPurchaseReturnDesktopService"/> بلا <c>UpdateAsync</c>
+    /// فتحرير مستند محفوظ لا يُرسَل (D-5).
+    /// </summary>
+    private bool IsEditable => _documentMode == PurchaseDocumentMode.PurchaseReturn
+        ? _returnDoc == null
+        : _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+
     /// <summary>حارس إعادة الدخول على الحفظ: يمنع نقراً مزدوجاً أو تحرير سطر أثناء الإرسال.</summary>
     private bool _isSaving = false;
 
-    public frmPurchaseInvoice(IServiceProvider serviceProvider)
+    public frmAddUpdatePurchaseInvoice(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         InitializeComponent();
@@ -67,7 +86,9 @@ public partial class frmPurchaseInvoice : Form
         // سعر الشراء = ProductUnitDto.CostPrice. ‏ProductDto نفسه يحمل سعري بيع/شراء مرميّين على 0m
         // (مقيس) — فالسعر يُقرأ من الوحدة حصراً وإلا مُلئ كل سطر بسعر صفر.
         ctrlLineEntry.PriceSelector = u => u.CostPrice;
-        ctrlLineEntry.IsEditable = () => _invoice is null || _invoice.Status == (byte)InvoiceStatus.Draft;
+        // حكم «هل يُسمح بالإدخال» بيت واحد في الشاشة (IsEditable) — يتبع وضع المستند حيّاً فلا
+        // نسخة ثانية من شرط «مسودة/مرتجع جديد» هنا (RULE-N172) ولا حاجة لإعادة إسناده عند تغيير الوضع.
+        ctrlLineEntry.IsEditable = () => IsEditable;
         ctrlLineEntry.ResolveBarcodeAsync = FindProductByBarcodeAsync;
         ctrlLineEntry.LoadUnitsAsync = async id =>
             (await _productApi.GetProductUnitsAsync(id)).Value ?? Array.Empty<ProductUnitDto>();
@@ -103,7 +124,7 @@ public partial class frmPurchaseInvoice : Form
 
         // RULE-N43 — مظهر واضح للأزرار المعطّلة.
         KeyboardHelper.WireButtonDisabledVisual(
-            btnRemoveItem, btnSaveDraft, btnPost, btnCancelInvoice, btnPrintA4, btnClose);
+            btnRemoveItem, btnSaveDraft, btnPost, btnCancelInvoice, btnPrintA4, btnClose, btnPickInvoice);
 
         // RULE-N47 — الاختصارات الموحّدة على الأزرار الموجودة فعلاً في الشاشة.
         // F2 = «سطر صنف جديد» ⇒ إعادة المؤشر إلى باركود لوحة الإضافة (لا زر «إضافة صنف» بعد اليوم).
@@ -129,9 +150,146 @@ public partial class frmPurchaseInvoice : Form
 
     public void LoadData(PurchaseInvoiceDto? invoice)
     {
+        // TASK-018 — نسخة معاد استخدامها من الحاوية لا يجوز أن تبقى في وضع المرتجع أو على مرتجع سابق.
+        _documentMode = PurchaseDocumentMode.Purchase;
+        _returnDoc = null;
+        _createdReturnId = null;
+
         _invoice = invoice;
         ApplyUiTheme();
-        _UpdateModeHeader();
+        _ApplyDocumentMode();   // الراديو + رؤية الحقول + العنوان + الحالة + الإجماليات
+    }
+
+    /// <summary>
+    /// يفتح الشاشة في وضع «مرتجع شراء» على المستند المطلوب (أو على مرتجع جديد حين يكون <c>null</c>).
+    /// يُستدعى قبل إظهار النموذج — والربط يحدث في <see cref="OnLoad"/> بعد تحميل القوائم.
+    /// <para>
+    /// <c>PurchaseReturnDto</c> يحمل سطوره (<c>Items</c>) فلا حاجة إلى نداء <c>GetByIdAsync</c>
+    /// على خدمة الفواتير.
+    /// </para>
+    /// </summary>
+    public void LoadAsReturn(PurchaseReturnDto? purchaseReturn)
+    {
+        _documentMode = PurchaseDocumentMode.PurchaseReturn;
+        _returnDoc = purchaseReturn;
+        _createdReturnId = purchaseReturn?.Id;
+        _invoice = null;
+
+        ApplyUiTheme();
+        _ApplyDocumentMode();
+    }
+
+    /// <summary>
+    /// يبدأ مستنداً جديداً بالوضع المطلوب — يُستدعى من القائمة (مرتجع شراء) قبل العرض أو على نموذج مفتوح.
+    /// لا تأكيد هنا: الطلب صريح من المستخدم، والتحرير غير المحفوظ يخصّ مستنداً آخر يبدأ من جديد.
+    /// </summary>
+    public void StartNewDocument(PurchaseDocumentMode mode)
+    {
+        _invoice = null;
+        _returnDoc = null;
+        _createdReturnId = null;
+        _documentMode = mode;
+
+        ResetForm();
+        _ApplyDocumentMode();
+        UpdateUIState();
+        CalculateTotals();
+
+        if (IsHandleCreated) ctrlLineEntry.FocusBarcode();
+    }
+
+    /// <summary>
+    /// نفس <see cref="StartNewDocument"/> لكن بتأكيد عربي حين يوجد مستند أو سطور غير محفوظة.
+    /// يعود <c>false</c> عند إلغاء المستخدم فيبقى المستند الحالي كما هو.
+    /// </summary>
+    public bool TryStartNewDocument(PurchaseDocumentMode mode)
+    {
+        bool holdsDocument = _invoice is not null || _returnDoc is not null;
+        bool holdsLines = _lines.Any(l => l.ProductId > 0);
+
+        if ((holdsDocument || holdsLines) &&
+            !clsDialogs.Confirm("سيبدأ مستند جديد وسيتم فقدان غير المحفوظ. هل تريد المتابعة؟"))
+            return false;
+
+        StartNewDocument(mode);
+        return true;
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  DOCUMENT MODE (TASK-018) — زرّا اختيار: فاتورة شراء / مرتجع شراء
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// حقول الفاتورة التي لا معنى لها في المرتجع (نوع الدفع · المدفوع · المتبقي · خصم الترويسة ·
+    /// طباعة الفاتورة) — تُخفى في وضع المرتجع وتظهر في وضع الفاتورة (D-3 / RULE-N167: الواجهة لا تكذب).
+    /// </summary>
+    private Control[] PurchaseOnlyControls => new Control[]
+    {
+        lblPaymentType, cmbPaymentType,
+        lblPaid, txtPaid,
+        lblDue, lblDueVal,
+        lblInvoiceDiscount, numInvoiceDiscount,
+        btnPrintA4
+    };
+
+    /// <summary>
+    /// يطبّق الوضع الحالي كاملاً: زرّا الاختيار ← إظهار/إخفاء الحقول ← العنوان ← الحالة ← الإجماليات.
+    /// كل انتقال يمرّ من هنا وحده (RULE-N150) فلا تتنازع الحالة بين المعالجات.
+    /// </summary>
+    private void _ApplyDocumentMode()
+    {
+        _isApplyingMode = true;
+        try
+        {
+            rbtnModePurchase.Checked = _documentMode == PurchaseDocumentMode.Purchase;
+            rbtnModeReturn.Checked = _documentMode == PurchaseDocumentMode.PurchaseReturn;
+        }
+        finally
+        {
+            _isApplyingMode = false;
+        }
+
+        bool isReturn = _documentMode == PurchaseDocumentMode.PurchaseReturn;
+        foreach (var control in PurchaseOnlyControls)
+            control.Visible = !isReturn;
+
+        _UpdateModeHeader();   // شريط الوضع + عنوان النافذة
+        UpdateUIState();       // الأزرار وحدود التحرير حسب الوضع
+        CalculateTotals();     // الإجماليات: خصم/مدفوع في الفاتورة فقط
+    }
+
+    /// <summary>
+    /// تبديل نوع المستند من زرّي الاختيار. مستند قائم أو سطور غير محفوظة ⇒ تأكيد عربي،
+    /// والإلغاء يُعيد الاختيار السابق ولا يفقد سطراً.
+    /// </summary>
+    private void DocumentMode_CheckedChanged(object? sender, EventArgs e)
+    {
+        if (_isApplyingMode) return;
+
+        var requested = rbtnModeReturn.Checked
+            ? PurchaseDocumentMode.PurchaseReturn
+            : PurchaseDocumentMode.Purchase;
+        if (requested == _documentMode) return;
+
+        bool holdsDocument = _invoice is not null || _returnDoc is not null;
+        bool holdsLines = _lines.Any(l => l.ProductId > 0);
+        if ((holdsDocument || holdsLines) &&
+            !clsDialogs.Confirm("تغيير نوع المستند سيبدأ مستنداً جديداً ويفقد غير المحفوظ. هل تريد المتابعة؟"))
+        {
+            _ApplyDocumentMode();   // إعادة الاختيار إلى الوضع القائم بلا فقدان سطر
+            return;
+        }
+
+        _invoice = null;
+        _returnDoc = null;
+        _createdReturnId = null;
+        _documentMode = requested;
+
+        if (dgvItems.IsCurrentCellInEditMode) dgvItems.CancelEdit();   // لا تبقى خلية قيد التحرير على سطور ستُمسح
+        ResetForm();
+        _ApplyDocumentMode();
+
+        if (ctrlLineEntry.Enabled) ctrlLineEntry.FocusBarcode();
     }
 
     // ── الاختصارات العامة (RULE-N47) ─────────────────────────────────────────
@@ -201,22 +359,36 @@ public partial class frmPurchaseInvoice : Form
         }
     }
 
-    /// <summary>مؤشر الوضع في شريط العنوان (RULE-N44).</summary>
+    /// <summary>
+    /// مؤشر الوضع في شريط العنوان (RULE-N44) — يتبع الوضع الحالي: فاتورة شراء أو مرتجع شراء،
+    /// جديد أو محفوظ. عنوان النافذة من نفس المصدر فلا نسخة ثانية للعنوان في مكان آخر.
+    /// </summary>
     private void _UpdateModeHeader()
     {
-        lblMode.Text = _invoice == null
-            ? "(( فاتورة مشتريات جديدة ))"
-            : $"(( فاتورة مشتريات — {_invoice.InvoiceNo} ))";
+        bool isReturn = _documentMode == PurchaseDocumentMode.PurchaseReturn;
+
+        lblMode.Text = isReturn
+            ? (_returnDoc == null
+                ? "(( مرتجع مشتريات جديد ))"
+                : $"(( مرتجع مشتريات — {_returnDoc.ReturnNo} ))")
+            : (_invoice == null
+                ? "(( فاتورة مشتريات جديدة ))"
+                : $"(( فاتورة مشتريات — {_invoice.InvoiceNo} ))");
+
+        this.Text = isReturn
+            ? (_returnDoc == null ? "مرتجع مشتريات جديد" : $"مرتجع مشتريات - {_returnDoc.ReturnNo}")
+            : (_invoice == null ? "فاتورة مشتريات جديدة" : $"فاتورة مشتريات - {_invoice.InvoiceNo}");
 
         _SyncAcceptButton();
     }
 
     /// <summary>
     /// الزر الأساسي الذي يستقبله <c>Enter</c> (RULE-N147) — تعريف واحد في الشاشة يُقرأ عند كل ضغطة:
-    /// وضع الإدخال/المسودة ⇒ «حفظ مسودة» · وضع العرض (مرحّلة/ملغاة) ⇒ <c>null</c> (بلا أي حفظ أو ترحيل).
+    /// وضع التحرير (فاتورة جديدة/مسودة أو مرتجع جديد) ⇒ «حفظ مسودة» · وضع العرض (مرحّلة/ملغاة أو
+    /// مرتجع محفوظ) ⇒ <c>null</c> (بلا أي حفظ أو ترحيل).
     /// <para>
-    /// <b>الترحيل ليس زر Enter أبداً:</b> يبقى على زرّه و<c>F4</c> لأنه يخصم المخزون ويُرحّل القيد
-    /// ويقفل المستند (§2.4) — فالمفتاح العابر لا يُرحّل مستنداً مالياً.
+    /// <b>الترحيل ليس زر Enter أبداً:</b> يبقى على زرّه لأنه يخصم/يزيد المخزون ويقفل المستند (§2.4) —
+    /// فالمفتاح العابر لا يُرحّل مستنداً مالياً.
     /// </para>
     /// <para>
     /// حارس إلزامي (RULE-N153): التركيز داخل شبكة السطور (أو خلية قيد التحرير) ⇒ <c>null</c>، فـ<c>Enter</c>
@@ -231,12 +403,11 @@ public partial class frmPurchaseInvoice : Form
         // لوحة الإضافة تحمّل سطراً للتعديل: Enter هناك يُثبّت السطر ولا يُنفّذ زر الوضع.
         if (ctrlLineEntry.IsEditing) return null;
 
-        // مرحّلة أو ملغاة (مقفلة) ⇒ لا إجراء لـEnter: لا حفظ ولا ترحيل ولا إلغاء بالخطأ.
-        bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
-        if (!editable) return null;
+        // غير قابل للتحرير (مرحّلة/ملغاة · مرتجع محفوظ) ⇒ لا إجراء لـEnter.
+        if (!IsEditable) return null;
 
         // أثناء الحفظ الجاري الزر معطّل ⇒ لا Enter مزدوج.
-        return btnSaveDraft.Enabled ? btnSaveDraft : null;
+        return btnSaveDraft is { Visible: true, Enabled: true } ? btnSaveDraft : null;
     }
 
     /// <summary>
@@ -249,7 +420,7 @@ public partial class frmPurchaseInvoice : Form
     private void ApplyUiTheme()
     {
         ThemeHelper.ApplyMainFormStyle(this);
-        this.Text = _invoice == null ? "فاتورة مشتريات جديدة" : $"فاتورة مشتريات - {_invoice.InvoiceNo}";
+        // عنوان النافذة يملكه _UpdateModeHeader وحده (RULE-N44/RULE-N172) — لا نسخة ثانية هنا.
 
         // الأزرار: ألوانها وخط Tahoma معلنة حرفياً في المصمّم بقيم مطابقة لثوابت الثيم
         // (RULE-N134 / RULE-N144) — فلا يُعاد تنسيقها وقت التشغيل، وتبقى حالة التعطيل
@@ -278,7 +449,14 @@ public partial class frmPurchaseInvoice : Form
             Cursor = Cursors.WaitCursor;
             await LoadLookups();
 
-            if (_invoice is not null)
+            if (_documentMode == PurchaseDocumentMode.PurchaseReturn)
+            {
+                // وضع المرتجع: الـDTO يحمل سطوره، فيُربط هنا مباشرة — لا نداء GetByIdAsync على
+                // خدمة الفواتير ولا ربط قبل اكتمال القوائم (وإلا أُسند المورد/المستودع الخطأ).
+                if (_returnDoc is not null) BindReturn();
+                else ResetForm();
+            }
+            else if (_invoice is not null)
             {
                 // المستند الكامل يُقرأ بالمعرّف: شاشة القائمة قد تُمرّر رأس الفاتورة بلا سطور، وفتح مسودة
                 // بلا سطور يجعل إعادة الحفظ تُسقط أصنافها (فقد بيانات)، وكذلك تُقرأ الحالة الحقيقية
@@ -291,8 +469,8 @@ public partial class frmPurchaseInvoice : Form
             }
             else ResetForm();
 
-            UpdateUIState();
-            CalculateTotals();
+            // الراديو + رؤية الحقول + العنوان + الحالة + الإجماليات — من مصدر واحد (RULE-N150).
+            _ApplyDocumentMode();
             ApplyUiTheme();
 
             // RULE-N22a — الشبكة عرض/اختيار فقط: الإدخال كله في لوحة الإضافة أعلاه، فصفوفها لا تُضاف
@@ -401,18 +579,83 @@ public partial class frmPurchaseInvoice : Form
         _UpdateModeHeader();
     }
 
+    /// <summary>
+    /// ربط مرتجع شراء محمَّل بالشاشة (نظير <see cref="BindInvoice"/>). الـDTO لا يحمل كود الصنف،
+    /// فيبقى <c>ProductCode</c> فارغاً، واسم الوحدة يأتي من <c>PurchaseReturnItemDto.ProductUnitName</c>.
+    /// <para>
+    /// سعر السطر = <c>UnitCost</c> نفسه (<c>UnitPrice</c>) لأن <c>LineTotal</c> تُحسب من <c>UnitPrice</c>
+    /// و<i>_FirstLineError</i> يتحقق من <c>UnitCost</c> — فلا سطر محمَّل بتكلفة صفر يُرفض عند الترحيل.
+    /// </para>
+    /// </summary>
+    private void BindReturn()
+    {
+        _isUpdating = true;
+        try
+        {
+            // مرتجع محفوظ: معرّفه يمنع إنشاء نسخة ثانية عند إعادة محاولة الترحيل.
+            _createdReturnId = _returnDoc!.Id;
+            lblInvoiceNo.Text = _returnDoc.ReturnNo.ToString();
+            dtpDate.Value = _returnDoc.ReturnDate.ToDateTime(TimeOnly.MinValue);
+            cmbSupplier.SelectedValue = _returnDoc.SupplierId;
+            // WarehouseDto.Id من نوع short — الإسناد بقيمة int لا يطابق أي عنصر فيُفرغ المستودع المحفوظ.
+            cmbWarehouse.SelectedValue = Convert.ToInt16(_returnDoc.WarehouseId);
+            txtNotes.Text = _returnDoc.Notes ?? string.Empty;
+
+            _lines.Clear();
+            foreach (var item in _returnDoc.Items)
+            {
+                _lines.Add(new InvoiceLineItem
+                {
+                    ProductId = item.ProductId,
+                    ProductCode = string.Empty,   // غير موجود في PurchaseReturnItemDto
+                    ProductName = item.ProductName,
+                    ProductUnitId = item.ProductUnitId,
+                    UnitName = item.ProductUnitName,
+                    Quantity = item.Quantity,
+                    UnitCost = item.UnitCost,
+                    UnitPrice = item.UnitCost,
+                    DiscountAmount = 0m,
+                    ConversionFactor = 1m
+                });
+            }
+        }
+        finally
+        {
+            _isUpdating = false;
+        }
+
+        _UpdateModeHeader();
+    }
+
+    /// <summary>
+    /// إعادة ضبط المحرر لمستند جديد — <b>يتبع الوضع الحالي</b>: حقول الفاتورة (نوع الدفع · خصم
+    /// الترويسة · المدفوع) لا تُعاد تهيئتها في وضع المرتجع لأنها مخفيّة وعقد المرتجع لا يحملها.
+    /// </summary>
     private void ResetForm()
     {
-        this.Text = "فاتورة مشتريات جديدة";
+        bool isReturn = _documentMode == PurchaseDocumentMode.PurchaseReturn;
+
+        // مستند جديد ⇒ لا مستند مرتجع سابق ولا معرّف محفوظ يُرحَّل بدل الجديد (لا تكرار للمستند).
+        _returnDoc = null;
+        _createdReturnId = null;
+
         lblInvoiceNo.Text = "جديد";
         dtpDate.Value = DateTime.Now;
-        cmbPaymentType.SelectedIndex = 0;
+
+        if (!isReturn)
+        {
+            cmbPaymentType.SelectedIndex = 0;
+            numInvoiceDiscount.Value = 0;
+            txtPaid.Text = "0";
+        }
+
         _lines.Clear();
-        numInvoiceDiscount.Value = 0;
-        txtPaid.Text = "0";
         txtNotes.Clear();
 
-        // فاتورة جديدة ⇒ لوحة الإضافة تبدأ من باركود فارغ — فلا يبقى سطر نصف مُدخل من مستند سابق.
+        // RULE-N183 — مسار إعادة الضبط يزيل أي علامة «مطلوب» موروثة من محاولة حفظ سابقة.
+        RequiredFieldHelper.Clear(this);
+
+        // مستند جديد ⇒ لوحة الإضافة تبدأ من باركود فارغ — فلا يبقى سطر نصف مُدخل من مستند سابق.
         ctrlLineEntry.ResetPanel();
         ctrlLineEntry.FocusBarcode();
 
@@ -526,6 +769,16 @@ public partial class frmPurchaseInvoice : Form
     {
         if (_isUpdating) return;
         decimal subTotal = _lines.Sum(x => x.LineTotal);
+
+        // وضع المرتجع: العقد لا يحمل خصم ترويسة ولا مدفوعاً (D-3) — فالمجاميع تُقرأ من السطور
+        // وحدها، والحقول المخفية لا تُلمس ولا تدخل الحساب (RULE-N167).
+        if (_documentMode == PurchaseDocumentMode.PurchaseReturn)
+        {
+            lblSubTotalVal.Text = clsFormat.Money(subTotal);
+            lblTotalVal.Text = clsFormat.Money(subTotal);
+            return;
+        }
+
         decimal invoiceDiscount = numInvoiceDiscount.Value;
         decimal paidAmount = txtPaid.DecimalValue;
 
@@ -541,30 +794,60 @@ public partial class frmPurchaseInvoice : Form
 
     private void UpdateUIState()
     {
-        bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+        bool isReturn = _documentMode == PurchaseDocumentMode.PurchaseReturn;
+        bool editable = IsEditable;
+
         pnlHeader.Enabled = editable;
         // شبكة السطور عرض/اختيار دائماً (SetupGrid): لا تُفتح للتحرير في أي وضع — الإدخال في اللوحة وحدها.
         pnlFooter.Enabled = editable;
 
-        // لوحة «إضافة صنف» هي مسار الإدخال الوحيد: تعطيلها يقفل الإدخال كله على مستند مرحّل/ملغى،
-        // وResetPanel يُلغي أي سطر نصف مُدخل فلا يبقى على الشاشة سطر لا يمكن حفظه.
+        // لوحة «إضافة صنف» هي مسار الإدخال الوحيد: تعطيلها يقفل الإدخال كله على مستند مرحّل/ملغى
+        // أو مرتجع محفوظ، وResetPanel يُلغي أي سطر نصف مُدخل فلا يبقى سطر لا يمكن حفظه.
         ctrlLineEntry.Enabled = editable;
-        if (!editable) ctrlLineEntry.ResetPanel();
+        if (!editable)
+        {
+            ctrlLineEntry.ResetPanel();
+            // RULE-N183 — الانتقال إلى وضع العرض يزيل علامات «مطلوب» عن الحقول المعطّلة.
+            RequiredFieldHelper.Clear(this);
+        }
 
         btnRemoveItem.Enabled = editable;
-        // الإخفاء وحده لا يمنع اختصار F3 — التعطيل إلزامي (RULE-N43/N152)، ويُفعَّل فقط في وضع التحرير.
-        btnSaveDraft.Visible = btnSaveDraft.Enabled = editable;
-        btnPost.Visible = btnPost.Enabled = editable;
-        btnCancelInvoice.Visible = btnCancelInvoice.Enabled = _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
+
+        if (isReturn)
+        {
+            // المرتجع: «حفظ» للجديد فقط، و«ترحيل» للجديد وللمسودة المحفوظة، و«إلغاء» للمرحّل فقط،
+            // و«اختيار فاتورة» للجديد فقط (يملأ الرأس والسطور فلا معنى له على مستند محفوظ).
+            bool hasReturn = _returnDoc is not null;
+            bool returnIsDraft = hasReturn && _returnDoc!.Status == (byte)InvoiceStatus.Draft;
+
+            btnSaveDraft.Visible = btnSaveDraft.Enabled = editable;
+            btnPost.Visible = btnPost.Enabled = !hasReturn || returnIsDraft;
+            btnCancelInvoice.Visible = btnCancelInvoice.Enabled =
+                hasReturn && _returnDoc!.Status == (byte)InvoiceStatus.Posted;
+            btnPickInvoice.Visible = btnPickInvoice.Enabled = editable;
+        }
+        else
+        {
+            // الإخفاء وحده لا يمنع اختصار F3 — التعطيل إلزامي (RULE-N43/N152)، ويُفعَّل فقط في وضع التحرير.
+            btnSaveDraft.Visible = btnSaveDraft.Enabled = editable;
+            btnPost.Visible = btnPost.Enabled = editable;
+            btnCancelInvoice.Visible = btnCancelInvoice.Enabled =
+                _invoice != null && _invoice.Status == (byte)InvoiceStatus.Posted;
+            // «اختيار فاتورة» يخصّ المرتجع وحده — مخفي في وضع الفاتورة (D-4).
+            btnPickInvoice.Visible = false;
+            btnPickInvoice.Enabled = false;
+        }
 
         // RULE-N171/N172: نص الحالة من البيت الواحد DocumentTextHelper (1..3 — RULE-019)؛
         // و«جديد» حين لا يوجد مستند بعد.
-        lblStatus.Text = _invoice is null
+        byte? activeStatus = isReturn ? _returnDoc?.Status : _invoice?.Status;
+
+        lblStatus.Text = activeStatus is null
             ? "جديد"
-            : DocumentTextHelper.StatusText(_invoice.Status);
+            : DocumentTextHelper.StatusText(activeStatus.Value);
 
         // ألوان الحالة من ثوابت ThemeHelper (لا أرقام لون داخل الشاشة) — مطابقة لقيمة المصمّم.
-        lblStatus.BackColor = _invoice?.Status switch
+        lblStatus.BackColor = activeStatus switch
         {
             1 => ThemeHelper.Neutral,
             2 => ThemeHelper.Success,
@@ -597,10 +880,13 @@ public partial class frmPurchaseInvoice : Form
     /// <c>RequiredFieldHelper.Attach</c> بالمُنشئ. والحقل المعطّل (مستند مرحّل/ملغى) لا يُوسَم (RULE-N154).
     /// </para>
     /// <para>
-    /// (2) <b>قواعد الأسطر والمال</b> (RULE-001 / RULE-002): سطر صنف واحد على الأقل · كمية &gt; صفر ·
-    /// تكلفة &gt; صفر · خصم الفاتورة ≤ مجموع الأصناف · المدفوع ≤ إجمالي الفاتورة — <b>تبقى كما هي حرفياً</b>
-    /// بالرسالة والتلميح نفسهما وبالترتيب نفسه. وحارس المستند غير المسودة يسبقها في
-    /// <see cref="SaveInvoiceAsync"/>.
+    /// (2) <b>قواعد الأسطر</b> (RULE-001 / RULE-002): سطر صنف واحد على الأقل · وحدة الصنف · كمية &gt; صفر ·
+    /// تكلفة &gt; صفر — <b>تبقى كما هي حرفياً</b> بالرسالة والتلميح نفسهما وبالترتيب نفسه، وتُستهلك في
+    /// <b>الوضعين</b> (فاتورة ومرتجع) بلا نسخة ثانية (D-6).
+    /// </para>
+    /// <para>
+    /// (3) <b>قواعد مال الفاتورة وحدها</b> (خصم الترويسة · المدفوع): تُنفَّذ في وضع «فاتورة شراء» فقط،
+    /// لأن الحقلين مخفيّان في وضع المرتجع وعقد المرتجع لا يحملهما (D-3).
     /// </para>
     /// </summary>
     private bool _ValidateRangeRules()
@@ -614,7 +900,7 @@ public partial class frmPurchaseInvoice : Form
             if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
         }
 
-        // (2) قواعد الأسطر والمال — لم تُمسّ.
+        // (2) قواعد الأسطر — لم تُمسّ (تُنفَّذ في الوضعين).
         // كل سطر ملموس يجب أن يشير إلى صنف وكمية وتكلفة صحيحة — لا سطر يُعرض ويُسقط بصمت من الطلب.
         string? lineError = _FirstLineError();
         if (lineError is not null)
@@ -628,33 +914,39 @@ public partial class frmPurchaseInvoice : Form
             errorProvider.SetError(dgvItems, "");
         }
 
-        // الحساب من **نفس** مجموعة الأسطر المرسلة (ProductId > 0) — فالمعروض في الشاشة = المحفوظ.
-        decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(l => l.LineTotal);
-        decimal invoiceDiscount = numInvoiceDiscount.Value;
-        decimal netTotal = subTotal - invoiceDiscount;
+        // (3) قواعد المال الخاصة بفاتورة الشراء وحدها: خصم الترويسة والمدفوع. الحقلان مخفيّان في وضع
+        // المرتجع وعقد المرتجع لا يحملهما (D-3) ⇒ لا حكم عليهما هناك — وRequiredFieldHelper و
+        // _FirstLineError أعلاه يُنفَّذان في الوضعين بلا تغيير (RULE-N167: الواجهة لا تكذب).
+        if (_documentMode == PurchaseDocumentMode.Purchase)
+        {
+            // الحساب من **نفس** مجموعة الأسطر المرسلة (ProductId > 0) — فالمعروض في الشاشة = المحفوظ.
+            decimal subTotal = _lines.Where(l => l.ProductId > 0).Sum(l => l.LineTotal);
+            decimal invoiceDiscount = numInvoiceDiscount.Value;
+            decimal netTotal = subTotal - invoiceDiscount;
 
-        if (invoiceDiscount > subTotal)
-        {
-            const string discountMessage = "خصم الفاتورة أكبر من مجموع الأصناف.";
-            errorProvider.SetError(numInvoiceDiscount, discountMessage);
-            clsInputFeedback.ShowRejectTooltip(numInvoiceDiscount, discountMessage, toolTip);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(numInvoiceDiscount, "");
-        }
+            if (invoiceDiscount > subTotal)
+            {
+                const string discountMessage = "خصم الفاتورة أكبر من مجموع الأصناف.";
+                errorProvider.SetError(numInvoiceDiscount, discountMessage);
+                clsInputFeedback.ShowRejectTooltip(numInvoiceDiscount, discountMessage, toolTip);
+                isValid = false;
+            }
+            else
+            {
+                errorProvider.SetError(numInvoiceDiscount, "");
+            }
 
-        if (txtPaid.DecimalValue > netTotal)
-        {
-            const string paidMessage = "المبلغ المدفوع أكبر من إجمالي الفاتورة.";
-            errorProvider.SetError(txtPaid, paidMessage);
-            clsInputFeedback.ShowRejectTooltip(txtPaid, paidMessage, toolTip);
-            isValid = false;
-        }
-        else
-        {
-            errorProvider.SetError(txtPaid, "");
+            if (txtPaid.DecimalValue > netTotal)
+            {
+                const string paidMessage = "المبلغ المدفوع أكبر من إجمالي الفاتورة.";
+                errorProvider.SetError(txtPaid, paidMessage);
+                clsInputFeedback.ShowRejectTooltip(txtPaid, paidMessage, toolTip);
+                isValid = false;
+            }
+            else
+            {
+                errorProvider.SetError(txtPaid, "");
+            }
         }
 
         if (!isValid)
@@ -707,6 +999,14 @@ public partial class frmPurchaseInvoice : Form
 
     private async Task SaveInvoiceAsync(bool post)
     {
+        // TASK-018 — الشاشة تحمل وضعين: عقد المرتجعات بلا UpdateAsync وله تحققه وطلبه وإشعاراته،
+        // فالحفظ يتفرّع من سطر واحد هنا (لا نسخة ثانية من آلة الحالة).
+        if (_documentMode == PurchaseDocumentMode.PurchaseReturn)
+        {
+            await SaveReturnAsync(post);
+            return;
+        }
+
         // حارس المسودة: فاتورة غير مسودة (مرحّلة/ملغاة) لا تُحفظ ولا تُرحّل من أي مسار — زر مخفي
         // لا يمنع اختصار F3، وهذا الحارس يقطعه قبل أي تحقق أو طلب للخدمة.
         if (_invoice is not null && _invoice.Status != (byte)InvoiceStatus.Draft)
@@ -749,10 +1049,8 @@ public partial class frmPurchaseInvoice : Form
                 null,
                 null,
                 0m,
-                0m,
                 txtPaid.DecimalValue,
                 txtNotes.Text,
-                null,
                 null,
                 items
             );
@@ -801,7 +1099,7 @@ public partial class frmPurchaseInvoice : Form
         {
             _isSaving = false;
             // استعادة الحالة حسب الوضع: المسودة/الجديدة فقط تُعيد تفعيل أزرار الحفظ والترحيل.
-            bool editable = _invoice == null || _invoice.Status == (byte)InvoiceStatus.Draft;
+            bool editable = IsEditable;
             btnSaveDraft.Enabled = btnPost.Enabled = editable;
             if (!IsDisposed) Cursor = Cursors.Default;
         }
@@ -809,6 +1107,13 @@ public partial class frmPurchaseInvoice : Form
 
     private async void btnCancelInvoice_Click(object? sender, EventArgs e)
     {
+        // TASK-018 — الإلغاء يتبع وضع المستند: المرتجع بعقده (_returnApi.CancelAsync).
+        if (_documentMode == PurchaseDocumentMode.PurchaseReturn)
+        {
+            await CancelReturnAsync();
+            return;
+        }
+
         if (_invoice == null) return;
         if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء الفاتورة؟ سيتم عكس المخزون.")) return;
 
@@ -874,4 +1179,248 @@ public partial class frmPurchaseInvoice : Form
     }
 
     private void btnClose_Click(object? sender, EventArgs e) => this.Close();
+
+    // ═════════════════════════════════════════════════════════════════
+    //  RETURN MODE (TASK-018) — مرتجع الشراء: عقد IPurchaseReturnDesktopService
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// حفظ/ترحيل مرتجع الشراء. لا <c>UpdateAsync</c> في العقد ⇒ المرتجع يُنشأ مرة واحدة ويُرحَّل بمعرّفه
+    /// (<see cref="_createdReturnId"/> يمنع مستنداً ثانياً عند إعادة محاولة الترحيل)، ثم تُغلق الشاشة
+    /// بـ<see cref="DialogResult.OK"/> كما كانت شاشة المرتجع القديمة تفعل.
+    /// </summary>
+    private async Task SaveReturnAsync(bool post)
+    {
+        // (0) حالة المستند: مرحَّل/ملغي ⇒ لا شيء؛ مسودة محفوظة ⇒ «ترحيل» فقط.
+        if (_returnDoc is not null && _returnDoc.Status != (byte)InvoiceStatus.Draft)
+        {
+            clsDialogs.Info("المرتجع مرحّل أو ملغي — لا يمكن تعديله أو ترحيله مرة أخرى.");
+            return;
+        }
+
+        if (!post && _returnDoc is not null)
+        {
+            clsDialogs.Info("المرتجع محفوظ كمسودة ولا يقبل التعديل — استخدم «ترحيل» لترحيله.");
+            return;
+        }
+
+        // (1) الحقول المطلوبة (المورد · المستودع) — الحكم والوسم والنقل في البيت الواحد RequiredFieldHelper.
+        if (!RequiredFieldHelper.Validate(this))
+        {
+            if (RequiredFieldHelper.FirstMissing(this) is Control firstMissing) firstMissing.Focus();
+            return;
+        }
+
+        // (2) قواعد الأسطر — نفس _FirstLineError المستهلكة في وضع الفاتورة (RULE-N172: لا نسخة ثانية
+        // من حكم «وحدة · كمية > 0 · تكلفة > 0»).
+        string? lineError = _FirstLineError();
+        if (lineError is not null)
+        {
+            errorProvider.SetError(dgvItems, lineError);
+            clsInputFeedback.ShowRejectTooltip(dgvItems, lineError, toolTip);
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return;
+        }
+        errorProvider.SetError(dgvItems, string.Empty);
+
+        // (3) تأكيد الترحيل — الترحيل يقلّل المخزون ورصيد المورد فلا يُنفَّذ بمفتاح عابر.
+        if (post && !clsDialogs.Confirm("ترحيل المرتجع؟ سيتم تقليل المخزون وتقليل رصيد المورد.")) return;
+
+        btnSaveDraft.Enabled = btnPost.Enabled = false;
+        _isSaving = true;
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            int documentId;
+
+            if (_createdReturnId is int existingReturnId)
+            {
+                // لا مستند مكرر: إن نجح الإنشاء سابقاً وفشل الترحيل، تُرحَّل المسودة نفسها.
+                documentId = existingReturnId;
+            }
+            else
+            {
+                // الوحدة تُرسل من السطر كما اختارها المستخدم — **لا سقوط صامت إلى الوحدة 1**
+                // (غيابها رُفض قبل الوصول إلى هنا في _FirstLineError).
+                var items = _lines.Where(l => l.ProductId > 0).Select(l => new CreatePurchaseReturnItemRequest(
+                    PurchaseInvoiceLineId: 0,
+                    ProductId: l.ProductId,
+                    ProductUnitId: l.ProductUnitId,
+                    Quantity: l.Quantity,
+                    UnitCost: l.UnitCost,
+                    Amount: l.LineTotal)).ToList();
+
+                // CreatePurchaseReturnRequest.WarehouseId من نوع int (بخلاف المبيعات short).
+                var request = new CreatePurchaseReturnRequest(
+                    null,
+                    _SelectedSupplierId,
+                    _SelectedWarehouseId,
+                    dtpDate.Value,
+                    null,
+                    null,
+                    txtNotes.Text,
+                    items);
+
+                var result = await _returnApi.CreateAsync(request);
+                if (!result.IsSuccess || result.Value is not { } created)
+                {
+                    clsDialogs.Error(result.Error ?? "تعذر حفظ مرتجع الشراء.");
+                    return;
+                }
+
+                _createdReturnId = created.Id;
+                _returnDoc = created;
+                lblInvoiceNo.Text = created.ReturnNo.ToString();
+                documentId = created.Id;
+
+                // المستند أصبح محفوظاً ⇒ يقفل التحرير ويبقى «ترحيل» للمسودة (RULE-N150: مصدر واحد).
+                UpdateUIState();
+            }
+
+            if (post)
+            {
+                var postResult = await _returnApi.PostAsync(documentId);
+                if (!postResult.IsSuccess)
+                {
+                    // لا إغلاق عند فشل الترحيل: المرتجع محفوظ كمسودة، وإعادة المحاولة تُرحّل نفسه.
+                    clsDialogs.Warning(
+                        $"أُنشئ المرتجع كمسودة برقم {_createdReturnId} وتعذر ترحيله. " +
+                        "أعد الضغط على «ترحيل» لترحيل نفس المسودة.",
+                        "لم يُرحَّل المرتجع");
+                    return;
+                }
+
+                clsDialogs.Success("تم الترحيل");
+                foreach (var line in _lines.Where(l => l.ProductId > 0))
+                    _eventBus.Publish(new StockChangedMessage(line.ProductId));
+            }
+            else clsDialogs.Success("تم الحفظ");
+
+            _eventBus.Publish(new PurchaseReturnChangedMessage(documentId));
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "حدث خطأ أثناء حفظ مرتجع المشتريات");
+            clsDialogs.Error("خطأ في حفظ المرتجع. تم تسجيل التفاصيل للدعم الفني.");
+        }
+        finally
+        {
+            _isSaving = false;
+
+            // الحفظ الناجح يغلق النموذج ويُدمّره — لا تُلمس عناصره بعد الإغلاق.
+            if (!IsDisposed)
+            {
+                Cursor = Cursors.Default;
+                UpdateUIState();
+            }
+        }
+    }
+
+    /// <summary>إلغاء مرتجع شراء مرحَّل — بالعقد الخاص بالمرتجعات (<c>_returnApi.CancelAsync</c>).</summary>
+    private async Task CancelReturnAsync()
+    {
+        if (_returnDoc is null) return;
+        if (!clsDialogs.Confirm("هل أنت متأكد من إلغاء المرتجع؟")) return;
+
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+            var result = await _returnApi.CancelAsync(_returnDoc.Id);
+            if (!result.IsSuccess)
+            {
+                // لا نجاح وهمي — المرتجع لم يُلغَ فعلاً، تبقى الشاشة مفتوحة برسالة الخدمة العربية.
+                clsDialogs.Error(result.Error ?? "تعذر إلغاء المرتجع.");
+                return;
+            }
+
+            clsDialogs.Success("تم إلغاء المرتجع");
+            _eventBus.Publish(new PurchaseReturnChangedMessage(_returnDoc.Id));
+            foreach (var item in _returnDoc.Items)
+                _eventBus.Publish(new StockChangedMessage(item.ProductId));
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "حدث خطأ أثناء إلغاء مرتجع المشتريات");
+            clsDialogs.Error("حدث خطأ أثناء الإلغاء. تم تسجيل التفاصيل للدعم الفني.");
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
+        }
+    }
+
+    /// <summary>
+    /// «اختيار فاتورة» (وضع المرتجع وحده): يفتح منتقي فواتير الشراء القائم ويُعيد الفاتورة بسطورها،
+    /// فيُملأ رأس المرتجع (المورد والمستودع) وسطوره منها ليعدّل المستخدم الكميات ثم يُرحّل.
+    /// <para>
+    /// <b>لا يُمسّ تاريخ المرتجع</b> ولا ملاحظاته — تاريخ الإرجاع لا تاريخ الفاتورة. و<b>لا حساب مالي
+    /// هنا</b>: كل قيمة من الـDTO كما هي، والمجاميع تُعاد بـ<see cref="CalculateTotals"/> القائم.
+    /// </para>
+    /// </summary>
+    private void btnPickInvoice_Click(object? sender, EventArgs e)
+    {
+        // الزر مخفي في وضع الفاتورة واختصاراته لا تشمله — حارس صريح حتى لا يُعبَّأ مرتجع من فاتورة
+        // والشاشة تعمل على مستند شراء.
+        if (_documentMode != PurchaseDocumentMode.PurchaseReturn) return;
+        if (_isSaving) return;
+
+        // لا استبدال صامت: السطور ستُمسح فعلاً ⇒ تأكيد صريح أولاً (clsDialogs.Confirm افتراضه «لا»).
+        if (_lines.Any(l => l.ProductId > 0) &&
+            !clsDialogs.Confirm("لديك سطور في المرتجع — سيتم استبدالها ببيانات الفاتورة. هل تريد المتابعة؟"))
+            return;
+
+        try
+        {
+            Cursor = Cursors.WaitCursor;
+
+            var dialog = _serviceProvider.GetRequiredService<frmPurchaseInvoiceSelection>();
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.SelectedInvoice is not { } invoice) return;
+
+            // (1) الرأس: المورد والمستودع من الفاتورة (التاريخ والملاحظات كما هي).
+            if (invoice.SupplierId > 0) cmbSupplier.SelectedValue = invoice.SupplierId;
+            // WarehouseDto.Id من نوع short — الإسناد بقيمة int لا يطابق أي عنصر فيُفرغ المستودع.
+            cmbWarehouse.SelectedValue = Convert.ToInt16(invoice.WarehouseId);
+
+            // (2) السطور: سطر لكل بند، وسعر السطر = تكلفة الفاتورة (LineTotal = كمية × سعر − خصم)،
+            // وUnitCost يُملأ أيضاً حتى يمر _FirstLineError (تكلفة > 0) في الوضعين.
+            _lines.Clear();
+            foreach (var item in invoice.Items)
+            {
+                _lines.Add(new InvoiceLineItem
+                {
+                    ProductId = item.ProductId,
+                    ProductCode = item.ProductCode,
+                    ProductName = item.ProductName,
+                    ProductUnitId = item.ProductUnitId,
+                    UnitName = item.ProductUnitName,
+                    Quantity = item.Quantity,
+                    UnitCost = item.UnitCost,
+                    UnitPrice = item.UnitCost,
+                    DiscountAmount = item.DiscountAmount,
+                    ConversionFactor = 1m
+                });
+            }
+
+            // علامة رفض قديمة على الشبكة (من محاولة حفظ بلا سطور) لم تعد صحيحة بعد التعبئة.
+            errorProvider.SetError(dgvItems, string.Empty);
+
+            CalculateTotals();   // المسار القائم — لا جمع مالي في هذا المعالج
+
+            if (ctrlLineEntry.Enabled) ctrlLineEntry.FocusBarcode();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر تعبئة مرتجع المشتريات من الفاتورة المختارة");
+            clsDialogs.Error("تعذر تعبئة المرتجع من الفاتورة المختارة. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            if (!IsDisposed) Cursor = Cursors.Default;
+        }
+    }
 }

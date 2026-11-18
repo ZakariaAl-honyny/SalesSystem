@@ -1,7 +1,7 @@
 namespace SalesSystem.DTO;
 
 public record CustomerDto(int Id, string Name, string? Phone, string? Email, string? Address,
-    string? TaxNumber, decimal CreditLimit, bool IsActive,
+    decimal CreditLimit, bool IsActive,
     int? CategoryId = null, string? Notes = null,
     decimal CurrentBalance = 0)
 {

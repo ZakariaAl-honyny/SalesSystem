@@ -267,7 +267,6 @@ public class ReportExportService : IReportExportService
                 case "cashboxsummary":
                 case "useractivity":
                 case "loginhistory":
-                case "vat":
                 case "accountbalances":
                 case "accountstatement":
                 case "generalledger":
@@ -528,7 +527,6 @@ public class ReportExportService : IReportExportService
             "cashboxsummary" => "تقرير ملخص الصندوق",
             "useractivity" => "تقرير نشاط المستخدمين",
             "loginhistory" => "سجل تسجيل الدخول",
-            "vat" => "تقرير ضريبة القيمة المضافة",
             "accountbalances" => "أرصدة الحسابات",
             "accountstatement" => "كشف حساب",
             "generalledger" => "الأستاذ العام",

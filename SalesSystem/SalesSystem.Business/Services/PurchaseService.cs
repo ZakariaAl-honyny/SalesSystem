@@ -165,7 +165,6 @@ public class PurchaseService : IPurchaseService
                     invoice.AddItem(invoiceItem);
                 }
 
-                invoice.SetTaxAmount(request.TaxAmount);
                 invoice.SetPaidAmount(request.PaidAmount);
 
                 await _uow.PurchaseInvoices.AddAsync(invoice, ct);
@@ -255,7 +254,6 @@ public class PurchaseService : IPurchaseService
                 invoice.AddItem(invoiceItem);
             }
 
-            invoice.SetTaxAmount(request.TaxAmount);
             invoice.SetPaidAmount(request.PaidAmount);
 
             await _uow.PurchaseInvoices.AddAsync(invoice, ct);
@@ -317,7 +315,7 @@ public class PurchaseService : IPurchaseService
 
         try
         {
-            invoice.UpdateTotals(request.DiscountAmount, request.TaxAmount, request.OtherCharges);
+            invoice.UpdateTotals(request.DiscountAmount, request.OtherCharges);
             invoice.SetPaidAmount(request.PaidAmount);
 
             // Re-create items (simplest way for draft)
@@ -649,7 +647,6 @@ public class PurchaseService : IPurchaseService
             i.DiscountAmount,
             (byte)i.DiscountType,
             i.DiscountRate,
-            i.TaxAmount,
             i.OtherCharges,
             i.NetTotal,
             i.PaidAmount,
@@ -658,9 +655,6 @@ public class PurchaseService : IPurchaseService
             i.SupplierInvoiceNo,
             i.AttachmentPath,
             (byte)i.Status,
-            null,
-            null,
-            null,
             i.CashBoxId,
             i.Items.Select(it => new PurchaseInvoiceLineDto(
                 it.Id,

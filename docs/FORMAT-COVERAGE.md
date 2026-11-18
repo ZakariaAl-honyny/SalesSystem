@@ -212,8 +212,8 @@
 | 79 | `frmWarehouseMovementReport` | Reports/Forms | 0 | 1 | 0 | ❌ غير مطبَّق | نقل كل تنسيق إلى clsFormat |
 | 80 | `frmWorkingCapitalReport` | Reports/Forms | 0 | 5 | 0 | ❌ غير مطبَّق | نقل كل تنسيق إلى clsFormat |
 | 81 | `frmListReturns` | Returns | 2 | 4 | 0 | ⚠️ جزئي | إزالة الصيغ الحرفية + توصيل الشبكة |
-| 82 | `frmPurchaseReturn` | Returns | 1 | 0 | 0 | ✅ متوافق | — |
-| 83 | `frmSalesReturn` | Returns | 1 | 0 | 0 | ✅ متوافق | — |
+| 82 | — (حُذفت `frmPurchaseReturn` — `TASK-018`) | Returns | — | — | — | — | وضع «مرتجع شراء» في `frmAddUpdatePurchaseInvoice` |
+| 83 | — (حُذفت `frmSalesReturn` — `TASK-017`) | Returns | — | — | — | — | وضع «مرتجع بيع» في `frmAddUpdateSalesInvoice` |
 | 84 | `frmAddUpdateSalesInvoice` | Sales | 4 | 13 | 6 | ⚠️ جزئي | إزالة الصيغ الحرفية + توصيل الشبكة |
 | 85 | `frmListSales` | Sales | 7 | 0 | 0 | ✅ متوافق | — |
 | 86 | `frmChangeSystemColorsSettings` | Settings | 0 | 0 | 0 | ➖ لا ينطبق | — |

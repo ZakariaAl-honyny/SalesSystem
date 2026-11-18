@@ -114,7 +114,7 @@ public partial class frmSalesReport : Form, IExportableReport
 
         // الأعمدة التقنية لا تُعرض في تقرير مالي: معرّف الفاتورة اسمه في DTO هو Id (لا InvoiceId)،
         // ورقم الفاتورة المرئي هو InvoiceNo — فحجب الاسم الخطأ كان يترك عمود المعرّف مكرَّراً على الشاشة.
-        var hides = new[] { "Id", "SubTotal", "DiscountAmount", "TaxAmount" };
+        var hides = new[] { "Id", "SubTotal", "DiscountAmount" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;

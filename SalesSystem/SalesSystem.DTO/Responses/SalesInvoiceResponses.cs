@@ -8,8 +8,6 @@ public record SalesInvoiceResponse(
     int WarehouseId, string WarehouseName,
     InvoiceStatus Status, PaymentType PaymentType,
     decimal SubTotal, decimal InvoiceDiscount,
-    decimal TaxRate, decimal TaxAmount,
-    bool IsTaxInclusive,
     decimal TotalAmount, decimal PaidAmount, decimal DueAmount,
     DateTime InvoiceDate, string? Notes,
     List<SalesInvoiceLineResponse> Items

@@ -103,10 +103,6 @@ public class A4InvoiceDocument : IDocument
                     if (_data.PrintCompanyAddress && !string.IsNullOrWhiteSpace(_data.StoreAddress))
                         col.Item().Text($"العنوان: {_data.StoreAddress}")
                             .FontSize(SmallFontSize).FontColor(MutedColor);
-
-                    if (!string.IsNullOrWhiteSpace(_data.StoreTaxNumber))
-                        col.Item().Text($"الرقم الضريبي: {_data.StoreTaxNumber}")
-                            .FontSize(SmallFontSize).FontColor(MutedColor);
                 });
 
                 // Right: Invoice badge
@@ -375,14 +371,6 @@ public class A4InvoiceDocument : IDocument
                 table.Cell().Padding(6).AlignLeft()
                     .Text($"+ {_data.OtherCharges:N2} ر.س").FontColor("#FF9800");
             }
-
-            // Tax
-            var taxLabel = _data.IsTaxInclusive
-                ? $"ضريبة القيمة المضافة ({_data.TaxRate:N0}%) - شاملة:"
-                : $"ضريبة القيمة المضافة ({_data.TaxRate:N0}%) - مضافة:";
-
-            table.Cell().Padding(6).AlignRight().Text(taxLabel).FontColor(MutedColor);
-            table.Cell().Padding(6).AlignLeft().Text($"{_data.TaxAmount:N2} ر.س");
 
             // Grand total — highlighted
             table.Cell().ColumnSpan(2)

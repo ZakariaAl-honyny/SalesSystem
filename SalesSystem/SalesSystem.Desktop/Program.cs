@@ -245,10 +245,10 @@ static class Program
                     services.AddTransient<frmLogin>();
                     services.AddTransient<frmMain>();
                     services.AddTransient<frmAddUpdateSalesInvoice>();
-                    services.AddTransient<frmPurchaseInvoice>();
-                    // المرتجعات: النمط المنفصل كالمبيعات (RULE-N101) — قائمة + محرر لكل نوع
-                    services.AddTransient<frmSalesReturn>();
-                    services.AddTransient<frmPurchaseReturn>();
+                    services.AddTransient<frmAddUpdatePurchaseInvoice>();
+                    // المرتجعات (TASK-017 / TASK-018): قائمة واحدة `frmListReturns` + محرّران موحّدان —
+                    // `frmAddUpdateSalesInvoice` بوضع «مرتجع بيع» و`frmAddUpdatePurchaseInvoice` بوضع «مرتجع شراء»
+                    // ⇒ لا محرّر منفصل لأي مرتجع.
                     services.AddTransient<frmListReturns>();
                     services.AddTransient<frmWarehouseMaster>();
                     services.AddTransient<frmListSales>();
@@ -296,7 +296,6 @@ static class Program
                     services.AddTransient<frmExpiredProductsReport>();
                     services.AddTransient<frmIncomeStatementReport>();
                     services.AddTransient<frmCashFlowReport>();
-                    services.AddTransient<frmVatReport>();
                     services.AddTransient<frmAccountStatementReport>();
                     services.AddTransient<frmAgingReport>();
                     services.AddTransient<frmCashBoxSummaryReport>();

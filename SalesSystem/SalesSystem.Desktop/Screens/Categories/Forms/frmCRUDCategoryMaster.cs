@@ -16,7 +16,7 @@ namespace SalesSystem.Desktop.Screens.Categories.Forms;
 /// يجمع: بحث مباشر + شبكة + محرر إدخال/تعديل في شاشة واحدة،
 /// ويعمل بآلة حالة واحدة (<see cref="EntryMode"/>) تبدأ دائماً بوضع العرض (RULE-N149).
 /// </summary>
-public partial class frmCategoryMaster : Form
+public partial class frmCRUDCategoryMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -63,12 +63,12 @@ public partial class frmCategoryMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmCategoryMaster()
+    private frmCRUDCategoryMaster()
     {
         InitializeComponent();
     }
 
-    public frmCategoryMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCategoryMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
 

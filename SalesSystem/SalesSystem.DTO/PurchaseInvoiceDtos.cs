@@ -13,7 +13,6 @@ public record PurchaseInvoiceDto(
     decimal DiscountAmount,
     byte DiscountType,
     decimal? DiscountRate,
-    decimal TaxAmount,
     decimal OtherCharges,
     decimal NetTotal,
     decimal PaidAmount,
@@ -22,9 +21,6 @@ public record PurchaseInvoiceDto(
     string? SupplierInvoiceNo,
     string? AttachmentPath,
     byte Status,
-    int? TaxId,
-    string? TaxName,
-    decimal? TaxRate,
     int? CashBoxId,
     IReadOnlyList<PurchaseInvoiceLineDto> Items)
 {

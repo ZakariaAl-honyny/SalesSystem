@@ -2,6 +2,7 @@ using Serilog;
 using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Services;
 using SalesSystem.Desktop.Services.Interfaces;
+using SalesSystem.Desktop.Models;
 using SalesSystem.Desktop.Products.Forms;
 using SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 
@@ -193,6 +194,44 @@ public partial class frmMain : Form
         }
     }
 
+    /// <summary>
+    /// يفتح شاشة المستند الموحّدة <c>frmAddUpdateSalesInvoice</c> بالوضع المطلوب (بيع/مرتجع) — TASK-017.
+    /// تُعاد تنشيط النسخة المفتوحة وتُبدأ منها وثيقة جديدة بدل فتح نافذة ثانية (RULE-N133).
+    /// بدء المستند على نسخة مفتوحة يمرّ بـ<c>TryStartNewDocument</c> فلا يُفقد مستند محمَّل أو سطور
+    /// غير محفوظة بلا تأكيد عربي — والرفض يُبقي النافذة كما هي.
+    /// </summary>
+    private void OpenSalesDocument(SalesDocumentMode mode)
+    {
+        try
+        {
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm is not frmAddUpdateSalesInvoice existing)
+                    continue;
+
+                if (!existing.TryStartNewDocument(mode))
+                {
+                    // المستخدم رفض بدء مستند جديد: تبقى النافذة كما هي بلا فقدان غير المحفوظ.
+                    existing.Activate();
+                    return;
+                }
+
+                existing.WindowState = FormWindowState.Normal;
+                existing.Activate();
+                return;
+            }
+
+            var editor = _serviceProvider.GetRequiredService<frmAddUpdateSalesInvoice>();
+            editor.StartNewDocument(mode);
+            clsGlobal._OpenForm(editor);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر فتح شاشة المستند {Mode}", mode);
+            clsDialogs.Error("تعذر فتح الشاشة المطلوبة. يرجى المحاولة مرة أخرى.");
+        }
+    }
+
     // ── لوحة التحكم (Dashboard) ───────────────────────────────────────────────
 
     private void msbtnDashboard_Click(object sender, EventArgs e)
@@ -207,7 +246,7 @@ public partial class frmMain : Form
         => OpenScreen<frmImportProductsExcel>();
 
     private void msbtnManageCategories_Click(object sender, EventArgs e)
-        => OpenScreen<frmCategoryMaster>();
+        => OpenScreen<frmCRUDCategoryMaster>();
 
     private void msbtnManageUnits_Click(object sender, EventArgs e)
         => OpenScreen<frmUnitMaster>();
@@ -215,7 +254,7 @@ public partial class frmMain : Form
     // ── العملاء والموردون ────────────────────────────────────────────────────
 
     private void msbtnManageCustomers_Click(object sender, EventArgs e)
-        => OpenScreen<frmCustomerMaster>();
+        => OpenScreen<frmCRUDCustomerMaster>();
 
     private void msbtnManageSuppliers_Click(object sender, EventArgs e)
         => OpenScreen<frmSupplierMaster>();
@@ -257,10 +296,45 @@ public partial class frmMain : Form
         => OpenScreen<frmListPurchases>();
 
     private void msbtnPurchaseInvoice_Click(object sender, EventArgs e)
-        => OpenScreen<frmPurchaseInvoice>();
+        => OpenScreen<frmAddUpdatePurchaseInvoice>();
 
     private void msbtnPurchaseReturn_Click(object sender, EventArgs e)
-        => OpenScreen<frmPurchaseReturn>();
+        => OpenPurchaseDocument(PurchaseDocumentMode.PurchaseReturn);
+
+    /// <summary>
+    /// يفتح شاشة مستند الشراء الموحّدة <c>frmAddUpdatePurchaseInvoice</c> بالوضع المطلوب — TASK-018.
+    /// تُعاد تنشيط النسخة المفتوحة وتُبدأ منها وثيقة جديدة بعد تأكيد (RULE-N133) بدل فتح نافذة ثانية.
+    /// </summary>
+    private void OpenPurchaseDocument(PurchaseDocumentMode mode)
+    {
+        try
+        {
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm is not frmAddUpdatePurchaseInvoice existing)
+                    continue;
+
+                if (!existing.TryStartNewDocument(mode))
+                {
+                    existing.Activate();      // المستخدم رفض: تبقى النافذة كما هي
+                    return;
+                }
+
+                existing.WindowState = FormWindowState.Normal;
+                existing.Activate();
+                return;
+            }
+
+            var editor = _serviceProvider.GetRequiredService<frmAddUpdatePurchaseInvoice>();
+            editor.StartNewDocument(mode);
+            clsGlobal._OpenForm(editor);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "تعذر فتح شاشة مستند الشراء {Mode}", mode);
+            clsDialogs.Error("تعذر فتح الشاشة المطلوبة. يرجى المحاولة مرة أخرى.");
+        }
+    }
 
     // ── المبيعات (Sales) ─────────────────────────────────────────────────────
 
@@ -271,7 +345,7 @@ public partial class frmMain : Form
         => OpenScreen<frmAddUpdateSalesInvoice>();
 
     private void msbtnSalesReturn_Click(object sender, EventArgs e)
-        => OpenScreen<frmSalesReturn>();
+        => OpenSalesDocument(SalesDocumentMode.SaleReturn);
 
     private void msbtnReturnsList_Click(object sender, EventArgs e)
         => OpenScreen<frmListReturns>();
@@ -287,7 +361,7 @@ public partial class frmMain : Form
         => OpenScreen<frmListPayments>();
 
     private void msbtnCashBoxes_Click(object sender, EventArgs e)
-        => OpenScreen<frmCashBoxMaster>();
+        => OpenScreen<frmCRUDCashBoxMaster>();
 
     private void msbtnCashBoxTransactions_Click(object sender, EventArgs e)
         => OpenScreen<frmCashBoxTransactions>();
@@ -296,7 +370,7 @@ public partial class frmMain : Form
         => OpenScreen<frmExpensesMaster>();
 
     private void msbtnCustomerReceipts_Click(object sender, EventArgs e)
-        => OpenScreen<frmCustomerReceiptsMaster>();
+        => OpenScreen<frmCRUDCustomerReceiptsMaster>();
 
     private void msbtnSupplierPayments_Click(object sender, EventArgs e)
         => OpenScreen<frmListSupplierPayments>();
@@ -372,9 +446,6 @@ public partial class frmMain : Form
 
     private void msReportCashFlow_Click(object sender, EventArgs e)
         => OpenScreen<frmCashFlowReport>();
-
-    private void msReportVat_Click(object sender, EventArgs e)
-        => OpenScreen<frmVatReport>();
 
     private void msReportAccountStatement_Click(object sender, EventArgs e)
         => OpenScreen<frmAccountStatementReport>();

@@ -16,9 +16,6 @@ public class MockSettingsDesktopService : ISettingsDesktopService
         settings.address = "شارع الستين - صنعاء";
         settings.logoPath = (string?)null;
         settings.email = (string?)null;
-        settings.defaultTaxRate = 5m;
-        settings.isTaxEnabled = true;
-        settings.taxNumber = "1234567890";
         settings.enableStockAlerts = true;
         settings.allowNegativeStock = false;
         settings.invoicePrefix = "INV";
@@ -43,9 +40,6 @@ public class MockSettingsDesktopService : ISettingsDesktopService
             ["StoreName"] = "محل التجريبي",
             ["Phone"] = "01-234567",
             ["Address"] = "شارع الستين - صنعاء",
-            ["DefaultTaxRate"] = "5",
-            ["IsTaxEnabled"] = "true",
-            ["TaxNumber"] = "1234567890",
             ["EnableStockAlerts"] = "true",
             ["AllowNegativeStock"] = "false",
             ["InvoicePrefix"] = "INV"

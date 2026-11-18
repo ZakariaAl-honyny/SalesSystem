@@ -178,7 +178,6 @@ public class SalesService : ISalesService
                     invoice.AddItem(invoiceItem);
                 }
 
-                invoice.SetTaxAmount(request.TaxAmount);
                 invoice.SetPaidAmount(request.PaidAmount);
 
                 // ── Price Enforcement (server-side) ─────────────────────
@@ -287,7 +286,6 @@ public class SalesService : ISalesService
                 invoice.AddItem(invoiceItem);
             }
 
-            invoice.SetTaxAmount(request.TaxAmount);
             invoice.SetPaidAmount(request.PaidAmount);
 
             // Price enforcement
@@ -342,7 +340,7 @@ public class SalesService : ISalesService
                     return Result<SalesInvoiceDto>.Failure("العميل غير موجود");
             }
 
-            invoice.UpdateTotals(request.DiscountAmount, request.TaxAmount, request.OtherCharges,
+            invoice.UpdateTotals(request.DiscountAmount, request.OtherCharges,
                 (DiscountType)request.DiscountType, request.DiscountRate);
             invoice.SetPaidAmount(request.PaidAmount);
 
@@ -745,16 +743,12 @@ public class SalesService : ISalesService
             i.DiscountAmount,
             (byte)i.DiscountType,
             i.DiscountRate,
-            i.TaxAmount,
             i.OtherCharges,
             i.NetTotal,
             i.PaidAmount,
             i.RemainingAmount,
             i.Notes,
             (byte)i.Status,
-            null,
-            null,
-            null,
             i.CashBoxId,
             i.CashBox?.Name,
             i.Items.Select(it => new SalesInvoiceLineDto(

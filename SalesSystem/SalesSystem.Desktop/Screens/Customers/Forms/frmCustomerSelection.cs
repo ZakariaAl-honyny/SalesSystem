@@ -211,7 +211,7 @@ public partial class frmCustomerSelection : Form
 
     /// <summary>
     /// يُرجع <c>CustomerDto</c> الحقيقي القادم من الخدمة — لا نسخة مبنيّة من نص الشبكة،
-    /// فيبقى حدّ الدين والرصيد والرقم الضريبي كما هي في قاعدة البيانات.
+    /// فيبقى حدّ الدين والرصيد كما هي في قاعدة البيانات.
     /// </summary>
     private void _SelectCurrent()
     {

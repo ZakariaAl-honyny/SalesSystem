@@ -54,11 +54,11 @@ The Desktop never accesses the database directly (no `DbContext`/EF/SQL in the D
 LineTotal = (Quantity * UnitPrice) - DiscountAmount;
 
 // Purchase LineTotal — compute inside PurchaseInvoiceLine entity
-LineTotal = (Quantity * UnitCost) - DiscountAmount;
+LineTotal = (Quantity * UnitPrice) - DiscountAmount;
 
 // Invoice totals — compute inside Invoice entity
 SubTotal    = Items.Sum(i => i.LineTotal);
-NetTotal    = SubTotal - InvoiceDiscount + TaxAmount + OtherCharges;
+NetTotal    = SubTotal - InvoiceDiscount + OtherCharges;
 RemainingAmount = NetTotal - PaidAmount;
 ```
 
@@ -759,13 +759,14 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 | 1 | الأدوار والصلاحيات (`PermissionsMask`، `RULE-N31`…`N34`) | مؤجل — مستخدم واحد بصلاحيات كاملة | كل الشاشات متاحة للأدمن؛ لا فحص صلاحيات (المصادقة `RULE-N35`…`N37` مطبَّقة — §2.13) | 🔒 V2 |
 | 2 | نطاق DI لكل عملية (بدل نطاق واحد لعمر التطبيق) | مؤجل | نطاق واحد مُنشأ في `Program.cs` | 🔒 V2 |
 | 3 | وحدة الموظفين كوحدة مُخزَّنة (لا جدول `Employees` في MVP) | مؤجل — موجودة كواجهة تجريبية | `MockEmployeeDesktopService` في وضع التجربة | 🔒 V2 |
-| 4 | وحدات **العملات · الضرائب · البنوك · شاشة الإعدادات** (لا كيان ولا خدمة ولا شاشة) | **مؤجل بقرار المالك (2026-11-12)** — غير مطلوب في MVP | ضريبة القيمة المضافة تُدخل يدوياً في الفاتورة ويقرأها `frmVatReport`؛ الإعدادات تُقرأ من `SystemSettings` بلا شاشة (تُدار بذراع البذور/الخدمة) | 🔒 V2 |
+| 4 | وحدات **العملات · الضرائب · البنوك · شاشة الإعدادات** (لا كيان ولا خدمة ولا شاشة) | **مؤجل بقرار المالك (2026-11-12)** — غير مطلوب في MVP. **والضريبة أُزيلت من V1 بالكامل (قرار المالك 2026-11-18 — `TASK-019`):** لا عمود ضريبة في أي جدول، ولا حقل DTO، ولا مفاتيح `SystemSettings` ضريبية، ولا `frmVatReport` | **لا ضريبة في V1 إطلاقاً** — `NetTotal = SubTotal − DiscountAmount + OtherCharges`؛ الإعدادات تُقرأ من `SystemSettings` بلا شاشة (تُدار بذراع البذور/الخدمة) | 🔒 V2 |
 | 5 | **إعدادات التنسيق** (منازل المبالغ/الكميات/الأعداد/النسب · فاصل الآلاف وفاصل الكسر · الأرقام العربية · صيغ التواريخ) | **قرار المالك (2026-11-14): مطلوبة الآن — شاشة `frmFormatingSetting`، المرحلة أ (Mock) فقط؛ لا BLL/DB قبل موافقته المكتوبة (`RULE-N166`)**. ولا يفتح هذا البند شاشة إعدادات عامة (يبقى بند 4 مؤجلاً) | `clsFormat` هو البيت الواحد للتعريفات والقيم الحيّة والتحقق والمنسّقات؛ القيم في الذاكرة فقط في المرحلة أ | 🔄 المرحلة أ |
 | 6 | **وحدة المحاسبة كاملة** — دليل حسابات · قيود يومية · سندات قبض/صرف يدوية · خرائط الحسابات · البنوك · مراكز التكلفة · قوائم مالية | **مؤجل إلى V2 (قرار المالك 2026-11-17)** — نصّه: «remove accounting from MVP v1» · «remove these to v2: … شجرة الحسابات (`Accounts`) · قيود اليومية (`JournalEntries` و `JournalEntryLines`) · سندات القبض والصرف اليدوية (`ReceiptVouchers`, `PaymentVouchers`) · حسابات البنوك ومراكز التكلفة وأرباح وخسائر الميزانية · جداول الربط المحاسبي (`SystemAccountMappings`)» | **الصندوق والمصروفات فقط (تشغيلي)** · **رصيد العميل/المورّد من فواتيره** | 🔒 V2 |
 
 > **ملاحظة (2026-11-12):** غياب `Currencies`/`Taxes`/`Banks`/`frmSettings` **ليس نقصاً في MVP** — قرار مالك مسجّل في السجل أعلاه (بند 4). أي مراجعة تُبلغ عنه تُغلق بإحالة إلى هنا (`RULE-N107`).
 > **ملاحظة (2026-11-14):** `frmFormatingSetting` **ليست** `frmSettings` العامة — هي شاشة تنسيق الأرقام والتواريخ فقط (بند 5)، وحفظها الحقيقي مؤجل للمرحلة ب.
 > **ملاحظة (2026-11-17 — V3):** الوحدة المحاسبية أُخرجت من V1 (V1 = 34 جدولاً · V2 = 29)، والجداول الستة في `docs/database-schema-v2-deferred.md`. **إزالة الكود نُفِّذت بالكامل (2026-11-17 — `TASK-011` §13):** صفر مرجع محاسبي في المستودع والبناء 0 أخطاء. **أما إسقاط الجداول/الأعمدة على القاعدة الحيّة فيبقى للمالك** بموافقة `DROP` مكتوبة (`RULE-N198`)، وكل الترحيلات أُزيلت بأمره («and remove all migrations») فيولّدها هو.
+> **ملاحظة (2026-11-18 — إزالة الضريبة):** أُزيل **كل سطح ضريبي** من V1 بأمر المالك (`TASK-019`): **7 أعمدة/خصائص** (`SalesInvoices.TaxAmount` · `PurchaseInvoices.TaxAmount` · `SalesReturns.ReturnedTaxAmount` · `PurchaseReturns.ReturnedTaxAmount` · `Customers.TaxNumber` · `Suppliers.TaxNumber` · `CompanySettings.TaxNumber`) + سطح `DTO` كامل + **7 مفاتيح `SystemSettings`** + تقرير الضريبة (`frmVatReport`) + سطح الطباعة. البناء **0 أخطاء**. **لم يُنفَّذ أي `DROP`** — كل عمود محذوف كان `NULL` أو `HasDefaultValue(0m)` فالإدراج على القاعدة القائمة سليم، وإسقاطه يبقى للمالك (`RULE-N198`).
 
 ---
 
@@ -801,7 +802,7 @@ KeyboardHelper.WireGlobalShortcuts(this, (Keys.F2, btnNew.PerformClick), (Keys.F
 | `SalesSystem.Desktop/Helpers/` | سلوك واجهة/عرض مشترك: ثيم · تنقل · تصفية · تفقيط · تصدير · توحيد التقارير · **تغذية الحقول المطلوبة** | `GreenThemeHelper` · `KeyboardHelper` · `ThemePalette` · `LiveTafqeetHelper` · `RowFilterHelper` · `FilterPanelHelper` · `ExportHelper` · `ReportUiStandardizer` · `ReportNavigationHelper` · `ColorSuggestionHelper` · `RequiredFieldHelper` · **`NavigationOptions`** |
 | `SalesSystem.Desktop/Global Classes/` | أدوات عامة صغيرة بصيغة `cls*` (namespace `SalesSystem.Desktop.GlobalClasses`) — **نمط المالك المرجعي**: `clsGlobal` (فتح النماذج) · `clsFormat` (كل تنسيق رقمي/تاريخي **+ تعريفات إعدادات التنسيق وقيمها الحيّة والتحقق منها**: `Definitions` · `Get/Snapshot/TrySet/TryApplyAll` · `Validate/ValidateAll` · `ResetToDefaults` · **`Options`/`FormatOption`** (مفردات القوائم وتسمياتها العربية: المنازل · نعم/لا · الفواصل · صيغ التواريخ)) · `clsDialogs` (كل رسالة `MessageBox` في النظام — **الملف الوحيد المسموح له بمناداة `MessageBox`**: `Info`/`Success`/`Warning`/`Error`/`Error(ex,msg)`/`Confirm` (افتراضي «لا»)/`ConfirmEdit` (افتراضي «نعم») + حمولات `(message, title)`) · `clsValidation` (التحقق) · `clsInputFeedback` (تغذية الرفض/النجاح البصرية) — **لا تُنسخ أعضاؤها إلى أي شاشة** |
 | `SalesSystem.Common/Helpers/` | أدوات محايدة لا تعرف الواجهة ولا قاعدة البيانات، مشتركة بين كل الطبقات | `Guard` · `StringExtensions` · `DateTimeExtensions` · `FileHelper` |
-| `SalesSystem.Business/Helpers/` | حسابات العمل المشتركة بين الخدمات | حسابات المجاميع · التقريب · الضريبة |
+| `SalesSystem.Business/Helpers/` | حسابات العمل المشتركة بين الخدمات | حسابات المجاميع · التقريب |
 | `SalesSystem.DTO/Common/` | عقود النتائج | `Result` · `Result<T>` |
 
 **مصادر الحقيقة للـ Helpers (لا تُكرَّر قيمها):** `GreenThemeHelper` (كل ألوان النظام) · `KeyboardHelper` (التنقل/التحديد/التظليل/الأسهم/الأزرار/الاختصارات) · `NavigationOptions` (**قيم التنقل الافتراضية الحيّة — تُغيَّر من مكان واحد** `RULE-N192`) · `RequiredFieldHelper` (تغذية الحقل المطلوب: أيقونة ✗ + خلفية `SelectionRowColor` معاً — `RULE-N180`…`N183`) · `LiveTafqeetHelper` (التفقيط الحيّ) · `RowFilterHelper` (تهريب قيم التصفية) · `ThemeHelper` (تنسيق النموذج/الزر الأساسي، يُستدعى قبل الثيم الأخضر) · `ReportUiStandardizer` (توحيد شاشات التقارير) · `clsGlobal`/`clsFormat`/`clsDialogs`/`clsValidation`/`clsInputFeedback` (أدوات `Global Classes/` العامة) · `Common/Helpers/` (`Guard`/`StringExtensions`/`DateTimeExtensions`/`FileHelper`).
@@ -1127,6 +1128,7 @@ public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Dam
 ❌ ادعاء بلا دليل: «تم / يعمل / كل / غالباً» في تقرير بلا **أمر** و**مخرج** — ولا «كل الملفات» بلا الأعداد الثلاثة ومطابقتها (RULE-N196 / RULE-N201)
 ❌ كومِت بلا ملف مهمة/ميزة محدَّث، أو تفويض وكيل بلا ملف مهمة مفتوح يُقرأ قبل أول سطر (RULE-N197)
 ❌ بناء شاشة أو خدمة أو كيان محاسبي جديد داخل V1 (دليل حسابات · قيود يومية · سندات قبض/صرف يدوية · خرائط حسابات) — الوحدة مؤجلة إلى V2 بقرار المالك 2026-11-17
+❌ أي عمود/حقل/مفتاح إعداد ضريبي في V1 — لا `TaxAmount` ولا `TaxNumber` ولا `TaxRate` ولا `TaxId` ولا `frmVatReport` (أُزيلت نهائياً بأمر المالك 2026-11-18 — `TASK-019`)؛ `NetTotal = SubTotal - DiscountAmount + OtherCharges`
 ```
 
 ---
@@ -1247,10 +1249,10 @@ SalesSystem.slnx
 | Products | ✅ Done | `frmProductMaster`, `frmProductUnitMaster`, `frmProductSelection`, `frmImportProductsExcel` | ✅ `ProductService` · `ProductUnitService` · `ProductImportService` | ✅ `Products` · `ProductUnits` |
 | CashBoxes | ✅ Done | `frmCashBoxMaster`, `frmCashBoxTransactions` | ✅ `CashBoxService` | ✅ `CashBoxes` |
 | Banks | 🔒 V2 (قرار المالك — §2.29 بند 4) | — (لا `frmBanks`) | ❌ | ❌ |
-| Purchases | ✅ Done | `frmListPurchases`, `frmPurchaseInvoice` | ✅ `PurchaseService` | ✅ `PurchaseInvoices` |
-| Sales | ✅ Done | `frmListSales`, `frmAddUpdateSalesInvoice` (كلاهما مسجَّل في DI ويُفتح من قائمة `frmMain` عبر `OpenScreen<T>()` — تحقّق 2026-11-13) | ✅ `SalesService` | ✅ `SalesInvoices` |
-| Sales Returns | ✅ Done | `frmSalesReturn` + `frmListReturns` (نمط المبيعات: محرر مستند + قائمة — أُعيدا وطُوبِقا على `frmAddUpdateSalesInvoice`/`frmListSales` في 2026-11-18 بعد رجوع المالك عن الدمج — `F-004/D-10`) | ✅ `SalesReturnService` | ✅ `SalesReturns` |
-| Purchase Returns | ✅ Done | `frmPurchaseReturn` + `frmListReturns` (نفس النمط — `F-004/D-10`) | ✅ `PurchaseReturnService` | ✅ `PurchaseReturns` |
+| Purchases | ✅ Done | `frmListPurchases`, `frmAddUpdatePurchaseInvoice` (**شاشة مستند شراء واحدة بوضعين** منذ 2026-11-18 — `TASK-018`: زرّا اختيار «فاتورة شراء»/«مرتجع شراء» + `btnPickInvoice` في وضع المرتجع) | ✅ `PurchaseService` | ✅ `PurchaseInvoices` |
+| Sales | ✅ Done | `frmListSales`, `frmAddUpdateSalesInvoice` (**شاشة مستند بيع واحدة بوضعين** منذ 2026-11-18 — `TASK-017`: زرّا اختيار «فاتورة بيع»/«مرتجع بيع» داخل `flpToolbar` و`SalesDocumentMode` في `Models/`؛ «فاتورة بيع» يُفتح بـ`OpenScreen<T>()` كما كان) | ✅ `SalesService` | ✅ `SalesInvoices` |
+| Sales Returns | ✅ Done | **`frmAddUpdateSalesInvoice` في وضع «مرتجع بيع»** (وضع `SaleReturn` — `TASK-017`) + `frmListReturns` للعرض. **`frmSalesReturn` حُذفت نهائياً 2026-11-18** (`RULE-N102`): لا محرّر ثانٍ — الحفظ `ISalesReturnDesktopService.CreateAsync` والترحيل `PostAsync` من الشاشة نفسها | ✅ `SalesReturnService` | ✅ `SalesReturns` |
+| Purchase Returns | ✅ Done | **`frmAddUpdatePurchaseInvoice` في وضع «مرتجع شراء»** (`PurchaseDocumentMode.PurchaseReturn` — `TASK-018`) + `frmListReturns`. **`frmPurchaseReturn` حُذفت نهائياً 2026-11-18** (`RULE-N102`) — الحفظ `IPurchaseReturnDesktopService.CreateAsync` والترحيل `PostAsync` من الشاشة نفسها | ✅ `PurchaseReturnService` | ✅ `PurchaseReturns` |
 | Receipts (سندات القبض) | ✅ Done | **`frmCustomerReceiptsMaster`** (شاشة مدمجة — `F-004` 2026-11-18؛ حلّت `frmListCustomerReceipts` + `frmAddUpdateCustomerReceipt` المحذوفتين) | ✅ `CustomerReceiptService` | ✅ `CustomerReceipts` |
 | Payments (سندات الصرف) | ✅ Done | `frmListPayments`, `frmListSupplierPayments`, `frmSupplierPaymentDialog` | ✅ `SupplierPaymentService` · `PaymentVoucherService` | ✅ `SupplierPayments` |
 | Reports | ✅ Done | **31** نموذج `frm*Report` في `Screens/Reports/Forms/` داخل ستة مجلدات تصنيفية (`Sales/`, `Purchases/`, `Inventory/`, `Accounting/`, `CustomersSuppliers/`, `CashBox/`) | ✅ 5 خدمات تقارير (+ Mocks) | ✅ (تقرأ من الجداول القائمة) — ✅ **محقَّق (2026-11-13): 31/31** هيكل مرجعي + تجميع معنون · شريط تنقل معلَن في المصمّم · `loadingPanel` + `ShowLoading` بـ`finally` · تصدير عبر `ExportHelper` (صفر `ClosedXML` محلي) · **47/47** حقل إدخال أبيض `Tahoma` · صفر `SystemColors` وصفر مراجع `Helpers` في المصمّمات · حارس تصدير قائم على عدد الصفوف 31/31 (لا ملف برؤوس فقط) · كميات `N3` ومبالغ `N2` · `ShowLoading` موحّد 31/31 (يُعيد المقدمة + مؤشر الانتظار + `finally`) · صفر `ex.Message` للمستخدم |

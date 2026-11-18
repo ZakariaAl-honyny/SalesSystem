@@ -5,7 +5,6 @@ public record UpdateCompanySettingsRequest(
     string? Phone = null,
     string? Email = null,
     string? Address = null,
-    string? TaxNumber = null,
     string? LogoPath = null);
 
 public record UpdateDocumentSequenceRequest(
@@ -22,8 +21,7 @@ public record ReportFilterRequest(
 
 public record UpdateSettingsRequest(
     string StoreName, string? Address, string? Phone, string? Email,
-    string? LogoUrl, decimal DefaultTaxRate, // DEPRECATED: DefaultTaxRate — use Tax entity instead (kept for backwards compat). Remove in Phase 20.
-    bool IsTaxEnabled, string? TaxNumber, // DEPRECATED: IsTaxEnabled — use Tax entity instead (kept for backwards compat). Remove in Phase 20.
+    string? LogoUrl,
     bool EnableStockAlerts, bool AllowNegativeStock,
     string InvoicePrefix, // DEPRECATED: InvoicePrefix — use InvoiceNo (int) instead. Remove in Phase 20.
     string? BackupPath = null,
@@ -36,8 +34,6 @@ public record UpdatePrintSettingsRequest(
     string ThermalPrinterName,
     string A4PrinterName,
     string LogoPath,
-    string StoreTaxNumber,
-    decimal TaxRate,
     bool AutoPrintOnPost,
     string ReceiptHeader,
     string ReceiptFooter,

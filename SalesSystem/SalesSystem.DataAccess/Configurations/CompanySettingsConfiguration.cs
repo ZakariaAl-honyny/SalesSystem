@@ -16,7 +16,6 @@ public class CompanySettingsConfiguration : IEntityTypeConfiguration<CompanySett
         builder.Property(c => c.Phone).HasMaxLength(30);
         builder.Property(c => c.Email).HasMaxLength(100);
         builder.Property(c => c.Address).HasMaxLength(300);
-        builder.Property(c => c.TaxNumber).HasMaxLength(50);
         builder.Property(c => c.LogoPath).HasMaxLength(500);
 
         // Schema has only CreatedAt/UpdatedAt (no CreatedByUserId/UpdatedByUserId)

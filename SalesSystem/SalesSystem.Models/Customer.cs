@@ -30,11 +30,6 @@ public class Customer : ActivatableEntity
     public string? Address { get; private set; }
 
     /// <summary>
-    /// Customer tax number / VAT registration (optional).
-    /// </summary>
-    public string? TaxNumber { get; private set; }
-
-    /// <summary>
     /// Free-text notes about the customer (optional).
     /// </summary>
     public string? Notes { get; private set; }
@@ -63,7 +58,6 @@ public class Customer : ActivatableEntity
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
-    /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="creditLimit">Credit limit (default 0 = no limit).</param>
     /// <param name="categoryId">تصنيف حر (عمود مرجعي بلا جدول هدف في MVP) — انظر docs/database-schema.md §10</param>
@@ -74,7 +68,6 @@ public class Customer : ActivatableEntity
         string? phone = null,
         string? email = null,
         string? address = null,
-        string? taxNumber = null,
         string? notes = null,
         decimal creditLimit = 0,
         int? paymentTermDays = null,
@@ -92,7 +85,6 @@ public class Customer : ActivatableEntity
             Phone = phone?.Trim(),
             Email = email?.Trim(),
             Address = address?.Trim(),
-            TaxNumber = taxNumber?.Trim(),
             Notes = notes?.Trim(),
             CreditLimit = creditLimit,
             PaymentTermDays = paymentTermDays,
@@ -125,7 +117,6 @@ public class Customer : ActivatableEntity
     /// <param name="phone">Optional phone number.</param>
     /// <param name="email">Optional email address.</param>
     /// <param name="address">Optional physical address.</param>
-    /// <param name="taxNumber">Optional tax number / VAT registration.</param>
     /// <param name="notes">Optional free-text notes.</param>
     /// <param name="creditLimit">New credit limit (&gt;= 0).</param>
     /// <param name="categoryId">New category id (null = keep current).</param>
@@ -135,7 +126,6 @@ public class Customer : ActivatableEntity
         string? phone = null,
         string? email = null,
         string? address = null,
-        string? taxNumber = null,
         string? notes = null,
         decimal creditLimit = 0,
         int? paymentTermDays = null,
@@ -150,7 +140,6 @@ public class Customer : ActivatableEntity
         Phone = phone?.Trim();
         Email = email?.Trim();
         Address = address?.Trim();
-        TaxNumber = taxNumber?.Trim();
         Notes = notes?.Trim();
         CreditLimit = creditLimit;
         PaymentTermDays = paymentTermDays;

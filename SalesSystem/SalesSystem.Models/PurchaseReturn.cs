@@ -71,7 +71,6 @@ public class PurchaseReturn : DocumentEntity
     public decimal? DiscountRate { get; private set; }
     public decimal TotalAmount { get; private set; }
     public decimal ReturnedDiscountAmount { get; private set; }
-    public decimal ReturnedTaxAmount { get; private set; }
     public decimal ReturnedChargeAmount { get; private set; }
     public string? Notes { get; private set; }
     public InvoiceStatus Status { get; private set; }
@@ -138,14 +137,13 @@ public class PurchaseReturn : DocumentEntity
     }
 
     /// <summary>
-    /// Sets proportional amounts for discount, tax, and charges based on the original invoice.
+    /// Sets proportional amounts for discount and charges based on the original invoice.
     /// Called by the service layer BEFORE Post() — the service computes the ratio
-    /// from the original invoice's SubTotal, DiscountAmount, TaxAmount, OtherCharges.
+    /// from the original invoice's SubTotal, DiscountAmount, OtherCharges.
     /// </summary>
-    public void SetProportionalAmounts(decimal discountPortion, decimal taxPortion, decimal chargesPortion)
+    public void SetProportionalAmounts(decimal discountPortion, decimal chargesPortion)
     {
         ReturnedDiscountAmount = discountPortion;
-        ReturnedTaxAmount = taxPortion;
         ReturnedChargeAmount = chargesPortion;
     }
 

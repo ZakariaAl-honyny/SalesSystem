@@ -831,9 +831,9 @@ public partial class frmCashBoxTransactions : Form
         {
             if (string.Equals(docKind, DocKindReceipt, StringComparison.Ordinal))
             {
-                var form = _serviceProvider.GetRequiredService<frmCustomerReceiptsMaster>();
+                var form = _serviceProvider.GetRequiredService<frmCRUDCustomerReceiptsMaster>();
                 // يُحدَّد السجل على النسخة الحيّة التي يُعيدها الفتح (المفتوحة أو المعروضة للتوّ — RULE-N133).
-                (clsGlobal._OpenForm(form) as frmCustomerReceiptsMaster)?.SelectRecord(docId);
+                (clsGlobal._OpenForm(form) as frmCRUDCustomerReceiptsMaster)?.SelectRecord(docId);
             }
             else if (string.Equals(docKind, DocKindExpense, StringComparison.Ordinal))
             {

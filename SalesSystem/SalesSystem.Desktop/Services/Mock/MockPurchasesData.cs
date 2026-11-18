@@ -23,7 +23,7 @@ internal static class MockPurchasesData
                 supplierName: "مجموعة هائل سعيد أنعم وشركاه",
                 whId: 1, whName: "المخزن الرئيسي",
                 date: new DateOnly(2026, 8, 25), payType: 2, status: 1,
-                paid: 0m, disc: 0m, tax: 0m, other: 0m,
+                paid: 0m, disc: 0m, other: 0m,
                 notes: "توريد دفعة مواد غذائية أولية للشهر",
                 supplierInvoiceNo: "HSA-INV-9921",
                 lines: new[]
@@ -38,7 +38,7 @@ internal static class MockPurchasesData
                 supplierName: "شركة مياه ومشروبات حدة المحدودة",
                 whId: 2, whName: "مخزن المعرض",
                 date: new DateOnly(2026, 8, 28), payType: 1, status: 2,
-                paid: 19000m, disc: 1000m, tax: 0m, other: 0m,
+                paid: 19000m, disc: 1000m, other: 0m,
                 notes: "شراء نقدي من مصنع مياه حدة مع خصم تشجيعي",
                 supplierInvoiceNo: "HADA-664",
                 lines: new[]
@@ -52,7 +52,7 @@ internal static class MockPurchasesData
                 supplierName: "شركة الكبوس للتجارة والصناعة",
                 whId: 1, whName: "المخزن الرئيسي",
                 date: new DateOnly(2026, 8, 30), payType: 2, status: 2,
-                paid: 0m, disc: 0m, tax: 0m, other: 0m,
+                paid: 0m, disc: 0m, other: 0m,
                 notes: "شاي الكبوس الممتاز توريد آجل",
                 supplierInvoiceNo: "KAB-8832",
                 lines: new[]
@@ -68,7 +68,7 @@ internal static class MockPurchasesData
     private static PurchaseInvoiceDto CreatePurchase(
         int id, int invoiceNo, int supplierId, string supplierName,
         int whId, string whName, DateOnly date, byte payType, byte status,
-        decimal paid, decimal disc, decimal tax, decimal other, string? notes,
+        decimal paid, decimal disc, decimal other, string? notes,
         string? supplierInvoiceNo,
         (int lineId, int productId, string productName, int unitId, string unitName, decimal qty, decimal cost)[] lines)
     {
@@ -87,7 +87,7 @@ internal static class MockPurchasesData
         }).ToList();
 
         decimal subTotal = items.Sum(i => i.LineTotal);
-        decimal netTotal = subTotal - disc + tax + other;
+        decimal netTotal = subTotal - disc + other;
         decimal remaining = netTotal - paid;
 
         return new PurchaseInvoiceDto(
@@ -96,12 +96,10 @@ internal static class MockPurchasesData
             WarehouseId: whId, WarehouseName: whName,
             InvoiceDate: date, PaymentType: payType,
             SubTotal: subTotal, DiscountAmount: disc,
-            DiscountType: 0, DiscountRate: null,
-            TaxAmount: tax, OtherCharges: other,
+            DiscountType: 0, DiscountRate: null, OtherCharges: other,
             NetTotal: netTotal, PaidAmount: paid, RemainingAmount: remaining,
             Notes: notes, SupplierInvoiceNo: supplierInvoiceNo,
             AttachmentPath: null, Status: status,
-            TaxId: null, TaxName: null, TaxRate: null,
             CashBoxId: null, Items: items);
     }
 }

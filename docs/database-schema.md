@@ -152,7 +152,7 @@
 > **العدّ:** 3 + 4 + 5 + 2 + 6 + 6 + 6 + 2 = **34** هدف V3 · و**40** = 34 + 6 جداول محاسبية ما زالت في الـsnapshot حتى تُنفَّذ موجة الإزالة (§8).
 
 > **لماذا بقي `CashBoxes` و`Expenses` في V1 وهما في وحدة المحاسبة سابقاً؟** لأنهما **تشغيليان**: الكاشير يسجّل في أي صندوق باع، والمصروف يُسجَّل بمبلغه وتاريخه؛ ولا يحتاج أيٌّ منهما قيداً مزدوجاً. أما `Accounts` و`JournalEntries` و`JournalEntryLines` و`SystemAccountMappings` وسندات القبض/الصرف اليدوية فهي **آلية محاسبة بحتة** بلا وظيفة في حلقة «بيع → خصم مخزون → صندوق» ⇒ V2.
-> **أثر جانبي إلزامي عند الإزالة:** العمودان `CashBoxes.AccountId` و`Expenses.ExpenseAccountId` (كلاهما `int NOT NULL` إلى `Accounts`) لا معنى لهما بعد نقل `Accounts` ⇒ يُزالان في الموجة نفسها. وكذلك `Customers.AccountId` و`Suppliers.AccountId` (§8 — جدول الأثر).
+> **أثر جانبي مُنفَّذ:** العمودان `CashBoxes.AccountId` و`Expenses.ExpenseAccountId` و`Customers.AccountId` و`Suppliers.AccountId` **أُزيلت من الموديل والتهيئات في 2026-11-17** (`TASK-011` §13) — **لم يبقَ منها شيء في الكود**؛ العمودات الأربعة باقية على **القاعدة الحيّة** فقط ويُسقطها المالك (`RULE-N198` — §8.1).
 
 ---
 
@@ -165,12 +165,11 @@
 ## Module 1: النواة والأمان
 
 ### 1.1 Customers
-**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 16
+**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 14
 
 | العمود | النوع | Nullability |
 |---|---|---|
 | `Id` | `int` | NOT NULL |
-| `AccountId` | `int` | NOT NULL |
 | `Address` | `nvarchar(500)` | NULL |
 | `CategoryId` | `int` | NULL |
 | `CreatedAt` | `datetime2` | NOT NULL |
@@ -182,17 +181,15 @@
 | `Notes` | `nvarchar(1000)` | NULL |
 | `PaymentTermDays` | `int` | NULL |
 | `Phone` | `nvarchar(20)` | NULL |
-| `TaxNumber` | `nvarchar(30)` | NULL |
 | `UpdatedAt` | `datetime2` | NULL |
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 
 ### 1.2 Suppliers
-**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 16
+**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 14
 
 | العمود | النوع | Nullability |
 |---|---|---|
 | `Id` | `int` | NOT NULL |
-| `AccountId` | `int` | NOT NULL |
 | `Address` | `nvarchar(500)` | NULL |
 | `CategoryId` | `int` | NULL |
 | `CommercialRegisterNo` | `nvarchar(max)` | NULL |
@@ -204,7 +201,6 @@
 | `Name` | `nvarchar(200)` | NOT NULL |
 | `Notes` | `nvarchar(1000)` | NULL |
 | `Phone` | `nvarchar(20)` | NULL |
-| `TaxNumber` | `nvarchar(30)` | NULL |
 | `UpdatedAt` | `datetime2` | NULL |
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 
@@ -245,7 +241,7 @@
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 
 ### 2.2 CompanySettings
-**المفتاح:** `tinyint IDENTITY` · **الفئة:** `AuditableEntity` · **الأعمدة:** 9
+**المفتاح:** `tinyint IDENTITY` · **الفئة:** `AuditableEntity` · **الأعمدة:** 8
 
 | العمود | النوع | Nullability |
 |---|---|---|
@@ -256,7 +252,6 @@
 | `Email` | `nvarchar(100)` | NULL |
 | `LogoPath` | `nvarchar(500)` | NULL |
 | `Phone` | `nvarchar(30)` | NULL |
-| `TaxNumber` | `nvarchar(50)` | NULL |
 | `UpdatedAt` | `datetime2` | NULL |
 
 ### 2.3 SystemSettings
@@ -382,15 +377,14 @@
 
 > **هذه الوحدة كانت «المحاسبة» بثمانية جداول في V1 — وصارت في V3 جدولين تشغيليين فقط.**
 > الجداول الستة المحاسبية (`Accounts` · `JournalEntries` · `JournalEntryLines` · `ReceiptVouchers` · `PaymentVouchers` · `SystemAccountMappings`) نُقلت بتعريفاتها الكاملة إلى `docs/database-schema-v2-deferred.md` — قسم «المحاسبة». **لا تُضاف شاشة ولا خدمة محاسبية جديدة في V1.**
-> **العمودان `CashBoxes.AccountId` و`Expenses.ExpenseAccountId` ما زالا في الـsnapshot** لأنهما مرتبطان بـ`Accounts`؛ يُزالان في موجة إزالة المحاسبة لا قبلها (§8).
+> **العمودان `CashBoxes.AccountId` و`Expenses.ExpenseAccountId` أُزيلا من الموديل والتهيئة** في 2026-11-17 (`TASK-011` §13) — لا وجود لهما في الكود؛ يبقيان على **القاعدة الحيّة** حتى يُسقطهما المالك (`RULE-N198`).
 
 ### 4.1 CashBoxes
-**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 9
+**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 8
 
 | العمود | النوع | Nullability |
 |---|---|---|
 | `Id` | `int` | NOT NULL |
-| `AccountId` | `int` | NOT NULL |
 | `CreatedAt` | `datetime2` | NOT NULL |
 | `CreatedByUserName` | `nvarchar(100)` | NULL |
 | `Description` | `nvarchar(300)` | NULL |
@@ -400,7 +394,7 @@
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 
 ### 4.2 Expenses
-**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 14
+**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 13
 
 | العمود | النوع | Nullability |
 |---|---|---|
@@ -410,7 +404,6 @@
 | `CashBoxId` | `int` | NOT NULL |
 | `CreatedAt` | `datetime2` | NOT NULL |
 | `CreatedByUserName` | `nvarchar(100)` | NULL |
-| `ExpenseAccountId` | `int` | NOT NULL |
 | `ExpenseDate` | `date` | NOT NULL |
 | `ExpenseNo` | `int` | NOT NULL |
 | `Notes` | `nvarchar(500)` | NULL |
@@ -517,7 +510,7 @@
 ## Module 6: المبيعات
 
 ### 6.1 SalesInvoices
-**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 24
+**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 23
 
 | العمود | النوع | Nullability |
 |---|---|---|
@@ -541,7 +534,6 @@
 | `RemainingAmount` | `decimal(18,2)` | NOT NULL |
 | `Status` | `tinyint` | NOT NULL |
 | `SubTotal` | `decimal(18,2)` | NOT NULL |
-| `TaxAmount` | `decimal(18,2)` | NOT NULL |
 | `UpdatedAt` | `datetime2` | NULL |
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 | `WarehouseId` | `smallint` | NOT NULL |
@@ -566,7 +558,7 @@
 | `UnitPrice` | `decimal(18,2)` | NOT NULL |
 
 ### 6.3 SalesReturns
-**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 20
+**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 19
 
 | العمود | النوع | Nullability |
 |---|---|---|
@@ -583,7 +575,6 @@
 | `ReturnReason` | `nvarchar(500)` | NULL |
 | `ReturnedChargeAmount` | `decimal(18,2)` | NOT NULL |
 | `ReturnedDiscountAmount` | `decimal(18,2)` | NOT NULL |
-| `ReturnedTaxAmount` | `decimal(18,2)` | NOT NULL |
 | `SalesInvoiceId` | `int` | NOT NULL |
 | `Status` | `tinyint` | NOT NULL |
 | `TotalAmount` | `decimal(18,2)` | NOT NULL |
@@ -636,7 +627,7 @@
 ## Module 7: المشتريات
 
 ### 7.1 PurchaseInvoices
-**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 26
+**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 25
 
 | العمود | النوع | Nullability |
 |---|---|---|
@@ -662,7 +653,6 @@
 | `SubTotal` | `decimal(18,2)` | NOT NULL |
 | `SupplierId` | `int` | NOT NULL |
 | `SupplierInvoiceNo` | `nvarchar(200)` | NULL |
-| `TaxAmount` | `decimal(18,2)` | NOT NULL |
 | `UpdatedAt` | `datetime2` | NULL |
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 | `WarehouseId` | `smallint` | NOT NULL |
@@ -686,7 +676,7 @@
 | `UnitPrice` | `decimal(18,2)` | NOT NULL |
 
 ### 7.3 PurchaseReturns
-**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 20
+**المفتاح:** `int IDENTITY` · **الفئة:** `DocumentEntity` · **الأعمدة:** 19
 
 | العمود | النوع | Nullability |
 |---|---|---|
@@ -703,7 +693,6 @@
 | `ReturnNo` | `int` | NOT NULL |
 | `ReturnedChargeAmount` | `decimal(18,2)` | NOT NULL |
 | `ReturnedDiscountAmount` | `decimal(18,2)` | NOT NULL |
-| `ReturnedTaxAmount` | `decimal(18,2)` | NOT NULL |
 | `Status` | `tinyint` | NOT NULL |
 | `SupplierId` | `int` | NOT NULL |
 | `TotalAmount` | `decimal(18,2)` | NOT NULL |
@@ -822,16 +811,16 @@
 ```
 LineTotal       = (Quantity × UnitPrice) - DiscountAmount
 SubTotal        = SUM(LineTotal)
-NetTotal        = SubTotal - DiscountAmount + TaxAmount + OtherCharges
+NetTotal        = SubTotal - DiscountAmount + OtherCharges
 RemainingAmount = NetTotal - PaidAmount
 Constraint:     PaidAmount <= NetTotal
 ```
 
 ## فاتورة الشراء
 ```
-LineTotal       = (Quantity × UnitCost) - DiscountAmount
+LineTotal       = (Quantity × UnitPrice) - DiscountAmount
 SubTotal        = SUM(LineTotal)
-NetTotal        = SubTotal - DiscountAmount + TaxAmount + OtherCharges
+NetTotal        = SubTotal - DiscountAmount + OtherCharges
 RemainingAmount = NetTotal - PaidAmount
 Constraint:     PaidAmount <= NetTotal
 ```
@@ -854,6 +843,7 @@ Constraint:     PaidAmount <= NetTotal
 | **الفروع (Branches)** | الكيان + التكوين + الخدمات + الشاشات + **الجدول** + **19 عمود `BranchId`** في 19 جدولاً | ترحيل `20261117054708_RemoveBranchAndBranchId`: 19 `DropForeignKey` + 19 `DropIndex` + 19 `DropColumn` + 1 `DropTable` |
 | **الموظفون (Employees)** | الشاشة + العقد + الـMock + الـDTO + `CreateEmployeeAccountAsync` + **`Users.EmployeeId`** | ترحيل `20261117063917_RemoveBaseCurrencyAndEmployeeColumns` (عمود واحد ضمنه) — لم يكن هناك جدول `Employees` قط |
 | **العملات (Currencies)** | شاشة العملة + عنصر القائمة + `CurrencyId` + `ExchangeRate` + **13 عموداً** (`BaseNetTotal` ×7 · `CostInBaseCurrency` ×6) | نفس الترحيل: 14 `DropColumn` إجمالاً (13 عملة + `EmployeeId`) بصفر عملية أخرى |
+| **الضريبة (Tax)** — 2026-11-18 (`TASK-019`) | **7 أعمدة/خصائص** أُزيلت من الكود والمخطط: `SalesInvoices.TaxAmount` · `PurchaseInvoices.TaxAmount` · `SalesReturns.ReturnedTaxAmount` · `PurchaseReturns.ReturnedTaxAmount` · `Customers.TaxNumber` · `Suppliers.TaxNumber` · `CompanySettings.TaxNumber` + تقرير الضريبة كاملاً + 7 مفاتيح `SystemSettings` + سطح الطباعة | إزالة كود كاملة ببناء **0 أخطاء**؛ **إسقاط الأعمدة على القاعدة الحيّة لم يُنفَّذ** — يبقى للمالك (`RULE-N198`)، وكل عمود محذوف كان `NULL` أو `HasDefaultValue(0m)` ⇒ الإدراج على القاعدة القائمة سليم |
 
 > **مهم:** «مؤجل إلى V2» في هذا المستودع يعني **لا كود**. الفروع والموظفون اختفوا من الكود **ومن قاعدة البيانات**؛ العملات اختفت من الكود وحُذفت أعمدتها. إعادة أي منها = ميزة جديدة تمرّ بالدورة الكاملة (Mock ⇒ مراجعة المالك ⇒ موافقة ⇒ باك-إند ⇒ ترحيل بموافقة هيكل).
 >
@@ -889,8 +879,8 @@ Constraint:     PaidAmount <= NetTotal
 | 3 | `SalesSystem.Business/Services/` | حذف خدمات الدليل | **3** ملفات: `AccountService` · `AccountCodeGeneratorService` · `AccountLinkService` |
 | 4 | `SalesSystem.DataAccess/Seeders/` | إزالة بذور شجرة الحسابات وخرائط الحسابات | **1** ملف: `AccountingSeeder.cs` |
 | 5 | `SalesSystem.Desktop/Screens/Accounting/` | حذف النماذج الثلاثة + عناصر القائمة + تسجيلات DI | **3** نماذج: `frmAccounts` · `frmAccountsTree` · `frmJournalEntries` |
-| 6 | `Customers.AccountId` · `Suppliers.AccountId` | **إزالة العمودين** — رصيد العميل/المورّد يُحسب من فواتيره (مبيعات − مرتجعات − سندات قبض) | عمودان `int NOT NULL` |
-| 7 | `CashBoxes.AccountId` · `Expenses.ExpenseAccountId` | **إزالة العمودين** — الصندوق والمصروف يصيران تشغيليين بلا دليل حسابات | عمودان `int NOT NULL` |
+| 6 | `Customers.AccountId` · `Suppliers.AccountId` | **إزالة العمودين** — رصيد العميل/المورّد يُحسب من فواتيره (مبيعات − مرتجعات − سندات قبض) | ✅ **مُزَال من الموديل والتهيئة** (`0` مرجع في `Models/**`) · باقٍ على القاعدة الحيّة فقط |
+| 7 | `CashBoxes.AccountId` · `Expenses.ExpenseAccountId` | **إزالة العمودين** — الصندوق والمصروف يصيران تشغيليين بلا دليل حسابات | ✅ **مُزَال من الموديل والتهيئة** · باقٍ على القاعدة الحيّة فقط |
 | 8 | `JournalEntryLines.AccountId` · `SystemAccountMapping.AccountId` · `ReceiptVoucher/PaymentVoucher.AccountId` | تُحذف مع جداولها | داخل الجداول المنقولة |
 | 9 | `Services/Interfaces` · `Services/Direct` · `Services/Mock` · `DTO` | حذف عقود/تنفيذات الدليل والقيود والسندات اليدوية | يُحصر بالأمر وقت الموجة |
 | 10 | `documents / التقارير المحاسبية` | أي تقرير يقرأ `Accounts`/`JournalEntries` يُحذف أو يُحوَّل إلى تقرير تشغيلي | يُحصر وقت الموجة |

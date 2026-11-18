@@ -5,7 +5,6 @@ public record CreateCustomerRequest(
     string? Phone,
     string? Email,
     string? Address,
-    string? TaxNumber,
     string? Notes = null,
     decimal CreditLimit = 0
 );
@@ -15,7 +14,6 @@ public record UpdateCustomerRequest(
     string? Phone,
     string? Email,
     string? Address,
-    string? TaxNumber,
     string? Notes = null,
     decimal CreditLimit = 0,
     bool IsActive = true

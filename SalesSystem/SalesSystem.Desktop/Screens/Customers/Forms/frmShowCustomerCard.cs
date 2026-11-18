@@ -126,7 +126,7 @@ public partial class frmShowCustomerCard : Form
 
         try
         {
-            var master = _serviceProvider.GetRequiredService<frmCustomerMaster>();
+            var master = _serviceProvider.GetRequiredService<frmCRUDCustomerMaster>();
             clsGlobal._OpenForm(master);
             Close();
         }

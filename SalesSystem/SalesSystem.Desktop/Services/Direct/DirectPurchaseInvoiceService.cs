@@ -92,11 +92,9 @@ public class DirectPurchaseInvoiceService : IPurchaseInvoiceDesktopService
                 DiscountAmount: r.DiscountAmount,
                 DiscountType: r.DiscountType,
                 DiscountRate: r.DiscountRate,
-                TaxAmount: r.TaxAmount,
                 OtherCharges: r.OtherCharges,
                 PaidAmount: r.PaidAmount,
                 Notes: r.Notes,
-                TaxId: r.TaxId,
                 AttachmentPath: r.AttachmentPath,
                 Items: r.Items);
 

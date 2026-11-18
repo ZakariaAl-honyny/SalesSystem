@@ -200,7 +200,6 @@ public partial class frmSupplierMaster : Form
         table.Columns.Add("Name", typeof(string));
         table.Columns.Add("Phone", typeof(string));
         table.Columns.Add("Email", typeof(string));
-        table.Columns.Add("TaxNumber", typeof(string));
         table.Columns.Add("CreditLimit", typeof(decimal));
         table.Columns.Add("CurrentBalance", typeof(decimal));
         table.Columns.Add("IsActive", typeof(bool));
@@ -222,7 +221,6 @@ public partial class frmSupplierMaster : Form
                         s.Name,
                         s.Phone ?? "",
                         s.Email ?? "",
-                        s.TaxNumber ?? "",
                         s.CreditLimit,
                         s.CurrentBalance,
                         s.IsActive);
@@ -264,7 +262,6 @@ public partial class frmSupplierMaster : Form
                 "Name" => "اسم المورد",
                 "Phone" => "الهاتف",
                 "Email" => "البريد الإلكتروني",
-                "TaxNumber" => "الرقم الضريبي",
                 "CreditLimit" => "حد الائتمان",
                 "IsActive" => "نشط",
                 _ => column.HeaderText
@@ -436,7 +433,6 @@ public partial class frmSupplierMaster : Form
     {
         1 => "Phone",
         2 => "Email",
-        3 => "TaxNumber",
         _ => "Name"
     };
 
@@ -638,7 +634,6 @@ public partial class frmSupplierMaster : Form
         txtPhone.Text = s.Phone ?? "";
         txtEmail.Text = s.Email ?? "";
         txtAddress.Text = s.Address ?? "";
-        txtTaxNumber.Text = s.TaxNumber ?? "";
         numCreditLimit.Value = NumericInputHelper.Clamp(numCreditLimit, s.CreditLimit);
         txtNotes.Text = s.Notes ?? "";
 
@@ -698,7 +693,7 @@ public partial class frmSupplierMaster : Form
     /// <summary>حقول المحرر التي تُعطَّل في وضع العرض وتُفعَّل عند «جديد» أو عند تحديد سجل.</summary>
     private Control[] _EditorInputs() => new Control[]
     {
-        txtName, txtPhone, txtEmail, txtTaxNumber, txtAddress, txtNotes, numCreditLimit
+        txtName, txtPhone, txtEmail, txtAddress, txtNotes, numCreditLimit
     };
 
     /// <summary>تفعيل أو تعطيل كل حقول المحرر دفعة واحدة (txtId يبقى للقراءة دائماً).</summary>
@@ -754,7 +749,6 @@ public partial class frmSupplierMaster : Form
         txtPhone.Clear();
         txtEmail.Clear();
         txtAddress.Clear();
-        txtTaxNumber.Clear();
         txtNotes.Clear();
         numCreditLimit.Value = 0;
 
@@ -847,7 +841,6 @@ public partial class frmSupplierMaster : Form
             string? phone = txtPhone.Text?.Trim().ToNullIfEmpty();
             string? email = txtEmail.Text?.Trim().ToNullIfEmpty();
             string? address = txtAddress.Text?.Trim().ToNullIfEmpty();
-            string? taxNumber = txtTaxNumber.Text?.Trim().ToNullIfEmpty();
             string? notes = txtNotes.Text?.Trim().ToNullIfEmpty();
             decimal creditLimit = numCreditLimit.Value;
 
@@ -871,9 +864,8 @@ public partial class frmSupplierMaster : Form
                     phone,
                     email,
                     address,
-                    taxNumber,
-                    notes,
-                    creditLimit,
+                    Notes: notes,
+                    CreditLimit: creditLimit,
                     CategoryId: categoryId,
                     IsActive: isActive);
 
@@ -886,9 +878,8 @@ public partial class frmSupplierMaster : Form
                     phone,
                     email,
                     address,
-                    taxNumber,
-                    notes,
-                    creditLimit);
+                    Notes: notes,
+                    CreditLimit: creditLimit);
 
                 result = await SupplierService.CreateAsync(request);
             }

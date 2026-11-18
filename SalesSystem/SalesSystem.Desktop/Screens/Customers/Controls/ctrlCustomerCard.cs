@@ -86,7 +86,6 @@ public partial class ctrlCustomerCard : UserControl
         lblPhoneValue.Text = _OrMissing(dto.Phone);
         lblEmailValue.Text = _OrMissing(dto.Email);
         lblAddressValue.Text = _OrMissing(dto.Address);
-        lblTaxNumberValue.Text = _OrMissing(dto.TaxNumber);
 
         // المال يُعرض بمنسّق البيت الواحد دائماً (RULE-N169).
         lblCreditLimitValue.Text = clsFormat.Money(dto.CreditLimit);
@@ -111,7 +110,6 @@ public partial class ctrlCustomerCard : UserControl
         lblPhoneValue.Text = MissingText;
         lblEmailValue.Text = MissingText;
         lblAddressValue.Text = MissingText;
-        lblTaxNumberValue.Text = MissingText;
         lblCreditLimitValue.Text = clsFormat.Money(0m);
         lblBalanceValue.Text = clsFormat.Money(0m);
         lblNotesValue.Text = MissingText;

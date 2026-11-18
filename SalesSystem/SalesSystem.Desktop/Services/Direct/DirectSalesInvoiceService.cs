@@ -90,12 +90,10 @@ public class DirectSalesInvoiceService : ISalesInvoiceDesktopService
                 InvoiceDate: r.InvoiceDate,
                 PaymentType: r.PaymentType,
                 DiscountAmount: r.DiscountAmount,
-                TaxAmount: r.TaxAmount,
                 OtherCharges: r.OtherCharges,
                 PaidAmount: r.PaidAmount,
                 CashBoxId: r.CashBoxId,
                 Notes: r.Notes,
-                TaxId: r.TaxId,
                 Items: r.Items,
                 DiscountType: r.DiscountType,
                 DiscountRate: r.DiscountRate);

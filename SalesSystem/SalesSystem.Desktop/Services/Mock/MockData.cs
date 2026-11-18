@@ -27,19 +27,19 @@ internal static class MockData
     public static List<CustomerDto> Customers { get; } = new()
     {
         new CustomerDto(1, "أحمد محمد علي", "777123456", "ahmed@email.com",
-            "شارع الزبيري - صنعاء", null, 500000m, true, null, null, 0m),
+            "شارع الزبيري - صنعاء", 500000m, true, null, null, 0m),
         new CustomerDto(2, "شركة النور للتجارة", "777987654", "alnoor@trade.com",
-            "شارع الستين - صنعاء", "1234567890", 2000000m, true, null, "عميل جملة", 0m),
+            "شارع الستين - صنعاء", 2000000m, true, null, "عميل جملة", 0m),
         new CustomerDto(3, "مؤسسة اليمن الحديثة", "733456789", null,
-            "شارع تعز - عدن", null, 1000000m, true, null, null, 0m),
+            "شارع تعز - عدن", 1000000m, true, null, null, 0m),
         new CustomerDto(4, "محمد عبدالرحمن السالمي", "771234567", null,
-            "حجة - ميدي", null, 200000m, true, null, null, 12500m),
+            "حجة - ميدي", 200000m, true, null, null, 12500m),
         new CustomerDto(5, "عبدالله حسن المقطري", "778889990", null,
-            "ذمار - شارع جمال", null, 0m, true, null, null, 0m),
+            "ذمار - شارع جمال", 0m, true, null, null, 0m),
         new CustomerDto(6, "محلات البدر للمواد الغذائية", "775556667", "albadr@food.com",
-            "إب - شارع الحرية", null, 3000000m, true, null, "جملة", 0m),
+            "إب - شارع الحرية", 3000000m, true, null, "جملة", 0m),
         new CustomerDto(7, "سالم أحمد باوزير", "770001112", null,
-            "الحديدة - شارع الصيادلة", null, 0m, false, null, "معطل", 0m)
+            "الحديدة - شارع الصيادلة", 0m, false, null, "معطل", 0m)
     };
 
     // ═══════════════════════════════════════════════
@@ -170,11 +170,11 @@ internal static class MockData
     {
         return new List<SalesInvoiceDto>
         {
-            // فاتورة 1: مسودة — أحمد محمد — بدون خصم/ضريبة — لم تُدفع
+            // فاتورة 1: مسودة — أحمد محمد — بدون خصم — لم تُدفع
             CreateInvoice(
                 id: 1, invoiceNo: 1001, custId: 1, custName: "أحمد محمد علي",
                 whId: 1, whName: "المخزن الرئيسي", date: DateTime.Today.AddDays(-5),
-                payType: 1, status: 1, paid: 0m, disc: 0m, tax: 0m, other: 0m, notes: null,
+                payType: 1, status: 1, paid: 0m, disc: 0m, other: 0m, notes: null,
                 lines: new[]
                 {
                     (1, 1, "شاي ليبتون 250غ",  5m,  500m,  1),
@@ -182,11 +182,11 @@ internal static class MockData
                     (3, 4, "سكر أبيض 1 كغ",   10m,  800m,  4)
                 }),
 
-            // فاتورة 2: مرحل — شركة النور — بدون خصم/ضريبة — مدفوعة بالكامل
+            // فاتورة 2: مرحل — شركة النور — بدون خصم — مدفوعة بالكامل
             CreateInvoice(
                 id: 2, invoiceNo: 1002, custId: 2, custName: "شركة النور للتجارة",
                 whId: 1, whName: "المخزن الرئيسي", date: DateTime.Today.AddDays(-3),
-                payType: 1, status: 2, paid: 175000m, disc: 0m, tax: 0m, other: 0m, notes: "بيع جملة",
+                payType: 1, status: 2, paid: 175000m, disc: 0m, other: 0m, notes: "بيع جملة",
                 lines: new[]
                 {
                     (4, 3, "أرز بسمتي 5 كغ",    20m, 3500m,  3),
@@ -199,18 +199,18 @@ internal static class MockData
             CreateInvoice(
                 id: 3, invoiceNo: 1003, custId: 5, custName: "عبدالله حسن المقطري",
                 whId: 1, whName: "المخزن الرئيسي", date: DateTime.Today.AddDays(-10),
-                payType: 2, status: 3, paid: 0m, disc: 0m, tax: 0m, other: 0m, notes: "فاتورة ملغية",
+                payType: 2, status: 3, paid: 0m, disc: 0m, other: 0m, notes: "فاتورة ملغية",
                 lines: new[]
                 {
                     (8,  9, "مناديل ورقية 150 ورقة", 10m, 500m, 9),
                     (9, 10, "صابون غسيل 1 كغ",         5m, 700m, 10)
                 }),
 
-            // فاتورة 4: مسودة — مؤسسة اليمن الحديثة — خصم 5000 + ضريبة 5% — لم تُدفع
+            // فاتورة 4: مسودة — مؤسسة اليمن الحديثة — خصم 5000 — لم تُدفع
             CreateInvoice(
                 id: 4, invoiceNo: 1004, custId: 3, custName: "مؤسسة اليمن الحديثة",
                 whId: 1, whName: "المخزن الرئيسي", date: DateTime.Today.AddDays(-1),
-                payType: 2, status: 1, paid: 0m, disc: 5000m, tax: 7050m, other: 0m, notes: null,
+                payType: 2, status: 1, paid: 0m, disc: 5000m, other: 0m, notes: null,
                 lines: new[]
                 {
                     (10, 1, "شاي ليبتون 250غ",  100m, 500m, 1),
@@ -218,22 +218,22 @@ internal static class MockData
                     (12, 4, "سكر أبيض 1 كغ",     60m,  800m, 4)
                 }),
 
-            // فاتورة 5: مرحل — محمد السالمي — بدون خصم/ضريبة — مدفوعة جزئياً
+            // فاتورة 5: مرحل — محمد السالمي — بدون خصم — مدفوعة جزئياً
             CreateInvoice(
                 id: 5, invoiceNo: 1005, custId: 4, custName: "محمد عبدالرحمن السالمي",
                 whId: 2, whName: "مخزن المعرض", date: DateTime.Today.AddDays(-2),
-                payType: 3, status: 2, paid: 20000m, disc: 0m, tax: 0m, other: 0m, notes: null,
+                payType: 3, status: 2, paid: 20000m, disc: 0m, other: 0m, notes: null,
                 lines: new[]
                 {
                     (13, 2, "زيت نباتي 1 لتر", 10m, 1500m, 2),
                     (14, 3, "أرز بسمتي 5 كغ",   5m, 3500m, 3)
                 }),
 
-            // فاتورة 6: مسودة — محلات البدر — بدون خصم/ضريبة — لم تُدفع
+            // فاتورة 6: مسودة — محلات البدر — بدون خصم — لم تُدفع
             CreateInvoice(
                 id: 6, invoiceNo: 1006, custId: 6, custName: "محلات البدر للمواد الغذائية",
                 whId: 1, whName: "المخزن الرئيسي", date: DateTime.Today,
-                payType: 2, status: 1, paid: 0m, disc: 0m, tax: 0m, other: 0m, notes: null,
+                payType: 2, status: 1, paid: 0m, disc: 0m, other: 0m, notes: null,
                 lines: new[]
                 {
                     (15, 6, "معجون طماطم 400غ", 200m, 600m,  6),
@@ -244,7 +244,7 @@ internal static class MockData
             CreateInvoice(
                 id: 7, invoiceNo: 1007, custId: 1, custName: "أحمد محمد علي",
                 whId: 1, whName: "المخزن الرئيسي", date: DateTime.Today,
-                payType: 1, status: 2, paid: 17500m, disc: 0m, tax: 0m, other: 0m, notes: null,
+                payType: 1, status: 2, paid: 17500m, disc: 0m, other: 0m, notes: null,
                 lines: new[]
                 {
                     (17, 1, "شاي ليبتون 250غ",           20m, 500m, 1),
@@ -259,7 +259,7 @@ internal static class MockData
     private static SalesInvoiceDto CreateInvoice(
         int id, int invoiceNo, int custId, string custName,
         int whId, string whName, DateTime date, byte payType, byte status,
-        decimal paid, decimal disc, decimal tax, decimal other, string? notes,
+        decimal paid, decimal disc, decimal other, string? notes,
         (int lineId, int productId, string productName, decimal qty, decimal price, int unitId)[] lines)
     {
         var items = lines.Select(l =>
@@ -272,17 +272,16 @@ internal static class MockData
         }).ToList();
 
         decimal subTotal = items.Sum(i => i.LineTotal);
-        decimal netTotal = subTotal - disc + tax + other;
+        decimal netTotal = subTotal - disc + other;
         decimal remaining = netTotal - paid;
 
         return new SalesInvoiceDto(
             Id: id, InvoiceNo: invoiceNo, CustomerId: custId, CustomerName: custName,
             WarehouseId: whId, WarehouseName: whName, InvoiceDate: date,
             PaymentType: payType, SubTotal: subTotal, DiscountAmount: disc,
-            DiscountType: 0, DiscountRate: null, TaxAmount: tax, OtherCharges: other,
+            DiscountType: 0, DiscountRate: null, OtherCharges: other,
             NetTotal: netTotal, PaidAmount: paid, RemainingAmount: remaining,
             Notes: notes, Status: status,
-            TaxId: null, TaxName: null, TaxRate: null,
             CashBoxId: null, CashBoxName: null, Items: items);
     }
 }

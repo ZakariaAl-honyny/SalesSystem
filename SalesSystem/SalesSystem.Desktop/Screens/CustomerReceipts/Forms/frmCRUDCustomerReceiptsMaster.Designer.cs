@@ -1,6 +1,6 @@
 namespace SalesSystem.Desktop.Screens.CustomerReceipts.Forms;
 
-partial class frmCustomerReceiptsMaster
+partial class frmCRUDCustomerReceiptsMaster
 {
     private System.ComponentModel.IContainer components = null;
 

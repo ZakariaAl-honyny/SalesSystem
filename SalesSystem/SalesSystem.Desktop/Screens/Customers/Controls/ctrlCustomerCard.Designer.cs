@@ -35,8 +35,6 @@ partial class ctrlCustomerCard
         lblEmailValue = new Label();
         lblAddressCaption = new Label();
         lblAddressValue = new Label();
-        lblTaxNumberCaption = new Label();
-        lblTaxNumberValue = new Label();
         lblCreditLimitCaption = new Label();
         lblCreditLimitValue = new Label();
         lblBalanceCaption = new Label();
@@ -66,8 +64,6 @@ partial class ctrlCustomerCard
         gbIdentity.Controls.Add(lblEmailValue);
         gbIdentity.Controls.Add(lblAddressCaption);
         gbIdentity.Controls.Add(lblAddressValue);
-        gbIdentity.Controls.Add(lblTaxNumberCaption);
-        gbIdentity.Controls.Add(lblTaxNumberValue);
         gbIdentity.Controls.Add(lblCreditLimitCaption);
         gbIdentity.Controls.Add(lblCreditLimitValue);
         gbIdentity.Controls.Add(lblBalanceCaption);
@@ -200,29 +196,6 @@ partial class ctrlCustomerCard
         lblAddressValue.TabIndex = 9;
         lblAddressValue.Text = "غير مُدخل";
         lblAddressValue.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // lblTaxNumberCaption
-        // 
-        lblTaxNumberCaption.AutoSize = true;
-        lblTaxNumberCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTaxNumberCaption.ForeColor = Color.FromArgb(14, 82, 52);
-        lblTaxNumberCaption.Location = new Point(272, 52);
-        lblTaxNumberCaption.Name = "lblTaxNumberCaption";
-        lblTaxNumberCaption.Size = new Size(146, 24);
-        lblTaxNumberCaption.TabIndex = 10;
-        lblTaxNumberCaption.Text = "الرقم الضريبي";
-        lblTaxNumberCaption.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // lblTaxNumberValue
-        // 
-        lblTaxNumberValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblTaxNumberValue.ForeColor = Color.FromArgb(33, 37, 41);
-        lblTaxNumberValue.Location = new Point(26, 52);
-        lblTaxNumberValue.Name = "lblTaxNumberValue";
-        lblTaxNumberValue.Size = new Size(240, 26);
-        lblTaxNumberValue.TabIndex = 11;
-        lblTaxNumberValue.Text = "غير مُدخل";
-        lblTaxNumberValue.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // lblCreditLimitCaption
         // 
@@ -402,8 +375,6 @@ partial class ctrlCustomerCard
     private System.Windows.Forms.Label lblEmailValue;
     private System.Windows.Forms.Label lblAddressCaption;
     private System.Windows.Forms.Label lblAddressValue;
-    private System.Windows.Forms.Label lblTaxNumberCaption;
-    private System.Windows.Forms.Label lblTaxNumberValue;
     private System.Windows.Forms.Label lblCreditLimitCaption;
     private System.Windows.Forms.Label lblCreditLimitValue;
     private System.Windows.Forms.Label lblBalanceCaption;

@@ -112,11 +112,10 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
                 PaymentType: (byte)r.PaymentType,
                 SubTotal: subTotal, DiscountAmount: r.DiscountAmount,
                 DiscountType: (byte)(r.DiscountType ?? 0), DiscountRate: r.DiscountRate,
-                TaxAmount: r.TaxAmount, OtherCharges: r.OtherCharges,
+                OtherCharges: r.OtherCharges,
                 NetTotal: netTotal, PaidAmount: r.PaidAmount, RemainingAmount: remaining,
                 Notes: r.Notes, SupplierInvoiceNo: null,
                 AttachmentPath: r.AttachmentPath, Status: 1,
-                TaxId: r.TaxId, TaxName: null, TaxRate: null,
                 CashBoxId: null, Items: items);
 
             MockPurchasesData.Purchases.Add(invoice);
@@ -170,13 +169,11 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
                 SubTotal = subTotal,
                 DiscountAmount = r.DiscountAmount,
                 DiscountType = (byte)(r.DiscountType ?? 0),
-                TaxAmount = r.TaxAmount,
                 OtherCharges = r.OtherCharges,
                 NetTotal = netTotal,
                 PaidAmount = r.PaidAmount,
                 RemainingAmount = remaining,
                 Notes = r.Notes,
-                TaxId = r.TaxId,
                 AttachmentPath = r.AttachmentPath,
                 Items = items
             };
@@ -295,11 +292,11 @@ public class MockPurchaseInvoiceDesktopService : IPurchaseInvoiceDesktopService
         }).ToList();
     }
 
-    /// <summary>NetTotal = SubTotal − InvoiceDiscount + TaxAmount + OtherCharges (AGENTS §2.2).</summary>
+    /// <summary>NetTotal = SubTotal − InvoiceDiscount + OtherCharges (AGENTS §2.2).</summary>
     private static decimal ComputeNetTotal(CreatePurchaseInvoiceRequest r)
     {
         decimal subTotal = BuildItems(r.Items).Sum(i => i.LineTotal);
-        return subTotal - r.DiscountAmount + r.TaxAmount + r.OtherCharges;
+        return subTotal - r.DiscountAmount + r.OtherCharges;
     }
 
     /// <summary>

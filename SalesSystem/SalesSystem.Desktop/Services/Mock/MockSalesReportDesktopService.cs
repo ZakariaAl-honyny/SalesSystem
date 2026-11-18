@@ -120,7 +120,7 @@ public class MockSalesReportDesktopService : ISalesReportDesktopService
 
         var invoices = PostedInvoices(from, to);
 
-        // NetTotal محفوظ صافياً أصلاً (SubTotal − خصم الفاتورة + الضريبة + مصاريف أخرى)،
+        // NetTotal = SubTotal - DiscountAmount + OtherCharges (V1 بلا ضريبة)،
         // فالخصم لا يُطرح مرة ثانية: «الصافي» = صافي الفاتورة المحفوظ، و«الإجمالي» = قبل خصم الفاتورة
         // (NetTotal + DiscountAmount) — فيتحقق دائماً: الإجمالي − الخصم = الصافي.
         var list = invoices

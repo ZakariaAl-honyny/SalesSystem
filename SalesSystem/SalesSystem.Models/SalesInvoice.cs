@@ -15,7 +15,6 @@ public class SalesInvoice : DocumentEntity
     public decimal DiscountAmount { get; private set; }
     public DiscountType DiscountType { get; private set; }
     public decimal? DiscountRate { get; private set; }
-    public decimal TaxAmount { get; private set; }
     /// <summary>
     /// مصاريف إضافية / أخرى (شحن، تغليف، ...)
     /// </summary>
@@ -116,7 +115,7 @@ public class SalesInvoice : DocumentEntity
             DiscountAmount = SubTotal * DiscountRate.Value / 100m;
         }
 
-        NetTotal = SubTotal - DiscountAmount + TaxAmount + OtherCharges;
+        NetTotal = SubTotal - DiscountAmount + OtherCharges;
         RemainingAmount = NetTotal - PaidAmount;
     }
 
@@ -128,14 +127,6 @@ public class SalesInvoice : DocumentEntity
             throw new DomainException("المبلغ المدفوع أكبر من الإجمالي.");
 
         PaidAmount = amount;
-        RecalculateTotals();
-    }
-
-    public void SetTaxAmount(decimal taxAmount)
-    {
-        if (taxAmount < 0)
-            throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
-        TaxAmount = taxAmount;
         RecalculateTotals();
     }
 
@@ -211,13 +202,11 @@ public class SalesInvoice : DocumentEntity
         UpdateTimestamp();
     }
 
-    public void UpdateTotals(decimal discountAmount, decimal taxAmount, decimal otherCharges = 0,
+    public void UpdateTotals(decimal discountAmount, decimal otherCharges = 0,
         DiscountType? discountType = null, decimal? discountRate = null)
     {
         if (discountAmount < 0)
             throw new DomainException("الخصم لا يمكن أن يكون سالباً.");
-        if (taxAmount < 0)
-            throw new DomainException("الضريبة لا يمكن أن تكون سالبة.");
         if (otherCharges < 0)
             throw new DomainException("المصاريف الإضافية لا يمكن أن تكون سالبة.");
 
@@ -231,7 +220,6 @@ public class SalesInvoice : DocumentEntity
         }
 
         DiscountAmount = DiscountType == DiscountType.Percentage ? 0 : discountAmount;
-        TaxAmount = taxAmount;
         OtherCharges = otherCharges;
         RecalculateTotals();
         UpdateTimestamp();

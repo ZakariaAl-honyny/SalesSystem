@@ -29,9 +29,6 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.Address)
             .HasMaxLength(500);
 
-        builder.Property(c => c.TaxNumber)
-            .HasMaxLength(30);
-
         builder.Property(c => c.Notes)
             .HasMaxLength(1000);
 

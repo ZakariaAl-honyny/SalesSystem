@@ -7,7 +7,7 @@ namespace SalesSystem.Desktop.Services.Direct;
 
 /// <summary>
 /// غلاف مباشر لخدمة التقارير المالية الباقية في V1 — ينادي طبقة الأعمال داخل نفس العملية.
-/// خمسة تقارير فقط: قائمة الدخل · تقرير الضريبة · التدفق النقدي · كشف حساب العميل · كشف حساب المورد.
+/// أربعة تقارير فقط: قائمة الدخل · التدفق النقدي · كشف حساب العميل · كشف حساب المورد.
 /// </summary>
 /// <remarks>
 /// أُخرجت الوحدة المحاسبية من V1 (قرار المالك 2026-11-17 — «remove all Accounting code»):
@@ -35,22 +35,6 @@ public class DirectFinancialReportService : IFinancialReportDesktopService
         catch (Exception)
         {
             return Result<IReadOnlyList<IncomeStatementDto>>.Failure("تعذر تحميل قائمة الدخل. حاول مرة أخرى.");
-        }
-    }
-
-    public async Task<Result<IReadOnlyList<VatReportDto>>> GetVatReportAsync(
-        DateTime from, DateTime to, CancellationToken ct = default)
-    {
-        try
-        {
-            var result = await _bll.GetVatReportAsync(from, to, ct);
-            return result.IsSuccess
-                ? Result<IReadOnlyList<VatReportDto>>.Success(result.Value!)
-                : Result<IReadOnlyList<VatReportDto>>.Failure(result.Error!, result.ErrorCode);
-        }
-        catch (Exception)
-        {
-            return Result<IReadOnlyList<VatReportDto>>.Failure("تعذر تحميل تقرير الضريبة. حاول مرة أخرى.");
         }
     }
 

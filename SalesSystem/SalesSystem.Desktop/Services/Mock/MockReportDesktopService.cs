@@ -85,7 +85,6 @@ public class MockReportDesktopService : IReportDesktopService
                     CustomerName: i.CustomerName,
                     SubTotal: Money(i.SubTotal),
                     DiscountAmount: Money(i.DiscountAmount),
-                    TaxAmount: Money(i.TaxAmount),
                     TotalAmount: Money(i.NetTotal),
                     PaidAmount: Money(i.PaidAmount),
                     DueAmount: Money(i.RemainingAmount)))
@@ -124,7 +123,6 @@ public class MockReportDesktopService : IReportDesktopService
                     SupplierName: x.Purchase.SupplierName,
                     SubTotal: Money(x.Purchase.SubTotal),
                     DiscountAmount: Money(x.Purchase.DiscountAmount),
-                    TaxAmount: Money(x.Purchase.TaxAmount),
                     TotalAmount: Money(x.Purchase.NetTotal),
                     PaidAmount: Money(x.Purchase.PaidAmount),
                     DueAmount: Money(x.Purchase.RemainingAmount)))

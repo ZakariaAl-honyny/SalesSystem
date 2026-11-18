@@ -13,7 +13,6 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
         builder.HasIndex(si => si.InvoiceNo).IsUnique();
         builder.Property(si => si.SubTotal).HasPrecision(18, 2);
         builder.Property(si => si.DiscountAmount).HasPrecision(18, 2).HasDefaultValue(0m);
-        builder.Property(si => si.TaxAmount).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(si => si.OtherCharges).HasPrecision(18, 2).HasDefaultValue(0m);
         builder.Property(si => si.NetTotal).HasPrecision(18, 2);
         builder.Property(si => si.PaidAmount).HasPrecision(18, 2).HasDefaultValue(0m);

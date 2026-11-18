@@ -63,7 +63,6 @@ public class CustomerService : ICustomerService
                     phone: request.Phone,
                     email: request.Email,
                     address: request.Address,
-                    taxNumber: request.TaxNumber,
                     notes: request.Notes,
                     creditLimit: request.CreditLimit);
                 await _uow.Customers.AddAsync(customer, ct);
@@ -106,7 +105,6 @@ public class CustomerService : ICustomerService
                     phone: request.Phone,
                     email: request.Email,
                     address: request.Address,
-                    taxNumber: request.TaxNumber,
                     notes: request.Notes,
                     creditLimit: request.CreditLimit);
 
@@ -277,7 +275,6 @@ public class CustomerService : ICustomerService
             c.Phone,
             c.Email,
             c.Address,
-            c.TaxNumber,
             c.CreditLimit,
             c.IsActive,
             CategoryId: c.CategoryId,

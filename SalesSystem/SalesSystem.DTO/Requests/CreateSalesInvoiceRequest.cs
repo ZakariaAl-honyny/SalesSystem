@@ -10,11 +10,9 @@ public record CreateSalesInvoiceRequest(
     DateTime? InvoiceDate,
     PaymentType PaymentType,
     decimal DiscountAmount,
-    decimal TaxAmount,
     decimal OtherCharges,
     decimal PaidAmount,
     string? Notes,
-    int? TaxId,
     List<CreateSalesInvoiceLineRequest> Items,
     DiscountType DiscountType = DiscountType.Amount,
     decimal? DiscountRate = null);

@@ -838,7 +838,7 @@ public partial class frmListPurchases : Form
 
     private void btnAdd_Click(object sender, EventArgs e)
     {
-        var editor = _serviceProvider.GetRequiredService<frmPurchaseInvoice>();
+        var editor = _serviceProvider.GetRequiredService<frmAddUpdatePurchaseInvoice>();
         editor.LoadData(null);
         _OpenForm(editor);
     }
@@ -848,7 +848,7 @@ public partial class frmListPurchases : Form
         var inv = _GetSelectedInvoice();
         if (inv == null) return;
 
-        var editor = _serviceProvider.GetRequiredService<frmPurchaseInvoice>();
+        var editor = _serviceProvider.GetRequiredService<frmAddUpdatePurchaseInvoice>();
         editor.LoadData(inv);
         _OpenForm(editor);
     }

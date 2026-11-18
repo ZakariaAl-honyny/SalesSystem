@@ -17,11 +17,6 @@ public interface IFinancialReportService
     Task<Result<CashFlowReportDto>> GetCashFlowReportAsync(DateTime from, DateTime to, int? cashBoxId, CancellationToken ct);
 
     /// <summary>
-    /// Gets VAT report (تقرير الضريبة) for a date range from posted invoices.
-    /// </summary>
-    Task<Result<List<VatReportDto>>> GetVatReportAsync(DateTime from, DateTime to, CancellationToken ct);
-
-    /// <summary>
     /// Gets customer account statement (كشف حساب عميل) for a date range.
     /// </summary>
     Task<Result<List<AccountStatementDto>>> GetAccountStatementAsync(int customerId, DateTime from, DateTime to, CancellationToken ct);

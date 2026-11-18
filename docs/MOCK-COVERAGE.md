@@ -123,7 +123,7 @@ dotnet build .\SalesSystem.slnx
 | Products | 4 | `frmProductMaster` · `frmProductUnitMaster` · `frmProductSelection` · `frmImportProductsExcel` | `IProductDesktopService` | ⚠️ جزئي — تكرار الباركود |
 | Purchases | 9 — **الحيّة منها 2** | `frmListPurchases` · `frmPurchaseInvoice` · **+ 7 نماذج ميتة** (`frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmSupplierStatement` — تدقيق `D-03`: صفر مستدعٍ، مرجع `Program.cs` فقط) | `IPurchaseInvoiceDesktopService` · `ISupplierDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Reports | 31 | 31 تقريراً في ستة مجلدات تصنيفية (`Sales/` · `Purchases/` · `Inventory/` · `Accounting/` · `CustomersSuppliers/` · `CashBox/`) | خمسة عقود تقارير | ✅ مؤهل (قراءة فقط) |
-| Returns | 3 | `frmListReturns` · `frmSalesReturn` · `frmPurchaseReturn` (نمط المبيعات — أُعيدا بـ`F-004/D-10` 2026-11-18) | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
+| Returns | 2 | `frmListReturns` + المحرّران الموحّدان (`frmAddUpdateSalesInvoice` بوضع «مرتجع بيع» — `TASK-017` · `frmAddUpdatePurchaseInvoice` بوضع «مرتجع شراء» — `TASK-018`) — `frmSalesReturn` و`frmPurchaseReturn` حُذفتا | `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
 | Sales | 2 | `frmListSales` · `frmAddUpdateSalesInvoice` | `ISalesInvoiceDesktopService` | ⚠️ جزئي — كمية `0` · مدفوع > إجمالي |
 | Settings | 2 | `frmChangeSystemColorsSettings` · `frmFormatingSetting` | `IThemeColorDesktopService` · `IFormatSettingsDesktopService` | ✅ مؤهل (المرحلة أ) |
 | Suppliers | 2 | `frmSupplierMaster` · `frmSupplierSelection` | `ISupplierDesktopService` | ⚠️ جزئي — تكافؤ الرفض |
@@ -248,7 +248,7 @@ dotnet build .\SalesSystem.slnx
 |---|---|
 | عقود محذوفة | **2**: `IAccountDesktopService` · `IJournalEntryDesktopService` (+ `Mock*` و`Direct*` وبياناتهما) — لم تعودا موجودتين، وليستا «فجوة تغطية» بل **خارج نطاق V1** بإعلان المالك |
 | ملفات Mock محذوفة | **4**: `MockAccountDesktopService` · `MockAccountsData` · `MockJournalEntryDesktopService` · `MockJournalEntriesData` |
-| `IFinancialReportDesktopService` | **12 → 5** دالة: `GetIncomeStatementAsync` · `GetVatReportAsync` · `GetCashFlowReportAsync` · `GetAccountStatementAsync` · `GetSupplierStatementAsync` — كلها من المستندات لا من دليل حسابات |
+| `IFinancialReportDesktopService` | **12 → 4** دالة: `GetIncomeStatementAsync` · `GetCashFlowReportAsync` · `GetAccountStatementAsync` · `GetSupplierStatementAsync` — كلها من المستندات لا من دليل حسابات (`GetVatReportAsync` حُذف مع إزالة الضريبة — `TASK-019`) |
 | `MockFinancialReportDesktopService` | أُعيد بناؤه من البذور التشغيلية (فواتير · مرتجعات · سندات قبض · مدفوعات موردين · مصروفات) — **صفر** اعتماد على `MockAccountsData`/`MockJournalEntriesData` |
 | `MockCashBoxDesktopService.TransferAsync` | كان يُرجع `Result.Success()` بلا أي أثر مالي (**نجاح مُلفَّق**) ⇒ صار يرفض بنفس نص الوضع الحقيقي حرفياً (`RULE-N167`/`RULE-N168`) |
 | `MockReportDesktopService` | بلا تغيير — لا دالة محاسبية فيه أصلاً |

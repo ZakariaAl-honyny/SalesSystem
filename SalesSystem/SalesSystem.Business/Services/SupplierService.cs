@@ -62,7 +62,6 @@ public class SupplierService : ISupplierService
                     phone: request.Phone,
                     email: request.Email,
                     address: request.Address,
-                    taxNumber: request.TaxNumber,
                     notes: request.Notes,
                     creditLimit: request.CreditLimit,
                     categoryId: request.CategoryId);
@@ -108,7 +107,6 @@ public class SupplierService : ISupplierService
                         phone: request.Phone,
                         email: request.Email,
                         address: request.Address,
-                        taxNumber: request.TaxNumber,
                         notes: request.Notes,
                         creditLimit: request.CreditLimit,
                         categoryId: request.CategoryId);
@@ -233,7 +231,6 @@ public class SupplierService : ISupplierService
             s.Phone,
             s.Email,
             s.Address,
-            s.TaxNumber,
             s.Notes,
             s.CreditLimit,
             s.IsActive,

@@ -149,7 +149,6 @@ public static class ReportNavigationHelper
         {
             new ReportEntry("قائمة الدخل", typeof(frmIncomeStatementReport)),
             new ReportEntry("تقرير التدفقات النقدية", typeof(frmCashFlowReport)),
-            new ReportEntry("تقرير ضريبة القيمة المضافة", typeof(frmVatReport)),
             new ReportEntry("كشف حساب الطرف", typeof(frmAccountStatementReport)),
         }),
 

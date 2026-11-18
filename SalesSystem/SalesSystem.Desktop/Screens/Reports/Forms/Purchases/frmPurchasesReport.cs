@@ -113,7 +113,7 @@ public partial class frmPurchasesReport : Form, IExportableReport
         if (dgvReport.Columns.Count == 0) return;
 
         // أسماء الحقول كما في PurchaseReportDto: المعرّف هو Id (لا InvoiceId)، ورقم الفاتورة يُعرض عبر InvoiceNo.
-        var hides = new[] { "Id", "SubTotal", "DiscountAmount", "TaxAmount" };
+        var hides = new[] { "Id", "SubTotal", "DiscountAmount" };
         foreach (var h in hides)
         {
             if (dgvReport.Columns.Contains(h)) dgvReport.Columns[h].Visible = false;
