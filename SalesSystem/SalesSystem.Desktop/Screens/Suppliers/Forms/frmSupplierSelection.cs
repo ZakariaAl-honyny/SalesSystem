@@ -37,6 +37,7 @@ public partial class frmSupplierSelection : Form
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                    // RULE-N45
+        KeyboardHelper.WireSearchToGrid(txtSearch, dgvSuppliers);                    // ↓ من البحث إلى الشبكة
 
         // RULE-N43: «تحديد» معطّل بلا سطر محدد + «مسح التصفية» معطّل بلا تصفية نشطة — بمظهر رمادي باهت.
         KeyboardHelper.WireButtonDisabledVisual(btnSelect, btnClearFilters);
@@ -61,6 +62,12 @@ public partial class frmSupplierSelection : Form
     {
         _LoadSuppliers();
         ApplyGreenTheme();
+
+        // بعد الربط والثيم: ضبط ActiveControl هنا هو المسار الموثوق لبدء المؤشر في حقل التصفية،
+        // لأن أول DataSource يُلغي أي تركيز سابق. الكتابة مقصودة — التحذير الموثَّق يخصّ **قراءة**
+        // Form.ActiveControl كحارس (تُرجع الحاوية لا الحقل)، لا إسنادها.
+        ActiveControl = txtSearch;   // المؤشر جاهز في حقل التصفية عند الفتح
+        txtSearch.Focus();
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — ينتهي بـ Apply(this) دائماً.</summary>

@@ -22,6 +22,15 @@ public static class KeyboardHelper
     /// <summary>سجل الحقول التي وُصِّلت بالفعل للتنقل بالأسهم (منع التوصيل المزدوج).</summary>
     private static readonly ConditionalWeakTable<Control, object> ArrowNavigationWired = new();
 
+    /// <summary>
+    /// سجل حقول البحث التي وُصِّل لها «<c>↓</c> ⇒ الشبكة» (منع التوصيل المزدوج).
+    /// <para>
+    /// وجود الحقل هنا يعني أيضاً أنه **مستثنى** من <see cref="WireArrowNavigation"/> — يُقرأ الجدول
+    /// لحظة الحدث لا لحظة التوصيل، فيصح الترتيب أيّاً كان.
+    /// </para>
+    /// </summary>
+    private static readonly ConditionalWeakTable<Control, object> SearchToGridWired = new();
+
     /// <summary>سجل النماذج التي وُصِّل فيها زر الوضع مع Enter (منع التوصيل المزدوج).</summary>
     private static readonly ConditionalWeakTable<Control, object> ModeEnterWired = new();
 
@@ -778,6 +787,7 @@ public static class KeyboardHelper
     /// والأسفل/الأيسر ينتقل للحقل التالي (مثل Tab). لا يُطبَّق على القوائم المنسدلة
     /// ولا على الشبكات حتى تحتفظ بسلوك الأسهم الأصلي، ولا على الحقول عديدة الأسطر
     /// (حتى يبقى تحريك المؤشر داخلها) ولا المقروءة فقط.
+    /// ولا يتدخّل في حقل مسجَّل بـ <see cref="WireSearchToGrid"/> (↓ هناك ملك الشبكة).
     /// لا تُمسّ مفاتيح HOME / END / PAGE-UP / PAGE-DOWN.
     /// </summary>
     public static void WireArrowNavigation(Control parent)
@@ -792,6 +802,10 @@ public static class KeyboardHelper
                     try
                     {
                         if (e.Modifiers != Keys.None) return;
+
+                        // حقل مسجَّل في WireSearchToGrid ⇒ ↓ ملك الشبكة، لا تنقّل الأسهم.
+                        // الحارس خامل لأي حقل غير مسجَّل: نفس المسار السابق حرفياً (RULE-N172 — لا نسخة ثانية).
+                        if (IsSearchToGridSource(input)) return;
 
                         // RTL: السهم الأيمن/الأعلى = الحقل السابق، الأيسر/الأسفل = الحقل التالي.
                         bool backward = e.KeyCode == Keys.Up || e.KeyCode == Keys.Right;
@@ -819,6 +833,76 @@ public static class KeyboardHelper
             if (ctrl.HasChildren)
                 WireArrowNavigation(ctrl);
         }
+    }
+
+    /// <summary>
+    /// يجعل <c>↓</c> في حقل البحث ينقل المؤشر إلى الشبكة بدل التنقل بين حقول التصفية
+    /// (في المنتقيات: بحث فوري ثم ↓ إلى النتائج ثم <c>Enter</c> للاختيار).
+    /// <para>
+    /// <b>البيت الواحد:</b> السلوك مكتوب هنا مرة واحدة وتستهلكه الشاشة بسطر واحد — ولا يُكتب
+    /// معالج <c>KeyDown</c> محلي لـ↓ داخل أي شاشة (`RULE-N169`…`RULE-N172`).
+    /// </para>
+    /// <para>
+    /// <b>لا يتدخّل</b> إن كانت الشبكة مُحرَّرة أو غير مرئية أو بلا صفوف، فيبقى لـ↓ سلوكه الافتراضي
+    /// داخل الحقل. ولا يعمل مع معدِّل (Shift/Ctrl/Alt). والتوصيل مرة واحدة لكل حقل (<see cref="MarkWired"/>).
+    /// </para>
+    /// </summary>
+    /// <param name="search">حقل البحث (أحادي السطر عادةً) — مصدر مفتاح ↓.</param>
+    /// <param name="grid">الشبكة التي يستقبلها التركيز.</param>
+    public static void WireSearchToGrid(TextBoxBase search, DataGridView grid)
+    {
+        if (search is null || grid is null) return;
+        if (!MarkWired(SearchToGridWired, search)) return;
+
+        search.KeyDown += (_, e) =>
+        {
+            // معالج مفتاح يعمل مع كل ضغطة: استثناء واحد هنا يُسقط النموذج — فيُعزل.
+            try
+            {
+                if (e.Modifiers != Keys.None) return;
+                if (e.KeyCode != Keys.Down) return;
+
+                // لا شيء للاختيار ⇒ لا تدخّل (↓ يبقى كما هو داخل الحقل).
+                if (grid.IsDisposed || !grid.Visible || grid.Rows.Count == 0) return;
+
+                grid.Focus();
+
+                // بلا سطر حالي: نضبط الخلية على أول صف وأول عمود مرئي (الشبكة قد تربط بلا تحديد).
+                if (grid.CurrentRow is null && FirstVisibleColumn(grid) is { } column)
+                    grid.CurrentCell = grid.Rows[0].Cells[column.Index];
+
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            catch
+            {
+                // تجاهل
+            }
+        };
+    }
+
+    /// <summary>هل هذا الحقل مسجَّل في «↓ إلى الشبكة»؟ (حارس <see cref="WireArrowNavigation"/>).</summary>
+    private static bool IsSearchToGridSource(Control ctrl)
+    {
+        try
+        {
+            return SearchToGridWired.TryGetValue(ctrl, out _);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>أول عمود مرئي في الشبكة — تُترك NULL إن كانت كل الأعمدة مخفية.</summary>
+    private static DataGridViewColumn? FirstVisibleColumn(DataGridView grid)
+    {
+        foreach (DataGridViewColumn column in grid.Columns)
+        {
+            if (column.Visible) return column;
+        }
+
+        return null;
     }
 
     /// <summary>

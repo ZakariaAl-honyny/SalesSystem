@@ -51,6 +51,7 @@ public partial class frmProductSelection : Form
         KeyboardHelper.WireSelectAllOnFocus(this);
         KeyboardHelper.WireFocusHighlight(this, ThemePalette.DefaultFor(ThemePalette.SelectionRowColor));   // RULE-N46 + RULE-N54b
         KeyboardHelper.WireArrowNavigation(this);                                     // RULE-N45
+        KeyboardHelper.WireSearchToGrid(txtSearch, dgvProducts);                      // ↓ من البحث إلى الشبكة
 
         // RULE-N43: زر «اختيار» معطّل بلا سجل محدد، و«مسح التصفية» معطّل ما لم توجد تصفية نشطة
         // (RULE-N148) — رماديان باهتان عند التعطيل.
@@ -88,6 +89,12 @@ public partial class frmProductSelection : Form
         _LoadProducts();
 
         ApplyGreenTheme();   // RULE-N50 — آمن للاستدعاء المتكرر (idempotent)
+
+        // بعد الربط والثيم: ضبط ActiveControl هنا هو المسار الموثوق لبدء المؤشر في حقل التصفية،
+        // لأن أول DataSource يُلغي أي تركيز سابق. الكتابة مقصودة — التحذير الموثَّق يخصّ **قراءة**
+        // Form.ActiveControl كحارس (تُرجع الحاوية لا الحقل)، لا إسنادها.
+        ActiveControl = txtSearch;   // المؤشر جاهز في حقل التصفية عند الفتح
+        txtSearch.Focus();
     }
 
     /// <summary>الثيم الأخضر (RULE-N50…RULE-N53) — أخيراً بعد ThemeHelper.</summary>
