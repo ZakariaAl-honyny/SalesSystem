@@ -65,3 +65,22 @@
 2. `DefaultCellStyle.BackColor = White` (الخلايا بيضاء) · `dgv.BackgroundColor = 220,240,220` (منطقة الشبكة) — لا تُخلط.
 3. `btnToggleFilters.FlatStyle = FlatStyle.Flat` · `ForeColor = 30,41,59`.
 4. الحاويات تُعلَن صراحةً (لا Ambient): `Panel/FlowLayoutPanel/TableLayoutPanel` = `235,240,235` · `GroupBox` = `235,245,235`.
+
+## الجولة 2 — 2026-11-19 — W2: المستندات والقوائم (6 مصمّمات)
+
+| # | الملف | ما نُفِّذ |
+|---|---|---|
+| 1 | `Sales/Forms/frmAddUpdateSalesInvoice.Designer.cs` | خلفية `170,220,170` · 9/9 حاويات خضراء · 16/16 حقلاً أبيض · `dgvItems` رأس `14,165,103`+أبيض وتحديد `255,255,180` · `FlatStyle` لأربع قوائم كانت تُرسم رمادية · صفر قيمة متقاعدة |
+| 2 | `Sales/Forms/frmListSales.Designer.cs` | خلفية + 9 حاويات + 5/5 حقول + شبكة كاملة + أزرار الأدوار |
+| 3 | `Returns/Forms/frmListReturns.Designer.cs` | 7 حاويات بيضاء ← خضراء · شبكتان (`dgvSales`/`dgvPurchases`) مطابقتان |
+| 4 | `Purchases/Forms/frmAddUpdatePurchaseInvoice.Designer.cs` | خلفية · 4 صناديق + 5 ألواح خضراء · 7/7 حقول بيضاء · رأس شبكة كان `52,58,64` صار `14,165,103` |
+| 5 | `Purchases/Forms/frmListPurchases.Designer.cs` | **خلفية النموذج كانت غير معلنة أصلاً** ← أُضيفت · 6 حاويات · `lblMode` من `16,150,96` |
+| 6 | `Payments/Forms/frmListPayments.Designer.cs` | **75** لوناً مختصراً ← الصيغة القانونية · خلفية من `240,242,245` · شبكتان |
+
+**تصحيحات قياس (بأمر — `RULE-N195`):** عدّاد «الصيغة المختصرة» السابق (1206) استخدم نمطاً يشترط مسافة بعد الفاصلة، فلم يرَ `Color.FromArgb(240,242,245)` بلا مسافات — **الرقم الصحيح بعد الالتزام الأول: 924 موضعاً في 34 مصمّماً** (والرقم قبل الموجتين لم يُعد بمسطرة متسامحة، فلا يُقارن). كذلك صفّ `frmListPayments` في `MANIFEST.md` («0 لون») كان خاطئاً — صحّحه الوكيل بالقياس (75 لوناً).
+
+**تعارضات حُسمت بين وكلاء W2:** `btnView` / أزرار النطاقات = `btnSecondary` (صف 12) في الملفات الأربعة · `btnRefresh` = `btnInfo` · `btnCancel` الخاص بإلغاء فاتورة شراء = أحمر `btnDelete` (الفعل مدمّر لا الاسم) · `pnlHeader` = `235,240,235` في الملفات الأربعة · `TabPage` تُعامَل كحاوية فتُعلَن `235,240,235`.
+
+**البناء بعد W2:** **0 Errors / 112 Warning(s)** (تزايدي؛ التحذيرات كلها `CS0169` سابقة — يُعاد القياس بـ`--no-incremental` عند الإغلاق).
+
+**BRIEF مُستكمل بقاعدتين من W2:** `RadioButton` يأخذ خلفية حاويته لا `White` · `Label` بـ`Dock` عريض = سطح بار لا حقل.

@@ -164,7 +164,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnCancelLine.FlatAppearance.BorderSize = 0;
             btnCancelLine.FlatStyle = FlatStyle.Flat;
             btnCancelLine.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancelLine.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(60), Convert.ToInt32(45), Convert.ToInt32(5));
+            btnCancelLine.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btnCancelLine.Location = new Point(847, 3);
             btnCancelLine.Name = "btnCancelLine";
             btnCancelLine.Size = new Size(197, 36);
@@ -177,7 +177,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnSaveDraft
             // 
-            btnSaveDraft.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(0), Convert.ToInt32(123), Convert.ToInt32(255));
+            btnSaveDraft.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
             btnSaveDraft.FlatAppearance.BorderSize = 0;
             btnSaveDraft.FlatStyle = FlatStyle.Flat;
             btnSaveDraft.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -225,7 +225,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnPrintA4
             // 
-            btnPrintA4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(152), Convert.ToInt32(0));
+            btnPrintA4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnPrintA4.FlatAppearance.BorderSize = 0;
             btnPrintA4.FlatStyle = FlatStyle.Flat;
             btnPrintA4.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -287,7 +287,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnNew
             // 
-            btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
+            btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
             btnNew.FlatAppearance.BorderSize = 0;
             btnNew.FlatStyle = FlatStyle.Flat;
             btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -303,7 +303,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // btnPickInvoice
             // 
-            btnPickInvoice.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
+            btnPickInvoice.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnPickInvoice.FlatAppearance.BorderSize = 0;
             btnPickInvoice.FlatStyle = FlatStyle.Flat;
             btnPickInvoice.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -368,7 +368,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnEditRow.FlatAppearance.BorderSize = 0;
             btnEditRow.FlatStyle = FlatStyle.Flat;
             btnEditRow.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnEditRow.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(60), Convert.ToInt32(45), Convert.ToInt32(5));
+            btnEditRow.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btnEditRow.Location = new Point(1347, 3);
             btnEditRow.Name = "btnEditRow";
             btnEditRow.Size = new Size(110, 36);
@@ -450,7 +450,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // txtItemCode
             // 
-            txtItemCode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+            txtItemCode.BackColor = System.Drawing.Color.White;
             txtItemCode.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtItemCode.Location = new Point(1210, 31);
             txtItemCode.Name = "txtItemCode";
@@ -537,6 +537,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // dtpLineExpiry
             // 
+            dtpLineExpiry.BackColor = System.Drawing.Color.White;
             dtpLineExpiry.CalendarMonthBackground = System.Drawing.Color.White;
             dtpLineExpiry.CustomFormat = "yyyy/MM/dd";
             dtpLineExpiry.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -552,6 +553,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             cmbCashBox.BackColor = System.Drawing.Color.White;
             cmbCashBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCashBox.FlatStyle = FlatStyle.Flat;
             cmbCashBox.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbCashBox.Location = new Point(215, 31);
             cmbCashBox.Name = "cmbCashBox";
@@ -563,6 +565,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             cmbDiscountType.BackColor = System.Drawing.Color.White;
             cmbDiscountType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDiscountType.FlatStyle = FlatStyle.Flat;
             cmbDiscountType.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbDiscountType.Items.AddRange(new object[] { "مبلغ", "نسبة" });
             cmbDiscountType.Location = new Point(1110, 27);
@@ -645,7 +648,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // gbInvoiceInfo
             // 
-            gbInvoiceInfo.BackColor = System.Drawing.Color.White;
+            gbInvoiceInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbInvoiceInfo.Controls.Add(rbtnPaymentTypeCredit);
             gbInvoiceInfo.Controls.Add(rbtnPaymentTypeCash);
             gbInvoiceInfo.Controls.Add(lblCustomer);
@@ -675,7 +678,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // rbtnPaymentTypeCredit
             // 
             rbtnPaymentTypeCredit.AutoSize = true;
-            rbtnPaymentTypeCredit.BackColor = System.Drawing.Color.White;
+            rbtnPaymentTypeCredit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             rbtnPaymentTypeCredit.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             rbtnPaymentTypeCredit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             rbtnPaymentTypeCredit.Location = new Point(573, 33);
@@ -688,7 +691,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // rbtnPaymentTypeCash
             // 
             rbtnPaymentTypeCash.AutoSize = true;
-            rbtnPaymentTypeCash.BackColor = System.Drawing.Color.White;
+            rbtnPaymentTypeCash.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             rbtnPaymentTypeCash.Checked = true;
             rbtnPaymentTypeCash.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             rbtnPaymentTypeCash.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
@@ -717,6 +720,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             cmbCustomer.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             cmbCustomer.AutoCompleteSource = AutoCompleteSource.ListItems;
             cmbCustomer.BackColor = System.Drawing.Color.White;
+            cmbCustomer.FlatStyle = FlatStyle.Flat;
             cmbCustomer.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbCustomer.Location = new Point(1178, 75);
             cmbCustomer.Name = "cmbCustomer";
@@ -739,6 +743,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             cmbWarehouse.BackColor = System.Drawing.Color.White;
             cmbWarehouse.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbWarehouse.FlatStyle = FlatStyle.Flat;
             cmbWarehouse.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbWarehouse.Location = new Point(845, 31);
             cmbWarehouse.Name = "cmbWarehouse";
@@ -845,7 +850,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // gbEntry
             // 
-            gbEntry.BackColor = System.Drawing.Color.White;
+            gbEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbEntry.Controls.Add(pnlEntry);
             gbEntry.Dock = DockStyle.Top;
             gbEntry.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -859,7 +864,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // pnlEntry
             // 
-            pnlEntry.BackColor = System.Drawing.Color.White;
+            pnlEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlEntry.BorderStyle = BorderStyle.FixedSingle;
             pnlEntry.Controls.Add(lblBarcodeLabel);
             pnlEntry.Controls.Add(lblItemCodeLabel);
@@ -987,7 +992,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // gbItems
             // 
-            gbItems.BackColor = System.Drawing.Color.White;
+            gbItems.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbItems.Controls.Add(dgvItems);
             gbItems.Controls.Add(pnlItemActions);
             gbItems.Dock = DockStyle.Fill;
@@ -1004,17 +1009,17 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             dgvItems.AllowUserToDeleteRows = false;
             dgvItems.AllowUserToResizeRows = false;
-            dgvItems.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+            dgvItems.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
             dgvItems.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvItems.BackgroundColor = System.Drawing.Color.White;
+            dgvItems.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
             dgvItems.BorderStyle = BorderStyle.None;
             dgvItems.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             dgvItems.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             dataGridViewCellStyle1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             dataGridViewCellStyle1.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White;
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             dgvItems.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
@@ -1026,14 +1031,14 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             dataGridViewCellStyle12.BackColor = System.Drawing.Color.White;
             dataGridViewCellStyle12.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             dataGridViewCellStyle12.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
             dataGridViewCellStyle12.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             dataGridViewCellStyle12.WrapMode = DataGridViewTriState.False;
             dgvItems.DefaultCellStyle = dataGridViewCellStyle12;
             dgvItems.Dock = DockStyle.Fill;
             dgvItems.EditMode = DataGridViewEditMode.EditOnEnter;
             dgvItems.EnableHeadersVisualStyles = false;
-            dgvItems.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            dgvItems.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             dgvItems.Location = new Point(3, 80);
             dgvItems.MultiSelect = false;
             dgvItems.Name = "dgvItems";
@@ -1185,7 +1190,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // pnlItemActions — شريط أوامر الأصناف داخل صندوق «الأصناف» (RULE-N137: لا صندوق داخل صندوق)
             // 
-            pnlItemActions.BackColor = System.Drawing.Color.White;
+            pnlItemActions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlItemActions.Controls.Add(flpItemActions);
             pnlItemActions.Dock = DockStyle.Top;
             pnlItemActions.Location = new Point(3, 28);
@@ -1195,7 +1200,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // flpItemActions
             // 
-            flpItemActions.BackColor = System.Drawing.Color.White;
+            flpItemActions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpItemActions.Controls.Add(btnAddLine);
             flpItemActions.Controls.Add(btnEditRow);
             flpItemActions.Controls.Add(btnDeleteRow);
@@ -1212,10 +1217,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // lblLockIndicator
             // 
-            lblLockIndicator.BackColor = System.Drawing.Color.White;
+            lblLockIndicator.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             lblLockIndicator.BorderStyle = BorderStyle.FixedSingle;
             lblLockIndicator.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblLockIndicator.ForeColor = System.Drawing.Color.DarkGreen;
+            lblLockIndicator.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
             lblLockIndicator.Location = new Point(645, 6);
             lblLockIndicator.Margin = new Padding(3, 6, 3, 3);
             lblLockIndicator.Name = "lblLockIndicator";
@@ -1226,7 +1231,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // gbTotals
             // 
-            gbTotals.BackColor = System.Drawing.Color.White;
+            gbTotals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbTotals.Controls.Add(label1);
             gbTotals.Controls.Add(numInvoiceDiscount);
             gbTotals.Controls.Add(cmbDiscountType);
@@ -1298,11 +1303,11 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // lblQuickInfo
             // 
-            lblQuickInfo.BackColor = System.Drawing.Color.White;
+            lblQuickInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             lblQuickInfo.BorderStyle = BorderStyle.FixedSingle;
             lblQuickInfo.Dock = DockStyle.Bottom;
             lblQuickInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            lblQuickInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            lblQuickInfo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
             lblQuickInfo.Location = new Point(0, 848);
             lblQuickInfo.Name = "lblQuickInfo";
             lblQuickInfo.Padding = new Padding(8, 6, 8, 6);
@@ -1313,7 +1318,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // gbToolbar
             // 
-            gbToolbar.BackColor = System.Drawing.Color.White;
+            gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbToolbar.Controls.Add(flpToolbar);
             gbToolbar.Dock = DockStyle.Top;
             gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -1327,7 +1332,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // flpToolbar
             // 
-            flpToolbar.BackColor = System.Drawing.Color.White;
+            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpToolbar.Controls.Add(lblDocMode);
             flpToolbar.Controls.Add(rbtnModeSale);
             flpToolbar.Controls.Add(rbtnModeReturn);
@@ -1350,7 +1355,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // lblMode
             // 
-            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             lblMode.Dock = DockStyle.Top;
             lblMode.FlatStyle = FlatStyle.Flat;
             lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
@@ -1366,7 +1371,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             AutoScaleMode = AutoScaleMode.None;
             AutoValidate = AutoValidate.EnableAllowFocusChange;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             ClientSize = new Size(1600, 889);
             Controls.Add(gbItems);
             Controls.Add(gbTotals);
