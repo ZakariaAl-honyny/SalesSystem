@@ -74,7 +74,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlHeader
             // 
-            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlHeader.Controls.Add(lblMode);
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
@@ -99,7 +99,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlToolbar
             // 
-            pnlToolbar.BackColor = System.Drawing.Color.White;
+            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlToolbar.Controls.Add(flpToolbar);
             pnlToolbar.Dock = DockStyle.Top;
             pnlToolbar.Location = new Point(0, 56);
@@ -110,7 +110,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // flpToolbar
             // 
-            flpToolbar.BackColor = System.Drawing.Color.White;
+            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpToolbar.Controls.Add(btnSelect);
             flpToolbar.Controls.Add(btnCancel);
             flpToolbar.Dock = DockStyle.Fill;
@@ -160,7 +160,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // pnlFilters
             // 
             // RULE-N125/RULE-N63: gbFilter يُضاف أولاً فيملأ الباقي، وbtnToggleFilters بعده فيُقتطع على الحافة.
-            pnlFilters.BackColor = System.Drawing.Color.White;
+            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlFilters.Controls.Add(gbFilter);
             pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
@@ -173,7 +173,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // gbFilter
             // 
-            gbFilter.BackColor = System.Drawing.Color.White;
+            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbFilter.Controls.Add(lblSearch);
             gbFilter.Controls.Add(txtSearch);
             gbFilter.Controls.Add(btnClearFilters);
@@ -243,9 +243,9 @@ namespace SalesSystem.Desktop.Products.Forms
             btnToggleFilters.Dock = DockStyle.Left;
             btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
-            btnToggleFilters.FlatStyle = FlatStyle.Popup;
+            btnToggleFilters.FlatStyle = FlatStyle.Flat;
             btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-            btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btnToggleFilters.Location = new Point(6, 4);
             btnToggleFilters.Name = "btnToggleFilters";
             btnToggleFilters.Size = new Size(140, 102);
@@ -255,7 +255,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlSummary
             // 
-            pnlSummary.BackColor = System.Drawing.Color.White;
+            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlSummary.Controls.Add(flpSummary);
             pnlSummary.Dock = DockStyle.Bottom;
             pnlSummary.Location = new Point(0, 716);
@@ -266,7 +266,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // flpSummary
             // 
-            flpSummary.BackColor = System.Drawing.Color.White;
+            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpSummary.Controls.Add(lblRecordsCount);
             flpSummary.Dock = DockStyle.Fill;
             flpSummary.Location = new Point(0, 0);
@@ -291,7 +291,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.White;
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlFooter.Controls.Add(lblHint);
             pnlFooter.Dock = DockStyle.Bottom;
             pnlFooter.Location = new Point(0, 762);
@@ -317,7 +317,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // pnlGrid
             // 
             // RULE-N125: يُضاف عنصر Fill الوحيد أولاً ليُرسى آخراً ويأخذ الباقي — كما في frmListSales.
-            pnlGrid.BackColor = System.Drawing.Color.White;
+            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlGrid.Controls.Add(dgvUnits);
             pnlGrid.Controls.Add(lblNoData);
             pnlGrid.Controls.Add(lblNoUnits);

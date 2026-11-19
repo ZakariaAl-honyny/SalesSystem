@@ -84,3 +84,37 @@
 **البناء بعد W2:** **0 Errors / 112 Warning(s)** (تزايدي؛ التحذيرات كلها `CS0169` سابقة — يُعاد القياس بـ`--no-incremental` عند الإغلاق).
 
 **BRIEF مُستكمل بقاعدتين من W2:** `RadioButton` يأخذ خلفية حاويته لا `White` · `Label` بـ`Dock` عريض = سطح بار لا حقل.
+
+## الجولة 3 — 2026-11-19 — W3: المخزون (8 مصمّمات)
+
+| # | الملف | ما نُفِّذ |
+|---|---|---|
+| 1 | `Inventory/Forms/frmInventory.Designer.cs` | 51 صيغة مختصرة ← 0 · **7** حاويات بيضاء ← 0 · 5/5 حقول · 3 شبكات كاملة |
+| 2 | `Inventory/Forms/frmInventoryList.Designer.cs` | 36 ← 0 · 5 حاويات ← 0 · 5/5 حقول |
+| 3 | `Inventory/Forms/frmListInventoryTransactions.Designer.cs` | 56 استبدالاً · 5 أسطر `ForeColor` مضافة |
+| 4 | `Inventory/Forms/frmListInventoryBatches.Designer.cs` | 50 استبدالاً + 15 سطر لون مضاف (أزرار كانت بلا لون) |
+| 5 | `Inventory/Forms/frmListInventoryAdjustments.Designer.cs` | 48 استبدالاً · 11 زراً كاملة |
+| 6 | `Inventory/Forms/frmAddUpdateInventoryAdjustment.Designer.cs` | 61 استبدالاً · 9/9 حقول |
+| 7 | `Inventory/Forms/frmStocktakingNew.Designer.cs` | 5 صناديق خضراء · 6/6 حقول (`dtpDate` أُضيف) |
+| 8 | `Inventory/Forms/frmWarehouseTransferNew.Designer.cs` | 3 صناديق + `pnlFooter` + `lblNote` سطحاً · 7/7 حقول |
+
+**تصحيح قياس ثالث (`RULE-N195`):** «بلا أي تصريح لون» في briefين كان مبالغة — الملفات كانت تحمل 45–56 تصريحاً **بالصيغة المختصرة** لا خالية من الألوان. القاعدة العملية: القياس يتم بالنمط المتسامح `\d+,\s*\d+` لا بالنمط الذي يشترط مسافة.
+
+**جديد: «المصمّم يتبع وقت التشغيل عند فرضه» (القاعدة 10) طُبِّقت مرتين:** `frmListInventoryBatches` أزراره الخمسة تُلوَّن من `_ApplyUiTheme` في `.cs` (Neutral/Secondary) فأُخذت قيم وقت التشغيل حرفياً · `lblRecordsCount` يفرضه `frmInventoryList.cs:113` = `TextStrong`.
+
+**البناء بعد W3:** `--no-incremental` = **0 Errors / 112 Warning(s)** — كلها سابقة (`CS0169` حقول أعمدة · `CS8604/CS8602` في `Business`/`DataAccess`/code-behind) وصفر تحذير من المصمّمات.
+
+## قرارات الأدوار الموحّدة (تُطبَّق على W4 وما بعدها — `D-11`)
+
+| العنصر | اللون |
+|---|---|
+| `btnSaveDraft` · `btnPost` · `btnAddLine` (إن لم يفرض الكود غيره) | `25,135,84` (صف 7 — الحفظ) |
+| `btnPickXxx` (اختيار فاتورة/صنف/عميل) | `23,162,184` (صف 10) |
+| `btnView` · `btnRangeToday/Month/30` · `btnToggleFilters` | `248,249,250` + نص `30,41,59` (صف 12) |
+| `btnCancel` الخاص بإلغاء مستند مرحّل | `220,53,69` (الفعل مدمّر) |
+| `pnlHeader` · `TabPage` | `235,240,235` |
+| `RadioButton` | خلفية حاويته |
+| `Label` بعرض `Dock` | سطح `235,240,235` + نص `14,82,52` |
+| `FlatAppearance.BorderColor` بقيمة `222,226,230` (متقاعدة) | `205,225,205` |
+| `lblSummary` | `14,82,52` |
+| أي عنصر يفرض الكود لونه وقت التشغيل | **قيمة وقت التشغيل حرفياً** (القاعدة 10) |

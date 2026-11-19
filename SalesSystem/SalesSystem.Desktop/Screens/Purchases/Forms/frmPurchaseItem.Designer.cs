@@ -72,7 +72,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlTitle
             // 
-            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlTitle.Controls.Add(lblTitle);
             pnlTitle.Dock = DockStyle.Top;
             pnlTitle.Location = new Point(0, 0);
@@ -83,7 +83,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // lblTitle
             // 
-            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             lblTitle.Dock = DockStyle.Fill;
             lblTitle.Font = new Font("Tahoma", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = System.Drawing.Color.White;
@@ -96,6 +96,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlBody
             // 
+            pnlBody.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlBody.Controls.Add(gbItemData);
             pnlBody.Dock = DockStyle.Fill;
             pnlBody.Location = new Point(0, 50);
@@ -107,7 +108,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbItemData
             // 
-            gbItemData.BackColor = System.Drawing.Color.White;
+            gbItemData.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbItemData.Controls.Add(tblFields);
             gbItemData.Dock = DockStyle.Fill;
             gbItemData.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -122,6 +123,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // tblFields
             // 
+            tblFields.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             tblFields.ColumnCount = 2;
             tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
             tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -179,6 +181,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             cmbProduct.BackColor = System.Drawing.Color.White;
             cmbProduct.Dock = DockStyle.Fill;
             cmbProduct.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduct.FlatStyle = FlatStyle.Flat;
             cmbProduct.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbProduct.FormattingEnabled = true;
             cmbProduct.Location = new Point(153, 3);
@@ -228,6 +231,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             cmbUnit.BackColor = System.Drawing.Color.White;
             cmbUnit.Dock = DockStyle.Fill;
             cmbUnit.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbUnit.FlatStyle = FlatStyle.Flat;
             cmbUnit.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbUnit.FormattingEnabled = true;
             cmbUnit.Location = new Point(153, 79);
@@ -378,10 +382,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flpExpiry
             // 
+            flpExpiry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpExpiry.Controls.Add(chkExpiry);
             flpExpiry.Controls.Add(dtpExpiry);
             flpExpiry.Dock = DockStyle.Fill;
-            flpExpiry.FlowDirection = FlowDirection.RightToLeft;
+            flpExpiry.FlowDirection = FlowDirection.LeftToRight;
             flpExpiry.Location = new Point(153, 307);
             flpExpiry.Name = "flpExpiry";
             flpExpiry.Size = new Size(356, 38);
@@ -390,6 +395,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // chkExpiry
             // 
+            chkExpiry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             chkExpiry.AutoSize = true;
             chkExpiry.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             chkExpiry.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
@@ -428,7 +434,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // lblTotalValue
             // 
-            lblTotalValue.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+            lblTotalValue.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
             lblTotalValue.Dock = DockStyle.Fill;
             lblTotalValue.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
@@ -441,7 +447,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.White;
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlFooter.Controls.Add(flpButtons);
             pnlFooter.Dock = DockStyle.Bottom;
             pnlFooter.Location = new Point(0, 538);
@@ -453,10 +459,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flpButtons
             // 
+            flpButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpButtons.Controls.Add(btnOk);
             flpButtons.Controls.Add(btnCancel);
             flpButtons.Dock = DockStyle.Fill;
-            flpButtons.FlowDirection = FlowDirection.RightToLeft;
+            flpButtons.FlowDirection = FlowDirection.LeftToRight;
             flpButtons.Location = new Point(14, 10);
             flpButtons.Name = "flpButtons";
             flpButtons.Size = new Size(532, 42);
@@ -482,11 +489,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // btnCancel
             // 
             btnCancel.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
-            btnCancel.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnCancel.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnCancel.FlatAppearance.BorderSize = 1;
             btnCancel.FlatStyle = FlatStyle.Flat;
             btnCancel.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btnCancel.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
             btnCancel.Location = new Point(295, 0);
             btnCancel.Margin = new Padding(0);
             btnCancel.Name = "btnCancel";
@@ -500,7 +507,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             AcceptButton = btnOk;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             CancelButton = btnCancel;
             ClientSize = new Size(560, 600);
             Controls.Add(pnlBody);
