@@ -1514,3 +1514,30 @@
 **الالتزامات:** الكود والـ`MOCK-COVERAGE` في `2a8bcfe` + `bc19340` (التقطتهما جلسة متوازية أثناء العمل — نفس المحتوى، رسالة باسم `TASK-020`) · بقية التوثيق في التزام هذه الموجة.
 
 **خارج النطاق (بسبب):** إسقاط بقايا الهيكل على القاعدة الحيّة **للمالك** بموافقة `DROP` مكتوبة (`RULE-N198`) · تطبيق التحليل غير المتعقَّب لم يُمسّ (حذفه غير قابل للاسترجاع) · `docs/CHANGELOG.md` سجل تاريخي لا يُعاد كتابته.
+
+---
+
+## 11. موجة 2026-11-19 — `F-005` السطح الأخضر الموحّد + الحقول البيضاء (W1)
+
+> **طلب المالك:** «I want the screen color are green or light green and input fields are white color so the inputs fields are clear for end user eyes, like frm*Masters and frmCRUDProductMaster».
+
+**العيب المقيس قبل الموجة (أمر: قراءة 90 `*.Designer.cs`):** **68** مصمّماً بخلفية رمادي الجيل الثاني `240,242,245` · **742** حاوية من **893** معلنة `Color.White` (السطح الأبيض يبتلع الأخضر) · **14** حقلاً بلا `Color.White` · **1206** لوناً بالصيغة المختصرة (`RULE-N204`). السبب: `GreenThemeHelper.ShouldRepaint` لا يُعيد تلوين حاوية بيضاء (الأبيض ليس لون ثيم)، فتبقى الشاشة بيضاء والحقول غير مميّزة.
+
+| # | الملف (W1 — 8 مصمّمات) | الحالة | القياس بعد الموجة |
+|---|---|---|---|
+| 1 | `Screens/Suppliers/Forms/frmCRUDCSupplierMaster.Designer.cs` | ✅ | خلفية نموذج `170,220,170` · 10/10 حاويات خضراء · 10/10 حقول بيضاء · صيغة مختصرة **0** |
+| 2 | `Screens/Customers/Forms/frmCRUDCustomerMaster.Designer.cs` | ✅ | نفسه |
+| 3 | `Screens/Products/Forms/frmCRUDCProductUnitMaster.Designer.cs` | ✅ | 9/9 حقول بيضاء · 0 حاوية بيضاء |
+| 4 | `Screens/CashBoxes/Forms/frmCRUDCashBoxMaster.Designer.cs` | ✅ | 6/6 حقول · `pnlButtons` أخضر |
+| 5 | `Screens/Categories/Forms/frmCRUDCategoryMaster.Designer.cs` | ✅ | 6/6 حقول · `pnlButtons` أخضر |
+| 6 | `Screens/Units/Forms/frmCRUDUnitMaster.Designer.cs` | ✅ | 6/6 حقول · `pnlButtons` أخضر |
+| 7 | `Screens/Users/Forms/frmCRUDUserMaster.Designer.cs` | ✅ | 6/6 حقول · `pnlButtons` أخضر |
+| 8 | `Screens/Warehouses/Forms/frmCRUDWarehouseMaster.Designer.cs` | ✅ | 8/8 حقول · `pnlButtons` أخضر |
+| — | `Screens/Products/Forms/frmCRUDCProductMaster.Designer.cs` | ✅ **مرجع — لم يُمسّ** (`D-08`) | 14/14 حقول بيضاء · 0 حاوية بيضاء |
+| — | نوافذ معاينة الطباعة الخمس | ⚠️ **معفاة بسبب** | الورق أبيض مقصود |
+
+**البوابة:** `dotnet build` بعد الموجة = **0 Errors / 95 Warnings** (تزايدي — التحذيرات كلها `CS0169` سابقة) · `code-reviewer` مراجعة واحدة.
+
+**متبقٍ (W2…W6):** **77** مصمّماً — التفصيل والجرد في `docs/FEATURES/F-005-green-surface-sweep/MANIFEST.md` (الأعداد الثلاثة: مكتشَف **90** = داخل **85** + معفى **5** · منجز **8** · متبقٍ **77**).
+
+**⚠️ عائق الالتزام:** شجرة العمل كانت تحمل **96** مدخلاً غير ملتزم من موجة سابقة (إعادة تسمية `frm*Master → frmCRUD*Master`: 21 حذفاً + 22 ملفاً جديداً + 53 تعديلاً) ⇒ التزام F-005 منفرداً **يكسر `HEAD`** (يحذف/يضيف نصف إعادة التسمية). رُفع للمالك كقرار (قرار `RULE-N162` البند 4).
