@@ -29,7 +29,7 @@ namespace SalesSystem.Desktop.Screens.Expenses.Forms;
 /// <c>clsFormat</c>) — لا نسخة محلية من أي سلوك مشترك (<c>RULE-N169</c>…<c>RULE-N172</c>).
 /// </para>
 /// </summary>
-public partial class frmExpensesMaster : Form
+public partial class frmCRUDCExpensesMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -90,12 +90,12 @@ public partial class frmExpensesMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmExpensesMaster()
+    private frmCRUDCExpensesMaster()
     {
         InitializeComponent();
     }
 
-    public frmExpensesMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCExpensesMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
 

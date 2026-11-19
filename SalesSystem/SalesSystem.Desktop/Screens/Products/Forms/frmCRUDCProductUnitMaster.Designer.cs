@@ -1,6 +1,6 @@
 namespace SalesSystem.Desktop.Screens.Products.Forms;
 
-partial class frmProductUnitMaster
+partial class frmCRUDCProductUnitMaster
 {
     private System.ComponentModel.IContainer components = null;
 
@@ -79,7 +79,7 @@ partial class frmProductUnitMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
         lblMode.ForeColor = System.Drawing.Color.White;
@@ -92,7 +92,7 @@ partial class frmProductUnitMaster
         // 
         // pnlFields
         // 
-        pnlFields.BackColor = System.Drawing.Color.White;
+        pnlFields.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFields.Controls.Add(lblProduct);
         pnlFields.Controls.Add(lblUnit);
         pnlFields.Controls.Add(lblUnitReq);
@@ -290,7 +290,7 @@ partial class frmProductUnitMaster
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = System.Drawing.Color.White;
+        pnlButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -307,7 +307,7 @@ partial class frmProductUnitMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(40), Convert.ToInt32(167), Convert.ToInt32(69));
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnNew.ForeColor = System.Drawing.Color.White;
@@ -322,7 +322,7 @@ partial class frmProductUnitMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(0), Convert.ToInt32(123), Convert.ToInt32(255));
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSave.ForeColor = System.Drawing.Color.White;
@@ -337,10 +337,10 @@ partial class frmProductUnitMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(152), Convert.ToInt32(0));
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(193), Convert.ToInt32(7));
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = System.Drawing.Color.White;
+        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnEdit.Location = new Point(787, 13);
         btnEdit.Margin = new Padding(3, 3, 8, 3);
         btnEdit.Name = "btnEdit";
@@ -398,6 +398,7 @@ partial class frmProductUnitMaster
         // 
         // pnlGrid
         // 
+        pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlGrid.Controls.Add(dgvUnits);
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 402);
@@ -410,11 +411,23 @@ partial class frmProductUnitMaster
         // 
         dgvUnits.AllowUserToAddRows = false;
         dgvUnits.AllowUserToDeleteRows = false;
+        dgvUnits.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvUnits.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvUnits.BackgroundColor = System.Drawing.Color.White;
+        dgvUnits.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
+        dgvUnits.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+        dgvUnits.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        dgvUnits.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+        dgvUnits.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        dgvUnits.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
         dgvUnits.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        dgvUnits.DefaultCellStyle.BackColor = System.Drawing.Color.White;
+        dgvUnits.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dgvUnits.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
+        dgvUnits.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvUnits.Dock = DockStyle.Fill;
+        dgvUnits.EnableHeadersVisualStyles = false;
         dgvUnits.Font = new Font("Tahoma", 10F);
+        dgvUnits.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         dgvUnits.Location = new Point(0, 10);
         dgvUnits.MultiSelect = false;
         dgvUnits.Name = "dgvUnits";
@@ -430,6 +443,7 @@ partial class frmProductUnitMaster
         // 
         // pnlFilters
         // 
+        pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -440,6 +454,7 @@ partial class frmProductUnitMaster
         // 
         // gbFilter
         // 
+        gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbFilter.Controls.Add(label2);
         gbFilter.Controls.Add(cbFilterBy);
         gbFilter.Controls.Add(lblSearch);
@@ -549,12 +564,12 @@ partial class frmProductUnitMaster
         btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         btnToggleFilters.FlatAppearance.BorderSize = 1;
         btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
-        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.FlatStyle = FlatStyle.Flat;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnToggleFilters.Location = new Point(0, 0);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 112);
@@ -564,6 +579,7 @@ partial class frmProductUnitMaster
         // 
         // pnlSummary
         // 
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
         pnlSummary.Location = new Point(0, 748);
@@ -627,7 +643,7 @@ partial class frmProductUnitMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         ClientSize = new Size(1200, 780);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

@@ -240,7 +240,7 @@ public partial class frmMain : Form
     // ── المنتجات (Products) ───────────────────────────────────────────────────
 
     private void msbtnManageProducts_Click(object sender, EventArgs e)
-        => OpenScreen<frmProductMaster>();
+        => OpenScreen<frmCRUDCProductMaster>();
 
     private void msbtnImportProducts_Click(object sender, EventArgs e)
         => OpenScreen<frmImportProductsExcel>();
@@ -249,7 +249,7 @@ public partial class frmMain : Form
         => OpenScreen<frmCRUDCategoryMaster>();
 
     private void msbtnManageUnits_Click(object sender, EventArgs e)
-        => OpenScreen<frmUnitMaster>();
+        => OpenScreen<frmCRUDUnitMaster>();
 
     // ── العملاء والموردون ────────────────────────────────────────────────────
 
@@ -257,12 +257,12 @@ public partial class frmMain : Form
         => OpenScreen<frmCRUDCustomerMaster>();
 
     private void msbtnManageSuppliers_Click(object sender, EventArgs e)
-        => OpenScreen<frmSupplierMaster>();
+        => OpenScreen<frmCRUDCSupplierMaster>();
 
     // ── المخزون (Warehouse / Stock Transfers / Inventory) ────────────────────
 
     private void msbtnManageWarehouses_Click(object sender, EventArgs e)
-        => OpenScreen<frmWarehouseMaster>();
+        => OpenScreen<frmCRUDWarehouseMaster>();
 
     private void msbtnInventoryMovement_Click(object sender, EventArgs e)
         => OpenScreen<frmInventoryList>();
@@ -367,7 +367,7 @@ public partial class frmMain : Form
         => OpenScreen<frmCashBoxTransactions>();
 
     private void msbtnExpenses_Click(object sender, EventArgs e)
-        => OpenScreen<frmExpensesMaster>();
+        => OpenScreen<frmCRUDCExpensesMaster>();
 
     private void msbtnCustomerReceipts_Click(object sender, EventArgs e)
         => OpenScreen<frmCRUDCustomerReceiptsMaster>();
@@ -378,7 +378,7 @@ public partial class frmMain : Form
     // ── بيانات (Data / Users) ────────────────────────────────────────────────
 
     private void msbtnManageUsers_Click(object sender, EventArgs e)
-        => OpenScreen<frmUserMaster>();
+        => OpenScreen<frmCRUDUserMaster>();
 
     // ── تقارير (Reports) ─────────────────────────────────────────────────────
     // RULE-N70/N71/N72: تقرير واحد = شاشة واحدة، كل تقرير يُفتح من عنصره في تصنيفه.

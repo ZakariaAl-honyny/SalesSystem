@@ -1,6 +1,6 @@
 namespace SalesSystem.Desktop.Screens.Products.Forms;
 
-partial class frmProductMaster
+partial class frmCRUDCProductMaster
 {
     private System.ComponentModel.IContainer components = null;
 

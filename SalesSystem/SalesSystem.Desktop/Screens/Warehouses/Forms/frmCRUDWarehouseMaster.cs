@@ -16,7 +16,7 @@ namespace SalesSystem.Desktop.Screens.Warehouses.Forms;
 /// تجمع: بحث مباشر + شبكة + نموذج إدخال/تعديل في شاشة واحدة،
 /// وتعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
 /// </summary>
-public partial class frmWarehouseMaster : Form
+public partial class frmCRUDWarehouseMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -66,12 +66,12 @@ public partial class frmWarehouseMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmWarehouseMaster()
+    private frmCRUDWarehouseMaster()
     {
         InitializeComponent();
     }
 
-    public frmWarehouseMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDWarehouseMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
         // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.

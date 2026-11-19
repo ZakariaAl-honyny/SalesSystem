@@ -18,7 +18,7 @@ namespace SalesSystem.Desktop.Screens.Products.Forms;
 /// يجمع: بحث مباشر + شبكة + نموذج إدخال/تعديل في شاشة واحدة،
 /// ويعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
 /// </summary>
-public partial class frmProductMaster : Form
+public partial class frmCRUDCProductMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -73,12 +73,12 @@ public partial class frmProductMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmProductMaster()
+    private frmCRUDCProductMaster()
     {
         InitializeComponent();
     }
 
-    public frmProductMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCProductMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
         // RULE-N191 — Enter داخل لوحة المحرر يتبع ترتيب العرض (صفاً صفاً من اليمين لليسار) ثم يُسلِّم التركيز لزر الوضع.
@@ -1204,7 +1204,7 @@ public partial class frmProductMaster : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            var dialog = _serviceProvider.GetRequiredService<frmProductUnitMaster>();
+            var dialog = _serviceProvider.GetRequiredService<frmCRUDCProductUnitMaster>();
             dialog.LoadData(id, txtName.Text.Trim());
 
             if (dialog.ShowDialog(this) == DialogResult.OK)

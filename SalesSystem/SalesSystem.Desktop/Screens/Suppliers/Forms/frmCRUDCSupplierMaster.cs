@@ -18,7 +18,7 @@ namespace SalesSystem.Desktop.Suppliers.Forms;
 /// يجمع: بحث مباشر + شبكة + نموذج إدخال/تعديل في شاشة واحدة،
 /// ويعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
 /// </summary>
-public partial class frmSupplierMaster : Form
+public partial class frmCRUDCSupplierMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -59,12 +59,12 @@ public partial class frmSupplierMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmSupplierMaster()
+    private frmCRUDCSupplierMaster()
     {
         InitializeComponent();
     }
 
-    public frmSupplierMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCSupplierMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
 

@@ -71,13 +71,13 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnReactivate
         // 
-        btnReactivate.BackColor = Color.FromArgb(23, 162, 184);
+        btnReactivate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnReactivate.Cursor = Cursors.Hand;
         btnReactivate.Enabled = false;
         btnReactivate.FlatAppearance.BorderSize = 0;
         btnReactivate.FlatStyle = FlatStyle.Flat;
         btnReactivate.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnReactivate.ForeColor = Color.White;
+        btnReactivate.ForeColor = System.Drawing.Color.White;
         btnReactivate.Location = new Point(689, 13);
         btnReactivate.Name = "btnReactivate";
         btnReactivate.Size = new Size(160, 35);
@@ -89,13 +89,13 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnClearFilters
         // 
-        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
         btnClearFilters.Location = new Point(129, 17);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(169, 32);
@@ -107,10 +107,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(16, 150, 96);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1432, 50);
@@ -120,6 +120,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // pnlFields
         // 
+        pnlFields.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFields.Controls.Add(lblCode);
         pnlFields.Controls.Add(txtCode);
         pnlFields.Controls.Add(lblName);
@@ -144,7 +145,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // txtCode
         // 
-        txtCode.BackColor = Color.White;
+        txtCode.BackColor = System.Drawing.Color.White;
         txtCode.Location = new Point(855, 36);
         txtCode.Name = "txtCode";
         txtCode.ReadOnly = true;
@@ -165,7 +166,7 @@ partial class frmCRUDCashBoxMaster
         // 
         lblNameReq.AutoSize = true;
         lblNameReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameReq.ForeColor = Color.Red;
+        lblNameReq.ForeColor = System.Drawing.Color.Red;
         lblNameReq.Location = new Point(573, 9);
         lblNameReq.Name = "lblNameReq";
         lblNameReq.Size = new Size(23, 24);
@@ -174,7 +175,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // txtName
         // 
-        txtName.BackColor = Color.White;
+        txtName.BackColor = System.Drawing.Color.White;
         txtName.Location = new Point(473, 36);
         txtName.Name = "txtName";
         txtName.Size = new Size(356, 32);
@@ -191,7 +192,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // txtDescription
         // 
-        txtDescription.BackColor = Color.White;
+        txtDescription.BackColor = System.Drawing.Color.White;
         txtDescription.Location = new Point(473, 74);
         txtDescription.Multiline = true;
         txtDescription.Name = "txtDescription";
@@ -200,7 +201,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = Color.White;
+        pnlButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -217,10 +218,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.FromArgb(40, 167, 69);
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = Color.White;
+        btnNew.ForeColor = System.Drawing.Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
@@ -231,10 +232,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(0, 123, 255);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
@@ -245,10 +246,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.FromArgb(255, 152, 0);
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(193), Convert.ToInt32(7));
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = Color.White;
+        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -259,10 +260,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
+        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = Color.White;
+        btnDelete.ForeColor = System.Drawing.Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
@@ -273,10 +274,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = Color.White;
+        btnRefresh.ForeColor = System.Drawing.Color.White;
         btnRefresh.Location = new Point(553, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
@@ -287,10 +288,10 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(108, 117, 125);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.White;
+        btnClose.ForeColor = System.Drawing.Color.White;
         btnClose.Location = new Point(417, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
@@ -302,6 +303,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // pnlFilters
         // 
+        pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -314,6 +316,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // gbFilter
         // 
+        gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbFilter.Controls.Add(label2);
         gbFilter.Controls.Add(cbFilterBy);
         gbFilter.Controls.Add(txtSearch);
@@ -346,7 +349,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = Color.White;
+        cbFilterBy.BackColor = System.Drawing.Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 10F);
@@ -361,7 +364,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // txtSearch
         // 
-        txtSearch.BackColor = Color.White;
+        txtSearch.BackColor = System.Drawing.Color.White;
         txtSearch.Font = new Font("Tahoma", 10F);
         txtSearch.Location = new Point(303, 17);
         txtSearch.Margin = new Padding(0);
@@ -386,7 +389,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // cbStatus
         // 
-        cbStatus.BackColor = Color.White;
+        cbStatus.BackColor = System.Drawing.Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
         cbStatus.Font = new Font("Tahoma", 10F);
@@ -413,14 +416,14 @@ partial class frmCRUDCashBoxMaster
         // 
         // btnToggleFilters
         // 
-        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(222, 226, 230);
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
-        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
+        btnToggleFilters.FlatStyle = FlatStyle.Flat;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(33, 37, 41);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -430,6 +433,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // pnlSummary
         // 
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
         pnlSummary.Location = new Point(0, 788);
@@ -442,7 +446,7 @@ partial class frmCRUDCashBoxMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(33, 37, 41);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -452,6 +456,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // pnlGrid
         // 
+        pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlGrid.Controls.Add(dgvCashBoxes);
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 372);
@@ -464,32 +469,32 @@ partial class frmCRUDCashBoxMaster
         // 
         dgvCashBoxes.AllowUserToAddRows = false;
         dgvCashBoxes.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle1.BackColor = Color.FromArgb(248, 249, 250);
+        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvCashBoxes.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvCashBoxes.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvCashBoxes.BackgroundColor = Color.White;
+        dgvCashBoxes.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
         dgvCashBoxes.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle2.BackColor = Color.FromArgb(52, 58, 64);
+        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         dataGridViewCellStyle2.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle2.ForeColor = Color.White;
-        dataGridViewCellStyle2.SelectionBackColor = Color.FromArgb(52, 58, 64);
-        dataGridViewCellStyle2.SelectionForeColor = Color.White;
+        dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
         dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
         dgvCashBoxes.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvCashBoxes.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvCashBoxes.ContextMenuStrip = cmsGrid;
         dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle3.BackColor = Color.White;
+        dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
         dataGridViewCellStyle3.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle3.ForeColor = Color.FromArgb(33, 37, 41);
-        dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(255, 243, 205);
-        dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
+        dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
         dgvCashBoxes.DefaultCellStyle = dataGridViewCellStyle3;
         dgvCashBoxes.Dock = DockStyle.Fill;
         dgvCashBoxes.EnableHeadersVisualStyles = false;
-        dgvCashBoxes.GridColor = Color.FromArgb(222, 226, 230);
+        dgvCashBoxes.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         dgvCashBoxes.Location = new Point(10, 10);
         dgvCashBoxes.MultiSelect = false;
         dgvCashBoxes.Name = "dgvCashBoxes";
@@ -505,7 +510,7 @@ partial class frmCRUDCashBoxMaster
         // 
         // cmsGrid
         // 
-        cmsGrid.BackColor = Color.White;
+        cmsGrid.BackColor = System.Drawing.Color.White;
         cmsGrid.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         cmsGrid.ImageScalingSize = new Size(24, 24);
         cmsGrid.Items.AddRange(new ToolStripItem[] { mnuEdit, mnuDeactivate, mnuRefresh, mnuSeparator, mnuExport });
@@ -556,7 +561,7 @@ partial class frmCRUDCashBoxMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(240, 242, 245);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         ClientSize = new Size(1432, 820);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

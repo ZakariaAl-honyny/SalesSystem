@@ -14,11 +14,11 @@ namespace SalesSystem.Desktop.Screens.Products.Forms;
 
 /// <summary>
 /// شاشة (Master) لإدارة وحدات صنف واحد في شاشة واحدة:
-/// بحث مباشر + شبكة + نموذج إدخال/تعديل، مثل <see cref="frmProductMaster"/>.
+/// بحث مباشر + شبكة + نموذج إدخال/تعديل، مثل <see cref="frmCRUDCProductMaster"/>.
 /// تعتمد على <c>_editId</c> (null = إضافة، &gt; 0 = تعديل).
 /// كل وحدة تحمل باركودها وأسعارها (تجزئة/جملة/تكلفة) وأقصى خصم مسموح به.
 /// </summary>
-public partial class frmProductUnitMaster : Form
+public partial class frmCRUDCProductUnitMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -65,12 +65,12 @@ public partial class frmProductUnitMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmProductUnitMaster()
+    private frmCRUDCProductUnitMaster()
     {
         InitializeComponent();
     }
 
-    public frmProductUnitMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDCProductUnitMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
 

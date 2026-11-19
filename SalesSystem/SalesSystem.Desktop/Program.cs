@@ -249,7 +249,7 @@ static class Program
                     // `frmAddUpdateSalesInvoice` بوضع «مرتجع بيع» و`frmAddUpdatePurchaseInvoice` بوضع «مرتجع شراء»
                     // ⇒ لا محرّر منفصل لأي مرتجع.
                     services.AddTransient<frmListReturns>();
-                    services.AddTransient<frmWarehouseMaster>();
+                    services.AddTransient<frmCRUDWarehouseMaster>();
                     services.AddTransient<frmListSales>();
                     services.AddTransient<frmListPurchases>();
 
@@ -262,14 +262,14 @@ static class Program
                     // Module Controls — NEW Forms
                     services.AddTransient<frmDashboard>();
                     services.AddTransient<SalesSystem.Desktop.Screens.Dashboard.Controls.ctrlDashboard>(); // RULE-N67
-                    services.AddTransient<frmProductMaster>();
+                    services.AddTransient<frmCRUDCProductMaster>();
                     // Master forms (navigation targets from frmMain)
                     services.AddTransient<frmCRUDCategoryMaster>();
-                    services.AddTransient<frmUnitMaster>();
+                    services.AddTransient<frmCRUDUnitMaster>();
                     services.AddTransient<frmCRUDCustomerMaster>();
                     services.AddTransient<frmShowCustomerCard>();
                     services.AddTransient<frmFindCustomer>();
-                    services.AddTransient<frmSupplierMaster>();
+                    services.AddTransient<frmCRUDCSupplierMaster>();
                     services.AddTransient<frmInventoryList>();
                     services.AddTransient<frmListPayments>();
                     // reports (31 screens — RULE-N70/N71) — one screen = one report
@@ -306,7 +306,7 @@ static class Program
                     services.AddTransient<frmChangeSystemColorsSettings>();
                     services.AddTransient<frmFormatingSetting>();
                     // Master forms — replace the removed frmList* / frmAddUpdate* screens
-                    services.AddTransient<frmUserMaster>();
+                    services.AddTransient<frmCRUDUserMaster>();
 
                     // Inventory Module - New Forms
                     services.AddTransient<frmListInventoryAdjustments>();
@@ -320,7 +320,7 @@ static class Program
                     services.AddTransient<frmCashBoxTransactions>();
 
                     // Expenses Module — F-004 (D-01/D-03): شاشة Master مدمجة بدل frmList* + frmAddUpdate*
-                    services.AddTransient<frmExpensesMaster>();
+                    services.AddTransient<frmCRUDCExpensesMaster>();
 
                     // CustomerReceipts Module — F-004 (D-01/D-03): شاشة Master مدمجة بدل frmList* + frmAddUpdate*
                     services.AddTransient<frmCRUDCustomerReceiptsMaster>();
@@ -332,7 +332,7 @@ static class Program
                     services.AddTransient<frmSupplierPaymentDialog>();
 
                     // Product Management Forms
-                    services.AddTransient<frmProductUnitMaster>();
+                    services.AddTransient<frmCRUDCProductUnitMaster>();
                     // Fully-qualified: two frmProductSelection types exist.
                     // Legacy picker (Products.Forms) — used by frmOpeningStock / frmAddUpdateSalesInvoice.
                     services.AddTransient<SalesSystem.Desktop.Products.Forms.frmProductSelection>();

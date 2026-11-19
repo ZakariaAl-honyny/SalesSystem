@@ -16,7 +16,7 @@ namespace SalesSystem.Desktop.Screens.Units.Forms;
 /// يجمع: بحث مباشر + شبكة + محرر إدخال/تعديل في شاشة واحدة (§2.28)،
 /// ويبدأ دائماً في **وضع العرض** حيث كل حقول الإدخال معطّلة (§2.36).
 /// </summary>
-public partial class frmUnitMaster : Form
+public partial class frmCRUDUnitMaster : Form
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -57,12 +57,12 @@ public partial class frmUnitMaster : Form
     }
 
     /// <summary>منشئ التصميم — يستخدمه مصمم Visual Studio فقط (بدون خدمات DI).</summary>
-    private frmUnitMaster()
+    private frmCRUDUnitMaster()
     {
         InitializeComponent();
     }
 
-    public frmUnitMaster(IServiceProvider serviceProvider) : this()
+    public frmCRUDUnitMaster(IServiceProvider serviceProvider) : this()
     {
         _serviceProvider = serviceProvider;
 

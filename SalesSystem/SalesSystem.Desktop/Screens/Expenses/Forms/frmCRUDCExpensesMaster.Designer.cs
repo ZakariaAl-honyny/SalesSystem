@@ -1,6 +1,6 @@
 namespace SalesSystem.Desktop.Screens.Expenses.Forms;
 
-partial class frmExpensesMaster
+partial class frmCRUDCExpensesMaster
 {
     private System.ComponentModel.IContainer components = null;
 
