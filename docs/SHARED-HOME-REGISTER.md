@@ -1566,3 +1566,29 @@
 **بند مفتوح (`D-08`):** عند `MinimumSize` (700 ارتفاعاً) تنكمش شبكة القوائم إلى ≈300 دون بوابة 380 — رُفض رفع الحد الأدنى إلى 820 لأنه يخرج النافذة عن شاشات 1366×768.
 
 **⚠️ عائق الالتزام نفسه:** الشجرة تحمل **88** ملفاً معدَّلاً سابقاً (`F-005` + إعادة التسمية) ⇒ التُزمت **5 مصمّمات F-006 + وثائقها فقط**؛ وأسطر الألوان السابقة داخل هذه الملفات تُنسب إلى `F-005` في نص الالتزام (`D-09`).
+
+---
+
+## موجة `TASK-029` — وصف التصنيف لا يُحفظ في القاعدة (إصلاح عيب · 2026-11-20)
+
+> **بلاغ المالك:** «I try to test edit data to database and the descption data do not svaed with data. fix this problem».
+
+**القياس قبل الموجة:** الشاشة تُرسل الوصف فعلاً (`frmCRUDCategoryMaster.cs:641-661`) · الـ`Mock` يحفظه (`MockCategoryDesktopService.cs:38,60-62`) · العمود والتهيئة قائمان (`ProductCategoryConfiguration.cs:15` = `nvarchar(500)`) ⇒ **الفقد في حلقة العقد وحدها**: العقدان `Create/UpdateProductCategoryRequest` يحملان `Name` فقط، و`DirectCategoryService` كان يبنيهما بالاسم وحده تحت `TODO`ين مكتوبين، و`ProductCategoryService` ينادي `Create(name:)`/`Update(name)` بلا وصف.
+
+**الصنف لا الحالة (§4 خطوة 9b):** عدد مواضع «إسقاط حقل يحمله عقد سطح المكتب» في `Services/Direct/**` = **2** — كلاهما `DirectCategoryService` (إضافة + تعديل). بقية `TODO` هناك (**6** في `DirectReportService` · `DirectSalesReportService` · `DirectSettingsService`) **صنف آخر** (حقول تقرير غير متاحة · دوال تقرير غير منفَّذة · إعدادات بلا حفظ) مسجَّل في `TASK-029` ولم يُمسّ.
+
+| # | الملف | الحالة | القياس بعد الموجة |
+|---|---|---|---|
+| 1 | `SalesSystem.DTO/Requests/ProductCategoryRequests.cs` | ✅ | العقدان يحملان `string? Description` |
+| 2 | `SalesSystem.Business/Services/ProductCategoryService.cs` | ✅ | الوصف يُمرَّر إلى `ProductCategory.Create` (س68) و`category.Update` (س104) |
+| 3 | `SalesSystem.Desktop/Services/Direct/DirectCategoryService.cs` | ✅ | الوصف يُمرَّر في الطلبين · `TODO` = **0** (كان 2) |
+| 4 | `Screens/Categories/Forms/frmCRUDCategoryMaster.cs` | ✅ | حارسا الطول (اسم ≤ 100 · وصف ≤ 500) **متجاوران وقبل** `ConfirmEdit` · قراءة الحقلين مرة واحدة (`RULE-N172`) · `SetError(txtDescription)` = 1 · `MessageBox` = **0** |
+| — | `Models/**` · `DataAccess/**` · `Migrations/**` · `Mock/**` · `.Designer.cs` · `.resx` | ⚠️ **معفاة بسبب** | `RULE-N198` (لا تغيير هيكل) · الـMock يحفظ الوصف أصلاً (شاهد السلوك الصحيح) · `RULE-N134` (لا مساس بالمصمّم) |
+
+**عيب أخطر كشفه القياس (`D-3`):** `ProductCategory.Update(name, description = null)` يضبط `Description = description?.Trim()` — فكل تعديل **اسم** في الوضع الحقيقي كان يمرّر `null` الافتراضي و**يمسح وصفاً محفوظاً صامتاً**. التمرير الجديد يغلق «عدم الحفظ» و«المسح الصامت» معاً. `null` يبقى يصل فقط حين يُفرّغ الحقل عمداً (الشاشة تحوّل الفراغ إلى `null` — تفريغ مقصود، لا يُرفض بالحارس).
+
+**البيوت المشتركة:** لا سلوك مشترك جديد ولا نسخة ثانية (`RULE-N169`…`N172`) — الحارس واجهة فقط، ونصّه يظهر **مرة واحدة** في الحل.
+
+**البوابة:** `dotnet build` = **0 Errors / 112 Warning(s)** (تشغيل كامل `--no-incremental` — خط أساس `TASK-027`/`TASK-028`) ثم **0 Errors / 95 Warning(s)** (تزايدي بعد إغلاق الـMinor؛ الأعداد غير قابلة للمقارنة بين الوضعين — §12 من `AGENTS.md`) · `code-reviewer`: **0 Blocker · 0 Major · 1 Minor** أُغلق في الموجة نفسها (ترتيب الحارسين قبل `ConfirmEdit`).
+
+**⚠️ عائق الالتزام نفسه:** الشجرة تحمل **109** مدخلاً معدَّلاً/غير متعقَّب سابقاً (`F-005` · `F-006` · `TASK-023/026/027/028`) ⇒ التُزمت **الملفات الأربعة + سجلا `TASK-029` والـRegister فقط**، وبقيت تعديلات المصمّمات السابقة منسوبة إلى موجاتها.

@@ -43,8 +43,7 @@ public class DirectCategoryService : ICategoryDesktopService
     {
         try
         {
-            // TODO: CreateCategoryRequest.Description لا يدعمه CreateProductCategoryRequest حالياً.
-            var bllRequest = new CreateProductCategoryRequest(r.Name);
+            var bllRequest = new CreateProductCategoryRequest(r.Name, r.Description);
             var result = await _bll.CreateAsync(bllRequest, ct);
             return result.IsSuccess
                 ? Result<CategoryDto>.Success(MapToDto(result.Value!))
@@ -60,8 +59,7 @@ public class DirectCategoryService : ICategoryDesktopService
     {
         try
         {
-            // TODO: UpdateProductCategoryRequest يقبل الاسم فقط — الوصف (Description) لا يُمرَّر لطبقة الأعمال.
-            var bllRequest = new UpdateProductCategoryRequest(r.Name);
+            var bllRequest = new UpdateProductCategoryRequest(r.Name, r.Description);
             var result = await _bll.UpdateAsync(id, bllRequest, ct);
             if (!result.IsSuccess)
                 return Result<CategoryDto>.Failure(result.Error ?? "تعذر تحديث التصنيف", result.ErrorCode);

@@ -614,11 +614,27 @@ public partial class frmCRUDCategoryMaster : Form
             return;
         }
 
+        // الحقول تُقرأ مرة واحدة قبل أي حارس أو تأكيد (RULE-N172).
+        string name = txtName.Text.Trim();
+        string? description = string.IsNullOrWhiteSpace(txtDescription.Text)
+            ? null
+            : txtDescription.Text.Trim();
+
         // قاعدة المدى/الطول تبقى في الشاشة كما هي — ليست قاعدة «مطلوب» (RULE-N172).
         if (txtName.Text.Trim().Length > 100)
         {
             errorProvider.SetError(txtName, "اسم المجموعة أطول من المسموح (100 حرف)");
             txtName.Focus();
+            clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
+            return;
+        }
+
+        // قاعدة الطول تبقى في الشاشة كما هي — ليست قاعدة «مطلوب» (RULE-N172)،
+        // والحد 500 هو `ProductCategories.Description nvarchar(500)`.
+        if (description is not null && description.Length > 500)
+        {
+            errorProvider.SetError(txtDescription, "وصف المجموعة أطول من المسموح (500 حرف)");
+            txtDescription.Focus();
             clsDialogs.Warning("يرجى تصحيح الأخطاء الموضحة قبل المتابعة.");
             return;
         }
@@ -637,11 +653,6 @@ public partial class frmCRUDCategoryMaster : Form
 
         try
         {
-            string name = txtName.Text.Trim();
-            string? description = string.IsNullOrWhiteSpace(txtDescription.Text)
-                ? null
-                : txtDescription.Text.Trim();
-
             Result<CategoryDto> result;
 
             if (edit)

@@ -65,7 +65,7 @@ public class ProductCategoryService : IProductCategoryService
             if (duplicateName)
                 return Result<ProductCategoryDto>.Failure("اسم التصنيف مستخدم بالفعل", ErrorCodes.DuplicateEntry);
 
-            var category = ProductCategory.Create(name: request.Name);
+            var category = ProductCategory.Create(request.Name, request.Description);
 
             await _uow.ProductCategories.AddAsync(category, ct);
             await _uow.SaveChangesAsync(ct);
@@ -101,7 +101,7 @@ public class ProductCategoryService : IProductCategoryService
             if (duplicateName)
                 return Result<ProductCategoryDto>.Failure("اسم التصنيف مستخدم بالفعل", ErrorCodes.DuplicateEntry);
 
-            category.Update(request.Name);
+            category.Update(request.Name, request.Description);
             await _uow.SaveChangesAsync(ct);
 
             _logger.LogInformation("Product category updated: {Name} (ID: {Id})", category.Name, id);
