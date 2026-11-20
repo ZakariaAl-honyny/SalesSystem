@@ -1592,3 +1592,24 @@
 **البوابة:** `dotnet build` = **0 Errors / 112 Warning(s)** (تشغيل كامل `--no-incremental` — خط أساس `TASK-027`/`TASK-028`) ثم **0 Errors / 95 Warning(s)** (تزايدي بعد إغلاق الـMinor؛ الأعداد غير قابلة للمقارنة بين الوضعين — §12 من `AGENTS.md`) · `code-reviewer`: **0 Blocker · 0 Major · 1 Minor** أُغلق في الموجة نفسها (ترتيب الحارسين قبل `ConfirmEdit`).
 
 **⚠️ عائق الالتزام نفسه:** الشجرة تحمل **109** مدخلاً معدَّلاً/غير متعقَّب سابقاً (`F-005` · `F-006` · `TASK-023/026/027/028`) ⇒ التُزمت **الملفات الأربعة + سجلا `TASK-029` والـRegister فقط**، وبقيت تعديلات المصمّمات السابقة منسوبة إلى موجاتها.
+
+---
+
+## موجة `TASK-030` — باركود الوحدة الرئيسية لا يصل إلى `ProductUnits` عند التعديل (إصلاح عيب · 2026-11-20)
+
+> **بلاغ المالك:** «frmCRUDCProductMaster there is problem with txtMainUnitBarcode when I save the Barcode do not show in frmCRUDCProductUnitMaster».
+
+**القياس قبل الموجة:** الباركود يُكتب في موضعين — `Products.Barcode` (عبر `Create/UpdateProductRequest`) و`ProductUnits.Barcode` (عبر `Add/UpdateProductUnitRequest`). مسار **الإضافة** يكتبهما معاً (`_CreateMainUnitAsync` س573-593)، ومسار **التعديل** كان يمرّر `Barcode: unit.Barcode` — القيمة المحمَّلة سابقاً — فلا ينتقل ما كتبه المستخدم إلى الوحدة الأساسية. الباك-إند سليم: `ProductUnitService.UpdateUnitAsync` يمرّر `req.Barcode` إلى `UpdatePricing`، و`MapToDto` يعيده؛ وشاشة الوحدات تعرض العمود أصلاً (`frmCRUDCProductUnitMaster.cs:239,261,319`).
+
+**الصنف لا الحالة (§4 خطوة 9b) — كل مسارات كتابة الباركود في الحل:** إضافة صنف (الصنف + الوحدة) ✅ · تعديل صنف (الصنف فقط) ❌ **العيب** · استيراد Excel (الصنف + الوحدة) ✅ · شاشة الوحدات (الوحدة فقط) ⚠️ انعكاس مسجَّل — **وسقط بقرار المالك 2026-11-20 (`TASK-031`) بحذف `Products.Barcode` نفسه**.
+
+**سلطة المخطط:** `docs/database-schema.md` §9 ص6-7 — «المصدر الرسمي للباركود هو `ProductUnits.Barcode`» ⇒ اتجاه الإصلاح هو اتجاه المالك.
+
+| # | الملف | الحالة | القياس بعد الموجة |
+|---|---|---|---|
+| 1 | `Screens/Products/Forms/frmCRUDCProductMaster.cs` | ✅ | `_SaveMainUnitPricesAsync(int productId, string? barcode)` — الباركود المكتوب يُمرَّر إلى `UpdateProductUnitRequest` (`:628`) وإلى `UpdateProductRequest` من المتغيّر نفسه · `unit.Barcode` داخل الدالة = **0** · مستدعٍ واحد ثنائي الوسيط (`:1012`) · رسالتا التحذير تذكران الباركود (`:642` · `:648`) |
+| — | `Business/**` · `Models/**` · `DataAccess/**` · `Services/**` · `.Designer.cs` · `.resx` | ⚠️ **معفاة بسبب** | `RULE-N177` (وحدة Products حكمها `مؤهل جزئياً` بلا موافقة مكتوبة ⇒ الباك-إند مقفل) · `RULE-N198` (لا تغيير هيكل) · العقد يحمل `Barcode` أصلاً فالحل كان في الشاشة وحدها |
+
+**البوابة:** `dotnet build --no-incremental` = **0 Errors / 112 Warning(s)** (خط أساس `TASK-027`/`TASK-028`) بعد W1 وبعد إغلاق الـMinor · `code-reviewer`: **0 Blocker · 0 Major · 1 Minor** أُغلق في الموجة (رسالتا التحذير لا تذكران الباركود).
+
+**⚠️ عائق الالتزام نفسه:** الشجرة تحمل مدخلات معدَّلة سابقة (`F-005` · `F-006` · `TASK-023/026/027/028/029`) ⇒ يُلتزم **ملف الكود الواحد + سجلا `TASK-030` والـRegister فقط**.

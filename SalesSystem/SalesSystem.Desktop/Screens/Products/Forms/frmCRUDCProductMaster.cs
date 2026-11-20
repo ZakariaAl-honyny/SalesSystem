@@ -610,11 +610,13 @@ public partial class frmCRUDCProductMaster : Form
     }
 
     /// <summary>
-    /// حفظ سعر البيع · سعر التكلفة · الخصم المسموح به على الوحدة الرئيسية للصنف
-    /// عبر <c>UpdateProductUnitAsync</c> — الأسعار الثلاثة تعيش على <see cref="ProductUnitDto"/> وحده.
+    /// حفظ <b>الباركود</b> · سعر البيع · سعر التكلفة · الخصم المسموح به على الوحدة الرئيسية للصنف
+    /// عبر <c>UpdateProductUnitAsync</c>.
+    /// الباركود يُرسل بنفس القيمة المرسلة إلى <c>UpdateProductRequest</c> حتى لا تتباعد قيمتا
+    /// <c>Products.Barcode</c> و<c>ProductUnits.Barcode</c> (مسار الإضافة والمسار التعديل متطابقان).
     /// السعر بالجملة يُعاد كما هو (لا حقل له في الشاشة).
     /// </summary>
-    private async Task _SaveMainUnitPricesAsync(int productId)
+    private async Task _SaveMainUnitPricesAsync(int productId, string? barcode)
     {
         var unit = _productUnits.FirstOrDefault(u => u.IsBaseUnit) ?? _productUnits.FirstOrDefault();
         if (unit is null) return;   // لا وحدة للصنف → لا شيء يُحفظ من مجموعة الوحدة الرئيسية
@@ -623,7 +625,7 @@ public partial class frmCRUDCProductMaster : Form
         {
             var request = new UpdateProductUnitRequest(
                 UnitId: (short)unit.UnitId,
-                Barcode: unit.Barcode,       // الباركود يُحفظ عبر UpdateProductRequest — لا يُلمس هنا
+                Barcode: barcode,            // الباركود المكتوب في الشاشة يُحفظ على الوحدة الأساسية والصنف معاً
                 SalePrice: numMainUnitSalePrice.Value,
                 WholesalePrice: unit.WholesalePrice,
                 CostPrice: numMainUnitCostPrice.Value,
@@ -637,13 +639,13 @@ public partial class frmCRUDCProductMaster : Form
             {
                 Log.Error("تعذر حفظ أسعار الوحدة الرئيسية للصنف {ProductId}. السبب: {Error}",
                     productId, result.Error);
-                clsDialogs.Warning($"تم حفظ بيانات الصنف، لكن تعذر حفظ سعر/تكلفة/خصم الوحدة الرئيسية.\n{result.Error}");
+                clsDialogs.Warning($"تم حفظ بيانات الصنف، لكن تعذر حفظ باركود/سعر/تكلفة/خصم الوحدة الرئيسية.\n{result.Error}");
             }
         }
         catch (Exception ex)
         {
             Log.Error(ex, "خطأ أثناء حفظ أسعار الوحدة الرئيسية للصنف {ProductId}", productId);
-            clsDialogs.Warning("تم حفظ بيانات الصنف، لكن تعذر حفظ سعر/تكلفة/خصم الوحدة الرئيسية.");
+            clsDialogs.Warning("تم حفظ بيانات الصنف، لكن تعذر حفظ باركود/سعر/تكلفة/خصم الوحدة الرئيسية.");
         }
     }
 
@@ -1005,9 +1007,9 @@ public partial class frmCRUDCProductMaster : Form
                 result = await ProductService.UpdateAsync(id, request);
 
                 // إعادة إرسال أسعار الوحدة الرئيسية كما هي معروضة في الشاشة
-                // (سعر البيع · التكلفة · الخصم المسموح به) حتى لا تُصفَّر عند كل حفظ.
+                // (الباركود · سعر البيع · التكلفة · الخصم المسموح به) حتى لا تُصفَّر عند كل حفظ.
                 if (result.IsSuccess)
-                    await _SaveMainUnitPricesAsync(id);
+                    await _SaveMainUnitPricesAsync(id, barcode);
             }
             else
             {
