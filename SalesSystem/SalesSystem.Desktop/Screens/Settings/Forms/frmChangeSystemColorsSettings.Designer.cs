@@ -109,7 +109,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -119,7 +119,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
         lblMode.ForeColor = System.Drawing.Color.White;
@@ -132,7 +132,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.White;
+        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbToolbar.Controls.Add(flpToolbar);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F);
@@ -146,7 +146,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // flpToolbar
         // 
-        flpToolbar.BackColor = System.Drawing.Color.White;
+        flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpToolbar.Controls.Add(btnSave);
         flpToolbar.Controls.Add(btnReset);
         flpToolbar.Controls.Add(btnPickColor);
@@ -237,11 +237,11 @@ partial class frmChangeSystemColorsSettings
         // 
         btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnRefresh.Cursor = Cursors.Hand;
-        btnRefresh.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        btnRefresh.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         btnRefresh.FlatAppearance.BorderSize = 1;
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnRefresh.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        btnRefresh.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         btnRefresh.Location = new Point(592, 0);
         btnRefresh.Margin = new Padding(0, 0, 8, 0);
         btnRefresh.Name = "btnRefresh";
@@ -272,6 +272,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // pnlFilters
         // 
+        pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -284,7 +285,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // gbFilter
         // 
-        gbFilter.BackColor = System.Drawing.Color.White;
+        gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbFilter.Controls.Add(label2);
         gbFilter.Controls.Add(cbFilterBy);
         gbFilter.Controls.Add(txtFilterValue);
@@ -392,11 +393,11 @@ partial class frmChangeSystemColorsSettings
         btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
-        btnToggleFilters.FlatStyle = FlatStyle.Popup;
+        btnToggleFilters.FlatStyle = FlatStyle.Flat;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 112);
@@ -407,7 +408,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.White;
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Top;
         pnlSummary.Location = new Point(0, 252);
@@ -420,7 +421,7 @@ partial class frmChangeSystemColorsSettings
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1200, 40);
@@ -430,7 +431,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // gbColors
         // 
-        gbColors.BackColor = System.Drawing.Color.White;
+        gbColors.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbColors.Controls.Add(dgvColors);
         gbColors.Controls.Add(lblNoData);
         gbColors.Dock = DockStyle.Fill;
@@ -448,18 +449,18 @@ partial class frmChangeSystemColorsSettings
         dgvColors.AllowUserToAddRows = false;
         dgvColors.AllowUserToDeleteRows = false;
         dgvColors.AllowUserToResizeRows = false;
-        styleColorsAlternate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        styleColorsAlternate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvColors.AlternatingRowsDefaultCellStyle = styleColorsAlternate;
         dgvColors.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvColors.BackgroundColor = System.Drawing.Color.White;
+        dgvColors.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
         dgvColors.BorderStyle = BorderStyle.None;
         dgvColors.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dgvColors.ColumnHeadersHeight = 40;
         styleColorsHeader.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        styleColorsHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        styleColorsHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         styleColorsHeader.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         styleColorsHeader.ForeColor = System.Drawing.Color.White;
-        styleColorsHeader.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        styleColorsHeader.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         styleColorsHeader.SelectionForeColor = System.Drawing.Color.White;
         styleColorsHeader.WrapMode = DataGridViewTriState.True;
         dgvColors.ColumnHeadersDefaultCellStyle = styleColorsHeader;
@@ -469,13 +470,13 @@ partial class frmChangeSystemColorsSettings
         styleColorsCell.BackColor = System.Drawing.Color.White;
         styleColorsCell.Font = new Font("Tahoma", 10F);
         styleColorsCell.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        styleColorsCell.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        styleColorsCell.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
         styleColorsCell.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         styleColorsCell.WrapMode = DataGridViewTriState.False;
         dgvColors.DefaultCellStyle = styleColorsCell;
         dgvColors.Dock = DockStyle.Fill;
         dgvColors.EnableHeadersVisualStyles = false;
-        dgvColors.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        dgvColors.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         dgvColors.Location = new Point(8, 30);
         dgvColors.MultiSelect = false;
         dgvColors.Name = "dgvColors";
@@ -551,9 +552,9 @@ partial class frmChangeSystemColorsSettings
         // فلا تظهر رسالة «لا توجد بيانات» أبداً. تثبيت الحواف الأربعة + BringToFront (بالأسفل) يجعلها
         // طبقة فوق الشبكة تُرى فعلاً عند تصفية بلا نتائج — بلا إعادة ترتيب Controls (RULE-N125).
         lblNoData.Anchor = ((AnchorStyles)((((AnchorStyles.Top | AnchorStyles.Bottom) | AnchorStyles.Left) | AnchorStyles.Right)));
-        lblNoData.BackColor = System.Drawing.Color.White;
+        lblNoData.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         lblNoData.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblNoData.Location = new Point(8, 30);
         lblNoData.Name = "lblNoData";
         lblNoData.Size = new Size(804, 434);
@@ -610,7 +611,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = System.Drawing.Color.White;
+        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbPreview.Controls.Add(pnlPreviewScroll);
         gbPreview.Dock = DockStyle.Right;
         gbPreview.Font = new Font("Tahoma", 10F);
@@ -626,7 +627,7 @@ partial class frmChangeSystemColorsSettings
         // 
         lblPreviewCaption.AutoSize = true;
         lblPreviewCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewCaption.Location = new Point(222, 32);
         lblPreviewCaption.Name = "lblPreviewCaption";
         lblPreviewCaption.Size = new Size(140, 24);
@@ -664,7 +665,7 @@ partial class frmChangeSystemColorsSettings
         // lblPreviewField
         // 
         lblPreviewField.AutoSize = true;
-        lblPreviewField.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewField.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewField.Location = new Point(222, 42);
         lblPreviewField.Name = "lblPreviewField";
         lblPreviewField.Size = new Size(120, 24);
@@ -742,7 +743,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // flpPreviewButtons
         // 
-        flpPreviewButtons.BackColor = System.Drawing.Color.White;
+        flpPreviewButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         flpPreviewButtons.Controls.Add(btnPreviewAdd);
         flpPreviewButtons.Controls.Add(btnPreviewSave);
         flpPreviewButtons.Controls.Add(btnPreviewDelete);
@@ -853,7 +854,7 @@ partial class frmChangeSystemColorsSettings
         // lblSelectedColor
         // 
         lblSelectedColor.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSelectedColor.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSelectedColor.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSelectedColor.Location = new Point(12, 322);
         lblSelectedColor.Name = "lblSelectedColor";
         lblSelectedColor.Size = new Size(354, 26);
@@ -883,7 +884,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // lblPreviewHint
         // 
-        lblPreviewHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewHint.Location = new Point(12, 388);
         lblPreviewHint.Name = "lblPreviewHint";
         lblPreviewHint.Size = new Size(354, 50);
@@ -894,7 +895,7 @@ partial class frmChangeSystemColorsSettings
         // 
         lblSuggestions.AutoSize = true;
         lblSuggestions.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblSuggestions.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSuggestions.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSuggestions.Location = new Point(12, 448);
         lblSuggestions.Name = "lblSuggestions";
         lblSuggestions.Size = new Size(238, 22);
@@ -904,7 +905,7 @@ partial class frmChangeSystemColorsSettings
         // flpSuggestions
         // 
         flpSuggestions.AutoScroll = true;
-        flpSuggestions.BackColor = System.Drawing.Color.White;
+        flpSuggestions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         flpSuggestions.FlowDirection = FlowDirection.LeftToRight;
         flpSuggestions.Location = new Point(10, 474);
         flpSuggestions.Name = "flpSuggestions";
@@ -915,7 +916,7 @@ partial class frmChangeSystemColorsSettings
         // 
         lblLadder.AutoSize = true;
         lblLadder.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblLadder.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblLadder.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblLadder.Location = new Point(12, 546);
         lblLadder.Name = "lblLadder";
         lblLadder.Size = new Size(214, 22);
@@ -925,7 +926,7 @@ partial class frmChangeSystemColorsSettings
         // flpLadder
         // 
         flpLadder.AutoScroll = true;
-        flpLadder.BackColor = System.Drawing.Color.White;
+        flpLadder.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         flpLadder.FlowDirection = FlowDirection.LeftToRight;
         flpLadder.Location = new Point(10, 572);
         flpLadder.Name = "flpLadder";
@@ -934,7 +935,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFooter.Controls.Add(lblFooterHint);
         pnlFooter.Controls.Add(flpFooter);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -946,7 +947,7 @@ partial class frmChangeSystemColorsSettings
         // lblFooterHint
         // 
         lblFooterHint.Dock = DockStyle.Fill;
-        lblFooterHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblFooterHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblFooterHint.Location = new Point(0, 0);
         lblFooterHint.Name = "lblFooterHint";
         lblFooterHint.Padding = new Padding(16, 0, 0, 0);
@@ -957,7 +958,7 @@ partial class frmChangeSystemColorsSettings
         // 
         // flpFooter
         // 
-        flpFooter.BackColor = System.Drawing.Color.White;
+        flpFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpFooter.Controls.Add(btnFooterClose);
         flpFooter.Dock = DockStyle.Right;
         flpFooter.FlowDirection = FlowDirection.LeftToRight;
@@ -989,7 +990,7 @@ partial class frmChangeSystemColorsSettings
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         ClientSize = new Size(1200, 820);
         Controls.Add(gbColors);
         Controls.Add(gbPreview);

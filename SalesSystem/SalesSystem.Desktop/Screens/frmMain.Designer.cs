@@ -145,8 +145,8 @@ namespace SalesSystem.Desktop.Screens
                 msData, msReport, msTools, msSettings, msAccoutSettings
             });
             // RULE-N134: نفس قيم GreenThemeHelper (BarBackground · TextStrong) في المصمّم ووقت التشغيل
-            msMainMenu.BackColor = System.Drawing.Color.White;
-            msMainMenu.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            msMainMenu.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            msMainMenu.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
             msMainMenu.Location = new Point(0, 0);
             msMainMenu.Name = "msMainMenu";
             msMainMenu.Size = new Size(1378, 37);
@@ -831,7 +831,7 @@ namespace SalesSystem.Desktop.Screens
             AutoSize = true;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             AutoValidate = AutoValidate.EnableAllowFocusChange;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             ClientSize = new Size(1378, 944);
             Controls.Add(msMainMenu);
             Font = new Font("Tahoma", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);

@@ -146,10 +146,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // lblMode
         // 
-        lblMode.BackColor = Color.FromArgb(14, 165, 103);
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold);
-        lblMode.ForeColor = Color.White;
+        lblMode.ForeColor = System.Drawing.Color.White;
         lblMode.Location = new Point(0, 0);
         lblMode.Name = "lblMode";
         lblMode.Size = new Size(1432, 50);
@@ -169,7 +169,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // gbDocument
         // 
-        gbDocument.BackColor = Color.FromArgb(235, 245, 235);
+        gbDocument.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbDocument.Controls.Add(lblExpenseNo);
         gbDocument.Controls.Add(txtExpenseNo);
         gbDocument.Controls.Add(lblDate);
@@ -189,7 +189,7 @@ partial class frmCRUDCExpensesMaster
         gbDocument.Controls.Add(txtNotes);
         gbDocument.Dock = DockStyle.Fill;
         gbDocument.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbDocument.ForeColor = Color.FromArgb(33, 37, 41);
+        gbDocument.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbDocument.Location = new Point(6, 4);
         gbDocument.Name = "gbDocument";
         gbDocument.Padding = new Padding(10, 4, 10, 4);
@@ -209,7 +209,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // txtExpenseNo
         // 
-        txtExpenseNo.BackColor = Color.White;
+        txtExpenseNo.BackColor = System.Drawing.Color.White;
         txtExpenseNo.Location = new Point(1063, 55);
         txtExpenseNo.Name = "txtExpenseNo";
         txtExpenseNo.ReadOnly = true;
@@ -228,7 +228,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // dtpDate
         // 
-        dtpDate.BackColor = Color.White;
+        dtpDate.BackColor = System.Drawing.Color.White;
         dtpDate.Font = new Font("Tahoma", 10F);
         dtpDate.Format = DateTimePickerFormat.Short;
         dtpDate.Location = new Point(903, 55);
@@ -250,7 +250,7 @@ partial class frmCRUDCExpensesMaster
         // 
         lblCashBoxReq.AutoSize = true;
         lblCashBoxReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCashBoxReq.ForeColor = Color.Red;
+        lblCashBoxReq.ForeColor = System.Drawing.Color.Red;
         lblCashBoxReq.Location = new Point(750, 28);
         lblCashBoxReq.Name = "lblCashBoxReq";
         lblCashBoxReq.Size = new Size(23, 24);
@@ -259,7 +259,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // cmbCashBox
         // 
-        cmbCashBox.BackColor = Color.White;
+        cmbCashBox.BackColor = System.Drawing.Color.White;
         cmbCashBox.DropDownStyle = ComboBoxStyle.DropDownList;
         cmbCashBox.FlatStyle = FlatStyle.Flat;
         cmbCashBox.Font = new Font("Tahoma", 10F);
@@ -281,7 +281,7 @@ partial class frmCRUDCExpensesMaster
         // 
         lblAmountReq.AutoSize = true;
         lblAmountReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAmountReq.ForeColor = Color.Red;
+        lblAmountReq.ForeColor = System.Drawing.Color.Red;
         lblAmountReq.Location = new Point(586, 30);
         lblAmountReq.Name = "lblAmountReq";
         lblAmountReq.Size = new Size(23, 24);
@@ -290,7 +290,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // numAmount
         // 
-        numAmount.BackColor = Color.White;
+        numAmount.BackColor = System.Drawing.Color.White;
         numAmount.DecimalPlaces = 2;
         numAmount.Font = new Font("Tahoma", 10F);
         numAmount.Location = new Point(552, 56);
@@ -314,10 +314,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // lblNetTotalValue
         // 
-        lblNetTotalValue.BackColor = Color.White;
+        lblNetTotalValue.BackColor = System.Drawing.Color.White;
         lblNetTotalValue.BorderStyle = BorderStyle.FixedSingle;
         lblNetTotalValue.Font = new Font("Tahoma", 11F, FontStyle.Bold);
-        lblNetTotalValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNetTotalValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblNetTotalValue.Location = new Point(366, 56);
         lblNetTotalValue.Name = "lblNetTotalValue";
         lblNetTotalValue.Size = new Size(180, 32);
@@ -336,10 +336,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // lblStatusValue
         // 
-        lblStatusValue.BackColor = Color.White;
+        lblStatusValue.BackColor = System.Drawing.Color.White;
         lblStatusValue.BorderStyle = BorderStyle.FixedSingle;
         lblStatusValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblStatusValue.ForeColor = Color.FromArgb(14, 82, 52);
+        lblStatusValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblStatusValue.Location = new Point(190, 57);
         lblStatusValue.Name = "lblStatusValue";
         lblStatusValue.Size = new Size(170, 32);
@@ -360,7 +360,7 @@ partial class frmCRUDCExpensesMaster
         // 
         lblNotesReq.AutoSize = true;
         lblNotesReq.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNotesReq.ForeColor = Color.Red;
+        lblNotesReq.ForeColor = System.Drawing.Color.Red;
         lblNotesReq.Location = new Point(1039, 106);
         lblNotesReq.Name = "lblNotesReq";
         lblNotesReq.Size = new Size(23, 24);
@@ -369,7 +369,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // txtNotes
         // 
-        txtNotes.BackColor = Color.White;
+        txtNotes.BackColor = System.Drawing.Color.White;
         txtNotes.Font = new Font("Tahoma", 10F);
         txtNotes.Location = new Point(518, 104);
         txtNotes.Multiline = true;
@@ -381,7 +381,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // pnlButtons
         // 
-        pnlButtons.BackColor = Color.FromArgb(235, 240, 235);
+        pnlButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlButtons.Controls.Add(btnNew);
         pnlButtons.Controls.Add(btnSave);
         pnlButtons.Controls.Add(btnEdit);
@@ -399,10 +399,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnNew
         // 
-        btnNew.BackColor = Color.FromArgb(13, 110, 253);
+        btnNew.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
         btnNew.FlatStyle = FlatStyle.Flat;
         btnNew.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnNew.ForeColor = Color.White;
+        btnNew.ForeColor = System.Drawing.Color.White;
         btnNew.Location = new Point(1267, 13);
         btnNew.Name = "btnNew";
         btnNew.Size = new Size(142, 35);
@@ -413,10 +413,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnSave
         // 
-        btnSave.BackColor = Color.FromArgb(25, 135, 84);
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnSave.ForeColor = Color.White;
+        btnSave.ForeColor = System.Drawing.Color.White;
         btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
@@ -427,10 +427,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnEdit
         // 
-        btnEdit.BackColor = Color.FromArgb(255, 193, 7);
+        btnEdit.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(193), Convert.ToInt32(7));
         btnEdit.FlatStyle = FlatStyle.Flat;
         btnEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnEdit.ForeColor = Color.FromArgb(30, 41, 59);
+        btnEdit.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnEdit.Location = new Point(999, 13);
         btnEdit.Name = "btnEdit";
         btnEdit.Size = new Size(128, 35);
@@ -441,10 +441,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnDelete
         // 
-        btnDelete.BackColor = Color.FromArgb(220, 53, 69);
+        btnDelete.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnDelete.FlatStyle = FlatStyle.Flat;
         btnDelete.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnDelete.ForeColor = Color.White;
+        btnDelete.ForeColor = System.Drawing.Color.White;
         btnDelete.Location = new Point(855, 13);
         btnDelete.Name = "btnDelete";
         btnDelete.Size = new Size(138, 35);
@@ -455,10 +455,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnPost
         // 
-        btnPost.BackColor = Color.FromArgb(23, 162, 184);
+        btnPost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnPost.FlatStyle = FlatStyle.Flat;
         btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnPost.ForeColor = Color.White;
+        btnPost.ForeColor = System.Drawing.Color.White;
         btnPost.Location = new Point(707, 13);
         btnPost.Name = "btnPost";
         btnPost.Size = new Size(142, 35);
@@ -469,10 +469,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnCancelDocument
         // 
-        btnCancelDocument.BackColor = Color.FromArgb(220, 53, 69);
+        btnCancelDocument.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(53), Convert.ToInt32(69));
         btnCancelDocument.FlatStyle = FlatStyle.Flat;
         btnCancelDocument.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnCancelDocument.ForeColor = Color.White;
+        btnCancelDocument.ForeColor = System.Drawing.Color.White;
         btnCancelDocument.Location = new Point(527, 13);
         btnCancelDocument.Name = "btnCancelDocument";
         btnCancelDocument.Size = new Size(174, 35);
@@ -483,10 +483,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = Color.FromArgb(23, 162, 184);
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnRefresh.ForeColor = Color.White;
+        btnRefresh.ForeColor = System.Drawing.Color.White;
         btnRefresh.Location = new Point(391, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
@@ -497,10 +497,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnClose
         // 
-        btnClose.BackColor = Color.FromArgb(248, 249, 250);
+        btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        btnClose.ForeColor = Color.FromArgb(30, 41, 59);
+        btnClose.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnClose.Location = new Point(255, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
@@ -554,7 +554,7 @@ partial class frmCRUDCExpensesMaster
         // 
         lblFilterBy.AutoSize = true;
         lblFilterBy.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblFilterBy.ForeColor = Color.FromArgb(33, 37, 41);
+        lblFilterBy.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblFilterBy.Location = new Point(1196, 30);
         lblFilterBy.Name = "lblFilterBy";
         lblFilterBy.Size = new Size(86, 22);
@@ -563,7 +563,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // cbFilterBy
         // 
-        cbFilterBy.BackColor = Color.White;
+        cbFilterBy.BackColor = System.Drawing.Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 9F);
@@ -576,7 +576,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // txtFilterValue
         // 
-        txtFilterValue.BackColor = Color.White;
+        txtFilterValue.BackColor = System.Drawing.Color.White;
         txtFilterValue.Font = new Font("Tahoma", 9F);
         txtFilterValue.Location = new Point(800, 28);
         txtFilterValue.Name = "txtFilterValue";
@@ -591,7 +591,7 @@ partial class frmCRUDCExpensesMaster
         // 
         lblStatusFilter.AutoSize = true;
         lblStatusFilter.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblStatusFilter.ForeColor = Color.FromArgb(33, 37, 41);
+        lblStatusFilter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblStatusFilter.Location = new Point(706, 30);
         lblStatusFilter.Name = "lblStatusFilter";
         lblStatusFilter.Size = new Size(67, 22);
@@ -600,7 +600,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // cbStatus
         // 
-        cbStatus.BackColor = Color.White;
+        cbStatus.BackColor = System.Drawing.Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
         cbStatus.Font = new Font("Tahoma", 9F);
@@ -615,7 +615,7 @@ partial class frmCRUDCExpensesMaster
         chkOnlyCancelled.AutoSize = true;
         chkOnlyCancelled.FlatStyle = FlatStyle.Flat;
         chkOnlyCancelled.Font = new Font("Tahoma", 9F);
-        chkOnlyCancelled.ForeColor = Color.FromArgb(33, 37, 41);
+        chkOnlyCancelled.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         chkOnlyCancelled.Location = new Point(380, 30);
         chkOnlyCancelled.Name = "chkOnlyCancelled";
         chkOnlyCancelled.Size = new Size(114, 26);
@@ -626,7 +626,7 @@ partial class frmCRUDCExpensesMaster
         // lblFrom
         // 
         lblFrom.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblFrom.ForeColor = Color.FromArgb(33, 37, 41);
+        lblFrom.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblFrom.Location = new Point(1230, 68);
         lblFrom.Name = "lblFrom";
         lblFrom.Size = new Size(48, 26);
@@ -636,7 +636,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // dtpFrom
         // 
-        dtpFrom.BackColor = Color.White;
+        dtpFrom.BackColor = System.Drawing.Color.White;
         dtpFrom.Font = new Font("Tahoma", 9F);
         dtpFrom.Format = DateTimePickerFormat.Short;
         dtpFrom.Location = new Point(1096, 66);
@@ -648,7 +648,7 @@ partial class frmCRUDCExpensesMaster
         // lblTo
         // 
         lblTo.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        lblTo.ForeColor = Color.FromArgb(33, 37, 41);
+        lblTo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblTo.Location = new Point(1048, 68);
         lblTo.Name = "lblTo";
         lblTo.Size = new Size(48, 26);
@@ -658,7 +658,7 @@ partial class frmCRUDCExpensesMaster
         // 
         // dtpTo
         // 
-        dtpTo.BackColor = Color.White;
+        dtpTo.BackColor = System.Drawing.Color.White;
         dtpTo.Font = new Font("Tahoma", 9F);
         dtpTo.Format = DateTimePickerFormat.Short;
         dtpTo.Location = new Point(916, 66);
@@ -669,11 +669,11 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnRangeToday
         // 
-        btnRangeToday.BackColor = Color.FromArgb(248, 249, 250);
-        btnRangeToday.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
+        btnRangeToday.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnRangeToday.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         btnRangeToday.FlatStyle = FlatStyle.Flat;
         btnRangeToday.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnRangeToday.ForeColor = Color.FromArgb(30, 41, 59);
+        btnRangeToday.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnRangeToday.Location = new Point(806, 66);
         btnRangeToday.Name = "btnRangeToday";
         btnRangeToday.Size = new Size(100, 30);
@@ -684,11 +684,11 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnRangeMonth
         // 
-        btnRangeMonth.BackColor = Color.FromArgb(248, 249, 250);
-        btnRangeMonth.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
+        btnRangeMonth.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnRangeMonth.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         btnRangeMonth.FlatStyle = FlatStyle.Flat;
         btnRangeMonth.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnRangeMonth.ForeColor = Color.FromArgb(30, 41, 59);
+        btnRangeMonth.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnRangeMonth.Location = new Point(686, 66);
         btnRangeMonth.Name = "btnRangeMonth";
         btnRangeMonth.Size = new Size(110, 30);
@@ -699,11 +699,11 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnRange30
         // 
-        btnRange30.BackColor = Color.FromArgb(248, 249, 250);
-        btnRange30.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
+        btnRange30.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnRange30.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         btnRange30.FlatStyle = FlatStyle.Flat;
         btnRange30.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnRange30.ForeColor = Color.FromArgb(30, 41, 59);
+        btnRange30.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnRange30.Location = new Point(551, 66);
         btnRange30.Name = "btnRange30";
         btnRange30.Size = new Size(125, 30);
@@ -714,13 +714,13 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnClearFilters
         // 
-        btnClearFilters.BackColor = Color.FromArgb(108, 117, 125);
+        btnClearFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClearFilters.Cursor = Cursors.Hand;
         btnClearFilters.Enabled = false;
         btnClearFilters.FlatAppearance.BorderSize = 0;
         btnClearFilters.FlatStyle = FlatStyle.Flat;
         btnClearFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnClearFilters.ForeColor = Color.White;
+        btnClearFilters.ForeColor = System.Drawing.Color.White;
         btnClearFilters.Location = new Point(340, 66);
         btnClearFilters.Name = "btnClearFilters";
         btnClearFilters.Size = new Size(200, 32);
@@ -731,14 +731,14 @@ partial class frmCRUDCExpensesMaster
         // 
         // btnToggleFilters
         // 
-        btnToggleFilters.BackColor = Color.FromArgb(248, 249, 250);
+        btnToggleFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnToggleFilters.Cursor = Cursors.Hand;
         btnToggleFilters.Dock = DockStyle.Left;
-        btnToggleFilters.FlatAppearance.BorderColor = Color.FromArgb(205, 225, 205);
-        btnToggleFilters.FlatAppearance.MouseOverBackColor = Color.FromArgb(240, 240, 240);
+        btnToggleFilters.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
+        btnToggleFilters.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(240), Convert.ToInt32(240));
         btnToggleFilters.FlatStyle = FlatStyle.Popup;
         btnToggleFilters.Font = new Font("Tahoma", 9F, FontStyle.Bold);
-        btnToggleFilters.ForeColor = Color.FromArgb(14, 82, 52);
+        btnToggleFilters.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         btnToggleFilters.Location = new Point(6, 4);
         btnToggleFilters.Name = "btnToggleFilters";
         btnToggleFilters.Size = new Size(140, 104);
@@ -762,32 +762,32 @@ partial class frmCRUDCExpensesMaster
         // 
         dgvMain.AllowUserToAddRows = false;
         dgvMain.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle4.BackColor = Color.FromArgb(245, 252, 245);
+        dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvMain.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvMain.BackgroundColor = Color.FromArgb(220, 240, 220);
+        dgvMain.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
         dgvMain.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle5.BackColor = Color.FromArgb(14, 165, 103);
+        dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         dataGridViewCellStyle5.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle5.ForeColor = Color.White;
-        dataGridViewCellStyle5.SelectionBackColor = Color.FromArgb(14, 165, 103);
-        dataGridViewCellStyle5.SelectionForeColor = Color.White;
+        dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
+        dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
         dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
         dgvMain.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
         dgvMain.ContextMenuStrip = cmsRows;
         dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        dataGridViewCellStyle6.BackColor = Color.White;
+        dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
         dataGridViewCellStyle6.Font = new Font("Tahoma", 10F);
-        dataGridViewCellStyle6.ForeColor = Color.FromArgb(33, 37, 41);
-        dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(255, 255, 180);
-        dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(33, 37, 41);
+        dataGridViewCellStyle6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
+        dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
         dgvMain.DefaultCellStyle = dataGridViewCellStyle6;
         dgvMain.Dock = DockStyle.Fill;
         dgvMain.EnableHeadersVisualStyles = false;
-        dgvMain.GridColor = Color.FromArgb(205, 225, 205);
+        dgvMain.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         dgvMain.Location = new Point(0, 10);
         dgvMain.MultiSelect = false;
         dgvMain.Name = "dgvMain";
@@ -803,10 +803,10 @@ partial class frmCRUDCExpensesMaster
         // 
         // lblEmpty
         // 
-        lblEmpty.BackColor = Color.Transparent;
+        lblEmpty.BackColor = System.Drawing.Color.Transparent;
         lblEmpty.Dock = DockStyle.Fill;
         lblEmpty.Font = new Font("Tahoma", 12F, FontStyle.Bold);
-        lblEmpty.ForeColor = Color.FromArgb(33, 37, 41);
+        lblEmpty.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblEmpty.Location = new Point(0, 10);
         lblEmpty.Name = "lblEmpty";
         lblEmpty.Size = new Size(1432, 306);
@@ -829,7 +829,7 @@ partial class frmCRUDCExpensesMaster
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = Color.FromArgb(14, 82, 52);
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1432, 32);
@@ -840,14 +840,14 @@ partial class frmCRUDCExpensesMaster
         // toolTip
         // 
         toolTip.AutomaticDelay = 300;
-        toolTip.BackColor = Color.White;
-        toolTip.ForeColor = Color.Black;
+        toolTip.BackColor = System.Drawing.Color.White;
+        toolTip.ForeColor = System.Drawing.Color.Black;
         // 
         // liveTip
         // 
         liveTip.AutomaticDelay = 300;
-        liveTip.BackColor = Color.White;
-        liveTip.ForeColor = Color.Black;
+        liveTip.BackColor = System.Drawing.Color.White;
+        liveTip.ForeColor = System.Drawing.Color.Black;
         // 
         // errorProvider
         // 
@@ -859,7 +859,7 @@ partial class frmCRUDCExpensesMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         ClientSize = new Size(1432, 780);
         Controls.Add(pnlGrid);
         Controls.Add(pnlSummary);

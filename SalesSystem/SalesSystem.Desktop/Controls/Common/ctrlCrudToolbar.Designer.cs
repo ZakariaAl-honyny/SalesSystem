@@ -7,7 +7,7 @@ partial class ctrlCrudToolbar
     // ملاحظات المصمّم:
     //   • المصمّم = التشغيل (RULE-N134 / RULE-N140 / RULE-N204): كل لون بصيغة Convert.ToInt32
     //     وبالقيمة الحرفية نفسها التي تحتفظ بها اللوحة وقت التشغيل:
-    //     خلفية العنصر = خلفية النموذج (170,220,170) · شريط الأزرار = (235,240,235)
+    //     خلفية المكوّن (سطح مُضمَّن) = (235,240,235) · شريط الأزرار = (235,240,235)
     //     (BarBackground) — فيهبط GreenThemeHelper.Apply على القيمة نفسها بلا تغيير.
     //   • RULE-N145: الأزرار السبعة عناصر دائمة مُعلَنة هنا ولا تُبنى وقت التشغيل.
     //   • خلفية الشريط (235,240,235) لا (235,245,235): المصمّم يجب أن يطابق ما يضبطه
@@ -38,7 +38,7 @@ partial class ctrlCrudToolbar
         flpButtons.Controls.Add(btnRefresh);
         flpButtons.Controls.Add(btnClose);
         flpButtons.Dock = DockStyle.Fill;
-        flpButtons.FlowDirection = FlowDirection.RightToLeft;
+        flpButtons.FlowDirection = FlowDirection.LeftToRight;
         flpButtons.Location = new Point(0, 0);
         flpButtons.Name = "flpButtons";
         flpButtons.Padding = new Padding(2, 0, 2, 0);
@@ -48,7 +48,7 @@ partial class ctrlCrudToolbar
         // 
         // btnAdd
         // 
-        btnAdd.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
+        btnAdd.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
         btnAdd.Cursor = Cursors.Hand;
         btnAdd.FlatAppearance.BorderSize = 0;
         btnAdd.FlatStyle = FlatStyle.Flat;
@@ -139,7 +139,7 @@ partial class ctrlCrudToolbar
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnRefresh.Cursor = Cursors.Hand;
         btnRefresh.FlatAppearance.BorderSize = 0;
         btnRefresh.FlatStyle = FlatStyle.Flat;

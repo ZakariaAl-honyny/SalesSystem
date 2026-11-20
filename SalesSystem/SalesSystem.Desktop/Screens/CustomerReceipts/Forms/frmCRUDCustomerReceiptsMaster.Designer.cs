@@ -16,15 +16,15 @@ partial class frmCRUDCustomerReceiptsMaster
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
+        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
         cmsRows = new ContextMenuStrip(components);
         cmsEdit = new ToolStripMenuItem();
         cmsPost = new ToolStripMenuItem();
         cmsCancelDocument = new ToolStripMenuItem();
         cmsSeparator = new ToolStripSeparator();
         cmsRefresh = new ToolStripMenuItem();
-        DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-        DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
-        DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
         lblMode = new Label();
         pnlFields = new Panel();
         gbDocument = new GroupBox();
@@ -71,14 +71,6 @@ partial class frmCRUDCustomerReceiptsMaster
         pnlGrid = new Panel();
         lblEmptyState = new Label();
         dgvMain = new DataGridView();
-        colReceiptNo = new DataGridViewTextBoxColumn();
-        colDate = new DataGridViewTextBoxColumn();
-        colCustomer = new DataGridViewTextBoxColumn();
-        colAmount = new DataGridViewTextBoxColumn();
-        colPaymentMethod = new DataGridViewTextBoxColumn();
-        colCashBox = new DataGridViewTextBoxColumn();
-        colStatus = new DataGridViewTextBoxColumn();
-        colNotes = new DataGridViewTextBoxColumn();
         pnlSummary = new Panel();
         lblSummary = new Label();
         errorProvider = new ErrorProvider(components);
@@ -97,6 +89,47 @@ partial class frmCRUDCustomerReceiptsMaster
         pnlSummary.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
         SuspendLayout();
+        // 
+        // cmsRows
+        // 
+        cmsRows.ImageScalingSize = new Size(24, 24);
+        cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsPost, cmsCancelDocument, cmsSeparator, cmsRefresh });
+        cmsRows.Name = "cmsRows";
+        cmsRows.Size = new Size(214, 138);
+        cmsRows.Opening += cmsRows_Opening;
+        // 
+        // cmsEdit
+        // 
+        cmsEdit.Name = "cmsEdit";
+        cmsEdit.Size = new Size(213, 32);
+        cmsEdit.Text = "✏️ عرض / تحرير";
+        cmsEdit.Click += cmsEdit_Click;
+        // 
+        // cmsPost
+        // 
+        cmsPost.Name = "cmsPost";
+        cmsPost.Size = new Size(213, 32);
+        cmsPost.Text = "📤 ترحيل";
+        cmsPost.Click += cmsPost_Click;
+        // 
+        // cmsCancelDocument
+        // 
+        cmsCancelDocument.Name = "cmsCancelDocument";
+        cmsCancelDocument.Size = new Size(213, 32);
+        cmsCancelDocument.Text = "🚫 إلغاء المستند";
+        cmsCancelDocument.Click += cmsCancelDocument_Click;
+        // 
+        // cmsSeparator
+        // 
+        cmsSeparator.Name = "cmsSeparator";
+        cmsSeparator.Size = new Size(210, 6);
+        // 
+        // cmsRefresh
+        // 
+        cmsRefresh.Name = "cmsRefresh";
+        cmsRefresh.Size = new Size(213, 32);
+        cmsRefresh.Text = "🔄 تحديث (F5)";
+        cmsRefresh.Click += cmsRefresh_Click;
         // 
         // lblMode
         // 
@@ -144,16 +177,16 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblReceiptNo
         // 
         lblReceiptNo.AutoSize = true;
-        lblReceiptNo.Location = new Point(560, 8);
+        lblReceiptNo.Location = new Point(451, 14);
         lblReceiptNo.Name = "lblReceiptNo";
-        lblReceiptNo.Size = new Size(120, 24);
+        lblReceiptNo.Size = new Size(114, 24);
         lblReceiptNo.TabIndex = 0;
         lblReceiptNo.Text = "رقم السند:";
         // 
         // txtReceiptNo
         // 
         txtReceiptNo.BackColor = System.Drawing.Color.White;
-        txtReceiptNo.Location = new Point(370, 34);
+        txtReceiptNo.Location = new Point(370, 41);
         txtReceiptNo.Name = "txtReceiptNo";
         txtReceiptNo.ReadOnly = true;
         txtReceiptNo.Size = new Size(310, 32);
@@ -163,9 +196,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblDate
         // 
         lblDate.AutoSize = true;
-        lblDate.Location = new Point(240, 8);
+        lblDate.Location = new Point(147, 14);
         lblDate.Name = "lblDate";
-        lblDate.Size = new Size(110, 24);
+        lblDate.Size = new Size(77, 24);
         lblDate.TabIndex = 1;
         lblDate.Text = "التاريخ:";
         // 
@@ -173,7 +206,7 @@ partial class frmCRUDCustomerReceiptsMaster
         // 
         dtpDate.BackColor = System.Drawing.Color.White;
         dtpDate.Format = DateTimePickerFormat.Short;
-        dtpDate.Location = new Point(20, 34);
+        dtpDate.Location = new Point(20, 41);
         dtpDate.Name = "dtpDate";
         dtpDate.RightToLeft = RightToLeft.Yes;
         dtpDate.Size = new Size(330, 32);
@@ -182,9 +215,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblCustomer
         // 
         lblCustomer.AutoSize = true;
-        lblCustomer.Location = new Point(560, 76);
+        lblCustomer.Location = new Point(476, 76);
         lblCustomer.Name = "lblCustomer";
-        lblCustomer.Size = new Size(120, 24);
+        lblCustomer.Size = new Size(98, 24);
         lblCustomer.TabIndex = 2;
         lblCustomer.Text = "العميل: *";
         // 
@@ -201,9 +234,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblCashBox
         // 
         lblCashBox.AutoSize = true;
-        lblCashBox.Location = new Point(240, 76);
+        lblCashBox.Location = new Point(125, 76);
         lblCashBox.Name = "lblCashBox";
-        lblCashBox.Size = new Size(110, 24);
+        lblCashBox.Size = new Size(120, 24);
         lblCashBox.TabIndex = 3;
         lblCashBox.Text = "الصندوق: *";
         // 
@@ -239,9 +272,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblAmount
         // 
         lblAmount.AutoSize = true;
-        lblAmount.Location = new Point(560, 8);
+        lblAmount.Location = new Point(466, 18);
         lblAmount.Name = "lblAmount";
-        lblAmount.Size = new Size(120, 24);
+        lblAmount.Size = new Size(92, 24);
         lblAmount.TabIndex = 4;
         lblAmount.Text = "المبلغ: *";
         // 
@@ -249,7 +282,7 @@ partial class frmCRUDCustomerReceiptsMaster
         // 
         numAmount.BackColor = System.Drawing.Color.White;
         numAmount.DecimalPlaces = 2;
-        numAmount.Location = new Point(370, 34);
+        numAmount.Location = new Point(370, 45);
         numAmount.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
         numAmount.Name = "numAmount";
         numAmount.RightToLeft = RightToLeft.Yes;
@@ -263,9 +296,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // 
         lblAmountValue.Font = new Font("Tahoma", 12F, FontStyle.Bold);
         lblAmountValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-        lblAmountValue.Location = new Point(370, 74);
+        lblAmountValue.Location = new Point(499, 102);
         lblAmountValue.Name = "lblAmountValue";
-        lblAmountValue.Size = new Size(310, 34);
+        lblAmountValue.Size = new Size(195, 34);
         lblAmountValue.TabIndex = 5;
         lblAmountValue.Text = "0.00";
         lblAmountValue.TextAlign = ContentAlignment.MiddleCenter;
@@ -273,9 +306,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblPaymentMethod
         // 
         lblPaymentMethod.AutoSize = true;
-        lblPaymentMethod.Location = new Point(240, 8);
+        lblPaymentMethod.Location = new Point(120, 14);
         lblPaymentMethod.Name = "lblPaymentMethod";
-        lblPaymentMethod.Size = new Size(110, 24);
+        lblPaymentMethod.Size = new Size(130, 24);
         lblPaymentMethod.TabIndex = 6;
         lblPaymentMethod.Text = "طريقة الدفع:";
         // 
@@ -283,9 +316,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // 
         lblPaymentMethodValue.BackColor = System.Drawing.Color.White;
         lblPaymentMethodValue.BorderStyle = BorderStyle.FixedSingle;
-        lblPaymentMethodValue.Font = new Font("Tahoma", 10F, FontStyle.Regular);
+        lblPaymentMethodValue.Font = new Font("Tahoma", 10F);
         lblPaymentMethodValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        lblPaymentMethodValue.Location = new Point(20, 34);
+        lblPaymentMethodValue.Location = new Point(20, 45);
         lblPaymentMethodValue.Name = "lblPaymentMethodValue";
         lblPaymentMethodValue.Size = new Size(330, 32);
         lblPaymentMethodValue.TabIndex = 7;
@@ -296,9 +329,9 @@ partial class frmCRUDCustomerReceiptsMaster
         // lblNotes
         // 
         lblNotes.AutoSize = true;
-        lblNotes.Location = new Point(240, 74);
+        lblNotes.Location = new Point(356, 105);
         lblNotes.Name = "lblNotes";
-        lblNotes.Size = new Size(110, 24);
+        lblNotes.Size = new Size(69, 24);
         lblNotes.TabIndex = 8;
         lblNotes.Text = "البيان:";
         // 
@@ -350,7 +383,7 @@ partial class frmCRUDCustomerReceiptsMaster
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnSave.ForeColor = System.Drawing.Color.White;
-        btnSave.Location = new Point(1129, 13);
+        btnSave.Location = new Point(1133, 13);
         btnSave.Name = "btnSave";
         btnSave.Size = new Size(128, 35);
         btnSave.TabIndex = 1;
@@ -366,7 +399,7 @@ partial class frmCRUDCustomerReceiptsMaster
         btnPost.FlatStyle = FlatStyle.Flat;
         btnPost.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnPost.ForeColor = System.Drawing.Color.White;
-        btnPost.Location = new Point(991, 13);
+        btnPost.Location = new Point(999, 13);
         btnPost.Name = "btnPost";
         btnPost.Size = new Size(128, 35);
         btnPost.TabIndex = 2;
@@ -382,7 +415,7 @@ partial class frmCRUDCustomerReceiptsMaster
         btnCancelDocument.FlatStyle = FlatStyle.Flat;
         btnCancelDocument.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnCancelDocument.ForeColor = System.Drawing.Color.White;
-        btnCancelDocument.Location = new Point(796, 13);
+        btnCancelDocument.Location = new Point(808, 13);
         btnCancelDocument.Name = "btnCancelDocument";
         btnCancelDocument.Size = new Size(185, 35);
         btnCancelDocument.TabIndex = 3;
@@ -397,7 +430,7 @@ partial class frmCRUDCustomerReceiptsMaster
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnRefresh.ForeColor = System.Drawing.Color.White;
-        btnRefresh.Location = new Point(656, 13);
+        btnRefresh.Location = new Point(672, 13);
         btnRefresh.Name = "btnRefresh";
         btnRefresh.Size = new Size(130, 35);
         btnRefresh.TabIndex = 4;
@@ -412,7 +445,7 @@ partial class frmCRUDCustomerReceiptsMaster
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
         btnClose.ForeColor = System.Drawing.Color.White;
-        btnClose.Location = new Point(516, 13);
+        btnClose.Location = new Point(536, 13);
         btnClose.Name = "btnClose";
         btnClose.Size = new Size(130, 35);
         btnClose.TabIndex = 5;
@@ -467,7 +500,7 @@ partial class frmCRUDCustomerReceiptsMaster
         lblFilterBy.AutoSize = true;
         lblFilterBy.Location = new Point(1130, 25);
         lblFilterBy.Name = "lblFilterBy";
-        lblFilterBy.Size = new Size(90, 22);
+        lblFilterBy.Size = new Size(86, 22);
         lblFilterBy.TabIndex = 0;
         lblFilterBy.Text = "تصفية بـ:";
         // 
@@ -476,11 +509,10 @@ partial class frmCRUDCustomerReceiptsMaster
         cbFilterBy.BackColor = System.Drawing.Color.White;
         cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
         cbFilterBy.FlatStyle = FlatStyle.Flat;
-        cbFilterBy.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+        cbFilterBy.Font = new Font("Tahoma", 9F);
         cbFilterBy.Items.AddRange(new object[] { "العميل", "رقم السند", "البيان", "المبلغ" });
         cbFilterBy.Location = new Point(975, 22);
         cbFilterBy.Name = "cbFilterBy";
-        cbFilterBy.SelectedIndex = 0;
         cbFilterBy.Size = new Size(145, 30);
         cbFilterBy.TabIndex = 1;
         cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
@@ -488,12 +520,12 @@ partial class frmCRUDCustomerReceiptsMaster
         // txtFilterValue
         // 
         txtFilterValue.BackColor = System.Drawing.Color.White;
-        txtFilterValue.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+        txtFilterValue.Font = new Font("Tahoma", 9F);
         txtFilterValue.Location = new Point(740, 22);
         txtFilterValue.Name = "txtFilterValue";
         txtFilterValue.PlaceholderText = "اكتب قيمة التصفية...";
         txtFilterValue.RightToLeft = RightToLeft.Yes;
-        txtFilterValue.Size = new Size(225, 30);
+        txtFilterValue.Size = new Size(225, 29);
         txtFilterValue.TabIndex = 2;
         txtFilterValue.TextChanged += txtFilterValue_TextChanged;
         // 
@@ -502,7 +534,7 @@ partial class frmCRUDCustomerReceiptsMaster
         lblStatus.AutoSize = true;
         lblStatus.Location = new Point(660, 25);
         lblStatus.Name = "lblStatus";
-        lblStatus.Size = new Size(70, 22);
+        lblStatus.Size = new Size(67, 22);
         lblStatus.TabIndex = 3;
         lblStatus.Text = "الحالة:";
         // 
@@ -511,7 +543,7 @@ partial class frmCRUDCustomerReceiptsMaster
         cbStatus.BackColor = System.Drawing.Color.White;
         cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
         cbStatus.FlatStyle = FlatStyle.Flat;
-        cbStatus.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+        cbStatus.Font = new Font("Tahoma", 9F);
         cbStatus.Location = new Point(540, 22);
         cbStatus.Name = "cbStatus";
         cbStatus.Size = new Size(110, 30);
@@ -523,19 +555,19 @@ partial class frmCRUDCustomerReceiptsMaster
         lblFrom.AutoSize = true;
         lblFrom.Location = new Point(470, 25);
         lblFrom.Name = "lblFrom";
-        lblFrom.Size = new Size(60, 22);
+        lblFrom.Size = new Size(43, 22);
         lblFrom.TabIndex = 5;
         lblFrom.Text = "من:";
         // 
         // dtpFrom
         // 
         dtpFrom.BackColor = System.Drawing.Color.White;
-        dtpFrom.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+        dtpFrom.Font = new Font("Tahoma", 9F);
         dtpFrom.Format = DateTimePickerFormat.Short;
         dtpFrom.Location = new Point(330, 22);
         dtpFrom.Name = "dtpFrom";
         dtpFrom.RightToLeft = RightToLeft.Yes;
-        dtpFrom.Size = new Size(130, 30);
+        dtpFrom.Size = new Size(130, 29);
         dtpFrom.TabIndex = 6;
         dtpFrom.ValueChanged += dtpFrom_ValueChanged;
         // 
@@ -544,19 +576,19 @@ partial class frmCRUDCustomerReceiptsMaster
         lblTo.AutoSize = true;
         lblTo.Location = new Point(250, 25);
         lblTo.Name = "lblTo";
-        lblTo.Size = new Size(60, 22);
+        lblTo.Size = new Size(49, 22);
         lblTo.TabIndex = 7;
         lblTo.Text = "إلى:";
         // 
         // dtpTo
         // 
         dtpTo.BackColor = System.Drawing.Color.White;
-        dtpTo.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+        dtpTo.Font = new Font("Tahoma", 9F);
         dtpTo.Format = DateTimePickerFormat.Short;
         dtpTo.Location = new Point(110, 22);
         dtpTo.Name = "dtpTo";
         dtpTo.RightToLeft = RightToLeft.Yes;
-        dtpTo.Size = new Size(130, 30);
+        dtpTo.Size = new Size(130, 29);
         dtpTo.TabIndex = 8;
         dtpTo.ValueChanged += dtpTo_ValueChanged;
         // 
@@ -612,10 +644,10 @@ partial class frmCRUDCustomerReceiptsMaster
         // 
         chkOnlyUnapplied.AutoSize = true;
         chkOnlyUnapplied.FlatStyle = FlatStyle.Flat;
-        chkOnlyUnapplied.Font = new Font("Tahoma", 9F, FontStyle.Regular);
+        chkOnlyUnapplied.Font = new Font("Tahoma", 9F);
         chkOnlyUnapplied.Location = new Point(680, 65);
         chkOnlyUnapplied.Name = "chkOnlyUnapplied";
-        chkOnlyUnapplied.Size = new Size(220, 26);
+        chkOnlyUnapplied.Size = new Size(167, 26);
         chkOnlyUnapplied.TabIndex = 12;
         chkOnlyUnapplied.Text = "غير المخصصة فقط";
         toolTip.SetToolTip(chkOnlyUnapplied, "السندات التي لم يُخصَّص كامل مبلغها بعد");
@@ -688,7 +720,6 @@ partial class frmCRUDCustomerReceiptsMaster
         dgvMain.AllowUserToDeleteRows = false;
         dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvMain.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-        dgvMain.AutoGenerateColumns = false;
         dgvMain.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         dgvMain.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
         dgvMain.BorderStyle = BorderStyle.None;
@@ -703,7 +734,6 @@ partial class frmCRUDCustomerReceiptsMaster
         dgvMain.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvMain.ColumnHeadersHeight = 45;
         dgvMain.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-        dgvMain.Columns.AddRange(new DataGridViewColumn[] { colReceiptNo, colDate, colCustomer, colAmount, colPaymentMethod, colCashBox, colStatus, colNotes });
         dgvMain.ContextMenuStrip = cmsRows;
         dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
         dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
@@ -729,78 +759,6 @@ partial class frmCRUDCustomerReceiptsMaster
         dgvMain.CellClick += dgvMain_CellClick;
         dgvMain.CellDoubleClick += dgvMain_CellDoubleClick;
         // 
-        // colReceiptNo
-        // 
-        colReceiptNo.DataPropertyName = "ReceiptNo";
-        colReceiptNo.FillWeight = 8F;
-        colReceiptNo.HeaderText = "رقم السند";
-        colReceiptNo.MinimumWidth = 90;
-        colReceiptNo.Name = "colReceiptNo";
-        colReceiptNo.ReadOnly = true;
-        // 
-        // colDate
-        // 
-        colDate.DataPropertyName = "ReceiptDate";
-        colDate.FillWeight = 12F;
-        colDate.HeaderText = "التاريخ";
-        colDate.MinimumWidth = 110;
-        colDate.Name = "colDate";
-        colDate.ReadOnly = true;
-        // 
-        // colCustomer
-        // 
-        colCustomer.DataPropertyName = "CustomerName";
-        colCustomer.FillWeight = 16F;
-        colCustomer.HeaderText = "العميل";
-        colCustomer.MinimumWidth = 150;
-        colCustomer.Name = "colCustomer";
-        colCustomer.ReadOnly = true;
-        // 
-        // colAmount
-        // 
-        colAmount.DataPropertyName = "Amount";
-        colAmount.FillWeight = 10F;
-        colAmount.HeaderText = "المبلغ";
-        colAmount.MinimumWidth = 100;
-        colAmount.Name = "colAmount";
-        colAmount.ReadOnly = true;
-        // 
-        // colPaymentMethod
-        // 
-        colPaymentMethod.DataPropertyName = "PaymentMethodName";
-        colPaymentMethod.FillWeight = 12F;
-        colPaymentMethod.HeaderText = "طريقة الدفع";
-        colPaymentMethod.MinimumWidth = 120;
-        colPaymentMethod.Name = "colPaymentMethod";
-        colPaymentMethod.ReadOnly = true;
-        // 
-        // colCashBox
-        // 
-        colCashBox.DataPropertyName = "CashBoxName";
-        colCashBox.FillWeight = 12F;
-        colCashBox.HeaderText = "الصندوق";
-        colCashBox.MinimumWidth = 120;
-        colCashBox.Name = "colCashBox";
-        colCashBox.ReadOnly = true;
-        // 
-        // colStatus
-        // 
-        colStatus.DataPropertyName = "StatusName";
-        colStatus.FillWeight = 10F;
-        colStatus.HeaderText = "الحالة";
-        colStatus.MinimumWidth = 100;
-        colStatus.Name = "colStatus";
-        colStatus.ReadOnly = true;
-        // 
-        // colNotes
-        // 
-        colNotes.DataPropertyName = "Notes";
-        colNotes.FillWeight = 20F;
-        colNotes.HeaderText = "البيان";
-        colNotes.MinimumWidth = 160;
-        colNotes.Name = "colNotes";
-        colNotes.ReadOnly = true;
-        // 
         // pnlSummary
         // 
         pnlSummary.Controls.Add(lblSummary);
@@ -823,54 +781,13 @@ partial class frmCRUDCustomerReceiptsMaster
         lblSummary.Text = "المعروض: 0 من 0";
         lblSummary.TextAlign = ContentAlignment.MiddleCenter;
         // 
-        // cmsRows
-        // 
-        // RULE-N23: قائمة سياق على الشبكة — كل عنصر يستدعي نفس زر الشاشة (بلا منطق مكرر).
-        cmsRows.Items.AddRange(new ToolStripItem[] { cmsEdit, cmsPost, cmsCancelDocument, cmsSeparator, cmsRefresh });
-        cmsRows.Name = "cmsRows";
-        cmsRows.Size = new Size(240, 134);
-        cmsRows.Opening += cmsRows_Opening;
-        // 
-        // cmsEdit
-        // 
-        cmsEdit.Name = "cmsEdit";
-        cmsEdit.Size = new Size(239, 30);
-        cmsEdit.Text = "✏️ عرض / تحرير";
-        cmsEdit.Click += cmsEdit_Click;
-        // 
-        // cmsPost
-        // 
-        cmsPost.Name = "cmsPost";
-        cmsPost.Size = new Size(239, 30);
-        cmsPost.Text = "📤 ترحيل";
-        cmsPost.Click += cmsPost_Click;
-        // 
-        // cmsCancelDocument
-        // 
-        cmsCancelDocument.Name = "cmsCancelDocument";
-        cmsCancelDocument.Size = new Size(239, 30);
-        cmsCancelDocument.Text = "🚫 إلغاء المستند";
-        cmsCancelDocument.Click += cmsCancelDocument_Click;
-        // 
-        // cmsSeparator
-        // 
-        cmsSeparator.Name = "cmsSeparator";
-        cmsSeparator.Size = new Size(236, 6);
-        // 
-        // cmsRefresh
-        // 
-        cmsRefresh.Name = "cmsRefresh";
-        cmsRefresh.Size = new Size(239, 30);
-        cmsRefresh.Text = "🔄 تحديث (F5)";
-        cmsRefresh.Click += cmsRefresh_Click;
-        // 
         // errorProvider
         // 
         errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
         errorProvider.ContainerControl = this;
         errorProvider.RightToLeft = true;
         // 
-        // frmCustomerReceiptsMaster
+        // frmCRUDCustomerReceiptsMaster
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
@@ -883,7 +800,7 @@ partial class frmCRUDCustomerReceiptsMaster
         Controls.Add(pnlFields);
         Controls.Add(lblMode);
         Font = new Font("Tahoma", 10F);
-        Name = "frmCustomerReceiptsMaster";
+        Name = "frmCRUDCustomerReceiptsMaster";
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
         StartPosition = FormStartPosition.CenterParent;

@@ -100,7 +100,7 @@ partial class frmLowStockReport
         // 
         // pnlReportRoot
         // 
-        pnlReportRoot.BackColor = System.Drawing.Color.White;
+        pnlReportRoot.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlReportRoot.ColumnCount = 1;
         pnlReportRoot.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         pnlReportRoot.Controls.Add(pnlHeader, 0, 0);
@@ -125,7 +125,7 @@ partial class frmLowStockReport
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.White;
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Fill;
         pnlHeader.Location = new Point(0, 0);
@@ -136,7 +136,7 @@ partial class frmLowStockReport
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblMode.ForeColor = System.Drawing.Color.White;
@@ -149,7 +149,7 @@ partial class frmLowStockReport
         // 
         // pnlToolbar
         // 
-        pnlToolbar.BackColor = System.Drawing.Color.White;
+        pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlToolbar.Controls.Add(gbToolbar);
         pnlToolbar.Dock = DockStyle.Fill;
         pnlToolbar.Location = new Point(0, 46);
@@ -160,7 +160,7 @@ partial class frmLowStockReport
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.White;
+        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbToolbar.Controls.Add(flpToolbar);
         gbToolbar.Dock = DockStyle.Fill;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -176,11 +176,11 @@ partial class frmLowStockReport
         // flpToolbar
         // 
         flpToolbar.AutoScroll = true;
-        flpToolbar.BackColor = System.Drawing.Color.White;
+        flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpToolbar.Controls.Add(btnRefresh);
         flpToolbar.Controls.Add(btnExport);
         flpToolbar.Dock = DockStyle.Fill;
-        flpToolbar.FlowDirection = FlowDirection.RightToLeft;
+        flpToolbar.FlowDirection = FlowDirection.LeftToRight;
         flpToolbar.Location = new Point(8, 27);
         flpToolbar.Name = "flpToolbar";
         flpToolbar.Padding = new Padding(8, 8, 8, 4);
@@ -190,8 +190,8 @@ partial class frmLowStockReport
         // 
         // btnRefresh
         // 
-        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
-        btnRefresh.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        btnRefresh.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
+        btnRefresh.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         btnRefresh.FlatStyle = FlatStyle.Flat;
         btnRefresh.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         btnRefresh.ForeColor = System.Drawing.Color.White;
@@ -207,7 +207,7 @@ partial class frmLowStockReport
         // btnExport
         // 
         btnExport.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
-        btnExport.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        btnExport.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         btnExport.FlatStyle = FlatStyle.Flat;
         btnExport.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         btnExport.ForeColor = System.Drawing.Color.White;
@@ -222,7 +222,7 @@ partial class frmLowStockReport
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = System.Drawing.Color.White;
+        pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFilters.Dock = DockStyle.Fill;
         pnlFilters.Location = new Point(0, 128);
         pnlFilters.Margin = new Padding(0);
@@ -233,7 +233,7 @@ partial class frmLowStockReport
         // 
         // pnlGrid
         // 
-        pnlGrid.BackColor = System.Drawing.Color.White;
+        pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlGrid.Controls.Add(gbGrid);
         pnlGrid.Dock = DockStyle.Fill;
         pnlGrid.Location = new Point(0, 128);
@@ -245,7 +245,7 @@ partial class frmLowStockReport
         // 
         // gbGrid
         // 
-        gbGrid.BackColor = System.Drawing.Color.White;
+        gbGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbGrid.Controls.Add(dgvReport);
         gbGrid.Dock = DockStyle.Fill;
         gbGrid.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -264,18 +264,18 @@ partial class frmLowStockReport
         dgvReport.AllowUserToDeleteRows = false;
         dgvReport.AllowUserToOrderColumns = true;
         dgvReport.AllowUserToResizeRows = false;
-        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvReport.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvReport.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvReport.BackgroundColor = System.Drawing.Color.White;
+        dgvReport.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
         dgvReport.BorderStyle = BorderStyle.None;
         dgvReport.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         dgvReport.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         dataGridViewCellStyle2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
         dgvReport.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvReport.ColumnHeadersHeight = 45;
@@ -284,13 +284,13 @@ partial class frmLowStockReport
         dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
         dataGridViewCellStyle3.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
         dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
         dgvReport.DefaultCellStyle = dataGridViewCellStyle3;
         dgvReport.Dock = DockStyle.Fill;
         dgvReport.EnableHeadersVisualStyles = false;
-        dgvReport.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        dgvReport.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         dgvReport.Location = new Point(8, 27);
         dgvReport.MultiSelect = false;
         dgvReport.Name = "dgvReport";
@@ -305,7 +305,7 @@ partial class frmLowStockReport
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.White;
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         pnlSummary.Controls.Add(gbSummary);
         pnlSummary.Dock = DockStyle.Fill;
         pnlSummary.Location = new Point(0, 556);
@@ -316,7 +316,7 @@ partial class frmLowStockReport
         // 
         // gbSummary
         // 
-        gbSummary.BackColor = System.Drawing.Color.White;
+        gbSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbSummary.Controls.Add(flpSummary);
         gbSummary.Dock = DockStyle.Fill;
         gbSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -331,12 +331,12 @@ partial class frmLowStockReport
         // 
         // flpSummary
         // 
-        flpSummary.BackColor = System.Drawing.Color.White;
+        flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpSummary.Controls.Add(label1);
         flpSummary.Controls.Add(lblRecordsCount);
         flpSummary.Controls.Add(lblSummary);
         flpSummary.Dock = DockStyle.Fill;
-        flpSummary.FlowDirection = FlowDirection.RightToLeft;
+        flpSummary.FlowDirection = FlowDirection.LeftToRight;
         flpSummary.Location = new Point(8, 27);
         flpSummary.Name = "flpSummary";
         flpSummary.Padding = new Padding(8, 4, 8, 4);
@@ -348,7 +348,7 @@ partial class frmLowStockReport
         // 
         label1.AutoSize = true;
         label1.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        label1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         label1.Location = new Point(1021, 10);
         label1.Margin = new Padding(10, 6, 0, 0);
         label1.Name = "label1";
@@ -360,7 +360,7 @@ partial class frmLowStockReport
         // 
         lblRecordsCount.AutoSize = true;
         lblRecordsCount.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblRecordsCount.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblRecordsCount.Location = new Point(988, 10);
         lblRecordsCount.Margin = new Padding(10, 6, 0, 0);
         lblRecordsCount.Name = "lblRecordsCount";
@@ -372,7 +372,7 @@ partial class frmLowStockReport
         // 
         lblSummary.AutoSize = true;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSummary.Location = new Point(920, 10);
         lblSummary.Margin = new Padding(10, 6, 0, 0);
         lblSummary.Name = "lblSummary";
@@ -382,7 +382,7 @@ partial class frmLowStockReport
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFooter.Controls.Add(flpFooter);
         pnlFooter.Dock = DockStyle.Fill;
         pnlFooter.Location = new Point(0, 624);
@@ -394,10 +394,10 @@ partial class frmLowStockReport
         // flpFooter
         // 
         flpFooter.AutoScroll = true;
-        flpFooter.BackColor = System.Drawing.Color.White;
+        flpFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpFooter.Controls.Add(btnClose);
         flpFooter.Dock = DockStyle.Fill;
-        flpFooter.FlowDirection = FlowDirection.RightToLeft;
+        flpFooter.FlowDirection = FlowDirection.LeftToRight;
         flpFooter.Location = new Point(0, 0);
         flpFooter.Name = "flpFooter";
         flpFooter.Padding = new Padding(8, 6, 8, 6);
@@ -409,7 +409,7 @@ partial class frmLowStockReport
         // 
         btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
         btnClose.DialogResult = DialogResult.Cancel;
-        btnClose.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        btnClose.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         btnClose.FlatStyle = FlatStyle.Flat;
         btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         btnClose.ForeColor = System.Drawing.Color.White;
@@ -446,7 +446,7 @@ partial class frmLowStockReport
         // 
         // pnlReportNav
         // 
-        pnlReportNav.BackColor = System.Drawing.Color.White;
+        pnlReportNav.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlReportNav.Controls.Add(flpReportNav);
         pnlReportNav.Controls.Add(lblNavCaption);
         pnlReportNav.Dock = DockStyle.Bottom;
@@ -459,10 +459,10 @@ partial class frmLowStockReport
         // 
         // lblNavCaption
         // 
-        lblNavCaption.BackColor = System.Drawing.Color.White;
+        lblNavCaption.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         lblNavCaption.Dock = DockStyle.Right;
         lblNavCaption.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblNavCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblNavCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblNavCaption.Location = new Point(1050, 0);
         lblNavCaption.Name = "lblNavCaption";
         lblNavCaption.Size = new Size(150, 58);
@@ -474,10 +474,10 @@ partial class frmLowStockReport
         // flpReportNav
         // 
         flpReportNav.AutoScroll = true;
-        flpReportNav.BackColor = System.Drawing.Color.White;
+        flpReportNav.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpReportNav.Controls.Add(btnNavAllReports);
         flpReportNav.Dock = DockStyle.Fill;
-        flpReportNav.FlowDirection = FlowDirection.RightToLeft;
+        flpReportNav.FlowDirection = FlowDirection.LeftToRight;
         flpReportNav.Location = new Point(0, 0);
         flpReportNav.Margin = new Padding(0);
         flpReportNav.Name = "flpReportNav";
@@ -487,10 +487,10 @@ partial class frmLowStockReport
         // 
         // btnNavAllReports
         // 
-        btnNavAllReports.BackColor = System.Drawing.Color.White;
-        btnNavAllReports.FlatStyle = FlatStyle.Popup;
+        btnNavAllReports.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        btnNavAllReports.FlatStyle = FlatStyle.Flat;
         btnNavAllReports.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnNavAllReports.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        btnNavAllReports.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnNavAllReports.Location = new Point(896, 4);
         btnNavAllReports.Margin = new Padding(4);
         btnNavAllReports.Name = "btnNavAllReports";
@@ -503,7 +503,7 @@ partial class frmLowStockReport
         // frmLowStockReport
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         CancelButton = btnClose;
         ClientSize = new Size(1200, 738);
         Controls.Add(pnlReportRoot);

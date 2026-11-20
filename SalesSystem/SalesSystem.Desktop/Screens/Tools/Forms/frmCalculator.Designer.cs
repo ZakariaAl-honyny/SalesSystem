@@ -40,7 +40,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // lblTitle
             // 
-            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             lblTitle.Dock = DockStyle.Top;
             lblTitle.Font = new Font("Tahoma", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = System.Drawing.Color.White;
@@ -69,7 +69,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // tblButtons
             // 
-            tblButtons.BackColor = System.Drawing.Color.White;
+            tblButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             tblButtons.ColumnCount = 4;
             tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tblButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
@@ -91,13 +91,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnClear
             // 
-            btnClear.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+            btnClear.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btnClear.Dock = DockStyle.Fill;
-            btnClear.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnClear.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnClear.FlatAppearance.BorderSize = 1;
             btnClear.FlatStyle = FlatStyle.Flat;
             btnClear.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnClear.ForeColor = System.Drawing.Color.White;
+            btnClear.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btnClear.Margin = new Padding(4);
             btnClear.Name = "btnClear";
             btnClear.TabIndex = 10;
@@ -107,13 +107,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnBackspace
             // 
-            btnBackspace.BackColor = System.Drawing.Color.White;
+            btnBackspace.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btnBackspace.Dock = DockStyle.Fill;
-            btnBackspace.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnBackspace.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnBackspace.FlatAppearance.BorderSize = 1;
             btnBackspace.FlatStyle = FlatStyle.Flat;
             btnBackspace.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnBackspace.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btnBackspace.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btnBackspace.Margin = new Padding(4);
             btnBackspace.Name = "btnBackspace";
             btnBackspace.TabIndex = 11;
@@ -125,7 +125,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btnDivide.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnDivide.Dock = DockStyle.Fill;
-            btnDivide.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnDivide.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnDivide.FlatAppearance.BorderSize = 1;
             btnDivide.FlatStyle = FlatStyle.Flat;
             btnDivide.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -141,7 +141,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btnMultiply.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnMultiply.Dock = DockStyle.Fill;
-            btnMultiply.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnMultiply.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnMultiply.FlatAppearance.BorderSize = 1;
             btnMultiply.FlatStyle = FlatStyle.Flat;
             btnMultiply.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -155,13 +155,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn7
             // 
-            btn7.BackColor = System.Drawing.Color.White;
+            btn7.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn7.Dock = DockStyle.Fill;
-            btn7.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn7.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn7.FlatAppearance.BorderSize = 1;
             btn7.FlatStyle = FlatStyle.Flat;
             btn7.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn7.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn7.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn7.Margin = new Padding(4);
             btn7.Name = "btn7";
             btn7.TabIndex = 14;
@@ -171,13 +171,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn8
             // 
-            btn8.BackColor = System.Drawing.Color.White;
+            btn8.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn8.Dock = DockStyle.Fill;
-            btn8.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn8.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn8.FlatAppearance.BorderSize = 1;
             btn8.FlatStyle = FlatStyle.Flat;
             btn8.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn8.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn8.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn8.Margin = new Padding(4);
             btn8.Name = "btn8";
             btn8.TabIndex = 15;
@@ -187,13 +187,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn9
             // 
-            btn9.BackColor = System.Drawing.Color.White;
+            btn9.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn9.Dock = DockStyle.Fill;
-            btn9.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn9.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn9.FlatAppearance.BorderSize = 1;
             btn9.FlatStyle = FlatStyle.Flat;
             btn9.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn9.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn9.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn9.Margin = new Padding(4);
             btn9.Name = "btn9";
             btn9.TabIndex = 16;
@@ -205,7 +205,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btnSubtract.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnSubtract.Dock = DockStyle.Fill;
-            btnSubtract.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnSubtract.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnSubtract.FlatAppearance.BorderSize = 1;
             btnSubtract.FlatStyle = FlatStyle.Flat;
             btnSubtract.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -219,13 +219,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn4
             // 
-            btn4.BackColor = System.Drawing.Color.White;
+            btn4.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn4.Dock = DockStyle.Fill;
-            btn4.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn4.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn4.FlatAppearance.BorderSize = 1;
             btn4.FlatStyle = FlatStyle.Flat;
             btn4.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn4.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn4.Margin = new Padding(4);
             btn4.Name = "btn4";
             btn4.TabIndex = 18;
@@ -235,13 +235,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn5
             // 
-            btn5.BackColor = System.Drawing.Color.White;
+            btn5.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn5.Dock = DockStyle.Fill;
-            btn5.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn5.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn5.FlatAppearance.BorderSize = 1;
             btn5.FlatStyle = FlatStyle.Flat;
             btn5.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn5.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn5.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn5.Margin = new Padding(4);
             btn5.Name = "btn5";
             btn5.TabIndex = 19;
@@ -251,13 +251,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn6
             // 
-            btn6.BackColor = System.Drawing.Color.White;
+            btn6.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn6.Dock = DockStyle.Fill;
-            btn6.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn6.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn6.FlatAppearance.BorderSize = 1;
             btn6.FlatStyle = FlatStyle.Flat;
             btn6.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn6.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn6.Margin = new Padding(4);
             btn6.Name = "btn6";
             btn6.TabIndex = 20;
@@ -269,7 +269,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             btnAdd.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
             btnAdd.Dock = DockStyle.Fill;
-            btnAdd.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnAdd.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnAdd.FlatAppearance.BorderSize = 1;
             btnAdd.FlatStyle = FlatStyle.Flat;
             btnAdd.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -283,13 +283,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn1
             // 
-            btn1.BackColor = System.Drawing.Color.White;
+            btn1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn1.Dock = DockStyle.Fill;
-            btn1.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn1.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn1.FlatAppearance.BorderSize = 1;
             btn1.FlatStyle = FlatStyle.Flat;
             btn1.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn1.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn1.Margin = new Padding(4);
             btn1.Name = "btn1";
             btn1.TabIndex = 22;
@@ -299,13 +299,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn2
             // 
-            btn2.BackColor = System.Drawing.Color.White;
+            btn2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn2.Dock = DockStyle.Fill;
-            btn2.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn2.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn2.FlatAppearance.BorderSize = 1;
             btn2.FlatStyle = FlatStyle.Flat;
             btn2.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn2.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn2.Margin = new Padding(4);
             btn2.Name = "btn2";
             btn2.TabIndex = 23;
@@ -315,13 +315,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn3
             // 
-            btn3.BackColor = System.Drawing.Color.White;
+            btn3.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn3.Dock = DockStyle.Fill;
-            btn3.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn3.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn3.FlatAppearance.BorderSize = 1;
             btn3.FlatStyle = FlatStyle.Flat;
             btn3.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn3.Margin = new Padding(4);
             btn3.Name = "btn3";
             btn3.TabIndex = 24;
@@ -331,9 +331,9 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnEquals
             // 
-            btnEquals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            btnEquals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
             btnEquals.Dock = DockStyle.Fill;
-            btnEquals.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnEquals.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnEquals.FlatAppearance.BorderSize = 1;
             btnEquals.FlatStyle = FlatStyle.Flat;
             btnEquals.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -347,13 +347,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btn0
             // 
-            btn0.BackColor = System.Drawing.Color.White;
+            btn0.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btn0.Dock = DockStyle.Fill;
-            btn0.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btn0.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btn0.FlatAppearance.BorderSize = 1;
             btn0.FlatStyle = FlatStyle.Flat;
             btn0.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btn0.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btn0.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btn0.Margin = new Padding(4);
             btn0.Name = "btn0";
             btn0.TabIndex = 26;
@@ -363,13 +363,13 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // 
             // btnDot
             // 
-            btnDot.BackColor = System.Drawing.Color.White;
+            btnDot.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
             btnDot.Dock = DockStyle.Fill;
-            btnDot.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+            btnDot.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             btnDot.FlatAppearance.BorderSize = 1;
             btnDot.FlatStyle = FlatStyle.Flat;
             btnDot.Font = new Font("Tahoma", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnDot.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            btnDot.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
             btnDot.Margin = new Padding(4);
             btnDot.Name = "btnDot";
             btnDot.TabIndex = 27;
@@ -418,7 +418,7 @@ namespace SalesSystem.Desktop.Screens.Tools.Forms
             // frmCalculator
             // 
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             CancelButton = btnClose;
             ClientSize = new Size(320, 448);
             Controls.Add(tblButtons);

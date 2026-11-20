@@ -118,3 +118,30 @@
 | `FlatAppearance.BorderColor` بقيمة `222,226,230` (متقاعدة) | `205,225,205` |
 | `lblSummary` | `14,82,52` |
 | أي عنصر يفرض الكود لونه وقت التشغيل | **قيمة وقت التشغيل حرفياً** (القاعدة 10) |
+
+## الجولة 4 — 2026-11-20 — W5 + W6 + W7: بقية الشاشات والتقارير (61 مصمّماً)
+
+| الموجة | المصمّمات | الناتج |
+|---|---|---|
+| **W5** | `frmCalculator` · `frmImportProductsExcel` · `frmInventoryBarcode` · `frmInventoryFifo` · `frmLogin` · `frmPasswordChange` · `frmBackup` · `frmChangeSystemColorsSettings` · `frmFormatingSetting` · `frmListCashBoxTransactions` · `frmListSupplierPayments` · `frmSupplierPaymentDialog` · `frmMain` · `ctrlDashboard` · `ctrlCrudToolbar` · `ctrlLineEntryPanel` · `ctrlCustomerCard` · `ctrlCustomerCardWithFilter` | 18 ملفاً · حقول بيضاء · أسطح خضراء · «عيّنات» شاشة الألوان **لم تُمسّ** (تُرسم من `ThemePalette` وقت التشغيل) |
+| **W6** | 16 تقريراً (المبيعات 8 · المشتريات 3 · الصندوق 2 · المالية 3) | صفر حاوية بيضاء · شريط `pnlReportNav` مُعلَن · `pnlSummary` = `235,245,235` (يفرضه `ApplyReferenceStrips`) |
+| **W7** | 10 تقارير (العملاء والموردون 2 · المخزون 7 + `frmAgingReport`) | نفسه · `frmExpiredProductsReport`/`frmLowStockReport`/`frmStockBalanceReport` بلا `gbFilter` **كما كانت** (لم يُضَف عنصر) |
+| **إصلاحات** | 5 مصمّمات `ctrl*` (جذور) · `frmDashboard` · 5 ملفات صيغة | `GreenThemeHelper.Apply(Control)` يفرض `FormBackground` على جذر أي `UserControl` ⇒ الجذور صارت `170,220,170` (كانت `235,240,235`) — «المصمّم = التشغيل» مقيس من البيت الواحد لا مُفترض |
+
+### الأعداد الثلاثة عند الإغلاق (`RULE-N201` — مقيسة بأمر في هذه الجولة)
+
+| البند | قبل F-005 | بعد F-005 |
+|---|---|---|
+| مصمّمات مكتشَفة | 90 | 90 |
+| داخل النطاق / معفاة (نوافذ معاينة الطباعة الخمس) | 85 / 5 | 85 / 5 |
+| منجز / متبقٍ | 0 / 85 | **85 / 0** |
+| حاويات معلنة `Color.White` | **742** | **6** = 5 في `frmPurchaseInvoicePrint` (ورق معاينة — معفى) + 1 `pnlSwatch` (عيّنة لون مقصودة) ⇒ **0 في كل مصمّم داخل النطاق** |
+| ألوان بالصيغة المختصرة `Color.FromArgb(n, n, n)` | **1206** | **109** — **كلها داخل نوافذ معاينة الطباعة الخمس** ⇒ **0 في النطاق** |
+| ألوان مسمّاة غير مؤهَّلة | 103+ | **43** — كلها في نوافذ المعاينة الخمس ⇒ **0 في النطاق** |
+| خلفية نموذج رمادي الجيل الثاني `240,242,245` | 73 | **0** في المصمّمات (بقيت `pnlHost` واحدة في `frmDashboard` مغطّاة بـ`ctrlDashboard` بـ`Dock=Fill` وتُعاد تلوينها وقت التشغيل) |
+
+**البوابة:** `dotnet build --no-incremental` = **0 Errors / 112 Warning(s)** — كلها `CS0169/CS0649/CS8604/CS8602` سابقة، **صفر** تحذير من أي مصمّم مُسّ.
+
+**عائق مُبلَّغ (لم أُصلحه — ملك مهمة `TASK-022`):** `frmAddUpdatePurchaseInvoice.Designer.cs` أعاد بناءه وكيل متزامن (أزال `pnlHeader`/`pnlFooter`، أضاف `lblQuickInfo`، وأعاد بعض الألوان للصيغة المختصرة) بينما بقي `.cs` يشير إليهما ⇒ كُسر البناء. أُصلح **أصل البناء فقط** (سطران: `pnlHeader.Enabled` → `gbInvoiceInfo.Enabled` و`pnlFooter.Enabled` → `gbTotals.Enabled` — استثناء `RULE-N178` (أ))، **ولم يُلتزم** الملفان: يبقيان لمالكهما.
+
+**قاعدة جديدة وُلدت من W5 (`D-12`):** أي `UserControl` يستهلك `GreenThemeHelper.Apply(this)` ⇒ جذره في المصمّم **يجب** أن يكون `170,220,170` لا `235,240,235`؛ وإلا صار «المصمّم ≠ التشغيل» رغم أن كل أبنائه صحيحة.

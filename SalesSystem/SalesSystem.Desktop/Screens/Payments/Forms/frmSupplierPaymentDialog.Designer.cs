@@ -44,7 +44,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             // 
             // gbPaymentInfo
             // 
-            gbPaymentInfo.BackColor = System.Drawing.Color.White;
+            gbPaymentInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbPaymentInfo.Controls.Add(tlpInfo);
             gbPaymentInfo.Dock = DockStyle.Fill;
             gbPaymentInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -60,7 +60,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             // 
             // tlpInfo
             // 
-            tlpInfo.BackColor = System.Drawing.Color.White;
+            tlpInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             tlpInfo.ColumnCount = 2;
             tlpInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F));
             tlpInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -135,7 +135,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             // 
             lblBalanceVal.Dock = DockStyle.Fill;
             lblBalanceVal.Font = new Font("Tahoma", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblBalanceVal.ForeColor = System.Drawing.Color.Blue;
+            lblBalanceVal.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(13), Convert.ToInt32(110), Convert.ToInt32(253));
             lblBalanceVal.Location = new Point(174, 46);
             lblBalanceVal.Margin = new Padding(4, 0, 4, 0);
             lblBalanceVal.Name = "lblBalanceVal";
@@ -252,7 +252,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.White;
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             pnlFooter.Controls.Add(flpButtons);
             pnlFooter.Dock = DockStyle.Bottom;
             pnlFooter.Location = new Point(0, 418);
@@ -263,7 +263,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             // 
             // flpButtons
             // 
-            flpButtons.BackColor = System.Drawing.Color.White;
+            flpButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
             flpButtons.Controls.Add(btnSave);
             flpButtons.Controls.Add(btnCancel);
             flpButtons.Dock = DockStyle.Fill;
@@ -330,7 +330,7 @@ namespace SalesSystem.Desktop.Screens.Payments.Forms
             // 
             AcceptButton = btnSave;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             CancelButton = btnCancel;
             ClientSize = new Size(640, 492);
             Controls.Add(gbPaymentInfo);

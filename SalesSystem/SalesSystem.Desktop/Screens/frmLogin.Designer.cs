@@ -23,7 +23,7 @@ namespace SalesSystem.Desktop.Screens
             // 
             // lblTitle
             // 
-            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            lblTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             lblTitle.Font = new Font("Tahoma", 18F, FontStyle.Bold);
             lblTitle.ForeColor = System.Drawing.Color.White;
             lblTitle.Location = new Point(0, 50);
@@ -36,7 +36,7 @@ namespace SalesSystem.Desktop.Screens
             // 
             // gbLogin
             // 
-            gbLogin.BackColor = System.Drawing.Color.White;
+            gbLogin.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
             gbLogin.Controls.Add(lblUser);
             gbLogin.Controls.Add(cmbUsers);
             gbLogin.Controls.Add(lblPassword);
@@ -123,9 +123,9 @@ namespace SalesSystem.Desktop.Screens
             // 
             // btnLogin
             // 
-            btnLogin.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            btnLogin.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             btnLogin.Cursor = Cursors.Hand;
-            btnLogin.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+            btnLogin.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
             btnLogin.FlatAppearance.BorderSize = 0;
             btnLogin.FlatStyle = FlatStyle.Flat;
             btnLogin.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -154,7 +154,7 @@ namespace SalesSystem.Desktop.Screens
             // frmLogin
             // 
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             ClientSize = new Size(686, 470);
             Controls.Add(lblError);
             Controls.Add(gbLogin);

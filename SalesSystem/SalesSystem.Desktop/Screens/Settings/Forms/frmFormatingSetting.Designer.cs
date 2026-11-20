@@ -86,7 +86,7 @@ partial class frmFormatingSetting
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -97,7 +97,7 @@ partial class frmFormatingSetting
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Fill;
         lblMode.Font = new Font("Tahoma", 12F, FontStyle.Bold);
         lblMode.ForeColor = System.Drawing.Color.White;
@@ -110,7 +110,7 @@ partial class frmFormatingSetting
         // 
         // gbNumbers
         // 
-        gbNumbers.BackColor = System.Drawing.Color.White;
+        gbNumbers.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbNumbers.Controls.Add(lblMoneyDecimals);
         gbNumbers.Controls.Add(cmbMoneyDecimals);
         gbNumbers.Controls.Add(lblQuantityDecimals);
@@ -127,7 +127,7 @@ partial class frmFormatingSetting
         gbNumbers.Controls.Add(cmbDecimalSeparator);
         gbNumbers.Dock = DockStyle.Top;
         gbNumbers.Font = new Font("Tahoma", 10F);
-        gbNumbers.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbNumbers.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbNumbers.Location = new Point(0, 56);
         gbNumbers.Name = "gbNumbers";
         gbNumbers.Padding = new Padding(8);
@@ -231,7 +231,7 @@ partial class frmFormatingSetting
         // 
         // pnlThousandsOptions
         // 
-        pnlThousandsOptions.BackColor = System.Drawing.Color.White;
+        pnlThousandsOptions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlThousandsOptions.Controls.Add(rdoThousandsYes);
         pnlThousandsOptions.Controls.Add(rdoThousandsNo);
         pnlThousandsOptions.Location = new Point(736, 86);
@@ -244,7 +244,7 @@ partial class frmFormatingSetting
         rdoThousandsYes.AutoSize = true;
         rdoThousandsYes.Checked = true;
         rdoThousandsYes.Font = new Font("Tahoma", 10F);
-        rdoThousandsYes.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        rdoThousandsYes.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         rdoThousandsYes.Location = new Point(220, 6);
         rdoThousandsYes.Name = "rdoThousandsYes";
         rdoThousandsYes.Size = new Size(65, 28);
@@ -257,7 +257,7 @@ partial class frmFormatingSetting
         // 
         rdoThousandsNo.AutoSize = true;
         rdoThousandsNo.Font = new Font("Tahoma", 10F);
-        rdoThousandsNo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        rdoThousandsNo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         rdoThousandsNo.Location = new Point(140, 6);
         rdoThousandsNo.Name = "rdoThousandsNo";
         rdoThousandsNo.Size = new Size(47, 28);
@@ -277,7 +277,7 @@ partial class frmFormatingSetting
         // 
         // pnlArabicDigitsOptions
         // 
-        pnlArabicDigitsOptions.BackColor = System.Drawing.Color.White;
+        pnlArabicDigitsOptions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlArabicDigitsOptions.Controls.Add(rdoArabicYes);
         pnlArabicDigitsOptions.Controls.Add(rdoArabicNo);
         pnlArabicDigitsOptions.Location = new Point(168, 86);
@@ -289,7 +289,7 @@ partial class frmFormatingSetting
         // 
         rdoArabicYes.AutoSize = true;
         rdoArabicYes.Font = new Font("Tahoma", 10F);
-        rdoArabicYes.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        rdoArabicYes.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         rdoArabicYes.Location = new Point(220, 6);
         rdoArabicYes.Name = "rdoArabicYes";
         rdoArabicYes.Size = new Size(65, 28);
@@ -303,7 +303,7 @@ partial class frmFormatingSetting
         rdoArabicNo.AutoSize = true;
         rdoArabicNo.Checked = true;
         rdoArabicNo.Font = new Font("Tahoma", 10F);
-        rdoArabicNo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        rdoArabicNo.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         rdoArabicNo.Location = new Point(140, 6);
         rdoArabicNo.Name = "rdoArabicNo";
         rdoArabicNo.Size = new Size(47, 28);
@@ -335,7 +335,7 @@ partial class frmFormatingSetting
         // 
         // gbDates
         // 
-        gbDates.BackColor = System.Drawing.Color.White;
+        gbDates.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbDates.Controls.Add(lblDateShortPattern);
         gbDates.Controls.Add(cmbDateShortPattern);
         gbDates.Controls.Add(lblDateDayMonthYearPattern);
@@ -345,7 +345,7 @@ partial class frmFormatingSetting
         gbDates.Controls.Add(lblDateHint);
         gbDates.Dock = DockStyle.Top;
         gbDates.Font = new Font("Tahoma", 10F);
-        gbDates.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbDates.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbDates.Location = new Point(0, 256);
         gbDates.Name = "gbDates";
         gbDates.Padding = new Padding(8);
@@ -429,11 +429,11 @@ partial class frmFormatingSetting
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = System.Drawing.Color.White;
+        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbPreview.Controls.Add(pnlPreviewScroll);
         gbPreview.Dock = DockStyle.Fill;
         gbPreview.Font = new Font("Tahoma", 10F);
-        gbPreview.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        gbPreview.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbPreview.Location = new Point(0, 388);
         gbPreview.Name = "gbPreview";
         gbPreview.Padding = new Padding(8);
@@ -445,6 +445,7 @@ partial class frmFormatingSetting
         // pnlPreviewScroll
         // 
         pnlPreviewScroll.AutoScroll = true;
+        pnlPreviewScroll.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlPreviewScroll.Controls.Add(lblPreviewMoneyCaption);
         pnlPreviewScroll.Controls.Add(lblPreviewMoney);
         pnlPreviewScroll.Controls.Add(lblPreviewQuantityCaption);
@@ -471,7 +472,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewMoneyCaption.AutoSize = true;
         lblPreviewMoneyCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewMoneyCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewMoneyCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewMoneyCaption.Location = new Point(1000, 14);
         lblPreviewMoneyCaption.Name = "lblPreviewMoneyCaption";
         lblPreviewMoneyCaption.Size = new Size(73, 24);
@@ -482,7 +483,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewMoney.AutoSize = true;
         lblPreviewMoney.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewMoney.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewMoney.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewMoney.Location = new Point(640, 14);
         lblPreviewMoney.Name = "lblPreviewMoney";
         lblPreviewMoney.Size = new Size(28, 24);
@@ -493,7 +494,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewQuantityCaption.AutoSize = true;
         lblPreviewQuantityCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewQuantityCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewQuantityCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewQuantityCaption.Location = new Point(1000, 48);
         lblPreviewQuantityCaption.Name = "lblPreviewQuantityCaption";
         lblPreviewQuantityCaption.Size = new Size(76, 24);
@@ -504,7 +505,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewQuantity.AutoSize = true;
         lblPreviewQuantity.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewQuantity.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewQuantity.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewQuantity.Location = new Point(640, 48);
         lblPreviewQuantity.Name = "lblPreviewQuantity";
         lblPreviewQuantity.Size = new Size(28, 24);
@@ -515,7 +516,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewNumberCaption.AutoSize = true;
         lblPreviewNumberCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewNumberCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewNumberCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewNumberCaption.Location = new Point(1000, 82);
         lblPreviewNumberCaption.Name = "lblPreviewNumberCaption";
         lblPreviewNumberCaption.Size = new Size(65, 24);
@@ -526,7 +527,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewNumber.AutoSize = true;
         lblPreviewNumber.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewNumber.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewNumber.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewNumber.Location = new Point(640, 82);
         lblPreviewNumber.Name = "lblPreviewNumber";
         lblPreviewNumber.Size = new Size(28, 24);
@@ -537,7 +538,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewPercentCaption.AutoSize = true;
         lblPreviewPercentCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewPercentCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewPercentCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewPercentCaption.Location = new Point(1000, 116);
         lblPreviewPercentCaption.Name = "lblPreviewPercentCaption";
         lblPreviewPercentCaption.Size = new Size(82, 24);
@@ -548,7 +549,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewPercent.AutoSize = true;
         lblPreviewPercent.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewPercent.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewPercent.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewPercent.Location = new Point(640, 116);
         lblPreviewPercent.Name = "lblPreviewPercent";
         lblPreviewPercent.Size = new Size(28, 24);
@@ -559,7 +560,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewDateShortCaption.AutoSize = true;
         lblPreviewDateShortCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewDateShortCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewDateShortCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewDateShortCaption.Location = new Point(1000, 150);
         lblPreviewDateShortCaption.Name = "lblPreviewDateShortCaption";
         lblPreviewDateShortCaption.Size = new Size(145, 24);
@@ -570,7 +571,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewDateShort.AutoSize = true;
         lblPreviewDateShort.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewDateShort.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewDateShort.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewDateShort.Location = new Point(640, 150);
         lblPreviewDateShort.Name = "lblPreviewDateShort";
         lblPreviewDateShort.Size = new Size(28, 24);
@@ -581,7 +582,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewDateDMYCaption.AutoSize = true;
         lblPreviewDateDMYCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewDateDMYCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewDateDMYCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewDateDMYCaption.Location = new Point(1000, 184);
         lblPreviewDateDMYCaption.Name = "lblPreviewDateDMYCaption";
         lblPreviewDateDMYCaption.Size = new Size(160, 24);
@@ -592,7 +593,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewDateDMY.AutoSize = true;
         lblPreviewDateDMY.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewDateDMY.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewDateDMY.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewDateDMY.Location = new Point(640, 184);
         lblPreviewDateDMY.Name = "lblPreviewDateDMY";
         lblPreviewDateDMY.Size = new Size(28, 24);
@@ -603,7 +604,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewDateLongCaption.AutoSize = true;
         lblPreviewDateLongCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewDateLongCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewDateLongCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewDateLongCaption.Location = new Point(1000, 218);
         lblPreviewDateLongCaption.Name = "lblPreviewDateLongCaption";
         lblPreviewDateLongCaption.Size = new Size(150, 24);
@@ -614,7 +615,7 @@ partial class frmFormatingSetting
         // 
         lblPreviewDateLong.AutoSize = true;
         lblPreviewDateLong.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPreviewDateLong.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewDateLong.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewDateLong.Location = new Point(640, 218);
         lblPreviewDateLong.Name = "lblPreviewDateLong";
         lblPreviewDateLong.Size = new Size(28, 24);
@@ -624,7 +625,7 @@ partial class frmFormatingSetting
         // lblPreviewSample
         // 
         lblPreviewSample.Font = new Font("Tahoma", 9F);
-        lblPreviewSample.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblPreviewSample.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPreviewSample.Location = new Point(10, 254);
         lblPreviewSample.Name = "lblPreviewSample";
         lblPreviewSample.Size = new Size(1140, 26);
@@ -644,7 +645,7 @@ partial class frmFormatingSetting
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.White;
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
         pnlSummary.Location = new Point(0, 752);
@@ -657,7 +658,7 @@ partial class frmFormatingSetting
         // 
         lblSummary.Dock = DockStyle.Fill;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSummary.Location = new Point(0, 0);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(1180, 42);
@@ -667,7 +668,7 @@ partial class frmFormatingSetting
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFooter.Controls.Add(lblFooterHint);
         pnlFooter.Controls.Add(flpFooter);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -681,7 +682,7 @@ partial class frmFormatingSetting
         // 
         lblFooterHint.Dock = DockStyle.Fill;
         lblFooterHint.Font = new Font("Tahoma", 9F);
-        lblFooterHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblFooterHint.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblFooterHint.Location = new Point(0, 0);
         lblFooterHint.Name = "lblFooterHint";
         lblFooterHint.Padding = new Padding(16, 0, 0, 0);
@@ -692,7 +693,7 @@ partial class frmFormatingSetting
         // 
         // flpFooter
         // 
-        flpFooter.BackColor = System.Drawing.Color.White;
+        flpFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         flpFooter.Controls.Add(btnSave);
         flpFooter.Controls.Add(btnReset);
         flpFooter.Controls.Add(btnClose);
@@ -762,7 +763,7 @@ partial class frmFormatingSetting
         // 
         AutoScaleDimensions = new SizeF(11F, 24F);
         AutoScaleMode = AutoScaleMode.Font;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         ClientSize = new Size(1180, 854);
         Controls.Add(gbPreview);
         Controls.Add(pnlSummary);

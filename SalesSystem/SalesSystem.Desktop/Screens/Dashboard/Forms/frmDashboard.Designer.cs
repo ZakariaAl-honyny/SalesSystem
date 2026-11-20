@@ -20,10 +20,10 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
             // 
             // lblMode
             // 
-            lblMode.BackColor = Color.FromArgb(16, 150, 96);
+            lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
             lblMode.Dock = DockStyle.Top;
             lblMode.Font = new Font("Tahoma", 16F, FontStyle.Bold);
-            lblMode.ForeColor = Color.White;
+            lblMode.ForeColor = System.Drawing.Color.White;
             lblMode.Location = new Point(0, 0);
             lblMode.Name = "lblMode";
             lblMode.Size = new Size(1275, 44);
@@ -33,7 +33,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
             // 
             // pnlHost
             // 
-            pnlHost.BackColor = Color.FromArgb(240, 242, 245);
+            pnlHost.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
             pnlHost.Dock = DockStyle.Fill;
             pnlHost.Location = new Point(0, 0);
             pnlHost.Name = "pnlHost";
@@ -42,12 +42,12 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
             // 
             // btnClose
             // 
-            btnClose.BackColor = Color.FromArgb(108, 117, 125);
+            btnClose.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
             btnClose.Cursor = Cursors.Hand;
             btnClose.Dock = DockStyle.Bottom;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-            btnClose.ForeColor = Color.White;
+            btnClose.ForeColor = System.Drawing.Color.White;
             btnClose.Location = new Point(0, 603);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(1275, 52);
@@ -61,7 +61,7 @@ namespace SalesSystem.Desktop.Screens.Dashboard.Forms
             // 
             AcceptButton = btnClose;
             AutoScaleMode = AutoScaleMode.None;
-            BackColor = Color.FromArgb(240, 242, 245);
+            BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             CancelButton = btnClose;
             ClientSize = new Size(1275, 655);
             Controls.Add(btnClose);

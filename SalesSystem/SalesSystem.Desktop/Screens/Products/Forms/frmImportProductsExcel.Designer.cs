@@ -58,7 +58,7 @@ partial class frmImportProductsExcel
         // 
         // lblMode
         // 
-        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        lblMode.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lblMode.Dock = DockStyle.Top;
         lblMode.Font = new Font("Tahoma", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
         lblMode.ForeColor = System.Drawing.Color.White;
@@ -71,7 +71,7 @@ partial class frmImportProductsExcel
         // 
         // gbFile
         // 
-        gbFile.BackColor = System.Drawing.Color.White;
+        gbFile.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbFile.Controls.Add(btnSelectFile);
         gbFile.Controls.Add(btnDownloadTemplate);
         gbFile.Controls.Add(lblFileCaption);
@@ -89,7 +89,7 @@ partial class frmImportProductsExcel
         // 
         // btnSelectFile
         // 
-        btnSelectFile.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        btnSelectFile.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(23), Convert.ToInt32(162), Convert.ToInt32(184));
         btnSelectFile.FlatAppearance.BorderSize = 0;
         btnSelectFile.FlatStyle = FlatStyle.Flat;
         btnSelectFile.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -104,11 +104,11 @@ partial class frmImportProductsExcel
         // 
         // btnDownloadTemplate
         // 
-        btnDownloadTemplate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(108), Convert.ToInt32(117), Convert.ToInt32(125));
+        btnDownloadTemplate.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
         btnDownloadTemplate.FlatAppearance.BorderSize = 0;
         btnDownloadTemplate.FlatStyle = FlatStyle.Flat;
         btnDownloadTemplate.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        btnDownloadTemplate.ForeColor = System.Drawing.Color.White;
+        btnDownloadTemplate.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(30), Convert.ToInt32(41), Convert.ToInt32(59));
         btnDownloadTemplate.Location = new Point(640, 34);
         btnDownloadTemplate.Name = "btnDownloadTemplate";
         btnDownloadTemplate.Size = new Size(160, 38);
@@ -146,7 +146,7 @@ partial class frmImportProductsExcel
         // 
         // gbOptions
         // 
-        gbOptions.BackColor = System.Drawing.Color.White;
+        gbOptions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbOptions.Controls.Add(btnGenerateBarcodes);
         gbOptions.Dock = DockStyle.Top;
         gbOptions.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -176,7 +176,7 @@ partial class frmImportProductsExcel
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = System.Drawing.Color.White;
+        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbPreview.Controls.Add(dgvPreview);
         gbPreview.Controls.Add(pnlPreviewTop);
         gbPreview.Dock = DockStyle.Fill;
@@ -194,17 +194,17 @@ partial class frmImportProductsExcel
         // 
         dgvPreview.AllowUserToAddRows = false;
         dgvPreview.AllowUserToDeleteRows = false;
-        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(248), Convert.ToInt32(249), Convert.ToInt32(250));
+        dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(245), Convert.ToInt32(252), Convert.ToInt32(245));
         dgvPreview.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
         dgvPreview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        dgvPreview.BackgroundColor = System.Drawing.Color.White;
+        dgvPreview.BackgroundColor = System.Drawing.Color.FromArgb(Convert.ToInt32(220), Convert.ToInt32(240), Convert.ToInt32(220));
         dgvPreview.BorderStyle = BorderStyle.None;
         dgvPreview.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
         dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
-        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         dataGridViewCellStyle2.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
         dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
         dgvPreview.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
         dgvPreview.ColumnHeadersHeight = 45;
@@ -212,12 +212,12 @@ partial class frmImportProductsExcel
         dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
         dataGridViewCellStyle3.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
         dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(243), Convert.ToInt32(205));
+        dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
         dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         dgvPreview.DefaultCellStyle = dataGridViewCellStyle3;
         dgvPreview.Dock = DockStyle.Fill;
         dgvPreview.EnableHeadersVisualStyles = false;
-        dgvPreview.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(222), Convert.ToInt32(226), Convert.ToInt32(230));
+        dgvPreview.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
         dgvPreview.Location = new Point(10, 54);
         dgvPreview.Margin = new Padding(0);
         dgvPreview.Name = "dgvPreview";
@@ -232,7 +232,7 @@ partial class frmImportProductsExcel
         // 
         // pnlPreviewTop
         // 
-        pnlPreviewTop.BackColor = System.Drawing.Color.White;
+        pnlPreviewTop.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlPreviewTop.Controls.Add(lblSearch);
         pnlPreviewTop.Controls.Add(txtSearch);
         pnlPreviewTop.Controls.Add(lblNoData);
@@ -276,7 +276,7 @@ partial class frmImportProductsExcel
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.White;
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlSummary.Controls.Add(lblCount);
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
@@ -300,7 +300,7 @@ partial class frmImportProductsExcel
         // 
         lblSummary.AutoSize = true;
         lblSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+        lblSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblSummary.Location = new Point(450, 11);
         lblSummary.Name = "lblSummary";
         lblSummary.Size = new Size(300, 24);
@@ -309,7 +309,7 @@ partial class frmImportProductsExcel
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.White;
+        pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlFooter.Controls.Add(btnSave);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -321,7 +321,7 @@ partial class frmImportProductsExcel
         // 
         // btnSave
         // 
-        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(16), Convert.ToInt32(150), Convert.ToInt32(96));
+        btnSave.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(25), Convert.ToInt32(135), Convert.ToInt32(84));
         btnSave.FlatAppearance.BorderSize = 0;
         btnSave.FlatStyle = FlatStyle.Flat;
         btnSave.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -383,7 +383,7 @@ partial class frmImportProductsExcel
         // frmImportProductsExcel
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(240), Convert.ToInt32(242), Convert.ToInt32(245));
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         CancelButton = btnClose;
         ClientSize = new Size(1000, 660);
         Controls.Add(gbPreview);

@@ -19,7 +19,7 @@ partial class ctrlCustomerCard
     //   • لا يُعلَن أي لون حالة (نشط/معطّل/له حد ائتمان) — لون حالة يُطبَّق وقت التشغيل فقط
     //     (استثناء RULE-N134 الموثَّق في AGENTS.md §2.19 / §2.38).
     //   • ‏UserControl لا يملك RightToLeftLayout (خاصية Form فقط — مقيس بالانعكاس) فالاتجاه
-    //     RTL يأتي من RightToLeft + من النموذج الحاضن.
+    //     RTL يأتي من LeftToRight + من النموذج الحاضن.
     private void InitializeComponent()
     {
         components = new System.ComponentModel.Container();
@@ -53,7 +53,7 @@ partial class ctrlCustomerCard
         // 
         // gbIdentity
         // 
-        gbIdentity.BackColor = Color.FromArgb(235, 245, 235);
+        gbIdentity.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbIdentity.Controls.Add(lblIdCaption);
         gbIdentity.Controls.Add(lblIdValue);
         gbIdentity.Controls.Add(lblNameCaption);
@@ -72,7 +72,7 @@ partial class ctrlCustomerCard
         gbIdentity.Controls.Add(lblNotesValue);
         gbIdentity.Dock = DockStyle.Fill;
         gbIdentity.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbIdentity.ForeColor = Color.FromArgb(14, 82, 52);
+        gbIdentity.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbIdentity.Location = new Point(0, 78);
         gbIdentity.Name = "gbIdentity";
         gbIdentity.Padding = new Padding(8);
@@ -86,7 +86,7 @@ partial class ctrlCustomerCard
         // 
         lblIdCaption.AutoSize = true;
         lblIdCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblIdCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblIdCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblIdCaption.Location = new Point(717, 33);
         lblIdCaption.Name = "lblIdCaption";
         lblIdCaption.Size = new Size(113, 24);
@@ -97,7 +97,7 @@ partial class ctrlCustomerCard
         // lblIdValue
         // 
         lblIdValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblIdValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblIdValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblIdValue.Location = new Point(471, 33);
         lblIdValue.Name = "lblIdValue";
         lblIdValue.Size = new Size(240, 26);
@@ -109,7 +109,7 @@ partial class ctrlCustomerCard
         // 
         lblNameCaption.AutoSize = true;
         lblNameCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNameCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblNameCaption.Location = new Point(717, 71);
         lblNameCaption.Name = "lblNameCaption";
         lblNameCaption.Size = new Size(67, 24);
@@ -120,7 +120,7 @@ partial class ctrlCustomerCard
         // lblNameValue
         // 
         lblNameValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNameValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNameValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblNameValue.Location = new Point(471, 71);
         lblNameValue.Name = "lblNameValue";
         lblNameValue.Size = new Size(240, 26);
@@ -132,7 +132,7 @@ partial class ctrlCustomerCard
         // 
         lblPhoneCaption.AutoSize = true;
         lblPhoneCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPhoneCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblPhoneCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblPhoneCaption.Location = new Point(717, 109);
         lblPhoneCaption.Name = "lblPhoneCaption";
         lblPhoneCaption.Size = new Size(70, 24);
@@ -143,7 +143,7 @@ partial class ctrlCustomerCard
         // lblPhoneValue
         // 
         lblPhoneValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblPhoneValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblPhoneValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblPhoneValue.Location = new Point(471, 109);
         lblPhoneValue.Name = "lblPhoneValue";
         lblPhoneValue.Size = new Size(240, 26);
@@ -155,7 +155,7 @@ partial class ctrlCustomerCard
         // 
         lblEmailCaption.AutoSize = true;
         lblEmailCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblEmailCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblEmailCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblEmailCaption.Location = new Point(717, 147);
         lblEmailCaption.Name = "lblEmailCaption";
         lblEmailCaption.Size = new Size(164, 24);
@@ -166,7 +166,7 @@ partial class ctrlCustomerCard
         // lblEmailValue
         // 
         lblEmailValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblEmailValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblEmailValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblEmailValue.Location = new Point(471, 147);
         lblEmailValue.Name = "lblEmailValue";
         lblEmailValue.Size = new Size(240, 26);
@@ -178,7 +178,7 @@ partial class ctrlCustomerCard
         // 
         lblAddressCaption.AutoSize = true;
         lblAddressCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAddressCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblAddressCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblAddressCaption.Location = new Point(717, 185);
         lblAddressCaption.Name = "lblAddressCaption";
         lblAddressCaption.Size = new Size(76, 24);
@@ -189,7 +189,7 @@ partial class ctrlCustomerCard
         // lblAddressValue
         // 
         lblAddressValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblAddressValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblAddressValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblAddressValue.Location = new Point(471, 185);
         lblAddressValue.Name = "lblAddressValue";
         lblAddressValue.Size = new Size(240, 26);
@@ -201,7 +201,7 @@ partial class ctrlCustomerCard
         // 
         lblCreditLimitCaption.AutoSize = true;
         lblCreditLimitCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditLimitCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCreditLimitCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblCreditLimitCaption.Location = new Point(272, 90);
         lblCreditLimitCaption.Name = "lblCreditLimitCaption";
         lblCreditLimitCaption.Size = new Size(114, 24);
@@ -212,7 +212,7 @@ partial class ctrlCustomerCard
         // lblCreditLimitValue
         // 
         lblCreditLimitValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditLimitValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblCreditLimitValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblCreditLimitValue.Location = new Point(26, 90);
         lblCreditLimitValue.Name = "lblCreditLimitValue";
         lblCreditLimitValue.Size = new Size(240, 26);
@@ -224,7 +224,7 @@ partial class ctrlCustomerCard
         // 
         lblBalanceCaption.AutoSize = true;
         lblBalanceCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblBalanceCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblBalanceCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblBalanceCaption.Location = new Point(272, 128);
         lblBalanceCaption.Name = "lblBalanceCaption";
         lblBalanceCaption.Size = new Size(143, 24);
@@ -235,7 +235,7 @@ partial class ctrlCustomerCard
         // lblBalanceValue
         // 
         lblBalanceValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblBalanceValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblBalanceValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblBalanceValue.Location = new Point(26, 128);
         lblBalanceValue.Name = "lblBalanceValue";
         lblBalanceValue.Size = new Size(240, 26);
@@ -247,7 +247,7 @@ partial class ctrlCustomerCard
         // 
         lblNotesCaption.AutoSize = true;
         lblNotesCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNotesCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblNotesCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblNotesCaption.Location = new Point(717, 231);
         lblNotesCaption.Name = "lblNotesCaption";
         lblNotesCaption.Size = new Size(95, 24);
@@ -259,7 +259,7 @@ partial class ctrlCustomerCard
         // 
         lblNotesValue.AutoEllipsis = true;
         lblNotesValue.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblNotesValue.ForeColor = Color.FromArgb(33, 37, 41);
+        lblNotesValue.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         lblNotesValue.Location = new Point(36, 228);
         lblNotesValue.Name = "lblNotesValue";
         lblNotesValue.Size = new Size(675, 26);
@@ -269,14 +269,14 @@ partial class ctrlCustomerCard
         // 
         // gbStatus
         // 
-        gbStatus.BackColor = Color.FromArgb(235, 245, 235);
+        gbStatus.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbStatus.Controls.Add(lblStatusCaption);
         gbStatus.Controls.Add(lblStatusValue);
         gbStatus.Controls.Add(lblCreditFlagCaption);
         gbStatus.Controls.Add(lblCreditFlagValue);
         gbStatus.Dock = DockStyle.Top;
         gbStatus.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbStatus.ForeColor = Color.FromArgb(14, 82, 52);
+        gbStatus.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         gbStatus.Location = new Point(0, 0);
         gbStatus.Name = "gbStatus";
         gbStatus.Padding = new Padding(8);
@@ -289,7 +289,7 @@ partial class ctrlCustomerCard
         // 
         lblStatusCaption.AutoSize = true;
         lblStatusCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblStatusCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblStatusCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblStatusCaption.Location = new Point(674, 31);
         lblStatusCaption.Name = "lblStatusCaption";
         lblStatusCaption.Size = new Size(72, 24);
@@ -311,7 +311,7 @@ partial class ctrlCustomerCard
         // 
         lblCreditFlagCaption.AutoSize = true;
         lblCreditFlagCaption.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lblCreditFlagCaption.ForeColor = Color.FromArgb(14, 82, 52);
+        lblCreditFlagCaption.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lblCreditFlagCaption.Location = new Point(377, 31);
         lblCreditFlagCaption.Name = "lblCreditFlagCaption";
         lblCreditFlagCaption.Size = new Size(133, 24);
@@ -331,10 +331,10 @@ partial class ctrlCustomerCard
         // 
         // lnkEdit
         // 
-        lnkEdit.ActiveLinkColor = Color.FromArgb(14, 165, 103);
+        lnkEdit.ActiveLinkColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(165), Convert.ToInt32(103));
         lnkEdit.Dock = DockStyle.Bottom;
         lnkEdit.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        lnkEdit.LinkColor = Color.FromArgb(14, 82, 52);
+        lnkEdit.LinkColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lnkEdit.Location = new Point(0, 470);
         lnkEdit.Name = "lnkEdit";
         lnkEdit.Size = new Size(900, 40);
@@ -342,13 +342,13 @@ partial class ctrlCustomerCard
         lnkEdit.TabStop = true;
         lnkEdit.Text = "تعديل بيانات العميل";
         lnkEdit.TextAlign = ContentAlignment.MiddleCenter;
-        lnkEdit.VisitedLinkColor = Color.FromArgb(14, 82, 52);
+        lnkEdit.VisitedLinkColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
         lnkEdit.LinkClicked += lnkEdit_LinkClicked;
         // 
         // ctrlCustomerCard
         // 
         AutoScaleMode = AutoScaleMode.None;
-        BackColor = Color.FromArgb(170, 220, 170);
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         Controls.Add(gbIdentity);
         Controls.Add(gbStatus);
         Controls.Add(lnkEdit);
