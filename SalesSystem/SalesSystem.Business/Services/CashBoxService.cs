@@ -335,7 +335,7 @@ public class CashBoxService : ICashBoxService
             request.Amount, request.SourceCashBoxId, request.DestinationCashBoxId);
 
         return Task.FromResult(Result.Failure(
-            "التحويل بين الصناديق غير مدعوم حالياً — لا توجد آلية سندات أو قيود لتسجيل العملية"));
+            "التحويل بين الصناديق غير مدعوم في هذا الإصدار — لا يوجد مستند تحويل نقدية بين صندوقين"));
     }
 
     // ═══════════════════════════════════════════════════════════

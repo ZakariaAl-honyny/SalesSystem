@@ -93,11 +93,11 @@ public class DirectCashBoxService : ICashBoxDesktopService
         }
     }
 
-    // التحويل بين الصناديق غير مدعوم في V1 — الطلب يُرفض دائماً.
+    // التحويل بين الصناديق غير مدعوم في هذا الإصدار — الطلب يُرفض دائماً.
     public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
         return Task.FromResult(Result.Failure(
-            "التحويل بين الصناديق غير مدعوم حالياً — لا توجد آلية سندات أو قيود لتسجيل العملية"));
+            "التحويل بين الصناديق غير مدعوم في هذا الإصدار — لا يوجد مستند تحويل نقدية بين صندوقين"));
     }
 
     public async Task<Result> ReactivateAsync(int id, CancellationToken ct = default)

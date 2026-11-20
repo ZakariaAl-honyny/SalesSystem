@@ -91,8 +91,7 @@ public class CustomerService : ICustomerService
         if (customer == null)
             return Result<CustomerDto>.Failure("العميل غير موجود", ErrorCodes.NotFound);
 
-        // Capture old values for Account sync BEFORE transaction
-        var oldName = customer.Name;
+        // التقاط الحالة السابقة لمزامنة الإيقاف/التنشيط قبل المعاملة
         var oldIsActive = customer.IsActive;
 
         return await _uow.ExecuteTransactionAsync<Result<CustomerDto>>(async () =>

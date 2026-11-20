@@ -96,10 +96,10 @@ public class MockCashBoxDesktopService : ICashBoxDesktopService
         return Task.FromResult(Result.Success());
     }
 
-    // التحويل بين الصناديق غير مدعوم في V1 — يُرفض بنفس نص الوضع الحقيقي.
+    // التحويل بين الصناديق غير مدعوم في هذا الإصدار — يُرفض بنفس نص الوضع الحقيقي.
     public Task<Result> TransferAsync(CashTransferRequest request, CancellationToken ct = default)
     {
         return Task.FromResult(Result.Failure(
-            "التحويل بين الصناديق غير مدعوم حالياً — لا توجد آلية سندات أو قيود لتسجيل العملية"));
+            "التحويل بين الصناديق غير مدعوم في هذا الإصدار — لا يوجد مستند تحويل نقدية بين صندوقين"));
     }
 }

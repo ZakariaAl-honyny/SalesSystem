@@ -93,12 +93,12 @@ public class SupplierService : ISupplierService
             if (supplier == null)
                 return Result<SupplierDto>.Failure("المورد غير موجود", ErrorCodes.NotFound);
 
-            // ---- entity+account modification wrapped in atomic transaction ----
+            // ---- تعديل المورد داخل معاملة ذرّية ----
             return await _uow.ExecuteTransactionAsync<Result<SupplierDto>>(async () =>
             {
                 try
                 {
-                    // Capture old values for Account sync BEFORE update
+                    // التقاط الحالة السابقة لمزامنة الإيقاف/التنشيط قبل التحديث
                     var oldIsActive = supplier.IsActive;
 
                     // Update supplier fields including contact information
