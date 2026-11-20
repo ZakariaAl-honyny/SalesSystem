@@ -1,93 +1,105 @@
-# F-007 — الجرد الكامل (`MANIFEST`) — `RULE-N201`
+# F-007 — الجرد الكامل (`MANIFEST`) — نسخة 2 بعد التدقيق (`RULE-N201`)
 
-> **مصدر البيانات:** أمر واحد على `Screens/**/frm*.Designer.cs` يستخرج عدد `new GroupBox()` وسلسلة `Controls.Add` العليا لكل مصمّم (2026-11-20). لا رقم في هذا الملف من الذاكرة.
+> كل رقم من أمر على الملفات (2026-11-20): عدّ `new GroupBox()` · استخراج `Controls.Add` العليا · `ClientSize` · `Select-String` على مراجع `pnl*` في `.cs` · ثم تدقيق رباعي على الملفات كاملة.
 
 ## 1) المطابقة العددية
 
 | الفئة | العدد |
 |---|---|
 | إجمالي نماذج `frm*` | **85** |
-| تحتاج عملاً (`F-007`) | **37** |
-| منفَّذة في `F-006` | **5** |
+| **المسار A — صناديق جديدة** | **21** |
+| **المسار B — إعادة بناء** | **3** |
+| **المسار C — عناوين فقط** | **5** |
+| **لا عمل — مستوفاة** | **7** |
+| **مستثنى** | **1** |
+| منفَّذة (`F-006`) | **5** |
 | المرجع | **1** |
 | مُجمَّعة أصلاً | **5** |
 | معفاة بسبب | **37** |
-| **المجموع** | **85** ✅ |
+| **المجموع** | **21+3+5+7+1+5+1+5+37 = 85** ✅ |
 
-## 2) الشاشات التي تحتاج عملاً (37) — صف لكل ملف
+## 2) المسار A — 21 شاشة (القياسات من المصمّم)
 
-| # | الشاشة | GB الآن | الكتل العليا المقيسة | المطلوب | الحجم | الموجة |
+| # | الشاشة | GB الآن | الكتل العليا المقيسة | الشبكة الآن → بعد | القرار | الموجة |
 |---|---|---|---|---|---|---|
-| 1 | `frmCRUDCustomerMaster` | 5 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `gbToolbar` · **`pnlFields`** · `lblMode` | «بيانات العميل» | S | `W1` |
-| 2 | `frmCRUDCSupplierMaster` | 5 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `gbToolbar` · **`pnlFields`** · `lblMode` | «بيانات المورّد» | S | `W1` |
-| 3 | `frmCRUDCProductMaster` | 2 | `pnlGrid` · `pnlSummary` · `pnlFilters` · **`pnlButtons`** · `pnlFields` · `lblMode` | «أوامر الشاشة» | S | `W1` |
-| 4 | `frmCRUDCProductUnitMaster` | 1 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `pnlButtons` · `pnlFields` · `lblMode` | أوامر · بيانات · الأصناف · ملخص | M | `W1` |
-| 5 | `frmCRUDCategoryMaster` | 1 | نفس السابق | أوامر · بيانات · الفئات · ملخص | M | `W2` |
-| 6 | `frmCRUDUnitMaster` | 1 | نفس السابق | أوامر · بيانات · الوحدات · ملخص | M | `W2` |
-| 7 | `frmCRUDWarehouseMaster` | 1 | نفس السابق | أوامر · بيانات · المستودعات · ملخص | M | `W2` |
-| 8 | `frmCRUDCashBoxMaster` | 1 | نفس السابق | أوامر · بيانات · الصناديق · ملخص | M | `W2` |
-| 9 | `frmCRUDUserMaster` | 1 | نفس السابق | أوامر · بيانات · المستخدمون · ملخص | M | `W3` |
-| 10 | `frmCRUDCExpensesMaster` | 2 | نفس السابق | أوامر · بيانات · المصروفات · ملخص | M | `W3` |
-| 11 | `frmCRUDCustomerReceiptsMaster` | 3 | نفس السابق | أوامر · بيانات (الباقي مجمَّع) | M | `W3` |
-| 12 | `frmListPayments` | 1 | `tabPayments` · `pnlSummary` · `pnlFilters` · `pnlHeader` | «المدفوعات» · «ملخص النتائج» | S | `W4` |
-| 13 | `frmListSupplierPayments` | 1 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `pnlToolbar` · `pnlHeader` | أوامر · المدفوعات · ملخص · تلميحات | M | `W4` |
-| 14 | `frmListCashBoxTransactions` | 2 | `pnlGrid` · `pnlFooter` · `pnlSummary` · `pnlFilters` · `gbToolbar` · `pnlHeader` | الحركات · ملخص · تلميحات | M | `W4` |
-| 15 | `frmBackup` | 4 | `pnlGrid` · `pnlSummary` · `pnlFooter` · `pnlFilters` · `pnlToolbar` · `pnlHeader` | النسخ الاحتياطية · ملخص · تلميحات | M | `W4` |
-| 16 | `frmInventoryList` | 1 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `pnlToolbar` · `pnlHeader` | أوامر · المخزون · ملخص | M | `W5` |
-| 17 | `frmListInventoryAdjustments` | 4 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `gbCommands` · `pnlHeader` | التسويات · ملخص | S | `W5` |
-| 18 | `frmListInventoryBatches` | 3 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `gbCommands` · `pnlHeader` | الدفعات · ملخص | S | `W5` |
-| 19 | `frmListInventoryTransactions` | 4 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `gbCommands` · `pnlHeader` | الحركات · ملخص | S | `W5` |
-| 20 | `frmInventory` | 1 | `tabMain` · `pnlSummary` · `pnlFilters` · `pnlToolbar` · `pnlHeader` | أوامر · التبويبات · ملخص | M | `W6` |
-| 21 | `frmCustomerSelection` | 1 | `pnlGrid` · `pnlSummary` · `pnlFooter` · `pnlFilters` · `pnlToolbar` · `pnlHeader` | أوامر · العملاء · ملخص · تلميحات | M | `W7` |
-| 22 | `frmProductSelection` | 1 | نفس السابق | أوامر · الأصناف · ملخص · تلميحات | M | `W7` |
-| 23 | `frmSupplierSelection` | 1 | نفس السابق | أوامر · الموردون · ملخص · تلميحات | M | `W7` |
-| 24 | `frmSupplierStatement` | 1 | `pnlGrid` · `pnlSummary` · `pnlFilters` · `pnlToolbar` · `pnlHeader` | أوامر · كشف المورّد · ملخص | M | `W7` |
-| 25 | `frmCustomerStatement` | **0** | `splitMain` · `pnlFooter` · `pnlStats` · `pnlFilter` · `pnlHeader` | تصفية · إحصاءات · كشف العميل · حركات · تلميحات | **L** | `W8` |
-| 26 | `frmPOS` | 4 | `gbCart` · `gbTotals` · **`pnlActions`** · `gbCustomerPayment` · `gbSalesCommands` · `pnlHeader` | «أوامر البيع» | S | `W9` |
-| 27 | `frmWarehouseTransferNew` | 3 | `gbItems` · **`pnlFooter`** · `grpHeader` · `gbToolbar` · `lblMode` | «تلميحات التحويل» | S | `W9` |
-| 28 | `frmInventoryFifo` | 3 | `gbGrid` · **`pnlFooter`** · **`pnlInfo`** · `pnlTitle` | «ملخص الطبقات» · التلميحات | S | `W9` |
-| 29 | `frmImportProductsExcel` | 3 | `gbPreview` · **`pnlSummary`** · **`pnlFooter`** · `gbOptions` · `gbFile` · `lblMode` | ملخص الاستيراد · تلميحات | S | `W9` |
-| 30 | `frmPurchaseItem` | 1 | **`pnlBody`** · **`pnlFooter`** · `pnlTitle` | «بيانات الصنف» · أوامر النافذة | S | `W10` |
-| 31 | `frmPurchaseDiscount` | 2 | **`pnlBody`** · **`pnlFooter`** · `pnlTitle` | «الخصم» · أوامر النافذة | S | `W10` |
-| 32 | `frmPurchaseOtherDetails` | 3 | **`pnlBody`** · `pnlFooter` · `pnlTitle` | «بيانات إضافية» | S | `W10` |
-| 33 | `frmPurchaseItemInfo` | 3 | `gbHistory` · **`pnlFooter`** · `gbCosts` · `gbProductInfo` · `pnlTitle` | «تلميحات الصنف» | S | `W10` |
-| 34 | `frmSupplierPaymentDialog` | 1 | `gbPaymentInfo` · **`pnlFooter`** | «تلميحات السداد» | S | `W11` |
-| 35 | `frmChangeSystemColorsSettings` | 4 | `gbColors` · `gbPreview` · **`pnlFooter`** · **`pnlSummary`** · `pnlFilters` · `gbToolbar` · `pnlHeader` | ملخص الألوان · تلميحات | S | `W12` |
-| 36 | `frmFormatingSetting` | 3 | `gbPreview` · **`pnlSummary`** · **`pnlFooter`** · `gbDates` · `gbNumbers` · `pnlHeader` | ملخص التنسيق · تلميحات | S | `W12` |
-| 37 | `frmPasswordChange` | 1 | `gbPassword` · `lblError` · **`pnlFooter`** · `lblMode` | «تلميحات كلمة المرور» | S | `W12` |
+| 1 | `frmCRUDCProductUnitMaster` | 1 | grid · summary · filters · buttons · fields · lblMode | 336 → **200** | `D-11` +180 | `W1` |
+| 2 | `frmCRUDCategoryMaster` | 1 | نفسها | 346 → **190** | `D-11` +190 | `W1` |
+| 3 | `frmCRUDUnitMaster` | 1 | نفسها | 390 → **234** | `D-11` +146 | `W1` |
+| 4 | `frmCRUDWarehouseMaster` | 1 | نفسها | 396 → **240** | `D-11` +140 | `W1` |
+| 5 | `frmCRUDCashBoxMaster` | 1 | نفسها | 416 → **260** | `D-11` +120 | `W2` |
+| 6 | `frmCRUDUserMaster` | 1 | نفسها | 328 → **172** | `D-11` +208 | `W2` |
+| 7 | `frmCRUDCExpensesMaster` | 2 | نفسها (`gbDocument` داخل `pnlFields`) | 316 → **204** (3 صناديق) | `D-11` +176 | `W2` |
+| 8 | `frmCRUDCustomerReceiptsMaster` | 3 | نفسها (`gbDocument`+`gbAmount` داخل `pnlFields`) | 371 → **259** (3 صناديق) | `D-11` +121 | `W2` |
+| 9 | `frmListPayments` | 1 | tabPayments · summary · filters · header | 422 → **388** (سجل فقط) | ✅ بلا ملخص | `W3` |
+| 10 | `frmListSupplierPayments` | 1 | grid · summary · filters · toolbar · header | 439 → **337** (3 صناديق) / 371 / 405 | `D-11` +43 | `W3` |
+| 11 | `frmListCashBoxTransactions` | 2 | grid · footer · summary · filters · **gbToolbar** · header | 404 → **370** | `D-11` +10 | `W3` |
+| 12 | `frmInventoryList` | 1 | grid · summary · filters · toolbar · header | 504 → **402** | ✅ | `W3` |
+| 13 | `frmListInventoryBatches` | 3 | grid(GB) · summary(Panel) · filters · gbCommands · header | 501 → **467** | ✅ | `W4` |
+| 14 | `frmInventory` | 1 | tabMain · summary · filters · toolbar · header | 467 → **399** (2 صناديق) | ✅ | `W4` |
+| 15 | `frmCustomerSelection` | 1 | grid · summary · footer · filters · toolbar · header | 336 → **167** | `D-11` +180 | `W4` |
+| 16 | `frmSupplierSelection` | 1 | نفسها | 336 → **167** | `D-11` +180 | `W4` |
+| 17 | `frmSupplierStatement` | 1 | grid · summary · filters · toolbar · header | 452 → **384** (صندوقان) | ✅ | `W5` |
+| 18 | `frmPOS` | 4 | gbCart · gbTotals · **pnlActions** · gbCustomerPayment · gbSalesCommands · header | 366 → **332** | ✅ | `W5` |
+| 19 | `frmImportProductsExcel` | 3 | gbPreview · summary · footer · gbOptions · gbFile · lblMode | 270 → **202** | ✅ | `W5` |
+| 20 | `frmChangeSystemColorsSettings` | 4 | gbColors · gbPreview · footer · **summary** · filters · gbToolbar · header | 434 → **400** | ✅ | `W5` |
+| 21 | `frmFormatingSetting` | 3 | gbPreview · **summary** · footer · gbDates · gbNumbers · header | 323 → **289** (معاينة) | ✅ | `W6` |
 
-> **الغامق** = الكتلة العارية المطلوب إحاطتها. `pnlFilters` يبقى عارياً في كل الصفوف (يحتضن `gbFilter` — `FilterPanelHelper`).
+## 3) المسار B — 3 شاشات (إعادة بناء · L)
 
-## 3) مُجمَّعة أصلاً — لا عمل (5)
+| # | الشاشة | المانع المقيس | المطلوب |
+|---|---|---|---|
+| 1 | `frmCRUDCProductMaster` | `grpMainUnit` داخل `pnlFields` · grid+summary عاريتان · الشبكة 292 → 180 | تقسيم `pnlFields` + 3 صناديق |
+| 2 | `frmProductSelection` | شبكتان في `pnlGrid` · `dgvProducts` ثابت 240 · `dgvUnits` 160 → **1** بأي صندوق | إعادة تقسيم إلى صندوقين + ضبط الارتفاعات |
+| 3 | `frmCustomerStatement` | `splitMain`+`SplitterDistance 252` · `dgvAging` **92 قبل الموجة** | صندوقان خارجيان + `ClientSize` 731 + إعادة ضبط الفاصل |
 
-| الشاشة | الصناديق القائمة |
+## 4) المسار C — عناوين فقط (5)
+
+| الشاشة | التغيير |
 |---|---|
-| `frmAddUpdatePurchaseInvoice` | `gbToolbar` · `gbInvoiceInfo` · `gbEntry` (في `ctrlLineEntryPanel`) · `gbItems` · `gbTotals` |
-| `frmAddUpdateInventoryAdjustment` | `gbToolbar` · `groupHeader` · `groupLines` · `gbTotals` |
-| `frmInventoryBarcode` | `gbToolbar` · `gbInfo` · `gbPreview` |
-| `frmOpeningStock` | `gbToolbar` · `gbInfo` · `gbEntry` · `gbItems` · `gbTotals` |
-| `frmStocktakingNew` | `gbToolbar` · `grpHeader` · `grpCommittee` · `gbItems` · `grpTotals` |
+| `frmCRUDCustomerMaster` | `gbToolbar` «أوامر العملية» → «أوامر الشاشة» · `gbSummary` «الإجماليات» → «ملخص النتائج» |
+| `frmCRUDCSupplierMaster` | نفسه + رفع `gbSummary` 48 → 60 (سطره مقصوص) |
+| `frmListInventoryAdjustments` | `pnlGrid` «البيانات» → «تسويات المخزون» · `pnlSummary` «الإجماليات» → «ملخص النتائج» |
+| `frmListInventoryTransactions` | `pnlGrid` «البيانات» → «حركات المخزون» · `pnlSummary` «الإجماليات» → «ملخص النتائج» |
+| `frmBackup` | `gbSummary` «الإجماليات» → «ملخص النتائج» |
 
-## 4) معفاة بسبب (37)
+## 5) لا عمل — مستوفاة أصلاً (7)
 
-| المجموعة | العدد | السبب |
-|---|---|---|
-| `Screens/Reports/**` | **26** | تُوحَّد بأربعة صناديق عبر `ReportUiStandardizer` — `RULE-N121` |
-| `frmPurchaseInvoicePrint` · `frmStocktakingPrint` · `frmStocktakingPrintAdjustment` · `frmStocktakingPrintCard` · `frmWarehouseTransferPrint` | **5** | معاينة/طباعة للقراءة فقط (`pnlPreviewCard` + `pnlFooter` + `pnlHeader`) |
-| `frmMain` | 1 | هيكل MDI — `msMainMenu` فقط |
-| `frmDashboard` | 1 | غلاف رقيق (4 ك.ب) يحتضن `ctrlDashboard` |
-| `frmCalculator` | 1 | أداة صغيرة (4 ك.ب) — شاشة عرض أرقام |
-| `frmLogin` | 1 | كتلة واحدة (`gbLogin`) — القاعدة مستوفاة |
-| `frmFindCustomer` · `frmShowCustomerCard` | 2 | غلافان رقيقان (5 ك.ب) حول `ctrlCustomerCard*` |
-| **المجموع** | **37** | |
+| الشاشة | السبب |
+|---|---|
+| `frmInventoryFifo` | `pnlInfo` يحتضن `gbInfo` و`pnlFooter` يحتضن `gbTotals` — كل الكتل مغلَّفة |
+| `frmPurchaseItem` | `pnlBody` يحتضن `gbItemData` — مستوفى |
+| `frmPurchaseDiscount` | `grpDiscount` + `grpSummary` داخل `tblMain` — مستوفى |
+| `frmPurchaseOtherDetails` | `gbCosts` + `gbTotal` + `gbNotes` — مستوفى |
+| `frmPurchaseItemInfo` | `gbProductInfo` + `gbCosts` + `gbHistory` — مستوفى |
+| `frmSupplierPaymentDialog` | `gbPaymentInfo` هو صندوق المحتوى — مستوفى |
+| `frmWarehouseTransferNew` | `gbToolbar` + `grpHeader` + `gbItems` — والتلميح شريط سفلي معفى (`RULE-N137`) |
 
-## 5) فحص البقايا بعد إغلاق كل مرحلة
+## 6) مستثنى (1)
 
-| الفحص | الهدف | يُملأ |
-|---|---|---|
-| `new GroupBox()` في شاشات المرحلة | 0 كتلة عارية متبقية | ⏳ |
-| مراجع `pnl*` في `.cs` | صفر تغيير | ⏳ |
-| `.cs`/`.resx` معدَّلة | **0** | ⏳ |
-| صندوق داخل صندوق · صندوق فارغ | **0** | ⏳ |
-| `Color.FromArgb(` المختصر في الأسطر المضافة | **0** | ⏳ |
-| `ClientSize`/`MinimumSize` | بلا تغيير | ⏳ |
+| الشاشة | السبب المقيس |
+|---|---|
+| `frmPasswordChange` | `ClientSize == MinimumSize` = 620×410 · `lblError` بموضع مطلق 298–324 · أي صندوق يدفع الحدّ إلى 308 ⇒ **يعترض رسالة الخطأ** في وضع الخدمة الذاتية (أول تشغيل) |
+
+## 7) خارج `F-007` (48)
+
+| المجموعة | العدد |
+|---|---|
+| `F-006` منفَّذة | 5 |
+| المرجع `frmAddUpdateSalesInvoice` | 1 |
+| مُجمَّعة أصلاً (`frmAddUpdatePurchaseInvoice` · `frmAddUpdateInventoryAdjustment` · `frmInventoryBarcode` · `frmOpeningStock` · `frmStocktakingNew`) | 5 |
+| التقارير | 26 |
+| نوافذ الطباعة | 5 |
+| هياكل/أدوات (`frmMain` · `frmDashboard` · `frmCalculator` · `frmLogin` · `frmFindCustomer` · `frmShowCustomerCard`) | 6 |
+| **المجموع** | **48** |
+
+## 8) فحص البقايا بعد كل موجة
+
+| الفحص | الهدف |
+|---|---|
+| `new GroupBox()` | = المتوقع |
+| `(gb\w+)\.Controls\.Add\((gb\w+)\)` | **0** |
+| `Color\.FromArgb\(\s*\d` في الملف | **0** |
+| `.cs`/`.resx` معدَّلة | **0** (المسار B باستثناء معتمد) |
+| `ClientSize` | ثابت أو فرق معتمد (`D-11`) |
+| الشبكة بعد | مطابقة للعمود المقيس أو `D-11` |
+| البناء | **0 Errors** |
