@@ -1,4 +1,4 @@
-# Ready-to-use prompt — roll the `frmProductMaster` standard out to the remaining screens
+# Ready-to-use prompt — roll the `frmCRUDCProductMaster` standard out to the remaining screens
 
 > Copy from "Prompt start" to "Prompt end" and paste it into any new session.
 > Update only **§7 execution batches** with the screens assigned to that session.
@@ -8,15 +8,15 @@
 ## Prompt start
 
 **Role:** WinForms implementation agent (.NET 10) inside the `SalesSystem.slnx` solution.
-**Mission:** raise the screens in `SalesSystem.Desktop/Screens/**` to the level of the reference screen `frmProductMaster` — green theme + keyboard navigation + `gbFilter` + `pnlSummary` + standard grid + "design time == runtime".
+**Mission:** raise the screens in `SalesSystem.Desktop/Screens/**` to the level of the reference screen `frmCRUDCProductMaster` — green theme + keyboard navigation + `gbFilter` + `pnlSummary` + standard grid + "design time == runtime".
 **Highest authority:** `AGENTS.md` at the repository root. Any conflict between this prompt and `AGENTS.md` is resolved in favour of `AGENTS.md`.
 
 ### 0) Read before writing a single character
 
 1. `AGENTS.md` — especially: §2.12 · §2.18 · §2.19 · §2.21 · §2.22 · §2.27 · §2.28 · §2.29 · §2.30 · §2.31 · §2.33 · §2.34 · §2.35 · §4.
 2. The complete reference screen:
-   - `SalesSystem/SalesSystem.Desktop/Screens/Products/Forms/frmProductMaster.cs`
-   - `SalesSystem/SalesSystem.Desktop/Screens/Products/Forms/frmProductMaster.Designer.cs`
+   - `SalesSystem/SalesSystem.Desktop/Screens/Products/Forms/frmCRUDCProductMaster.cs`
+   - `SalesSystem/SalesSystem.Desktop/Screens/Products/Forms/frmCRUDCProductMaster.Designer.cs`
 3. The helpers (the single source of shared behaviour — never copy them into a screen):
    - `SalesSystem/SalesSystem.Desktop/Helpers/KeyboardHelper.cs`
    - `.../Helpers/GreenThemeHelper.cs`
@@ -105,7 +105,7 @@ CashBoxes/frmCashBoxMaster ·
 Categories/frmCategoryMaster · CustomerReceipts/frmListCustomerReceipts · Customers/frmCustomerMaster ·
 Employees/frmEmployeeMaster · Expenses/frmListExpenses · Inventory/frmListInventoryAdjustments ·
 Inventory/frmListInventoryBatches · Inventory/frmListInventoryTransactions · Payments/frmListPayments ·
-Payments/frmListSupplierPayments · POS/frmPOS · Products/frmProductMaster · Products/frmProductUnitMaster ·
+Payments/frmListSupplierPayments · POS/frmPOS · Products/frmCRUDCProductMaster · Products/frmProductUnitMaster ·
 Purchases/frmListPurchases · Returns/frmListReturns · Sales/frmListSales · Suppliers/frmSupplierMaster ·
 Units/frmUnitMaster · Users/frmUserMaster · Warehouses/frmWarehouseMaster
 ```
@@ -210,7 +210,7 @@ Zero errors. Any new warning must be listed.
 ### 9) Working notes
 
 - Files are UTF-8: keep the Arabic intact and never produce mojibake. After every edit, re-read the file to verify.
-- One screen per commit, and the commit message: `ui(<module>): <screen> — align with the frmProductMaster standard`.
+- One screen per commit, and the commit message: `ui(<module>): <screen> — align with the frmCRUDCProductMaster standard`.
 - Do not work on more than one screen in the same file in one session without an explicit request.
 - If you find a contradiction in `AGENTS.md` or a deviation in the reference screen — report it, do not decide on your own.
 

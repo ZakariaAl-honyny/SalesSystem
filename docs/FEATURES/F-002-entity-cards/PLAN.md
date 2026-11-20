@@ -29,7 +29,7 @@
 | 1 | Users | `frmUserMaster` | `IUserDesktopService` | ✅ | المعرّف · اسم المستخدم · الحالة · مقفل؟ · يجب تغيير كلمة السر؟ · آخر دخول · محاولات الدخول · الصندوق الافتراضي |
 | 2 | Customers | `frmCustomerMaster` | `ICustomerDesktopService` | ✅ | المعرّف · الاسم · الهاتف · البريد · العنوان · الرقم الضريبي · حد الائتمان · الرصيد الحالي · الحساب · الحالة |
 | 3 | Suppliers | `frmSupplierMaster` | `ISupplierDesktopService` | ✅ | المعرّف · الاسم · الهاتف · البريد · العنوان · الرقم الضريبي · حد الائتمان · الحساب · الحالة |
-| 4 | Products | `frmProductMaster` (+ `frmProductUnitMaster`) | `IProductDesktopService` | ✅ + `GetByBarcodeAsync` | المعرّف · الاسم · الباركود · الفئة · الوصف · المخزون الحالي · حد إعادة الطلب · تتبع الصلاحية · أيام تنبيه الصلاحية · موقع الرف · الحالة |
+| 4 | Products | `frmCRUDCProductMaster` (+ `frmProductUnitMaster`) | `IProductDesktopService` | ✅ + `GetByBarcodeAsync` | المعرّف · الاسم · الباركود · الفئة · الوصف · المخزون الحالي · حد إعادة الطلب · تتبع الصلاحية · أيام تنبيه الصلاحية · موقع الرف · الحالة |
 | 5 | Categories | `frmCategoryMaster` | `ICategoryDesktopService` | ❌ (لا يوجد) ⇒ تصفية من `GetAllAsync` | المعرّف · الاسم · الوصف · الحالة |
 | 6 | Units | `frmUnitMaster` | `IUnitDesktopService` | ✅ | المعرّف · الاسم · الرمز · الحالة |
 | 7 | Warehouses | `frmWarehouseMaster` | `IWarehouseDesktopService` | ✅ (**`Id` من نوع `short`** — ممنوع `(int)SelectedValue`) | المعرّف · الاسم · الهاتف · العنوان · ملاحظات · الحالة |

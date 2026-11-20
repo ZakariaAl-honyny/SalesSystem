@@ -29,7 +29,7 @@
 | # | الخطورة | الموضع | النقص | الأثر |
 |---|---|---|---|---|
 | **P-01** ✅ | حرج | `frmWarehouseTransferNew.cs` · `frmStocktakingNew.cs` | **أُغلق 2026-11-15:** الحفظ صار يمرّ بالعقد الحقيقي (`IWarehouseTransferDesktopService.CreateAsync` · `IStocktakingDesktopService.CreateAsync/PostAsync/CancelAsync`) عبر بوابة `_isMockMode` | الوضع الحقيقي ينفّذ الحركة فعلاً؛ وضع التجربة يبقى محاكاة معلنة |
-| **P-02** | ✅ مغلق | `frmProductMaster.cs` | **أُغلق 2026-11-18 (`TASK-021`):** كان TODO لربط السعر بـ`ProductPriceDto`؛ صار يقرأ `ProductUnitDto` وحدها (SalePrice · CostPrice · MaxDiscountAmount) والجدول أُزيل من النظام | — |
+| **P-02** | ✅ مغلق | `frmCRUDCProductMaster.cs` | **أُغلق 2026-11-18 (`TASK-021`):** كان TODO لربط السعر بـ`ProductPriceDto`؛ صار يقرأ `ProductUnitDto` وحدها (SalePrice · CostPrice · MaxDiscountAmount) والجدول أُزيل من النظام | — |
 | **P-03** | عالٍ | `frmUserMaster.cs:810,832` (TODO) | DefaultCashBoxId يُترك null · ResetPasswordAsync غير موصولة بالواجهة | صندوق المستخدم وإعادة تعيين كلمة المرور غير قابلين للتنفيذ من الشاشة |
 | **P-04** | عالٍ | `Services/Direct/DirectReportService.cs:84-87` | الهاتف/المجموعة/CreditLimit تُرجع null أو 0 | تقارير العملاء تعرض فراغات في الوضع الحقيقي |
 | **P-05** | عالٍ | `Services/Direct/DirectFinancialReportService.cs:114,121,179` | حقول ناقصة + ReferenceNumber: null | كشف/تقرير مالي بلا مرجع القيد |

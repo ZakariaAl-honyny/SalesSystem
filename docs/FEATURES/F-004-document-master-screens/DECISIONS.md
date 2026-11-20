@@ -5,7 +5,7 @@
 
 | # | التاريخ | القرار | نصّ المالك / المصدر | الأثر |
 |---|---|---|---|---|
-| D-01 | 2026-11-18 | تحويل ثلاث وحدات إلى `frm*Master` بنمط `frmProductMaster` | «Returns & Expenses & CustomerReceipts Convert to frm*Master scrren like frmProductMaster.» | نطاق الميزة كله — وهذا هو **القرار المعماري الصريح** الذي تشترطه `RULE-N103` |
+| D-01 | 2026-11-18 | تحويل ثلاث وحدات إلى `frm*Master` بنمط `frmCRUDCProductMaster` | «Returns & Expenses & CustomerReceipts Convert to frm*Master scrren like frmProductMaster.» *(الاسم في الاقتباس آنذاك؛ صار `frmCRUDCProductMaster` في 2026-11-20)* | نطاق الميزة كله — وهذا هو **القرار المعماري الصريح** الذي تشترطه `RULE-N103` |
 | D-02 | 2026-11-18 | «Returns» = **مستران**: مبيعات + مشتريات، لا شاشة واحدة بمُبدِّل نوع | جواب المالك على سؤال النطاق: «Two Masters (sales + purchase) (Recommended)» | 4 شاشات جديدة بدل 3 · يُحذف `frmListReturns` المدمج |
 | D-03 | 2026-11-18 | **استثناء موثَّق على `RULE-N101`/`RULE-N103`** لهذه الوحدات الثلاث فقط | `D-01` أعلاه — المالك يملك حق قرار معماري صريح (`RULE-N103`) | يُحدَّث `AGENTS.md` §2.28/§9 بسطر الاستثناء · **لا يُعمَّم** على `frmListSales`/`frmListPurchases`/`frmPurchaseInvoice` |
 | D-04 | 2026-11-18 | **لا باك-إند ولا تغيير عقد** في هذه الموجة | نطاق الطلب + `RULE-N177` | العقود تبقى كما هي؛ البناء يستهلك `IExpenseDesktopService` · `ICustomerReceiptDesktopService` · `ISalesReturnDesktopService` · `IPurchaseReturnDesktopService` حرفياً |

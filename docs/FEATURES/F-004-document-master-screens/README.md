@@ -12,7 +12,7 @@
 
 ## ما تطلبه المالك حرفياً
 
-> «Returns & Expenses & CustomerReceipts Convert to frm*Master scrren like frmProductMaster.»
+> «Returns & Expenses & CustomerReceipts Convert to frm*Master scrren like frmProductMaster.» *(الاسم في الاقتباس آنذاك؛ صار `frmCRUDCProductMaster` في 2026-11-20)*
 
 وبعد قياس حقيقة أن «Returns» مستندان لا مستند واحد، اختار:
 
@@ -20,7 +20,7 @@
 
 ## الهدف من الميزة (قابل للقياس)
 
-تحويل **ثلاث وحدات** من نمط «قائمة + محرر منفصل» إلى **نمط `frm*Master` المدمج المُشهَد** (`frmProductMaster` — §2.36 · `RULE-N184`):
+تحويل **ثلاث وحدات** من نمط «قائمة + محرر منفصل» إلى **نمط `frm*Master` المدمج المُشهَد** (`frmCRUDCProductMaster` — §2.36 · `RULE-N184`):
 
 | الوحدة | الوضع الحالي (مقيس 2026-11-18) | الوضع الهدف |
 |---|---|---|

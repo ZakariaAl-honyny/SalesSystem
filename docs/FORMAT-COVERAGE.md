@@ -65,7 +65,7 @@
 
 > **دليل قاطع:** حتى الشاشة المرجعية `frmAddUpdateSalesInvoice` — وهي من أكثر الشاشات التزاماً (4 استدعاءات `clsFormat`) — شبكتها ما زالت `dataGridViewCellStyle6.Format = "N3"` و`dataGridViewCellStyle7/8/9.Format = "N2"` في **`frmAddUpdateSalesInvoice.Designer.cs`**. أي أن سطور الفاتورة **لا تتأثر بالإعداد إطلاقاً** رغم أن المجاميع أسفلها تتأثر — تناقض بصري مباشر يراه المالك.
 
-**وما لا صيغة له أسوأ:** أعمدة رقمية تُضاف بلا `Format` إطلاقاً (مثل `frmProductMaster` · `frmProductUnitMaster` · `frmAccounts` · `frmImportProductsExcel`) → تُعرض الكسور كما هي (`1500.5000000`) بلا تجميع ولا منازل.
+**وما لا صيغة له أسوأ:** أعمدة رقمية تُضاف بلا `Format` إطلاقاً (مثل `frmCRUDCProductMaster` · `frmProductUnitMaster` · `frmAccounts` · `frmImportProductsExcel`) → تُعرض الكسور كما هي (`1500.5000000`) بلا تجميع ولا منازل.
 
 ### السبب 3 — **لا تحديث للشاشات المفتوحة** بعد الحفظ
 
@@ -167,7 +167,7 @@
 | 35 | `frmSupplierPaymentDialog` | Payments | 1 | 1 | 0 | ⚠️ جزئي | إزالة الصيغ الحرفية + توصيل الشبكة |
 | 36 | `frmPOS` | POS | 0 | 7 | 4 | ❌ غير مطبَّق | نقل كل تنسيق إلى clsFormat |
 | 37 | `frmImportProductsExcel` | Products | 0 | 0 | 0 | ⚠️ شبكة بلا صيغة | توصيل GridFormatHelper |
-| 38 | `frmProductMaster` | Products | 0 | 0 | 0 | ⚠️ شبكة بلا صيغة | توصيل GridFormatHelper |
+| 38 | `frmCRUDCProductMaster` | Products | 0 | 0 | 0 | ⚠️ شبكة بلا صيغة | توصيل GridFormatHelper |
 | 39 | `frmProductSelection` | Products | 0 | 0 | 1 | ❌ غير مطبَّق | نقل كل تنسيق إلى clsFormat |
 | 40 | `frmProductUnitMaster` | Products | 0 | 0 | 0 | ⚠️ شبكة بلا صيغة | توصيل GridFormatHelper |
 | 41 | `frmListPurchases` | Purchases | 8 | 0 | 0 | ✅ متوافق | — |

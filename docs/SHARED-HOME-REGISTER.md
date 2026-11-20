@@ -8,7 +8,7 @@
 >
 > **حدود هذا الملف:** يحمل **الحصر** و**المخالفة** و**مكان الإصلاح**. تفاصيل شاشات التنسيق (67 شاشة × 240 مخالفة) مصدرها الوحيد `docs/FORMAT-COVERAGE.md`، ولوحة توزيع العمل في `docs/FORMAT-PROGRESS.md` — لا تُنسخ هنا (`RULE-N174` بالقياس).
 >
-> **آخر تحديث:** 2026-11-16 (الموجتان 16 + بوابة الشاشة التجريبية) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 86 تحذيراً** (بناء كامل `--no-incremental` — كان 118 قبل الموجة 15، والموجتان 16 لم تُضيفا تحذيراً واحداً). **`AGENTS.md` §2.39 صار قانوناً:** لا تعميم لأي سلوك قبل شهادة شاشة تجريبية واحدة 100% (`RULE-N184`…`N187`) — والشاشة التجريبية الحالية `frmProductMaster` **غير مشهودة بعد**. §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
+> **آخر تحديث:** 2026-11-16 (الموجتان 16 + بوابة الشاشة التجريبية) · **المرجع الملزم للقياس: §10.6.5** · **قائمة العمل الحقيقية: §10.6.2** (Stage A) و**§10.2** (Stage B مجمَّد) · البناء **0 أخطاء / 86 تحذيراً** (بناء كامل `--no-incremental` — كان 118 قبل الموجة 15، والموجتان 16 لم تُضيفا تحذيراً واحداً). **`AGENTS.md` §2.39 صار قانوناً:** لا تعميم لأي سلوك قبل شهادة شاشة تجريبية واحدة 100% (`RULE-N184`…`N187`) — والشاشة التجريبية الحالية `frmCRUDCProductMaster` **غير مشهودة بعد**. §3–§8 محضر تاريخي لموجة 2026-11-14، و§0 و§10.1 لقطتان أوليتان تجاوزهما §10.6.1/§10.6.2.
 
 ---
 
@@ -102,7 +102,7 @@
 | **GAP-05** | `frmMain.Designer.cs:945` `ForeColor = SystemColors.ControlText` — العنصر الوحيد على لون نظام | `RULE-N141` | 1 | 1 | `fast-agent` | S | W0 | ✅ مكتمل |
 | **GAP-06** | 36 شاشة شبكة بلا `ExportHelper` — **تحتاج حكماً لكل شاشة** لا إصلاحاً أعمى (قائمة ⇐ تُصدَّر / محرّر ⇐ لا) | `RULE-N169` | 36 | — | `ui-agent` | M | W8 | ⬜ |
 | **GAP-07** | `ExportHelper.cs:111` يثبّت المنازل: `format is "N3" or "F3" ? "#,##0.000" : "#,##0.00"` — البيت نفسه يخالف القانون · و`:91` `"yyyy-mm-dd"` ثابتة | `RULE-N169` · `RULE-N179` | 1 | 2 | `fast-agent` | S | W0 | ✅ مكتمل |
-| **GAP-08** | تفقيط ناقص في شاشات إدخال مالي: `frmProductMaster` (5 حقول) · `frmProductUnitMaster` (5) · `frmInventoryBarcode` (1) — وتحتاج حكماً: `frmWarehouseTransferNew` · `frmStocktakingNew` · `frmCashBoxTransactions` | `RULE-N97` | 3 | 11 حقلاً | `ui-agent` | M | W8 | ⬜ |
+| **GAP-08** | تفقيط ناقص في شاشات إدخال مالي: `frmCRUDCProductMaster` (5 حقول) · `frmProductUnitMaster` (5) · `frmInventoryBarcode` (1) — وتحتاج حكماً: `frmWarehouseTransferNew` · `frmStocktakingNew` · `frmCashBoxTransactions` | `RULE-N97` | 3 | 11 حقلاً | `ui-agent` | M | W8 | ⬜ |
 | **GAP-08b** | 20 شاشة لديها `errorProvider` بلا `clsInputFeedback` (تغذية رفض بصرية) — التفصيل §4.5. **حاملة استهلاك `clsValidation` (GAP-01)** | `RULE-N169` | 20 | — | `ui-agent` | M | W8 | ⬜ |
 | **GAP-09** | ألوان حرفية **داخل البيوت** تناقض «المكان الواحد» — التفصيل §4.1 (15 في `ThemeHelper` · 2 لون مكرّر · 1 في `clsInputFeedback`) | `RULE-N54a` · `RULE-N171` | 4 | 18 | `ui-agent` | M | W0 | ✅ مكتمل |
 | **GAP-10** | صيغة حرفية في طبقة الطباعة: `PrintHelper.cs:33-34` (`"N2"` · `"N3"`) · `InvoicePrinter.cs:261` (`"N0"`) | `RULE-N179` | 2 | 3 | `printing` | S | W8 | ⬜ |
@@ -180,7 +180,7 @@
 
 | الشاشة | حقول رقمية | الحكم |
 |---|---|---|
-| `frmProductMaster` | 5 (`NumericUpDown`) | ❌ يجب التفقيط (أسعار) |
+| `frmCRUDCProductMaster` | 5 (`NumericUpDown`) | ❌ يجب التفقيط (أسعار) |
 | `frmProductUnitMaster` | 5 | ❌ يجب التفقيط (أسعار وحدات) |
 | `frmInventoryBarcode` | 1 | ⚠️ يحتاج حكماً (كمية لا مبلغ) |
 | `frmWarehouseTransferNew` · `frmStocktakingNew` · `frmCashBoxTransactions` | `TextBox` مالي | ⚠️ يحتاج حكماً |
@@ -195,7 +195,7 @@
 
 ### 4.6 تفصيل `GAP-14` — شبكات بلا `ContextMenuStrip` (13)
 
-`frmAddUpdateCustomerReceipt` · `frmCustomerSelection` · `frmAddUpdateExpense` · `frmInventoryAddProduct` · `frmPOS` · `frmImportProductsExcel` · `frmProductMaster` · `frmProductSelection` · `frmProductUnitMaster` · `frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmSupplierSelection`.
+`frmAddUpdateCustomerReceipt` · `frmCustomerSelection` · `frmAddUpdateExpense` · `frmInventoryAddProduct` · `frmPOS` · `frmImportProductsExcel` · `frmCRUDCProductMaster` · `frmProductSelection` · `frmProductUnitMaster` · `frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmSupplierSelection`.
 
 > شبكات المستندات (`frmPurchaseInvoice` · `frmPurchaseReturn` · `frmSalesReturn` · `frmPOS`) شبكات إدخال سطور — `ContextMenuStrip` فيها قرار مالك لا إصلاحاً تلقائياً.
 
@@ -205,7 +205,7 @@
 
 | المصمّم | حقول | معلن أبيض | الفرق |
 |---|---|---|---|
-| `frmProductMaster.Designer.cs` | 14 | 3 | **11** |
+| `frmCRUDCProductMaster.Designer.cs` | 14 | 3 | **11** |
 | `frmProductUnitMaster.Designer.cs` | 9 | 1 | **8** |
 | `frmPurchaseInvoice.Designer.cs` | 6 | 0 | **6** |
 | `frmEmployeeMaster.Designer.cs` | 10 | 4 | **6** |
@@ -282,7 +282,7 @@
 | 2 | `frmChangeSystemColorsSettings` | غيّر «لون الحقل النشط» \(+\) احفظ | الحقل المركَّز في الشاشات المفتوحة يتغيّر فوراً |
 | 3 | `frmFormatingSetting` | منازل المبالغ \(\to\) 3 \(+\) احفظ | كل مبلغ في كل شبكة يظهر 3 منازل بلا `F5` |
 | 4 | `frmCustomerStatement` | اعرض كشفاً | المدين أحمر والدائن أخضر — **باللون نفسه** في `frmListSales` و`frmJournalEntries` |
-| 5 | `frmProductMaster` | أضف صنفاً بسعر | يظهر تلميح التفقيط بالحروف عند إدخال السعر |
+| 5 | `frmCRUDCProductMaster` | أضف صنفاً بسعر | يظهر تلميح التفقيط بالحروف عند إدخال السعر |
 | 6 | `frmListSales` | صدّر Excel | الملف يفتح والأرقام بمنازل الإعداد |
 | 7 | `frmDashboard` | افتحها | لا رمادي — الخلفية خضراء كالمصمّم |
 | 8 | أي شبكة | انقر يميناً على سطر | قائمة السياق تظهر (حيث تنطبق) |
@@ -443,7 +443,7 @@
 | **T-29** | `CashCustomerName` و`_GetStatusText` مكرّران بين شاشات القوائم | `frmListSales:13` · `frmListReturns:13` · `frmListPurchases` | نص/منطق مكرّر | `ui-agent` | S | ج |
 | **T-30** | رسالة «حذف (تعطيل)» في وحدات الصنف بينما التنفيذ `DeleteStrategy.Permanent` | `frmProductUnitMaster.cs:995` مقابل `1004` | رسالة تخالف الفعل | `ui-agent` | S | ب |
 | **T-31** | `<count>` بـ`ToString()` في منتقي الأصناف | `frmProductSelection.cs:142,336` | `clsFormat.Number` | `ui-agent` | S | ج |
-| **T-32** | معالج فارغ `dgvProducts_ChangeUICues` | `frmProductMaster.cs:1405-1408` | كود ميت | `ui-agent` | S | ج |
+| **T-32** | معالج فارغ `dgvProducts_ChangeUICues` | `frmCRUDCProductMaster.cs:1405-1408` | كود ميت | `ui-agent` | S | ج |
 | **T-33** | 50 لوناً حرفياً في 21 شاشة (`MistyRose` 13 · `DarkRed` 13 · `Red` 6 · `Green` 4 · `ForestGreen` 3 …) — و`RULE-N179` يمنع `MistyRose`/`DarkRed`/`LemonChiffon` في الماسترات صراحةً | 21 ملفاً في `Screens/**` | بيوت الألوان لا تصلها | `ui-agent` ×2 | M | ج |
 | **T-34** | `ThemeHelper` يحمل 4 ألوان حرفية باقية (`SidebarDark` · `TextDark` · `ButtonForeOnSolid` · `GhostHoverBack`) و`ExportHelper:194` `LastResortDateFormat` | بيتان | `RULE-N54a` | `fast-agent` | S | ج |
 | **T-35** | `Esc` في `frmListPayments` يعيد «هذا الشهر» بينما الافتراضي و«مسح التصفية» = «4 أشهر» | `frmListPayments.cs:394-417` مقابل `107-116` | افتراضان لنفس التصفية | `ui-agent` | S | ج |
@@ -549,7 +549,7 @@
 | T-27 | لوحة التحكم | `:N2` في `Screens/**` **= 0** | — |
 | T-30 | رسالة الوحدة | تطابق `DeleteStrategy` | `frmProductUnitMaster` |
 | T-31 | عدّاد المنتقي | `clsFormat.Number` | `frmProductSelection` |
-| T-32 | معالج فارغ | حُذف | `frmProductMaster` |
+| T-32 | معالج فارغ | حُذف | `frmCRUDCProductMaster` |
 | T-33 | ألوان الشاشات | **= 0** لون دلالي حرفي (كان 50 في 21 ملفاً). الوحيد الباقي `XLColor.LightGray` وهو **لون Excel** لا ثيم | — |
 | T-35 | افتراض تصفية `frmListPayments` | افتراض واحد | — |
 | T-37 | `NewFolder` | حُذف | — |
@@ -568,7 +568,7 @@
 | **T-62** | تعليق `IStocktakingDesktopService.CancelAsync` يصف سلوكاً قديماً (المسودة لم تكن تُلغى) | **= 0** — التعليق يصرّح: المسودة تُلغى بلا حركة رصيد · المرحّل يُعكس بحارس كفاية · الملغي يُرفض | `Services\Interfaces\IStocktakingDesktopService.cs:27-33` |
 | **T-63** | سندات صرف الموردين `2003`/`2004` تدّعي سداد فاتورة محددة بينما `PurchaseInvoiceId = null` | **= 0** — النص صار «دفعة على الحساب» (والأرصدة تتسق لأن الخدمة تطرح المدفوعات من متبقي الفواتير المرحّلة) | `MockSupplierPaymentsData.cs` |
 | البيوت | `MessageBox` خارج `clsDialogs` **= 0** · `ex.Message` للمستخدم **= 0** · `ExportHelper` في 32/32 تقريراً · `GreenThemeHelper.Apply(this)` في كل نموذج غير تقريري **= 0 ناقص** · تسجيل DI **94/94** بأسماء مؤهَّلة | — | — |
-| **T-68** | **`_cache.Clear()` قبل فحص `IsSuccess`** — عند فشل إعادة التحميل تبقى الذاكرة فارغة والمحرر يحتفظ بالسجل ⇒ «تعديل + حفظ» يقرأ `IsActive` (وحقلاً محفوظاً) كأنه مفقود | **= 0** في **9 شاشات** (`frmCustomerMaster` · `frmEmployeeMaster` · `frmCashBoxMaster` · `frmProductMaster` · `frmCategoryMaster` · `frmUnitMaster` · `frmSupplierMaster` · `frmWarehouseMaster` · `frmUserMaster`) — نُقل المسح **داخل** فرع النجاح · `frmAccounts` كان سليماً (تحقق ثم `return` قبل المسح) | الموجة 14 |
+| **T-68** | **`_cache.Clear()` قبل فحص `IsSuccess`** — عند فشل إعادة التحميل تبقى الذاكرة فارغة والمحرر يحتفظ بالسجل ⇒ «تعديل + حفظ» يقرأ `IsActive` (وحقلاً محفوظاً) كأنه مفقود | **= 0** في **9 شاشات** (`frmCustomerMaster` · `frmEmployeeMaster` · `frmCashBoxMaster` · `frmCRUDCProductMaster` · `frmCategoryMaster` · `frmUnitMaster` · `frmSupplierMaster` · `frmWarehouseMaster` · `frmUserMaster`) — نُقل المسح **داخل** فرع النجاح · `frmAccounts` كان سليماً (تحقق ثم `return` قبل المسح) | الموجة 14 |
 | **T-69** | `cbStatusFilter` بلا `DisplayMember` ⇒ `ListControl` يعرض `StatusOption { Value = 0, Text = … }` | **= 0** — سطر واحد `DisplayMember = nameof(StatusOption.Text)` | `frmJournalEntries.cs:249` |
 | **T-70** | **حارس تركيز ميت:** `Form.ActiveControl` يعيد الحاوية (`pnlFields`/`gbFilter`) لا الحقل ⇒ `ActiveControl is TextBoxBase` لا يتحقق أبداً، و`Delete` أثناء الكتابة ينفّذ إجراء السجل | **= 0** حارس ميت · بيت واحد `KeyboardHelper.IsTextInputFocused(Form?)` فوق `FindFocusedControl` القائم · يستهلكه `frmAccounts` · `frmJournalEntries` · `frmCustomerMaster` (+ `WireGlobalShortcuts`) | `Helpers\KeyboardHelper.cs:286` |
 | **T-71** | **`WireGlobalShortcuts` يبتلع المفتاح دائماً** ⇒ `Delete` لا يحذف حرفاً في أي حقل نصي بأي شاشة تسجّله (والحارس في الشاشات وُجد لهذا الغرض بالضبط) | **= 0** — الإعفاء مقصور على `Keys.Delete` عندما يكون التركيز في حقل إدخال؛ بقية المفاتيح (F2/F3/F4/F5/Ctrl+S/Esc) تُبتلع كما هي | `Helpers\KeyboardHelper.cs:571` |
@@ -577,7 +577,7 @@
 | **T-77** | حقل يُكتب ولا يُقرأ (CS0414) — `_isBindingLookups` | **= 0** — الحقل حُذف و**3** كتل `try/finally` فُكّت إلى عباراتها؛ القياس: لا معالج `cmbBranch_SelectedIndexChanged` أصلاً ⇒ الحارس كان نيّة ميتة، والحذف صفر أثر سلوكي | `frmUserMaster.cs:37,259,583,716` |
 | **T-78** | `Task` غير مُنتظَر (CS4014) | **= 0** — `() => _ = _ChooseProductAsync()` وهو اصطلاح الملف نفسه (السطران 372 · 388) | `frmInventoryFifo.cs:70` |
 | **T-79** | حقول مصمّم ميتة (CS0169) — `dataGridViewCellStyle1/2/3` **×9 تقارير = 27 حقلاً** | **= 0** — حُذفت الحقول غير المستخدمة وحدها؛ أنماط الشبكة الحقيقية (`dataGridViewCellStyle4/5/6` داخل `InitializeComponent`) لم تُمسّ، و`RULE-N134` سليم | 9 مصمّمات في `Screens\Reports\Forms\` |
-| **T-80** | **لا تغذية للحقل المطلوب عند مغادرته:** التحقق يعمل **عند الحفظ فقط** — لا أيقونة ولا تنبيه حين يترك المستخدم حقلاً مطلوباً فارغاً، فيكتشف الخطأ متأخراً بعد ملء الشاشة | **= 0 لـ`frmProductMaster`** — بيت واحد `Helpers\RequiredFieldHelper.cs` (`Attach`/`Validate`/`FirstMissing`/`Clear` + `RequiredField`) يضع **أيقونة ✗ وخلفية `SelectionRowColor` معاً** عند المغادرة/الحفظ ويزيلهما فور صحّة القيمة، واللون حيّ من `ThemePalette` (`RULE-N180`…`N183`) — والبقية `T-81` | `Helpers\RequiredFieldHelper.cs` + `frmProductMaster.cs:105,826,927,1004,1006` (بوابة الحفظ في `_SaveProductAsync` لا في `_ValidateForm` المحذوفة) |
+| **T-80** | **لا تغذية للحقل المطلوب عند مغادرته:** التحقق يعمل **عند الحفظ فقط** — لا أيقونة ولا تنبيه حين يترك المستخدم حقلاً مطلوباً فارغاً، فيكتشف الخطأ متأخراً بعد ملء الشاشة | **= 0 لـ`frmCRUDCProductMaster`** — بيت واحد `Helpers\RequiredFieldHelper.cs` (`Attach`/`Validate`/`FirstMissing`/`Clear` + `RequiredField`) يضع **أيقونة ✗ وخلفية `SelectionRowColor` معاً** عند المغادرة/الحفظ ويزيلهما فور صحّة القيمة، واللون حيّ من `ThemePalette` (`RULE-N180`…`N183`) — والبقية `T-81` | `Helpers\RequiredFieldHelper.cs` + `frmCRUDCProductMaster.cs:105,826,927,1004,1006` (بوابة الحفظ في `_SaveProductAsync` لا في `_ValidateForm` المحذوفة) |
 
 #### 10.6.2 ما زال مفتوحاً — المرحلة A (قابل للتنفيذ الآن)
 
@@ -589,9 +589,9 @@
 | ~~**T-57**~~ | ✅ **مغلق (الموجة 11)** — 7 شاشات تُبنى قوائم حالتها من `StatusOptions` بعد `InitializeComponent()`، والقائمة الثابتة أُزيلت من المصمّمات | §11.12 | كان `RULE-N169` | ✅ | — |
 | **T-54** | `_ClampToPickerRange(DateTime)` — منطق حصر تاريخ داخل مدى `DateTimePicker` (نسخة واحدة، غير مكرّرة) | `frmJournalEntries.cs:964` | لا مخالفة الآن؛ يُرقّى إلى بيت تواريخ إن تكرّر في شاشة ثانية | يُراقَب | — |
 | **T-64** | **نص «وضع التجربة» مكرّر:** `private const string RealModeNotice` بنفس النص حرفياً في 3 شاشات، و`MockOnlyNotice` بنص مختلف قليلاً في شاشة رابعة | `frmEmployeeMaster.cs:27` · `frmStocktakingNew.cs:35` · `frmWarehouseTransferNew.cs:36` · `frmInventory.cs:47` | `RULE-N169` — النص المشترك مكانه `DocumentTextHelper` (مثل `StatusOptions`)؛ **لم يُنفَّذ في الموجة 13** لأن توحيد الصياغة يغيّر نصاً يراه المالك ⇒ يُنفَّذ بقراره | `ui-agent` بعد قرار | S |
-| **T-73** | **8 نسخ محلية من حارس التركيز باقية:** `_IsTextInputFocused()` في 7 ماسترات + `_IsTextEditingFocused()` في `frmProductUnitMaster` — كلها **صحيحة وظيفياً اليوم** (لا عيب سلوكي)، لكنها دين `RULE-N172` (3+ نسخ) وتتباين دلالياً: نسخة `frmCustomerMaster` كانت قائمة أزرار يدوية تُسقط `txtId`، ونسخة `frmProductUnitMaster` تنزل سلسلة الحاويات | `frmCashBoxMaster:122` · `frmCategoryMaster:124` · `frmProductMaster:136` · `frmProductUnitMaster:125` · `frmSupplierMaster:123` · `frmUnitMaster:115` · `frmUserMaster:129` · `frmWarehouseMaster:124` | تُحذف كلها وتُستهلك `KeyboardHelper.IsTextInputFocused(this)` — تعديل متطابق ⇒ **S-Batch** على دفعتين (4 + 4) · لا خطر سلوكي لأن مسار الاختصار يمرّ بالبيت أولاً | `ui-agent` | S |
+| **T-73** | **8 نسخ محلية من حارس التركيز باقية:** `_IsTextInputFocused()` في 7 ماسترات + `_IsTextEditingFocused()` في `frmProductUnitMaster` — كلها **صحيحة وظيفياً اليوم** (لا عيب سلوكي)، لكنها دين `RULE-N172` (3+ نسخ) وتتباين دلالياً: نسخة `frmCustomerMaster` كانت قائمة أزرار يدوية تُسقط `txtId`، ونسخة `frmProductUnitMaster` تنزل سلسلة الحاويات | `frmCashBoxMaster:122` · `frmCategoryMaster:124` · `frmCRUDCProductMaster:136` · `frmProductUnitMaster:125` · `frmSupplierMaster:123` · `frmUnitMaster:115` · `frmUserMaster:129` · `frmWarehouseMaster:124` | تُحذف كلها وتُستهلك `KeyboardHelper.IsTextInputFocused(this)` — تعديل متطابق ⇒ **S-Batch** على دفعتين (4 + 4) · لا خطر سلوكي لأن مسار الاختصار يمرّ بالبيت أولاً | `ui-agent` | S |
 | **T-74** | **14 نموذجاً `frm*` مسجَّلاً في DI ولا يفتحه أحد** (بحث حدودي `(?<![A-Za-z0-9_])frmX(?![A-Za-z0-9_])` على كل `*.cs` ما عدا ملفَّي النموذج وتصريح `Program.cs`): `frmPurchaseItem` · `frmPurchaseItemInfo` · `frmPurchaseCurrency` · `frmPurchaseDiscount` · `frmPurchaseOtherDetails` · `frmPurchaseInvoicePrint` · `frmCustomerSelection` · `frmCustomerStatement` · `frmSupplierSelection` · `frmSupplierStatement` · `frmStocktakingPrint` · `frmStocktakingPrintCard` · `frmStocktakingPrintAdjustment` · `frmWarehouseTransferPrint` — وشاشة `frmPurchaseItem` تحمل تعليقاً يصف «النموذج الأب الذي يقرأ نتائج الحوار» **ولا أب لها في الحل** | §11.17 | `RULE-N102` كود ميت: إما تُفتح من القائمة أو تُحذف من المشروع ومن DI — **قرار مالك** لأنه يغيّر سطح التطبيق (`D-03` مجموعة فرعية منه) | `ui-agent` بعد قرار | S (14 ملفاً × 3) |
-| **T-81** | **تعميم `T-80` على بقية الشاشات:** القياس = **28 شاشة · 187 موضع `errorProvider.SetError`** (بعد إزالة مواضع الشاشة التجريبية؛ 182/27 باستثناء `frmPasswordChange`) كلها تتحقق **عند الحفظ فقط**؛ و**0** شاشة تُغذّي الحقل عند مغادرته. **الدَين المقيس:** `_FocusFirstMissingField` في **9** · `_RequiredFieldsValid` في **4** · `_ValidateForm` في **20**. الترتيب المحسوب: `frmProductUnitMaster` · `frmSupplierMaster` · `frmCustomerMaster` · `frmCategoryMaster` · `frmUnitMaster` · `frmWarehouseMaster` · `frmCashBoxMaster` · `frmUserMaster` · `frmEmployeeMaster` · ثم الدلائل/المستندات | `Screens\*\Forms\*.cs` (البيت جاهز: `RequiredFieldHelper`) | كل شاشة تُعلن قواعدها بسطر `Attach` واحد وتُعزّل نسختها الخاصة (`_RequiredFieldsValid`/`_FocusFirstMissingField`) — **لا لون ولا `SetError` جديد داخل الشاشة**. **محجوب ببوابة §2.39 (`RULE-N184`):** لا تُلمس أي شاشة قبل شهادة `frmProductMaster` 100% (`D-11`) | `ui-agent` — شريحة لكل شاشة (`RULE-N156`)، **ممنوع** «إصلاح كل الشاشات» | S/M (شريحة لكل شاشة) |
+| **T-81** | **تعميم `T-80` على بقية الشاشات:** القياس = **28 شاشة · 187 موضع `errorProvider.SetError`** (بعد إزالة مواضع الشاشة التجريبية؛ 182/27 باستثناء `frmPasswordChange`) كلها تتحقق **عند الحفظ فقط**؛ و**0** شاشة تُغذّي الحقل عند مغادرته. **الدَين المقيس:** `_FocusFirstMissingField` في **9** · `_RequiredFieldsValid` في **4** · `_ValidateForm` في **20**. الترتيب المحسوب: `frmProductUnitMaster` · `frmSupplierMaster` · `frmCustomerMaster` · `frmCategoryMaster` · `frmUnitMaster` · `frmWarehouseMaster` · `frmCashBoxMaster` · `frmUserMaster` · `frmEmployeeMaster` · ثم الدلائل/المستندات | `Screens\*\Forms\*.cs` (البيت جاهز: `RequiredFieldHelper`) | كل شاشة تُعلن قواعدها بسطر `Attach` واحد وتُعزّل نسختها الخاصة (`_RequiredFieldsValid`/`_FocusFirstMissingField`) — **لا لون ولا `SetError` جديد داخل الشاشة**. **محجوب ببوابة §2.39 (`RULE-N184`):** لا تُلمس أي شاشة قبل شهادة `frmCRUDCProductMaster` 100% (`D-11`) | `ui-agent` — شريحة لكل شاشة (`RULE-N156`)، **ممنوع** «إصلاح كل الشاشات» | S/M (شريحة لكل شاشة) |
 
 > **ملاحظة قياس:** `_ToNullIfEmpty` **= 0** · `_Clamp` **= 0** (المتبقي `_ClampToPickerRange` وهو دالة أخرى) · `private const CashCustomerName` **= 0** · `private _GetStatusText` **= 0** · `CellFormatting` في التقارير **= 0** · `IsDateRangeValid` **= 21** استدعاءً · `NumericInputHelper` **13** مرجعاً · `DocumentTextHelper` **48** مرجعاً · `clsValidation.EndOfDay` **21** استدعاءً. **(كل هذه الأرقام تجاوزها §10.6.5 بعد الموجات 9–12.)**
 >
@@ -603,7 +603,7 @@
 
 #### 10.6.4 قرارات مالك معلَّقة (لا تُنفَّذ بلا نص)
 
-`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً · **`D-09` (جديد)** **النقر على سطر في الشبكة أثناء وضع الإضافة يمحو ما كتبه المستخدم بلا سؤال** — السلوك موجود في **كل** الماسترات بما فيها الشاشة المرجعية `frmProductMaster`، فإصلاحه حارس واحد مشترك يستهلكه الجميع (`RULE-N171`) وتغيير سلوك مرئي: **إبقاء السلوك** / **تأكيد قبل الإفراغ** / **تجاهل النقر ما دام `EntryMode.Adding`** · **`D-10` (جديد)** **`T-74` — 14 نموذجاً مسجَّلاً في DI ولا يفتحه أحد** (القياس الحدودي في الموجة 15): إما تُربط من القائمة/الشاشة الأم أو تُحذف من المشروع ومن DI (`RULE-N102`) — `D-03` مجموعة فرعية منه وعدّه «7» كان أقل من المقيس · **`D-11` (جديد)** **تعميم تغذية الحقل المطلوب (`T-81`)** — **صار بوابة قانونية لا قراراً فقط:** `AGENTS.md` §2.39 (`RULE-N184`) تمنع لمس أي شاشة ثانية قبل **شهادة 100%** للشاشة التجريبية `frmProductMaster` بتأكيد المالك المكتوب (شرط `RULE-N185` السادس). ومعه يُحسم سؤالان: هل يبقى اللون الأصفر أيضاً على الحقل **المركَّز** الفارغ (اليوم يُرى الرمز وحده لأن اللون نفسه هو لون التركيز)، وهل يُضاف تلميح `clsInputFeedback` بجانب الأيقونة أم تكفي الأيقونة.
+`D-01` تصدير Excel (36 شاشة) · `D-02` شبكات `AllowUserToAddRows = true` (**4** في الكود الآن) · `D-03` 7 نماذج شراء ميتة · `D-04` 4 نوافذ طباعة مخزون · `D-05` تقرير الربح حسب العميل · `D-06` `MockAuthService` بلا مستهلك · `D-07` موافقة أي وحدة في §10.2 · **`D-08` (جديد)** توحيد نص «وضع التجربة» في 4 شاشات (`T-64`) — يغيّر نصاً مرئياً · **`D-09` (جديد)** **النقر على سطر في الشبكة أثناء وضع الإضافة يمحو ما كتبه المستخدم بلا سؤال** — السلوك موجود في **كل** الماسترات بما فيها الشاشة المرجعية `frmCRUDCProductMaster`، فإصلاحه حارس واحد مشترك يستهلكه الجميع (`RULE-N171`) وتغيير سلوك مرئي: **إبقاء السلوك** / **تأكيد قبل الإفراغ** / **تجاهل النقر ما دام `EntryMode.Adding`** · **`D-10` (جديد)** **`T-74` — 14 نموذجاً مسجَّلاً في DI ولا يفتحه أحد** (القياس الحدودي في الموجة 15): إما تُربط من القائمة/الشاشة الأم أو تُحذف من المشروع ومن DI (`RULE-N102`) — `D-03` مجموعة فرعية منه وعدّه «7» كان أقل من المقيس · **`D-11` (جديد)** **تعميم تغذية الحقل المطلوب (`T-81`)** — **صار بوابة قانونية لا قراراً فقط:** `AGENTS.md` §2.39 (`RULE-N184`) تمنع لمس أي شاشة ثانية قبل **شهادة 100%** للشاشة التجريبية `frmCRUDCProductMaster` بتأكيد المالك المكتوب (شرط `RULE-N185` السادس). ومعه يُحسم سؤالان: هل يبقى اللون الأصفر أيضاً على الحقل **المركَّز** الفارغ (اليوم يُرى الرمز وحده لأن اللون نفسه هو لون التركيز)، وهل يُضاف تلميح `clsInputFeedback` بجانب الأيقونة أم تكفي الأيقونة.
 
 
 #### 10.6.5 القياس النهائي — بعد موجة الإصلاح الكاملة (2026-11-15، المرجع الحالي)
@@ -646,13 +646,13 @@
 | حقل يُكتب ولا يُقرأ (`CS0414`) | **0** | 1 | ✅ `T-77` |
 | `Task` غير مُنتظَر (`CS4014`) | **0** | 1 | ✅ `T-78` |
 | حقول مصمّم ميتة (`CS0169`) | **0** | 27 (9 تقارير × 3) | ✅ `T-79` |
-| **تغذية الحقل المطلوب عند مغادرته** (أيقونة ✗ + لون `SelectionRowColor` معاً) | **1 شاشة** (`frmProductMaster`) عبر بيت واحد `RequiredFieldHelper` — **0** شاشة أخرى | **0** شاشة في النظام كله | 🔄 `T-80` مغلق للشاشة النموذج · `T-81` محجوب بمراجعة المالك (`D-11`) |
+| **تغذية الحقل المطلوب عند مغادرته** (أيقونة ✗ + لون `SelectionRowColor` معاً) | **1 شاشة** (`frmCRUDCProductMaster`) عبر بيت واحد `RequiredFieldHelper` — **0** شاشة أخرى | **0** شاشة في النظام كله | 🔄 `T-80` مغلق للشاشة النموذج · `T-81` محجوب بمراجعة المالك (`D-11`) |
 | `errorProvider.SetError` داخل الشاشات (التحقق عند الحفظ فقط) | **187** موضعاً في **28** شاشة — كلها عند الحفظ، **0** منها عند المغادرة (كان **199 / 28** قبل إزالة مواضع الشاشة التجريبية · و**182 / 27** باستثناء `frmPasswordChange`) | 199 · 28 | ⚠️ `T-81` — الانحراف **مقيس** بطريقة عدّ مذكورة هنا لا مفترض |
 | دَين نسخ حكم «مطلوب» في بقية الشاشات | `_FocusFirstMissingField` **9** شاشات · `_RequiredFieldsValid` **4** · `_ValidateForm` **20** | — | ⚠️ `T-81` — مجمَّد ببوابة `RULE-N184` حتى شهادة الشاشة التجريبية |
-| `RequiredFieldHelper` | **1** تعريف · **1** مستهلك (`frmProductMaster`) · **5** مواضع استهلاك (`Attach` · `Validate` · `FirstMissing` · `Clear`×2) · **0** لون رفض محلي · **0** ARGB مكتوب | 0 | ✅ `RULE-N180`…`N183` |
+| `RequiredFieldHelper` | **1** تعريف · **1** مستهلك (`frmCRUDCProductMaster`) · **5** مواضع استهلاك (`Attach` · `Validate` · `FirstMissing` · `Clear`×2) · **0** لون رفض محلي · **0** ARGB مكتوب | 0 | ✅ `RULE-N180`…`N183` |
 | **عيوب الشاشة التجريبية المفتوحة** (`PILOT-1`…`PILOT-4`) | **0** — أُصلحت كلها **في الشاشة التجريبية** قبل أي تعميم | — | ✅ `RULE-N184`/`N186` · الشهادة (تأكيد المالك) معلّقة |
 | نسخ حكم «مطلوب» في الشاشة التجريبية (`_RequiredFieldsValid` · `_FocusFirstMissingField` · `_ValidateForm`) | **0 · 0 · 0** | 1 · 1 · 1 | ✅ `RULE-N172`/`N184` |
-| الشاشات التي تُغذّي الحقل المطلوب عند مغادرته | **1** من **29** (`frmProductMaster` = التجريبية) | 0 | 🔄 `T-81` **محجوب ببوابة §2.39** |
+| الشاشات التي تُغذّي الحقل المطلوب عند مغادرته | **1** من **29** (`frmCRUDCProductMaster` = التجريبية) | 0 | 🔄 `T-81` **محجوب ببوابة §2.39** |
 | **مجموع التحذيرات** (بناء كامل `--no-incremental`) | **86** تحذيراً · **76** مثيلاً مميَّزاً (`ملف:سطر:رمز`) | 118 تحذيراً · 108 مثيلاً | ✅ الموجة 15 أنقصت **32** |
 | عائلة nullable (`CS8602` 43 · `CS8604` 14 · `CS8618` 13 · `CS8601` 2 · `CS8605` 1 · `CS8600` 1) | **74** مثيلاً — **لم تُمسّ** | 74 | ⚠️ موجة مستقلة: الإصلاح يضيف فحوص `null` فعلية ⇒ سلوك، لا يدخل ضمن تنظيف التحذيرات |
 | `CS8981` — صنف ترحيل اسمه حرفياً `update` | **2** | 2 | ⚠️ مجمَّد `RULE-N177` (داخل `Migrations/**`) |
@@ -671,11 +671,11 @@
 
 | الفئة | التعريف | مثال مقيس |
 |---|---|---|
-| **1 · مال/بيانات** | قيمة تُعرض ولا تُرسل · حقل يُسقط صامتاً · افتراضي يمحو إدخال المستخدم · `decimal` كنص · صيغة مكتوبة بخط اليد | `frmProductMaster:652` فشل إنشاء الوحدة يُعرض بعده «تمت إضافة الصنف بنجاح» |
+| **1 · مال/بيانات** | قيمة تُعرض ولا تُرسل · حقل يُسقط صامتاً · افتراضي يمحو إدخال المستخدم · `decimal` كنص · صيغة مكتوبة بخط اليد | `frmCRUDCProductMaster:652` فشل إنشاء الوحدة يُعرض بعده «تمت إضافة الصنف بنجاح» |
 | **2 · نجاح كاذب** | رسالة نجاح بلا نداء خدمة أو مع `Result` فاشل · `Result` مُهمَل · معالج فارغ · صفوف مصنوعة | `frmOpeningStock:484` ترحيل جزئي يُعلَن «نجاحاً» |
 | **3 · انهيار/كسر** | `Cells["<حقل منطقي>"]` بدل `GridRowHelper` · `async void` بلا `try/catch` · `Cursor` لا يُستعاد · `Convert.ToDecimal(DBNull)` · `(int)` على `short` | `frmOpeningStock:196` إسقاط الشاشة |
 | **4 · بيت مكرّر** | لون حرفي · `MessageBox` خارج `clsDialogs` · `ex.Message` للمستخدم · نسخة خاصة من سلوك بيت · نص حالة حرفي · صيغة `N2`/`yyyy-MM-dd` يدوية | `_Clamp` ×5 · `_GetStatusText` ×2 · `CellFormatting` التقارير |
-| **5 · آلة حالة** | تعطيل/ترحيل/إلغاء مفعّل على سطر غير مطابق · تحرير مستند مُرحَّل · حفظ ثانٍ يُنشئ مستنداً مكرراً · `Enter` داخل شبكة السطور يُرحّل | `frmProductMaster:875` «تعطيل» على سجل معطّل |
+| **5 · آلة حالة** | تعطيل/ترحيل/إلغاء مفعّل على سطر غير مطابق · تحرير مستند مُرحَّل · حفظ ثانٍ يُنشئ مستنداً مكرراً · `Enter` داخل شبكة السطور يُرحّل | `frmCRUDCProductMaster:875` «تعطيل» على سجل معطّل |
 
 ### 11.1 البيوت الجديدة في هذه الموجة
 
@@ -707,7 +707,7 @@
 | `Screens\Accounting\Forms\frmJournalEntries.cs` | ✅ منتهٍ | مثلها + `_StatusText` المحلية → `DocumentTextHelper.StatusText` |
 | `Screens\Customers\Forms\frmCustomerMaster.cs` | ✅ منتهٍ | حُذفت `_ToNullIfEmpty` + `_Clamp` → البيتان |
 | `Screens\Suppliers\Forms\frmSupplierMaster.cs` | ✅ منتهٍ | مثلها |
-| `Screens\Products\Forms\frmProductMaster.cs` | ✅ منتهٍ | `_Clamp` ×5 → `NumericInputHelper.Clamp` |
+| `Screens\Products\Forms\frmCRUDCProductMaster.cs` | ✅ منتهٍ | `_Clamp` ×5 → `NumericInputHelper.Clamp` |
 | `Screens\Products\Forms\frmProductUnitMaster.cs` | ✅ منتهٍ | مثلها |
 | `Screens\Employees\Forms\frmEmployeeMaster.cs` | ✅ منتهٍ | مثلها |
 | `Screens\Sales\Forms\frmListSales.cs` | ✅ منتهٍ | `CashCustomerName` + `_GetStatusText` → `DocumentTextHelper`، وتلوين الحالة صار بقيمة `Status` الرقمية، وقائمة الحالة من `StatusOptions` |
@@ -738,7 +738,7 @@
 
 | الملف | الحكم | ما نُفِّذ |
 |---|---|---|
-| `Screens\Products\Forms\frmProductMaster.cs` | ✅ منتهٍ | «تعطيل» مشروط بالسجل النشط (`RULE-N92`) · فشل إنشاء الوحدة الرئيسية وسطر السعر يُعلَن بتحذير عربي بدل «تمت الإضافة بنجاح» |
+| `Screens\Products\Forms\frmCRUDCProductMaster.cs` | ✅ منتهٍ | «تعطيل» مشروط بالسجل النشط (`RULE-N92`) · فشل إنشاء الوحدة الرئيسية وسطر السعر يُعلَن بتحذير عربي بدل «تمت الإضافة بنجاح» |
 | `Screens\Products\Forms\frmProductUnitMaster.cs` | ✅ منتهٍ | «حذف» معطّل على الوحدة الأساسية (كان مفعّلاً ثم يرفض) |
 | `Screens\Products\Forms\frmProductSelection.cs` | ✅ منتهٍ | `clsFormat.Quantity` بدل `"G"` · F5 يحدّث شبكة الوحدات · `SelectedProduct` من DTO الحقيقي لا مُختلق |
 | `Screens\Products\Forms\frmImportProductsExcel.cs` | ✅ منتهٍ | ورقة فارغة → رسالة صادقة بدل `NullReference` يُفسَّر «الملف مفتوح» |
@@ -898,7 +898,7 @@
 | `Screens\Accounting\Forms\frmJournalEntries.cs` | ✅ منتهٍ `T-69`/`T-70` | `cbStatusFilter.DisplayMember` أُضيف — كانت القائمة تُعرض `StatusOption { Value = 0, Text = كل الحالات }` بدل النص العربي؛ والحارس الميت `ActiveControl is TextBoxBase` استُبدل ببيت `KeyboardHelper` |
 | `Screens\Accounting\Forms\frmAccounts.cs` | ✅ منتهٍ `T-70` | نفس الحارس الميت في `_HandleDeleteShortcut` ⇒ كان `Delete` أثناء الكتابة يفتح **تأكيد تعطيل الحساب** |
 | `Screens\CashBoxes\Forms\frmCashBoxMaster.cs` | ✅ منتهٍ `T-68` | مسح الكاش قبل التحقق ⇒ أزرار معكوسة + رسالة «تعذر العثور على بيانات الصندوق المحدد» على سجل معروض (لا تعطيل صامت: `UpdateCashBoxRequest` لا يحمل `IsActive`) |
-| `Screens\Products\Forms\frmProductMaster.cs` | ✅ منتهٍ `T-68` | نفس العيب — أثره **إعادة تنشيط صامتة** لصنف معطّل (احتياط `IsActive: true`) لا تعطيل |
+| `Screens\Products\Forms\frmCRUDCProductMaster.cs` | ✅ منتهٍ `T-68` | نفس العيب — أثره **إعادة تنشيط صامتة** لصنف معطّل (احتياط `IsActive: true`) لا تعطيل |
 | `Screens\Categories\Forms\frmCategoryMaster.cs` | ✅ منتهٍ `T-68` | **تعطيل صامت مُثبَت** لمجموعة نشطة برسالة «تم تعديل المجموعة بنجاح» |
 | `Screens\Units\Forms\frmUnitMaster.cs` | ✅ منتهٍ `T-68` | **تعطيل صامت مُثبَت** لوحدة نشطة |
 | `Screens\Suppliers\Forms\frmSupplierMaster.cs` | ✅ منتهٍ `T-68` | تعطيل صامت **+ محو `CategoryId`** المحفوظ عند التعديل |
@@ -956,9 +956,9 @@
 
 **مزامنة نسخة المالك الثانية:** أُخِذت لقطة قابلة للاسترجاع (`git stash push -u` ⇒ `stash@{0}: pre-sync snapshot 2026-11-16 by orchestrator`) ثم `git reset --hard origin/master` ⇒ النسخة صارت مطابقة للمستودع وبناؤها **0 أخطاء / 118 تحذيراً** (ثم إلى `86` بعد هذه الموجة). الاسترجاع إن أراد: `git stash pop`.
 
-### 11.18 الموجة 16 — تغذية الحقل المطلوب: أيقونة ✗ **و**لون التحديد معاً (`frmProductMaster` أولاً بقرار المالك)
+### 11.18 الموجة 16 — تغذية الحقل المطلوب: أيقونة ✗ **و**لون التحديد معاً (`frmCRUDCProductMaster` أولاً بقرار المالك)
 
-> **طلب المالك (2026-11-16):** «تحسين تجربة الاستخدام بلون التحديد للحقل المطلوب: عندما يترك المستخدم الحقل بلا إدخال تظهر أيقونة مثل `errorProvider`، وتُحدَّث مع كل `Enter`… **جرّب `frmProductMaster` أولاً وأراجع النتيجة**، وسجّل هذا السلوك في `AGENTS.md`». الهدف المعلن: أن يفهم المستخدم **في اللحظة نفسها** أن هناك خطأ **وأن الشاشة ما زالت تفاعلية** — لذا **إشارتان معاً لا واحدة**.
+> **طلب المالك (2026-11-16):** «تحسين تجربة الاستخدام بلون التحديد للحقل المطلوب: عندما يترك المستخدم الحقل بلا إدخال تظهر أيقونة مثل `errorProvider`، وتُحدَّث مع كل `Enter`… **جرّب `frmCRUDCProductMaster` أولاً وأراجع النتيجة**، وسجّل هذا السلوك في `AGENTS.md`». الهدف المعلن: أن يفهم المستخدم **في اللحظة نفسها** أن هناك خطأ **وأن الشاشة ما زالت تفاعلية** — لذا **إشارتان معاً لا واحدة**.
 
 **القياس قبل الكتابة (خطوة 0 — الدعوى تُقاس):**
 
@@ -972,16 +972,16 @@
 | الملف | الحكم | ما نُفِّذ |
 |---|---|---|
 | `Helpers\RequiredFieldHelper.cs` | **جديد** | بيت واحد: `RequiredField(Control, string Message, Func<bool>? When)` + `Attach` · `Validate` · `Clear`. التقييم يُضبط فيه **`SetError` والخلفية في نفس اللحظة**، واللون يُقرأ **حيّاً** `ThemePalette.Get(SelectionRowColor)` عند كل تقييم، والخلفية تُستعاد إلى **لون المصمّم الملتقَط** لا إلى أبيض، والحالة في `ConditionalWeakTable` (لا تسريب نماذج — نفس نمط `KeyboardHelper.MarkWired`)، وكل معالج داخل `Safe(...)` فلا استثناء يفلت، و`IsEmpty` مصدر وحيد لحكم «فارغ» (نص/`MaskedTextBox` · `ComboBox` بتحويل دفاعي **بلا `(int)SelectedValue`** فيُحترم `short`) |
-| `Screens\Products\Forms\frmProductMaster.cs` | **4 إدخالات فقط** | (1) `Attach` بعد `WireModeEnter` — **بعد** `WireFocusHighlight` لأن ترتيب اشتراك `Leave` يحسم مَن يرسم الخلفية أخيراً · (2) `Clear` في `_ApplyModeState` عند مغادرة وضع التحرير · (3) `Clear` بعد `errorProvider.Clear()` في `_ResetForm` · (4) `Validate` أول سطر في `_ValidateForm` ليظهر اللون أيضاً عند محاولة الحفظ |
+| `Screens\Products\Forms\frmCRUDCProductMaster.cs` | **4 إدخالات فقط** | (1) `Attach` بعد `WireModeEnter` — **بعد** `WireFocusHighlight` لأن ترتيب اشتراك `Leave` يحسم مَن يرسم الخلفية أخيراً · (2) `Clear` في `_ApplyModeState` عند مغادرة وضع التحرير · (3) `Clear` بعد `errorProvider.Clear()` في `_ResetForm` · (4) `Validate` أول سطر في `_ValidateForm` ليظهر اللون أيضاً عند محاولة الحفظ |
 | `AGENTS.md` | **§2.38 جديد** | `RULE-N180` (الإشارتان معاً في التقييم نفسه) · `RULE-N181` (البيت الواحد) · `RULE-N182` (لا لون/عنصر جديد + لون المصمّم هو المستعاد) · `RULE-N183` (المعطّل لا يُوسَم + ترتيب الاستدعاء الملزم) + صف في §2.20 (18) و§2.27 و§2.30 و§2.21-17 |
 
 **التعامل مع تظليل الحقل النشط (الفخّ الحقيقي في هذه الموجة):** `KeyboardHelper.WireFocusHighlight` يستعيد الخلفية في `Leave` أيضاً، فلولا الترتيب لمسح لون الرفض. الحلّ: `Attach` بعد `WireFocusHighlight` (WinForms ينفّذ معالجات الحدث نفسه بترتيب الاشتراك) — والشرط مكتوب في **XML doc للـ`Attach`** وفي **تعليق موقع الاستدعاء** حتى لا يُعاد ترتيبه لاحقاً. وأُضيف `EnabledChanged` لأن `KeyboardHelper.WireDisabledVisuals` يلتقط «اللون الطبيعي» عند التعطيل: بلا هذا المعالج قد يُلتقَط **الأصفر** كأنه لون طبيعي فيبقى بعد إعادة التفعيل.
 
-**البناء:** `dotnet build .\SalesSystem.slnx --no-incremental` ⇒ **0 أخطاء / 86 تحذيراً** — **مطابق تماماً لخط الأساس**: لم يُضف الملف الجديد تحذيراً واحداً (المثيلات المميَّزة **76** كما هي؛ `CS8618` عند `frmProductMaster.cs:76` قديم خاص بمنشئ المصمّم).
+**البناء:** `dotnet build .\SalesSystem.slnx --no-incremental` ⇒ **0 أخطاء / 86 تحذيراً** — **مطابق تماماً لخط الأساس**: لم يُضف الملف الجديد تحذيراً واحداً (المثيلات المميَّزة **76** كما هي؛ `CS8618` عند `frmCRUDCProductMaster.cs:76` قديم خاص بمنشئ المصمّم).
 
 #### 11.18.1 بوابة الشاشة التجريبية — عيوب الشاشة النموذج `PILOT-1…4` (قرار المالك 2026-11-16)
 
-> **قرار المالك:** «قبل أن نطبّق أي كود على كل شاشات النظام يجب أن نختبره في مكان واحد — شاشة واحدة — ونتأكد أنه يعمل 100% بلا مشاكل». صار قانوناً في `AGENTS.md` §2.39 (`RULE-N184`…`N187`)، ومعه تُصبح **`frmProductMaster` الشاشة التجريبية** و**بقية الـ28 شاشة ممنوعة المساس** حتى الشهادة.
+> **قرار المالك:** «قبل أن نطبّق أي كود على كل شاشات النظام يجب أن نختبره في مكان واحد — شاشة واحدة — ونتأكد أنه يعمل 100% بلا مشاكل». صار قانوناً في `AGENTS.md` §2.39 (`RULE-N184`…`N187`)، ومعه تُصبح **`frmCRUDCProductMaster` الشاشة التجريبية** و**بقية الـ28 شاشة ممنوعة المساس** حتى الشهادة.
 
 | # | العيب المكتشف في الشاشة التجريبية | البرهان المقيس | الإصلاح في الشاشة نفسها |
 |---|---|---|---|
@@ -1021,7 +1021,7 @@
 | `Helpers/ThemePalette.cs` | ✅ | **13** قيمة افتراضية جديدة (خلفية `240,242,245` · شريط `16,150,96` · نص مميّز `33,37,41` · صناديق/أشرطة/شبكة أبيض · رؤوس `52,58,64` · خطوط `222,226,230` · متبادلة `248,249,250` · تحديد `#FFF3CD` · معطّل `233,236,239`/`108,117,125` · رفض `#F8D7DA`) + **`RetiredDefaults` (13 زوجاً)** + `internal IsRetiredDefault(key, color)` |
 | `Helpers/GreenThemeHelper.cs` | ✅ | استهلاك `IsRetiredDefault` في `IsThemeColor` (داخل `ContainerRoleKeys`) و`IsPaletteOwnedColor` (**موضعان**) — فالمصمّم القديم يبقى «لون ثيم» يُعاد تلوينه؛ + تصحيح تعليق `TextStrong` |
 | `Helpers/KeyboardHelper.cs` | ✅ | تعليقان (228 · 340) كانا يذكران `#FFFFB4` كافتراضي — صارا `#FFF3CD` (`RULE-N174`: التوثيق يتبع القيمة) |
-| `Screens/Products/Forms/frmProductMaster.Designer.cs` | ✅ | **11** قيمة لونية نُسِّخت إلى الافتراضيات الجديدة — وفُصِل الدوران المتشابهان: `lblMode` → **زمردي** `16,150,96`، ونمط رؤوس الأعمدة `dataGridViewCellStyle5` → **فحمي** `52,58,64` · `grpMainUnit` كان أخضر مصمّماً قديماً `200,230,200` → أبيض |
+| `Screens/Products/Forms/frmCRUDCProductMaster.Designer.cs` | ✅ | **11** قيمة لونية نُسِّخت إلى الافتراضيات الجديدة — وفُصِل الدوران المتشابهان: `lblMode` → **زمردي** `16,150,96`، ونمط رؤوس الأعمدة `dataGridViewCellStyle5` → **فحمي** `52,58,64` · `grpMainUnit` كان أخضر مصمّماً قديماً `200,230,200` → أبيض |
 | **بقية المصمّمات** | ⚠️ **94 ملفاً** | لم تُمسّ بقرار المالك (شاشة تجريبية أولاً). **وقت التشغيل صحيح فيها كلها بفضل `RetiredDefaults`**، والناقص **معاينة المصمّم فقط** (`RULE-N134`/`RULE-N140`) — تُنفَّذ في **3 موجات × 4 وكلاء × ≤8 ملفات** بعد شهادة المالك (`§2.40`). **القياس: 2,553 موضعاً في 95 ملفاً** |
 | `ColorSuggestionHelper.cs` | ✅ بلا مسّ | معجم ألوان **لا** افتراضيات — «أخضر زمردي» `16,150,96` و«فحمي» `33,37,41` موجودان فيه أصلاً فاقتراحاته متسقة مع اللوحة الجديدة |
 | `GreenThemeHelper.Status*` / `InactiveRow*` | ✅ بلا مسّ | ألوان **حالة دلالية** لا تصميم (لا تُعلَن في المصمّمات ولا تتغيّر مع اللوحة) |
@@ -1050,7 +1050,7 @@
 
 ### 11.20 الموجة 17 — تنقل `Enter` بترتيب العرض + بيت واحد لقيم التنقل الافتراضية (2026-11-16)
 
-> **بلاغ المالك (نصّه):** «I test frmProductMaster and find one Problem here the Navation by Enter must move by ordering row by row and after move to last faild must go to the buttong depened on scrren Mode» — ثم: «but we can set Helper for change default Navigation or anything from one Place ... register this in Agents.md for any edit in the future for consume less time and less cost of dovlepment».
+> **بلاغ المالك (نصّه):** «I test frmCRUDCProductMaster and find one Problem here the Navation by Enter must move by ordering row by row and after move to last faild must go to the buttong depened on scrren Mode» — ثم: «but we can set Helper for change default Navigation or anything from one Place ... register this in Agents.md for any edit in the future for consume less time and less cost of dovlepment».
 >
 > **تنبيه ترقيم:** هذه الموجة بدأت بأرقام `RULE-N188…N190` ثم **أُعيد ترقيمها إلى `RULE-N191…N193`** بعد أن نشرت موجة اللوحة (§11.19) `RULE-N188…N190` لنفسها — لا تعارض الآن، والملفات تحمل الأرقام النهائية فقط.
 
@@ -1058,7 +1058,7 @@
 |---|---|---|
 | `Helpers\KeyboardHelper.cs` | **واجهة ثانية + إصلاح بلوكر** | `WireEnterAsTab(Control scope, Func<Button?> primaryButton)` + `PreviewKeyDown`→`IsInputKey` (على الحقل **وأبنائه الداخلية**) · ترتيب العرض بإحداثيات الشاشة · تسليم آخر حقل لزر الوضع **تركيزاً بلا تنفيذ** · القائمة المنسدلة المفتوحة تملك `Enter` · `if (e.Handled) return` · حارسا توصيل مزدوج (`EnterNavigationWired` · `EnterInputKeyDeclared`) |
 | `Helpers\NavigationOptions.cs` | **جديد — بيت واحد (H-08)** | `RULE-N192` كتطبيق مرجعي: الافتراضيات معلنة مرة واحدة، تُقرأ حيّة عند كل ضغطة، لا شاشة تقرأها أو تضبطها |
-| `Screens\Products\Forms\frmProductMaster.cs` | **سطر واحد** | `WireEnterAsTab(pnlFields, _PrimaryActionButton)` — الشاشة التجريبية الوحيدة (`RULE-N184`) |
+| `Screens\Products\Forms\frmCRUDCProductMaster.cs` | **سطر واحد** | `WireEnterAsTab(pnlFields, _PrimaryActionButton)` — الشاشة التجريبية الوحيدة (`RULE-N184`) |
 | `AGENTS.md` | **3 قواعد** | `RULE-N191` (§2.18) · `RULE-N192` (§2.30) · `RULE-N193` (§2.33) + تحديث §2.20-1 و§2.27 و§2.30 و§2.39 |
 
 **`PILOT-10…13` — عيوب وُجدت في الشاشة التجريبية وأُصلحت فيها:**
@@ -1074,7 +1074,7 @@
 
 | القياس | الطريقة | القيمة |
 |---|---|---|
-| مواضع `WireEnterAsTab` في `Screens/**` | `Select-String -Pattern 'KeyboardHelper\.WireEnterAsTab\('` | **59** = **58** أحادي الوسيط + **1** ثنائي (`frmProductMaster.cs:85`) |
+| مواضع `WireEnterAsTab` في `Screens/**` | `Select-String -Pattern 'KeyboardHelper\.WireEnterAsTab\('` | **59** = **58** أحادي الوسيط + **1** ثنائي (`frmCRUDCProductMaster.cs:85`) |
 | شاشات تضبط `AcceptButton` | `Select-String -Pattern 'AcceptButton\s*='` (بلا مصمّمات) | **40** شاشة · **59** موضع إسناد — كتلة `RULE-N193` المتأثرة |
 | `NavigationOptions` داخل `Screens/**` | `Select-String` | **0** (وممنوع أن يتغيّر) |
 | `Math.Max(8` داخل `KeyboardHelper` | `Select-String` | **0** (القيمة في البيت الواحد) |
@@ -1141,7 +1141,7 @@
 |---|---|---|
 | `Helpers\ThemePalette.cs` | **+96/−25 ثم +40/−17** | (أ) `AllDefinitions`: **17** من 24 قيمة إلى اللوحة الزرقاء · (ب) `RetiredDefaults`: **13 → 30** زوجاً (الجيل الأخضر + الجيل المحايد) · (ج) **`ButtonKeyFor`** مُحلِّل واحد (`internal`) · (د) `RepaintThemeButton` أُعيد بناؤه عليه · (هـ) `RepaintThemeButtons` صار `internal` |
 | `Helpers\GreenThemeHelper.cs` | **+16/−1** | استدعاء واحد داخل `Apply(Form)` بعد `Apply((Control)form)` — صفر لون مضاف (`RULE-N112`) |
-| `Screens\Products\Forms\frmProductMaster.Designer.cs` | **23 سطراً** | 13 سطحاً لونياً + 10 أزرار ⇒ المصمّم = التشغيل على الشاشة التجريبية (`RULE-N134`/`N140`/`N144`) |
+| `Screens\Products\Forms\frmCRUDCProductMaster.Designer.cs` | **23 سطراً** | 13 سطحاً لونياً + 10 أزرار ⇒ المصمّم = التشغيل على الشاشة التجريبية (`RULE-N134`/`N140`/`N144`) |
 | `AGENTS.md` | جدول §2.19 + §2.40 | قيم الجيل الثالث + أرقام الموجة + القاعدة الجديدة لأزرار اللوحة |
 | `docs\SHARED-HOME-REGISTER.md` | هذا القسم + `PAL-5…PAL-7` | — |
 
@@ -1174,7 +1174,7 @@
 
 **عيب مقروئية وُجد في نفس الجولة (`PAL-6b`):** زر «تعديل» الكهرماني `#F59E0B` بنص **أبيض** يقيس **2.15** — تحت حد 3.0 للنص الكبير أصلاً. أُصلح في الشاشة التجريبية: النص `(30,41,59)` ⇒ **8.31**. **والعيب نظامي:** كل زر تحذير في الـ94 مصمّماً الأخرى يحمل `255,193,7` متقاعداً بنص أبيض ⇒ تباين **< 1.7**؛ يُصلح شريحة لكل شاشة في موجة `PAL-5`.
 
-**حالة الموجة:** 🔄 **تجريبية — بانتظار شهادة المالك على `frmProductMaster`**؛ لا تعميم على أي مصمّم آخر (`RULE-N184`).
+**حالة الموجة:** 🔄 **تجريبية — بانتظار شهادة المالك على `frmCRUDCProductMaster`**؛ لا تعميم على أي مصمّم آخر (`RULE-N184`).
 
 #### 11.22.1 الجولة 5 — تدرّج شريط العنوان (قرار المالك «I want grident of blue color»)
 
@@ -1200,7 +1200,7 @@
 |---|---|---|
 | `Helpers\ThemePalette.cs` | حذف 3 مفاتيح + 3 صفوف + 6 قواعد · إعادة 24 قيمة + **18** زوجاً متقاعداً | القيم مستخرجة من `git show 3da957c:…ThemePalette.cs` (`RULE-N195`) ⇒ `AllDefinitions` **24** · `ContrastRules` **12** · `RetiredDefaults` **35 → 53** |
 | `Helpers\GreenThemeHelper.cs` | **−96 سطراً** | حُذف `ApplyHeaderGradient` · `BuildHeaderGradient` · `HeaderGradientState` · `HeaderGradients` · `HeaderGradientPixels` · الاستدعاء · توثيق التدرّج ⇒ `ApplyHeader` عاد `BackColor`/`ForeColor`/`TextAlign` فقط |
-| `Screens\Products\Forms\frmProductMaster.Designer.cs` | 52 سطراً لونياً | أُعيدت مزامنته للقيم الخضراء الحرفية ⇒ **المصمّم = التشغيل** · `btnEdit.ForeColor` الداكن بقي (إصلاح مقروئية `PAL-6b`) |
+| `Screens\Products\Forms\frmCRUDCProductMaster.Designer.cs` | 52 سطراً لونياً | أُعيدت مزامنته للقيم الخضراء الحرفية ⇒ **المصمّم = التشغيل** · `btnEdit.ForeColor` الداكن بقي (إصلاح مقروئية `PAL-6b`) |
 | `Screens\Settings\Forms\frmChangeSystemColorsSettings.cs` | سطر واحد | تعليق 27 → 24 |
 | `AGENTS.md` | §2.19 + §2.20 + §2.40 + §9 | جدول القيم أخضر + تاريخ الألواح الأربعة + موجة رابعة بأرقامها + إلغاء موجة التدرّج |
 | `docs\TASKS\TASK-002-*.md` | الرأس + الجولة 6 | القيم والأعداد والبناء |
@@ -1345,7 +1345,7 @@
 
 ---
 
-## موجة `TASK-012` — إعادة تنسيق المنتقيات الثلاث على شكل `frmProductMaster` (2026-11-18)
+## موجة `TASK-012` — إعادة تنسيق المنتقيات الثلاث على شكل `frmCRUDCProductMaster` (2026-11-18)
 
 **الالتزام:** `fe6f9b8` · **البناء:** `dotnet build --no-incremental` = **0 أخطاء / 90 تحذيراً** · **المراجعة:** `code-reviewer` = `0 Blocker / 0 Major / 4 Minor` (أُغلقت الأربعة قبل الالتزام).
 
@@ -1362,7 +1362,7 @@
 
 **بند مفتوح مُسجَّل ولم يُصلح (بقرار `RULE-N184`):** `AcceptButton = btnSelect` يبتلع `Enter` قبل رفع `KeyDown` (`RULE-N193`) ⇒ `txtSearch_KeyDown`/`KeyPress` غير قابلين للتنفيذ في الشاشات الثلاث، ويُغلقان مع موجة تعميم `WireEnterAsTab(scope, primaryButton)` بعد شهادة `F-001`.
 
-**ملاحظتان خارج النطاق أُبلغتا ولم تُمسّا:** (1) `frmProductMaster.Designer.cs` يحمل فواصل CR مزدوجة فتتضاعف قراءة أسطره من 936 إلى 1,873 · (2) افتراضي `rejectBackgroundColor` في `ThemePalette.cs` = `255,220,220` بينما جدول §2.19 يقول `#F8D7DA` = `248,215,218`.
+**ملاحظتان خارج النطاق أُبلغتا ولم تُمسّا:** (1) `frmCRUDCProductMaster.Designer.cs` يحمل فواصل CR مزدوجة فتتضاعف قراءة أسطره من 936 إلى 1,873 · (2) افتراضي `rejectBackgroundColor` في `ThemePalette.cs` = `255,220,220` بينما جدول §2.19 يقول `#F8D7DA` = `248,215,218`.
 ---
 
 ## الموجة `F-004` — تحويل المرتجعات والمصروفات وسندات القبض إلى `frm*Master` (2026-11-18)

@@ -14,7 +14,7 @@
 | `Helpers/KeyboardHelper.cs` | `WireEnterAsTab(scope, primaryButton)` + `PreviewKeyDown` + استهلاك حجب `Enter` |
 | `Helpers/NavigationOptions.cs` | قيم الترتيب والتسليم الافتراضية (تُقرأ حيّة) |
 | `Global Classes/clsInputFeedback.cs` | الومضة + الرسالة + الصوت + الاستعادة |
-| `Screens/Products/Forms/frmProductMaster.cs` + `.Designer.cs` | الشاشة التجريبية: تُعلن قواعدها وتستهلك البيوت |
+| `Screens/Products/Forms/frmCRUDCProductMaster.cs` + `.Designer.cs` | الشاشة التجريبية: تُعلن قواعدها وتستهلك البيوت |
 
 ## خارج النطاق (ممنوع بالاسم — الآن)
 

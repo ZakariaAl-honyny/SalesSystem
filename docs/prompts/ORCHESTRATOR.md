@@ -151,7 +151,7 @@ Size is measured on four axes: **file count** · **screen count** · **does it t
 
 ```
 **Goal** — implement <feature> in <frmX> only.
-**Read first** — AGENTS.md §2.18/§2.19/§2.21/§2.22/§2.27/§2.36/§2.37 + the reference screen frmProductMaster.
+**Read first** — AGENTS.md §2.18/§2.19/§2.21/§2.22/§2.27/§2.36/§2.37 + the reference screen frmCRUDCProductMaster.
 **In scope** — Screens\<Module>\Forms\frmX.cs · frmX.Designer.cs (and .resx only if text/icon changes).
 **Out of scope** — Services\** · Helpers\** · Program.cs · any other screen · *.csproj · SalesSystem.Tests\**.
 **Contract** — <I*DesktopService> used + the exact signature of any new member.

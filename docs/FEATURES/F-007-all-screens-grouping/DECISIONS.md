@@ -132,4 +132,4 @@
 
 ## D-18 — المسار B لا يُدمج مع A
 
-الشاشات الثلاث `frmCRUDCProductMaster` · `frmProductSelection` · `frmCustomerStatement` تتطلب إعادة تقسيم لوحات وضبط ارتفاعات وفواصل — **وكيل منفرد لكل واحدة (`RULE-N156`)**، وبقرار مالك صريح قبل البدء (إحداها `frmProductMaster` = الشاشة التجريبية لـ`RULE-N184`).
+الشاشات الثلاث `frmCRUDCProductMaster` · `frmProductSelection` · `frmCustomerStatement` تتطلب إعادة تقسيم لوحات وضبط ارتفاعات وفواصل — **وكيل منفرد لكل واحدة (`RULE-N156`)**، وبقرار مالك صريح قبل البدء (إحداها `frmCRUDCProductMaster` = الشاشة التجريبية لـ`RULE-N184`).

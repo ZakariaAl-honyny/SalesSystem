@@ -5,7 +5,7 @@
 | `ID` | `F-001` |
 | `الحجم` | L (شاشة تجريبية + تعميم على شاشات كثيرة) |
 | `المرحلة` | `—` (تحسين سلوك واجهة، بلا مسار بيانات) |
-| `الحالة` | 🔄 **بانتظار شهادة المالك** — الشاشة التجريبية `frmProductMaster` |
+| `الحالة` | 🔄 **بانتظار شهادة المالك** — الشاشة التجريبية `frmCRUDCProductMaster` |
 | `الوكيل المالك` | `ui-agent` |
 | `أثر قاعدة البيانات` | **لا شيء** (فعّال من أول يوم) |
 | `أول جولة` | `2026-11-16` |
@@ -21,7 +21,7 @@
 3. **`BlocksEnterNavigation` لا يُستهلك من أي شاشة** — يُستهلك مرة واحدة داخل `KeyboardHelper` (`grep` = 0 في `Screens/**`، مقيس أدناه).
 4. **`AcceptButton` لا يُفرَّغ** كحل بديل — الإعلان مفتاح إدخال في `PreviewKeyDown` هو الحل المعتمد (`RULE-N193`).
 5. **`NavigationOptions` لا تقرؤها ولا تضبطها أي شاشة** — تُقرأ حيّة داخل `KeyboardHelper` فقط (`RULE-N192`).
-6. **الشاشة الوحيدة المسموح مسّها الآن هي `frmProductMaster`** — التعميم ممنوع قبل الشهادة (`RULE-N184`).
+6. **الشاشة الوحيدة المسموح مسّها الآن هي `frmCRUDCProductMaster`** — التعميم ممنوع قبل الشهادة (`RULE-N184`).
 
 ## أين يعيش كودها؟ (بيوت واحدة)
 
@@ -32,7 +32,7 @@
 | `Desktop/Helpers/NavigationOptions.cs` | `EnterFollowsDisplayOrder` · `EnterExitsToModeButton` · `RowBandTolerancePixels` |
 | `Desktop/Helpers/ThemePalette.cs` | `RejectBackgroundColor` · `SelectionRowColor` |
 | `Desktop/Global Classes/clsInputFeedback.cs` | `ShowRejectTooltip` (الومضة + الاستعادة + الصوت) |
-| `Screens/Products/Forms/frmProductMaster.cs` | الشاشة التجريبية — تُعلن قواعدها فقط |
+| `Screens/Products/Forms/frmCRUDCProductMaster.cs` | الشاشة التجريبية — تُعلن قواعدها فقط |
 
 ## الحالة الآن
 

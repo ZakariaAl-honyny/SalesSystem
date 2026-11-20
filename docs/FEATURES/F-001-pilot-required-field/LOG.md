@@ -4,8 +4,8 @@
 
 ## جولة 1 — 2026-11-16 · الشاشة التجريبية
 
-**ما جرى:** بُنيت التغذية (أيقونة + رسالة + ومضة) وحجب `Enter` على الحقل المطلوب الفارغ، وجعل `Enter` يمشي بترتيب العرض ثم يسلّم التركيز لزر الوضع بلا تنفيذ — على `frmProductMaster` وحدها.
-**الملفات:** `Helpers/RequiredFieldHelper.cs` · `Helpers/KeyboardHelper.cs` · `Helpers/NavigationOptions.cs` · `Global Classes/clsInputFeedback.cs` · `Screens/Products/Forms/frmProductMaster.cs` + `.Designer.cs`
+**ما جرى:** بُنيت التغذية (أيقونة + رسالة + ومضة) وحجب `Enter` على الحقل المطلوب الفارغ، وجعل `Enter` يمشي بترتيب العرض ثم يسلّم التركيز لزر الوضع بلا تنفيذ — على `frmCRUDCProductMaster` وحدها.
+**الملفات:** `Helpers/RequiredFieldHelper.cs` · `Helpers/KeyboardHelper.cs` · `Helpers/NavigationOptions.cs` · `Global Classes/clsInputFeedback.cs` · `Screens/Products/Forms/frmCRUDCProductMaster.cs` + `.Designer.cs`
 **الحجم:** L · **الموجة:** W1 · **الوكيل:** `ui-agent`
 
 ### الأدلة (مقيسة 2026-11-16 — الشجرة الحالية)
