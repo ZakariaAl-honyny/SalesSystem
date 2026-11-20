@@ -1541,3 +1541,28 @@
 **متبقٍ (W2…W6):** **77** مصمّماً — التفصيل والجرد في `docs/FEATURES/F-005-green-surface-sweep/MANIFEST.md` (الأعداد الثلاثة: مكتشَف **90** = داخل **85** + معفى **5** · منجز **8** · متبقٍ **77**).
 
 **⚠️ عائق الالتزام:** شجرة العمل كانت تحمل **96** مدخلاً غير ملتزم من موجة سابقة (إعادة تسمية `frm*Master → frmCRUD*Master`: 21 حذفاً + 22 ملفاً جديداً + 53 تعديلاً) ⇒ التزام F-005 منفرداً **يكسر `HEAD`** (يحذف/يضيف نصف إعادة التسمية). رُفع للمالك كقرار (قرار `RULE-N162` البند 4).
+
+---
+
+## 12. موجة 2026-11-20 — `F-006` تجميع شاشات الفواتير في صناديق مجموعة مُعنونة
+
+> **طلب المالك:** «I want to grouping the screen like frmAddUpdateSalesInvoice — each and every part is inside group box for understand and these data and for what and for improve UI shape for end user».
+
+**القياس قبل الموجة:** **85** مصمّماً `frm*` · **74** فيها صندوق واحد على الأقل · الشاشات الخمس في النطاق بصندوق `gbFilter` وحده · مراجع `pnl(Header|Toolbar|Summary|Footer|Grid)` في `.cs` = **0** · المرجع `frmAddUpdateSalesInvoice` = **5** صناديق.
+
+| # | الملف (5 مصمّمات) | الحالة | القياس بعد الموجة |
+|---|---|---|---|
+| 1 | `Screens/All Invoices Screens/Sales/frmListSales.Designer.cs` | ✅ | +4 صناديق («أوامر الشاشة» · «فواتير البيع» · «ملخص النتائج» · «تلميحات الاستخدام») · شبكة 438 |
+| 2 | `Screens/All Invoices Screens/Purchases/frmListPurchases.Designer.cs` | ✅ | +3 صناديق · شبكة 530 |
+| 3 | `Screens/All Invoices Screens/Returns/frmListReturns.Designer.cs` | ✅ | +4 صناديق (الشبكة على `tabReturns`) · 438 |
+| 4 | `Screens/All Invoices Screens/Sales/frmSalesInvoiceSelection.Designer.cs` | ✅ | +5 صناديق · 213 / 179 |
+| 5 | `Screens/All Invoices Screens/Purchases/frmPurchaseInvoiceSelection.Designer.cs` | ✅ | +5 صناديق · 185 / 167 |
+| — | التقارير **26** · الطباعة **5** · المرجع · محرّر الشراء · POS | ⚠️ **معفاة بسبب** | `RULE-N121` · قراءة فقط · مُجمَّعة أصلاً |
+
+**القياس الكلي بعد الموجة (أمر واحد):** `new GroupBox()` في `Screens/**` = **229** في **74** مصمّماً من **85** · الأسطر المضافة بالصيغة المختصرة = **0** · صندوق داخل صندوق = **0** · `.cs`/`.resx` معدَّلة = **0**.
+
+**البوابة:** `dotnet build` = **0 Errors / 95 Warning(s)** (تزايدي) · `code-reviewer`: **0 Blocker · 0 Major · 3 Minor** · «ready to commit».
+
+**بند مفتوح (`D-08`):** عند `MinimumSize` (700 ارتفاعاً) تنكمش شبكة القوائم إلى ≈300 دون بوابة 380 — رُفض رفع الحد الأدنى إلى 820 لأنه يخرج النافذة عن شاشات 1366×768.
+
+**⚠️ عائق الالتزام نفسه:** الشجرة تحمل **88** ملفاً معدَّلاً سابقاً (`F-005` + إعادة التسمية) ⇒ التُزمت **5 مصمّمات F-006 + وثائقها فقط**؛ وأسطر الألوان السابقة داخل هذه الملفات تُنسب إلى `F-005` في نص الالتزام (`D-09`).

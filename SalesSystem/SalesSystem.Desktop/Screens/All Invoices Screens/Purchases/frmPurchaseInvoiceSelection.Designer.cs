@@ -18,8 +18,10 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             components = new System.ComponentModel.Container();
             // RULE-N134: ألوان المصمّم = افتراضيات ThemePalette الحيّة حرفياً (المصمّم = وقت التشغيل).
             // RULE-N204: كل لون بصيغة Convert.ToInt32، والألوان المسمّاة مؤهّلة System.Drawing.Color.*
-            // RULE-N79 (أ) — هيكل المستند/القائمة حرفياً كما في frmListSales:
-            // pnlHeader + pnlToolbar + pnlFilters + pnlGrid + pnlSummary + pnlFooter.
+            // RULE-N79 (أ) — الإرساء حصراً (Dock): pnlHeader + gbToolbar + pnlFilters + pnlGrid + gbSummary + gbFooter.
+            // §2.34/RULE-N135…N138: كل كتلة وظيفية داخل صندوق مجموعة مُعنون على نمط المرجع frmAddUpdateSalesInvoice —
+            // «أوامر الشاشة» · «بحث وتصفية» · «فواتير الشراء» · «سطور الفاتورة» · «ملخص النتائج» · «تلميحات الاستخدام» —
+            // بلا صندوق داخل صندوق، وبالبنية الحرفية لشاشتها الشقيقة frmSalesInvoiceSelection (RULE-N125: ترتيب Controls.Add ملزم).
             tooltip = new ToolTip(components);
             cmsRows = new ContextMenuStrip(components);
             cmsSelect = new ToolStripMenuItem();
@@ -27,6 +29,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             cmsRefresh = new ToolStripMenuItem();
             pnlHeader = new Panel();
             lblMode = new Label();
+            gbToolbar = new GroupBox();
             pnlToolbar = new Panel();
             flpToolbar = new FlowLayoutPanel();
             btnSelect = new Button();
@@ -44,12 +47,15 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             dtpTo = new DateTimePicker();
             btnClearFilters = new Button();
             btnToggleFilters = new Button();
+            gbSummary = new GroupBox();
             pnlSummary = new Panel();
             flpSummary = new FlowLayoutPanel();
             lblRecordsCount = new Label();
+            gbFooter = new GroupBox();
             pnlFooter = new Panel();
             lblHint = new Label();
             pnlGrid = new Panel();
+            gbInvoices = new GroupBox();
             dgvInvoices = new DataGridView();
             colInvId = new DataGridViewTextBoxColumn();
             colInvNo = new DataGridViewTextBoxColumn();
@@ -61,6 +67,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             colInvRemaining = new DataGridViewTextBoxColumn();
             colInvStatus = new DataGridViewTextBoxColumn();
             lblInvoiceSummary = new Label();
+            gbLines = new GroupBox();
             dgvLines = new DataGridView();
             colLineProduct = new DataGridViewTextBoxColumn();
             colLineQuantity = new DataGridViewTextBoxColumn();
@@ -69,21 +76,26 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             colLineTotal = new DataGridViewTextBoxColumn();
             lblNoData = new Label();
             pnlHeader.SuspendLayout();
+            gbToolbar.SuspendLayout();
             pnlToolbar.SuspendLayout();
             flpToolbar.SuspendLayout();
             pnlFilters.SuspendLayout();
             gbFilter.SuspendLayout();
+            gbSummary.SuspendLayout();
             pnlSummary.SuspendLayout();
             flpSummary.SuspendLayout();
+            gbFooter.SuspendLayout();
             pnlFooter.SuspendLayout();
             pnlGrid.SuspendLayout();
+            gbInvoices.SuspendLayout();
+            gbLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvInvoices).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvLines).BeginInit();
             SuspendLayout();
             // 
             // pnlHeader
             // 
-            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlHeader.Controls.Add(lblMode);
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
@@ -106,20 +118,37 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             lblMode.Text = "اختيار فاتورة شراء";
             lblMode.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // gbToolbar
+            // 
+            // §2.34/RULE-N137: كتلة «أوامر الشاشة» في صندوق مُعنون على نمط المرجع frmAddUpdateSalesInvoice.
+            // RULE-N145: الصندوق مُعلَن هنا ويحتضن pnlToolbar — لا إنشاء وقت تشغيل ولا صندوق داخل صندوق.
+            gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbToolbar.Controls.Add(pnlToolbar);
+            gbToolbar.Dock = DockStyle.Top;
+            gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbToolbar.Location = new Point(0, 56);
+            gbToolbar.Name = "gbToolbar";
+            gbToolbar.Padding = new Padding(6, 4, 6, 4);
+            gbToolbar.Size = new Size(1200, 86);
+            gbToolbar.TabIndex = 1;
+            gbToolbar.TabStop = false;
+            gbToolbar.Text = "أوامر الشاشة";
+            // 
             // pnlToolbar
             // 
-            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlToolbar.Controls.Add(flpToolbar);
-            pnlToolbar.Dock = DockStyle.Top;
+            pnlToolbar.Dock = DockStyle.Fill;
             pnlToolbar.Location = new Point(0, 56);
             pnlToolbar.Margin = new Padding(0);
             pnlToolbar.Name = "pnlToolbar";
             pnlToolbar.Size = new Size(1200, 64);
-            pnlToolbar.TabIndex = 1;
+            pnlToolbar.TabIndex = 0;
             // 
             // flpToolbar
             // 
-            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpToolbar.Controls.Add(btnSelect);
             flpToolbar.Controls.Add(btnCancel);
             flpToolbar.Controls.Add(btnRefresh);
@@ -191,11 +220,11 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // pnlFilters
             // 
             // RULE-N125/RULE-N63: gbFilter يُضاف أولاً فيملأ الباقي، وbtnToggleFilters بعده فيُقتطع على الحافة.
-            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFilters.Controls.Add(gbFilter);
             pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
-            pnlFilters.Location = new Point(0, 120);
+            pnlFilters.Location = new Point(0, 142);
             pnlFilters.Margin = new Padding(0);
             pnlFilters.Name = "pnlFilters";
             pnlFilters.Padding = new Padding(6, 4, 6, 4);
@@ -204,7 +233,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbFilter
             // 
-            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbFilter.Controls.Add(lblSearch);
             gbFilter.Controls.Add(txtSearch);
             gbFilter.Controls.Add(lblStatus);
@@ -366,12 +395,28 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             btnToggleFilters.Text = "إخفاء التصفية";
             btnToggleFilters.UseVisualStyleBackColor = false;
             // 
+            // gbSummary
+            // 
+            // §2.34: كتلة «ملخص النتائج» في صندوق مُعنون (نمط المرجع — «الإجماليات»). الارتفاع 68 = pnlSummary 46 + 22.
+            gbSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbSummary.Controls.Add(pnlSummary);
+            gbSummary.Dock = DockStyle.Bottom;
+            gbSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbSummary.Location = new Point(0, 712);
+            gbSummary.Name = "gbSummary";
+            gbSummary.Padding = new Padding(6, 4, 6, 4);
+            gbSummary.Size = new Size(1200, 68);
+            gbSummary.TabIndex = 3;
+            gbSummary.TabStop = false;
+            gbSummary.Text = "ملخص النتائج";
+            // 
             // pnlSummary
             // 
-            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlSummary.Controls.Add(flpSummary);
-            pnlSummary.Dock = DockStyle.Bottom;
-            pnlSummary.Location = new Point(0, 756);
+            pnlSummary.Dock = DockStyle.Fill;
+            pnlSummary.Location = new Point(0, 712);
             pnlSummary.Margin = new Padding(0);
             pnlSummary.Name = "pnlSummary";
             pnlSummary.Size = new Size(1200, 46);
@@ -379,7 +424,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flpSummary
             // 
-            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpSummary.Controls.Add(lblRecordsCount);
             flpSummary.Dock = DockStyle.Fill;
             flpSummary.Location = new Point(0, 0);
@@ -402,12 +447,28 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             lblRecordsCount.TabIndex = 0;
             lblRecordsCount.Text = "النتائج: 0";
             // 
+            // gbFooter
+            // 
+            // §2.34: كتلة التلميحات في صندوق مُعنون. الارتفاع 80 = pnlFooter 58 + 22.
+            gbFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbFooter.Controls.Add(pnlFooter);
+            gbFooter.Dock = DockStyle.Bottom;
+            gbFooter.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbFooter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbFooter.Location = new Point(0, 780);
+            gbFooter.Name = "gbFooter";
+            gbFooter.Padding = new Padding(6, 4, 6, 4);
+            gbFooter.Size = new Size(1200, 80);
+            gbFooter.TabIndex = 5;
+            gbFooter.TabStop = false;
+            gbFooter.Text = "تلميحات الاستخدام";
+            // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFooter.Controls.Add(lblHint);
-            pnlFooter.Dock = DockStyle.Bottom;
-            pnlFooter.Location = new Point(0, 802);
+            pnlFooter.Dock = DockStyle.Fill;
+            pnlFooter.Location = new Point(0, 780);
             pnlFooter.Margin = new Padding(0);
             pnlFooter.Name = "pnlFooter";
             pnlFooter.Padding = new Padding(10, 0, 10, 0);
@@ -429,19 +490,39 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlGrid
             // 
-            // RULE-N125: يُضاف عنصر Fill الوحيد أولاً ليُرسى آخراً ويأخذ الباقي — كما في frmListSales.
-            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
-            pnlGrid.Controls.Add(dgvLines);
+            // RULE-N125: عنصر Fill الوحيد (gbLines) يُضاف أولاً فيُرسى آخراً ويأخذ الباقي، والمراسي تُضاف بعده.
+            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            pnlGrid.Controls.Add(gbLines);
             pnlGrid.Controls.Add(lblNoData);
             pnlGrid.Controls.Add(lblInvoiceSummary);
-            pnlGrid.Controls.Add(dgvInvoices);
+            pnlGrid.Controls.Add(gbInvoices);
             pnlGrid.Dock = DockStyle.Fill;
-            pnlGrid.Location = new Point(0, 230);
+            pnlGrid.Location = new Point(0, 252);
             pnlGrid.Margin = new Padding(0);
             pnlGrid.Name = "pnlGrid";
             pnlGrid.Padding = new Padding(0, 10, 0, 0);
-            pnlGrid.Size = new Size(1200, 526);
+            pnlGrid.Size = new Size(1200, 460);
             pnlGrid.TabIndex = 4;
+            // 
+            // gbInvoices
+            // 
+            // RULE-N137: صندوق واحد لا يحتضن صندوقاً — dgvInvoices فقط. lblInvoiceSummary يبقى عارياً في pnlGrid.
+            // ارتفاع مقيس: pnlGrid = 860 − 56 − 86 − 110 − 68 − 80 = 460، ومحتواه 460 − 10 (Padding) = 450.
+            // gbInvoices 208 + lblInvoiceSummary 28 + lblNoData 24 + gbLines 190 = 450 ⇒ dgvInvoices ~174 وdgvLines ~156،
+            // وكلتاهما فوق بوابة 150 بكسل. (الشقيقة بارتفاع 900 تحتمل 236 + 28 + 24 + 202 = 490؛ وهنا 450 فقط، فنزل الزوج
+            // 40 بكسل موزّعة −28 على الفواتير و−12 على السطور. الزوج 236/202 يفيض 40 بكسل ويُسقط dgvLines إلى ~128 ⇒ مرفوض.)
+            gbInvoices.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbInvoices.Controls.Add(dgvInvoices);
+            gbInvoices.Dock = DockStyle.Top;
+            gbInvoices.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbInvoices.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbInvoices.Location = new Point(0, 10);
+            gbInvoices.Name = "gbInvoices";
+            gbInvoices.Padding = new Padding(6, 4, 6, 4);
+            gbInvoices.Size = new Size(1200, 208);
+            gbInvoices.TabIndex = 0;
+            gbInvoices.TabStop = false;
+            gbInvoices.Text = "فواتير الشراء";
             // 
             // dgvInvoices
             // 
@@ -468,7 +549,9 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             dgvInvoices.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
             dgvInvoices.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(255), Convert.ToInt32(255), Convert.ToInt32(180));
             dgvInvoices.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
-            dgvInvoices.Dock = DockStyle.Top;
+            // RULE-N137 + RULE-N134: dgvInvoices داخل gbInvoices — الإرساء Fill كما في الشقيقة (لو بقي Top بارتفاع 300
+            // لاقتُطع داخل صندوق 208 فاختفى شريط التمرير الرأسي). الإرساء فقط تغيّر — لا سلوك شبكة ولا عمود.
+            dgvInvoices.Dock = DockStyle.Fill;
             dgvInvoices.EnableHeadersVisualStyles = false;
             dgvInvoices.GridColor = System.Drawing.Color.FromArgb(Convert.ToInt32(205), Convert.ToInt32(225), Convert.ToInt32(205));
             dgvInvoices.Location = new Point(0, 10);
@@ -569,13 +652,29 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             lblInvoiceSummary.Dock = DockStyle.Top;
             lblInvoiceSummary.Font = new Font("Tahoma", 11F, FontStyle.Bold);
             lblInvoiceSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-            lblInvoiceSummary.Location = new Point(0, 310);
+            lblInvoiceSummary.Location = new Point(0, 218);
             lblInvoiceSummary.Margin = new Padding(0);
             lblInvoiceSummary.Name = "lblInvoiceSummary";
             lblInvoiceSummary.Size = new Size(1200, 28);
             lblInvoiceSummary.TabIndex = 1;
             lblInvoiceSummary.Text = "لم تُحدَّد فاتورة";
             lblInvoiceSummary.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // gbLines
+            // 
+            // RULE-N137: صندوق واحد لا يحتضن صندوقاً — dgvLines فقط. lblNoData يبقى عارياً في pnlGrid (BringToFront في الشاشة).
+            gbLines.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbLines.Controls.Add(dgvLines);
+            gbLines.Dock = DockStyle.Fill;
+            gbLines.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbLines.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbLines.Location = new Point(0, 246);
+            gbLines.Name = "gbLines";
+            gbLines.Padding = new Padding(6, 4, 6, 4);
+            gbLines.Size = new Size(1200, 190);
+            gbLines.TabIndex = 2;
+            gbLines.TabStop = false;
+            gbLines.Text = "سطور الفاتورة";
             // 
             // dgvLines
             // 
@@ -668,7 +767,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             lblNoData.Dock = DockStyle.Bottom;
             lblNoData.Font = new Font("Tahoma", 10F, FontStyle.Bold);
             lblNoData.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
-            lblNoData.Location = new Point(0, 502);
+            lblNoData.Location = new Point(0, 436);
             lblNoData.Name = "lblNoData";
             lblNoData.Size = new Size(1200, 24);
             lblNoData.TabIndex = 3;
@@ -712,10 +811,10 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             CancelButton = btnCancel;
             ClientSize = new Size(1200, 860);
             Controls.Add(pnlGrid);
-            Controls.Add(pnlSummary);
-            Controls.Add(pnlFooter);
+            Controls.Add(gbSummary);
+            Controls.Add(gbFooter);
             Controls.Add(pnlFilters);
-            Controls.Add(pnlToolbar);
+            Controls.Add(gbToolbar);
             Controls.Add(pnlHeader);
             Font = new Font("Tahoma", 10F);
             KeyPreview = true;
@@ -727,16 +826,26 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             Text = "اختيار فاتورة شراء";
             Load += frmPurchaseInvoiceSelection_Load;
             pnlHeader.ResumeLayout(false);
+            gbToolbar.ResumeLayout(false);
+            gbToolbar.PerformLayout();
             pnlToolbar.ResumeLayout(false);
             flpToolbar.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
             gbFilter.ResumeLayout(false);
             gbFilter.PerformLayout();
+            gbSummary.ResumeLayout(false);
+            gbSummary.PerformLayout();
             pnlSummary.ResumeLayout(false);
             flpSummary.ResumeLayout(false);
             flpSummary.PerformLayout();
+            gbFooter.ResumeLayout(false);
+            gbFooter.PerformLayout();
             pnlFooter.ResumeLayout(false);
             pnlGrid.ResumeLayout(false);
+            gbInvoices.ResumeLayout(false);
+            gbInvoices.PerformLayout();
+            gbLines.ResumeLayout(false);
+            gbLines.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvInvoices).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvLines).EndInit();
             cmsRows.ResumeLayout(false);
@@ -751,6 +860,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
         private System.Windows.Forms.ToolStripMenuItem cmsRefresh;
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblMode;
+        private System.Windows.Forms.GroupBox gbToolbar;
         private System.Windows.Forms.Panel pnlToolbar;
         private System.Windows.Forms.FlowLayoutPanel flpToolbar;
         private System.Windows.Forms.Button btnSelect;
@@ -768,12 +878,15 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
         private System.Windows.Forms.DateTimePicker dtpTo;
         private System.Windows.Forms.Button btnClearFilters;
         private System.Windows.Forms.Button btnToggleFilters;
+        private System.Windows.Forms.GroupBox gbSummary;
         private System.Windows.Forms.Panel pnlSummary;
         private System.Windows.Forms.FlowLayoutPanel flpSummary;
         private System.Windows.Forms.Label lblRecordsCount;
+        private System.Windows.Forms.GroupBox gbFooter;
         private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Label lblHint;
         private System.Windows.Forms.Panel pnlGrid;
+        private System.Windows.Forms.GroupBox gbInvoices;
         private System.Windows.Forms.DataGridView dgvInvoices;
         private System.Windows.Forms.DataGridViewTextBoxColumn colInvId;
         private System.Windows.Forms.DataGridViewTextBoxColumn colInvNo;
@@ -785,6 +898,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
         private System.Windows.Forms.DataGridViewTextBoxColumn colInvRemaining;
         private System.Windows.Forms.DataGridViewTextBoxColumn colInvStatus;
         private System.Windows.Forms.Label lblInvoiceSummary;
+        private System.Windows.Forms.GroupBox gbLines;
         private System.Windows.Forms.DataGridView dgvLines;
         private System.Windows.Forms.DataGridViewTextBoxColumn colLineProduct;
         private System.Windows.Forms.DataGridViewTextBoxColumn colLineQuantity;

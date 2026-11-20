@@ -20,6 +20,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             pnlHeader = new Panel();
             lblMode = new Label();
+            gbToolbar = new GroupBox();
             pnlToolbar = new Panel();
             flpToolbar = new FlowLayoutPanel();
             btnAdd = new Button();
@@ -45,6 +46,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnRange30 = new Button();
             btnClearFilters = new Button();
             btnToggleFilters = new Button();
+            gbSummary = new GroupBox();
             pnlSummary = new Panel();
             flpSummary = new FlowLayoutPanel();
             lblCountCaption = new Label();
@@ -55,8 +57,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblTotalPaid = new Label();
             lblDueCaption = new Label();
             lblTotalDue = new Label();
+            gbFooter = new GroupBox();
             pnlFooter = new Panel();
             lblHint = new Label();
+            gbGrid = new GroupBox();
             pnlGrid = new Panel();
             emptyState = new Label();
             dgvSales = new DataGridView();
@@ -76,13 +80,17 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             tsmiCopyInvoiceNo = new ToolStripMenuItem();
             toolTip1 = new ToolTip(components);
             pnlHeader.SuspendLayout();
+            gbToolbar.SuspendLayout();
             pnlToolbar.SuspendLayout();
             flpToolbar.SuspendLayout();
             pnlFilters.SuspendLayout();
             gbFilter.SuspendLayout();
+            gbSummary.SuspendLayout();
             pnlSummary.SuspendLayout();
             flpSummary.SuspendLayout();
+            gbFooter.SuspendLayout();
             pnlFooter.SuspendLayout();
+            gbGrid.SuspendLayout();
             pnlGrid.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvSales).BeginInit();
             ctxMenu.SuspendLayout();
@@ -90,7 +98,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // pnlHeader
             // 
-            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlHeader.Controls.Add(lblMode);
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
@@ -113,11 +121,26 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblMode.Text = "(( دليل فواتير البيع )) لائحة الفواتير";
             lblMode.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // gbToolbar
+            // 
+            gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbToolbar.Controls.Add(pnlToolbar);
+            gbToolbar.Dock = DockStyle.Top;
+            gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbToolbar.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbToolbar.Location = new Point(0, 56);
+            gbToolbar.Name = "gbToolbar";
+            gbToolbar.Padding = new Padding(6, 4, 6, 4);
+            gbToolbar.Size = new Size(1584, 86);
+            gbToolbar.TabIndex = 1;
+            gbToolbar.TabStop = false;
+            gbToolbar.Text = "أوامر الشاشة";
+            // 
             // pnlToolbar
             // 
-            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlToolbar.Controls.Add(flpToolbar);
-            pnlToolbar.Dock = DockStyle.Top;
+            pnlToolbar.Dock = DockStyle.Fill;
             pnlToolbar.Location = new Point(0, 56);
             pnlToolbar.Margin = new Padding(0);
             pnlToolbar.Name = "pnlToolbar";
@@ -126,7 +149,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // flpToolbar
             // 
-            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpToolbar.Controls.Add(btnAdd);
             flpToolbar.Controls.Add(btnView);
             flpToolbar.Controls.Add(btnPost);
@@ -232,7 +255,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // pnlFilters
             // 
-            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFilters.Controls.Add(gbFilter);
             pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
@@ -245,7 +268,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // gbFilter
             // 
-            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbFilter.Controls.Add(label1);
             gbFilter.Controls.Add(cbStatus);
             gbFilter.Controls.Add(label3);
@@ -479,11 +502,26 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             btnToggleFilters.Text = "إخفاء التصفية";
             btnToggleFilters.UseVisualStyleBackColor = false;
             // 
+            // gbSummary
+            // 
+            gbSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbSummary.Controls.Add(pnlSummary);
+            gbSummary.Dock = DockStyle.Bottom;
+            gbSummary.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbSummary.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbSummary.Location = new Point(0, 713);
+            gbSummary.Name = "gbSummary";
+            gbSummary.Padding = new Padding(6, 4, 6, 4);
+            gbSummary.Size = new Size(1584, 68);
+            gbSummary.TabIndex = 3;
+            gbSummary.TabStop = false;
+            gbSummary.Text = "ملخص النتائج";
+            // 
             // pnlSummary
             // 
-            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlSummary.Controls.Add(flpSummary);
-            pnlSummary.Dock = DockStyle.Bottom;
+            pnlSummary.Dock = DockStyle.Fill;
             pnlSummary.Location = new Point(0, 757);
             pnlSummary.Margin = new Padding(0);
             pnlSummary.Name = "pnlSummary";
@@ -492,7 +530,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             // 
             // flpSummary
             // 
-            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpSummary.Controls.Add(lblCountCaption);
             flpSummary.Controls.Add(lblRecordsCount);
             flpSummary.Controls.Add(lblTotalCaption);
@@ -606,11 +644,26 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblTotalDue.TabIndex = 7;
             lblTotalDue.Text = "0.00";
             // 
+            // gbFooter
+            // 
+            gbFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbFooter.Controls.Add(pnlFooter);
+            gbFooter.Dock = DockStyle.Bottom;
+            gbFooter.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbFooter.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbFooter.Location = new Point(0, 781);
+            gbFooter.Name = "gbFooter";
+            gbFooter.Padding = new Padding(6, 4, 6, 4);
+            gbFooter.Size = new Size(1584, 80);
+            gbFooter.TabIndex = 5;
+            gbFooter.TabStop = false;
+            gbFooter.Text = "تلميحات الاستخدام";
+            // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFooter.Controls.Add(lblHint);
-            pnlFooter.Dock = DockStyle.Bottom;
+            pnlFooter.Dock = DockStyle.Fill;
             pnlFooter.Location = new Point(0, 803);
             pnlFooter.Margin = new Padding(0);
             pnlFooter.Name = "pnlFooter";
@@ -631,9 +684,24 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             lblHint.Text = "F2 جديد · F3 عرض/تعديل · F4 ترحيل · Delete إلغاء · F5 تحديث · Enter = التالي";
             lblHint.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // gbGrid
+            // 
+            gbGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
+            gbGrid.Controls.Add(pnlGrid);
+            gbGrid.Dock = DockStyle.Fill;
+            gbGrid.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbGrid.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
+            gbGrid.Location = new Point(0, 252);
+            gbGrid.Name = "gbGrid";
+            gbGrid.Padding = new Padding(6, 4, 6, 4);
+            gbGrid.Size = new Size(1584, 461);
+            gbGrid.TabIndex = 4;
+            gbGrid.TabStop = false;
+            gbGrid.Text = "فواتير البيع";
+            // 
             // pnlGrid
             // 
-            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlGrid.Controls.Add(emptyState);
             pnlGrid.Controls.Add(dgvSales);
             pnlGrid.Dock = DockStyle.Fill;
@@ -827,11 +895,11 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             AutoScaleMode = AutoScaleMode.None;
             BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             ClientSize = new Size(1584, 861);
-            Controls.Add(pnlGrid);
-            Controls.Add(pnlSummary);
-            Controls.Add(pnlFooter);
+            Controls.Add(gbGrid);
+            Controls.Add(gbSummary);
+            Controls.Add(gbFooter);
             Controls.Add(pnlFilters);
-            Controls.Add(pnlToolbar);
+            Controls.Add(gbToolbar);
             Controls.Add(pnlHeader);
             Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             KeyPreview = true;
@@ -843,15 +911,23 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
             Text = "دليل فواتير البيع";
             Load += frmListSales_Load;
             pnlHeader.ResumeLayout(false);
+            gbToolbar.ResumeLayout(false);
+            gbToolbar.PerformLayout();
             pnlToolbar.ResumeLayout(false);
             flpToolbar.ResumeLayout(false);
             pnlFilters.ResumeLayout(false);
             gbFilter.ResumeLayout(false);
             gbFilter.PerformLayout();
+            gbSummary.ResumeLayout(false);
+            gbSummary.PerformLayout();
             pnlSummary.ResumeLayout(false);
             flpSummary.ResumeLayout(false);
             flpSummary.PerformLayout();
+            gbFooter.ResumeLayout(false);
+            gbFooter.PerformLayout();
             pnlFooter.ResumeLayout(false);
+            gbGrid.ResumeLayout(false);
+            gbGrid.PerformLayout();
             pnlGrid.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvSales).EndInit();
             ctxMenu.ResumeLayout(false);
@@ -862,6 +938,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
 
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblMode;
+        private System.Windows.Forms.GroupBox gbToolbar;
         private System.Windows.Forms.Panel pnlToolbar;
         private System.Windows.Forms.FlowLayoutPanel flpToolbar;
         private System.Windows.Forms.Button btnAdd;
@@ -887,6 +964,7 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
         private System.Windows.Forms.Button btnRange30;
         private System.Windows.Forms.Button btnClearFilters;
         private System.Windows.Forms.Button btnToggleFilters;
+        private System.Windows.Forms.GroupBox gbSummary;
         private System.Windows.Forms.Panel pnlSummary;
         private System.Windows.Forms.FlowLayoutPanel flpSummary;
         private System.Windows.Forms.Label lblCountCaption;
@@ -897,8 +975,10 @@ namespace SalesSystem.Desktop.Screens.Sales.Forms
         private System.Windows.Forms.Label lblTotalPaid;
         private System.Windows.Forms.Label lblDueCaption;
         private System.Windows.Forms.Label lblTotalDue;
+        private System.Windows.Forms.GroupBox gbFooter;
         private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.Label lblHint;
+        private System.Windows.Forms.GroupBox gbGrid;
         private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.DataGridView dgvSales;
         private System.Windows.Forms.DataGridViewTextBoxColumn colInvoiceNo;
