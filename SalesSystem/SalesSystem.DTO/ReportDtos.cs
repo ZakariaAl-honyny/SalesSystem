@@ -112,18 +112,6 @@ public record CashBoxSummaryDto(
     decimal TotalExpense,
     decimal NetBalance);
 
-/// <summary>
-/// Daily closure report line — used by DailyClosureReportView DataGrid.
-/// Mapped from CashBoxSummaryDto at runtime since DailyClosure entity is deferred to V2.
-/// </summary>
-public record DailyClosureReportDto(
-    DateTime Date,
-    string CashBoxName,
-    decimal TotalIncome,
-    decimal TotalExpense,
-    decimal NetBalance,
-    bool IsReconciled);
-
 // ═══════════════════════════════════════════════════════
 // Phase 31 — User Activity & Login Reports
 // ═══════════════════════════════════════════════════════

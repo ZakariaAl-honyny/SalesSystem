@@ -26,26 +26,9 @@ public enum UserRole : byte
 {
     Admin = 1,
     Manager = 2,
-    Accountant = 3,
     Treasurer = 4,
     Cashier = 5,
     WarehouseSupervisor = 6,
     SalesEmployee = 7,
     Observer = 8
-}
-
-/// <summary>
-/// أنواع معاملات الخزينة النقدية (الحركة النقدية المسجّلة على الصندوق — للتقارير المالية).
-/// سندات القبض/الصرف اليدوية أُخرجت من V1 ومؤجلة إلى V2.
-/// </summary>
-public enum CashTransactionType : byte
-{
-    OpeningBalance = 1,
-    SalesIncome = 2,
-    Expense = 3,
-    TransferOut = 4,
-    TransferIn = 5,
-    RefundOut = 6,
-    SupplierPayment = 7,
-    CustomerPayment = 8
 }

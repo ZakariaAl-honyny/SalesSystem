@@ -7,18 +7,6 @@ public record UpdateCompanySettingsRequest(
     string? Address = null,
     string? LogoPath = null);
 
-public record UpdateDocumentSequenceRequest(
-    int Id,
-    int NextNumber);
-
-public record RestoreBackupRequest(string FileName);
-
-public record ReportFilterRequest(
-    DateTime? DateFrom, DateTime? DateTo,
-    int? CustomerId, int? SupplierId,
-    int? WarehouseId, int? ProductId
-);
-
 public record UpdateSettingsRequest(
     string StoreName, string? Address, string? Phone, string? Email,
     string? LogoUrl,

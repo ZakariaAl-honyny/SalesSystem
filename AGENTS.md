@@ -1069,29 +1069,42 @@ The **Orchestrator** is the only agent that partitions work; an agent never dele
 
 ## 3. Enums
 
+> **مقيس 2026-11-20 (`RULE-N195`):** **16** تعداداً في المستودع، مأخوذة حرفياً من ملفات الإعلان — لا من الذاكرة. لا يُضاف تعداد غير معلن هنا، ولا يبقى هنا تعداد محذوف.
+
 ```csharp
+// ── Common/Enums ────────────────────────────────────────────────
 public enum InvoiceStatus : byte { Draft = 1, Posted = 2, Cancelled = 3 }
 public enum PaymentType : byte { Cash = 1, Credit = 2, Mixed = 3 }
-public enum MovementType : byte { PurchaseIn = 1, SaleOut = 2, SaleReturnIn = 3, PurchaseReturnOut = 4, TransferOut = 5, TransferIn = 6, Adjustment = 7 }
-public enum UnitType : byte { Retail = 0, Wholesale = 1 }
 public enum SaleMode : byte { Retail = 1, Wholesale = 2 }
-public enum DeleteStrategy { Cancel = 0, Deactivate = 1, Permanent = 2 }
-public enum CostingMethod : byte { WeightedAverage = 1, LastPurchasePrice = 2, SupplierPrice = 3 }
-public enum UserRole : byte { Admin = 1, Manager = 2, Accountant = 3, Treasurer = 4, Cashier = 5, WarehouseSupervisor = 6, SalesEmployee = 7, Observer = 8, BranchManager = 9 }
-public enum CashTransactionType : byte { OpeningBalance = 1, SalesIncome = 2, Expense = 3, TransferOut = 4, TransferIn = 5, RefundOut = 6, SupplierPayment = 7, CustomerPayment = 8 }
-public enum InvoiceTypePrint : byte { Sales = 1, Purchase = 2, SalesReturn = 3, PurchaseReturn = 4, Test = 5 }
-public enum PriceLevel : byte { Retail = 1, Wholesale = 2, VIP = 3, Distributor = 4 }
-public enum WarehouseType : byte { Main = 1, Store = 2, Showroom = 3 }
-public enum StockAdjustmentType : byte { Addition = 1, Deduction = 2, Correction = 3 }
-public enum StockIssueReason : byte { SalesReturn = 1, Damage = 2, Expiry = 3, InternalUse = 4, Other = 5 }
 public enum PaymentMethod : byte { Cash = 1, Cheque = 2, BankTransfer = 3, CreditCard = 4 }
-public enum ChequeStatus : byte { Pending = 1, Cleared = 2, Bounced = 3, Cancelled = 4 }
-public enum InventoryTransactionType : byte { Purchase = 1, PurchaseReturn = 2, Sale = 3, SaleReturn = 4, TransferOut = 5, TransferIn = 6, Count = 7, Adjustment = 8, Damage = 9, OpeningBalance = 10, InternalIssue = 11, InternalReceipt = 12 }
-public enum SettingsType : byte { String = 1, Integer = 2, Decimal = 3, Boolean = 4 }
-public enum NotificationType : byte { LowStock = 1, ExpirySoon = 2, CreditLimitExceeded = 3, System = 4, Reminder = 5 }
 public enum DiscountType : byte { Amount = 0, Percentage = 1 }
-public enum AdjustmentType : byte { Opening = 1, Increase = 2, Shortage = 3, Damage = 4 }
+public enum DeleteStrategy { Cancel = 0, Deactivate = 1, Permanent = 2 }
+public enum AdjustmentType : byte { Surplus = 1, Shortage = 2 }
+public enum InventoryAdjustmentType : byte { Addition = 1, Deduction = 2, Correction = 3 }
+public enum InventoryCountStatus : byte { Draft = 1, Posted = 2, Cancelled = 3 }
+public enum InventoryTransactionType : byte { Purchase = 1, PurchaseReturn = 2, Sale = 3, SaleReturn = 4, TransferOut = 5, TransferIn = 6, Count = 7, Adjustment = 8, Damage = 9, OpeningBalance = 10, InternalIssue = 11, InternalReceipt = 12 }
+public enum InventoryReferenceType : byte { PurchaseInvoice = 1, SalesInvoice = 2, PurchaseReturn = 3, SalesReturn = 4, Transfer = 5, Count = 6, Adjustment = 7 }
+public enum UserRole : byte { Admin = 1, Manager = 2, Treasurer = 4, Cashier = 5, WarehouseSupervisor = 6, SalesEmployee = 7, Observer = 8 }
+
+// ── DTO/Enums (عقد الأسلاك) ─────────────────────────────────────
+public enum MovementType : byte { PurchaseIn = 1, SaleOut = 2, SaleReturnIn = 3, PurchaseReturnOut = 4, TransferOut = 5, TransferIn = 6, Adjustment = 7 }
+public enum InvoiceTypePrint : byte { Sales = 1, Purchase = 2, SalesReturn = 3, PurchaseReturn = 4, Test = 5 }
+public enum ImportMode : byte { Insert = 1, Update = 2 }
 ```
+
+> **⚠️ `UserRole` — القيمة `3` محجوزة ولا يُعاد ترقيمها.** `Accountant = 3` أُزيل بقرار المالك (2026-11-20، `TASK-026`) من `Common/Enums/UserRole.cs` ومن `DTO/Enums/CoreEnums.cs`؛ بقيت القيم الأخرى صريحة كما هي حتى لا تتغيّر دلالة أي صف محفوظ. `UserRole` **وسم جلسة فقط** (`§2.13`)، وتُستهلك منه `Admin`/`Manager` فقط في `UserSession`.
+>
+> **تعداد محلي في طبقة الواجهة (لا يُدرج في العقد):** `NotificationType` (`Success`/`Error`/`Warning`) في `Desktop/Models/Notification.cs` · `ImportMode` عقدي في `DTO`.
+>
+> **تكرار قائم مسجَّل (`RULE-N172`، دَين لا يُصلَح الآن):** ستة تعدادات معلنة مرتين — `InvoiceStatus` · `PaymentType` · `SaleMode` · `DiscountType` · `MovementType` · `UserRole` — في `Common/Enums` و`DTO/Enums/CoreEnums.cs`. أي مساس بها مستقبلاً يُوحِّدها في بيت واحد.
+
+**تعدادات أُزيلت من المستودع (لا تُذكر كأنها موجودة):**
+
+| التعداد | تاريخ الإزالة | السبب |
+|---|---|---|
+| `CostingMethod` · `DistributionMethod` · `PriceLevel` · `UnitType` · `WarehouseType` · `StockIssueReason` | 2026-11-20 | صفر مستهلك — `TASK-026` |
+| `CashTransactionType` | 2026-11-20 | بقية من عصر المحاسبة (لا `CashTransactions` في V1) — `TASK-026` |
+| `StockAdjustmentType` · `ChequeStatus` · `SettingsType` | قبل 2026-11-20 | كانت مذكورة هنا بلا إعلان مقابل — استُبدلت بـ`InventoryAdjustmentType` وأُزيلت مع تبسيط V1 |
 
 ---
 
