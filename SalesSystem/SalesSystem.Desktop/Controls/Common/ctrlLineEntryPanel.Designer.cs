@@ -16,8 +16,10 @@ partial class ctrlLineEntryPanel
     // ملاحظات المصمّم:
     //   • المصمّم = التشغيل (RULE-N134 / RULE-N140 / RULE-N204): كل لون معلن هنا بالقيمة الحرفية
     //     نفسها التي تحتفظ بها لوحة الألوان وقت التشغيل، وبصيغة Convert.ToInt32 حصراً:
-    //     النص المميّز (14,82,52) · نص القيم (33,37,41) · زر «إضافة السطر» (25,135,84)
-    //     · زر «إلغاء» (108,117,125) — والأبيض للأشرطة والحقول.
+    //     عناوين الحقول (14,82,52) · عنوان صندوق «إضافة صنف» (33,37,41) — مطابق لصندوق gbEntry في
+    //     الشاشة المرجعية frmAddUpdateSalesInvoice — · زر «إضافة السطر» (25,135,84)
+    //     · زر «إلغاء» (108,117,125) — والشرائط (235,240,235) · صندوق الإدخال (235,245,235)
+    //     · الحقول بيضاء.
     //   • RULE-N145: العنصر دائم يُعلَن هنا ولا يُبنى وقت التشغيل — والـUserControl لا ينشئ عنصراً
     //     في الكود، ولا يضبط لوناً/خطاً/حجماً (المظهر كله في هذا الملف).
     //   • حقل «الانتهاء» (lblExpiryCaption + dtpExpiry) عنصر دائم معلن هنا لكنه **مخفي افتراضياً**
@@ -25,7 +27,7 @@ partial class ctrlLineEntryPanel
     //     وقت التشغيل بضبط `ShowExpiry = true` — فلا فرق بين المصمّم والتشغيل في الوضع الافتراضي.
     //   • RULE-N128: صفر مرجع إلى Helpers داخل المصمّم.
     //   • ‏UserControl لا يملك RightToLeftLayout (خاصية Form فقط — مقيس بالانعكاس، نفس ملاحظة
-    //     ctrlCustomerCard وctrlDashboard) فالاتجاه RTL يأتي من RightToLeft هنا ومن النموذج الحاضن.
+    //     ctrlCustomerCard وctrlDashboard) فالاتجاه RTL يأتي من LeftToRight هنا ومن النموذج الحاضن.
     //   • RULE-N145/RULE-N193: عناصر اللوحة العشرة (باركود · كود · اسم · وحدة · كمية · سعر · خصم
     //     · إجمالي · زرّان) أعلنت في المصمّم، ويوصّل الـUserControl أحداثها في هذا الملف فيبقى
     //     كل السلوك في مكان واحد.
@@ -61,11 +63,11 @@ partial class ctrlLineEntryPanel
         // 
         // gbEntry
         // 
-        gbEntry.BackColor = System.Drawing.Color.White;
+        gbEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
         gbEntry.Controls.Add(pnlEntry);
         gbEntry.Dock = DockStyle.Fill;
         gbEntry.Font = new Font("Tahoma", 10F, FontStyle.Bold);
-        gbEntry.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(14), Convert.ToInt32(82), Convert.ToInt32(52));
+        gbEntry.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
         gbEntry.Location = new Point(0, 0);
         gbEntry.Name = "gbEntry";
         gbEntry.Padding = new Padding(8, 4, 8, 4);
@@ -78,6 +80,7 @@ partial class ctrlLineEntryPanel
         // pnlEntry
         // 
         pnlEntry.AutoScroll = false;
+        pnlEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
         pnlEntry.Controls.Add(lblBarcodeCaption);
         pnlEntry.Controls.Add(txtBarcode);
         pnlEntry.Controls.Add(lblItemCodeCaption);
@@ -99,7 +102,7 @@ partial class ctrlLineEntryPanel
         pnlEntry.Controls.Add(btnAddLine);
         pnlEntry.Controls.Add(btnCancelLine);
         pnlEntry.Dock = DockStyle.Fill;
-        pnlEntry.FlowDirection = FlowDirection.RightToLeft;
+        pnlEntry.FlowDirection = FlowDirection.LeftToRight;
         pnlEntry.Font = new Font("Tahoma", 10F);
         pnlEntry.Location = new Point(8, 26);
         pnlEntry.Name = "pnlEntry";
@@ -205,6 +208,7 @@ partial class ctrlLineEntryPanel
         // 
         cmbUnit.BackColor = System.Drawing.Color.White;
         cmbUnit.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbUnit.FlatStyle = FlatStyle.Flat;
         cmbUnit.Font = new Font("Tahoma", 10F);
         cmbUnit.FormattingEnabled = true;
         cmbUnit.Location = new Point(596, 3);
@@ -402,7 +406,7 @@ partial class ctrlLineEntryPanel
         // 
         AutoScaleMode = AutoScaleMode.None;
         AutoSize = false;
-        BackColor = System.Drawing.Color.White;
+        BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         Controls.Add(gbEntry);
         Font = new Font("Tahoma", 10F);
         Name = "ctrlLineEntryPanel";

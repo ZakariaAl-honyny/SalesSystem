@@ -769,6 +769,8 @@ public partial class frmAddUpdatePurchaseInvoice : Form
     {
         if (_isUpdating) return;
         decimal subTotal = _lines.Sum(x => x.LineTotal);
+        int itemCount = _lines.Count(l => l.ProductId > 0);
+        decimal totalQuantity = _lines.Where(l => l.ProductId > 0).Sum(l => l.Quantity);
 
         // وضع المرتجع: العقد لا يحمل خصم ترويسة ولا مدفوعاً (D-3) — فالمجاميع تُقرأ من السطور
         // وحدها، والحقول المخفية لا تُلمس ولا تدخل الحساب (RULE-N167).
@@ -776,6 +778,8 @@ public partial class frmAddUpdatePurchaseInvoice : Form
         {
             lblSubTotalVal.Text = clsFormat.Money(subTotal);
             lblTotalVal.Text = clsFormat.Money(subTotal);
+            // شريط الملخّص: المرتجع بلا خصم ترويسة وبلا مدفوع (D-3) ⇒ المدفوع صفر والمتبقي = الإجمالي.
+            lblQuickInfo.Text = $"عدد الأصناف: {clsFormat.Number(itemCount)} | إجمالي الكمية: {clsFormat.Quantity(totalQuantity)} | الإجمالي: {clsFormat.Money(subTotal)} | المدفوع: {clsFormat.Money(0m)} | المتبقي: {clsFormat.Money(subTotal)}";
             return;
         }
 
@@ -790,6 +794,7 @@ public partial class frmAddUpdatePurchaseInvoice : Form
         lblTotalVal.Text = clsFormat.Money(totalAmount);
         lblDueVal.Text = clsFormat.Money(dueAmount);
         lblDueVal.ForeColor = dueAmount > 0 ? GreenThemeHelper.StatusNegative : GreenThemeHelper.StatusPositive;
+        lblQuickInfo.Text = $"عدد الأصناف: {clsFormat.Number(itemCount)} | إجمالي الكمية: {clsFormat.Quantity(totalQuantity)} | الإجمالي: {clsFormat.Money(totalAmount)} | المدفوع: {clsFormat.Money(paidAmount)} | المتبقي: {clsFormat.Money(dueAmount)}";
     }
 
     private void UpdateUIState()
@@ -797,9 +802,9 @@ public partial class frmAddUpdatePurchaseInvoice : Form
         bool isReturn = _documentMode == PurchaseDocumentMode.PurchaseReturn;
         bool editable = IsEditable;
 
-        pnlHeader.Enabled = editable;
-        // شبكة السطور عرض/اختيار دائماً (SetupGrid): لا تُفتح للتحرير في أي وضع — الإدخال في اللوحة وحدها.
-        pnlFooter.Enabled = editable;
+        gbInvoiceInfo.Enabled = editable;
+        // رأس الفاتورة وإجمالياتها يتبعان حالة التحرير: معطّلان على مستند مرحّل/ملغى.
+        gbTotals.Enabled = editable;
 
         // لوحة «إضافة صنف» هي مسار الإدخال الوحيد: تعطيلها يقفل الإدخال كله على مستند مرحّل/ملغى
         // أو مرتجع محفوظ، وResetPanel يُلغي أي سطر نصف مُدخل فلا يبقى سطر لا يمكن حفظه.
