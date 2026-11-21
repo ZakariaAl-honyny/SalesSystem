@@ -271,7 +271,6 @@ public partial class frmCRUDCProductMaster : Form
         table.Columns.Add("Name", typeof(string)).Caption = "اسم الصنف";
         table.Columns.Add("ForeignName", typeof(string)).Caption = "الاسم الأجنبي";
         table.Columns.Add("CategoryName", typeof(string)).Caption = "مجموعة الصنف";
-        table.Columns.Add("Barcode", typeof(string)).Caption = "الباركود";
         table.Columns.Add("CurrentStock", typeof(decimal)).Caption = "المخزون";
         table.Columns.Add("ReorderLevel", typeof(decimal)).Caption = "نقطة إعادة الطلب";
         table.Columns.Add("TrackExpiry", typeof(bool)).Caption = "ينتهي؟";
@@ -279,6 +278,8 @@ public partial class frmCRUDCProductMaster : Form
         table.Columns.Add("LocationInStore", typeof(string)).Caption = "العنوان في المخزن";
         table.Columns.Add("Description", typeof(string)).Caption = "ملاحظات";
         table.Columns.Add("IsActive", typeof(bool)).Caption = "الحالة";
+        table.Columns.Add("CreatedByUserName", typeof(string));
+        table.Columns.Add("UpdatedByUserName", typeof(string));
 
         try
         {
@@ -297,14 +298,15 @@ public partial class frmCRUDCProductMaster : Form
                         p.Name,
                         p.ForeignName ?? "",
                         p.CategoryName ?? "",
-                        p.Barcode ?? "",
                         p.CurrentStock,
                         p.ReorderLevel,
                         p.TrackExpiry,
                         p.ExpiryAlertDays,
                         p.LocationInStore ?? "",
                         p.Description ?? "",
-                        p.IsActive);
+                        p.IsActive,
+                        p.CreatedByUserName ?? "",
+                        p.UpdatedByUserName ?? "");
                 }
             }
             else
@@ -339,14 +341,15 @@ public partial class frmCRUDCProductMaster : Form
         ["Name"] = "اسم الصنف",
         ["ForeignName"] = "الاسم الأجنبي",
         ["CategoryName"] = "مجموعة الصنف",
-        ["Barcode"] = "الباركود",
         ["CurrentStock"] = "المخزون",
         ["ReorderLevel"] = "نقطة إعادة الطلب",
         ["TrackExpiry"] = "ينتهي؟",
         ["ExpiryAlertDays"] = "نقطة التنبيه",
         ["LocationInStore"] = "العنوان في المخزن",
         ["Description"] = "ملاحظات",
-        ["IsActive"] = "الحالة"
+        ["IsActive"] = "الحالة",
+        ["CreatedByUserName"] = "أنشأه",
+        ["UpdatedByUserName"] = "آخر تعديل"
     };
 
     /// <summary>تطبيق العناوين العربية على أعمدة شبكة الأصناف بعد ربط البيانات.</summary>
@@ -463,7 +466,6 @@ public partial class frmCRUDCProductMaster : Form
             conditions.Add(
                 "(" + RowFilterHelper.Like("Name", text)
                     + " OR " + RowFilterHelper.Like("CategoryName", text)
-                    + " OR " + RowFilterHelper.Like("Barcode", text)
                     + " OR CONVERT(Id, 'System.String') LIKE '" + RowFilterHelper.Escape(text) + "%')");
         }
 
@@ -545,8 +547,8 @@ public partial class frmCRUDCProductMaster : Form
         txtNotes.Text = p.Description ?? "";
         numExpiryAlertDays.Value = NumericInputHelper.Clamp(numExpiryAlertDays, p.ExpiryAlertDays ?? 0);
 
-        // الباركود الرئيسي للصنف يُخزَّن في ProductDto.Barcode.
-        txtMainUnitBarcode.Text = p.Barcode ?? "";
+        // ProductDto.Barcode هو باركود الوحدة الأساسية (ProductUnits.Barcode) — لا باركود على الصنف نفسه.
+        txtMainUnitBarcode.Text = p.Barcode ?? string.Empty;
 
         chkTrackExpiry.Checked = p.TrackExpiry;
         numReorderLevel.Value = NumericInputHelper.Clamp(numReorderLevel, p.ReorderLevel);
@@ -612,20 +614,29 @@ public partial class frmCRUDCProductMaster : Form
     /// <summary>
     /// حفظ <b>الباركود</b> · سعر البيع · سعر التكلفة · الخصم المسموح به على الوحدة الرئيسية للصنف
     /// عبر <c>UpdateProductUnitAsync</c>.
-    /// الباركود يُرسل بنفس القيمة المرسلة إلى <c>UpdateProductRequest</c> حتى لا تتباعد قيمتا
-    /// <c>Products.Barcode</c> و<c>ProductUnits.Barcode</c> (مسار الإضافة والمسار التعديل متطابقان).
+    /// الباركود يُرسل إلى الوحدة وحدها لأنه يعيش على <c>ProductUnits.Barcode</c> فقط
+    /// (لا يوجد عمود باركود على الصنف)، فيبقى مصدره الواحد هو الوحدة.
     /// السعر بالجملة يُعاد كما هو (لا حقل له في الشاشة).
     /// </summary>
     private async Task _SaveMainUnitPricesAsync(int productId, string? barcode)
     {
-        var unit = _productUnits.FirstOrDefault(u => u.IsBaseUnit) ?? _productUnits.FirstOrDefault();
-        if (unit is null) return;   // لا وحدة للصنف → لا شيء يُحفظ من مجموعة الوحدة الرئيسية
+        // الوحدة الرئيسية تُحدَّد صراحةً — لا ارتداد إلى أول وحدة في القائمة:
+        // الارتداد كان يكتب الباركود/السعر/التكلفة/الخصم على وحدة **مشتقة** صامتاً عند غياب وحدة أساسية.
+        var unit = _productUnits.FirstOrDefault(u => u.IsBaseUnit);
+        if (unit is null)
+        {
+            // نفس قناة التنبيه المستخدمة لفشل حفظ الوحدة: الصنف محفوظ، ومجموعة الوحدة الرئيسية لم تُحفظ.
+            Log.Error("تعذر حفظ أسعار الوحدة الرئيسية للصنف {ProductId}: لا وحدة أساسية للصنف", productId);
+            clsDialogs.Warning(
+                "تم حفظ بيانات الصنف، لكن لا توجد وحدة أساسية له فلم يُحفظ باركود/سعر/تكلفة/خصم الوحدة الرئيسية.\nافتح «الوحدات والأسعار» واضبط الوحدة الأساسية ثم أعد إدخالها.");
+            return;
+        }
 
         try
         {
             var request = new UpdateProductUnitRequest(
                 UnitId: (short)unit.UnitId,
-                Barcode: barcode,            // الباركود المكتوب في الشاشة يُحفظ على الوحدة الأساسية والصنف معاً
+                Barcode: barcode,            // الباركود المكتوب في الشاشة يُحفظ على الوحدة الأساسية وحدها (ProductUnits.Barcode)
                 SalePrice: numMainUnitSalePrice.Value,
                 WholesalePrice: unit.WholesalePrice,
                 CostPrice: numMainUnitCostPrice.Value,
@@ -998,7 +1009,6 @@ public partial class frmCRUDCProductMaster : Form
                     numReorderLevel.Value,
                     chkTrackExpiry.Checked,
                     null,
-                    barcode,
                     ForeignName: foreignName,
                     LocationInStore: locationInStore,
                     ExpiryAlertDays: expiryAlertDays,
@@ -1020,7 +1030,6 @@ public partial class frmCRUDCProductMaster : Form
                     numReorderLevel.Value,
                     chkTrackExpiry.Checked,
                     null,
-                    barcode,
                     ForeignName: foreignName,
                     LocationInStore: locationInStore,
                     ExpiryAlertDays: expiryAlertDays);
@@ -1300,7 +1309,8 @@ public partial class frmCRUDCProductMaster : Form
     // ── Barcode Scanner ───────────────────────────────────────────────────────
 
     /// <summary>
-    /// Enter من قارئ الباركود: إن كان الباركود مسجّلاً لصنف موجود يُحمَّل الصنف للتعديل،
+    /// Enter من قارئ الباركود: الباركود يعيش على وحدة الصنف (<c>ProductUnits.Barcode</c>) لا على الصنف،
+    /// فيُحلّ عبر خدمة الأصناف إلى الصنف المالك لهذا الباركود: إن كان مسجّلاً يُحمَّل الصنف للتعديل،
     /// وإن كان جديداً يبقى الباركود في الحقل وينتقل المؤشر إلى اسم الصنف (إضافة سريعة).
     /// </summary>
     private async void txtMainUnitBarcode_KeyDown(object? sender, KeyEventArgs e)
@@ -1320,14 +1330,13 @@ public partial class frmCRUDCProductMaster : Form
 
         try
         {
-            var existing = _productsById.Values.FirstOrDefault(p =>
-                string.Equals(p.Barcode, code, StringComparison.OrdinalIgnoreCase));
+            var resolved = await ProductService.ResolveBarcodeAsync(code);
 
-            if (existing is not null)
+            if (resolved.IsSuccess && resolved.Value is { } res)
             {
                 Cursor = Cursors.WaitCursor;
-                await _FillFormAsync(existing.Id);
-                _SelectGridRow(existing.Id);
+                await _FillFormAsync(res.ProductId);
+                _SelectGridRow(res.ProductId);
                 txtMainUnitBarcode.Focus();
                 return;
             }

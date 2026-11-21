@@ -3,6 +3,7 @@ using SalesSystem.Desktop.GlobalClasses;
 using SalesSystem.Desktop.Helpers;
 using SalesSystem.Desktop.Services.Interfaces;
 using SalesSystem.DTO;
+using SalesSystem.DTO.Responses;
 using Serilog;
 
 namespace SalesSystem.Desktop.Screens.Inventory.Forms;
@@ -15,7 +16,10 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms;
 /// والحقول المطلوبة تُغذّى من البيت الواحد <see cref="RequiredFieldHelper"/> (لا حكم محلي في الشاشة).
 /// <para>
 /// <b>مصدر البيانات:</b> <see cref="IProductDesktopService.GetAllAsync"/> لملء قائمة الأصناف،
-/// و<see cref="IProductDesktopService.GetByBarcodeAsync"/> للبحث بالباركود (يشمل باركودات الوحدات).
+/// و<see cref="IProductDesktopService.ResolveBarcodeAsync"/> للبحث بالباركود. الباركود لم يعد على
+/// مستوى الصنف (قرار المالك 2026-11-20): مصدره الوحيد <c>ProductUnits.Barcode</c>، فالبحث يعيد
+/// الصنف **ووحدته** (الكرتون/العلبة/الوحدة الأساسية) ومعامل تحويلها، والملصق يطبع باركود تلك الوحدة
+/// نفسها ولا يُستبدل أبداً بباركود الوحدة الأساسية.
 /// لا يُولَّد ولا يُختلق أي باركود: الباركود المعروض هو المسجَّل في الدليل فعلاً.
 /// </para>
 /// <para>
@@ -33,8 +37,15 @@ public partial class frmInventoryBarcode : Form
     /// <summary>الصنف المحدد حالياً — <c>null</c> قبل التحميل أو عند إخفاقه.</summary>
     private ProductDto? _selectedProduct;
 
-    /// <summary>الباركود المراد طباعته: باركود الصنف، أو باركود الوحدة الذي مُسح فعلاً.</summary>
+    /// <summary>الباركود المراد طباعته: باركود الوحدة المحلولة من المسح، أو باركود الوحدة الأساسية عند الاختيار اليدوي.</summary>
     private string _labelBarcode = string.Empty;
+
+    /// <summary>
+    /// نتيجة حلّ الباركود الممسوح — تحمل <b>الوحدة</b> التي يخصّها الباركود واسمها ومعامل تحويلها
+    /// (مصدرها <c>ProductUnits.Barcode</c>؛ الصنف نفسه لا يملك باركوداً — قرار المالك 2026-11-20).
+    /// تُصفَّر عند أي اختيار يدوي من القائمة كي لا تُنسَب وحدة مسحٍ سابق للصنف المختار الآن.
+    /// </summary>
+    private BarcodeResolutionDto? _resolution;
 
     /// <summary>نص شريط العنوان الأساسي — تُضاف إليه حالة الصنف المحدد (RULE-N44).</summary>
     private const string FormTitle = "طباعة باركود الأصناف";
@@ -195,7 +206,12 @@ public partial class frmInventoryBarcode : Form
     {
         _selectedProduct = cmbProduct.SelectedItem as ProductDto;
 
-        // الباركود المعروض هو المسجَّل في الدليل فقط — لا توليد ولا اختلاق.
+        // اختيار يدوي من القائمة = لا وحدة ممسوحة: تُصفَّر نتيجة الحلّ السابقة كي لا يبقى اسم وحدة/معامل
+        // تحويل مسحٍ سابق معلَّقاً على صنف آخر (RULE-N167 — لا عرض مضلِّل).
+        _resolution = null;
+
+        // الباركود المعروض عند الاختيار اليدوي هو باركود الوحدة الأساسية المسجَّل في الدليل (ProductDto.Barcode
+        // مشتقّ من ProductUnits ولا يُختلق)؛ وباركود أي وحدة أخرى يصل عبر البحث بالباركود وحده.
         _labelBarcode = _selectedProduct?.Barcode ?? string.Empty;
         lblBarcodeValue.Text = string.IsNullOrWhiteSpace(_labelBarcode) ? "—" : _labelBarcode;
 
@@ -206,7 +222,11 @@ public partial class frmInventoryBarcode : Form
         _UpdateModeHeader();
     }
 
-    /// <summary>RULE-N44 — مؤشر الوضع: اسم الصنف المحدد أو «بلا تحديد».</summary>
+    /// <summary>
+    /// RULE-N44 — مؤشر الوضع: اسم الصنف المحدد أو «بلا تحديد»، ويُضاف إليه عند المسح
+    /// <b>وحدة الباركود المحلولة</b> واسمها ومعامل تحويلها (الباركود باركود وحدة لا باركود صنف).
+    /// يُكتب في <c>lblMode</c> المُعلَن في المصمّم — لا عنصر جديد (RULE-N145).
+    /// </summary>
     private void _UpdateModeHeader()
     {
         if (_selectedProduct is null)
@@ -217,8 +237,17 @@ public partial class frmInventoryBarcode : Form
             return;
         }
 
-        lblMode.Text = $"{FormTitle} — {_selectedProduct.Name}";
+        var header = $"{FormTitle} — {_selectedProduct.Name}";
+
+        if (_resolution is not null && !string.IsNullOrWhiteSpace(_resolution.UnitName))
+            header += $" — الوحدة: {_resolution.UnitName} (معامل التحويل: {_UnitFactorText(_resolution)})";
+
+        lblMode.Text = header;
     }
+
+    /// <summary>معامل تحويل وحدة الباركود كنص عربي واحد يستهلكه شريط العنوان والمعاينة ورسالة الطباعة.</summary>
+    private static string _UnitFactorText(BarcodeResolutionDto resolution)
+        => clsFormat.Quantity(resolution.ConversionFactor);
 
     // ── RULE-N42: بحث فوري بالباركود ─────────────────────────────────────
 
@@ -253,7 +282,10 @@ public partial class frmInventoryBarcode : Form
 
             string code = txtBarcode.Text.Trim();
 
-            var result = await ProductService.GetByBarcodeAsync(code);
+            // المصدر الوحيد للباركود هو ProductUnits.Barcode — الصنف نفسه لا يملك باركوداً (قرار المالك
+            // 2026-11-20). الحلّ يعيد الصنف **و** الوحدة التي يخصّها الكود واسمها ومعامل تحويلها، بدل
+            // GetByBarcodeAsync الذي كان يعتمد على باركود الصنف المشتقّ من الوحدة الأساسية فقط.
+            var result = await ProductService.ResolveBarcodeAsync(code);
             if (!result.IsSuccess || result.Value is null)
             {
                 errorProvider.SetError(txtBarcode, "لا يوجد صنف بهذا الباركود");
@@ -265,28 +297,40 @@ public partial class frmInventoryBarcode : Form
             // نجاح البحث = القيمة موجودة: تُرفع علامة «مطلوب» من البيت الواحد (لا مسح محلي للأيقونة).
             RequiredFieldHelper.Clear(this);
 
-            var product = result.Value;
-            var listed = _products.FirstOrDefault(p => p.Id == product.Id);
+            var resolution = result.Value;
+            var listed = _products.FirstOrDefault(p => p.Id == resolution.ProductId);
 
             if (listed is not null)
             {
-                // اختيار الصنف يرفع SelectedIndexChanged فتتحدث المعاينة وشريط العنوان.
+                // اختيار الصنف يرفع SelectedIndexChanged فتتحدث المعاينة وشريط العنوان — والتعبئة الصريحة
+                // تُبقي الحالة صحيحة حتى إن كان الصنف مختاراً في القائمة أصلاً فلم يرتفع الحدث.
                 cmbProduct.SelectedItem = listed;
+                _selectedProduct = listed;
             }
             else
             {
-                // صنف غير نشط لا يظهر في القائمة: يُعرض مباشرة مع تنبيه صريح.
-                _selectedProduct = product;
-                _UpdateModeHeader();
-
-                clsDialogs.Warning("الصنف الممسوح غير نشط — لا يظهر في قائمة الأصناف.");
+                // صنف غير نشط لا يظهر في القائمة: يُجلب بالمعرّف ويُعرض مباشرة مع تنبيه صريح.
+                var lookup = await ProductService.GetByIdAsync(resolution.ProductId);
+                if (lookup.IsSuccess && lookup.Value is not null)
+                {
+                    _selectedProduct = lookup.Value;
+                    clsDialogs.Warning("الصنف الممسوح غير نشط — لا يظهر في قائمة الأصناف.");
+                }
+                else
+                {
+                    _selectedProduct = null;
+                    clsDialogs.Warning(lookup.Error ?? "تعذر تحميل بيانات الصنف الممسوح.");
+                }
             }
 
-            // الباركود المطبوع هو **الكود الذي مُسح فعلاً**: باركود الوحدة (كرتون/باكت…) يختلف عن
-            // باركود الصنف، فاستبداله بباركود الصنف يطبع ملصقاً لا يطابق ما مسحه المستخدم.
-            _labelBarcode = code;
-            lblBarcodeValue.Text = code;
+            // الباركود المطبوع هو باركود **الوحدة التي يخصّها الكود الممسوح** كما أعاده الحلّ:
+            // الكرتون/الباكت له باركود يختلف عن باركود الوحدة الأساسية، وطباعة باركود الأساس
+            // تُخرج ملصقاً لا يطابق ما مسحه المستخدم. ووحدة الحلّ تُعرض باسمها ومعامل تحويلها.
+            _resolution = resolution;
+            _labelBarcode = string.IsNullOrWhiteSpace(resolution.Barcode) ? code : resolution.Barcode;
+            lblBarcodeValue.Text = _labelBarcode;
             errorProvider.SetError(lblBarcodeValue, "");
+            _UpdateModeHeader();
             pnlBarcodePreview.Invalidate();
 
             txtBarcode.Clear();
@@ -335,6 +379,11 @@ public partial class frmInventoryBarcode : Form
 
             string sizeName = cmbLabelSize.SelectedItem?.ToString() ?? "متوسط";
 
+            // وحدة الباركود الممسوح — تُذكر في المعاينة فقط عند مسح باركود وحدة معروفة (لا اختلاق).
+            string unitLine = _resolution is not null && !string.IsNullOrWhiteSpace(_resolution.UnitName)
+                ? $"وحدة الباركود: {_resolution.UnitName} (معامل التحويل: {_UnitFactorText(_resolution)})\r\n"
+                : string.Empty;
+
             Cursor = Cursors.WaitCursor;
 
             // لا خدمة طباعة في هذه النسخة — رسالة صريحة بدل ادّعاء نجاح الطباعة.
@@ -342,6 +391,7 @@ public partial class frmInventoryBarcode : Form
                 "معاينة الملصق جاهزة، لكن الطباعة الفعلية لم تُوصَّل بعد (لا توجد خدمة طباعة في هذه النسخة).\r\n" +
                 $"الصنف: {product.Name}\r\n" +
                 $"الباركود: {_labelBarcode}\r\n" +
+                unitLine +
                 $"عدد الملصقات: {count} | حجم الملصق: {sizeName}");
         }
         catch (Exception ex)
@@ -361,7 +411,7 @@ public partial class frmInventoryBarcode : Form
         Close();
     }
 
-    // ── رسم معاينة الباركود (من باركود الصنف الحقيقي) ─────────────────────
+    // ── رسم معاينة الباركود (من باركود الوحدة المسجَّل فعلاً) ─────────────
 
     private void pnlBarcodePreview_Paint(object? sender, PaintEventArgs e)
     {
@@ -402,15 +452,22 @@ public partial class frmInventoryBarcode : Form
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
-        // المجموعة + الرصيد الحالي — حقول حقيقية من دليل الأصناف (ProductDto لا يحمل سعراً/وحدة)
+        // المجموعة + الرصيد الحالي + وحدة الباركود المحلولة — حقول حقيقية من دليل الأصناف وحلّ الباركود
         using (var infoFont = new Font("Tahoma", 9.5F))
         {
             string category = string.IsNullOrWhiteSpace(_selectedProduct.CategoryName)
                 ? "—"
                 : _selectedProduct.CategoryName;
 
+            string info =
+                $"المجموعة: {category} | الرصيد الحالي: {clsFormat.Quantity(_selectedProduct.CurrentStock)}";
+
+            // الباركود يخصّ وحدة: تُعرض الوحدة ومعامل تحويلها على الملصق نفسه (لا في عنصر منفصل — RULE-N145).
+            if (_resolution is not null && !string.IsNullOrWhiteSpace(_resolution.UnitName))
+                info += $" | الوحدة: {_resolution.UnitName} (معامل التحويل: {_UnitFactorText(_resolution)})";
+
             TextRenderer.DrawText(g,
-                $"المجموعة: {category} | الرصيد الحالي: {clsFormat.Quantity(_selectedProduct.CurrentStock)}",
+                info,
                 infoFont,
                 new Rectangle(6, 36, width - 12, 20),
                 GreenThemeHelper.StatusMutedDeep,

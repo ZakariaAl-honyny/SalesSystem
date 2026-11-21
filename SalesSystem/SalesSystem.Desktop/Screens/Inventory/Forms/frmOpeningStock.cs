@@ -46,6 +46,13 @@ public partial class frmOpeningStock : Form
     /// <summary>الصنف المحمَّل في لوحة الإدخال للتعديل (0 = إضافة سطر جديد).</summary>
     private int _editingProductId;
 
+    /// <summary>
+    /// باركود الوحدة الأساسية للصنف المحمَّل — احتياطيّ حقل الباركود حين تكون الوحدة المختارة بلا باركود.
+    /// (قرار المالك 2026-11-20: الباركود ملك الوحدة <c>ProductUnits.Barcode</c> لا الصنف؛ و<see cref="ProductDto.Barcode"/>
+    /// قيمة مشتقة منه، فالمصدر هنا الوحدة نفسها.)
+    /// </summary>
+    private string _baseUnitBarcode = string.Empty;
+
     /// <summary>حارس نقر مزدوج على «حفظ وترحيل» أثناء عملية جارية.</summary>
     private bool _isSaving;
 
@@ -310,6 +317,9 @@ public partial class frmOpeningStock : Form
         txtQuantity.KeyDown += txtQuantity_KeyDown;
         txtUnitCost.KeyDown += txtUnitCost_KeyDown;
 
+        // قرار المالك 2026-11-20: الباركود ملك الوحدة — تغيير الوحدة يتبع حقلَ الباركود بباركود الوحدة الجديدة.
+        cmbUnit.SelectedIndexChanged += (_, _) => _SyncBarcodeField();
+
         txtQuantity.TextChanged += (_, _) => _RecalculateLineTotal();
         txtUnitCost.TextChanged += (_, _) => _RecalculateLineTotal();
     }
@@ -363,12 +373,21 @@ public partial class frmOpeningStock : Form
         }
 
         ProductDto? product = null;
+        BarcodeResolutionDto? resolution = null;
 
         Cursor = Cursors.WaitCursor;
         try
         {
-            var result = await ProductApi.GetByBarcodeAsync(barcode);
-            if (result.IsSuccess) product = result.Value;
+            // قرار المالك 2026-11-20: الباركود ملك الوحدة (ProductUnits.Barcode) لا الصنف.
+            // يُحلّ الباركود إلى صنف + وحدة، ثم يُحمَّل الصنف بمعرّفه وتُختار الوحدة المحلولة.
+            var resolved = await ProductApi.ResolveBarcodeAsync(barcode);
+            if (resolved.IsSuccess) resolution = resolved.Value;
+
+            if (resolution != null)
+            {
+                var productResult = await ProductApi.GetByIdAsync(resolution.ProductId);
+                if (productResult.IsSuccess) product = productResult.Value;
+            }
         }
         finally
         {
@@ -377,13 +396,29 @@ public partial class frmOpeningStock : Form
 
         if (product != null)
         {
-            await _LoadProductForEntryAsync(product, null);
+            // وحدة الباركود الممسوح تُختار في قائمة الوحدة، وحقل الباركود يعرض باركودها المعتمد (لا نص المسح الخام).
+            await _LoadProductForEntryAsync(product, resolution?.ProductUnitId);
             return;
         }
 
         // باركود غير معروف ⇒ منتقي الأصناف (نفس سلوك فاتورة البيع)
         await _PickProductAsync();
     }
+
+    /// <summary>
+    /// حقل الباركود يتبع الوحدة المختارة: باركود الوحدة، فإن كانت بلا باركود فباركود الوحدة الأساسية
+    /// (نفس <see cref="ProductDto.Barcode"/> المشتق، لكن من مصدره — الوحدة نفسها)، ثم فراغ.
+    /// يُستدعى عند تحميل صنف وعند كل تغيير للوحدة (<c>RULE-N42</c> — قرار المالك 2026-11-20).
+    /// </summary>
+    private void _SyncBarcodeField()
+    {
+        string barcode = (cmbUnit.SelectedItem as ProductUnitDto)?.Barcode?.Trim() ?? string.Empty;
+        txtBarcode.Text = barcode.Length > 0 ? barcode : _baseUnitBarcode;
+    }
+
+    /// <summary>باركود الوحدة الأساسية من وحدات الصنف المحمَّلة (وإلا أول وحدة) — بلا استدعاء خدمة إضافي.</summary>
+    private static string _BaseBarcodeOf(IReadOnlyList<ProductUnitDto> units)
+        => (units.FirstOrDefault(u => u.IsBaseUnit) ?? units.FirstOrDefault())?.Barcode?.Trim() ?? string.Empty;
 
     /// <summary>
     /// منتقي الأصناف (D5) — <b>دون تمرير المخزن عمداً:</b> بضاعة أول المدة هي مَن يُثبّت أول كمية،
@@ -402,9 +437,8 @@ public partial class frmOpeningStock : Form
         }
 
         var product = dialog.SelectedProduct;
-        txtBarcode.Text = product.Barcode ?? string.Empty;
 
-        await _LoadProductForEntryAsync(product, dialog.SelectedUnit);
+        await _LoadProductForEntryAsync(product, dialog.SelectedUnit?.Id);
     }
 
     private async void btnPickProduct_Click(object? sender, EventArgs e)
@@ -424,9 +458,10 @@ public partial class frmOpeningStock : Form
 
     /// <summary>
     /// تحميل صنف إلى لوحة الإدخال: إن كان مضافاً مسبقاً يُحمَّل سطره للتعديل برسالة معلومات (D2 —
-    /// لا دمج صامت ولا تكرار)؛ وإلا تُعبَّأ الوحدة الأساسية والكمية = 1 ويستقر المؤشر على الكمية.
+    /// لا دمج صامت ولا تكرار)؛ وإلا تُختار الوحدة (وحدة الباركود الممسوح، أو المختارة من المنتقي، أو
+    /// الأساسية — <c>preferredUnitId</c>) ويُعبَّأ باركود تلك الوحدة والكمية = 1 ويستقر المؤشر على الكمية.
     /// </summary>
-    private async Task _LoadProductForEntryAsync(ProductDto product, ProductUnitDto? preferredUnit)
+    private async Task _LoadProductForEntryAsync(ProductDto product, int? preferredUnitId)
     {
         var existing = _FindLineRow(product.Id);
 
@@ -458,9 +493,11 @@ public partial class frmOpeningStock : Form
             return;
         }
 
-        var unitToSelect = (preferredUnit != null ? units.FirstOrDefault(u => u.Id == preferredUnit.Id) : null)
+        var unitToSelect = units.FirstOrDefault(u => u.Id == preferredUnitId)
                            ?? units.FirstOrDefault(u => u.IsBaseUnit)
                            ?? units[0];
+
+        _baseUnitBarcode = _BaseBarcodeOf(units);
 
         lblProductName.Text = product.Name;
         cmbUnit.Tag = product.Id;
@@ -468,6 +505,8 @@ public partial class frmOpeningStock : Form
         cmbUnit.ValueMember = "Id";
         cmbUnit.DataSource = new List<ProductUnitDto>(units);
         cmbUnit.SelectedValue = unitToSelect.Id;
+
+        _SyncBarcodeField();   // باركود الوحدة المختارة (قرار المالك 2026-11-20 — لا باركود للصنف)
 
         txtQuantity.Text = "1";
         txtUnitCost.Clear();
@@ -623,8 +662,8 @@ public partial class frmOpeningStock : Form
         else
         {
             // باركود السطر المحفوظ يبقى كما هو: في وضع التعديل قد يكون المستخدم كتب نصاً آخر
-            // في حقل الباركود بلا Enter، فلا يُكتب فوق باركود الصنف المحمَّل (يتغيّر فقط عبر
-            // بحث باركود ناجح أو منتقي الأصناف — وكلاهما يُعيد تحميل السطر).
+            // في حقل الباركود بلا Enter، فلا يُكتب فوق باركود وحدة السطر المحمَّل (يتغيّر فقط عبر
+            // بحث باركود ناجح أو تغيير الوحدة أو منتقي الأصناف — وكلها تُعيد تحميل/مزامنة السطر).
             row["ProductId"] = productId;
             row["ProductUnitId"] = productUnitId;
             row["ProductName"] = lblProductName.Text;
@@ -650,6 +689,9 @@ public partial class frmOpeningStock : Form
 
     private void _ClearEntryPanel()
     {
+        // يُفرَّغ قبل إسقاط مصدر الوحدة: معالج تغيير الوحدة يعيد كتابة حقل الباركود من هذا الاحتياطي.
+        _baseUnitBarcode = string.Empty;
+
         txtBarcode.Clear();
         lblProductName.Text = string.Empty;
         cmbUnit.DataSource = null;
@@ -734,8 +776,8 @@ public partial class frmOpeningStock : Form
         var units = await _GetUnitsAsync(productId);
 
         _editingProductId = productId;
+        _baseUnitBarcode = _BaseBarcodeOf(units);
 
-        txtBarcode.Text = row["Barcode"]?.ToString() ?? string.Empty;
         lblProductName.Text = row["ProductName"]?.ToString() ?? string.Empty;
 
         cmbUnit.Tag = productId;
@@ -746,6 +788,9 @@ public partial class frmOpeningStock : Form
         int unitId = row["ProductUnitId"] is int savedUnitId ? savedUnitId : 0;
         if (units.Any(u => u.Id == unitId)) cmbUnit.SelectedValue = unitId;
         else if (cmbUnit.Items.Count > 0) cmbUnit.SelectedIndex = 0;
+
+        // باركود السطر المحفوظ يبقى كما حُفظ (قد يكون نصاً كتبه المستخدم) — ويُتبع بباركود الوحدة عند تغييرها.
+        txtBarcode.Text = row["Barcode"]?.ToString() ?? string.Empty;
 
         txtQuantity.Text = _DecimalOf(row, "Quantity").ToString("G");
         txtUnitCost.Text = _DecimalOf(row, "UnitCost").ToString("G");

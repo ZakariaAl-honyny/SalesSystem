@@ -37,7 +37,7 @@ public partial class frmStocktakingNew : Form
     // ── بيانات لجنة الجرد (نصوص حرة — لا معرّفات في العقد) ────────────────────────
     private readonly string[] _employees = { "أحمد محمد", "خالد عبدالله", "سارة علي", "منى حسن", "عمر يوسف" };
 
-    /// <summary>أصناف بيانات التجربة كما وردت من العقد — مرجع تحويل (اسم/باركود) السطر إلى <c>ProductId</c>.</summary>
+    /// <summary>أصناف بيانات التجربة كما وردت من العقد — مرجع تحويل اسم السطر إلى <c>ProductId</c>.</summary>
     private readonly List<ProductDto> _products = new();
 
     /// <summary>المستند المُنشأ في هذه الجلسة (يُملأ بعد نجاح <c>CreateAsync</c>) — هدف <c>PostAsync</c>/<c>CancelAsync</c>.</summary>
@@ -93,7 +93,7 @@ public partial class frmStocktakingNew : Form
     private IStocktakingDesktopService StocktakingService
         => _serviceProvider.GetRequiredService<IStocktakingDesktopService>();
 
-    /// <summary>عقد الأصناف — يملأ شبكة العدّ ويحوّل (اسم/باركود) السطر إلى <c>ProductId</c>.</summary>
+    /// <summary>عقد الأصناف — يملأ شبكة العدّ، ويحلّ باركود الوحدة إلى صنف عبر <c>ResolveBarcodeAsync</c>.</summary>
     private IProductDesktopService ProductService
         => _serviceProvider.GetRequiredService<IProductDesktopService>();
 
@@ -213,7 +213,7 @@ public partial class frmStocktakingNew : Form
             int rowIndex = dgvLines.Rows.Add();
 
             dgvLines.Rows[rowIndex].Cells[colProduct.Index].Value = product.Name;
-            dgvLines.Rows[rowIndex].Cells[colBarcode.Index].Value = product.Barcode;
+            dgvLines.Rows[rowIndex].Cells[colBarcode.Index].Value = _BaseUnitBarcodeOf(product);
             dgvLines.Rows[rowIndex].Cells[colBookQty.Index].Value = product.CurrentStock;
             dgvLines.Rows[rowIndex].Cells[colActualQty.Index].Value = null;
             dgvLines.Rows[rowIndex].Cells[colDifference.Index].Value = null;
@@ -407,7 +407,9 @@ public partial class frmStocktakingNew : Form
         }
 
         if (!_ValidateHeader()) return;
-        if (!_TryBuildLines(out var lines)) return;
+
+        var lines = await _BuildLinesAsync();
+        if (lines is null) return;
 
         Cursor = Cursors.WaitCursor;
         btnSaveDraft.Enabled = false;
@@ -527,7 +529,8 @@ public partial class frmStocktakingNew : Form
     /// <summary>ينشئ المسودة مرة واحدة ويحفظ معرّفها — يُستهلك من «اعتماد الجرد» فقط.</summary>
     private async Task<bool> _CreateDraftAsync()
     {
-        if (!_TryBuildLines(out var lines)) return false;
+        var lines = await _BuildLinesAsync();
+        if (lines is null) return false;
 
         var created = await StocktakingService.CreateAsync(_BuildRequest(lines));
 
@@ -621,12 +624,13 @@ public partial class frmStocktakingNew : Form
 
     /// <summary>
     /// سطور الطلب: كل سطر أُدخلت كميته الفعلية فقط (السطر غير المعدود لا يُرسل).
-    /// المعرّف يُحلّ من <c>Tag</c> الذي ملأه تحميل الأصناف، أو من الباركود/الاسم عبر نفس قائمة الأصناف
-    /// (للأسطر المضافة يدوياً) — ولا يُخترع معرّف ولا يُكتب رقم ثابت.
+    /// المعرّف يُحلّ من <c>Tag</c> الذي ملأه تحميل الأصناف، أو من باركود الوحدة عبر <c>ResolveBarcodeAsync</c>،
+    /// أو من اسم الصنف في القائمة المحمّلة (للأسطر المضافة يدوياً) — ولا يُخترع معرّف ولا يُكتب رقم ثابت.
+    /// يُرجع <c>null</c> عند تعذّر تحديد صنف سطر (بعد بلاغ عربي وتحديد خانة الباركود).
     /// </summary>
-    private bool _TryBuildLines(out List<CreateStocktakingLineRequest> lines)
+    private async Task<List<CreateStocktakingLineRequest>?> _BuildLinesAsync()
     {
-        lines = new List<CreateStocktakingLineRequest>();
+        var lines = new List<CreateStocktakingLineRequest>();
 
         for (int rowIndex = 0; rowIndex < dgvLines.Rows.Count; rowIndex++)
         {
@@ -638,11 +642,13 @@ public partial class frmStocktakingNew : Form
 
             if (!actual.HasValue) continue;   // لم يُعدّ هذا الصنف بعد
 
-            if (!_TryResolveProductId(row, out int productId))
+            int productId = await _ResolveProductIdAsync(row);
+
+            if (productId <= 0)
             {
                 clsDialogs.Warning($"تعذر تحديد صنف السطر رقم {rowIndex + 1} — أدخل باركوداً مسجّلاً أو اسم صنف صحيحاً.");
                 dgvLines.CurrentCell = row.Cells[colBarcode.Index];
-                return false;
+                return null;
             }
 
             lines.Add(new CreateStocktakingLineRequest(
@@ -651,45 +657,57 @@ public partial class frmStocktakingNew : Form
                 CountedQuantity: actual.Value));
         }
 
-        return true;
+        return lines;
     }
 
     /// <summary>
-    /// يحوّل سطر الشبكة إلى <c>ProductId</c>: أولاً المعرّف المحمول في <c>Tag</c>، ثم مطابقة
-    /// الباركود ثم الاسم من قائمة الأصناف المحمّلة (بلا خدمة إضافية وبلا أرقام ثابتة).
+    /// يحوّل سطر الشبكة إلى <c>ProductId</c>: أولاً المعرّف المحمول في <c>Tag</c>، ثم باركود الوحدة عبر
+    /// <see cref="IProductDesktopService.ResolveBarcodeAsync"/> (قرار المالك 2026-11-20: الباركود ملك الوحدة
+    /// لا الصنف، فلا مطابقة على قائمة الأصناف)، ثم اسم الصنف من القائمة المحمّلة — بلا أرقام ثابتة.
+    /// يُعيد صفراً حين لا يُحسم الصنف.
     /// </summary>
-    private bool _TryResolveProductId(DataGridViewRow row, out int productId)
+    private async Task<int> _ResolveProductIdAsync(DataGridViewRow row)
     {
-        if (row.Tag is int tagged && tagged > 0)
-        {
-            productId = tagged;
-            return true;
-        }
+        if (row.Tag is int tagged && tagged > 0) return tagged;
 
         string? barcode = (row.Cells[colBarcode.Index].Value as string)?.Trim();
         string? name = (row.Cells[colProduct.Index].Value as string)?.Trim();
 
-        ProductDto? product = null;
-
         if (!string.IsNullOrWhiteSpace(barcode))
-            product = _products.FirstOrDefault(p =>
-                string.Equals(p.Barcode?.Trim(), barcode, StringComparison.OrdinalIgnoreCase));
-
-        if (product is null && !string.IsNullOrWhiteSpace(name))
-            product = _products.FirstOrDefault(p =>
-                string.Equals(p.Name.Trim(), name, StringComparison.OrdinalIgnoreCase));
-
-        if (product is null)
         {
-            productId = 0;
-            return false;
+            var resolved = await ProductService.ResolveBarcodeAsync(barcode);
+
+            if (resolved.IsSuccess && resolved.Value is { ProductId: > 0 } resolution)
+            {
+                row.Tag = resolution.ProductId;   // تثبيت المعرّف فلا تُعاد المطابقة في المرة القادمة
+
+                // العمود للقراءة فقط ويُملأ برمجياً (RULE-N179): يُعرض باركود الوحدة المحلولة المعتمد.
+                row.Cells[colBarcode.Index].Value = string.IsNullOrWhiteSpace(resolution.Barcode)
+                    ? barcode
+                    : resolution.Barcode!.Trim();
+
+                return resolution.ProductId;
+            }
         }
 
-        productId = product.Id;
-        row.Tag = product.Id;   // تثبيت المعرّف فلا تُعاد المطابقة في المرة القادمة
+        if (string.IsNullOrWhiteSpace(name)) return 0;
 
-        return true;
+        var product = _products.FirstOrDefault(p =>
+            string.Equals(p.Name.Trim(), name, StringComparison.OrdinalIgnoreCase));
+
+        if (product is null) return 0;
+
+        row.Tag = product.Id;
+        return product.Id;
     }
+
+    /// <summary>
+    /// باركود الوحدة الأساسية للصنف — <see cref="ProductDto.Barcode"/> قيمة مشتقة من <c>ProductUnits.Barcode</c>
+    /// للوحدة الأساسية، أو فراغ إن كانت بلا باركود. شاشة الجرد تعدّ الصنف بوحدته الأساسية (عقد الترحيل يحمل
+    /// <c>ProductId</c> فقط)، وباركود الوحدة المحلولة يُصحّح المعروض عند البحث اليدوي.
+    /// </summary>
+    private static string _BaseUnitBarcodeOf(ProductDto product)
+        => product.Barcode?.Trim() ?? string.Empty;
 
     // ── Context menu (RULE-N23) ───────────────────────────────────────
 

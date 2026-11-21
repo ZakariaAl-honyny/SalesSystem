@@ -48,7 +48,7 @@ public class InvoicePrintDtoBuilder
                 item.LineTotal
             )
             {
-                Barcode = item.Product?.Barcode
+                Barcode = item.ProductUnit?.Barcode
             }).ToList(),
             SubTotal = invoice.SubTotal,
             DiscountAmount = invoice.DiscountAmount,
@@ -98,7 +98,7 @@ public class InvoicePrintDtoBuilder
                 item.LineTotal
             )
             {
-                Barcode = item.Product?.Barcode
+                Barcode = item.ProductUnit?.Barcode
             }).ToList(),
             SubTotal = invoice.SubTotal,
             DiscountAmount = invoice.DiscountAmount,

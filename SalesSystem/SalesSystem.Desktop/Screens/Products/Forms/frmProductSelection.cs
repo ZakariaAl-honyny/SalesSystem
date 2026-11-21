@@ -133,7 +133,6 @@ public partial class frmProductSelection : Form
             _productsTable.Columns.Add("Id", typeof(int));
             _productsTable.Columns.Add("Name", typeof(string));
             _productsTable.Columns.Add("CategoryName", typeof(string));
-            _productsTable.Columns.Add("Barcode", typeof(string));
             _productsTable.Columns.Add("Available", typeof(string));
 
             var result = await ServiceProvider.GetRequiredService<IProductDesktopService>().GetAllAsync();
@@ -146,11 +145,11 @@ public partial class frmProductSelection : Form
                 {
                     _productsById[p.Id] = p;
 
+                    // لا عمود باركود في شبكة الأصناف: الباركود على وحدة الصنف وحدها (قرار المالك 2026-11-20).
                     _productsTable.Rows.Add(
                         p.Id,
                         p.Name,
                         p.CategoryName ?? string.Empty,
-                        p.Barcode ?? string.Empty,
                         _FormatBaseAvailable(p.Id));
                 }
             }
@@ -364,7 +363,6 @@ public partial class frmProductSelection : Form
         {
             // RULE-N24/RULE-N60: قيمة البحث تُهرَّب عبر RowFilterHelper — لا إدراج خام.
             _productsView.RowFilter = RowFilterHelper.Like("Name", search)
-                + " OR " + RowFilterHelper.Like("Barcode", search)
                 + " OR " + RowFilterHelper.Like("CategoryName", search);
         }
 

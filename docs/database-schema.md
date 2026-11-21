@@ -299,12 +299,11 @@
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
 
 ### 3.2 Products
-**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 17
+**المفتاح:** `int IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 16
 
 | العمود | النوع | Nullability |
 |---|---|---|
 | `Id` | `int` | NOT NULL |
-| `Barcode` | `varchar` | NULL |
 | `CategoryId` | `int` | NOT NULL |
 | `CreatedAt` | `datetime2` | NOT NULL |
 | `CreatedByUserName` | `nvarchar(100)` | NULL |
@@ -320,6 +319,8 @@
 | `TrackExpiry` | `bit` | NOT NULL |
 | `UpdatedAt` | `datetime2` | NULL |
 | `UpdatedByUserName` | `nvarchar(100)` | NULL |
+
+> **لا عمود باركود على الصنف (قرار المالك 2026-11-20 — `TASK-031`):** `Products.Barcode` **أُزيل** من الكيان والتهيئة وهذا المخطط؛ الباركود الوحيد في النظام هو **`ProductUnits.Barcode`** (باركود لكل وحدة، والقيد الفريد `IX_ProductUnits_Barcode` هو الحارس). `ProductDto.Barcode` في الكود قيمة **مُشتقة للقراءة فقط** = باركود الوحدة الأساسية. إسقاط العمود من القاعدة الحيّة مسؤولية المالك (`RULE-N198`).
 
 ### 3.3 Units
 **المفتاح:** `smallint IDENTITY` · **الفئة:** `ActivatableEntity` · **الأعمدة:** 9
@@ -888,7 +889,7 @@ WHERE pu.SalePrice = 0;
 | 3 | `InventoryAdjustments` | الرقم `AdjustmentNo` نصي `nvarchar(50)` لا `int`، ولا يوجد `AdjustmentDate` |
 | 4 | `InventoryBatches.BatchNo` | نصي `nvarchar(50)` (لا `int`) |
 | 5 | أعمدة التدقيق | ✅ **منفَّذ — نصّية الآن** (`CreatedByUserName` · `UpdatedByUserName` `nvarchar(100)`)؛ قياس 2026-11-18: **صفر** عمود معرّف مستخدم رقمي في `Models/**` و`Configurations/**` — والتعبئة الرجعية على القاعدة الحيّة مسؤولية المالك |
-| 6 | `Products.Barcode` | عمود `varchar` للبحث السريع؛ المصدر الرسمي للباركود هو `ProductUnits.Barcode` |
+| 6 | `Products.Barcode` | ❌ **أُزيل (2026-11-20 — `TASK-031`)** من الكيان والتهيئة ومن هذا المخطط بموافقة المالك المكتوبة؛ المصدر الرسمي والوحيد للباركود هو `ProductUnits.Barcode` — وإسقاط العمود من القاعدة الحيّة مسؤولية المالك (`RULE-N198`) |
 | 7 | `ProductUnits.Barcode` | `nvarchar(50)` في القاعدة (يوافق `varchar(50)` عملياً لكونه ASCII) |
 
 ---
@@ -917,6 +918,7 @@ WHERE pu.SalePrice = 0;
 | 3 | 2026-11-17 | **تضييق نطاق V1 إلى «بيع → خصم مخزون → صندوق»:** ما ليس تشغيلياً خرج من الإصدار الأول (تصميمه في ملف V2) ⇒ **V1 = 34 جدولاً** (ثم صار **33** بعد إزالة `ProductPrices` — الصف 5) | **تصميم/نطاق** ثم **إزالة كود** (لا `DROP` على القاعدة الحيّة) | «and reamning Accounting tables from v1 to v2» + «remove all Accounting code» + «and remove all migrations» | ✅ **الكود مُزال (2026-11-17)** — 84 ملفاً محذوفاً · 72 معدّلاً · صفر ملف ترحيل. ⏸ **إسقاط بقايا القاعدة الحيّة للمالك** (`RULE-N198`) — التفصيل في §8.1 و`TASK-011` §13 · **وبقايا لفظية مغلقة 2026-11-20** (`TASK-024`) |
 | 4 | 2026-11-18 | **إزالة سطح الضريبة:** 7 أعمدة (`SalesInvoices.TaxAmount` · `PurchaseInvoices.TaxAmount` · `SalesReturns.ReturnedTaxAmount` · `PurchaseReturns.ReturnedTaxAmount` · `Customers.TaxNumber` · `Suppliers.TaxNumber` · `CompanySettings.TaxNumber`) + `NetTotal = SubTotal − DiscountAmount + OtherCharges` | **إزالة** (لا `DROP` على القاعدة الحيّة) | «remove each and every Tax columns form MVP v1 from database shema and project code» | ✅ **الكود مُزال** — بناء 0 Errors · صفر ترحيل · ⏸ الإسقاط للمالك (`TASK-019`) |
 | 5 | 2026-11-18 | **إزالة جدول `ProductPrices` ومصدر السعر يصير `ProductUnits`** ⇒ **V1 = 33 جدولاً** | **إزالة** (لا `DROP` على القاعدة الحيّة — فحص §7.1 أولاً) | «remove each and everything about ProductPrices table code from all system because we have ProductUnits is enugh» | ✅ **الكود مُزال** — 6 ملفات محذوفة · 16 معدّلة · بناء `--no-incremental` = 0 Errors · `ToTable` = **33** · ⏸ الإسقاط للمالك (`TASK-021`) |
+| 6 | 2026-11-20 | **إزالة `Products.Barcode` — الباركود على وحدة الصنف وحدها:** حُذف العمود من `Product`/`ProductConfiguration` ومن هذا المخطط (16 عموداً)، وحُذف حقل `Barcode` من `CreateProductRequest`/`UpdateProductRequest`، وحُذف عمود «الباركود» من شبكات الأصناف؛ وكل مسار مسح (`GetByBarcodeAsync` · `ResolveBarcodeAsync` · `BarcodeLookupService`) يقرأ **`ProductUnits.Barcode`**، و`ProductDto.Barcode` صار مُشتقاً (الوحدة الأساسية) | **إزالة** (لا `DROP` على القاعدة الحيّة) | «remove the Barcode for Product the Barcode for per procuct unit @docs/database-schema.md update code and database schema now by using many subagents» + اختياره «حذف عمود الباركود من شبكات الأصناف» | ✅ **الكود مُزال** — بناء 0 Errors · صفر ترحيل من الوكلاء · SQL التعبئة الرجعية + `DROP` جاهز في `TASK-031` للمالك (`RULE-N198`) |
 
 > **ملاحظة إلزامية على أي مراجعة:** المصدر الواقعي هو **الكيانات والتهيئات في المستودع** (`Models/**` + `Configurations/**`) — **لا يوجد snapshot**. أي مراجعة تفترض عموداً غير معلن هناك مراجعة على أساس خاطئ.
 

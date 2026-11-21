@@ -758,7 +758,7 @@ public class SalesService : ISalesService
                 it.ProfitAmount,
                 it.ExpiryDate,
                 it.ProductUnit?.Unit?.Name,
-                it.Product?.Barcode
+                it.ProductUnit?.Barcode
             )).ToList()
         );
     }

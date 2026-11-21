@@ -425,11 +425,15 @@ public partial class frmPOS : Form
             var search = txtProductSearch.Text.Trim();
             int? categoryId = cbCategory.SelectedValue is int id && id > 0 ? id : null;
 
+            // بحث الكتالوج نصيّ فقط: اسم الصنف أو اسم التصنيف (وهما المعرّفان النصيان الوحيدان في ProductDto).
+            // الباركود لم يعد على مستوى الصنف — صار على مستوى الوحدة (ProductUnits.Barcode، قرار المالك
+            // 2026-11-20)، وProductDto.Barcode هو باركود الوحدة الأساسية المشتقّ، فقراءته هنا تجعل باركود
+            // الكرتون لا يطابق شيئاً وتوهم بأن البحث يشمل الباركود. مسار الباركود المُصمَّم هو حقل السكانر
+            // txtBarcode وحده (RULE-N42 / RULE-N80).
             var matches = _allProducts.Where(p =>
                 (categoryId is null || p.CategoryId == categoryId.Value) &&
                 (search.Length == 0
                  || p.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
-                 || (p.Barcode ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase)
                  || (p.CategoryName ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase)));
 
             foreach (var product in matches)
@@ -608,7 +612,10 @@ public partial class frmPOS : Form
         {
             Cursor = Cursors.WaitCursor;
 
-            var result = await ProductApi.GetByBarcodeAsync(code);   // بحث فوري
+            // بحث فوري على مستوى **الوحدة**: المنتج لا يملك باركود بعد قرار المالك (2026-11-20)، والمصدر
+            // الوحيد هو ProductUnits.Barcode الذي يحلّه ResolveBarcodeAsync إلى (الصنف + الوحدة + معاملها).
+            // استخدام GetByBarcodeAsync كان يعتمد على باركود الصنف المشتقّ من الوحدة الأساسية فلا يجد الكرتون.
+            var result = await ProductApi.ResolveBarcodeAsync(code);
             txtBarcode.Clear();
 
             if (!result.IsSuccess || result.Value is null)
@@ -617,7 +624,14 @@ public partial class frmPOS : Form
                 return;
             }
 
-            await AddProductToCartAsync(result.Value, code);
+            var productResult = await ProductApi.GetByIdAsync(result.Value.ProductId);
+            if (!productResult.IsSuccess || productResult.Value is null)
+            {
+                clsDialogs.Warning(productResult.Error ?? "لا يوجد صنف بهذا الباركود.");
+                return;
+            }
+
+            await AddProductToCartAsync(productResult.Value, code);
         }
         catch (Exception ex)
         {
@@ -634,6 +648,8 @@ public partial class frmPOS : Form
     /// <summary>
     /// يضيف الصنف إلى السلة بوحدته الصحيحة: وحدة الباركود الممسوح، ثم الوحدة الأساسية، ثم الأولى.
     /// إن كان الصنف بالوحدة نفسها موجوداً ⇒ تُزاد الكمية بمقدار 1 بدل إضافة سطر مكرر.
+    /// <paramref name="scannedBarcode"/> هو الكود الممسوح فعلاً (باركود وحدة من <c>ProductUnits.Barcode</c>)
+    /// ويُحفظ بباركود السطر نفسه؛ ولا يُستبدل أبداً بباركود الصنف المشتقّ من الوحدة الأساسية.
     /// </summary>
     private async Task AddProductToCartAsync(ProductDto product, string? scannedBarcode)
     {
@@ -673,7 +689,12 @@ public partial class frmPOS : Form
                 ProductUnitId = unit.Id,
                 Name = product.Name,
                 UnitName = unit.UnitName ?? string.Empty,
-                Barcode = unit.Barcode ?? product.Barcode ?? string.Empty,
+                // باركود السطر هو باركود وحدته فعلاً: الكود الممسوح (وهو باركود الوحدة المختارة)، وإلا
+                // باركود الوحدة نفسها، وإلا فراغ. لا يُستعمل باركود الصنف المشتقّ (الوحدة الأساسية) بديلاً
+                // لباركود كرتون/باكت ممسوح — فيظهر في السلة باركود لا يخصّ الوحدة المباعة.
+                Barcode = !string.IsNullOrWhiteSpace(scannedBarcode)
+                    ? scannedBarcode
+                    : unit.Barcode ?? string.Empty,
                 Quantity = 1m,
                 UnitPrice = unit.SalePrice,
                 Discount = 0m

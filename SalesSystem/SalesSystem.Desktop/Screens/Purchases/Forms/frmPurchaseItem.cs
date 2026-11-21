@@ -14,20 +14,23 @@ public partial class frmPurchaseItem : Form
 
     // ═══════════════════════════════════════════════════════════
     // بيانات تجريبية (Mock) — وحدات وأصناف مشتريات
+    // الباركود ليس على الصنف بل على **وحدته**: مصدره في النموذج الحقيقي
+    // ProductUnits.Barcode (أمر المالك 2026-11-20 — أُزيل باركود الصنف).
+    // فكل صنف يحمل باركوداً لكل وحدة، **بنفس ترتيب `MockUnits`** (كيس · كرتون · عبوة).
     // ═══════════════════════════════════════════════════════════
-    private sealed record MockProduct(string Name, string Barcode, string DefaultUnit, bool TrackExpiry);
+    private sealed record MockProduct(string Name, string DefaultUnit, bool TrackExpiry, string[] UnitBarcodes);
     private sealed record MockUnit(string Name, decimal ConversionFactor);
 
     private static readonly MockProduct[] MockProducts =
     {
-        new("شاي ليبتون 250غ",      "102030", "كيس",  false),
-        new("زيت نباتي 1 لتر",      "102031", "عبوة", false),
-        new("أرز بسمتي 5 كغ",       "102032", "كيس",  false),
-        new("سكر أبيض 1 كغ",        "102033", "كيس",  false),
-        new("دقيق فاخر 2 كغ",       "102034", "كيس",  false),
-        new("معجون طماطم 400غ",     "102035", "عبوة", true),
-        new("تونا معلبة 185غ",      "102036", "عبوة", true),
-        new("حليب مجفف 900غ",       "102037", "عبوة", true),
+        new("شاي ليبتون 250غ",      "كيس",  false, new[] { "102030", "1020301", "1020302" }),
+        new("زيت نباتي 1 لتر",      "عبوة", false, new[] { "102031", "1020311", "1020312" }),
+        new("أرز بسمتي 5 كغ",       "كيس",  false, new[] { "102032", "1020321", "1020322" }),
+        new("سكر أبيض 1 كغ",        "كيس",  false, new[] { "102033", "1020331", "1020332" }),
+        new("دقيق فاخر 2 كغ",       "كيس",  false, new[] { "102034", "1020341", "1020342" }),
+        new("معجون طماطم 400غ",     "عبوة", true,  new[] { "102035", "1020351", "1020352" }),
+        new("تونا معلبة 185غ",      "عبوة", true,  new[] { "102036", "1020361", "1020362" }),
+        new("حليب مجفف 900غ",       "عبوة", true,  new[] { "102037", "1020371", "1020372" }),
     };
 
     private static readonly MockUnit[] MockUnits =
@@ -118,7 +121,11 @@ public partial class frmPurchaseItem : Form
     // نتائج الحوار — يقرأها النموذج الأب بعد ShowDialog
     // ═══════════════════════════════════════════════════════════
     public string SelectedProductName => SelectedProduct?.Name ?? "";
-    public string Barcode => lblBarcodeValue.Text;
+    /// <summary>
+    /// باركود **الوحدة** المختارة لصنف الحوار (لا باركود الصنف) — يقرأ نفس البيت الواحد
+    /// الذي يغذّي التسمية <c>_UnitBarcode</c>، ويعيد <c>""</c> حين لا يوجد باركود للوحدة.
+    /// </summary>
+    public string Barcode => _UnitBarcode(SelectedProduct, cmbUnit.SelectedIndex);
     public string UnitName => cmbUnit.SelectedItem?.ToString() ?? "";
     public decimal Quantity => numQuantity.Value;
     public decimal UnitCost => numCost.Value;
@@ -145,6 +152,24 @@ public partial class frmPurchaseItem : Form
     private MockProduct? SelectedProduct
         => cmbProduct.SelectedIndex >= 0 ? MockProducts[cmbProduct.SelectedIndex] : null;
 
+    /// <summary>
+    /// باركود **الوحدة** المختارة للصنف — نظيره في النموذج الحقيقي هو <c>ProductUnits.Barcode</c>
+    /// للوحدة نفسها (يُقرأ عبر <c>IProductDesktopService.GetProductUnitsAsync</c>)، وبذرة
+    /// <see cref="MockProduct.UnitBarcodes"/> مرتَّبة بنفس ترتيب <see cref="MockUnits"/>.
+    /// <para>**لا يُخترع باركود:** ما لا يوجد في البذرة يعود <c>""</c> (لا <c>null</c> ولا قيمة مُصنَّعة).</para>
+    /// </summary>
+    private static string _UnitBarcode(MockProduct? product, int unitIndex)
+        => product is not null && unitIndex >= 0 && unitIndex < product.UnitBarcodes.Length
+            ? product.UnitBarcodes[unitIndex]
+            : string.Empty;
+
+    /// <summary>يغذّي تسمية الباركود المُعلَنة في المصمّم بباركود الوحدة، والفراغ يُعرض «—» (RULE-N145 محفوظ).</summary>
+    private void _RefreshBarcode()
+    {
+        var unitBarcode = _UnitBarcode(SelectedProduct, cmbUnit.SelectedIndex);
+        lblBarcodeValue.Text = unitBarcode.Length == 0 ? "—" : unitBarcode;
+    }
+
     // ═══════════════════════════════════════════════════════════
     // أحداث الواجهة
     // ═══════════════════════════════════════════════════════════
@@ -153,10 +178,11 @@ public partial class frmPurchaseItem : Form
         var product = SelectedProduct;
         if (product == null) return;
 
-        lblBarcodeValue.Text = product.Barcode;
-
+        // الوحدة الافتراضية للصنف أولاً (يطلق حدث تغيير الوحدة)، ثم الباركود من الوحدة المختارة.
         int unitIndex = Array.FindIndex(MockUnits, u => u.Name == product.DefaultUnit);
         if (unitIndex >= 0) cmbUnit.SelectedIndex = unitIndex;
+
+        _RefreshBarcode(); // الباركود يخص الوحدة — لا يُقرأ من الصنف بعد اليوم
 
         // الأصناف القابلة للتلف تتفعّل تلقائياً حقل تاريخ الصلاحية
         chkExpiry.Checked = product.TrackExpiry;
@@ -166,6 +192,8 @@ public partial class frmPurchaseItem : Form
     {
         if (cmbUnit.SelectedIndex >= 0)
             lblConversionFactor.Text = clsFormat.Ratio(MockUnits[cmbUnit.SelectedIndex].ConversionFactor);
+
+        _RefreshBarcode(); // تغيير الوحدة يغيّر باركودها
     }
 
     private void chkExpiry_CheckedChanged(object? sender, EventArgs e)

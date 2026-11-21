@@ -13,6 +13,13 @@ namespace SalesSystem.Desktop.Services.Mock;
 /// </summary>
 public class MockProductDesktopService : IProductDesktopService
 {
+    private readonly SalesSystem.Common.ICurrentUserProvider _currentUser;
+
+    public MockProductDesktopService(SalesSystem.Common.ICurrentUserProvider currentUser)
+    {
+        _currentUser = currentUser;
+    }
+
     public Task<Result<IReadOnlyList<ProductDto>>> GetAllAsync(string? search = null, int? categoryId = null, bool includeInactive = false, CancellationToken ct = default)
     {
         IEnumerable<ProductDto> query = MockData.Products;
@@ -28,11 +35,12 @@ public class MockProductDesktopService : IProductDesktopService
             var s = search.Trim();
             query = query.Where(p =>
                 p.Name.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                (p.Barcode != null && p.Barcode.Contains(s)) ||
                 (p.CategoryName != null && p.CategoryName.Contains(s, StringComparison.OrdinalIgnoreCase)));
         }
 
-        return Task.FromResult(Result<IReadOnlyList<ProductDto>>.Success(query.ToList().AsReadOnly()));
+        // ProductDto.Barcode قيمة مشتقة من باركود الوحدة الأساسية — لا باركود على الصنف نفسه (TASK-031)
+        var products = query.Select(p => p with { Barcode = _BaseUnitBarcode(p.Id) }).ToList().AsReadOnly();
+        return Task.FromResult(Result<IReadOnlyList<ProductDto>>.Success(products));
     }
 
     public Task<Result<ProductDto>> GetByIdAsync(int id, CancellationToken ct = default)
@@ -40,29 +48,46 @@ public class MockProductDesktopService : IProductDesktopService
         var product = MockData.Products.FirstOrDefault(p => p.Id == id);
         return product is null
             ? Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود"))
-            : Task.FromResult(Result<ProductDto>.Success(product));
+            : Task.FromResult(Result<ProductDto>.Success(product with { Barcode = _BaseUnitBarcode(product.Id) }));
     }
 
     public Task<Result<ProductDto>> GetByBarcodeAsync(string barcode, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(barcode))
-            return Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود بالباركود"));
+            return Task.FromResult(Result<ProductDto>.Failure("الباركود مطلوب"));
 
         var code = barcode.Trim();
 
-        var product = MockData.Products.FirstOrDefault(p => p.Barcode == code);
+        // باركود الوحدة هو مصدر الهوية الوحيد (لا باركود على الصنف — قرار المالك 2026-11-20)
+        var unit = MockData.ProductUnits.FirstOrDefault(u => !string.IsNullOrWhiteSpace(u.Barcode) && u.Barcode.SameText(code));
+        var product = unit is null ? null : MockData.Products.FirstOrDefault(p => p.Id == unit.ProductId);
 
-        // البحث في باركودات وحدات المنتجات (كرتون، باكت، ...)
-        if (product is null)
-        {
-            var unit = MockData.ProductUnits.FirstOrDefault(u => u.Barcode == code);
-            if (unit is not null)
-                product = MockData.Products.FirstOrDefault(p => p.Id == unit.ProductId);
-        }
+        return unit is null || product is null
+            ? Task.FromResult(Result<ProductDto>.Failure("الباركود غير موجود"))
+            : Task.FromResult(Result<ProductDto>.Success(product with { Barcode = unit.Barcode }));
+    }
 
-        return product is null
-            ? Task.FromResult(Result<ProductDto>.Failure("المنتج غير موجود بالباركود"))
-            : Task.FromResult(Result<ProductDto>.Success(product));
+    public Task<Result<BarcodeResolutionDto>> ResolveBarcodeAsync(string barcode, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(barcode))
+            return Task.FromResult(Result<BarcodeResolutionDto>.Failure("الباركود مطلوب"));
+
+        var code = barcode.Trim();
+
+        var unit = MockData.ProductUnits.FirstOrDefault(u => !string.IsNullOrWhiteSpace(u.Barcode) && u.Barcode.SameText(code));
+        var product = unit is null ? null : MockData.Products.FirstOrDefault(p => p.Id == unit.ProductId);
+
+        if (unit is null || product is null)
+            return Task.FromResult(Result<BarcodeResolutionDto>.Failure("الباركود غير موجود"));
+
+        return Task.FromResult(Result<BarcodeResolutionDto>.Success(new BarcodeResolutionDto(
+            ProductId: product.Id,
+            ProductName: product.Name,
+            ProductUnitId: unit.Id,
+            UnitId: unit.UnitId,
+            UnitName: unit.UnitName,
+            ConversionFactor: unit.ConversionFactor,
+            Barcode: unit.Barcode)));
     }
 
     // ── تكافؤ الرفض مع الـBLL (RULE-N167): المقارنة النصية في البيت الواحد StringExtensions.SameText ──
@@ -71,10 +96,24 @@ public class MockProductDesktopService : IProductDesktopService
            MockData.Products.Any(p => p.Id != exceptId &&
                p.Name.SameText(name));
 
-    private static bool _BarcodeExists(string? barcode, int? exceptId)
+    /// <summary>
+    /// باركود الوحدة الأساسية للصنف — <c>ProductDto.Barcode</c> قيمة مشتقة لا عموداً على الصنف:
+    /// من <c>MockData.ProductUnits</c> للوحدة الأساسية، وإلا أول وحدة للصنف (قرار المالك 2026-11-20 — TASK-031).
+    /// </summary>
+    private static string? _BaseUnitBarcode(int productId)
+    {
+        var units = MockData.ProductUnits.Where(u => u.ProductId == productId).ToList();
+        var unit = units.FirstOrDefault(u => u.IsBaseUnit) ?? units.FirstOrDefault();
+        return unit?.Barcode;
+    }
+
+    /// <summary>
+    /// تكافؤ الرفض مع الفهرس الفريد <c>IX_ProductUnits_Barcode</c>: الباركود فريد على مستوى الوحدات كلها.
+    /// </summary>
+    private static bool _UnitBarcodeExists(string? barcode, int? exceptUnitId)
         => !string.IsNullOrWhiteSpace(barcode) &&
-           MockData.Products.Any(p => p.Id != exceptId && !string.IsNullOrWhiteSpace(p.Barcode) &&
-               p.Barcode.SameText(barcode));
+           MockData.ProductUnits.Any(u => u.Id != exceptUnitId &&
+               !string.IsNullOrWhiteSpace(u.Barcode) && u.Barcode.SameText(barcode));
 
     public Task<Result<ProductDto>> CreateAsync(CreateProductRequest r, CancellationToken ct = default)
     {
@@ -84,21 +123,21 @@ public class MockProductDesktopService : IProductDesktopService
         if (_NameExists(r.Name, null))
             return Task.FromResult(Result<ProductDto>.Failure("اسم الصنف مستخدم بالفعل"));
 
-        if (_BarcodeExists(r.Barcode, null))
-            return Task.FromResult(Result<ProductDto>.Failure("الباركود مستخدم بالفعل"));
-
         var nextId = MockData.Products.Count == 0 ? 1 : MockData.Products.Max(p => p.Id) + 1;
 
         // اسم المجموعة يُقرأ من دليل المجموعات (لا من منتج قائم) حتى يظهر صحيحاً للأصناف الجديدة.
         var categoryName = MockLookupsData.Categories.FirstOrDefault(c => c.Id == r.CategoryId)?.Name;
 
+        // الباركود لا يُطلب عند إنشاء الصنف: يُسجَّل لاحقاً على الوحدة (وحدات الصنف لم تُنشأ بعد ⇒ Barcode = null)
         var product = new ProductDto(
             Id: nextId, Name: r.Name, CategoryId: r.CategoryId,
             CategoryName: categoryName, Description: r.Description,
             ReorderLevel: r.ReorderLevel, TrackExpiry: r.TrackExpiry,
-            ImagePath: r.ImagePath, IsActive: true, Barcode: r.Barcode,
+            ImagePath: r.ImagePath, IsActive: true,
             ForeignName: r.ForeignName, LocationInStore: r.LocationInStore,
-            ExpiryAlertDays: r.ExpiryAlertDays);
+            ExpiryAlertDays: r.ExpiryAlertDays,
+            CreatedByUserName: _currentUser.UserName,
+            UpdatedByUserName: _currentUser.UserName);
         MockData.Products.Add(product);
         return Task.FromResult(Result<ProductDto>.Success(product));
     }
@@ -115,9 +154,6 @@ public class MockProductDesktopService : IProductDesktopService
         if (_NameExists(r.Name, id))
             return Task.FromResult(Result<ProductDto>.Failure("اسم الصنف مستخدم بالفعل"));
 
-        if (_BarcodeExists(r.Barcode, id))
-            return Task.FromResult(Result<ProductDto>.Failure("الباركود مستخدم بالفعل"));
-
         var categoryName = MockLookupsData.Categories.FirstOrDefault(c => c.Id == r.CategoryId)?.Name;
 
         var updated = existing with
@@ -129,11 +165,14 @@ public class MockProductDesktopService : IProductDesktopService
             ReorderLevel = r.ReorderLevel,
             TrackExpiry = r.TrackExpiry,
             ImagePath = r.ImagePath,
-            Barcode = r.Barcode,
+            // الباركود قيمة مشتقة من الوحدة الأساسية — لا يُكتب من الصنف (TASK-031)
+            Barcode = _BaseUnitBarcode(id),
             ForeignName = r.ForeignName,
             LocationInStore = r.LocationInStore,
             ExpiryAlertDays = r.ExpiryAlertDays,
-            IsActive = r.IsActive
+            IsActive = r.IsActive,
+            // CreatedByUserName يبقى كما هو (لا يُعاد كتابته أبداً في التعديل)
+            UpdatedByUserName = _currentUser.UserName
         };
 
         var index = MockData.Products.IndexOf(existing);
@@ -181,6 +220,10 @@ public class MockProductDesktopService : IProductDesktopService
         if (MockData.ProductUnits.Any(u => u.ProductId == productId && u.UnitId == r.UnitId))
             return Task.FromResult(Result<ProductUnitDto>.Failure("هذه الوحدة مضافة بالفعل للمنتج"));
 
+        // الفهرس الفريد IX_ProductUnits_Barcode: باركود الوحدة فريد على مستوى النظام (RULE-N167)
+        if (_UnitBarcodeExists(r.Barcode, null))
+            return Task.FromResult(Result<ProductUnitDto>.Failure("الباركود مستخدم لوحدة أخرى"));
+
         var unitName = MockLookupsData.Units.FirstOrDefault(u => u.Id == r.UnitId)?.Name;
         var nextId = MockData.ProductUnits.Count == 0 ? 1 : MockData.ProductUnits.Max(u => u.Id) + 1;
 
@@ -206,6 +249,10 @@ public class MockProductDesktopService : IProductDesktopService
         var existing = MockData.ProductUnits.FirstOrDefault(u => u.Id == productUnitId && u.ProductId == productId);
         if (existing is null)
             return Task.FromResult(Result<ProductUnitDto>.Failure("وحدة المنتج غير موجودة"));
+
+        // الفهرس الفريد IX_ProductUnits_Barcode: الباركود مستثنى منه السجل نفسه عند التعديل (RULE-N167)
+        if (_UnitBarcodeExists(r.Barcode, productUnitId))
+            return Task.FromResult(Result<ProductUnitDto>.Failure("الباركود مستخدم لوحدة أخرى"));
 
         var unitName = MockLookupsData.Units.FirstOrDefault(u => u.Id == r.UnitId)?.Name;
 

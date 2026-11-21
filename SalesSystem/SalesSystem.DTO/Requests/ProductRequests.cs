@@ -7,7 +7,6 @@ public record CreateProductRequest(
     decimal ReorderLevel = 0,
     bool TrackExpiry = false,
     string? ImagePath = null,
-    string? Barcode = null,
     string? ForeignName = null,
     string? LocationInStore = null,
     short? ExpiryAlertDays = null
@@ -20,7 +19,6 @@ public record UpdateProductRequest(
     decimal ReorderLevel = 0,
     bool TrackExpiry = false,
     string? ImagePath = null,
-    string? Barcode = null,
     string? ForeignName = null,
     string? LocationInStore = null,
     short? ExpiryAlertDays = null,

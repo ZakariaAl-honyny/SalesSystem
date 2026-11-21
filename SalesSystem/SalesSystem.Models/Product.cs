@@ -8,7 +8,7 @@ namespace SalesSystem.Models;
 /// Maps to the "Products" table in the new 65-table schema.
 /// - No prices stored directly (prices live on ProductUnits)
 /// - Cost tracked via InventoryBatches (weighted average)
-/// - Barcode is a varchar(50) primary barcode for quick lookup
+/// - Quick lookup codes are managed at the unit level (one per unit)
 /// - Images managed as a single ImagePath (ProductImages table removed)
 /// </summary>
 public class Product : ActivatableEntity
@@ -45,13 +45,6 @@ public class Product : ActivatableEntity
     /// </summary>
     public string? ImagePath { get; private set; }
 
-    /// <summary>
-    /// Primary barcode for quick lookup — varchar(50), ASCII-only.
-    /// Each product has exactly one barcode; additional barcodes per unit stored in UnitBarcode table.
-    /// Not a unique identifier (nullable), but indexed for fast search.
-    /// عمود مكرّر للبحث السريع؛ المصدر الرسمي هو ProductUnits.Barcode (وحدة أساسية واحدة).
-    /// </summary>
-    public string? Barcode { get; private set; }
 
     /// <summary>
     /// Foreign name of the product (الاسم الأجنبي للصنف).
@@ -195,7 +188,6 @@ public class Product : ActivatableEntity
     /// <param name="reorderLevel">Quantity threshold for reorder alert (default 0).</param>
     /// <param name="trackExpiry">Whether this product can expire (default false).</param>
     /// <param name="imagePath">Optional primary image path.</param>
-    /// <param name="barcode">Optional primary barcode for quick lookup.</param>
     /// <param name="foreignName">Optional foreign name (الاسم الأجنبي للصنف).</param>
     /// <param name="locationInStore">Optional location in store (العنوان في المخزن).</param>
     /// <param name="expiryAlertDays">Optional expiry alert threshold in days (نقطة التنبيه بالانتهاء).</param>
@@ -207,7 +199,6 @@ public class Product : ActivatableEntity
         decimal reorderLevel = 0,
         bool trackExpiry = false,
         string? imagePath = null,
-        string? barcode = null,
         string? foreignName = null,
         string? locationInStore = null,
         short? expiryAlertDays = null,
@@ -231,7 +222,6 @@ public class Product : ActivatableEntity
             ReorderLevel = reorderLevel,
             TrackExpiry = trackExpiry,
             ImagePath = imagePath?.Trim(),
-            Barcode = barcode?.Trim(),
             ForeignName = foreignName?.Trim(),
             LocationInStore = locationInStore?.Trim(),
             ExpiryAlertDays = expiryAlertDays,
@@ -252,7 +242,6 @@ public class Product : ActivatableEntity
         decimal reorderLevel = 0,
         bool trackExpiry = false,
         string? imagePath = null,
-        string? barcode = null,
         string? foreignName = null,
         string? locationInStore = null,
         short? expiryAlertDays = null,
@@ -273,7 +262,6 @@ public class Product : ActivatableEntity
         ReorderLevel = reorderLevel;
         TrackExpiry = trackExpiry;
         ImagePath = imagePath?.Trim();
-        Barcode = barcode?.Trim();
         ForeignName = foreignName?.Trim();
         LocationInStore = locationInStore?.Trim();
         ExpiryAlertDays = expiryAlertDays;

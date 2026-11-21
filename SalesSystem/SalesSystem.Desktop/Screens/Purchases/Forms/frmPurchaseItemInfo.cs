@@ -14,8 +14,11 @@ public partial class frmPurchaseItemInfo : Form
     private readonly IServiceProvider _serviceProvider;
 
     // ── بيانات تجريبية (Mock) — صنف المشتريات وسجل شرائه ─────────────────────
+    // الباركود ليس على الصنف بل على **وحدته** (ProductUnits.Barcode — أمر المالك 2026-11-20)،
+    // فحقل `UnitBarcode` هو باركود الوحدة `Unit` المعلنة في نفس البطاقة (وحدة الصنف لا الصنف).
+    // نظيره في النموذج الحقيقي: ProductUnitDto.Barcode من IProductDesktopService.GetProductUnitsAsync.
 
-    private sealed record MockProduct(string Name, string Barcode, string Category, decimal CurrentStock, string Unit);
+    private sealed record MockProduct(string Name, string UnitBarcode, string Category, decimal CurrentStock, string Unit);
 
     private sealed record MockPurchase(DateTime Date, string Supplier, decimal Quantity, decimal UnitCost)
     {
@@ -24,7 +27,7 @@ public partial class frmPurchaseItemInfo : Form
 
     private static readonly MockProduct MockItem = new(
         Name: "زيت نباتي 1 لتر",
-        Barcode: "102031",
+        UnitBarcode: "102031",          // باركود الوحدة «عبوة» لهذا الصنف
         Category: "زيوت ومواد غذائية",
         CurrentStock: 48.000m,          // رصيد كمي (3 خانات عشرية)
         Unit: "عبوة");
@@ -108,11 +111,20 @@ public partial class frmPurchaseItemInfo : Form
 
     // ── تحميل البيانات التجريبية (Mock) ──────────────────────────────────────
 
+    /// <summary>
+    /// باركود **الوحدة** المعروضة على البطاقة (<see cref="MockProduct.Unit"/> — الوحدة «عبوة» هنا).
+    /// في النموذج الحقيقي يُقرأ من <c>ProductUnits.Barcode</c> عبر <c>GetProductUnitsAsync</c>،
+    /// والبطاقة تحمل الوحدة نفسها فتظهر في نص التسمية «باركود الوحدة:».
+    /// <para>**لا يُخترع باركود:** الفراغ/الغياب يُعرض «—» لا سطراً فارغاً.</para>
+    /// </summary>
+    private static string _UnitBarcodeText(MockProduct item)
+        => string.IsNullOrWhiteSpace(item.UnitBarcode) ? "—" : item.UnitBarcode.Trim();
+
     private void LoadMockData()
     {
-        // رأس الحوار: اسم الصنف + الباركود + التصنيف + الرصيد الحالي
+        // رأس الحوار: اسم الصنف + باركود الوحدة + التصنيف + الرصيد الحالي
         lblProductName.Text = MockItem.Name;
-        lblBarcodeValue.Text = MockItem.Barcode;
+        lblBarcodeValue.Text = _UnitBarcodeText(MockItem);
         lblCategoryValue.Text = MockItem.Category;
         lblStockValue.Text = $"{clsFormat.Quantity(MockItem.CurrentStock)} {MockItem.Unit}";
 

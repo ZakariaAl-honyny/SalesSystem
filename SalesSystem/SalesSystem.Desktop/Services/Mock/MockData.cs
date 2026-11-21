@@ -70,27 +70,28 @@ internal static class MockData
     // المنتجات — Products
     // ═══════════════════════════════════════════════
     // معرّفات المجموعات تطابق MockLookupsData.Categories (1..8) حتى تظهر «مجموعة الصنف» صحيحة.
+    // لا باركود على الصنف: الباركود لكل وحدة في ProductUnits، وProductDto.Barcode قيمة مشتقة (TASK-031).
     // الأصناف 11–13 مضافة خصيصاً لاختبار آلة الحالة والتصفية في دليل الأصناف:
     //   11 = صنف معطّل (اختبار «إعادة التنشيط» + «عرض غير النشط»)
     //   12 = صنف نافد (اختبار «النافد فقط»)
     //   13 = صنف تحت حد الطلب (اختبار «تحت حد الطلب»)
     public static List<ProductDto> Products { get; } = new()
     {
-        new ProductDto(1,  "شاي ليبتون 250غ",          1, "مشروبات ومياه",   null,  10m, false, null, true, "102030", 240m),
-        new ProductDto(2,  "زيت نباتي 1 لتر",          4, "مواد غذائية",     null,  20m, false, null, true, "102031",  80m),
-        new ProductDto(3,  "أرز بسمتي 5 كغ",           4, "مواد غذائية",     null,  15m, false, null, true, "102032",  60m),
-        new ProductDto(4,  "سكر أبيض 1 كغ",            4, "مواد غذائية",     null,  25m, false, null, true, "102033", 480m),
-        new ProductDto(5,  "دقيق فاخر 2 كغ",           4, "مواد غذائية",     null,  10m, false, null, true, "102034", 120m),
-        new ProductDto(6,  "معجون طماطم 400غ",         5, "معلبات",          null,  30m, true,  null, true, "102035",  90m),
-        new ProductDto(7,  "تونا معلبة 185غ",          5, "معلبات",          null,  20m, true,  null, true, "102036",  45m),
-        new ProductDto(8,  "حليب مجفف 900غ",           2, "منتجات ألبان",    null,  10m, true,  null, true, "102037",  30m),
-        new ProductDto(9,  "مناديل ورقية 150 ورقة",    6, "منظفات",          null,  50m, false, null, true, "102038", 200m),
-        new ProductDto(10, "صابون غسيل 1 كغ",          6, "منظفات",          null,  30m, false, null, true, "102039",  75m),
+        new ProductDto(1,  "شاي ليبتون 250غ",          1, "مشروبات ومياه",   null,  10m, false, null, true, CurrentStock: 240m),
+        new ProductDto(2,  "زيت نباتي 1 لتر",          4, "مواد غذائية",     null,  20m, false, null, true, CurrentStock:  80m),
+        new ProductDto(3,  "أرز بسمتي 5 كغ",           4, "مواد غذائية",     null,  15m, false, null, true, CurrentStock:  60m),
+        new ProductDto(4,  "سكر أبيض 1 كغ",            4, "مواد غذائية",     null,  25m, false, null, true, CurrentStock: 480m),
+        new ProductDto(5,  "دقيق فاخر 2 كغ",           4, "مواد غذائية",     null,  10m, false, null, true, CurrentStock: 120m),
+        new ProductDto(6,  "معجون طماطم 400غ",         5, "معلبات",          null,  30m, true,  null, true, CurrentStock:  90m),
+        new ProductDto(7,  "تونا معلبة 185غ",          5, "معلبات",          null,  20m, true,  null, true, CurrentStock:  45m),
+        new ProductDto(8,  "حليب مجفف 900غ",           2, "منتجات ألبان",    null,  10m, true,  null, true, CurrentStock:  30m),
+        new ProductDto(9,  "مناديل ورقية 150 ورقة",    6, "منظفات",          null,  50m, false, null, true, CurrentStock: 200m),
+        new ProductDto(10, "صابون غسيل 1 كغ",          6, "منظفات",          null,  30m, false, null, true, CurrentStock:  75m),
 
         // ── أصناف الاختبار ──
-        new ProductDto(11, "بسكويت شاي 100غ",          3, "حلويات وبسكويتات", "صنف معطّل لاختبار إعادة التنشيط", 15m, false, null, false, "102040", 40m),
-        new ProductDto(12, "مياه معدنية 1.5 لتر",      1, "مشروبات ومياه",   "صنف نافد لاختبار تصفية النافد",   30m, false, null, true,  "102041",  0m),
-        new ProductDto(13, "عصير برتقال 1 لتر",        1, "مشروبات ومياه",   "صنف تحت حد الطلب",                20m, true,  null, true,  "102042",  8m)
+        new ProductDto(11, "بسكويت شاي 100غ",          3, "حلويات وبسكويتات", "صنف معطّل لاختبار إعادة التنشيط", 15m, false, null, false, CurrentStock: 40m),
+        new ProductDto(12, "مياه معدنية 1.5 لتر",      1, "مشروبات ومياه",   "صنف نافد لاختبار تصفية النافد",   30m, false, null, true,  CurrentStock:  0m),
+        new ProductDto(13, "عصير برتقال 1 لتر",        1, "مشروبات ومياه",   "صنف تحت حد الطلب",                20m, true,  null, true,  CurrentStock:  8m)
     };
 
     // ═══════════════════════════════════════════════

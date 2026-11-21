@@ -10,11 +10,17 @@ public record ProductDto(
     bool TrackExpiry,
     string? ImagePath,
     bool IsActive,
+    /// <summary>
+    /// Base unit's barcode derived from ProductUnits.Barcode (owner decision 2026-11-20, TASK-031).
+    /// The Product entity has no barcode column — barcode is per-product-unit.
+    /// </summary>
     string? Barcode = null,
     decimal CurrentStock = 0,
     string? ForeignName = null,
     string? LocationInStore = null,
-    short? ExpiryAlertDays = null)
+    short? ExpiryAlertDays = null,
+    string? CreatedByUserName = null,
+    string? UpdatedByUserName = null)
 {
     public bool IsOutOfStock => CurrentStock <= 0;
     public bool IsLowStock => CurrentStock > 0 && CurrentStock <= ReorderLevel;

@@ -96,7 +96,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlTitle
             // 
-            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlTitle.Controls.Add(lblTitle);
             pnlTitle.Dock = DockStyle.Top;
             pnlTitle.Location = new Point(0, 0);
@@ -120,7 +120,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbProductInfo
             // 
-            gbProductInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbProductInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbProductInfo.Controls.Add(tblInfo);
             gbProductInfo.Dock = DockStyle.Top;
             gbProductInfo.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -135,7 +135,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // tblInfo
             // 
-            tblInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            tblInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             tblInfo.ColumnCount = 3;
             tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
             tblInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
@@ -179,7 +179,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             lblBarcodeCaption.Name = "lblBarcodeCaption";
             lblBarcodeCaption.Size = new Size(219, 22);
             lblBarcodeCaption.TabIndex = 1;
-            lblBarcodeCaption.Text = "الباركود:";
+            lblBarcodeCaption.Text = "باركود الوحدة:";
             lblBarcodeCaption.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblCategoryCaption
@@ -244,7 +244,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbCosts
             // 
-            gbCosts.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbCosts.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbCosts.Controls.Add(flowCostCards);
             gbCosts.Dock = DockStyle.Top;
             gbCosts.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -259,7 +259,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flowCostCards
             // 
-            flowCostCards.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flowCostCards.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flowCostCards.Controls.Add(cardAvg);
             flowCostCards.Controls.Add(cardLast);
             flowCostCards.Controls.Add(cardMin);
@@ -274,7 +274,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // cardAvg
             // 
-            cardAvg.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            cardAvg.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             cardAvg.BorderStyle = BorderStyle.FixedSingle;
             cardAvg.Controls.Add(cardAvgAccent);
             cardAvg.Controls.Add(cardAvgTitle);
@@ -319,7 +319,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // cardLast
             // 
-            cardLast.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            cardLast.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             cardLast.BorderStyle = BorderStyle.FixedSingle;
             cardLast.Controls.Add(cardLastAccent);
             cardLast.Controls.Add(cardLastTitle);
@@ -364,7 +364,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // cardMin
             // 
-            cardMin.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            cardMin.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             cardMin.BorderStyle = BorderStyle.FixedSingle;
             cardMin.Controls.Add(cardMinAccent);
             cardMin.Controls.Add(cardMinTitle);
@@ -409,7 +409,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbHistory
             // 
-            gbHistory.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbHistory.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbHistory.Controls.Add(dgvHistory);
             gbHistory.Controls.Add(emptyState);
             gbHistory.Dock = DockStyle.Fill;
@@ -477,7 +477,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFooter.Controls.Add(btnClose);
             pnlFooter.Controls.Add(lblRecordsCount);
             pnlFooter.Controls.Add(lblRecordsCaption);

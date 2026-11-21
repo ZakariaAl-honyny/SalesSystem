@@ -20,17 +20,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.ForeignName).HasMaxLength(200);
         builder.Property(p => p.LocationInStore).HasMaxLength(100);
 
-        // ─── Barcode ────────────────────────────────────────
-        builder.Property(p => p.Barcode)
-            .HasColumnType("varchar")
-            .HasMaxLength(50)
-            .IsRequired(false)
-            .HasComment("Primary barcode for quick lookup — ASCII-only, not a unique identifier");
-
-        builder.HasIndex(p => p.Barcode)
-            .IsUnique(false)
-            .HasDatabaseName("IX_Products_Barcode")
-            .HasFilter("[Barcode] IS NOT NULL AND [IsActive] = 1");
 
         // ─── Numeric properties ─────────────────────────────
         builder.Property(p => p.ReorderLevel).HasPrecision(18, 3).HasDefaultValue(0m);

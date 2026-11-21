@@ -65,6 +65,18 @@ public class DirectProductService : IProductDesktopService
         }
     }
 
+    public async Task<Result<BarcodeResolutionDto>> ResolveBarcodeAsync(string barcode, CancellationToken ct = default)
+    {
+        try
+        {
+            return await _productUnits.ResolveBarcodeAsync(barcode, ct);
+        }
+        catch (Exception)
+        {
+            return Result<BarcodeResolutionDto>.Failure("تعذر البحث بالباركود", ErrorCodes.InvalidOperation);
+        }
+    }
+
     public async Task<Result<ProductDto>> CreateAsync(CreateProductRequest r, CancellationToken ct = default)
     {
         try

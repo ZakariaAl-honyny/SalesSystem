@@ -38,8 +38,12 @@ public partial class ctrlLineEntryPanel : UserControl
     /// <summary>نص زر الإضافة في وضع تعديل سطر محمَّل.</summary>
     private const string UpdateButtonText = "تحديث السطر";
 
-    /// <summary>الصنف المُعبَّأ حالياً من الباركود أو المنتقي.</summary>
-    private ProductDto? _product;
+    /// <summary>
+    /// معرّف الصنف المُعبَّأ حالياً (باركود محلول أو منتقي) — صفر = لا صنف.
+    /// <b>لا تُحفظ <c>ProductDto</c> هنا:</b> هوية السطر الظاهرة هي <b>باركود الوحدة</b>
+    /// (<c>ProductUnits.Barcode</c>) لا باركود صنف عام (`TASK-031`).
+    /// </summary>
+    private int _productId;
 
     /// <summary><c>LineKey</c> السطر المحمَّل للتعديل — <c>null</c> يعني «سطر جديد».</summary>
     private Guid? _editingLineKey;
@@ -68,10 +72,14 @@ public partial class ctrlLineEntryPanel : UserControl
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public BindingList<InvoiceLineItem>? Lines { get; set; }
 
-    /// <summary>بحث الباركود: يُعيد الصنف أو <c>null</c> حين لا يوجد (فيُفتح المنتقي).</summary>
+    /// <summary>
+    /// بحث الباركود: يُعيد <b>حلّ الباركود</b> — الصنف + الوحدة التي تملك هذا الباركود
+    /// (<c>ProductUnits.Barcode</c> هو مصدر الباركود الوحيد — `TASK-031`) — أو <c>null</c>
+    /// حين لا يوجد (فيُفتح المنتقي).
+    /// </summary>
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public Func<string, Task<ProductDto?>>? ResolveBarcodeAsync { get; set; }
+    public Func<string, Task<BarcodeResolutionDto?>>? ResolveBarcodeAsync { get; set; }
 
     /// <summary>تحميل وحدات الصنف من عقد الحاضن.</summary>
     [Browsable(false)]
@@ -172,7 +180,7 @@ public partial class ctrlLineEntryPanel : UserControl
     {
         if (line is null) return;
 
-        _product = null;                       // الهوية تأتي من السطر نفسه حتى يمسح المستخدم باركوداً
+        _productId = 0;                        // الهوية تأتي من السطر نفسه حتى يمسح المستخدم باركوداً
         _editingLineKey = line.LineKey;
 
         txtBarcode.Text = line.Barcode ?? line.ProductCode ?? string.Empty;
@@ -218,7 +226,7 @@ public partial class ctrlLineEntryPanel : UserControl
         dtpExpiry.Checked = false;
         lblLineTotal.Text = clsFormat.Money(0m);
 
-        _product = null;
+        _productId = 0;
         _editingLineKey = null;
 
         btnAddLine.Text = AddButtonText;
@@ -275,8 +283,8 @@ public partial class ctrlLineEntryPanel : UserControl
             ? lines.FirstOrDefault(l => l.LineKey == key)
             : null;
 
-        // في التعديل: السطر نفسه هو دليل الصنف (اللوحة لا تملك ProductDto للوهلة الأولى).
-        if (_product is null && editingLine is null)
+        // في التعديل: السطر نفسه هو دليل الصنف (اللوحة لا تحمل هوية الصنف للوهلة الأولى).
+        if (_productId == 0 && editingLine is null)
         {
             clsDialogs.Warning("اختر الصنف أولاً بالباركود أو بمفتاح F4.");
             FocusBarcode();
@@ -286,11 +294,11 @@ public partial class ctrlLineEntryPanel : UserControl
         // ── تكامل البيانات (بلاغ المراجعة 2026-11-18) ──
         // لا يُكتب نص باركود بجانب `ProductId` لصنف آخر: باركود مكتوب لم يمرّ على Enter يُحلّ الآن
         // كما لو ضغط المستخدم Enter في حقل الباركود (وفي التعديل: أي نص يخالف هوية السطر المحمَّل).
+        // الهوية = **باركود الوحدة المختارة** (`ProductUnits.Barcode`) ثم باركود السطر المحمَّل — `TASK-031`.
         string typedBarcode = txtBarcode.Text.Trim();
-        string identityBarcode = (_product?.Barcode
-                                  ?? editingLine?.Barcode
-                                  ?? editingLine?.ProductCode
-                                  ?? string.Empty).Trim();
+        string identityBarcode = UnitBarcode(cmbUnit.SelectedItem as ProductUnitDto);
+        if (identityBarcode.Length == 0)
+            identityBarcode = (editingLine?.Barcode ?? editingLine?.ProductCode ?? string.Empty).Trim();
 
         bool barcodeChanged = typedBarcode.Length > 0
                               && !string.Equals(typedBarcode, identityBarcode, StringComparison.OrdinalIgnoreCase)
@@ -309,10 +317,13 @@ public partial class ctrlLineEntryPanel : UserControl
         _ = clsValidation.TryParseDecimal(txtDiscount.Text, out decimal discount);
 
         var unit = (ProductUnitDto)cmbUnit.SelectedItem!;
-        int productId = _product?.Id ?? editingLine!.ProductId;
+        int productId = _productId > 0 ? _productId : editingLine!.ProductId;
+        // باركود السطر = ما مسحه المستخدم، وإلا باركود وحدته — ولا يُلفَّق باركود من الصنف (TASK-031).
         string barcode = txtBarcode.Text.Trim();
         if (barcode.Length == 0)
-            barcode = _product?.Barcode ?? editingLine?.Barcode ?? editingLine?.ProductCode ?? string.Empty;
+            barcode = UnitBarcode(unit);
+        if (barcode.Length == 0)
+            barcode = editingLine?.Barcode ?? editingLine?.ProductCode ?? string.Empty;
 
         // خصم السطر لا يتجاوز قيمة السطر (الكمية × السعر) — نفس تقييد الشاشة المرجعية.
         decimal maxDiscount = Math.Max(0m, quantity * price);
@@ -390,15 +401,15 @@ public partial class ctrlLineEntryPanel : UserControl
     }
 
     /// <summary>
-    /// يحلّ باركوداً مكتوباً في اللوحة **وقت الحفظ** (لم يمرّ على <c>Enter</c>) ويطبّق صنفه على اللوحة:
-    /// الصنف والوحدة والاسم والكود والسعر من الصنف المحلول، والكمية/الخصم كما كتبهما المستخدم.
+    /// يحلّ باركوداً مكتوباً في اللوحة **وقت الحفظ** (لم يمرّ على <c>Enter</c>) ويطبّق وحدة صنفه على اللوحة:
+    /// الصنف والوحدة والاسم والباركود والسعر من **حلّ الباركود**، والكمية/الخصم كما كتبهما المستخدم.
     /// <c>false</c> = الباركود غير مسجّل ⇒ لا يُغيَّر شيء ويبقى التركيز في حقل الباركود
     /// (فلا يُكتب نص باركود بجانب <c>ProductId</c> لصنف آخر).
     /// </summary>
     private async Task<bool> ResolveTypedBarcodeAsync(string typedBarcode)
     {
-        var product = await ResolveBarcodeAsync!(typedBarcode);
-        if (product is null)
+        var resolution = await ResolveBarcodeAsync!(typedBarcode);
+        if (resolution is null)
         {
             clsDialogs.Warning("الباركود المكتوب غير مسجّل — امسح الباركود ثم اضغط Enter لتأكيد الصنف.");
             txtBarcode.Focus();
@@ -406,17 +417,16 @@ public partial class ctrlLineEntryPanel : UserControl
             return false;
         }
 
-        var units = await LoadUnitsCoreAsync(product.Id);
+        var units = await LoadUnitsCoreAsync(resolution.ProductId);
         if (txtBarcode.IsDisposed) return false;
 
-        var unit = PickUnit(units, null);
-
-        _product = product;
-        FillUnitCombo(units, unit);
-        lblProductName.Text = product.Name;
-        txtItemCode.Text = product.Barcode ?? string.Empty;
-        txtBarcode.Text = product.Barcode ?? typedBarcode;
-        if (unit is not null) txtPrice.Text = PriceSelector!(unit).ToString("0.###");
+        // لا مسار سريع هنا: تعبئة لتأكيد هوية السطر قبل تثبيته نفسه، والكمية تبقى كما كتبها المستخدم.
+        FillPanel(
+            resolution.ProductId,
+            resolution.ProductName,
+            units,
+            PickUnit(units, null, resolution.ProductUnitId),
+            typedBarcode);
 
         return true;
     }
@@ -440,26 +450,36 @@ public partial class ctrlLineEntryPanel : UserControl
         var picked = await PickProductAsync!();
         if (picked is null) return;
 
-        await ApplyResolvedProductAsync(picked.Product, picked.Unit, null);
+        await ApplyResolvedProductAsync(picked.Product.Id, picked.Product.Name, picked.Unit, null, null);
     }
 
     /// <summary>
-    /// طريق الإدخال الواحد после حلّ الصنف (باركود أو منتقي): تُحمَّل الوحدات **مرة واحدة**،
+    /// طريق الإدخال الواحد بعد حلّ الصنف (باركود أو منتقي): تُحمَّل الوحدات **مرة واحدة**،
     /// ثم إما <b>المسار السريع</b> (+1 لسطر بنفس الصنف والوحدة) أو تعبئة اللوحة للمسار الكامل.
+    /// <para>
+    /// الوحدة تُختار من <paramref name="preferredUnit"/> (المنتقي) أو <paramref name="preferredUnitId"/>
+    /// — وهي <c>BarcodeResolutionDto.ProductUnitId</c> أي الوحدة <b>التي تملك الباركود المسموح</b>
+    /// (<c>TASK-031</c>) — في بيت الحكم الواحد <see cref="PickUnit"/>، ثم الأساسية ثم الأولى.
+    /// </para>
     /// </summary>
-    private async Task ApplyResolvedProductAsync(ProductDto product, ProductUnitDto? preferredUnit, string? typedBarcode)
+    private async Task ApplyResolvedProductAsync(
+        int productId,
+        string productName,
+        ProductUnitDto? preferredUnit,
+        int? preferredUnitId,
+        string? typedBarcode)
     {
         if (!IsReady) return;
 
-        var units = await LoadUnitsCoreAsync(product.Id);
+        var units = await LoadUnitsCoreAsync(productId);
         if (txtBarcode.IsDisposed) return;
 
-        var unitToSelect = PickUnit(units, preferredUnit);
+        var unitToSelect = PickUnit(units, preferredUnit, preferredUnitId);
 
         // ── المسار السريع (أمر المالك 2026-11-18): «إدخال الصنف نفسه مرة أخرى ⇒ الكمية +1» ──
         // لا تعبئة للوحة ولا رسالة ولا تمرير على BeforeCommit — والسطر يُبلَّغ عنه بالحدث
         // ويُعاد التركيز إلى الباركود جاهزاً للصنف التالي (تحقّق الشاشة عند الحفظ يبقى كما هو).
-        if (!IsEditing && unitToSelect is not null && TryIncrementExisting(product, unitToSelect))
+        if (!IsEditing && unitToSelect is not null && TryIncrementExisting(productId, unitToSelect))
         {
             txtBarcode.Clear();
             txtBarcode.Focus();
@@ -467,7 +487,11 @@ public partial class ctrlLineEntryPanel : UserControl
             return;
         }
 
-        FillPanelWithProduct(product, units, unitToSelect, typedBarcode);
+        FillPanel(productId, productName, units, unitToSelect, typedBarcode);
+
+        txtQuantity.Text = "1";
+        txtQuantity.Focus();
+        txtQuantity.SelectAll();
     }
 
     /// <summary>
@@ -478,12 +502,12 @@ public partial class ctrlLineEntryPanel : UserControl
     /// للشاشة (كفاية المخزون) يبقى على الحفظ، فلا تُقاطع عملية المسح برسالة وسط الإدخال السريع.
     /// </para>
     /// </summary>
-    private bool TryIncrementExisting(ProductDto product, ProductUnitDto unit)
+    private bool TryIncrementExisting(int productId, ProductUnitDto unit)
     {
         var lines = Lines;
         if (lines is null) return false;
 
-        var existing = lines.FirstOrDefault(l => l.ProductId == product.Id && l.ProductUnitId == unit.Id);
+        var existing = lines.FirstOrDefault(l => l.ProductId == productId && l.ProductUnitId == unit.Id);
         if (existing is null) return false;
 
         existing.Quantity += 1m;
@@ -495,8 +519,10 @@ public partial class ctrlLineEntryPanel : UserControl
     }
 
     /// <summary>
-    /// وحدة الصنف المختارة: وحدة المنتقي إن أُرسلت، ثم الوحدة الأساسية، ثم الأولى —
-    /// حكم واحد يستهلكه المساران (السريع والكامل) و<see cref="LoadUnitsForEditAsync"/>.
+    /// وحدة الصنف المختارة: وحدة المنتقي إن أُرسلت، ثم <b>الوحدة التي تملك الباركود المسموح</b>
+    /// (<c>preferredUnitId</c> من <c>BarcodeResolutionDto.ProductUnitId</c>)، ثم الوحدة الأساسية، ثم الأولى —
+    /// <b>حكم واحد</b> يستهلكه المساران (السريع والكامل) و<see cref="LoadUnitsForEditAsync"/>
+    /// و<see cref="ResolveTypedBarcodeAsync"/> (<c>TASK-031</c>).
     /// </summary>
     private static ProductUnitDto? PickUnit(
         IReadOnlyList<ProductUnitDto> units,
@@ -526,27 +552,40 @@ public partial class ctrlLineEntryPanel : UserControl
         return units;
     }
 
-    /// <summary>تعبئة اللوحة بالصنف: الاسم/الكود/الباركود/الكمية/السعر ثم مؤشر الكمية.</summary>
-    private void FillPanelWithProduct(
-        ProductDto product,
+    /// <summary>
+    /// تعبئة اللوحة بهوية السطر: الاسم والسعر من <b>الوحدة المختارة</b>، و<c>txtItemCode</c> و<c>txtBarcode</c>
+    /// يحملان باركود تلك الوحدة (<c>ProductUnits.Barcode</c> — <c>TASK-031</c>)؛ والباركود المسموح يبقى كما هو
+    /// في الحقل، ولا يُلفَّق باركود من الصنف. الكمية لا تُمسّ هنا — كل مسار يضبطها بنفسه.
+    /// </summary>
+    private void FillPanel(
+        int productId,
+        string productName,
         IReadOnlyList<ProductUnitDto> units,
         ProductUnitDto? unitToSelect,
-        string? typedBarcode)
+        string? scannedBarcode)
     {
         FillUnitCombo(units, unitToSelect);
 
-        _product = product;
-        lblProductName.Text = product.Name;
-        txtItemCode.Text = product.Barcode ?? string.Empty;
-        txtBarcode.Text = product.Barcode ?? typedBarcode ?? string.Empty;
-        txtQuantity.Text = "1";
+        _productId = productId;
+        lblProductName.Text = productName;
+
+        string unitBarcode = UnitBarcode(unitToSelect);
+        txtItemCode.Text = unitBarcode.Length > 0 ? unitBarcode : productName;
+
+        string barcodeText = scannedBarcode?.Trim() ?? string.Empty;
+        txtBarcode.Text = barcodeText.Length > 0 ? barcodeText : unitBarcode;
+
         txtPrice.Text = unitToSelect is null
             ? string.Empty
             : PriceSelector!(unitToSelect).ToString("0.###");
-
-        txtQuantity.Focus();
-        txtQuantity.SelectAll();
     }
+
+    /// <summary>
+    /// باركود الوحدة — <b>مصدر هوية السطر الوحيد</b> (<c>ProductUnits.Barcode</c>): <c>Product.Barcode</c>
+    /// لم يبقَ عموداً، و<c>ProductDto.Barcode</c> مجرّد اشتقاق لباركود الوحدة الأساسية — فيكون خطأً حين
+    /// يُمسح باركود كرتون (<c>TASK-031</c>).
+    /// </summary>
+    private static string UnitBarcode(ProductUnitDto? unit) => unit?.Barcode?.Trim() ?? string.Empty;
 
     /// <summary>ملء قائمة الوحدات واختيار وحدة (بلا لمس السعر المعروض — يُعاد ضبطه بعد الاستدعاء).</summary>
     private void FillUnitCombo(IReadOnlyList<ProductUnitDto> units, ProductUnitDto? selected)
@@ -625,15 +664,21 @@ public partial class ctrlLineEntryPanel : UserControl
                     return;
                 }
 
-                var product = await ResolveBarcodeAsync!(barcode);
-                if (product is null)
+                var resolution = await ResolveBarcodeAsync!(barcode);
+                if (resolution is null)
                 {
                     // باركود غير مسجّل ⇒ منتقي الأصناف (نمط الشاشة المرجعية) لا تحذير نصف تعبئة
                     await PickAndApplyAsync();
                     return;
                 }
 
-                await ApplyResolvedProductAsync(product, null, barcode);
+                // الوحدة المالكة للباركود تُختار داخل اللوحة وحدها (PickUnit) — TASK-031.
+                await ApplyResolvedProductAsync(
+                    resolution.ProductId,
+                    resolution.ProductName,
+                    null,
+                    resolution.ProductUnitId,
+                    barcode);
                 return;
             }
 
@@ -783,6 +828,10 @@ public partial class ctrlLineEntryPanel : UserControl
     {
         if (_suppressUnitPrice) return;
         if (cmbUnit.SelectedItem is not ProductUnitDto unit) return;
+
+        // هوية السطر = باركود وحدته (TASK-031): يُزامن الحقل المرئي مع الوحدة المختارة — وإلا التُقط
+        // باركود وحدة أخرى عند الحفظ كأنه «باركود مكتوب لم يُحلّ» فأُعيدت الوحدة صامتة.
+        txtBarcode.Text = UnitBarcode(unit);
 
         var selector = PriceSelector;
         if (selector is null) return;

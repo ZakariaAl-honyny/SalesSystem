@@ -30,8 +30,11 @@ public partial class frmImportProductsExcel : Form
     /// <summary>دليل الوحدات — يُحلّ منه اسم/رمز الوحدة في الملف إلى معرّفها.</summary>
     private List<UnitDto> _units = new();
 
-    /// <summary>باركودات الأصناف المسجّلة فعلاً — أساس التحذير «الباركود مسجل مسبقاً».</summary>
-    private readonly HashSet<string> _existingBarcodes = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// سقف محاولات توليد باركود حرّ للصف الواحد: عند تصادم الكود مع وحدة مسجّلة يتقدّم التسلسل
+    /// ويُعاد السؤال — بعدد محدود فلا حلقة مفتوحة.
+    /// </summary>
+    private const int MaxGeneratedBarcodeAttempts = 50;
 
     /// <summary>
     /// الملف يحمل رصيداً افتتاحياً (كمية &gt; 0) ولا مسار لترحيله من هذه الشاشة،
@@ -118,7 +121,7 @@ public partial class frmImportProductsExcel : Form
         dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Status", HeaderText = "الحالة", DataPropertyName = "Status", Width = 120, ReadOnly = true });
         dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "RowNo", HeaderText = "الصف", DataPropertyName = "RowNo", Width = 60, ReadOnly = true });
         dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", HeaderText = "اسم الصنف", DataPropertyName = "Name", Width = 200 });
-        dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Barcode", HeaderText = "الباركود", DataPropertyName = "Barcode", Width = 150 });
+        dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Barcode", HeaderText = "باركود الوحدة الأساسية", DataPropertyName = "Barcode", Width = 150 });
         dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Qty", HeaderText = "رصيد افتتاحي", DataPropertyName = "Qty", Width = 100 });
         dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cost", HeaderText = "سعر التكلفة", DataPropertyName = "Cost", Width = 100 });
         dgvPreview.Columns.Add(new DataGridViewTextBoxColumn { Name = "Price", HeaderText = "سعر البيع", DataPropertyName = "Price", Width = 100 });
@@ -157,8 +160,7 @@ public partial class frmImportProductsExcel : Form
         Cursor = Cursors.WaitCursor;
         try
         {
-            // الدلائل إلزامية قبل التحقق: اسم التصنيف والوحدة في الملف يُحلّان إلى معرّف من الدليل،
-            // وباركودات الأصناف المسجّلة تُقرأ من الخدمة (لا من مجموعة فارغة).
+            // الدلائل إلزامية قبل التحقق: اسم التصنيف والوحدة في الملف يُحلّان إلى معرّف من الدليل.
             if (!await _LoadLookupsAsync())
             {
                 clsDialogs.Error("تعذر تحميل دليل التصنيفات والوحدات، فلا يمكن التحقق من الملف الآن. يرجى إعادة المحاولة.");
@@ -167,6 +169,14 @@ public partial class frmImportProductsExcel : Form
 
             txtFilePath.Text = ofd.SafeFileName;
             _ProcessExcelFile(ofd.FileName);
+
+            // مسار «المعاينة»: حكم الباركود من البيت الواحد بعد قراءة الملف — الباركود ملكُ الوحدة الأساسية
+            // لا الصنف، فيُسأل عنه كل صف قبل أن يظهر «مقبولاً».
+            await _ValidateBarcodesAsync();
+            _ApplyGridColors();
+            _ApplyPreviewFilter();
+            _UpdateOpeningStockBlock();
+
             _SyncPrimaryAction(); // RULE-N147 — بعد ظهور المعاينة يصبح Enter بلا زر أساسي
         }
         catch (Exception ex)
@@ -181,7 +191,9 @@ public partial class frmImportProductsExcel : Form
     }
 
     /// <summary>
-    /// تحميل دلائل التصنيفات والوحدات وباركودات الأصناف القائمة عبر العقود المكتبية فقط.
+    /// تحميل دليلي التصنيفات والوحدات عبر العقود المكتبية فقط.
+    /// لا تُقرأ باركودات الأصناف مسبقاً: الباركود ملكُ الوحدة (<c>ProductUnits.Barcode</c>) لا الصنف،
+    /// والحكم يُسأل صفاً صفاً عبر <see cref="_BarcodeRefusalAsync"/> عند الحاجة.
     /// يُرجع <c>false</c> إذا تعذر تحميل أي دليل — فلا يُتحقق من الملف بقائمة فارغة تُرفض كل صفوفه.
     /// </summary>
     private async Task<bool> _LoadLookupsAsync()
@@ -198,15 +210,6 @@ public partial class frmImportProductsExcel : Form
 
         _categories = categoryRes.Value.ToList();
         _units = unitRes.Value.ToList();
-
-        _existingBarcodes.Clear();
-        var productRes = await _serviceProvider.GetRequiredService<IProductDesktopService>().GetAllAsync(includeInactive: true);
-        if (productRes.IsSuccess && productRes.Value is not null)
-        {
-            foreach (var product in productRes.Value)
-                if (!string.IsNullOrWhiteSpace(product.Barcode))
-                    _existingBarcodes.Add(product.Barcode.Trim());
-        }
 
         return true;
     }
@@ -281,9 +284,13 @@ public partial class frmImportProductsExcel : Form
     // ── تحقق صف المعاينة (بيت واحد يُستهلك عند القراءة والتعديل اليدوي) ─────────
 
     /// <summary>
-    /// يضع حالة الصف وسببه: يتحقق من الاسم والباركود والرصيد الافتتاحي والأسعار والتصنيف والوحدة.
+    /// يضع حالة الصف وسببه: يتحقق من الاسم والباركود المكرر داخل الملف والرصيد الافتتاحي والأسعار والتصنيف والوحدة.
     /// التصنيف والوحدة يُحلّان **بالاسم** من دلائل الخدمة (لا معرّف ثابت)، والفشل في الحل رفضٌ للصف
     /// برسالة تسمّي الصف والقيمة — فلا يُرسَل صنف على تصنيف أو وحدة غير موجودة.
+    /// <para>
+    /// تكرار الباركود مع سجل مسجّل <b>ليس هنا</b>: الباركود ملكُ الوحدة (<c>ProductUnits.Barcode</c>) لا الصنف،
+    /// وحكمه يعيش في البيت الواحد <see cref="_BarcodeRefusalAsync"/> ويُطبّق عبر <see cref="_ValidateBarcodesAsync"/>.
+    /// </para>
     /// </summary>
     /// <param name="dr">صف المعاينة.</param>
     /// <param name="manualEdit">عند التعديل اليدوي في الشبكة تبقى عبارة «تم التعديل يدوياً» عند القبول.</param>
@@ -311,10 +318,6 @@ public partial class frmImportProductsExcel : Form
                  _dtPreview.AsEnumerable().Count(r => (r["Barcode"]?.ToString() ?? string.Empty).Trim().SameText(barcode)) > 1)
         {
             status = "تحذير"; message = "الباركود مكرر في هذا الملف";
-        }
-        else if (!string.IsNullOrEmpty(barcode) && _existingBarcodes.Contains(barcode))
-        {
-            status = "تحذير"; message = "الباركود مسجل مسبقاً";
         }
         else if (qty > 0m)
         {
@@ -349,6 +352,50 @@ public partial class frmImportProductsExcel : Form
         dr["Status"] = status;
         dr["Message"] = message;
         dr["IsValid"] = status == "مقبول";
+    }
+
+    // ── حكم الباركود (البيت الواحد — الباركود ملكُ الوحدة لا الصنف) ─────────────
+
+    /// <summary>
+    /// الحكم الوحيد على باركود الصف: الباركود لم يعد على الصنف بل على وحدته
+    /// (<c>ProductUnits.Barcode</c> — الفهرس الفريد <c>IX_ProductUnits_Barcode</c>)، فتُسأل خدمة الأصناف
+    /// عبر <see cref="IProductDesktopService.ResolveBarcodeAsync"/>: النجاح يعني أن **وحدة ما** تملكه
+    /// (أساسية أو مشتقة) فيُرفض الصف، والفشل («الباركود غير موجود») يعني أنه حرّ فيمضي.
+    /// </summary>
+    /// <param name="barcode">الباركود المكتوب في الملف (قد يكون فارغاً).</param>
+    /// <returns><c>null</c> إذا كان الباركود حرّاً أو فارغاً، أو رسالة الرفض العربية إذا كان مملوكاً.</returns>
+    private async Task<string?> _BarcodeRefusalAsync(string barcode)
+    {
+        if (string.IsNullOrWhiteSpace(barcode)) return null;
+
+        var resolved = await _serviceProvider.GetRequiredService<IProductDesktopService>()
+            .ResolveBarcodeAsync(barcode.Trim());
+
+        // فشل الحل = «الباركود غير موجود» ⇒ حرّ. الحارس النهائي يبقى فهرس الوحدة الفريد عند الإضافة.
+        if (!resolved.IsSuccess) return null;
+
+        string owner = resolved.Value?.ProductName ?? "صنف مسجّل";
+
+        return $"باركود الوحدة الأساسية «{barcode.Trim()}» مستخدم مسبقاً في الصنف «{owner}» — لا يمكن إسناده لصنف آخر";
+    }
+
+    /// <summary>
+    /// مرور واحد على صفوف المعاينة يطبّق حكم الباركود من البيت الواحد <see cref="_BarcodeRefusalAsync"/>.
+    /// يُستهلك في مسارين فقط: بعد قراءة الملف (المعاينة) وفي بداية الاعتماد (الحفظ) — فلا نسخة ثانية
+    /// للحكم في الشاشة (RULE-N169 / RULE-N172). لا يخفّف صفاً مرفوضاً لسبب أقوى ولا يعيد قبوله.
+    /// </summary>
+    private async Task _ValidateBarcodesAsync()
+    {
+        foreach (var dr in _dtPreview.AsEnumerable().ToList())
+        {
+            if (dr["IsValid"] is not true) continue;   // مرفوض لسبب آخر — يبقى كما هو
+
+            string barcode = (dr["Barcode"]?.ToString() ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(barcode)) continue;
+
+            if (await _BarcodeRefusalAsync(barcode) is { } refusal)
+                _RejectPreviewRow(dr, refusal, "تحذير");
+        }
     }
 
     /// <summary>
@@ -447,25 +494,71 @@ public partial class frmImportProductsExcel : Form
 
     // ── الأوامر ────────────────────────────────────────────────────────────────
 
-    private void btnGenerateBarcodes_Click(object sender, EventArgs e)
+    /// <summary>
+    /// «توليد باركود للأصناف الفارغة»: يمنح كل صف بلا باركود باركوداً **للوحدة الأساسية**.
+    /// الباركود ملكُ الوحدة لا الصنف، فيُسأل البيت الواحد <see cref="_BarcodeRefusalAsync"/> قبل الإسناد،
+    /// وعند التصادم يتقدّم التسلسل ويُعاد السؤال بعدد محدود من المحاولات (لا حلقة مفتوحة).
+    /// </summary>
+    private async void btnGenerateBarcodes_Click(object sender, EventArgs e)
     {
-        foreach (DataRow row in _dtPreview.Rows)
+        Cursor = Cursors.WaitCursor;
+        btnGenerateBarcodes.Enabled = false;
+
+        try
         {
-            if (string.IsNullOrWhiteSpace(row["Barcode"].ToString()))
+            int failedRows = 0;
+
+            foreach (DataRow row in _dtPreview.Rows)
             {
-                row["Barcode"] = $"629{_generatedBarcodeSeq++}";
+                if (!string.IsNullOrWhiteSpace(row["Barcode"]?.ToString())) continue;
+
+                string? freeCode = null;
+                for (int attempt = 0; attempt < MaxGeneratedBarcodeAttempts; attempt++)
+                {
+                    string candidate = $"629{_generatedBarcodeSeq++}";
+                    if (await _BarcodeRefusalAsync(candidate) is null)
+                    {
+                        freeCode = candidate;
+                        break;
+                    }
+                }
+
+                if (freeCode is null)
+                {
+                    failedRows++;
+                    _RejectPreviewRow(row,
+                        "تعذر توليد باركود حرّ للوحدة الأساسية — كل المرشحات مستخدمة، أدخل الباركود يدوياً في الملف",
+                        "تحذير");
+                    continue;
+                }
+
+                row["Barcode"] = freeCode;
 
                 // إعادة التحقق من نفس البيت: الصف الذي كان مرفوضاً لسبب آخر (تصنيف/وحدة/رصيد)
                 // لا يُقبل لمجرد توليد باركود له.
                 _ValidatePreviewRow(row);
                 if (row["IsValid"] is true)
-                    row["Message"] = "تم توليد باركود";
+                    row["Message"] = "تم توليد باركود للوحدة الأساسية";
             }
-        }
 
-        _ApplyGridColors();
-        _ApplyPreviewFilter();
-        _UpdateOpeningStockBlock();
+            if (failedRows > 0)
+                clsDialogs.Warning($"تعذر توليد باركود لـ{failedRows} صفاً — راجع عمود «ملاحظات».", "توليد الباركود");
+
+            _ApplyGridColors();
+            _ApplyPreviewFilter();
+            _UpdateOpeningStockBlock();
+        }
+        catch (Exception ex)
+        {
+            // حدّ الخطأ الوحيد للمعالج غير المتزامن (RULE-N25) — لا try/catch داخل حكم الباركود نفسه.
+            Log.Error(ex, "خطأ أثناء توليد باركود الوحدة الأساسية في استيراد الأصناف");
+            clsDialogs.Error("تعذر توليد الباركود. يرجى إعادة المحاولة.");
+        }
+        finally
+        {
+            btnGenerateBarcodes.Enabled = true;
+            Cursor = Cursors.Default;
+        }
     }
 
     private async void btnSave_Click(object sender, EventArgs e)
@@ -485,18 +578,24 @@ public partial class frmImportProductsExcel : Form
             return;
         }
 
-        var validRows = _dtPreview.AsEnumerable().Where(r => r.Field<bool>("IsValid")).ToList();
-        if (!validRows.Any())
-        {
-            clsDialogs.Warning("لا توجد أصناف صالحة للاعتماد. راجع عمود «ملاحظات» لمعرفة سبب الرفض.");
-            return;
-        }
-
         Cursor = Cursors.WaitCursor;
         btnSave.Enabled = false;
 
         try
         {
+            // مسار «الاعتماد»: نفس حكم الباركود من البيت الواحد قبل أي إنشاء — قد يكون باركود
+            // سُجّل على وحدة صنف بين المعاينة والاعتماد.
+            await _ValidateBarcodesAsync();
+            _ApplyGridColors();
+            _ApplyPreviewFilter();
+
+            var validRows = _dtPreview.AsEnumerable().Where(r => r.Field<bool>("IsValid")).ToList();
+            if (!validRows.Any())
+            {
+                clsDialogs.Warning("لا توجد أصناف صالحة للاعتماد. راجع عمود «ملاحظات» لمعرفة سبب الرفض.");
+                return;
+            }
+
             var productService = _serviceProvider.GetRequiredService<IProductDesktopService>();
             int successCount = 0;                                 // اسم + تصنيف + وحدة + أسعار
             int incompleteCount = 0;                              // أُنشئ الصنف وتعذرت وحدته/سعره
@@ -530,14 +629,13 @@ public partial class frmImportProductsExcel : Form
                     continue;
                 }
 
-                // (3) إرسال ما يدعمه العقد فعلاً: الاسم + التصنيف الحقيقي + الباركود.
+                // (3) إرسال ما يدعمه العقد فعلاً: الاسم + التصنيف الحقيقي (الباركود انتقل إلى الوحدة الأساسية).
                 var req = new CreateProductRequest(
                     Name: name,
                     CategoryId: category.Id,
                     Description: "استيراد Excel",
                     ReorderLevel: 10,
-                    TrackExpiry: false,
-                    Barcode: string.IsNullOrEmpty(barcode) ? null : barcode);
+                    TrackExpiry: false);
 
                 var res = await productService.CreateAsync(req);
                 if (!res.IsSuccess || res.Value is not { } product)
@@ -576,7 +674,7 @@ public partial class frmImportProductsExcel : Form
             // الرسالة تقول الحقيقة: كم استُورد فعلاً، وكم رُفض وبأي سبب — لا «تم اعتماد N» عند إسقاط أسعار/كميات.
             int skippedCount = _dtPreview.Rows.Count - validRows.Count;
             var message = new StringBuilder();
-            message.AppendLine($"تم استيراد {successCount} صنفاً كاملاً (الاسم · التصنيف · الوحدة · الباركود · سعر البيع · سعر التكلفة).");
+            message.AppendLine($"تم استيراد {successCount} صنفاً كاملاً (الاسم · التصنيف · الوحدة الأساسية · باركود الوحدة · سعر البيع · سعر التكلفة).");
 
             if (incompleteCount > 0)
             {
@@ -625,10 +723,15 @@ public partial class frmImportProductsExcel : Form
         }
     }
 
-    /// <summary>يوسم صف المعاينة برفض فعلي وسببه (لا يُرسَل ولا يبقى «مقبولاً» في العدّ).</summary>
-    private void _RejectPreviewRow(DataRow row, string reason)
+    /// <summary>
+    /// يوسم صف المعاينة برفض فعلي وسببه (لا يُرسَل ولا يبقى «مقبولاً» في العدّ).
+    /// </summary>
+    /// <param name="row">صف المعاينة.</param>
+    /// <param name="reason">سبب الرفض بالعربية.</param>
+    /// <param name="status">«خطأ» افتراضاً، أو «تحذير» حين يكون الرفض قابلاً للمعالجة في الملف (باركود مستخدم).</param>
+    private void _RejectPreviewRow(DataRow row, string reason, string status = "خطأ")
     {
-        row["Status"] = "خطأ";
+        row["Status"] = status;
         row["Message"] = reason;
         row["IsValid"] = false;
     }
@@ -650,7 +753,7 @@ public partial class frmImportProductsExcel : Form
                 ws.Cell(1, 3).Value = "سعر التكلفة";
                 ws.Cell(1, 4).Value = "سعر البيع";
                 ws.Cell(1, 5).Value = "الوحدة الأساسية";
-                ws.Cell(1, 6).Value = "الباركود";
+                ws.Cell(1, 6).Value = "باركود الوحدة الأساسية";
                 ws.Cell(1, 7).Value = "التصنيف";
                 ws.Row(1).Style.Font.Bold = true;
                 ws.Row(1).Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -681,6 +784,8 @@ public partial class frmImportProductsExcel : Form
 
         // التحقق من البيت الواحد: لا تُقبل خلية معدّلة يدوياً إن كان الصف مرفوضاً لسبب آخر
         // (تصنيف/وحدة/رصيد افتتاحي/سعر سالب) — نفس قواعد قراءة الملف.
+        // أما الباركود فحكمه غير المتزامن في _ValidateBarcodesAsync ويُعاد على كل صفوف المعاينة
+        // عند الاعتماد، فالصف لا يُرسَل بباركود مملوك لوحدة أخرى.
         _ValidatePreviewRow(dr, manualEdit: true);
 
         _ApplyGridColors();

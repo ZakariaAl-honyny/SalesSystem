@@ -299,7 +299,10 @@ public class MockSalesInvoiceDesktopService : ISalesInvoiceDesktopService
                 DiscountAmount: disc,
                 ExpiryDate: line.ExpiryDate,
                 UnitName: productUnit?.UnitName,
-                ProductCode: product?.Barcode);
+                // باركود السطر من الوحدة المختارة، وإلا الوحدة الأساسية، وإلا null (لا باركود على الصنف — TASK-031)
+                ProductCode: productUnit is not null && productUnit.ProductId == line.ProductId
+                    ? productUnit.Barcode
+                    : MockData.ProductUnits.FirstOrDefault(u => u.ProductId == line.ProductId && u.IsBaseUnit)?.Barcode);
         }).ToList();
     }
 

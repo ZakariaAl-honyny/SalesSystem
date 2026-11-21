@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using SalesSystem.Business.Interfaces;
-using SalesSystem.Business.Interfaces.Repositories;
 using SalesSystem.Business.Interfaces.Services;
 using SalesSystem.DTO.Common;
 using SalesSystem.DTO;
@@ -18,28 +17,25 @@ namespace SalesSystem.Business.Services;
 /// - Cost via InventoryBatches (FIFO/FEFO, weighted average)
 /// - ImagePath on Product (single image, no separate ProductImages table)
 /// - Expiry tracked via InventoryBatches, not Product
-/// - Barcode on Product entity (varchar(50), primary barcode for quick lookup)
+/// - Barcode on ProductUnits (per-unit barcode, not on Product entity)
 /// </summary>
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _uow;
-    private readonly ISystemSettingsRepository _systemSettingsRepo;
     private readonly ILogger<ProductService> _logger;
 
     public ProductService(
         IUnitOfWork uow,
-        ISystemSettingsRepository systemSettingsRepo,
         ILogger<ProductService> logger)
     {
         _uow = uow;
-        _systemSettingsRepo = systemSettingsRepo;
         _logger = logger;
     }
 
     public async Task<Result<ProductDto>> GetByIdAsync(int id, CancellationToken ct)
     {
         var product = await _uow.Products.FirstOrDefaultIgnoreFiltersAsync(
-            p => p.Id == id, ct, "ProductCategory");
+            p => p.Id == id, ct, "ProductCategory", "Units");
 
         if (product == null)
             return Result<ProductDto>.Failure("المنتج غير موجود", ErrorCodes.NotFound);
@@ -52,12 +48,10 @@ public class ProductService : IProductService
         bool includeInactive = false, CancellationToken ct = default)
     {
         Expression<Func<Product, bool>> predicate = p =>
-            (string.IsNullOrWhiteSpace(search) ||
-             p.Name.Contains(search) ||
-             (p.Barcode != null && p.Barcode.Contains(search))) &&
+            (string.IsNullOrWhiteSpace(search) || p.Name.Contains(search)) &&
             (!categoryId.HasValue || p.CategoryId == categoryId.Value);
 
-        var includes = new[] { "ProductCategory" };
+        var includes = new[] { "ProductCategory", "Units" };
 
         var (items, total) = await _uow.Products.GetPagedAsync(
             predicate, q => q.OrderBy(p => p.Name), page, pageSize, ct, includeInactive, includes);
@@ -71,16 +65,6 @@ public class ProductService : IProductService
     {
         try
         {
-            // ── AllowDuplicateBarcode check ──────────────────────────────────
-            var allowDuplicate = await _systemSettingsRepo.GetBoolAsync("AllowDuplicateBarcode", false, ct);
-            if (!allowDuplicate && !string.IsNullOrWhiteSpace(request.Barcode))
-            {
-                var existing = await _uow.Products.FirstOrDefaultAsync(
-                    p => p.Barcode != null && p.Barcode == request.Barcode.Trim(), ct);
-                if (existing != null)
-                    return Result<ProductDto>.Failure("الباركود موجود مسبقاً لمنتج آخر");
-            }
-
             // ─── Create product entity ────────────────────────────────────
             var product = Product.Create(
                 name: request.Name,
@@ -89,7 +73,6 @@ public class ProductService : IProductService
                 reorderLevel: request.ReorderLevel,
                 trackExpiry: request.TrackExpiry,
                 imagePath: request.ImagePath,
-                barcode: request.Barcode,
                 foreignName: request.ForeignName,
                 locationInStore: request.LocationInStore,
                 expiryAlertDays: request.ExpiryAlertDays
@@ -127,16 +110,6 @@ public class ProductService : IProductService
             if (product == null)
                 return Result<ProductDto>.Failure("المنتج غير موجود", ErrorCodes.NotFound);
 
-            // ── AllowDuplicateBarcode check ──────────────────────────────────
-            var allowDuplicate = await _systemSettingsRepo.GetBoolAsync("AllowDuplicateBarcode", false, ct);
-            if (!allowDuplicate && !string.IsNullOrWhiteSpace(request.Barcode))
-            {
-                var existing = await _uow.Products.FirstOrDefaultAsync(
-                    p => p.Barcode != null && p.Barcode == request.Barcode.Trim() && p.Id != id, ct);
-                if (existing != null)
-                    return Result<ProductDto>.Failure("الباركود موجود مسبقاً لمنتج آخر");
-            }
-
             product.Update(
                 name: request.Name,
                 categoryId: request.CategoryId,
@@ -144,7 +117,6 @@ public class ProductService : IProductService
                 reorderLevel: request.ReorderLevel,
                 trackExpiry: request.TrackExpiry,
                 imagePath: request.ImagePath,
-                barcode: request.Barcode,
                 foreignName: request.ForeignName,
                 locationInStore: request.LocationInStore,
                 expiryAlertDays: request.ExpiryAlertDays
@@ -242,18 +214,18 @@ public class ProductService : IProductService
         if (string.IsNullOrWhiteSpace(barcode))
             return Result<ProductDto>.Failure("الباركود مطلوب", ErrorCodes.ValidationError);
 
-        var product = await _uow.Products.FirstOrDefaultAsync(
-            p => p.Barcode != null && p.Barcode == barcode.Trim(), ct, "ProductCategory");
+        var unit = await _uow.ProductUnits.FirstOrDefaultAsync(
+            u => u.Barcode != null && u.Barcode == barcode.Trim(), ct, "Product", "Unit");
 
-        if (product == null)
+        if (unit == null)
         {
-            _logger.LogWarning("Product not found by barcode: {Barcode}", barcode);
-            return Result<ProductDto>.Failure("المنتج غير موجود لهذا الباركود", ErrorCodes.NotFound);
+            _logger.LogWarning("Product unit not found by barcode: {Barcode}", barcode);
+            return Result<ProductDto>.Failure("الباركود غير موجود", ErrorCodes.NotFound);
         }
 
-        _logger.LogInformation("Product found by barcode: {Barcode} → {ProductName} (ID: {ProductId})",
-            barcode, product.Name, product.Id);
-        return Result<ProductDto>.Success(MapToDto(product));
+        _logger.LogInformation("Barcode resolved via ProductUnit: {Barcode} → ProductId: {ProductId}",
+            barcode, unit.ProductId);
+        return await GetByIdAsync(unit.ProductId, ct);
     }
 
     public async Task<Result<ProductDto>> UploadImageAsync(int id, byte[] imageBytes, string fileName, CancellationToken ct)
@@ -281,10 +253,12 @@ public class ProductService : IProductService
             p.TrackExpiry,
             p.ImagePath,
             p.IsActive,
-            Barcode: p.Barcode,
+            Barcode: p.Units?.FirstOrDefault(u => u.IsBaseUnit)?.Barcode ?? p.Units?.FirstOrDefault()?.Barcode,
             ForeignName: p.ForeignName,
             LocationInStore: p.LocationInStore,
-            ExpiryAlertDays: p.ExpiryAlertDays
+            ExpiryAlertDays: p.ExpiryAlertDays,
+            CreatedByUserName: p.CreatedByUserName,
+            UpdatedByUserName: p.UpdatedByUserName
         );
     }
 }

@@ -154,7 +154,7 @@ partial class frmOpeningStock
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbToolbar.Controls.Add(flpToolbar);
         gbToolbar.Dock = DockStyle.Top;
         gbToolbar.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -168,7 +168,7 @@ partial class frmOpeningStock
         // 
         // flpToolbar
         // 
-        flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         flpToolbar.Controls.Add(btnNew);
         flpToolbar.Controls.Add(btnSave);
         flpToolbar.Controls.Add(btnClose);
@@ -233,7 +233,7 @@ partial class frmOpeningStock
         // 
         // gbInfo
         // 
-        gbInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbInfo.Controls.Add(cmbWarehouse);
         gbInfo.Controls.Add(lblWarehouse);
         gbInfo.Controls.Add(dtpDate);
@@ -299,7 +299,7 @@ partial class frmOpeningStock
         // 
         // gbEntry
         // 
-        gbEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbEntry.Controls.Add(pnlEntry);
         gbEntry.Dock = DockStyle.Top;
         gbEntry.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -313,7 +313,7 @@ partial class frmOpeningStock
         // 
         // pnlEntry
         // 
-        pnlEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlEntry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlEntry.BorderStyle = BorderStyle.FixedSingle;
         pnlEntry.Controls.Add(lblBarcodeLabel);
         pnlEntry.Controls.Add(lblProductLabel);
@@ -344,7 +344,7 @@ partial class frmOpeningStock
         lblBarcodeLabel.Name = "lblBarcodeLabel";
         lblBarcodeLabel.Size = new Size(270, 22);
         lblBarcodeLabel.TabIndex = 0;
-        lblBarcodeLabel.Text = "الباركود";
+        lblBarcodeLabel.Text = "باركود الوحدة";
         lblBarcodeLabel.TextAlign = ContentAlignment.MiddleCenter;
         // 
         // lblProductLabel
@@ -412,7 +412,7 @@ partial class frmOpeningStock
         txtBarcode.Size = new Size(270, 34);
         txtBarcode.TabIndex = 6;
         txtBarcode.TextAlign = HorizontalAlignment.Center;
-        tooltip.SetToolTip(txtBarcode, "امسح باركود الصنف أو اكتبه ثم Enter — وEnter على حقل فارغ يفتح منتقي الأصناف");
+        tooltip.SetToolTip(txtBarcode, "امسح باركود وحدة الصنف أو اكتبه ثم Enter — وEnter على حقل فارغ يفتح منتقي الأصناف");
         // 
         // btnPickProduct
         // 
@@ -534,7 +534,7 @@ partial class frmOpeningStock
         // 
         // gbItems
         // 
-        gbItems.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbItems.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbItems.Controls.Add(dgvLines);
         gbItems.Controls.Add(lblProductsHeader);
         gbItems.Dock = DockStyle.Fill;
@@ -691,7 +691,7 @@ partial class frmOpeningStock
         // 
         // gbTotals
         // 
-        gbTotals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbTotals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbTotals.Controls.Add(lblItemCountCaption);
         gbTotals.Controls.Add(lblItemCountValue);
         gbTotals.Controls.Add(lblTotalQtyCaption);

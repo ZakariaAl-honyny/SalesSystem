@@ -72,7 +72,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlTitle
             // 
-            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlTitle.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlTitle.Controls.Add(lblTitle);
             pnlTitle.Dock = DockStyle.Top;
             pnlTitle.Location = new Point(0, 0);
@@ -96,7 +96,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlBody
             // 
-            pnlBody.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlBody.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlBody.Controls.Add(gbItemData);
             pnlBody.Dock = DockStyle.Fill;
             pnlBody.Location = new Point(0, 50);
@@ -108,7 +108,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // gbItemData
             // 
-            gbItemData.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbItemData.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbItemData.Controls.Add(tblFields);
             gbItemData.Dock = DockStyle.Fill;
             gbItemData.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -123,7 +123,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // tblFields
             // 
-            tblFields.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            tblFields.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             tblFields.ColumnCount = 2;
             tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150F));
             tblFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -199,7 +199,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             lblBarcodeCaption.Name = "lblBarcodeCaption";
             lblBarcodeCaption.Size = new Size(142, 38);
             lblBarcodeCaption.TabIndex = 2;
-            lblBarcodeCaption.Text = "الباركود:";
+            lblBarcodeCaption.Text = "باركود الوحدة:";
             lblBarcodeCaption.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // lblBarcodeValue
@@ -382,7 +382,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flpExpiry
             // 
-            flpExpiry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpExpiry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpExpiry.Controls.Add(chkExpiry);
             flpExpiry.Controls.Add(dtpExpiry);
             flpExpiry.Dock = DockStyle.Fill;
@@ -395,7 +395,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // chkExpiry
             // 
-            chkExpiry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            chkExpiry.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             chkExpiry.AutoSize = true;
             chkExpiry.Font = new Font("Tahoma", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             chkExpiry.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
@@ -447,7 +447,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFooter.Controls.Add(flpButtons);
             pnlFooter.Dock = DockStyle.Bottom;
             pnlFooter.Location = new Point(0, 538);
@@ -459,7 +459,7 @@ namespace SalesSystem.Desktop.Screens.Purchases.Forms
             // 
             // flpButtons
             // 
-            flpButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpButtons.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpButtons.Controls.Add(btnOk);
             flpButtons.Controls.Add(btnCancel);
             flpButtons.Dock = DockStyle.Fill;

@@ -170,7 +170,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         private IWarehouseDesktopService WarehouseService
             => _serviceProvider.GetRequiredService<IWarehouseDesktopService>();
 
-        /// <summary>دليل الأصناف — حد الطلب والباركود وحالة التنشيط (لا تُشتق في الشاشة).</summary>
+        /// <summary>دليل الأصناف — حد الطلب وحالة التنشيط (لا تُشتق في الشاشة).</summary>
         private IProductDesktopService ProductService
             => _serviceProvider.GetRequiredService<IProductDesktopService>();
 
@@ -230,7 +230,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
         /// <summary>
         /// أرصدة الأصناف: رصيد كل (صنف، مخزن) من <see cref="IInventoryDesktopService"/> + ما يكمل الصف
-        /// من دليل الأصناف (حد الطلب · الباركود · التنشيط). لا صف واحد يُبنى خارج هذين المصدرين.
+        /// من دليل الأصناف (حد الطلب · التنشيط). لا صف واحد يُبنى خارج هذين المصدرين.
         /// </summary>
         private async Task _LoadProductsAsync()
         {
@@ -278,11 +278,9 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                         ? StockOut
                         : stock.Quantity <= reorderLevel ? StockLow : StockAvailable;
 
+                    // لا عمود كود/باركود في شبكة الأصناف: لا يحمل العقد حقلاً للكود، والباركود على وحدة
+                    // الصنف وحدها (قرار المالك 2026-11-20) — فلا يُعرض أيٌّ منهما هنا.
                     _productsTable.Rows.Add(
-                        // «الكود» = المعرّف النصي المسجَّل للصنف (لا يحمل العقد حقلاً منفصلاً للكود،
-                        // والباركود هو معرّفه النصي) — كان العمود يُملأ بفراغ دائم فتبقى تصفية «الكود» بلا نتائج.
-                        product?.Barcode ?? string.Empty,
-                        product?.Barcode ?? string.Empty,
                         string.IsNullOrWhiteSpace(stock.ProductName) ? product?.Name ?? string.Empty : stock.ProductName,
                         stock.UnitName ?? string.Empty,
                         stock.WarehouseName ?? string.Empty,
@@ -365,8 +363,6 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
         private static DataTable _CreateProductsTable()
         {
             var table = new DataTable();
-            table.Columns.Add("Code", typeof(string));
-            table.Columns.Add("Barcode", typeof(string));
             table.Columns.Add("Name", typeof(string));
             table.Columns.Add("Unit", typeof(string));
             table.Columns.Add("WarehouseName", typeof(string));
@@ -409,7 +405,6 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             var columns = new[]
             {
-                new { Name = "Code",          Header = "الكود",       Fill = 7,  Min = 70, Format = (string?)null },
                 new { Name = "Name",          Header = "الاسم",       Fill = 16, Min = 150, Format = (string?)null },
                 new { Name = "Unit",          Header = "الوحدة",      Fill = 7,  Min = 70, Format = (string?)null },
                 new { Name = "WarehouseName", Header = "المستودع",    Fill = 9,  Min = 90, Format = (string?)null },
@@ -557,13 +552,8 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
 
             var parts = new List<string>
             {
-                RowFilterHelper.Text(search, cbFilterBy.SelectedIndex switch
-                {
-                    1 => new[] { "Name" },
-                    2 => new[] { "Code" },
-                    3 => new[] { "Barcode" },
-                    _ => new[] { "Name", "Code", "Barcode" },
-                }),
+                // عمود بحث واحد في تبويب الأرصدة: الاسم — لا كود ولا باركود على الصنف.
+                RowFilterHelper.Text(search, "Name"),
             };
 
             if (!chkShowInactive.Checked)
@@ -789,10 +779,7 @@ namespace SalesSystem.Desktop.Screens.Inventory.Forms
                         break;
 
                     default:
-                        cbFilterBy.Items.AddRange(new object[]
-                        {
-                            "الكل (اسم/كود/باركود)", "الاسم", "الكود", "الباركود"
-                        });
+                        cbFilterBy.Items.AddRange(new object[] { "الاسم" });
                         cbStatus.Items.AddRange(new object[] { "الكل", "متوفر", "محدود", "نفد" });
                         break;
                 }

@@ -135,14 +135,13 @@ public class ProductImportService : IProductImportService
                         }
                     }
 
-                    // Create the product entity
+                    // Create the product entity (لا عمود باركود على الصنف — الباركود لكل وحدة، TASK-031)
                     var product = Product.Create(
                         name: row.ProductName!.Trim(),
                         categoryId: categoryId ?? 0,
                         description: row.Description?.Trim(),
                         reorderLevel: row.MinStockLevel ?? 0,
-                        trackExpiry: false,
-                        barcode: row.Barcode?.Trim()
+                        trackExpiry: false
                     );
                     await _uow.Products.AddAsync(product, ct);
                     await _uow.SaveChangesAsync(ct);
@@ -153,6 +152,17 @@ public class ProductImportService : IProductImportService
                         product.Id,
                         (short)row.BaseUnitId!.Value
                     );
+
+                    // الباركود المستورد يُكتب على الوحدة الأساسية (ProductUnits.Barcode) — لا على الصنف (TASK-031)
+                    var importedBarcode = row.Barcode?.Trim();
+                    if (!string.IsNullOrWhiteSpace(importedBarcode))
+                        baseUnit.UpdatePricing(
+                            barcode: importedBarcode,
+                            salePrice: 0m,
+                            wholesalePrice: null,
+                            costPrice: 0m,
+                            maxDiscountAmount: null);
+
                     await _uow.ProductUnits.AddAsync(baseUnit, ct);
                     // Add the unit to the product's in-memory collection for consistency
                     product.AddUnit(baseUnit);

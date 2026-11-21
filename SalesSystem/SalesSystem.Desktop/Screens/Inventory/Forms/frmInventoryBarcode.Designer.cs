@@ -130,7 +130,7 @@ partial class frmInventoryBarcode
         lblBarcodeValue.TabIndex = 5;
         lblBarcodeValue.Text = "----------";
         lblBarcodeValue.TextAlign = ContentAlignment.MiddleCenter;
-        tooltip.SetToolTip(lblBarcodeValue, "باركود الصنف المحدد (يتم تعبئته تلقائياً)");
+        tooltip.SetToolTip(lblBarcodeValue, "باركود الوحدة الممسوحة (أو باركود الوحدة الأساسية عند الاختيار من القائمة)");
         // 
         // nudLabelsCount
         // 
@@ -164,7 +164,7 @@ partial class frmInventoryBarcode
         // 
         // pnlBarcodePreview
         // 
-        pnlBarcodePreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlBarcodePreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlBarcodePreview.BorderStyle = BorderStyle.FixedSingle;
         pnlBarcodePreview.Dock = DockStyle.Fill;
         pnlBarcodePreview.Location = new Point(8, 33);
@@ -190,7 +190,7 @@ partial class frmInventoryBarcode
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbToolbar.Controls.Add(btnClose);
         gbToolbar.Controls.Add(btnPrint);
         gbToolbar.Dock = DockStyle.Top;
@@ -206,7 +206,7 @@ partial class frmInventoryBarcode
         // 
         // gbInfo
         // 
-        gbInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbInfo.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbInfo.Controls.Add(cmbLabelSize);
         gbInfo.Controls.Add(lblLabelsCount);
         gbInfo.Controls.Add(lblLabelSize);
@@ -287,7 +287,7 @@ partial class frmInventoryBarcode
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbPreview.Controls.Add(pnlBarcodePreview);
         gbPreview.Dock = DockStyle.Fill;
         gbPreview.Font = new Font("Tahoma", 10F, FontStyle.Bold);

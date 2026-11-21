@@ -152,7 +152,7 @@ partial class frmInventory
         // 
         // pnlHeader
         // 
-        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlHeader.Controls.Add(lblMode);
         pnlHeader.Dock = DockStyle.Top;
         pnlHeader.Location = new Point(0, 0);
@@ -164,7 +164,7 @@ partial class frmInventory
         // 
         // pnlToolbar
         // 
-        pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlToolbar.Controls.Add(btnRefresh);
         pnlToolbar.Controls.Add(btnClose);
         pnlToolbar.Dock = DockStyle.Top;
@@ -211,7 +211,7 @@ partial class frmInventory
         // 
         // pnlFilters
         // 
-        pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlFilters.Controls.Add(gbFilter);
         pnlFilters.Controls.Add(btnToggleFilters);
         pnlFilters.Dock = DockStyle.Top;
@@ -224,7 +224,7 @@ partial class frmInventory
         // 
         // gbFilter
         // 
-        gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbFilter.Controls.Add(lblStatus);
         gbFilter.Controls.Add(cbStatus);
         gbFilter.Controls.Add(lblFrom);
@@ -347,7 +347,7 @@ partial class frmInventory
         cbFilterBy.FlatStyle = FlatStyle.Flat;
         cbFilterBy.Font = new Font("Tahoma", 9F);
         cbFilterBy.FormattingEnabled = true;
-        cbFilterBy.Items.AddRange(new object[] { "الكل (اسم/كود/باركود)", "الاسم", "الكود", "الباركود" });
+        cbFilterBy.Items.AddRange(new object[] { "الاسم" });
         cbFilterBy.Location = new Point(353, 26);
         cbFilterBy.Margin = new Padding(0);
         cbFilterBy.Name = "cbFilterBy";
@@ -482,7 +482,7 @@ partial class frmInventory
         // 
         // tpProducts
         // 
-        tpProducts.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        tpProducts.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         tpProducts.Controls.Add(dgvProducts);
         tpProducts.Controls.Add(lblEmptyProducts);
         tpProducts.Location = new Point(4, 33);
@@ -554,7 +554,7 @@ partial class frmInventory
         // 
         // tpCounts
         // 
-        tpCounts.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        tpCounts.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         tpCounts.Controls.Add(dgvCounts);
         tpCounts.Controls.Add(lblEmptyCounts);
         tpCounts.Location = new Point(4, 33);
@@ -626,7 +626,7 @@ partial class frmInventory
         // 
         // tpTransfers
         // 
-        tpTransfers.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        tpTransfers.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         tpTransfers.Controls.Add(dgvTransfers);
         tpTransfers.Controls.Add(lblEmptyTransfers);
         tpTransfers.Location = new Point(4, 33);
@@ -698,7 +698,7 @@ partial class frmInventory
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
         pnlSummary.Location = new Point(0, 748);

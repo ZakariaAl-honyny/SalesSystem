@@ -23,32 +23,28 @@ public class BarcodeLookupService : IBarcodeLookupService
         if (string.IsNullOrWhiteSpace(barcode))
             return Result<BarcodeSearchResult>.Failure("الباركود مطلوب", ErrorCodes.ValidationError);
 
-        // Look up by Product.Barcode (primary barcode on the product entity)
-        var product = await _uow.Products.FirstOrDefaultAsync(
-            p => p.Barcode != null && p.Barcode == barcode.Trim(), ct, "ProductCategory");
+        // Look up by ProductUnit.Barcode (barcode is per-unit, not on product entity)
+        var unit = await _uow.ProductUnits.FirstOrDefaultAsync(
+            u => u.Barcode != null && u.Barcode == barcode.Trim(), ct, "Product", "Unit");
 
-        if (product == null)
+        if (unit == null)
         {
             _logger.LogWarning("Barcode not found: {Barcode}", barcode);
             return Result<BarcodeSearchResult>.Failure("الباركود غير موجود", ErrorCodes.NotFound);
         }
 
-        _logger.LogInformation("Barcode resolved: {Barcode} → {ProductName} (ID: {ProductId})",
-            barcode, product.Name, product.Id);
-
-        // BarcodeSearchResult requires a ProductUnitId — lookup the base unit
-        var baseUnit = await _uow.ProductUnits.FirstOrDefaultAsync(
-            pu => pu.ProductId == product.Id && pu.IsBaseUnit, ct);
+        _logger.LogInformation("Barcode resolved: {Barcode} → {ProductName} (ID: {ProductId}, ProductUnitId: {ProductUnitId})",
+            barcode, unit.Product?.Name ?? "", unit.ProductId, unit.Id);
 
         return Result<BarcodeSearchResult>.Success(new BarcodeSearchResult(
-            ProductId: product.Id,
-            ProductName: product.Name,
-            Barcode: product.Barcode,
-            ProductUnitId: baseUnit?.Id ?? 0,
-            UnitName: baseUnit?.Unit?.Name ?? "",
-            ConversionFactor: baseUnit?.Factor ?? 1m,
-            IsBaseUnit: true,
-            SalesPrice: baseUnit?.SalePrice ?? 0m,
+            ProductId: unit.ProductId,
+            ProductName: unit.Product?.Name ?? "",
+            Barcode: unit.Barcode,
+            ProductUnitId: unit.Id,
+            UnitName: unit.Unit?.Name ?? "",
+            ConversionFactor: unit.Factor,
+            IsBaseUnit: unit.IsBaseUnit,
+            SalesPrice: unit.SalePrice,
             CurrentStockInBaseUnits: 0m));
     }
 }

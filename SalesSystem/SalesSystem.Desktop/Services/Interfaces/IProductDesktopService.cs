@@ -12,6 +12,8 @@ public interface IProductDesktopService
     Task<Result<IReadOnlyList<ProductDto>>> GetAllAsync(string? search = null, int? categoryId = null, bool includeInactive = false, CancellationToken ct = default);
     Task<Result<ProductDto>> GetByIdAsync(int id, CancellationToken ct = default);
     Task<Result<ProductDto>> GetByBarcodeAsync(string barcode, CancellationToken ct = default);
+    /// <summary>Resolves a scanned barcode to product + unit + factor via ProductUnits.Barcode; Arabic Result.Failure when not found.</summary>
+    Task<Result<BarcodeResolutionDto>> ResolveBarcodeAsync(string barcode, CancellationToken ct = default);
     Task<Result<ProductDto>> CreateAsync(CreateProductRequest r, CancellationToken ct = default);
     Task<Result<ProductDto>> UpdateAsync(int id, UpdateProductRequest r, CancellationToken ct = default);
     Task<Result> DeactivateAsync(int id, CancellationToken ct = default);

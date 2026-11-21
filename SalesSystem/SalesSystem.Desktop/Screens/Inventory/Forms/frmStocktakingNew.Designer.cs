@@ -202,7 +202,7 @@ partial class frmStocktakingNew
         // colBarcode
         // 
         colBarcode.FillWeight = 16F;
-        colBarcode.HeaderText = "الباركود";
+        colBarcode.HeaderText = "باركود الوحدة";
         colBarcode.MinimumWidth = 100;
         colBarcode.Name = "colBarcode";
         // 
@@ -277,7 +277,7 @@ partial class frmStocktakingNew
         // 
         // gbToolbar
         // 
-        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbToolbar.Controls.Add(btnCancel);
         gbToolbar.Controls.Add(btnPost);
         gbToolbar.Controls.Add(btnSaveDraft);
@@ -295,7 +295,7 @@ partial class frmStocktakingNew
         // 
         // grpHeader
         // 
-        grpHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        grpHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         grpHeader.Controls.Add(cmbWarehouse);
         grpHeader.Controls.Add(lblWarehouse);
         grpHeader.Controls.Add(dtpDate);
@@ -372,7 +372,7 @@ partial class frmStocktakingNew
         // 
         // grpCommittee
         // 
-        grpCommittee.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        grpCommittee.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         grpCommittee.Controls.Add(cmbStorekeeper);
         grpCommittee.Controls.Add(lblStorekeeper);
         grpCommittee.Controls.Add(cmbCommitteeMember);
@@ -464,7 +464,7 @@ partial class frmStocktakingNew
         // 
         // gbItems
         // 
-        gbItems.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbItems.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbItems.Controls.Add(dgvLines);
         gbItems.Dock = DockStyle.Fill;
         gbItems.Font = new Font("Tahoma", 10F, FontStyle.Bold);
@@ -480,7 +480,7 @@ partial class frmStocktakingNew
         // 
         // grpTotals
         // 
-        grpTotals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        grpTotals.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         grpTotals.Controls.Add(lblItemCountValue);
         grpTotals.Controls.Add(lblItemCountLabel);
         grpTotals.Controls.Add(lblDeficitValue);

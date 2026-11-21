@@ -48,7 +48,6 @@ namespace SalesSystem.Desktop.Products.Forms
             colId = new DataGridViewTextBoxColumn();
             colName = new DataGridViewTextBoxColumn();
             colCategory = new DataGridViewTextBoxColumn();
-            colBarcode = new DataGridViewTextBoxColumn();
             colStock = new DataGridViewTextBoxColumn();
             lblNoData = new Label();
             lblSelectedProduct = new Label();
@@ -74,7 +73,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlHeader
             // 
-            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlHeader.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlHeader.Controls.Add(lblMode);
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
@@ -99,7 +98,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlToolbar
             // 
-            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlToolbar.Controls.Add(flpToolbar);
             pnlToolbar.Dock = DockStyle.Top;
             pnlToolbar.Location = new Point(0, 56);
@@ -110,7 +109,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // flpToolbar
             // 
-            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpToolbar.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpToolbar.Controls.Add(btnSelect);
             flpToolbar.Controls.Add(btnCancel);
             flpToolbar.Dock = DockStyle.Fill;
@@ -160,7 +159,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // pnlFilters
             // 
             // RULE-N125/RULE-N63: gbFilter يُضاف أولاً فيملأ الباقي، وbtnToggleFilters بعده فيُقتطع على الحافة.
-            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFilters.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFilters.Controls.Add(gbFilter);
             pnlFilters.Controls.Add(btnToggleFilters);
             pnlFilters.Dock = DockStyle.Top;
@@ -173,7 +172,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // gbFilter
             // 
-            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+            gbFilter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             gbFilter.Controls.Add(lblSearch);
             gbFilter.Controls.Add(txtSearch);
             gbFilter.Controls.Add(btnClearFilters);
@@ -212,7 +211,7 @@ namespace SalesSystem.Desktop.Products.Forms
             txtSearch.Name = "txtSearch";
             txtSearch.Size = new Size(400, 32);
             txtSearch.TabIndex = 1;
-            tooltip.SetToolTip(txtSearch, "بحث فوري بالاسم أو الباركود أو التصنيف — F5 لتحديث القائمة");
+            tooltip.SetToolTip(txtSearch, "بحث فوري بالاسم أو التصنيف — F5 لتحديث القائمة");
             txtSearch.TextChanged += txtSearch_TextChanged;
             txtSearch.KeyDown += txtSearch_KeyDown;
             txtSearch.KeyPress += txtSearch_KeyPress;
@@ -255,7 +254,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlSummary
             // 
-            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlSummary.Controls.Add(flpSummary);
             pnlSummary.Dock = DockStyle.Bottom;
             pnlSummary.Location = new Point(0, 716);
@@ -266,7 +265,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // flpSummary
             // 
-            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            flpSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             flpSummary.Controls.Add(lblRecordsCount);
             flpSummary.Dock = DockStyle.Fill;
             flpSummary.Location = new Point(0, 0);
@@ -291,7 +290,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // 
             // pnlFooter
             // 
-            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlFooter.Controls.Add(lblHint);
             pnlFooter.Dock = DockStyle.Bottom;
             pnlFooter.Location = new Point(0, 762);
@@ -317,7 +316,7 @@ namespace SalesSystem.Desktop.Products.Forms
             // pnlGrid
             // 
             // RULE-N125: يُضاف عنصر Fill الوحيد أولاً ليُرسى آخراً ويأخذ الباقي — كما في frmListSales.
-            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+            pnlGrid.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
             pnlGrid.Controls.Add(dgvUnits);
             pnlGrid.Controls.Add(lblNoData);
             pnlGrid.Controls.Add(lblNoUnits);
@@ -349,7 +348,7 @@ namespace SalesSystem.Desktop.Products.Forms
             dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
             dgvProducts.ColumnHeadersHeight = 45;
             dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategory, colBarcode, colStock });
+            dgvProducts.Columns.AddRange(new DataGridViewColumn[] { colId, colName, colCategory, colStock });
             dgvProducts.DefaultCellStyle.BackColor = System.Drawing.Color.White;
             dgvProducts.DefaultCellStyle.Font = new Font("Tahoma", 10F);
             dgvProducts.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(Convert.ToInt32(33), Convert.ToInt32(37), Convert.ToInt32(41));
@@ -400,14 +399,6 @@ namespace SalesSystem.Desktop.Products.Forms
             colCategory.MinimumWidth = 8;
             colCategory.Name = "colCategory";
             colCategory.ReadOnly = true;
-            // 
-            // colBarcode
-            // 
-            colBarcode.DataPropertyName = "Barcode";
-            colBarcode.HeaderText = "الباركود";
-            colBarcode.MinimumWidth = 8;
-            colBarcode.Name = "colBarcode";
-            colBarcode.ReadOnly = true;
             // 
             // colStock
             // 
@@ -634,7 +625,6 @@ namespace SalesSystem.Desktop.Products.Forms
         private DataGridViewTextBoxColumn colId;
         private DataGridViewTextBoxColumn colName;
         private DataGridViewTextBoxColumn colCategory;
-        private DataGridViewTextBoxColumn colBarcode;
         private DataGridViewTextBoxColumn colStock;
         private DataGridViewTextBoxColumn colUnitId;
         private DataGridViewTextBoxColumn colUnitName;

@@ -1043,26 +1043,59 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    private async Task<ProductDto?> FindProductByBarcodeAsync(string barcode)
+    /// <summary>
+    /// يحلّ الباركود الممسوح إلى الصنف <b>والوحدة التي حملته</b> عبر
+    /// <see cref="IProductDesktopService.ResolveBarcodeAsync"/> — مصدر الباركود الوحيد هو
+    /// <c>ProductUnits.Barcode</c>. و<see cref="ProductDto.Barcode"/> ليس إلا باركود الوحدة الأساسية
+    /// المشتق، فلا يصلح هويةً للمسح: مسح باركود الكرتونة كان يُضاف بالوحدة الأساسية وبمعامل ١ وسعرها.
+    /// لا سقوط إلى قائمة الأصناف (<c>_allProducts</c>): باركودها هو باركود الوحدة الأساسية،
+    /// فالبحث فيها يُنتج وحدة خطأ صامتة بدل رفض المسح.
+    /// </summary>
+    private async Task<(ProductDto? Product, ProductUnitDto? ScannedUnit)> FindProductByBarcodeAsync(string barcode)
     {
-        var result = await _productApi.GetByBarcodeAsync(barcode, default);
-        if (result.IsSuccess && result.Value != null)
-            return result.Value;
+        var resolution = await _productApi.ResolveBarcodeAsync(barcode, default);
+        if (!resolution.IsSuccess || resolution.Value is not { } hit) return (null, null);
 
-        return _allProducts.FirstOrDefault(p =>
-            p.Barcode != null && p.Barcode.Equals(barcode, StringComparison.OrdinalIgnoreCase));
+        var productResult = await _productApi.GetByIdAsync(hit.ProductId, default);
+        if (!productResult.IsSuccess || productResult.Value is not { } product)
+        {
+            Log.Warning("حُلّ الباركود {Barcode} إلى الصنف {ProductId} لكن تعذر تحميل بياناته: {Error}",
+                barcode, hit.ProductId, productResult.Error);
+            return (null, null);
+        }
+
+        // الوحدة التي حملت الباركود الممسوح — هي التي تُختار في لوحة الإدخال/السطر لا الوحدة الأساسية.
+        var units = await LoadProductUnitsAsync(hit.ProductId);
+        var scannedUnit = units.FirstOrDefault(u => u.Id == hit.ProductUnitId);
+
+        // باركود سليم ووحدات الصنف لم تُحمَّل (تعذّر استدعاء خدمة الوحدات) ⇒ يُسجَّل التحذير
+        // ويُكمَل بالوحدة الأساسية — المسار الوحيد الباقي الذي قد تُفقد فيه وحدة المسح.
+        if (scannedUnit == null)
+            Log.Warning("وحدة الباركود {ProductUnitId} للصنف {ProductId} غير موجودة في وحدات الصنف المحمَّلة",
+                hit.ProductUnitId, hit.ProductId);
+
+        return (product, scannedUnit);
     }
+
+    /// <summary>
+    /// باركود السطر = باركود الوحدة التي سُجِّل عليها السطر (<c>ProductUnits.Barcode</c> — المصدر الوحيد)، وإلا فراغ.
+    /// لا ارتداد إلى باركود الصنف: باركود الصنف يخص <b>الوحدة الأساسية</b>، وطبعه على سطر بوحدة أخرى
+    /// يطبع باركود وحدةٍ غير وحدة السطر — ولهذا تقع البدائل الصحيحة على فراغ لا على باركود آخر.
+    /// لا يُخترع باركود ولا يبقى باركود وحدةٍ بعد تغيير وحدة السطر — الباركود يتبع الوحدة دائماً.
+    /// </summary>
+    private static string LineBarcodeFor(ProductUnitDto? unit)
+        => !string.IsNullOrWhiteSpace(unit?.Barcode) ? unit!.Barcode! : string.Empty;
 
     private async Task LookupBarcodeAsync(string barcode)
     {
         try
         {
             Cursor = Cursors.WaitCursor;
-            var product = await FindProductByBarcodeAsync(barcode);
+            var (product, scannedUnit) = await FindProductByBarcodeAsync(barcode);
 
             if (product != null)
             {
-                FillProductDetails(product);
+                await FillProductDetails(product, scannedUnit);
             }
             else
             {
@@ -1081,7 +1114,7 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
     }
 
-    private async void FillProductDetails(ProductDto product, ProductUnitDto? preferredUnit = null)
+    private async Task FillProductDetails(ProductDto product, ProductUnitDto? preferredUnit = null)
     {
         try
         {
@@ -1164,7 +1197,7 @@ public partial class frmAddUpdateSalesInvoice : Form
             return;
         }
 
-        FillProductDetails(product, pickedUnit);
+        await FillProductDetails(product, pickedUnit);
     }
 
     private void ReturnFocusToDgvIfPending()
@@ -1479,7 +1512,9 @@ public partial class frmAddUpdateSalesInvoice : Form
         decimal unitPrice = clsValidation.TryParseDecimal(txtUnitPrice.Text, out decimal up) ? up : 0m;
         decimal lineDiscount = clsValidation.TryParseDecimal(txtLineDiscount.Text, out decimal ld) ? ld : 0m;
         decimal conversionFactor = GetSelectedConversionFactor();
-        string barcode = txtBarcode.Text.Trim();
+        // باركود السطر = باركود الوحدة المختارة في لوحة الإدخال (ProductUnits.Barcode)، لا نص الباركود
+        // الممسوح: المسح يختار وحدةً ثم قد يغيّرها المستخدم، فتبقى هوية السطر تابعة لوحدته المسجَّلة.
+        string barcode = LineBarcodeFor(cmbUnit.SelectedItem as ProductUnitDto);
         string productName = lblProductName.Text;
         string unitName = cmbUnit.Text;
         DateTime? lineExpiry = dtpLineExpiry.Checked ? dtpLineExpiry.Value.Date : (DateTime?)null;
@@ -1925,11 +1960,11 @@ public partial class frmAddUpdateSalesInvoice : Form
         try
         {
             Cursor = Cursors.WaitCursor;
-            var product = await FindProductByBarcodeAsync(barcode);
+            var (product, scannedUnit) = await FindProductByBarcodeAsync(barcode);
 
             if (product != null)
             {
-                await ApplyProductToDgvRowAsync(rowIndex, product);
+                await ApplyProductToDgvRowAsync(rowIndex, product, scannedUnit);
             }
             else
             {
@@ -1997,13 +2032,16 @@ public partial class frmAddUpdateSalesInvoice : Form
         }
 
         line.ProductId = product.Id;
-        line.ProductCode = product.Barcode ?? "";
-        line.Barcode = product.Barcode ?? "";
+        // باركود السطر يتبع الوحدة المسجَّلة عليه (المسموحة أو المختارة) لا باركود الوحدة الأساسية
+        string lineBarcode = LineBarcodeFor(chosenUnit);
+        line.ProductCode = lineBarcode;
+        line.Barcode = lineBarcode;
         line.ProductName = product.Name;
         line.UnitName = chosenUnit?.UnitName ?? product.UnitName ?? "";
         line.ProductUnitId = chosenUnit?.Id ?? 0;
         line.ConversionFactor = conversionFactor;
-        if (line.UnitPrice <= 0m) line.UnitPrice = product.SalePrice > 0m ? product.SalePrice : 0m;
+        if (line.UnitPrice <= 0m)
+            line.UnitPrice = chosenUnit is { SalePrice: > 0m } ? chosenUnit.SalePrice : 0m;   // سعر الوحدة المسموحة
         if (line.Quantity <= 0) line.Quantity = 1m;
 
         // Set combo cell data source AND selected value
@@ -2060,8 +2098,8 @@ public partial class frmAddUpdateSalesInvoice : Form
                 var barcode = dgvItems.Rows[e.RowIndex].Cells[colBarcode.Index].Value?.ToString();
                 if (string.IsNullOrWhiteSpace(barcode)) return;
 
-                var product = _allProducts.FirstOrDefault(p =>
-                    p.Barcode != null && p.Barcode.Equals(barcode, StringComparison.OrdinalIgnoreCase));
+                // المسح داخل خلية الشبكة يحلّ الباركود إلى الصنف ووحدته الممسوحة (ProductUnits.Barcode)
+                var (product, scannedUnit) = await FindProductByBarcodeAsync(barcode);
                 if (product == null)
                 {
                     // لا يُضاف سطر بلا صنف: السطر يبقى معروضاً في الشبكة وغير محسوب في الإجمالي
@@ -2076,10 +2114,11 @@ public partial class frmAddUpdateSalesInvoice : Form
                     return;
                 }
 
-                // حلّ الوحدة ومعامل التحويل للسطر الجديد
+                // حلّ الوحدة ومعامل التحويل للسطر الجديد: وحدة الخلية إن حُدِّدت، ثم الوحدة الممسوحة، ثم الأساسية
                 var lineUnits = await LoadProductUnitsAsync(product.Id);
                 string lineUnitName = dgvItems.Rows[e.RowIndex].Cells[colUnit.Index].Value?.ToString() ?? "";
                 var matchedUnit = lineUnits.FirstOrDefault(u => string.Equals(u.UnitName, lineUnitName, StringComparison.Ordinal))
+                               ?? scannedUnit
                                ?? lineUnits.FirstOrDefault(u => u.IsBaseUnit)
                                ?? lineUnits.FirstOrDefault();
 
@@ -2101,11 +2140,12 @@ public partial class frmAddUpdateSalesInvoice : Form
                 if (parsedDiscount < 0m) parsedDiscount = 0m;
                 if (parsedDiscount > lineGross) parsedDiscount = Math.Max(0m, lineGross);
 
+                var lineUnitBarcode = LineBarcodeFor(matchedUnit);
                 var line = new InvoiceLineItem
                 {
                     ProductId = product.Id,
-                    ProductCode = product.Barcode ?? "",
-                    Barcode = product.Barcode ?? "",
+                    ProductCode = lineUnitBarcode,
+                    Barcode = lineUnitBarcode,
                     ProductName = product.Name,
                     Quantity = parsedQty,
                     UnitPrice = parsedUnitPrice,

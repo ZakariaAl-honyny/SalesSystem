@@ -47,7 +47,6 @@ public partial class frmAddUpdatePurchaseInvoice : Form
 
     private PurchaseInvoiceDto? _invoice;
     private BindingList<InvoiceLineItem> _lines = new();
-    private List<ProductDto> _allProducts = new();
     private bool _isUpdating = false;
     private bool _tafqeetAttached = false;
 
@@ -89,7 +88,7 @@ public partial class frmAddUpdatePurchaseInvoice : Form
         // حكم «هل يُسمح بالإدخال» بيت واحد في الشاشة (IsEditable) — يتبع وضع المستند حيّاً فلا
         // نسخة ثانية من شرط «مسودة/مرتجع جديد» هنا (RULE-N172) ولا حاجة لإعادة إسناده عند تغيير الوضع.
         ctrlLineEntry.IsEditable = () => IsEditable;
-        ctrlLineEntry.ResolveBarcodeAsync = FindProductByBarcodeAsync;
+        ctrlLineEntry.ResolveBarcodeAsync = ResolveBarcodeAsync;
         ctrlLineEntry.LoadUnitsAsync = async id =>
             (await _productApi.GetProductUnitsAsync(id)).Value ?? Array.Empty<ProductUnitDto>();
         ctrlLineEntry.PickProductAsync = PickProductAsync;
@@ -521,9 +520,11 @@ public partial class frmAddUpdatePurchaseInvoice : Form
                 clsDialogs.Error(warehouseRes.Error ?? "تعذر تحميل قائمة المستودعات.");
             }
 
+            // الأصناف لم تعد مصدر باركود: باركود السطر من وحدته (ProductUnits.Barcode — TASK-031)،
+            // والنداء يبقى فحصاً لتوفّر الخدمة وتغذية رسالتها العربية عند تعذّره.
             var productRes = await _productApi.GetAllAsync();
-            if (productRes.IsSuccess && productRes.Value is not null) _allProducts = productRes.Value.ToList();
-            else clsDialogs.Error(productRes.Error ?? "تعذر تحميل قائمة الأصناف.");
+            if (!productRes.IsSuccess || productRes.Value is null)
+                clsDialogs.Error(productRes.Error ?? "تعذر تحميل قائمة الأصناف.");
         }
         catch (Exception ex)
         {
@@ -728,20 +729,19 @@ public partial class frmAddUpdatePurchaseInvoice : Form
     // ── الربط مع لوحة «إضافة صنف» (المكوّن المشترك) ─────────────────────────
 
     /// <summary>
-    /// بحث الباركود للوحة الإضافة: <b>الخدمة أولاً</b> (تُرجع الصنف وأي تعديل حديث)، ثم قائمة
-    /// الأصناف المحمَّلة كاحتياط عند فشل النداء أو لصنف معطّل. السعر لا يأتي من هنا — <c>ProductDto</c>
-    /// يحمل سعري بيع/شراء مرميّين على <c>0m</c> (مقيس)، والسعر من <see cref="ProductUnitDto.CostPrice"/>.
+    /// بحث الباركود للوحة الإضافة: <b>حلّ باركود الوحدة</b> — مصدر الباركود الوحيد هو
+    /// <c>ProductUnits.Barcode</c> (<c>TASK-031</c>)، فيُعاد مع الصنف الوحدةُ التي تملك الباركود
+    /// ومعامل تحويلها؛ واللوحة تختار وحدتها بالمعرّف (<c>ctrlLineEntryPanel.PickUnit</c>).
+    /// لا قائمة أصناف احتياطية: فشل الحلّ = باركود غير مسجّل ⇒ يفتح المكوّن منتقي الأصناف.
+    /// السعر لا يأتي من هنا — <c>ProductDto</c> يحمل سعري بيع/شراء مرميّين على <c>0m</c> (مقيس)،
+    /// والسعر من <see cref="ProductUnitDto.CostPrice"/>.
     /// </summary>
-    private async Task<ProductDto?> FindProductByBarcodeAsync(string barcode)
+    private async Task<BarcodeResolutionDto?> ResolveBarcodeAsync(string barcode)
     {
         if (string.IsNullOrWhiteSpace(barcode)) return null;
 
-        var result = await _productApi.GetByBarcodeAsync(barcode.Trim());
-        if (result.IsSuccess && result.Value is { IsActive: true }) return result.Value;
-
-        // احتياط: باركود غير موجود في الخدمة (أو صنف معطّل) ⇒ من القائمة المحمَّلة، بلا حساسية لحالة الأحرف.
-        return _allProducts.FirstOrDefault(
-            p => string.Equals(p.Barcode?.Trim(), barcode.Trim(), StringComparison.OrdinalIgnoreCase));
+        var result = await _productApi.ResolveBarcodeAsync(barcode.Trim());
+        return result.IsSuccess ? result.Value : null;
     }
 
     /// <summary>

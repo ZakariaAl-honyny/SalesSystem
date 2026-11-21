@@ -22,7 +22,7 @@ public partial class frmStocktakingPrintCard : Form
     private sealed class ProductCard
     {
         public required string ProductName { get; init; }     // اسم الصنف
-        public required string Barcode { get; init; }         // الباركود
+        public required string Barcode { get; init; }         // باركود الوحدة كما يُطبع على الكرت (بيانات الكرت نفسها — لا باركود صنف)
         public required string Warehouse { get; init; }       // المستودع
         public required decimal CurrentBalance { get; init; } // الرصيد الحالي (decimal 18,3)
     }
@@ -37,6 +37,8 @@ public partial class frmStocktakingPrintCard : Form
     }
 
     // كرت صنف «زيت نباتي 1 لتر» — المستودع الرئيسي — الرصيد الحالي 157.500
+    // الباركود هنا بيانات الكرت الوهمية نفسها (باركود وحدة الصنف على الكرت)،
+    // ولا يُشتق من أي كيان Product — فالشاشة لا تحمل كيان صنف ولا تقرأ أي خدمة منتجات.
     private readonly ProductCard _card = new()
     {
         ProductName = "زيت نباتي 1 لتر",

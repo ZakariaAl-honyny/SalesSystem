@@ -71,7 +71,7 @@ partial class frmImportProductsExcel
         // 
         // gbFile
         // 
-        gbFile.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbFile.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbFile.Controls.Add(btnSelectFile);
         gbFile.Controls.Add(btnDownloadTemplate);
         gbFile.Controls.Add(lblFileCaption);
@@ -146,7 +146,7 @@ partial class frmImportProductsExcel
         // 
         // gbOptions
         // 
-        gbOptions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbOptions.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbOptions.Controls.Add(btnGenerateBarcodes);
         gbOptions.Dock = DockStyle.Top;
         gbOptions.Font = new Font("Tahoma", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -170,13 +170,13 @@ partial class frmImportProductsExcel
         btnGenerateBarcodes.Name = "btnGenerateBarcodes";
         btnGenerateBarcodes.Size = new Size(250, 38);
         btnGenerateBarcodes.TabIndex = 0;
-        btnGenerateBarcodes.Text = "توليد باركود للأصناف الفارغة";
+        btnGenerateBarcodes.Text = "توليد باركود للوحدة الأساسية";
         btnGenerateBarcodes.UseVisualStyleBackColor = false;
         btnGenerateBarcodes.Click += btnGenerateBarcodes_Click;
         // 
         // gbPreview
         // 
-        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(245), Convert.ToInt32(235));
+        gbPreview.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         gbPreview.Controls.Add(dgvPreview);
         gbPreview.Controls.Add(pnlPreviewTop);
         gbPreview.Dock = DockStyle.Fill;
@@ -232,7 +232,7 @@ partial class frmImportProductsExcel
         // 
         // pnlPreviewTop
         // 
-        pnlPreviewTop.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlPreviewTop.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlPreviewTop.Controls.Add(lblSearch);
         pnlPreviewTop.Controls.Add(txtSearch);
         pnlPreviewTop.Controls.Add(lblNoData);
@@ -276,7 +276,7 @@ partial class frmImportProductsExcel
         // 
         // pnlSummary
         // 
-        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlSummary.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlSummary.Controls.Add(lblCount);
         pnlSummary.Controls.Add(lblSummary);
         pnlSummary.Dock = DockStyle.Bottom;
@@ -309,7 +309,7 @@ partial class frmImportProductsExcel
         // 
         // pnlFooter
         // 
-        pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(235), Convert.ToInt32(240), Convert.ToInt32(235));
+        pnlFooter.BackColor = System.Drawing.Color.FromArgb(Convert.ToInt32(170), Convert.ToInt32(220), Convert.ToInt32(170));
         pnlFooter.Controls.Add(btnSave);
         pnlFooter.Controls.Add(btnClose);
         pnlFooter.Dock = DockStyle.Bottom;
@@ -372,7 +372,7 @@ partial class frmImportProductsExcel
         // 
         tsmiGenerateMissingBarcode.Name = "tsmiGenerateMissingBarcode";
         tsmiGenerateMissingBarcode.Size = new Size(239, 30);
-        tsmiGenerateMissingBarcode.Text = "توليد الباركود المفقود";
+        tsmiGenerateMissingBarcode.Text = "توليد باركود الوحدة الأساسية المفقود";
         tsmiGenerateMissingBarcode.Click += tsmiGenerateMissingBarcode_Click;
         // 
         // errorProvider — RULE-N145/N182: يُعلَن في المصمّم ويتبنّاه RequiredFieldHelper (لا إنشاء وقت تشغيل)

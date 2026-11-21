@@ -50,6 +50,9 @@ public class ProductUnitService : IProductUnitService
             if (product == null)
                 return Result<ProductUnitDto>.Failure("المنتج غير موجود", ErrorCodes.NotFound);
 
+            if (await BarcodeExistsAsync(req.Barcode, 0, ct))
+                return Result<ProductUnitDto>.Failure("الباركود مستخدم لوحدة أخرى");
+
             var unit = req.IsBaseUnit
                 ? ProductUnit.CreateBaseUnit(productId, (short)req.UnitId)
                 : ProductUnit.CreateDerivedUnit(productId, (short)req.UnitId, req.Factor);
@@ -93,6 +96,9 @@ public class ProductUnitService : IProductUnitService
                 u => u.Id == unitId && u.ProductId == productId, ct, "Unit");
             if (unit == null)
                 return Result<ProductUnitDto>.Failure("الوحدة غير موجودة", ErrorCodes.NotFound);
+
+            if (await BarcodeExistsAsync(req.Barcode, unitId, ct))
+                return Result<ProductUnitDto>.Failure("الباركود مستخدم لوحدة أخرى");
 
             unit.ChangeUnit((short)req.UnitId);
             unit.UpdatePricing(req.Barcode, req.SalePrice, req.WholesalePrice, req.CostPrice, req.MaxDiscountAmount);
@@ -177,37 +183,40 @@ public class ProductUnitService : IProductUnitService
         if (string.IsNullOrWhiteSpace(barcode))
             return Result<BarcodeResolutionDto>.Failure("الباركود مطلوب");
 
-        // Look up by Product.Barcode (primary barcode on the product entity)
-        var product = await _uow.Products.FirstOrDefaultAsync(
-            p => p.Barcode != null && p.Barcode == barcode.Trim(), ct);
+        var unit = await _uow.ProductUnits.FirstOrDefaultAsync(
+            u => u.Barcode != null && u.Barcode == barcode.Trim(), ct, "Product", "Unit");
 
-        if (product == null)
+        if (unit == null)
         {
             _logger.LogWarning("Barcode not found: {Barcode}", barcode);
             return Result<BarcodeResolutionDto>.Failure("الباركود غير موجود", ErrorCodes.NotFound);
         }
 
-        // Get the base unit for this product
-        var baseUnit = await _uow.ProductUnits.FirstOrDefaultAsync(
-            pu => pu.ProductId == product.Id && pu.IsBaseUnit, ct);
-
-        if (baseUnit == null)
-        {
-            _logger.LogError("Product {ProductId} ({ProductName}) has no base unit configured", product.Id, product.Name);
-            return Result<BarcodeResolutionDto>.Failure("المنتج لا يحتوي على وحدة أساسية");
-        }
-
-        _logger.LogInformation("Barcode resolved: {Barcode} → {ProductName} (ID: {ProductId}, UnitId: {UnitId})",
-            barcode, product.Name, product.Id, baseUnit.Id);
+        _logger.LogInformation("Barcode resolved: {Barcode} → {ProductName} (ID: {ProductId}, ProductUnitId: {ProductUnitId})",
+            barcode, unit.Product?.Name ?? "", unit.ProductId, unit.Id);
 
         return Result<BarcodeResolutionDto>.Success(new BarcodeResolutionDto(
-            ProductId: product.Id,
-            ProductName: product.Name,
-            ProductUnitId: baseUnit.Id,
-            UnitId: baseUnit.UnitId,
-            UnitName: baseUnit.Unit?.Name ?? "",
-            ConversionFactor: baseUnit.Factor,
-            Barcode: product.Barcode));
+            ProductId: unit.ProductId,
+            ProductName: unit.Product?.Name ?? "",
+            ProductUnitId: unit.Id,
+            UnitId: unit.UnitId,
+            UnitName: unit.Unit?.Name ?? "",
+            ConversionFactor: unit.Factor,
+            Barcode: unit.Barcode));
+    }
+
+    private async Task<bool> BarcodeExistsAsync(string? barcode, int excludeProductUnitId, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(barcode))
+            return false;
+
+        var trimmed = barcode.Trim();
+
+        if (excludeProductUnitId == 0)
+            return await _uow.ProductUnits.AnyAsync(u => u.Barcode != null && u.Barcode == trimmed, ct);
+
+        return await _uow.ProductUnits.AnyAsync(
+            u => u.Barcode != null && u.Barcode == trimmed && u.Id != excludeProductUnitId, ct);
     }
 
     private static ProductUnitDto MapToDto(ProductUnit unit)
