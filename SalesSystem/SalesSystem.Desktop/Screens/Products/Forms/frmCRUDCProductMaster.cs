@@ -547,9 +547,6 @@ public partial class frmCRUDCProductMaster : Form
         txtNotes.Text = p.Description ?? "";
         numExpiryAlertDays.Value = NumericInputHelper.Clamp(numExpiryAlertDays, p.ExpiryAlertDays ?? 0);
 
-        // ProductDto.Barcode هو باركود الوحدة الأساسية (ProductUnits.Barcode) — لا باركود على الصنف نفسه.
-        txtMainUnitBarcode.Text = p.Barcode ?? string.Empty;
-
         chkTrackExpiry.Checked = p.TrackExpiry;
         numReorderLevel.Value = NumericInputHelper.Clamp(numReorderLevel, p.ReorderLevel);
 
@@ -557,6 +554,14 @@ public partial class frmCRUDCProductMaster : Form
 
         // تحميل وحدات الصنف يجعل cmbMainUnit للقراءة فقط في وضع التعديل.
         await _LoadMainUnitAsync(p.Id);
+
+        // الباركود يُقرأ من **نفس المصدر الذي يُكتب إليه**: وحدة الصنف الأساسية (ProductUnits.Barcode)،
+        // وإن غابت الوحدة الأساسية فمن القيمة المشتقة ProductDto.Barcode ثم فراغ.
+        // تعبئة الحقل في مكان واحد فقط عند تحميل السجل — لا مصدر ثانٍ يمحو المكتوب.
+        var baseUnit = _productUnits.FirstOrDefault(u => u.IsBaseUnit);
+        txtMainUnitBarcode.Text = (baseUnit is not null
+            ? baseUnit.Barcode ?? string.Empty
+            : p.Barcode ?? string.Empty).Trim();
 
         // بعد تعبئة الاسم والوحدات: تفعيل الحقول + ضبط الأزرار + تحديث شريط الوضع.
         _ApplyModeState();
@@ -652,6 +657,29 @@ public partial class frmCRUDCProductMaster : Form
                     productId, result.Error);
                 clsDialogs.Warning($"تم حفظ بيانات الصنف، لكن تعذر حفظ باركود/سعر/تكلفة/خصم الوحدة الرئيسية.\n{result.Error}");
             }
+            else
+            {
+                // قراءة مرتدة (RULE-N196): لا يُعلن حفظ الباركود إلا إذا أعادته خدمة الوحدة كما أُرسل.
+                string requested = barcode?.Trim() ?? string.Empty;
+                string stored = result.Value?.Barcode?.Trim() ?? string.Empty;
+
+                if (!string.Equals(requested, stored, StringComparison.Ordinal))
+                {
+                    string requestedText = requested.Length == 0 ? "فارغ" : requested;
+                    string storedText = stored.Length == 0 ? "فارغ" : stored;
+
+                    Log.Warning("باركود الوحدة الرئيسية لم يُحفظ للصنف {ProductId}: أُرسل «{Requested}» وعاد من الخدمة «{Stored}»",
+                        productId, requestedText, storedText);
+
+                    clsDialogs.Warning(
+                        "تم حفظ بيانات الصنف وسعر البيع والتكلفة والخصم المسموح به،\n" +
+                        "لكن باركود الوحدة الرئيسية لم يُحفظ في خدمة الوحدات.\n\n" +
+                        $"المُرسل من الشاشة: «{requestedText}»\n" +
+                        $"المحفوظ فعلياً: «{storedText}»\n\n" +
+                        "أعد إدخال الباركود من زر «الوحدات والأسعار».",
+                        "تنبيه: باركود الوحدة الرئيسية لم يُحفظ");
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -675,6 +703,9 @@ public partial class frmCRUDCProductMaster : Form
         _isBindingMainUnit = true;
         try
         {
+            // لا تُحتفظ وحدات صنف سابق عند تعذّر التحميل: الباركود والأسعار تُقرأ من وحدات الصنف الحالي وحدها.
+            _productUnits = Array.Empty<ProductUnitDto>();
+
             var result = await ProductService.GetProductUnitsAsync(productId);
 
             if (result.IsSuccess && result.Value != null && result.Value.Count > 0)
@@ -1334,6 +1365,38 @@ public partial class frmCRUDCProductMaster : Form
 
             if (resolved.IsSuccess && resolved.Value is { } res)
             {
+                // الباركود يخص **الصنف المفتوح حالياً**: لا تُعاد تعبئة النموذج —
+                // _FillFormAsync كانت تُعيد قراءة المحفوظ فتمحو الباركود المكتوب للتوّ.
+                if (_editId is int editId && res.ProductId == editId)
+                {
+                    var currentBaseUnit = _productUnits.FirstOrDefault(u => u.IsBaseUnit);
+                    if (currentBaseUnit is not null && currentBaseUnit.UnitId != res.UnitId)
+                    {
+                        // إعادة اختيار الوحدة مالك الباركود للعرض فقط، ومع حارس الربط حتى لا تُستبدل
+                        // حقول السعر/التكلفة/الخصم بأسعار وحدة أخرى غير التي يُحفظ عليها.
+                        _isBindingMainUnit = true;
+                        try
+                        {
+                            cmbMainUnit.SelectedValue = res.UnitId;
+                        }
+                        finally
+                        {
+                            _isBindingMainUnit = false;
+                        }
+                    }
+
+                    // الحقل يحتفظ بما كُتب، ويبقى التركيز فيه لإكمال الإدخال.
+                    txtMainUnitBarcode.Focus();
+                    return;
+                }
+
+                // باركود صنف آخر: لا يُبدَّل السجل إلا بتأكيد صريح، ومع الرفض يبقى المكتوب كما هو.
+                if (!clsDialogs.Confirm($"الباركود «{code}» مسجّل للصنف «{res.ProductName}». هل تريد فتح هذا الصنف للتعديل؟"))
+                {
+                    txtMainUnitBarcode.Focus();
+                    return;
+                }
+
                 Cursor = Cursors.WaitCursor;
                 await _FillFormAsync(res.ProductId);
                 _SelectGridRow(res.ProductId);
